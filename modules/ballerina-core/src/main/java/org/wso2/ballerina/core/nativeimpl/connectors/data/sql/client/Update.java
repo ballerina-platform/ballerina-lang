@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.connectors.data.sql;
+package org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client;
 
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.exception.BallerinaException;
@@ -28,28 +28,29 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.SQLConnector;
 
 /**
- * {@code updateWithGeneratedKeys} is the updateWithGeneratedKeys action implementation of the SQL Connector
+ * {@code Update} is the Update action implementation of the SQL Connector
  */
 @BallerinaAction(
         packageName = "ballerina.data.sql",
-        actionName = "updateWithGeneratedKeys",
+        actionName = "update",
         connectorName = SQLConnector.CONNECTOR_NAME,
         args = {
                 @Argument(name = "connector",
                           type = TypeEnum.CONNECTOR),
                 @Argument(name = "query",
-                          type = TypeEnum.STRING)/*, //TODO:Add Parameter [],String[]
+                          type = TypeEnum.STRING)/*, //TODO:Add Parameter struct
                 @Argument(name = "optionalProperties",
                           type = TypeEnum.MAP)*/
         },
-        returnType = { TypeEnum.INT, TypeEnum.INT }) //TODO:array of generated kyes
+        returnType = { TypeEnum.INT })
 @Component(
-        name = "action.data.sql.updateWithGeneratedKeys",
+        name = "action.data.sql.update",
         immediate = true,
         service = AbstractNativeAction.class)
-public class UpdateWithGeneratedKeys extends AbstractSQLAction {
+public class Update extends AbstractSQLAction {
     @Override
     public BValue execute(Context context) {
         BConnector bConnector = (BConnector) getArgument(context, 0);
@@ -60,6 +61,6 @@ public class UpdateWithGeneratedKeys extends AbstractSQLAction {
             throw new BallerinaException("Need to use a SQL Connector as the first argument", context);
         }
 
-        return executeUpdate(context, connector, query, true);
+        return executeUpdate(context, connector, query, false);
     }
 }

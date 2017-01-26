@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.connectors.data.sql;
+package org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +26,8 @@ import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.values.BDataframe;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.SQLConnector;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.SQLResultSetIterator;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;

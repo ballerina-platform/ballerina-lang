@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.connectors.data.sql;
+package org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client;
 
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -25,6 +25,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.SQLConnector;
 
 /**
  * {@code BatchUpdate} is the BatchUpdate action implementation of the SQL Connector

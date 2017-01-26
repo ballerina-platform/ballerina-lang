@@ -105,33 +105,6 @@
                 <version>${carbon.deployment.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.carbon.datasources</groupId>
-                <artifactId>org.wso2.carbon.datasource.core</artifactId>
-                <version>${carbon.datasources.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.datasources</groupId>
-                <artifactId>org.wso2.carbon.datasource.core.feature</artifactId>
-                <version>${carbon.datasources.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.jndi</groupId>
-                <artifactId>org.wso2.carbon.jndi</artifactId>
-                <version>${carbon.jndi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.jndi</groupId>
-                <artifactId>org.wso2.carbon.jndi.feature</artifactId>
-                <version>${carbon.jndi.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>com.zaxxer</groupId>
-                <artifactId>HikariCP</artifactId>
-                <version>${com.zaxxer.hikaricp.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.wso2.orbit.org.antlr</groupId>
                 <artifactId>antlr4-runtime</artifactId>
                 <version>${antlr4.runtime.version}</version>
@@ -229,6 +202,11 @@
                 <groupId>org.wso2.ballerina</groupId>
                 <artifactId>gson-fragment</artifactId>
                 <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>${com.zaxxer.hikaricp.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -362,11 +340,6 @@
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.deployment.export.version>5.0.0</carbon.deployment.export.version>
 
-        <carbon.datasources.version>1.1.0</carbon.datasources.version>
-        <carbon.datasources.package.import.version.range>[1.0.0, 2.0.0)</carbon.datasources.package.import.version.range>
-
-        <carbon.jndi.version>1.0.0</carbon.jndi.version>
-        <carbon.jndi.package.import.version.range>[1.0.0, 1.1.0)</carbon.jndi.package.import.version.range>
         <com.zaxxer.hikaricp.version>2.4.1</com.zaxxer.hikaricp.version>
         <com.zaxxer.hikari.import.version.range>[2.4.0,2.5.0)</com.zaxxer.hikari.import.version.range>
 

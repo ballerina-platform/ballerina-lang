@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.connectors.data.sql;
+package org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client;
 
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.exception.BallerinaException;
@@ -28,28 +28,29 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.SQLConnector;
 
 /**
- * {@code Update} is the Update action implementation of the SQL Connector
+ * {@code Call} is the Call action implementation of the SQL Connector
  */
 @BallerinaAction(
         packageName = "ballerina.data.sql",
-        actionName = "update",
+        actionName = "call",
         connectorName = SQLConnector.CONNECTOR_NAME,
         args = {
                 @Argument(name = "connector",
                           type = TypeEnum.CONNECTOR),
                 @Argument(name = "query",
-                          type = TypeEnum.STRING)/*, //TODO:Add Parameter struct
+                          type = TypeEnum.STRING)/*, //TODO:Add Parameter[]
                 @Argument(name = "optionalProperties",
                           type = TypeEnum.MAP)*/
         },
-        returnType = { TypeEnum.INT })
+        returnType = { TypeEnum.DATAFRAME })
 @Component(
-        name = "action.data.sql.update",
+        name = "action.data.sql.call",
         immediate = true,
         service = AbstractNativeAction.class)
-public class Update extends AbstractSQLAction {
+public class Call extends AbstractSQLAction {
     @Override
     public BValue execute(Context context) {
         BConnector bConnector = (BConnector) getArgument(context, 0);
@@ -60,6 +61,6 @@ public class Update extends AbstractSQLAction {
             throw new BallerinaException("Need to use a SQL Connector as the first argument", context);
         }
 
-        return executeUpdate(context, connector, query, false);
+        return executeProcedure(context, connector, query);
     }
 }
