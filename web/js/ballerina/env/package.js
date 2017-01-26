@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definition', './../ast/function-definition', './../ast/connector-definition',
-        './../ast/type-definition', './../ast/type-converter-definition', './../ast/constant-definition', './../ast/ballerina-ast-factory'],
-    function(log, _, require, EventChannel, ServiceDefinition, FunctionDefinition, ConnectorDefinition, TypeDefinition,
-             TypeConverterDefinition, ConstantDefinition, BallerinaASTFactory){
+define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definition', './../ast/function-definition',
+        './../ast/type-definition', './../ast/type-converter-definition', './../ast/constant-definition'],
+    function(log, _, require, EventChannel, ServiceDefinition, FunctionDefinition, TypeDefinition,
+             TypeConverterDefinition, ConstantDefinition){
 
         /**
          * @class Package
@@ -30,7 +30,7 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
             this.setName(_.get(args, 'name', ''));
             this.addServiceDefinitions(_.get(args, 'serviceDefinitions', []));
             this.addFunctionDefinitions(_.get(args, 'functionDefinitions', []));
-            this.addConnectorDefinitions(_.get(args, 'connectorDefinitions', []));
+            this._connectors = _.get(args, 'connectors', []);
             this.addTypeDefinitions(_.get(args, 'typeDefinitions', []));
             this.addTypeConverterDefinitions(_.get(args, 'typeConverterDefinitions', []));
             this.addConstantDefinitions(_.get(args, 'constantDefinitions', []));
@@ -206,54 +206,44 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
         };
 
         /**
-         * Add connector defs
-         * @param connectorDefinitions - can be an array of connectorDefinitions or a single connectorDefinition
+         * Add connectors
+         * @param connectors - can be an array of connectors or a single connector
          * @fires Package#connector-defs-added
          */
-        Package.prototype.addConnectorDefinitions = function(connectorDefinitions){
+        Package.prototype.addConnectors = function(connectors){
+            var self = this;
             var err;
-            if(!_.isArray(connectorDefinitions) && !(connectorDefinitions instanceof  ConnectorDefinition)){
-                err = "Adding connector def failed. Not an instance of ConnectorDefinition" + connectorDefinitions;
+            if(!_.isArray(connectors) && !(self.BallerinaEnvFactory.isConnector(connectors))){
+                err = "Adding connector failed. Not an instance of connector " + connectors;
                 log.error(err);
                 throw err;
             }
-            if(_.isArray(connectorDefinitions)){
-                if(!_.isEmpty(connectorDefinitions)){
-                    _.each(connectorDefinitions, function(connectorDefinition){
-                        if(!(connectorDefinition instanceof  ConnectorDefinition)){
-                            err = "Adding connector def failed. Not an instance of ConnectorDefinition" + connectorDefinition;
+            if(_.isArray(connectors)){
+                if(!_.isEmpty(connectors)){
+                    _.each(connectors, function(connector){
+                        if(!self.BallerinaEnvFactory.isConnector(connector)){
+                            err = "Adding connector failed. Not an instance of connector" + connector;
                             log.error(err);
                             throw err;
                         }
                     });
                 }
             }
-            this._connectorDefinitions = this._connectorDefinitions || [];
-            this._connectorDefinitions = _.concat(this._connectorDefinitions , connectorDefinitions);
+            this._connectors = _.concat(this._connectors , connectors);
             /**
-             * fired when new connector defs are added to the package.
+             * fired when new connectors are added to the package.
              * @event Package#connector-defs-added
-             * @type {[ConnectorDefinition]}
+             * @type {[Connector]}
              */
-            this.trigger("connector-defs-added", connectorDefinitions);
+            this.trigger("connector-defs-added", connectors);
         };
 
         /**
-         * Set connector defs
-         *
-         * @param connectorDefs
+         * Get all connectors
+         * @returns {[Connector]}
          */
-        Package.prototype.setConnectorDefinitions = function(connectorDefs){
-            this._connectorDefinitions = null;
-            this.addConnectorDefinitions(connectorDefs);
-        };
-
-        /**
-         *
-         * @returns {[ConnectorDefinition]}
-         */
-        Package.prototype.getConnectorDefinitions = function() {
-            return this._connectorDefinitions;
+        Package.prototype.getConnectors = function() {
+            return this._connectors;
         };
 
         /**
@@ -362,8 +352,8 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
             this.setName(jsonNode.name);
 
             _.each(jsonNode.connectors, function (connectorNode) {
-                var connector = self.BallerinaEnvFactory.createConnectorDefinition(connectorNode);
-                self.addConnectorDefinitions(connector);
+                var connector = self.BallerinaEnvFactory.createConnector(connectorNode);
+                self.addConnectors(connector);
             });
         };
 
