@@ -16,10 +16,10 @@
  * under the License.
  */
 define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-group',
-        'main_elements', 'processors', './drag-drop-manager', './../ast/ballerina-ast-factory','./initial-definitions',
+        './drag-drop-manager', './../ast/ballerina-ast-factory','./initial-definitions',
         './../search/search', './../search/import-search-adapter', 'mousetrap', 'mcustom_scroller'],
     function (require, log, $, Backbone, ToolGroupView, ToolGroup,
-              MainElements, Processors, DragDropManager, BallerinaASTFactory, initialTools, Search, ImportSearchAdapter, Mousetrap, mcustomScroller) {
+              DragDropManager, BallerinaASTFactory, initialTools, Search, ImportSearchAdapter, Mousetrap, mcustomScroller) {
 
     var ToolPalette = Backbone.View.extend({
         initialize: function (options) {
@@ -108,11 +108,6 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             
             this._toolGroups.imports.forEach(function (package){
                 self.addImport(package);
-            });
-
-            $(this._$parent_el).mCustomScrollbar({
-                theme: "minimal-dark",
-                scrollInertia: 0
             });
             return this;
         },

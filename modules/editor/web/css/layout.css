@@ -361,3 +361,10 @@ div[class*="col-sm-"] {
 .sidebar-left-separator:hover{
     cursor: ew-resize;
 }
+
+.create-new-item-wizard .container-fluid{
+    margin-top: 15px;
+}
+.create-new-item-wizard .form-horizontal {
+    max-width: none;
+}
