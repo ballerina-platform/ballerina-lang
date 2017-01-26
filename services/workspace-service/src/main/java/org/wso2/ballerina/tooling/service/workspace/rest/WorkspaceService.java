@@ -120,6 +120,24 @@ public class WorkspaceService {
             return getErrorResponse(e);
         }
     }
+
+    @GET
+    @Path("/delete")
+    @Produces("application/json")
+    public Response delete(@QueryParam("path") String pathParam, @QueryParam("type") String typeParam) {
+        try {
+            String path = new String(Base64.getDecoder().decode(pathParam)),
+                   type = new String(Base64.getDecoder().decode(typeParam));
+            workspace.delete(path, type);
+            JsonObject entity = new JsonObject();
+            entity.addProperty(STATUS, SUCCESS);
+            return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*')
+                    .type(MediaType.APPLICATION_JSON).build();
+        } catch (Exception e) {
+            logger.error("/delete service error", e);
+            return getErrorResponse(e);
+        }
+    }
     
 	@GET
 	@Path("/listFiles")

@@ -58,6 +58,7 @@ define(['require', 'jquery', 'lodash', './modal-dialog', 'alerts'], function (re
         this.setSubmitBtnText("create");
         var body = this.getBody();
         body.empty();
+        this.getSubmitBtn().unbind('click');
         this.clearError();
         var modalBody = $("<div class='container-fluid'>" +
                                 "<div class='form-group'>" +
