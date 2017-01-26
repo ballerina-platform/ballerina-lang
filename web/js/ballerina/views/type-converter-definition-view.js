@@ -16,7 +16,7 @@
  * under the License.
  */
 define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-struct-definition-view', 'ballerina/ast/ballerina-ast-factory', './canvas',
-            './point'], function (_, log, d3, BallerinaView, VariablesView, TypeStructDefinition, BallerinaASTFactory, Canvas, Point) {
+            './point','typeMapper'], function (_, log, d3, BallerinaView, VariablesView, TypeStructDefinition, BallerinaASTFactory, Canvas, Point,TypeMapper) {
     var TypeConverterDefinitionView = function (args) {
         Canvas.call(this, args);
 
@@ -38,6 +38,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             throw "Container for Type Converter definition is undefined." + this._container;
         }
         this.init();
+        TypeMapper.init(this.onAttributesConnect(),this.onAttributesDisConnect());
     };
 
     TypeConverterDefinitionView.prototype = Object.create(Canvas.prototype);
@@ -76,45 +77,6 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
 
         $("#sourceStructs").change(function() {
 
-            var person = BallerinaASTFactory.createStructDefinition();
-            person.setStructName("Person");
-            var v1 = BallerinaASTFactory.createVariableDeclaration();
-            v1.setType("string");
-            v1.setIdentifier("name");
-            var v2 = BallerinaASTFactory.createVariableDeclaration();
-            v2.setType("string");
-            v2.setIdentifier("surname");
-
-            person.addChild(v1);
-            person.addChild(v2);
-
-            var leftTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
-            leftTypeStructDef.setTypeStructName("Left Struct");
-            leftTypeStructDef.setSchema(person);
-            leftTypeStructDef.setType("SOURCE");
-            self._model.addChild(leftTypeStructDef);
-            self._model.accept(this);
-
-            var newVariableDeclaration = BallerinaASTFactory.createVariableDeclaration();
-            // Pushing new variable declaration//todo setType
-            newVariableDeclaration.setType("Person");
-            newVariableDeclaration.setIdentifier("p");
-            self._model.addChild(newVariableDeclaration);
-
-            var newReturnStatement = BallerinaASTFactory.createReturnStatement();
-            newReturnStatement.setReturnExpression("p");
-            self._model.addChild(newReturnStatement);
-
-        });
-
-//        var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
-//        var leftOp = BallerinaASTFactory.createLeftOperandExpression();
-//        var rightOp = BallerinaASTFactory.createRightOperandExpression();
-//        assignmentStmt.addChild(leftOp);
-//        assignmentStmt.addChild(rightOp);
-
-        $("#targetStructs").change(function() {
-
             var employee = BallerinaASTFactory.createStructDefinition();
             employee.setStructName("Employee");
             var v1 = BallerinaASTFactory.createVariableDeclaration();
@@ -127,12 +89,56 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             employee.addChild(v1);
             employee.addChild(v2);
 
+            var leftTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
+            //todo set person value dynamically
+            leftTypeStructDef.setTypeStructName("Person");
+            leftTypeStructDef.setIdentifier("p");
+            leftTypeStructDef.setSchema(employee);
+            leftTypeStructDef.setCategory("SOURCE");
+            self._model.addChild(leftTypeStructDef);
+            self._model.accept(this);
+
+
+        });
+
+//        var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+//        var leftOp = BallerinaASTFactory.createLeftOperandExpression();
+//        var rightOp = BallerinaASTFactory.createRightOperandExpression();
+//        assignmentStmt.addChild(leftOp);
+//        assignmentStmt.addChild(rightOp);
+
+        $("#targetStructs").change(function() {
+
+            var person = BallerinaASTFactory.createStructDefinition();
+            person.setStructName("Person");
+            var v1 = BallerinaASTFactory.createVariableDeclaration();
+            v1.setType("string");
+            v1.setIdentifier("name");
+            var v2 = BallerinaASTFactory.createVariableDeclaration();
+            v2.setType("string");
+            v2.setIdentifier("surname");
+
+            person.addChild(v1);
+            person.addChild(v2);
+
             var rightTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
-            rightTypeStructDef.setTypeStructName("Right Struct");
-            rightTypeStructDef.setSchema(employee);
-            rightTypeStructDef.setType("TARGET");
+            rightTypeStructDef.setTypeStructName("Employee");
+            rightTypeStructDef.setIdentifier("e");
+            rightTypeStructDef.setSchema(person);
+            rightTypeStructDef.setCategory("TARGET");
             self._model.addChild(rightTypeStructDef);
             self._model.accept(this);
+
+            var newVariableDeclaration = BallerinaASTFactory.createVariableDeclaration();
+            // Pushing new variable declaration//todo setType
+            newVariableDeclaration.setType("Person");
+            newVariableDeclaration.setIdentifier("p");
+            self._model.addChild(newVariableDeclaration);
+
+            var newReturnStatement = BallerinaASTFactory.createReturnStatement();
+            newReturnStatement.setReturnExpression("p");
+            self._model.addChild(newReturnStatement);
+
         });
 
         this._container = currentContainer;
@@ -184,8 +190,25 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         var self = this;
         var typeStructContainer = this.getChildContainer();
         var typeStructDefinitionView = new TypeStructDefinition({model: typeStructDefinition,container: typeStructContainer,
-                toolPalette: this.toolPalette, parentView: this});
+            toolPalette: this.toolPalette, parentView: this});
         typeStructDefinitionView.render(this.diagramRenderingContext);
+    };
+
+    /**
+     * Receives attributes connected
+     * @param connection object
+     */
+    TypeConverterDefinitionView.prototype.onAttributesConnect = function (connection) {
+
+        alert("connected");
+    };
+
+    /**
+     * Receives the attributes disconnected
+     * @param connection object
+     */
+    TypeConverterDefinitionView.prototype.onAttributesDisConnect = function (connection) {
+        alert("disconnected");
     };
 
     return TypeConverterDefinitionView;

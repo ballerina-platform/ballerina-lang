@@ -62,9 +62,9 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerin
         console.log("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ");
         console.log(diagramRenderingContext);
         var struct = this._model.getSchemaPropertyObj();
-        var type = this._model.getType();
+        var category = this._model.getCategory();
 
-        if(type == "SOURCE"){
+        if(category == "SOURCE"){
             TypeMapper.addSourceStruct(struct);
         }else{
             TypeMapper.addTargetStruct(struct);
