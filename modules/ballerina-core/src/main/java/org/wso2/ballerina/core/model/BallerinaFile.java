@@ -51,14 +51,12 @@ public class BallerinaFile implements Node {
     private List<Service> services = new ArrayList<>();
     private List<BallerinaConnector> connectorList = new ArrayList<>();
     private Function[] functions;
-    private TypeConverter[] typeConverters;
+    private TypeConvertor[] typeConvertors;
     private Function mainFunction;
     private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
     private List<ActionInvocationExpr> actionIExprList = new ArrayList<>();
     private Const[] consts;
     private BallerinaStruct[] structs;
-    //TODO: add TypeConverters
-    //TODO: add constants
 
     private int sizeOfStaticMem;
 
@@ -75,7 +73,7 @@ public class BallerinaFile implements Node {
             List<ActionInvocationExpr> actionInvocationExpr,
             Const[] consts,
             BallerinaStruct[] structs,
-            TypeConverter[] typeConverters) {
+            TypeConvertor[] typeConvertors) {
 
         this.packageName = packageName;
         this.importPackages = importPackages;
@@ -87,7 +85,7 @@ public class BallerinaFile implements Node {
         this.actionIExprList = actionInvocationExpr;
         this.consts = consts;
         this.structs = structs;
-        this.typeConverters = typeConverters;
+        this.typeConvertors = typeConvertors;
 
         packageScope = new SymScope(SymScope.Name.PACKAGE);
     }
@@ -172,8 +170,8 @@ public class BallerinaFile implements Node {
         return functions;
     }
 
-    public TypeConverter[] getTypeConverters() {
-        return typeConverters;
+    public TypeConvertor[] getTypeConvertors() {
+        return typeConvertors;
     }
 
     public Function getMainFunction() {
@@ -231,7 +229,7 @@ public class BallerinaFile implements Node {
         private List<Service> serviceList = new ArrayList<>();
         private List<BallerinaConnector> connectorList = new ArrayList<>();
         private List<Function> functionList = new ArrayList<>();
-        private List<TypeConverter> typeConverterList = new ArrayList<>();
+        private List<TypeConvertor> typeConvertorList = new ArrayList<>();
         private Function mainFunction;
 
         private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
@@ -286,8 +284,8 @@ public class BallerinaFile implements Node {
             this.constList.add(constant);
         }
 
-        public void addTypeConverter(TypeConverter typeConverter) {
-            this.typeConverterList.add(typeConverter);
+        public void addTypeConverter(TypeConvertor typeConvertor) {
+            this.typeConvertorList.add(typeConvertor);
         }
 
         public BallerinaFile build() {
@@ -306,7 +304,7 @@ public class BallerinaFile implements Node {
                     actionIExprList,
                     constList.toArray(new Const[constList.size()]),
                     structList.toArray(new BallerinaStruct[structList.size()]),
-                    typeConverterList.toArray(new TypeConverter[typeCastExprList.size()])
+                    typeConvertorList.toArray(new TypeConvertor[typeCastExprList.size()])
                     );
         }
 

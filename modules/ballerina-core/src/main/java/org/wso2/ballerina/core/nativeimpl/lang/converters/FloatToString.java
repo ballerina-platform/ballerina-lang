@@ -22,15 +22,15 @@ import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConverter;
+import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConverter;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
  * Convert Float to String
  */
-@BallerinaTypeConverter(
+@BallerinaTypeConvertor(
         packageName = "ballerina.lang.converters",
         typeConverterName = "floatToString",
         args = {@Argument(name = "value", type = TypeEnum.FLOAT)},
@@ -38,7 +38,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
         isPublic = true
 )
 
-public class FloatToString extends AbstractNativeTypeConverter {
+public class FloatToString extends AbstractNativeTypeConvertor {
 
     public BValue convert(Context ctx) {
         BFloat msg = (BFloat) getArgument(ctx, 0);

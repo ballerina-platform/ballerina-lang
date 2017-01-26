@@ -24,9 +24,9 @@ import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConverter;
+import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConverter;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayCopyOf;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayLength;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayRangeCopy;
@@ -424,16 +424,16 @@ public class BuiltInNativeConstructLoader {
     }
 
     /**
-     * Add Native TypeConverter instance to given SymScope.
+     * Add Native TypeConvertor instance to given SymScope.
      *
      * @param symScope SymScope instance.
-     * @param typeConverter TypeConverter instance.
+     * @param typeConverter TypeConvertor instance.
      */
-    private static void registerTypeConverter(SymScope symScope, AbstractNativeTypeConverter typeConverter) {
-        BallerinaTypeConverter typeConverterNameAnnotation = typeConverter.getClass()
-                .getAnnotation(BallerinaTypeConverter.class);
+    private static void registerTypeConverter(SymScope symScope, AbstractNativeTypeConvertor typeConverter) {
+        BallerinaTypeConvertor typeConverterNameAnnotation = typeConverter.getClass()
+                .getAnnotation(BallerinaTypeConvertor.class);
         if (typeConverterNameAnnotation == null) {
-            throw new BallerinaException("BallerinaTypeConverter annotation not found");
+            throw new BallerinaException("BallerinaTypeConvertor annotation not found");
         }
 
         SymbolName symbolName =

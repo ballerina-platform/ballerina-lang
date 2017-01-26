@@ -22,15 +22,15 @@ import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConverter;
+import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConverter;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
  * Convert Double to Long
  */
-@BallerinaTypeConverter(
+@BallerinaTypeConvertor(
         packageName = "ballerina.lang.converters",
         typeConverterName = "doubleToLong",
         args = {@Argument(name = "value", type = TypeEnum.DOUBLE)},
@@ -38,7 +38,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
         isPublic = true
 )
 
-public class DoubleToLong extends AbstractNativeTypeConverter {
+public class DoubleToLong extends AbstractNativeTypeConvertor {
 
     public BValue convert(Context ctx) {
         BDouble msg = (BDouble) getArgument(ctx, 0);

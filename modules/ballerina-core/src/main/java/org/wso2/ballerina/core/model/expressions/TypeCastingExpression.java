@@ -20,20 +20,20 @@ package org.wso2.ballerina.core.model.expressions;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.TypeConverter;
+import org.wso2.ballerina.core.model.TypeConvertor;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
  * Class to hold the data related to type casting expression
  */
-public class TypeCastingExpression extends AbstractExpression implements CallableUnitInvocationExpr<TypeConverter> {
+public class TypeCastingExpression extends AbstractExpression implements CallableUnitInvocationExpr<TypeConvertor> {
 
     private Expression sourceExpression;
     private BType targetType;
     private String packageName;
     private SymbolName typeConverterName;
-    private TypeConverter typeConverter;
+    private TypeConvertor typeConvertor;
 
     public TypeCastingExpression(Expression sourceExpression, BType targetType) {
         this.sourceExpression = sourceExpression;
@@ -119,8 +119,8 @@ public class TypeCastingExpression extends AbstractExpression implements Callabl
      * @return the linked {@code CallableUnit}
      */
     @Override
-    public TypeConverter getCallableUnit() {
-        return this.typeConverter;
+    public TypeConvertor getCallableUnit() {
+        return this.typeConvertor;
     }
 
     /**
@@ -129,8 +129,8 @@ public class TypeCastingExpression extends AbstractExpression implements Callabl
      * @param callableUnit type of the callable unit
      */
     @Override
-    public void setCallableUnit(TypeConverter callableUnit) {
-        this.typeConverter = callableUnit;
+    public void setCallableUnit(TypeConvertor callableUnit) {
+        this.typeConvertor = callableUnit;
 
     }
 

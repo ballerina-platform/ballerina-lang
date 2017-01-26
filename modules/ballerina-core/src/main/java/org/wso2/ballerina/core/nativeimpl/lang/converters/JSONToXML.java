@@ -27,9 +27,9 @@ import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConverter;
+import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConverter;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 import java.io.ByteArrayInputStream;
@@ -46,7 +46,7 @@ import javax.xml.stream.XMLStreamException;
 /**
  * Convert JSON to XML
  */
-@BallerinaTypeConverter(
+@BallerinaTypeConvertor(
         packageName = "ballerina.lang.converters",
         typeConverterName = "jsonToxml",
         args = {@Argument(name = "json", type = TypeEnum.JSON)},
@@ -54,7 +54,7 @@ import javax.xml.stream.XMLStreamException;
         isPublic = true
 )
 
-public class JSONToXML extends AbstractNativeTypeConverter {
+public class JSONToXML extends AbstractNativeTypeConvertor {
 
     public BValue convert(Context ctx) {
         BJSON msg = (BJSON) getArgument(ctx, 0);
