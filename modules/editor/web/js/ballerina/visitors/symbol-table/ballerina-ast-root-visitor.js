@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor', './function-definition-visitor', './../../env/connector'],
-    function(_, log, EventChannel, AbstractSymbolTableGenVisitor, FunctionDefinitionVisitor, Connector) {
+define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor', './../../env/connector'],
+    function(_, log, EventChannel, AbstractSymbolTableGenVisitor, Connector) {
 
         var BallerinaASTRootVisitor = function(package) {
             AbstractSymbolTableGenVisitor.call(this, package);
