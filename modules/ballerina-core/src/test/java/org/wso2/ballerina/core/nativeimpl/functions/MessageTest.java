@@ -140,6 +140,14 @@ public class MessageTest {
     }
 
     @Test
+    public void testEmptyString() {
+        BValue[] returns = Functions.invoke(bFile, "testEmptyString");
+        Assert.assertEquals(returns.length, 1);
+        String returnString = returns[0].stringValue();
+        Assert.assertEquals(returnString, "");
+    }
+
+    @Test
     public void testClone() {
         /*final String payload1 = "Hello World...!!! I am the Original Copy.";
         final String payload2 = "Hello World...!!! I am the Cloned Copy.";
