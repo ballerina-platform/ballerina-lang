@@ -87,7 +87,7 @@ define(['lodash', './node'], function (_, ASTNode) {
      * Remove variable declaration
      * @param variableDeclarationIdentifier
      */
-    FunctionDefinition.prototype.removeVariableDeclaration = function (variableDeclarationIdentifier) {
+    TypeConverterDefinition.prototype.removeVariableDeclaration = function (variableDeclarationIdentifier) {
         var self = this;
         // Removing the variable from the children.
         var variableDeclarationChild = _.find(this.getChildren(), function (child) {
