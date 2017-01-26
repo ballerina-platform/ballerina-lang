@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.core.nativeimpl.lang.converters;
+package org.wso2.ballerina.core.nativeimpl.lang.convertors;
 
 import de.odysseus.staxon.json.JsonXMLConfig;
 import de.odysseus.staxon.json.JsonXMLConfigBuilder;
@@ -53,7 +53,7 @@ import javax.xml.transform.stax.StAXSource;
  * Convert XML to JSON
  */
 @BallerinaTypeConvertor(
-        packageName = "ballerina.lang.converters",
+        packageName = "ballerina.lang.convertors",
         typeConverterName = "xmlTojson",
         args = {@Argument(name = "xml", type = TypeEnum.XML)},
         returnType = {@ReturnType(type = TypeEnum.JSON)},

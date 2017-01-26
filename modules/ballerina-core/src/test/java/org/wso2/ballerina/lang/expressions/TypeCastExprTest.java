@@ -43,7 +43,7 @@ public class TypeCastExprTest {
     public void setup() {
         // Add Native functions.
         SymScope symScope = GlobalScopeHolder.getInstance().getScope();
-        if (symScope.lookup(new SymbolName("ballerina.lang.converters:_xml->_json")) == null) {
+        if (symScope.lookup(new SymbolName("ballerina.lang.convertors:_xml->_json")) == null) {
             BuiltInNativeConstructLoader.loadConstructs();
         }
         bFile = ParserUtils.parseBalFile("lang/expressions/type-conversion.bal", symScope);

@@ -80,7 +80,7 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.internal.ImplicitCastingConverter;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.internal.ImplicitCastingConvertor;
 
 
 /**
@@ -130,7 +130,7 @@ public class BLangExecutor implements NodeExecutor {
             Expression lExpr = lExprs[i];
             BValue rValue = rValues[i];
             if (assignStmt.isWideningRequired()) {
-                rValue = ImplicitCastingConverter.convertWithValue(lExpr, rExpr, rValue);
+                rValue = ImplicitCastingConvertor.convertWithValue(lExpr, rExpr, rValue);
             }
 
             if (lExpr instanceof VariableRefExpr) {
@@ -406,7 +406,7 @@ public class BLangExecutor implements NodeExecutor {
         BValueType lValue = (BValueType) lExpr.execute(this);
 
         if (binaryExpr.isWideningRequired()) {
-            rValue = ImplicitCastingConverter.convertWithType(lExpr, rExpr, rValue, lValue);
+            rValue = ImplicitCastingConvertor.convertWithType(lExpr, rExpr, rValue, lValue);
         }
 
         return binaryExpr.getEvalFunc().apply(lValue, rValue);
