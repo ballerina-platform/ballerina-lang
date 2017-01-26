@@ -169,10 +169,11 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
 
             var definitions = [];
             _.each(package.getConnectors(), function (connector) {
+                var packageName = _.last(_.split(import_pkg.getName(), '.'));
                 connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration
                 connector.meta = {
                     connectorName: connector.getName(),
-                    connectorPackageName: import_pkg.getName()
+                    connectorPackageName: packageName
                 };
                 //TODO : use a generic icon
                 connector.icon = "images/tool-icons/http.svg";
@@ -185,7 +186,9 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
                         action.classNames = "tool-connector-action tool-connector-last-action";
                     }
                     action.meta = {
-                        action: action.getAction()
+                        action: action.getAction(),
+                        actionConnectorName : connector.getName(),
+                        actionPackageName : packageName
                     };
                     action.icon = "images/tool-icons/http.svg";
                     action.title = action.getTitle();
