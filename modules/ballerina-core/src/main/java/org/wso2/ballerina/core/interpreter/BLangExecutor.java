@@ -19,7 +19,6 @@ package org.wso2.ballerina.core.interpreter;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Action;
-import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFunction;
@@ -72,9 +71,6 @@ import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
-import org.wso2.carbon.messaging.CarbonMessage;
-
-import java.util.Map;
 
 
 /**
@@ -344,14 +340,7 @@ public class BLangExecutor implements NodeExecutor {
         ControlStack controlStack = bContext.getControlStack();
         BValue[] valueParams = new BValue[resource.getStackFrameSize()];
 
-        BMessage messageValue = new BMessage(bContext.getCarbonMessage());
-
-        valueParams[0] = messageValue;
-        int valueCounter = 1;
-        valueCounter = populateUriParameters(
-                resource.getParameters(), bContext.getCarbonMessage(), valueParams, valueCounter);
-
-
+        int valueCounter =  populateArgumentValues(resourceIExpr.getArgExprs(), valueParams);
         // Populate values for Connector declarations
         valueCounter = populateConnectorDclValues(resource.getConnectorDcls(), valueParams, valueCounter);
 
@@ -546,29 +535,6 @@ public class BLangExecutor implements NodeExecutor {
         return i;
     }
 
-
-    private int populateUriParameters(Parameter[] parameters, CarbonMessage message, BValue[] valueParams,
-                                      int valuesCounter) {
-
-        if (message.getProperty(
-                org.wso2.ballerina.core.runtime.Constants.RESOURCE_ARGS) != null) {
-            Map<String, String> resourceArgs = (Map<String, String>) message.getProperty(
-                    org.wso2.ballerina.core.runtime.Constants.RESOURCE_ARGS);
-
-            if (resourceArgs != null) {
-                // Skipping default message parameter
-                for (int paramIndex = 1; paramIndex < parameters.length; paramIndex++) {
-                    if (parameters[paramIndex].getAnnotations() != null) {
-                        Annotation annotation = parameters[paramIndex].getAnnotations().get(0);
-                        if (annotation != null) {
-                            valueParams[valuesCounter++] = new BString(resourceArgs.get(annotation.getValue()));
-                        }
-                    }
-                }
-            }
-        }
-        return valuesCounter;
-    }
 
     private int populateConnectorDclValues(ConnectorDcl[] connectorDcls, BValue[] valueParams, int valueCounter) {
         for (ConnectorDcl connectorDcl : connectorDcls) {

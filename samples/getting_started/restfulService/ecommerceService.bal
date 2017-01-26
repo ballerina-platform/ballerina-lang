@@ -8,13 +8,17 @@ service Ecommerce {
 
     @GET
     @Path ("/products/{productId}/{regId}")
-    resource productsInfo (message m, @PathParam("productId") string productId, @PathParam("regId") string regId, @QueryParam("geoloc") string location)  {
+    resource productsInfo (message m, @PathParam("productId") string productId, @PathParam("regId") string regId)  {
         http:HTTPConnector productsService = new http:HTTPConnector("http://localhost:9090");
         message response;
 
+        string orderId;
+
+        orderId = message:getHeader(m, "X-ORDER_ID");
+        system:println("Product ID " + orderId);
+
         system:println("Product ID " + productId);
         system:println("Reg ID " + regId);
-        system:println("Query Param " + location);
 
         response = http:HTTPConnector.get(productsService, "/productsservice", m);
 
@@ -27,6 +31,8 @@ service Ecommerce {
     resource productMgt (message m) {
         http:HTTPConnector productsService = new http:HTTPConnector("http://localhost:9090");
         message response;
+
+
         response = http:HTTPConnector.post(productsService, "/productsservice", m);
         reply response;
     }
