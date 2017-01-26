@@ -24,7 +24,9 @@ import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
+import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConverter;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConverter;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayCopyOf;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayLength;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayRangeCopy;
@@ -49,6 +51,32 @@ import org.wso2.ballerina.core.nativeimpl.lang.array.StringArrayRangeCopy;
 import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayCopyOf;
 import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayLength;
 import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayRangeCopy;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.DoubleToFloat;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.DoubleToInt;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.DoubleToLong;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.DoubleToString;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.FloatToDouble;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.FloatToInt;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.FloatToLong;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.FloatToString;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.IntToDouble;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.IntToFloat;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.IntToLong;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.IntToString;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.JSONToString;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.JSONToXML;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.LongToDouble;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.LongToFloat;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.LongToInt;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.LongToString;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.StringToDouble;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.StringToFloat;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.StringToInt;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.StringToJSON;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.StringToLong;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.StringToXML;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.XMLToJSON;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.XMLToString;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddBooleanToArray;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddBooleanToObject;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddDoubleToArray;
@@ -124,14 +152,18 @@ import org.wso2.ballerina.core.nativeimpl.lang.system.PrintBoolean;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintDouble;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintFloat;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintInt;
+import org.wso2.ballerina.core.nativeimpl.lang.system.PrintJSON;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintLong;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintString;
+import org.wso2.ballerina.core.nativeimpl.lang.system.PrintXML;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnBoolean;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnDouble;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnFloat;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnInt;
+import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnJSON;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnLong;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnString;
+import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnXML;
 import org.wso2.ballerina.core.nativeimpl.lang.xml.AddAttribute;
 import org.wso2.ballerina.core.nativeimpl.lang.xml.AddAttributeWithNamespaces;
 import org.wso2.ballerina.core.nativeimpl.lang.xml.AddElement;
@@ -167,6 +199,7 @@ public class BuiltInNativeConstructLoader {
 
     public static void loadConstructs() {
         loadNativeFunctions();
+        loadNativeTypeConverters();
     }
 
     /**
@@ -290,6 +323,10 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new PrintlnString());
         registerFunction(scope, new PrintLong());
         registerFunction(scope, new PrintString());
+        registerFunction(scope, new PrintJSON());
+        registerFunction(scope, new PrintlnJSON());
+        registerFunction(scope, new PrintXML());
+        registerFunction(scope, new PrintlnXML());
 
         // lang.xml
         registerFunction(scope, new AddAttribute());
@@ -351,4 +388,59 @@ public class BuiltInNativeConstructLoader {
         symScope.insert(symbolName, symbol);
     }
 
+    /**
+     * Load native type converters
+     */
+    private static void loadNativeTypeConverters() {
+        SymScope scope = GlobalScopeHolder.getInstance().getScope();
+
+        registerTypeConverter(scope, new JSONToXML());
+        registerTypeConverter(scope, new XMLToJSON());
+        registerTypeConverter(scope, new DoubleToFloat());
+        registerTypeConverter(scope, new DoubleToLong());
+        registerTypeConverter(scope, new DoubleToInt());
+        registerTypeConverter(scope, new FloatToLong());
+        registerTypeConverter(scope, new FloatToInt());
+        registerTypeConverter(scope, new LongToInt());
+        registerTypeConverter(scope, new DoubleToString());
+        registerTypeConverter(scope, new FloatToString());
+        registerTypeConverter(scope, new LongToString());
+        registerTypeConverter(scope, new IntToString());
+        registerTypeConverter(scope, new JSONToString());
+        registerTypeConverter(scope, new XMLToString());
+        registerTypeConverter(scope, new StringToDouble());
+        registerTypeConverter(scope, new StringToFloat());
+        registerTypeConverter(scope, new StringToLong());
+        registerTypeConverter(scope, new StringToInt());
+        registerTypeConverter(scope, new StringToJSON());
+        registerTypeConverter(scope, new StringToXML());
+        registerTypeConverter(scope, new IntToLong());
+        registerTypeConverter(scope, new IntToFloat());
+        registerTypeConverter(scope, new IntToDouble());
+        registerTypeConverter(scope, new LongToFloat());
+        registerTypeConverter(scope, new LongToDouble());
+        registerTypeConverter(scope, new FloatToDouble());
+
+    }
+
+    /**
+     * Add Native TypeConverter instance to given SymScope.
+     *
+     * @param symScope SymScope instance.
+     * @param typeConverter TypeConverter instance.
+     */
+    private static void registerTypeConverter(SymScope symScope, AbstractNativeTypeConverter typeConverter) {
+        BallerinaTypeConverter typeConverterNameAnnotation = typeConverter.getClass()
+                .getAnnotation(BallerinaTypeConverter.class);
+        if (typeConverterNameAnnotation == null) {
+            throw new BallerinaException("BallerinaTypeConverter annotation not found");
+        }
+
+        SymbolName symbolName =
+                LangModelUtils.getTypeConverterSymName(typeConverter.getPackageName(), typeConverter.getParameters(),
+                        typeConverter.getReturnParameters());
+        Symbol symbol = new Symbol(typeConverter);
+        symScope.insert(symbolName, symbol);
+
+    }
 }

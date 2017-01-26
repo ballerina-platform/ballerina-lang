@@ -38,6 +38,7 @@ public class BinaryExpression extends UnaryExpression {
 
     protected Expression lExpr;
     protected BiFunction<BValueType, BValueType, BValueType> evalFuncNewNew;
+    private boolean isWideningRequired;
     
     public BinaryExpression(Expression lExpr, Operator op, Expression rExpr, Position location) {
         super(op, rExpr, location);
@@ -58,6 +59,15 @@ public class BinaryExpression extends UnaryExpression {
 
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this);
+    }
+
+
+    public boolean isWideningRequired() {
+        return isWideningRequired;
+    }
+
+    public void setWideningRequired(boolean wideningRequired) {
+        isWideningRequired = wideningRequired;
     }
 
 }

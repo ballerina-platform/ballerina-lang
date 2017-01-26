@@ -29,6 +29,7 @@ import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.interpreter.SymTable;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BTypeConverter;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -48,6 +49,7 @@ import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.TypeConverter;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
@@ -80,6 +82,7 @@ import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
+import org.wso2.ballerina.core.model.expressions.TypeCastingExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
@@ -148,6 +151,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             addConnectorSymbol(connector);
             Arrays.asList(connector.getActions()).forEach(this::addActionSymbol);
         });
+        Arrays.asList(bFile.getTypeConverters()).forEach(this::addTypeConverterSymbol);
     }
 
     @Override
@@ -177,6 +181,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (Function function : bFile.getFunctions()) {
             BallerinaFunction bFunction = (BallerinaFunction) function;
             bFunction.accept(this);
+        }
+
+        for (TypeConverter tConverter : bFile.getTypeConverters()) {
+            BTypeConverter typeConverter = (BTypeConverter) tConverter;
+            typeConverter.accept(this);
         }
 
         int setSizeOfStaticMem = staticMemAddrOffset + 1;
@@ -369,6 +378,56 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
+    public void visit(BTypeConverter typeConverter) {
+        // Open a new symbol scope
+        openScope(SymScope.Name.FUNCTION);
+        currentCallableUnit = typeConverter;
+
+        // Check whether the return statement is missing. Ignore if the function does not return anything.
+        // TODO Define proper error message codes
+        //checkForMissingReturnStmt(function, "missing return statement at end of function");
+
+        for (Parameter parameter : typeConverter.getParameters()) {
+            stackFrameOffset++;
+            visit(parameter);
+        }
+
+        for (VariableDcl variableDcl : typeConverter.getVariableDcls()) {
+            stackFrameOffset++;
+            visit(variableDcl);
+        }
+
+        for (Parameter parameter : typeConverter.getReturnParameters()) {
+            // Check whether these are unnamed set of return types.
+            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
+            if (parameter.getName() == null) {
+                break;
+            }
+
+            stackFrameOffset++;
+            visit(parameter);
+        }
+
+        BlockStmt blockStmt = typeConverter.getCallableUnitBody();
+        blockStmt.accept(this);
+
+        // Here we need to calculate size of the BValue array which will be created in the stack frame
+        // Values in the stack frame are stored in the following order.
+        // -- Parameter values --
+        // -- Local var values --
+        // -- Temp values      --
+        // -- Return values    --
+        // These temp values are results of intermediate expression evaluations.
+        int sizeOfStackFrame = stackFrameOffset + 1;
+        typeConverter.setStackFrameSize(sizeOfStackFrame);
+
+        // Close the symbol scope
+        stackFrameOffset = -1;
+        currentCallableUnit = null;
+        closeScope();
+    }
+
+    @Override
     public void visit(BallerinaAction action) {
         // Open a new symbol scope
         openScope(SymScope.Name.ACTION);
@@ -498,7 +557,8 @@ public class SemanticAnalyzer implements NodeVisitor {
      * Check whether the Type is a valid one.
      * A valid type can be either a primitive type, or a user defined type.
      * 
-     * @param variableDcl   Variable Declaration
+     * @param type   type name
+     * @param location source location
      */
     private void validateType(BType type, Position location) {
         if (type instanceof BArrayType) {
@@ -594,10 +654,15 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // TODO Remove the MAP related logic when type casting is implemented
-        if (lExpr.getType() == null || rExpr.getType() == null || ((lExpr.getType() != BTypes.MAP_TYPE) && 
-                (rExpr.getType() != BTypes.MAP_TYPE) && (!lExpr.getType().equals(rExpr.getType())))) {
-            throw new SemanticException(getLocationStr(lExpr.getLocation()) + "incompatible types: " + rExpr.getType() 
-                + " cannot be converted to " + lExpr.getType());
+        if ((lExpr.getType() != BTypes.MAP_TYPE) && (rExpr.getType() != BTypes.MAP_TYPE) &&
+                (lExpr.getType() != rExpr.getType())) {
+            if (checkWideningPossible(lExpr.getType(), rExpr.getType())) {
+                assignStmt.setWideningRequired(true);
+            } else {
+                throw new SemanticException(lExpr.getLocation().getFileName() + ":"
+                        + lExpr.getLocation().getLine() + ": incompatible types: " + rExpr.getType() +
+                        " cannot be converted to " + lExpr.getType());
+            }
         }
     }
     
@@ -1279,6 +1344,11 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
+    public void visit(TypeCastingExpression typeCastingExpression) {
+        linkTypeConverter(typeCastingExpression);
+    }
+
+    @Override
     public void visit(LocalVarLocation localVarLocation) {
 
     }
@@ -1356,6 +1426,21 @@ public class SemanticAnalyzer implements NodeVisitor {
         symbolTable.insert(symbolName, symbol);
     }
 
+    private void addTypeConverterSymbol(TypeConverter typeConverter) {
+        SymbolName symbolName = LangModelUtils.getTypeConverterSymName(typeConverter.getPackageName(),
+                typeConverter.getParameters(),
+                typeConverter.getReturnParameters());
+        typeConverter.setSymbolName(symbolName);
+
+        if (symbolTable.lookup(symbolName) != null) {
+            throw new SemanticException(typeConverter.getLocation().getFileName() + ":" + typeConverter.getLocation()
+                    .getLine() + ": duplicate typeConvertor '" + typeConverter.getTypeConverterName() + "'");
+        }
+
+        Symbol symbol = new Symbol(typeConverter);
+        symbolTable.insert(symbolName, symbol);
+    }
+
     private void addActionSymbol(BallerinaAction action) {
         SymbolName actionSymbolName = action.getSymbolName();
         BType[] paramTypes = LangModelUtils.getTypesOfParams(action.getParameters());
@@ -1405,9 +1490,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression lExpr = binaryExpr.getLExpr();
 
         if (lExpr.getType() != rExpr.getType()) {
-            throw new SemanticException(binaryExpr.getLocation().getFileName() + ":" +
-                    binaryExpr.getLocation().getLine() +
-                    ": incompatible types in binary expression: " + lExpr.getType() + " vs " + rExpr.getType());
+            if (checkWideningPossible(lExpr.getType(), rExpr.getType())) {
+                binaryExpr.setWideningRequired(true);
+            } else {
+                throw new SemanticException(binaryExpr.getLocation().getFileName() + ":" +
+                        binaryExpr.getLocation().getLine() +
+                        ": incompatible types in binary expression: " + lExpr.getType() + " vs " + rExpr.getType());
+            }
         }
 
         return lExpr.getType();
@@ -1829,4 +1918,46 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
         return fieldSymbol;
     }
+
+    private void linkTypeConverter(TypeCastingExpression typeCastingExpression) {
+        // Evaluate the expression and set the type
+        typeCastingExpression.getSourceExpression().accept(this);
+        // Check on the same package
+        SymbolName symbolName = new SymbolName(currentPkg + ":" + "_" + typeCastingExpression.
+                getSourceExpression().getType() + "->" + "_" + typeCastingExpression.getTargetType());
+        typeCastingExpression.setTypeConverterName(symbolName);
+        Symbol symbol = symbolTable.lookup(symbolName);
+
+        if (symbol == null) {
+            // Check on the global scope for native type converters
+            symbolName = LangModelUtils.getTypeConverterSymNameWithoutPackage
+                    (typeCastingExpression.getSourceExpression().getType(), typeCastingExpression.getTargetType());
+            typeCastingExpression.setTypeConverterName(symbolName);
+            symbol = symbolTable.lookup(symbolName);
+        }
+
+        if (symbol == null) {
+                throw new LinkerException(typeCastingExpression.getLocation().getFileName() + ":" +
+                        typeCastingExpression.getLocation().getLine() +
+                        ": type converter cannot be found for '" + typeCastingExpression.getSourceExpression().getType()
+                        + "to " + typeCastingExpression.getTargetType() + "'");
+        }
+
+        // Link
+        TypeConverter typeConverter = symbol.getTypeConverter();
+        typeCastingExpression.setCallableUnit(typeConverter);
+
+    }
+
+    // Function to check whether implicit widening (casting) is possible for assignment statement
+    private boolean checkWideningPossible(BType lhsType, BType rhsType) {
+        if ((rhsType == BTypes.INT_TYPE && (lhsType == BTypes.LONG_TYPE || lhsType == BTypes.FLOAT_TYPE
+                || lhsType == BTypes.DOUBLE_TYPE)) || (rhsType == BTypes.LONG_TYPE && (lhsType == BTypes.FLOAT_TYPE
+                || lhsType == BTypes.DOUBLE_TYPE)) || (rhsType == BTypes.FLOAT_TYPE && lhsType == BTypes.DOUBLE_TYPE)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
