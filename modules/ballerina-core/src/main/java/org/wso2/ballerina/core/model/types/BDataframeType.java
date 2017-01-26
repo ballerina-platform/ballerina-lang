@@ -22,6 +22,7 @@ import org.wso2.ballerina.core.model.values.BDataframe;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.EmptyDataIterator;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -40,8 +41,9 @@ public class BDataframeType extends BType {
         super(typeName, BDataframe.class);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <V extends BValue> V getDefaultValue() {
-        return (V) new BDataframe(new EmptyDataIterator(), new HashMap<>());
+        return (V) new BDataframe(new EmptyDataIterator(), new HashMap<>(0), new ArrayList<>(0));
     }
 }
