@@ -15,14 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view',  './function-definition-view',
-        './../ast/ballerina-ast-root', './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view',
-        './../visitors/source-gen/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
-        './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer', './connector-definition-view',
-        './struct-definition-view', './../env/environment'],
+define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view',  './function-definition-view', './../ast/ballerina-ast-root',
+        './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view',
+        './../visitors/source-gen/ballerina-ast-root-visitor','./../visitors/symbol-table/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
+        './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer', './connector-definition-view', './struct-definition-view',
+        './../env/package', './../env/package-scoped-environment', './../env/environment'],
     function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory,
-              PackageDefinition, SourceView, SourceGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer,
-              ConnectorDefinitionView, StructDefinitionView, BallerinaEnvironment) {
+              PackageDefinition, SourceView, SourceGenVisitor, SymbolTableGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer,
+              ConnectorDefinitionView, StructDefinitionView, Package, PackageScopedEnvironment, BallerinaEnvironment) {
 
         /**
          * The view to represent a ballerina file editor which is an AST visitor.
@@ -242,12 +242,16 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             // init undo manager
             this._undoManager = new UndoManager();
+
+            this._environment =  new PackageScopedEnvironment();
+            this._package = this._environment.getCurrentPackage();
+
         };
 
         BallerinaFileEditor.prototype.importPackage = function(packageName){
             if (!_.isEmpty(packageName)) {
                 log.debug("Adding new import");
-                var package = BallerinaEnvironment.searchPackage(packageName, []);
+                var package = this._environment.searchPackage(packageName, []);
                 if (_.isUndefined(package)) {
                     log.error("Unable to find the package.");
                     return;
@@ -269,8 +273,16 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this.diagramRenderingContext = diagramRenderingContext;
             //TODO remove this for adding filecontext to the map
             this.diagramRenderingContext.ballerinaFileEditor = this;
+
+            var symbolTableGenVisitor = new SymbolTableGenVisitor(this._package);
+            this._model.accept(symbolTableGenVisitor);
+            var package = symbolTableGenVisitor.getPackage();
+
+            this.toolPalette._toolGroups.imports.push(package);
+
             // render tool palette
             this.toolPalette.render();
+            this.toolPalette.addImport(this._package);
 
             this._model.accept(this);
 
