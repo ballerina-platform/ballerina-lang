@@ -19,7 +19,6 @@ connector BasicAuthConnector (string userName, string password) {
     	message response;
 
     	encodedBasicAuthHeader = constructBasicAuthHeader (request, encodedBasicAuthHeader, userName, password);
-
     	response = http:HTTPConnector.get(httpConnectorEP, path, request);
 
     	return response;
@@ -27,10 +26,9 @@ connector BasicAuthConnector (string userName, string password) {
 
     action post(BasicAuthConnector basicAuthConnector, string path, message request) (message) {
 
-	    message response;
+	message response;
 	   	 
     	encodedBasicAuthHeader = constructBasicAuthHeader (request, encodedBasicAuthHeader, userName, password);
-
     	response = http:HTTPConnector.post(httpConnectorEP, path, request);
 
     	return response;
@@ -41,7 +39,6 @@ connector BasicAuthConnector (string userName, string password) {
     	message response;
 
     	encodedBasicAuthHeader = constructBasicAuthHeader (request, encodedBasicAuthHeader, userName, password);
-
     	response = http:HTTPConnector.put(httpConnectorEP, path, request);
 
     	return response;
@@ -52,7 +49,6 @@ connector BasicAuthConnector (string userName, string password) {
     	message response;
 
     	encodedBasicAuthHeader = constructBasicAuthHeader (request, encodedBasicAuthHeader, userName, password);
-  	 
     	response = http:HTTPConnector.delete(httpConnectorEP, path, request);
 
     	return response;
