@@ -2472,60 +2472,57 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // simpleType
-  //     |   withFullSchemaType
+  // withFullSchemaType
   //     |   withSchemaIdType
   //     |   withScheamURLType
+  //     |   simpleType
   public static boolean typeConverterTypes(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "typeConverterTypes")) return false;
     if (!nextTokenIs(b, IDENTIFIER)) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = simpleType(b, l + 1);
-    if (!r) r = withFullSchemaType(b, l + 1);
+    r = withFullSchemaType(b, l + 1);
     if (!r) r = withSchemaIdType(b, l + 1);
     if (!r) r = withScheamURLType(b, l + 1);
+    if (!r) r = simpleType(b, l + 1);
     exit_section_(b, m, TYPE_CONVERTER_TYPES, r);
     return r;
   }
 
   /* ********************************************************** */
-  // '{' variableDeclaration* statement+ '}'
+  // variableDeclaration* statement+
   public static boolean typeConvertorBody(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "typeConvertorBody")) return false;
-    if (!nextTokenIs(b, LBRACE)) return false;
     boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, LBRACE);
+    Marker m = enter_section_(b, l, _NONE_, TYPE_CONVERTOR_BODY, "<type convertor body>");
+    r = typeConvertorBody_0(b, l + 1);
     r = r && typeConvertorBody_1(b, l + 1);
-    r = r && typeConvertorBody_2(b, l + 1);
-    r = r && consumeToken(b, RBRACE);
-    exit_section_(b, m, TYPE_CONVERTOR_BODY, r);
+    exit_section_(b, l, m, r, false, null);
     return r;
   }
 
   // variableDeclaration*
-  private static boolean typeConvertorBody_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "typeConvertorBody_1")) return false;
+  private static boolean typeConvertorBody_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "typeConvertorBody_0")) return false;
     int c = current_position_(b);
     while (true) {
       if (!variableDeclaration(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "typeConvertorBody_1", c)) break;
+      if (!empty_element_parsed_guard_(b, "typeConvertorBody_0", c)) break;
       c = current_position_(b);
     }
     return true;
   }
 
   // statement+
-  private static boolean typeConvertorBody_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "typeConvertorBody_2")) return false;
+  private static boolean typeConvertorBody_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "typeConvertorBody_1")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = statement(b, l + 1);
     int c = current_position_(b);
     while (r) {
       if (!statement(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "typeConvertorBody_2", c)) break;
+      if (!empty_element_parsed_guard_(b, "typeConvertorBody_1", c)) break;
       c = current_position_(b);
     }
     exit_section_(b, m, null, r);
@@ -2533,7 +2530,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // 'typeconvertor' Identifier '(' typeConverterTypes Identifier ')' '('typeConverterTypes')' typeConvertorBody
+  // 'typeconvertor' Identifier '(' typeConverterTypes Identifier ')' '('typeConverterTypes')' '{' typeConvertorBody '}'
   public static boolean typeConvertorDefinition(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "typeConvertorDefinition")) return false;
     if (!nextTokenIs(b, TYPECONVERTOR)) return false;
@@ -2543,8 +2540,9 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     r = r && typeConverterTypes(b, l + 1);
     r = r && consumeTokens(b, 0, IDENTIFIER, RPAREN, LPAREN);
     r = r && typeConverterTypes(b, l + 1);
-    r = r && consumeToken(b, RPAREN);
+    r = r && consumeTokens(b, 0, RPAREN, LBRACE);
     r = r && typeConvertorBody(b, l + 1);
+    r = r && consumeToken(b, RBRACE);
     exit_section_(b, m, TYPE_CONVERTOR_DEFINITION, r);
     return r;
   }

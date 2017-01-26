@@ -175,10 +175,10 @@ structDefinitionBody
     ::=   '{' (typeName Identifier ';')+ '}'
 
 typeConvertorDefinition
-    ::=   'typeconvertor' Identifier '(' typeConverterTypes Identifier ')' '('typeConverterTypes')' typeConvertorBody
+    ::=   'typeconvertor' Identifier '(' typeConverterTypes Identifier ')' '('typeConverterTypes')' '{' typeConvertorBody '}'
 
 typeConvertorBody
-    ::=   '{' variableDeclaration* statement+ '}'
+    ::=    variableDeclaration* statement+
 
 constantDefinition
     ::=   'const' typeName Identifier '=' literalValue ';'
@@ -206,10 +206,10 @@ qualifiedTypeName
     ::=   packageName ':' unqualifiedTypeName
 
 typeConverterTypes
-    ::=   simpleType
-    |   withFullSchemaType
+    ::=   withFullSchemaType
     |   withSchemaIdType
     |   withScheamURLType
+    |   simpleType
 
 unqualifiedTypeName
     ::=   simpleTypeArray
