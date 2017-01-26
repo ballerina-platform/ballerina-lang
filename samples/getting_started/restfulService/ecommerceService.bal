@@ -8,17 +8,16 @@ service Ecommerce {
 
     @GET
     @Path ("/products/{productId}/{regId}")
-    resource productsInfo (message m, @PathParam("productId") string productId, @PathParam("regId") string regId)  {
+    resource productsInfo (message m, @UIParam("location") @PathParam("productId") string prdID, @PathParam("regId") string rID)  {
         http:HTTPConnector productsService = new http:HTTPConnector("http://localhost:9090");
         message response;
-
         string orderId;
 
         orderId = message:getHeader(m, "X-ORDER_ID");
-        system:println("Product ID " + orderId);
+        system:println("Order ID " + orderId);
 
-        system:println("Product ID " + productId);
-        system:println("Reg ID " + regId);
+        system:println("Product ID " + prdID);
+        system:println("Reg ID " + rID);
 
         response = http:HTTPConnector.get(productsService, "/productsservice", m);
 

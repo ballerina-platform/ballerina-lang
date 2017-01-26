@@ -247,10 +247,11 @@ public class BLangModelBuilder {
         BType paramType = typeQueue.remove();
         Parameter param = new Parameter(paramType, paramNameId, sourceLocation);
 
+        // Annotation list is maintained for each parameter
         if (!annotationListStack.isEmpty() && !annotationListStack.peek().isEmpty()) {
-            Annotation paramAnnotation = annotationListStack.peek().get(0);
-            annotationListStack.peek().remove(0);
-            param.addAnnotation(paramAnnotation);
+            annotationListStack.peek().forEach(param::addAnnotation);
+            // Clear all added annotations for the current parameter.
+            annotationListStack.peek().clear();
         }
 
         if (currentCUBuilder != null) {
