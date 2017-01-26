@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.nativeimpl.connectors.data.sql;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.DataIterator;
+import org.wso2.ballerina.core.model.values.BValue;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -27,15 +28,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * This iterator mainly wrap Java ResultSet.
+ * This iterator mainly wrap java.sql.ResultSet.
  */
-public class SQLResultSetIterator implements DataIterator {
+public class SQLDataIterator implements DataIterator {
 
     private Connection conn;
     private Statement stmt;
     private ResultSet rs;
 
-    public SQLResultSetIterator(Connection conn, Statement stmt, ResultSet rs) throws SQLException {
+    public SQLDataIterator(Connection conn, Statement stmt, ResultSet rs) throws SQLException {
         this.conn = conn;
         this.stmt = stmt;
         this.rs = rs;
@@ -155,6 +156,16 @@ public class SQLResultSetIterator implements DataIterator {
         } catch (SQLException e) {
             throw new BallerinaException("Unable to perform getBoolean: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public BValue get(int columnIndex, String type) {
+        return null;
+    }
+
+    @Override
+    public BValue get(String columnName, String type) {
+        return null;
     }
 
     @Override

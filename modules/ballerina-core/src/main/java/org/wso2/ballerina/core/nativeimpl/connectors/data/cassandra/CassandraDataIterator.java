@@ -22,6 +22,7 @@ import com.datastax.driver.core.Row;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.DataIterator;
+import org.wso2.ballerina.core.model.values.BValue;
 
 import java.util.Iterator;
 
@@ -128,6 +129,16 @@ public class CassandraDataIterator implements DataIterator {
     public boolean getBoolean(String columnName) {
         // TODO Auto-generated method stub
         return false;
+    }
+
+    @Override
+    public BValue get(int columnIndex, String type) {
+        return null;
+    }
+
+    @Override
+    public BValue get(String columnName, String type) {
+        return null;
     }
 
 }

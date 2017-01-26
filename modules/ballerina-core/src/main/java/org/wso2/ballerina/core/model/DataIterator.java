@@ -18,6 +18,8 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.model.values.BValue;
+
 /**
  *  This interface represents an data iterator operations.
  */
@@ -50,4 +52,8 @@ public interface DataIterator {
     boolean getBoolean(int columnIndex);
 
     boolean getBoolean(String columnName);
+
+    BValue get(int columnIndex, String type);
+
+    BValue get(String columnName, String type);
 }
