@@ -45,7 +45,7 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code NodeExecutor} responsible for executing a Ballerina applications by traversing statements and expressions
+ * {@code NodeExecutor} responsible for executing a Ballerina applications by traversing statements and expressions.
  *
  * @since 0.8.0
  */

@@ -49,7 +49,15 @@
 .headingRectIcon {
     fill: url(#resourceIcon);
 }
+
+.actionHeadingRectIcon {
+    fill: url(#connectorActionIcon);
+}
 .resourceHeadingIconHolder{
+    fill:#000000;
+}
+
+.connectorActionHeadingIconHolder{
     fill:#000000;
 }
 
@@ -110,6 +118,13 @@
 }
 
 .resource-content {
+    fill: #008000;
+    fill-opacity: 0;
+    stroke-width: 1;
+    stroke: #000000;
+}
+
+.connector-action-content {
     fill: #008000;
     fill-opacity: 0;
     stroke-width: 1;

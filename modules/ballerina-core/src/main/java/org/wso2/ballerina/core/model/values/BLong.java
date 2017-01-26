@@ -18,7 +18,7 @@
 package org.wso2.ballerina.core.model.values;
 
 /**
- * The {@code BLong} represents a long value in Ballerina
+ * The {@code BLong} represents a long value in Ballerina.
  *
  * @since 0.8.0
  */

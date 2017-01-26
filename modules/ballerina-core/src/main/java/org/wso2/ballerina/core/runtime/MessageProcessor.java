@@ -30,7 +30,7 @@ import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.TransportSender;
 
 /**
- * {@code MessageProcessor} is the interface between the inbound transport and the Ballerina engine
+ * {@code MessageProcessor} is the interface between the inbound transport and the Ballerina engine.
  */
 public class MessageProcessor implements CarbonMessageProcessor {
 

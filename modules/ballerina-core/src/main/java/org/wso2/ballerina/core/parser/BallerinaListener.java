@@ -758,6 +758,18 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code structFieldIdentifier}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void enterStructFieldIdentifier(BallerinaParser.StructFieldIdentifierContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code structFieldIdentifier}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void exitStructFieldIdentifier(BallerinaParser.StructFieldIdentifierContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code simpleVariableIdentifier}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
 	 * @param ctx the parse tree
@@ -781,18 +793,6 @@ public interface BallerinaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitMapArrayVariableIdentifier(BallerinaParser.MapArrayVariableIdentifierContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code structFieldIdentifier}
-	 * labeled alternative in {@link BallerinaParser#variableReference}.
-	 * @param ctx the parse tree
-	 */
-	void enterStructFieldIdentifier(BallerinaParser.StructFieldIdentifierContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code structFieldIdentifier}
-	 * labeled alternative in {@link BallerinaParser#variableReference}.
-	 * @param ctx the parse tree
-	 */
-	void exitStructFieldIdentifier(BallerinaParser.StructFieldIdentifierContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#argumentList}.
 	 * @param ctx the parse tree

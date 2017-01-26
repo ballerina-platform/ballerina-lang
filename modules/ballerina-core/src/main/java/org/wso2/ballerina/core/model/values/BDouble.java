@@ -18,7 +18,7 @@
 package org.wso2.ballerina.core.model.values;
 
 /**
- * The {@code BDouble} represents a double value in Ballerina
+ * The {@code BDouble} represents a double value in Ballerina.
  *
  * @since 0.8.0
  */

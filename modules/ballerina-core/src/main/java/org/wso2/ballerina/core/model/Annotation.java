@@ -61,7 +61,7 @@ public class Annotation implements Node {
     }
 
     /**
-     * Get name of the annotation
+     * Get name of the annotation.
      *
      * @return name of the annotation
      */
@@ -74,7 +74,7 @@ public class Annotation implements Node {
     }
 
     /**
-     * Get the value of the annotation
+     * Get the value of the annotation.
      *
      * @return value of the annotation
      */
@@ -83,7 +83,7 @@ public class Annotation implements Node {
     }
 
     /**
-     * Get Key-Value pairs in the annotation
+     * Get Key-Value pairs in the annotation.
      *
      * @return all Key-Value pairs
      */
@@ -92,7 +92,7 @@ public class Annotation implements Node {
     }
 
     /**
-     * Get the value of the Key-Value pair
+     * Get the value of the Key-Value pair.
      *
      * @param key key
      * @return value of the Key-Value pair
@@ -107,7 +107,7 @@ public class Annotation implements Node {
     }
 
     /**
-     * Builds an Annotation
+     * Builds an Annotation.
      */
     public static class AnnotationBuilder {
 

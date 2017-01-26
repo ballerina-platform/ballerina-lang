@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
 /**
- * Test array initializer expression
+ * Test array initializer expression.
  *
  * @since 0.8.0
  */

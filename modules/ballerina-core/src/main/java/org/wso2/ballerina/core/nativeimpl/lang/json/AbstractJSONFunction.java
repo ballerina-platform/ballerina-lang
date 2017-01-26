@@ -36,7 +36,7 @@ import java.util.Set;
 public abstract class AbstractJSONFunction extends AbstractNativeFunction {
 
     /**
-     * Create a JSON function
+     * Create a JSON function.
      */
     public AbstractJSONFunction() {
         super();

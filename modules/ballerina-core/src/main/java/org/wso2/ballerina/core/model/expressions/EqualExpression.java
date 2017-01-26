@@ -27,7 +27,7 @@ import java.util.function.BiFunction;
 import static org.wso2.ballerina.core.model.Operator.EQUAL;
 
 /**
- * {@code EqualExpression} represents a equal expression(==) in Ballerina
+ * {@code EqualExpression} represents a equal expression(==) in Ballerina.
  *
  * @since 0.8.0
  */

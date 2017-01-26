@@ -67,7 +67,7 @@ public class BallerinaConnector extends PositionAwareNode implements Connector ,
     }
 
     /**
-     * Get the name of the connector
+     * Get the name of the connector.
      *
      * @return name of the connector
      */
@@ -76,7 +76,7 @@ public class BallerinaConnector extends PositionAwareNode implements Connector ,
     }
 
     /**
-     * Get the package qualified name
+     * Get the package qualified name.
      *
      * @return package qualified name
      */
@@ -85,7 +85,7 @@ public class BallerinaConnector extends PositionAwareNode implements Connector ,
     }
 
     /**
-     * Get {@code SymbolName} for Ballerina connector
+     * Get {@code SymbolName} for Ballerina connector.
      *
      * @return Symbol name of Ballerina connector
      */
@@ -94,7 +94,7 @@ public class BallerinaConnector extends PositionAwareNode implements Connector ,
     }
 
     /**
-     * Get all the Annotations associated with a Connector
+     * Get all the Annotations associated with a Connector.
      *
      * @return list of Annotations
      */
@@ -108,7 +108,7 @@ public class BallerinaConnector extends PositionAwareNode implements Connector ,
     }
 
     /**
-     * Get all Connections declared within the Connector scope
+     * Get all Connections declared within the Connector scope.
      *
      * @return list of all the Connections belongs to a Service
      */
@@ -117,7 +117,7 @@ public class BallerinaConnector extends PositionAwareNode implements Connector ,
     }
 
     /**
-     * Get all the variables declared in the scope of Connector
+     * Get all the variables declared in the scope of Connector.
      *
      * @return list of all Connector scoped variables
      */
@@ -126,7 +126,7 @@ public class BallerinaConnector extends PositionAwareNode implements Connector ,
     }
 
     /**
-     * Get all the Actions can be performed in the Connector
+     * Get all the Actions can be performed in the Connector.
      *
      * @return array of all Actions
      */

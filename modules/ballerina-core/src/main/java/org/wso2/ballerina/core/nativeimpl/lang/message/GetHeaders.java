@@ -28,7 +28,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
- * Get the Headers of the Message
+ * Get the Headers of the Message.
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.message",
