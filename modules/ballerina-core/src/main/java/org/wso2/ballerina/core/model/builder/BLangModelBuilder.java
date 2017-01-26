@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.ParserException;
 import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.BTypeConverter;
+import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -615,7 +615,7 @@ public class BLangModelBuilder {
         currentCUBuilder.setName(new SymbolName(name, pkgName));
         currentCUBuilder.setPublic(isPublic);
         currentCUBuilder.setPosition(sourceLocation);
-        BTypeConverter typeConverter = currentCUBuilder.buildTypeConverter();
+        BTypeConvertor typeConverter = currentCUBuilder.buildTypeConverter();
         typeConverter.setRelativePosition(position);
         bFileBuilder.addTypeConverter(typeConverter);
         currentCUBuilder = null;

@@ -22,22 +22,22 @@ import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConverter;
+import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConverter;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
  * Convert String to Integer
  */
-@BallerinaTypeConverter(
+@BallerinaTypeConvertor(
         packageName = "ballerina.lang.converters",
         typeConverterName = "stringToInt",
         args = {@Argument(name = "value", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.INT)},
         isPublic = true
 )
-public class StringToInt extends AbstractNativeTypeConverter {
+public class StringToInt extends AbstractNativeTypeConvertor {
 
     public BValue convert(Context ctx) {
         BString msg = (BString) getArgument(ctx, 0);

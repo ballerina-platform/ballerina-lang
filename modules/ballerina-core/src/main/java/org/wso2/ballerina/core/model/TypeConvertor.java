@@ -18,9 +18,9 @@
 package org.wso2.ballerina.core.model;
 
 /**
- * {@code {@link TypeConverter}} represents any Ballerina TypeConverter.
+ * {@code {@link TypeConvertor }} represents any Ballerina TypeConvertor.
  */
-public interface TypeConverter extends CallableUnit {
+public interface TypeConvertor extends CallableUnit {
 
     // TODO Refactor typeConverter name related methods
     String getTypeConverterName();

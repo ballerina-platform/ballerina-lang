@@ -22,23 +22,23 @@ import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConverter;
+import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConverter;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 
 /**
  * Convert String to XML
  */
-@BallerinaTypeConverter(
+@BallerinaTypeConvertor(
         packageName = "ballerina.lang.converters",
         typeConverterName = "stringToXML",
         args = {@Argument(name = "value", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.XML)},
         isPublic = true
 )
-public class StringToXML extends AbstractNativeTypeConverter {
+public class StringToXML extends AbstractNativeTypeConvertor {
 
     public BValue convert(Context ctx) {
         BString msg = (BString) getArgument(ctx, 0);

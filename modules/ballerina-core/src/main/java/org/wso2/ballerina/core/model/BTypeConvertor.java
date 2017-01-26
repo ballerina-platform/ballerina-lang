@@ -20,9 +20,9 @@ package org.wso2.ballerina.core.model;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 
 /**
- * Class to represent TypeConverter written in ballerina
+ * Class to represent TypeConvertor written in ballerina
  */
-public class BTypeConverter extends PositionAwareNode implements TypeConverter, Node {
+public class BTypeConvertor extends PositionAwareNode implements TypeConvertor, Node {
 
     private SymbolName symbolName;
     private String typeConverterName;
@@ -38,15 +38,15 @@ public class BTypeConverter extends PositionAwareNode implements TypeConverter, 
     private boolean publicFunc;
     private int stackFrameSize;
 
-    public BTypeConverter(SymbolName name,
-                             Position position,
-                             Boolean isPublic,
-                             Annotation[] annotations,
-                             Parameter[] parameters,
-                             Parameter[] returnParams,
-                             VariableDcl[] variableDcls,
-                             Worker[] workers,
-                             BlockStmt typeConverterBody) {
+    public BTypeConvertor(SymbolName name,
+                          Position position,
+                          Boolean isPublic,
+                          Annotation[] annotations,
+                          Parameter[] parameters,
+                          Parameter[] returnParams,
+                          VariableDcl[] variableDcls,
+                          Worker[] workers,
+                          BlockStmt typeConverterBody) {
 
         this.symbolName = name;
         this.typeConverterName = symbolName.getName();
@@ -110,16 +110,16 @@ public class BTypeConverter extends PositionAwareNode implements TypeConverter, 
     }
 
     /**
-     * Get all the variableDcls declared in the scope of BallerinaTypeConverter
+     * Get all the variableDcls declared in the scope of BallerinaTypeConvertor
      *
-     * @return list of all BallerinaTypeConverter scoped variableDcls
+     * @return list of all BallerinaTypeConvertor scoped variableDcls
      */
     public VariableDcl[] getVariableDcls() {
         return variableDcls;
     }
 
     /**
-     * Get all the Workers associated with a BallerinaTypeConverter
+     * Get all the Workers associated with a BallerinaTypeConvertor
      *
      * @return list of Workers
      */

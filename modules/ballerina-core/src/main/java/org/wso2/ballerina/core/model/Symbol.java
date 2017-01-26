@@ -34,7 +34,7 @@ public class Symbol {
     private MemoryLocation location;
 
     private Function function;
-    private TypeConverter typeConverter;
+    private TypeConvertor typeConvertor;
     private Action action;
     private Connector connector;
     private BallerinaStruct struct;
@@ -49,8 +49,8 @@ public class Symbol {
         this.function = function;
     }
 
-    public Symbol(TypeConverter typeConverter) {
-        this.typeConverter = typeConverter;
+    public Symbol(TypeConvertor typeConvertor) {
+        this.typeConvertor = typeConvertor;
     }
 
     public Symbol(Action action) {
@@ -81,8 +81,8 @@ public class Symbol {
         return function;
     }
 
-    public TypeConverter getTypeConverter() {
-        return typeConverter;
+    public TypeConvertor getTypeConvertor() {
+        return typeConvertor;
     }
 
     public Action getAction() {

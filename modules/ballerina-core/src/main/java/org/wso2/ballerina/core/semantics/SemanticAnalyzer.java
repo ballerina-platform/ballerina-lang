@@ -29,7 +29,7 @@ import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.interpreter.SymTable;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.BTypeConverter;
+import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -49,7 +49,7 @@ import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.TypeConverter;
+import org.wso2.ballerina.core.model.TypeConvertor;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
@@ -151,7 +151,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             addConnectorSymbol(connector);
             Arrays.asList(connector.getActions()).forEach(this::addActionSymbol);
         });
-        Arrays.asList(bFile.getTypeConverters()).forEach(this::addTypeConverterSymbol);
+        Arrays.asList(bFile.getTypeConvertors()).forEach(this::addTypeConverterSymbol);
     }
 
     @Override
@@ -183,8 +183,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             bFunction.accept(this);
         }
 
-        for (TypeConverter tConverter : bFile.getTypeConverters()) {
-            BTypeConverter typeConverter = (BTypeConverter) tConverter;
+        for (TypeConvertor tConverter : bFile.getTypeConvertors()) {
+            BTypeConvertor typeConverter = (BTypeConvertor) tConverter;
             typeConverter.accept(this);
         }
 
@@ -378,7 +378,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(BTypeConverter typeConverter) {
+    public void visit(BTypeConvertor typeConverter) {
         // Open a new symbol scope
         openScope(SymScope.Name.FUNCTION);
         currentCallableUnit = typeConverter;
@@ -655,7 +655,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // TODO Remove the MAP related logic when type casting is implemented
         if ((lExpr.getType() != BTypes.MAP_TYPE) && (rExpr.getType() != BTypes.MAP_TYPE) &&
-                (lExpr.getType() != rExpr.getType())) {
+                (!lExpr.getType().equals(rExpr.getType()))) {
             if (checkWideningPossible(lExpr.getType(), rExpr.getType())) {
                 assignStmt.setWideningRequired(true);
             } else {
@@ -1426,18 +1426,18 @@ public class SemanticAnalyzer implements NodeVisitor {
         symbolTable.insert(symbolName, symbol);
     }
 
-    private void addTypeConverterSymbol(TypeConverter typeConverter) {
-        SymbolName symbolName = LangModelUtils.getTypeConverterSymName(typeConverter.getPackageName(),
-                typeConverter.getParameters(),
-                typeConverter.getReturnParameters());
-        typeConverter.setSymbolName(symbolName);
+    private void addTypeConverterSymbol(TypeConvertor typeConvertor) {
+        SymbolName symbolName = LangModelUtils.getTypeConverterSymName(typeConvertor.getPackageName(),
+                typeConvertor.getParameters(),
+                typeConvertor.getReturnParameters());
+        typeConvertor.setSymbolName(symbolName);
 
         if (symbolTable.lookup(symbolName) != null) {
-            throw new SemanticException(typeConverter.getLocation().getFileName() + ":" + typeConverter.getLocation()
-                    .getLine() + ": duplicate typeConvertor '" + typeConverter.getTypeConverterName() + "'");
+            throw new SemanticException(typeConvertor.getLocation().getFileName() + ":" + typeConvertor.getLocation()
+                    .getLine() + ": duplicate typeConvertor '" + typeConvertor.getTypeConverterName() + "'");
         }
 
-        Symbol symbol = new Symbol(typeConverter);
+        Symbol symbol = new Symbol(typeConvertor);
         symbolTable.insert(symbolName, symbol);
     }
 
@@ -1944,8 +1944,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // Link
-        TypeConverter typeConverter = symbol.getTypeConverter();
-        typeCastingExpression.setCallableUnit(typeConverter);
+        TypeConvertor typeConvertor = symbol.getTypeConvertor();
+        typeCastingExpression.setCallableUnit(typeConvertor);
 
     }
 

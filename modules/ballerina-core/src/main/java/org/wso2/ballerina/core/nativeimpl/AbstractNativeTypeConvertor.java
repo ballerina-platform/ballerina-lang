@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.TypeConverter;
+import org.wso2.ballerina.core.model.TypeConvertor;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.types.BType;
@@ -34,7 +34,7 @@ import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConverter;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.Utils;
 import org.wso2.ballerina.core.nativeimpl.exceptions.ArgumentOutOfRangeException;
 import org.wso2.ballerina.core.nativeimpl.exceptions.MalformedEntryException;
@@ -45,13 +45,13 @@ import java.util.List;
 
 
 /**
- * {@code {@link AbstractNativeTypeConverter}} represents a Abstract implementation of Native Ballerina TypeConverter.
+ * {@code {@link AbstractNativeTypeConvertor }} represents a Abstract implementation of Native Ballerina TypeConvertor.
  */
-public abstract class AbstractNativeTypeConverter implements NativeConstruct, TypeConverter {
+public abstract class AbstractNativeTypeConvertor implements NativeConstruct, TypeConvertor {
 
     /* Void RETURN */
     public static final BValue[] VOID_RETURN = new BValue[0];
-    private static final Logger log = LoggerFactory.getLogger(AbstractNativeTypeConverter.class);
+    private static final Logger log = LoggerFactory.getLogger(AbstractNativeTypeConvertor.class);
     private String packageName, typeConverterName;
     private SymbolName symbolName;
     private List<Annotation> annotations;
@@ -61,7 +61,7 @@ public abstract class AbstractNativeTypeConverter implements NativeConstruct, Ty
     private List<Const> constants;
     private int stackFrameSize;
 
-    public AbstractNativeTypeConverter() {
+    public AbstractNativeTypeConvertor() {
         parameters = new ArrayList<>();
         returnParams = new ArrayList<>();
         annotations = new ArrayList<>();
@@ -73,7 +73,7 @@ public abstract class AbstractNativeTypeConverter implements NativeConstruct, Ty
      * Build Native typeConverter Model using Java annotation.
      */
     private void buildModel() {
-        BallerinaTypeConverter typeConverter = this.getClass().getAnnotation(BallerinaTypeConverter.class);
+        BallerinaTypeConvertor typeConverter = this.getClass().getAnnotation(BallerinaTypeConvertor.class);
         packageName = typeConverter.packageName();
         typeConverterName = typeConverter.typeConverterName();
 
@@ -163,9 +163,9 @@ public abstract class AbstractNativeTypeConverter implements NativeConstruct, Ty
     }
 
     /**
-     * Get all the variableDcls declared in the scope of BallerinaTypeConverter
+     * Get all the variableDcls declared in the scope of BallerinaTypeConvertor
      *
-     * @return list of all BallerinaTypeConverter scoped variableDcls
+     * @return list of all BallerinaTypeConvertor scoped variableDcls
      */
     public VariableDcl[] getVariableDcls() {
         return new VariableDcl[0];
@@ -195,7 +195,7 @@ public abstract class AbstractNativeTypeConverter implements NativeConstruct, Ty
     }
 
     /**
-     * Where Native TypeConverter logic is implemented.
+     * Where Native TypeConvertor logic is implemented.
      *
      * @param context Current Context instance
      * @return Native typeConverter return BValue array

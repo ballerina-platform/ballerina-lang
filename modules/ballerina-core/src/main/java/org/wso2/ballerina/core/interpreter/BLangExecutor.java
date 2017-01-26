@@ -19,7 +19,7 @@ package org.wso2.ballerina.core.interpreter;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Action;
-import org.wso2.ballerina.core.model.BTypeConverter;
+import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFunction;
@@ -32,7 +32,7 @@ import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.TypeConverter;
+import org.wso2.ballerina.core.model.TypeConvertor;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
@@ -77,7 +77,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConverter;
+import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 import org.wso2.ballerina.core.nativeimpl.lang.converters.internal.ImplicitCastingConverter;
@@ -498,21 +498,21 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public BValue visit(TypeCastingExpression typeCastingExpression) {
-        TypeConverter typeConverter = typeCastingExpression.getCallableUnit();
+        TypeConvertor typeConvertor = typeCastingExpression.getCallableUnit();
 
-        int sizeOfValueArray = typeConverter.getStackFrameSize();
+        int sizeOfValueArray = typeConvertor.getStackFrameSize();
         BValue[] localVals = new BValue[sizeOfValueArray];
 
         // Get values for all the function arguments
         int valueCounter = populateArgumentValues(typeCastingExpression.getArgExprs(), localVals);
 
         // Create default values for all declared local variables
-        for (VariableDcl variableDcl : typeConverter.getVariableDcls()) {
+        for (VariableDcl variableDcl : typeConvertor.getVariableDcls()) {
             localVals[valueCounter] = variableDcl.getType().getDefaultValue();
             valueCounter++;
         }
 
-        for (Parameter returnParam : typeConverter.getReturnParameters()) {
+        for (Parameter returnParam : typeConvertor.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
             if (returnParam.getName() == null) {
@@ -536,11 +536,11 @@ public class BLangExecutor implements NodeExecutor {
         controlStack.pushFrame(stackFrame);
 
         // Check whether we are invoking a native function or not.
-        if (typeConverter instanceof BTypeConverter) {
-            BTypeConverter bTypeConverter = (BTypeConverter) typeConverter;
+        if (typeConvertor instanceof BTypeConvertor) {
+            BTypeConvertor bTypeConverter = (BTypeConvertor) typeConvertor;
             bTypeConverter.getCallableUnitBody().execute(this);
         } else {
-            AbstractNativeTypeConverter nativeTypeConverter = (AbstractNativeTypeConverter) typeConverter;
+            AbstractNativeTypeConvertor nativeTypeConverter = (AbstractNativeTypeConvertor) typeConvertor;
             nativeTypeConverter.convertNative(bContext);
         }
 
