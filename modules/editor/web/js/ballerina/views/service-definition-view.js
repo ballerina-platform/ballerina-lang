@@ -217,6 +217,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
             this.setServiceContainerWidth(this._container.width());
             AnnotationView.createAnnotationPane(annotationProperties);
+            $(this._container).height($(this._container).find('svg').attr('height'));
         };
 
         /**
