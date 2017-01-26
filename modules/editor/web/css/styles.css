@@ -205,6 +205,8 @@ ol#breadcrumbList {
 .statement-text {
     text-anchor: middle;
     dominant-baseline: central;
+    width:120px;
+    max-width:250px:
 }
 
 /*//////////////////////////////////////////////////*/
@@ -490,7 +492,7 @@ button.variable-list {
 }
 
 .property-pane-form-wrapper {
-    width: 175px;
+    width: 265px;
     max-height: 250px;
     border: 1px solid #cdcdcd;
     border-top: 2px solid #7b7b7b;
