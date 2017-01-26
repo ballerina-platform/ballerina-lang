@@ -184,6 +184,9 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
                     if ((index + 1 ) == collection.length) {
                         action.classNames = "tool-connector-action tool-connector-last-action";
                     }
+                    action.meta = {
+                        action: action.getAction()
+                    };
                     action.icon = "images/tool-icons/http.svg";
                     action.title = action.getTitle();
                     action.nodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression
