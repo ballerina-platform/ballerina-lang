@@ -21,6 +21,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.containers.ContainerUtil;
+import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
