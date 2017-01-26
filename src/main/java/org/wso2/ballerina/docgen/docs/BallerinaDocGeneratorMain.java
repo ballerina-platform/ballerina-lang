@@ -21,6 +21,7 @@ package org.wso2.ballerina.docgen.docs;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
+import org.wso2.ballerina.docgen.docs.html.HtmlDocumentWriter;
 import org.wso2.ballerina.docgen.docs.model.BallerinaPackageDoc;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocUtils;
 
@@ -45,6 +46,10 @@ public class BallerinaDocGeneratorMain {
             out.println(entry.getValue().toString());
         }
 
+        String outputPath = System.getProperty("user.dir") + File.separator + "src/main/api-docs";
+        HtmlDocumentWriter htmlDocumentWriter =
+                new HtmlDocumentWriter("src/main/templates/package.vm", outputPath);
+        htmlDocumentWriter.write(docsMap.values());
     }
     
     /**
@@ -83,7 +88,7 @@ public class BallerinaDocGeneratorMain {
         for (File file : ballerinaFiles) {
             BallerinaFile balFile = BallerinaDocUtils.buildLangModel(file.toPath());
             if (balFile == null) {
-                out.println(String.format("Docerina: Invalid Ballerina File: %s.", file.getAbsolutePath()));
+                out.println(String.format("Error! Invalid ballerina file: %s", file.getAbsolutePath()));
                 continue;
             }
             SymScope globalScope = GlobalScopeHolder.getInstance().getScope();
@@ -91,6 +96,6 @@ public class BallerinaDocGeneratorMain {
             docgen.visit(balFile);
         }
 
-        return dataHolder.getBallerinaDocsMap();
+        return dataHolder.getBallerinaPackageDocsMap();
     }
 }

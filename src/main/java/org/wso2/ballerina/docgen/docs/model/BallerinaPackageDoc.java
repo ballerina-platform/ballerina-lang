@@ -27,7 +27,7 @@ import java.util.List;
 public class BallerinaPackageDoc {
 
     private String name;
-    private List<BallerinaFunctionDoc> ballerinaFunctionDocs;
+    private List<BallerinaFunctionDoc> functionDocs;
 
     /**
      * Constructor
@@ -35,7 +35,7 @@ public class BallerinaPackageDoc {
      */
     public BallerinaPackageDoc(String name) {
         this.name = name;
-        ballerinaFunctionDocs = new ArrayList<BallerinaFunctionDoc>();
+        functionDocs = new ArrayList<BallerinaFunctionDoc>();
     }
 
     /**
@@ -50,37 +50,36 @@ public class BallerinaPackageDoc {
      * Add a ballerina function document to the package
      * @param ballerinaFunctionDoc Ballerina function document
      */
-    public void addBallerinaFunctionDoc(BallerinaFunctionDoc ballerinaFunctionDoc) {
-        ballerinaFunctionDocs.add(ballerinaFunctionDoc);
+    public void addFunctionDoc(BallerinaFunctionDoc ballerinaFunctionDoc) {
+        functionDocs.add(ballerinaFunctionDoc);
     }
 
     /**
      * Add a list of ballerina function documents to the package
      * @param ballerinaFunctionDocs Ballerina function documents
      */
-    public void addBallerinaFunctionDocs(List<BallerinaFunctionDoc> ballerinaFunctionDocs) {
-        this.ballerinaFunctionDocs.addAll(ballerinaFunctionDocs);
+    public void addFunctionDocs(List<BallerinaFunctionDoc> ballerinaFunctionDocs) {
+        this.functionDocs.addAll(ballerinaFunctionDocs);
     }
 
     /**
      * Remove ballerina function document
      * @param ballerinaFunctionDoc Ballerina function document
      */
-    public void removeBallerinaFunctionDocs(BallerinaFunctionDoc ballerinaFunctionDoc) {
-        ballerinaFunctionDocs.remove(ballerinaFunctionDoc);
+    public void removeFunctionDocs(BallerinaFunctionDoc ballerinaFunctionDoc) {
+        functionDocs.remove(ballerinaFunctionDoc);
     }
 
     /**
      * Get ballerina function documents.
      * @return
      */
-    public List<BallerinaFunctionDoc> getBallerinaFunctionDocs() {
-        return ballerinaFunctionDocs;
+    public List<BallerinaFunctionDoc> getFunctionDocs() {
+        return functionDocs;
     }
 
     @Override
     public String toString() {
-        return "BallerinaPackageDoc [name=" + name
-                + ", ballerinaFunctionDocs=" + ballerinaFunctionDocs + "]";
+        return "BallerinaPackageDoc [name=" + name + ", functionDocs=" + functionDocs + "]";
     }
 }
