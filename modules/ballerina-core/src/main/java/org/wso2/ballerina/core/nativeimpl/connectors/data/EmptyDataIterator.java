@@ -16,9 +16,10 @@
  *  under the License.
  */
 
-package org.wso2.ballerina.core.data;
+package org.wso2.ballerina.core.nativeimpl.connectors.data;
 
 import org.wso2.ballerina.core.model.DataIterator;
+import org.wso2.ballerina.core.model.values.BValue;
 
 /**
  * Empty iterator for default usage. This will represent empty dataframe object in ballerina
@@ -92,5 +93,15 @@ public class EmptyDataIterator implements DataIterator {
     @Override
     public boolean getBoolean(String columnName) {
         return false;
+    }
+
+    @Override
+    public BValue get(int columnIndex, String type) {
+        return null;
+    }
+
+    @Override
+    public BValue get(String columnName, String type) {
+        return null;
     }
 }
