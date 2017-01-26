@@ -335,6 +335,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             var staticHeights = childView.getGapBetweenResources();
             this._totalHeight = this._totalHeight + childView.getBoundingBox().h() + staticHeights;
             this.setServiceContainerHeight(this._totalHeight);
+            $("#" + this._model.id).height($("#" + this._model.id).find("svg").attr('height'));
         };
 
         ServiceDefinitionView.prototype.canVisitConnectorDeclaration = function (connectorDeclaration) {
