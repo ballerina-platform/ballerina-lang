@@ -31,7 +31,7 @@ connector Salesforce (string url) {
     string sessionID;
     string serviceUrl;
 
-    action addAccount (Salesforce s, string msg1, string msg2, string soapAction, string url) (message response) {
+    action getUserInfo (Salesforce s, string msg1, string msg2, string soapAction, string url) (message response) {
         message backendServiceReq;
         xml payload;
         system:println(sessionID);
@@ -79,7 +79,7 @@ function main (string[] args) {
     message sfResponse;
 
     login = sample:Salesforce.login(soapConnector, args[0], args[1], "https://login.salesforce.com/services/Soap/u/27.0");
-    sfResponse = sample:Salesforce.addAccount(soapConnector, args[2], args[3], "urn:partner.soap.sforce.com/Soap/describeGlobalRequest", "https://ap2.salesforce.com/services/Soap/u/27.0/");
+    sfResponse = sample:Salesforce.getUserInfo(soapConnector, args[2], args[3], "urn:partner.soap.sforce.com/Soap/describeGlobalRequest", "https://ap2.salesforce.com/services/Soap/u/27.0/");
 
     system:println(xml:toString(message:getXmlPayload(sfResponse)));
 }
