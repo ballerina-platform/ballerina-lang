@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.core.nativeimpl.lang.converters;
+package org.wso2.ballerina.core.nativeimpl.lang.convertors;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
@@ -31,7 +31,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
  * Convert Double to String
  */
 @BallerinaTypeConvertor(
-        packageName = "ballerina.lang.converters",
+        packageName = "ballerina.lang.convertors",
         typeConverterName = "doubleToString",
         args = {@Argument(name = "value", type = TypeEnum.DOUBLE)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},

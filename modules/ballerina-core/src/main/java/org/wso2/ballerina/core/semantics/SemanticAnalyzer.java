@@ -1935,7 +1935,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Symbol symbol = symbolTable.lookup(symbolName);
 
         if (symbol == null) {
-            // Check on the global scope for native type converters
+            // Check on the global scope for native type convertors
             symbolName = LangModelUtils.getTypeConverterSymNameWithoutPackage
                     (typeCastingExpression.getSourceExpression().getType(), typeCastingExpression.getTargetType());
             typeCastingExpression.setTypeConverterName(symbolName);

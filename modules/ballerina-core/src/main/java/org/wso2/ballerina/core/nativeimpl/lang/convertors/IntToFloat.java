@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.core.nativeimpl.lang.converters;
+package org.wso2.ballerina.core.nativeimpl.lang.convertors;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BFloat;
-import org.wso2.ballerina.core.model.values.BLong;
+import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
@@ -28,21 +28,21 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
- * Convert Long to Float
+ * Convert Integer to Float
  */
 @BallerinaTypeConvertor(
-        packageName = "ballerina.lang.converters",
-        typeConverterName = "longToFloat",
-        args = {@Argument(name = "value", type = TypeEnum.LONG)},
+        packageName = "ballerina.lang.convertors",
+        typeConverterName = "intToFloat",
+        args = {@Argument(name = "value", type = TypeEnum.INT)},
         returnType = {@ReturnType(type = TypeEnum.FLOAT)},
         isPublic = true
 )
 
-public class LongToFloat extends AbstractNativeTypeConvertor {
+public class IntToFloat extends AbstractNativeTypeConvertor {
 
     public BValue convert(Context ctx) {
-        BLong msg = (BLong) getArgument(ctx, 0);
-        BFloat result = new BFloat(msg.longValue());
+        BInteger msg = (BInteger) getArgument(ctx, 0);
+        BFloat result = new BFloat(msg.intValue());
         return result;
     }
 }

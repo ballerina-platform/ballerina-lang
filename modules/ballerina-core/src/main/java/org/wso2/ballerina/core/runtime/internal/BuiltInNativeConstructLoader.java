@@ -51,32 +51,32 @@ import org.wso2.ballerina.core.nativeimpl.lang.array.StringArrayRangeCopy;
 import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayCopyOf;
 import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayLength;
 import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayRangeCopy;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.DoubleToFloat;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.DoubleToInt;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.DoubleToLong;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.DoubleToString;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.FloatToDouble;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.FloatToInt;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.FloatToLong;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.FloatToString;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.IntToDouble;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.IntToFloat;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.IntToLong;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.IntToString;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.JSONToString;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.JSONToXML;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.LongToDouble;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.LongToFloat;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.LongToInt;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.LongToString;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.StringToDouble;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.StringToFloat;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.StringToInt;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.StringToJSON;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.StringToLong;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.StringToXML;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.XMLToJSON;
-import org.wso2.ballerina.core.nativeimpl.lang.converters.XMLToString;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.DoubleToFloat;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.DoubleToInt;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.DoubleToLong;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.DoubleToString;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.FloatToDouble;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.FloatToInt;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.FloatToLong;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.FloatToString;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.IntToDouble;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.IntToFloat;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.IntToLong;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.IntToString;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.JSONToString;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.JSONToXML;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.LongToDouble;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.LongToFloat;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.LongToInt;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.LongToString;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.StringToDouble;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.StringToFloat;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.StringToInt;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.StringToJSON;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.StringToLong;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.StringToXML;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.XMLToJSON;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.XMLToString;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddBooleanToArray;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddBooleanToObject;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddDoubleToArray;
@@ -389,7 +389,7 @@ public class BuiltInNativeConstructLoader {
     }
 
     /**
-     * Load native type converters
+     * Load native type convertors
      */
     private static void loadNativeTypeConverters() {
         SymScope scope = GlobalScopeHolder.getInstance().getScope();

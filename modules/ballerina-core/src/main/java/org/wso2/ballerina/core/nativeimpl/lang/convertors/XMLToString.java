@@ -15,34 +15,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.core.nativeimpl.lang.converters;
+package org.wso2.ballerina.core.nativeimpl.lang.convertors;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.values.BFloat;
-import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
- * Convert Float to Integer
+ * Convert JSON to String
  */
 @BallerinaTypeConvertor(
-        packageName = "ballerina.lang.converters",
-        typeConverterName = "floatToInt",
-        args = {@Argument(name = "value", type = TypeEnum.FLOAT)},
-        returnType = {@ReturnType(type = TypeEnum.INT)},
+        packageName = "ballerina.lang.convertors",
+        typeConverterName = "xmlToString",
+        args = {@Argument(name = "value", type = TypeEnum.XML)},
+        returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
 
-public class FloatToInt extends AbstractNativeTypeConvertor {
+public class XMLToString extends AbstractNativeTypeConvertor {
 
     public BValue convert(Context ctx) {
-        BFloat msg = (BFloat) getArgument(ctx, 0);
-        BInteger result = new BInteger(msg.intValue());
+        BXML msg = (BXML) getArgument(ctx, 0);
+        BString result = new BString(msg.stringValue());
         return result;
     }
 }
+

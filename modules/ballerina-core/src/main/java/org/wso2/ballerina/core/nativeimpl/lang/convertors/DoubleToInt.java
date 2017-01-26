@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.core.nativeimpl.lang.converters;
+package org.wso2.ballerina.core.nativeimpl.lang.convertors;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.values.BFloat;
-import org.wso2.ballerina.core.model.values.BString;
+import org.wso2.ballerina.core.model.values.BDouble;
+import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
@@ -28,21 +28,22 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
- * Convert Float to String
+ * Convert Double to Integer
  */
 @BallerinaTypeConvertor(
-        packageName = "ballerina.lang.converters",
-        typeConverterName = "floatToString",
-        args = {@Argument(name = "value", type = TypeEnum.FLOAT)},
-        returnType = {@ReturnType(type = TypeEnum.STRING)},
+        packageName = "ballerina.lang.convertors",
+        typeConverterName = "doubleToInt",
+        args = {@Argument(name = "value", type = TypeEnum.DOUBLE)},
+        returnType = {@ReturnType(type = TypeEnum.INT)},
         isPublic = true
 )
 
-public class FloatToString extends AbstractNativeTypeConvertor {
+public class DoubleToInt extends AbstractNativeTypeConvertor {
 
     public BValue convert(Context ctx) {
-        BFloat msg = (BFloat) getArgument(ctx, 0);
-        BString result = new BString(msg.stringValue());
+        BDouble msg = (BDouble) getArgument(ctx, 0);
+        BInteger result = new BInteger(msg.intValue());
         return result;
     }
 }
+

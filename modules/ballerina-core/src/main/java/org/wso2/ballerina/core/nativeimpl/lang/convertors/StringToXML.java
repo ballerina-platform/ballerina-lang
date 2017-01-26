@@ -15,34 +15,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.core.nativeimpl.lang.converters;
+package org.wso2.ballerina.core.nativeimpl.lang.convertors;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
+
 /**
- * Convert String to Float
+ * Convert String to XML
  */
 @BallerinaTypeConvertor(
-        packageName = "ballerina.lang.converters",
-        typeConverterName = "stringToLong",
+        packageName = "ballerina.lang.convertors",
+        typeConverterName = "stringToXML",
         args = {@Argument(name = "value", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.LONG)},
+        returnType = {@ReturnType(type = TypeEnum.XML)},
         isPublic = true
 )
-public class StringToLong extends AbstractNativeTypeConvertor {
+public class StringToXML extends AbstractNativeTypeConvertor {
 
     public BValue convert(Context ctx) {
         BString msg = (BString) getArgument(ctx, 0);
-        BLong result = new BLong(msg.longValue());
+        BXML result = new BXML(msg.stringValue());
         return result;
     }
-}
 
+}

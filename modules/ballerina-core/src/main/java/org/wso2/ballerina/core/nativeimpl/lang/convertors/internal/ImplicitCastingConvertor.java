@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.core.nativeimpl.lang.converters.internal;
+package org.wso2.ballerina.core.nativeimpl.lang.convertors.internal;
 
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.types.BTypes;
@@ -29,7 +29,7 @@ import org.wso2.ballerina.core.model.values.BValueType;
 /**
  * Type converter for implicit casting operations
  */
-public class ImplicitCastingConverter {
+public class ImplicitCastingConvertor {
 
     public static BValue convertWithValue(Expression lExpr, Expression rExpr, BValue rValue) {
         BValue resultValue = null;

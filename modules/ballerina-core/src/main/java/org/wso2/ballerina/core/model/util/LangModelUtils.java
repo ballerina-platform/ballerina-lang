@@ -65,7 +65,7 @@ public class LangModelUtils {
 
     public static SymbolName getTypeConverterSymNameWithoutPackage(BType source,
                                                      BType target) {
-        return new SymbolName("ballerina.lang.converters:" + "_" + source + "->" + "_" + target);
+        return new SymbolName("ballerina.lang.convertors:" + "_" + source + "->" + "_" + target);
     }
 
     public static SymbolName getConnectorSymName(String identifier, String pkgPath) {
