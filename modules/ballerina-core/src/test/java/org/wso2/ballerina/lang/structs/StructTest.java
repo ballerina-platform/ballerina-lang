@@ -163,4 +163,11 @@ public class StructTest {
     public void testUndeclaredFieldAccess() {
         ParserUtils.parseBalFile("lang/structs/undeclared-attribute-access.bal");
     }
+    
+    @Test(description = "Test defining a struct constant",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "struct-constants.bal:3: constant cannot be of type 'Person'.")
+    public void testStructConstant() {
+        ParserUtils.parseBalFile("lang/structs/struct-constants.bal");
+    }
 }
