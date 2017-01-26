@@ -172,7 +172,7 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
                 connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration
                 connector.meta = {
                     connectorName: connector.getName(),
-                    connectorPackageName: import_pkg.getName()
+                    connectorPackageName: connector.getId()
                 };
                 //TODO : use a generic icon
                 connector.icon = "images/tool-icons/http.svg";
