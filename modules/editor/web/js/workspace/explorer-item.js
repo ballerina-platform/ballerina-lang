@@ -114,12 +114,32 @@ define(['lodash', 'log', 'file_browser', 'event_channel', 'theme_wso2'],
                         self._fileBrowser.refresh(node);
                     }
                 };
+                items.deleteFolder = {
+                    label: "delete",
+                    action: function () {
+                        self.application.commandManager.dispatch("remove-from-disk",
+                            {
+                                type: "folder",
+                                path: node.id,
+                                onSuccess: function(){
+                                    self._fileBrowser.refresh(node.parent);
+                                }
+                            });
+                    }
+                }
             }
             else if(_.isEqual('file', node.type)){
                 items.deleteFile = {
-                    label: "remove",
+                    label: "delete",
                     action: function () {
-                        self.application.commandManager.dispatch("remove-file", node.id);
+                        self.application.commandManager.dispatch("remove-from-disk",
+                            {
+                                type: "file",
+                                path: node.id,
+                                onSuccess: function(){
+                                    self._fileBrowser.refresh(node.parent);
+                                }
+                            });
                     }
                 }
             }
