@@ -50,7 +50,7 @@ public class StructTypeConvertorTest {
     public void testStructConvertor() {
         BValue[] returns = Functions.invoke(bFile, "testStructConvertor");
         Assert.assertTrue(returns[0] instanceof BStruct);
-        BStruct bStruct = (BStruct)returns[0];
+        BStruct bStruct = (BStruct) returns[0];
         final String expectedName = "Jack";
         Assert.assertEquals(bStruct.getValue(0).stringValue(), expectedName);
         Assert.assertTrue(bStruct.getValue(1) instanceof BMap);
