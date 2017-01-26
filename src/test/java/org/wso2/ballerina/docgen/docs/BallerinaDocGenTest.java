@@ -20,7 +20,7 @@ package org.wso2.ballerina.docgen.docs;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.docgen.docs.model.BallerinaDoc;
+import org.wso2.ballerina.docgen.docs.model.BallerinaPackageDoc;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocGenTestUtils;
 
 import java.util.Map;
@@ -34,8 +34,8 @@ public class BallerinaDocGenTest {
     @Test(description = "Test Single Bal file")
     public void testSingleBalFile() {
         try {
-            Map<String, BallerinaDoc> docsMap = BallerinaDocGeneratorMain
-                    .generateDocsFromBallerina("src/test/resources/balFiles/helloWorld.bal");
+            Map<String, BallerinaPackageDoc> docsMap = BallerinaDocGeneratorMain
+                    .generatePackageDocsFromBallerina("src/test/resources/balFiles/helloWorld.bal");
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
         } finally {
@@ -46,8 +46,8 @@ public class BallerinaDocGenTest {
     @Test(description = "Test a folder with Bal files")
     public void testFolderWithBalFile() {
         try {
-            Map<String, BallerinaDoc> docsMap = BallerinaDocGeneratorMain
-                    .generateDocsFromBallerina("src/test/resources/balFiles/balFolder");
+            Map<String, BallerinaPackageDoc> docsMap = BallerinaDocGeneratorMain
+                    .generatePackageDocsFromBallerina("src/test/resources/balFiles/balFolder");
             Assert.assertNotNull(docsMap);
             // this folder has 3 bal files. 2 bal files out of those are in same package.
             Assert.assertEquals(docsMap.size(), 2);
@@ -58,5 +58,4 @@ public class BallerinaDocGenTest {
             BallerinaDocGenTestUtils.cleanUp();
         }
     }
-
 }
