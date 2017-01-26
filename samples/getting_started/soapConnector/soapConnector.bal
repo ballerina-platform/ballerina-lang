@@ -29,27 +29,27 @@ connector Salesforce (string url) {
 
     sample:SoapConnector soapConnector = new sample:SoapConnector("");
     string sessionID;
+    string serviceUrl;
 
     action addAccount (Salesforce s, string msg1, string msg2, string soapAction, string url) (message response) {
         message backendServiceReq;
         xml payload;
-        payload = `<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-                    <SOAP-ENV:Header>
-                        <SessionHeader>
-                            <sessionId>${sessionID}</sessionId>
-                        </SessionHeader>
-                    </SOAP-ENV:Header>
-                    <SOAP-ENV:Body>
-                        <addAccount xmlns="http://soap.sforce.com/schemas/class/ConnectorAutomation">
-                            <value1>${msg1}</value1>
-                            <value2>${msg2}</value2>
-                        </addAccount>
-                    </SOAP-ENV:Body>
-                </SOAP-ENV:Envelope>`;
-        response = sample:SoapConnector.post(soapConnector, payload, "''", url);
+        system:println(sessionID);
+        payload = `<soapenv:Envelope
+                        xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                        xmlns:urn="urn:partner.soap.sforce.com">
+                    <soapenv:Header>
+                        <urn:SessionHeader>
+                            <urn:sessionId>${sessionID}</urn:sessionId>
+                        </urn:SessionHeader>
+                    </soapenv:Header>
+                    <soapenv:Body>
+                        <urn:getUserInfo/>
+                    </soapenv:Body>
+                </soapenv:Envelope>`;
+        response = sample:SoapConnector.post(soapConnector, payload, soapAction, url);
         return response;
     }
-
 
     action login (Salesforce s, string username, string password, string url) (message response) {
         message backendServiceReq;
@@ -67,18 +67,19 @@ connector Salesforce (string url) {
                         </soapenv:Envelope>`;
         response = sample:SoapConnector.post(soapConnector, payload, "''", url);
         resp = message:getXmlPayload(response);
-        sessionID = xml:getString(resp, "/soapenv:Envelope/soapenv:Body/ns:loginResponse/ns:result/ns:sessionId/text()", {"soapenv" :"http://schemas.xmlsoap.org/soap/envelope/", "ns":"urn:partner.soap.sforce.com"});
+        soapBody = xml:getString(resp, "/soapenv:Envelope/soapenv:Body/ns:loginResponse/ns:result/ns:sessionId/text()", {"soapenv" :"http://schemas.xmlsoap.org/soap/envelope/", "ns":"urn:partner.soap.sforce.com"});
+        sessionID = soapBody;
         return response;
     }
 }
 
 function main (string[] args) {
-    sample:Salesforce sfConnector = new sample:Salesforce("");
+    sample:Salesforce soapConnector = new sample:Salesforce("");
     message login;
     message sfResponse;
 
-    login = sample:Salesforce.login(sfConnector, args[0], args[1], "https://login.salesforce.com/services/Soap/u/27.0");
-    sfResponse = sample:Salesforce.addAccount(sfConnector, args[2], args[3], "''", "https://ap2.salesforce.com/services/Soap/class/ConnectorAutomation");
+    login = sample:Salesforce.login(soapConnector, args[0], args[1], "https://login.salesforce.com/services/Soap/u/27.0");
+    sfResponse = sample:Salesforce.addAccount(soapConnector, args[2], args[3], "urn:partner.soap.sforce.com/Soap/describeGlobalRequest", "https://ap2.salesforce.com/services/Soap/u/27.0/");
 
     system:println(xml:toString(message:getXmlPayload(sfResponse)));
 }
