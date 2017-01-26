@@ -11,73 +11,73 @@ import ballerina.util;
 connector BasicAuthConnector (string userName, string password) {
 
     http:HTTPConnector httpConnectorEP = new http:HTTPConnector("");
- 
-    string encodedBasicAuthHeader;
 
-    action get(BasicAuthConnector basicAuthConnector, string path, message request) (message) {
+    string encodedBasicAuthHeaderValue;
 
-    	message response;
+    action get (BasicAuthConnector basicAuthConnector, string path, message request) (message) {
 
-    	encodedBasicAuthHeader = constructBasicAuthHeader (request, encodedBasicAuthHeader, userName, password);
-    	response = http:HTTPConnector.get(httpConnectorEP, path, request);
+        message response;
 
-    	return response;
-     }
+        encodedBasicAuthHeaderValue = constructBasicAuthHeader (request, encodedBasicAuthHeaderValue, userName, password);
+        response = http:HTTPConnector.get(httpConnectorEP, path, request);
 
-    action post(BasicAuthConnector basicAuthConnector, string path, message request) (message) {
+        return response;
+    }
 
-	message response;
-	   	 
-    	encodedBasicAuthHeader = constructBasicAuthHeader (request, encodedBasicAuthHeader, userName, password);
-    	response = http:HTTPConnector.post(httpConnectorEP, path, request);
+    action post (BasicAuthConnector basicAuthConnector, string path, message request) (message) {
 
-    	return response;
-     }
+        message response;
 
-    action put(BasicAuthConnector basicAuthConnector, string path, message request) (message) {
+        encodedBasicAuthHeaderValue = constructBasicAuthHeader (request, encodedBasicAuthHeaderValue, userName, password);
+        response = http:HTTPConnector.post(httpConnectorEP, path, request);
 
-    	message response;
+        return response;
+    }
 
-    	encodedBasicAuthHeader = constructBasicAuthHeader (request, encodedBasicAuthHeader, userName, password);
-    	response = http:HTTPConnector.put(httpConnectorEP, path, request);
+    action put (BasicAuthConnector basicAuthConnector, string path, message request) (message) {
 
-    	return response;
-     }
+        message response;
 
-    action delete(BasicAuthConnector basicAuthConnector, string path, message request)(message) {
+        encodedBasicAuthHeaderValue = constructBasicAuthHeader (request, encodedBasicAuthHeaderValue, userName, password);
+        response = http:HTTPConnector.put(httpConnectorEP, path, request);
 
-    	message response;
+        return response;
+    }
 
-    	encodedBasicAuthHeader = constructBasicAuthHeader (request, encodedBasicAuthHeader, userName, password);
-    	response = http:HTTPConnector.delete(httpConnectorEP, path, request);
+    action delete (BasicAuthConnector basicAuthConnector, string path, message request) (message) {
 
-    	return response;
+        message response;
+
+        encodedBasicAuthHeaderValue = constructBasicAuthHeader (request, encodedBasicAuthHeaderValue, userName, password);
+        response = http:HTTPConnector.delete(httpConnectorEP, path, request);
+
+        return response;
     }
 }
 
-function constructBasicAuthHeader(message request, string encodedBasicAuthHeader, string userName, string password) (string) {
+function constructBasicAuthHeader (message request, string encodedBasicAuthHeaderValue, string userName, string password) (string) {
 
-	if (encodedBasicAuthHeader == "") {
-    		encodedBasicAuthHeader = util:base64encode(userName + ":" + password);
-	}
-    
-	message:setHeader(request, "Authorization", "Basic "+ encodedBasicAuthHeader);
-    
-	return encodedBasicAuthHeader;
+    if (encodedBasicAuthHeaderValue == "") {
+        encodedBasicAuthHeaderValue = util:base64encode(userName + ":" + password);
+    }
+
+    message:setHeader(request, "Authorization", "Basic " + encodedBasicAuthHeaderValue);
+
+    return encodedBasicAuthHeaderValue;
 }
 
 function main (string[] args) {
 
-	sample:BasicAuthConnector basicAuthConnector = new sample:BasicAuthConnector(args[0], args[1]);
+    sample:BasicAuthConnector basicAuthConnector = new sample:BasicAuthConnector(args[0], args[1]);
 
-	message request;
-	message basicAuthResponse;
-	json basicJSONResponse;
+    message request;
+    message basicAuthResponse;
+    json basicJSONResponse;
 
-	request = new message;
+    request = new message;
 
-	basicAuthResponse = sample:BasicAuthConnector.get(basicAuthConnector, args[2], request);
+    basicAuthResponse = sample:BasicAuthConnector.get(basicAuthConnector, args[2], request);
 
-	basicJSONResponse = message:getJsonPayload(basicAuthResponse);
-	system:println(json:toString(basicJSONResponse));
+    basicJSONResponse = message:getJsonPayload(basicAuthResponse);
+    system:println(json:toString(basicJSONResponse));
 }
