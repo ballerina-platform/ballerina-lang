@@ -28,9 +28,10 @@ define(['lodash', 'require', 'log', './node'],
          * @constructor
          */
         var TypeStructDefinition = function (args) {
-            this._typeStructName = _.get(args, 'typeStructName', 'Struct1');
+            this._typeStructName = _.get(args, 'typeStructName', 'newStruct');
             this._annotations = _.get(args, 'annotations', []);
             this._schema;
+            this._type;
             this.BallerinaASTFactory = this.getFactory();
         };
 
@@ -51,6 +52,20 @@ define(['lodash', 'require', 'log', './node'],
             if (!_.isNil(schema)) {
                 this._schema = schema;
             }
+        };
+
+        TypeStructDefinition.prototype.setType = function (type) {
+            if (!_.isNil(type)) {
+                this._type = type;
+            }
+        };
+
+        TypeStructDefinition.prototype.getSchemaPropertyObj = function () {
+            return this._schema.getAttributesArray();
+        };
+
+        TypeStructDefinition.prototype.getType = function () {
+            return this._type;
         };
 
         return TypeStructDefinition;
