@@ -18,10 +18,11 @@
 define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view',  './function-definition-view', './../ast/ballerina-ast-root',
         './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view',
         './../visitors/source-gen/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
-        './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer', './connector-definition-view', './struct-definition-view'],
+        './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer', './connector-definition-view', './struct-definition-view',
+        './type-converter-definition-view'],
     function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory,
               PackageDefinition, SourceView, SourceGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer,
-              ConnectorDefinitionView, StructDefinitionView) {
+              ConnectorDefinitionView, StructDefinitionView, TypeConverterDefinitionView) {
 
         /**
          * The view to represent a ballerina file editor which is an AST visitor.
@@ -204,6 +205,18 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             });
             this.diagramRenderingContext.getViewModelMap()[structDefinition.id] = structDefinitionView;
             structDefinitionView.render(this.diagramRenderingContext);
+        };
+
+        BallerinaFileEditor.prototype.visitTypeConverterDefinition = function (typeConverterDefinition) {
+            var typeConvertertDefinitionView = new TypeConverterDefinitionView({
+                viewOptions: this._viewOptions,
+                container: this._$canvasContainer,
+                model: typeConverterDefinition,
+                parentView: this,
+                toolPalette: this.toolPalette
+            });
+            this.diagramRenderingContext.getViewModelMap()[typeConverterDefinition.id] = TypeConverterDefinitionView;
+            typeConvertertDefinitionView.render(this.diagramRenderingContext);
         };
 
         /**

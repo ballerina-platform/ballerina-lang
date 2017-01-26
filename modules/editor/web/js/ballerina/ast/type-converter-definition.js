@@ -17,21 +17,23 @@
  */
 define(['lodash', './node'], function (_, ASTNode) {
 
-    var TypeConverterDefinition = function (source, variableDeclarations, statements, returnType) {
-        this.source = source;
-        this.variableDeclarations = variableDeclarations || [];
-        this.statements = statements || [];
-        this.returnType = returnType;
-        this.type = "TypeConverterDefinition";
+    var TypeConverterDefinition = function (args) {
+        ASTNode.call(this, 'TypeConverterDefinition');
+        this._typeConverterName = _.get(args, 'typeConverterName', 'TypeConverter1');
+        this.BallerinaASTFactory = this.getFactory();
     };
 
     TypeConverterDefinition.prototype = Object.create(ASTNode.prototype);
     TypeConverterDefinition.prototype.constructor = TypeConverterDefinition;
 
-    TypeConverterDefinition.prototype.setSource = function (source) {
-        if (!_.isNil(source)) {
-            this.source = source;
+    TypeConverterDefinition.prototype.setTypeConverterName = function (typeConverterName) {
+        if (!_.isNil(typeConverterName)) {
+            this._typeConverterName = typeConverterName;
         }
+    };
+
+    TypeConverterDefinition.prototype.getTypeConverterName = function () {
+        return this._typeConverterName;
     };
 
     TypeConverterDefinition.prototype.setVariableDeclarations = function (variableDeclarations) {
@@ -40,28 +42,16 @@ define(['lodash', './node'], function (_, ASTNode) {
         }
     };
 
-    TypeConverterDefinition.prototype.setStatements = function (statements) {
-        if (!_.isNil(statements)) {
-            this.statements= statements;
-        }
-    };
+    TypeConverterDefinition.prototype.getVariableDeclarations = function () {
+        var variableDeclarations = [];
+        var self = this;
 
-    TypeConverterDefinition.prototype.setReturnType = function (returnType) {
-        if (!_.isNil(returnType)) {
-            this.returnType = returnType;
-        }
-    };
-
-    TypeConverterDefinition.prototype.getSource = function () {
-        return this.source;
-    };
-
-    TypeConverterDefinition.prototype.getvariableDeclarations = function () {
-        return this.variableDeclarations;
-    };
-
-    TypeConverterDefinition.prototype.getReturnType = function () {
-        return this.returnType;
+        _.forEach(this.getChildren(), function (child) {
+            if (self.BallerinaASTFactory.isVariableDeclaration(child)) {
+                variableDeclarations.push(child);
+            }
+        });
+        return variableDeclarations;
     };
 
     return TypeConverterDefinition;

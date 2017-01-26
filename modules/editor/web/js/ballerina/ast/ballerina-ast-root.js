@@ -238,7 +238,9 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
             || BallerinaASTFactory.isTypeDefinition(node)
             || BallerinaASTFactory.isTypeConverterDefinition(node)
             || BallerinaASTFactory.isConnectorDefinition(node)
-            || BallerinaASTFactory.isStructDefinition(node);
+            || BallerinaASTFactory.isStructDefinition(node)
+            || BallerinaASTFactory.isTypeConverterDefinition(node)
+            || BallerinaASTFactory.isTypeStructDefinition(node);
     };
 
 

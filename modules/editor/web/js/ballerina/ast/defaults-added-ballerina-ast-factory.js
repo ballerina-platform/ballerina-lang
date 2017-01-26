@@ -48,5 +48,20 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
         return resourceDef;
     };
 
+    /**
+     * creates TypeConverterDefinition
+     * @param args
+     */
+    DefaultsAddedBallerinaASTFactory.createTypeConverterDefinition = function (args) {
+        var typeConverterDef = BallerinaASTFactory.createTypeConverterDefinition(args);
+        var leftTypeStructDef = BallerinaASTFactory.createTypeStructDefinition(args);
+        leftTypeStructDef.setTypeStructName("Left Struct");
+        var rightTypeStructDef = BallerinaASTFactory.createTypeStructDefinition(args);
+        rightTypeStructDef.setTypeStructName("Right Struct");
+        typeConverterDef.addChild(leftTypeStructDef);
+        typeConverterDef.addChild(rightTypeStructDef);
+        return typeConverterDef;
+    };
+
     return DefaultsAddedBallerinaASTFactory;
 });
