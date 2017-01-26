@@ -63,11 +63,8 @@ import org.wso2.ballerina.core.model.util.BValueUtils;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BConnector;
-import org.wso2.ballerina.core.model.values.BDouble;
-import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BJSON;
-import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BString;
@@ -78,6 +75,7 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConverter;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+import org.wso2.ballerina.core.nativeimpl.lang.converters.internal.ImplicitCastingConverter;
 
 
 /**
@@ -127,7 +125,7 @@ public class BLangExecutor implements NodeExecutor {
             Expression lExpr = lExprs[i];
             BValue rValue = rValues[i];
             if (assignStmt.isWideningRequired()) {
-                rValue = checkForWidening(lExpr, rExpr, rValue);
+                rValue = ImplicitCastingConverter.convertWithValue(lExpr, rExpr, rValue);
             }
 
             if (lExpr instanceof VariableRefExpr) {
@@ -137,72 +135,6 @@ public class BLangExecutor implements NodeExecutor {
                 assignValueToArrayMapAccessExpr(rValue, (ArrayMapAccessExpr) lExpr);
             }
         }
-    }
-
-    private BValue checkForWidening(Expression lExpr, Expression rExpr, BValue rValue) {
-        BValue resultValue = null;
-        if (rExpr.getType() == BTypes.INT_TYPE) {
-            if (lExpr.getType() == BTypes.LONG_TYPE) {
-                resultValue = new BLong(((BInteger) rValue).longValue());
-            } else if (lExpr.getType() == BTypes.FLOAT_TYPE) {
-                resultValue = new BFloat(((BInteger) rValue).floatValue());
-            } else if (lExpr.getType() == BTypes.DOUBLE_TYPE) {
-                resultValue = new BDouble(((BInteger) rValue).doubleValue());
-            }
-        } else if (rExpr.getType() == BTypes.LONG_TYPE) {
-            if (lExpr.getType() == BTypes.FLOAT_TYPE) {
-                resultValue = new BFloat(((BLong) rValue).floatValue());
-            } else if (lExpr.getType() == BTypes.DOUBLE_TYPE) {
-                resultValue = new BDouble(((BLong) rValue).doubleValue());
-            }
-        } else if (rExpr.getType() == BTypes.FLOAT_TYPE) {
-            if (lExpr.getType() == BTypes.DOUBLE_TYPE) {
-                resultValue = new BDouble(((BFloat) rValue).doubleValue());
-            }
-        }
-        return resultValue;
-    }
-
-    private BValueType checkForWidening(Expression lExpr, Expression rExpr, BValueType rValue, BValueType lValue) {
-        BValueType resultValue = null;
-        if (rExpr.getType() == BTypes.INT_TYPE) {
-            if (lExpr.getType() == BTypes.LONG_TYPE) {
-                resultValue = new BLong(rValue.longValue());
-            } else if (lExpr.getType() == BTypes.FLOAT_TYPE) {
-                resultValue = new BFloat(rValue.floatValue());
-            } else if (lExpr.getType() == BTypes.DOUBLE_TYPE) {
-                resultValue = new BDouble(rValue.doubleValue());
-            }
-        } else if (rExpr.getType() == BTypes.LONG_TYPE) {
-            if (lExpr.getType() == BTypes.FLOAT_TYPE) {
-                resultValue = new BFloat(rValue.floatValue());
-            } else if (lExpr.getType() == BTypes.DOUBLE_TYPE) {
-                resultValue = new BDouble(rValue.doubleValue());
-            }
-        } else if (rExpr.getType() == BTypes.FLOAT_TYPE) {
-            if (lExpr.getType() == BTypes.DOUBLE_TYPE) {
-                resultValue = new BDouble(rValue.doubleValue());
-            }
-        } else if (lExpr.getType() == BTypes.INT_TYPE) {
-            if (rExpr.getType() == BTypes.LONG_TYPE) {
-                resultValue = new BLong(lValue.longValue());
-            } else if (rExpr.getType() == BTypes.FLOAT_TYPE) {
-                resultValue = new BFloat(lValue.floatValue());
-            } else if (rExpr.getType() == BTypes.DOUBLE_TYPE) {
-                resultValue = new BDouble(lValue.doubleValue());
-            }
-        } else if (lExpr.getType() == BTypes.LONG_TYPE) {
-            if (rExpr.getType() == BTypes.FLOAT_TYPE) {
-                resultValue = new BFloat(lValue.floatValue());
-            } else if (rExpr.getType() == BTypes.DOUBLE_TYPE) {
-                resultValue = new BDouble(lValue.doubleValue());
-            }
-        } else if (lExpr.getType() == BTypes.FLOAT_TYPE) {
-            if (rExpr.getType() == BTypes.DOUBLE_TYPE) {
-                resultValue = new BDouble(lValue.doubleValue());
-            }
-        }
-        return resultValue;
     }
 
     @Override
@@ -468,7 +400,7 @@ public class BLangExecutor implements NodeExecutor {
         BValueType lValue = (BValueType) lExpr.execute(this);
 
         if (binaryExpr.isWideningRequired()) {
-            rValue = checkForWidening(lExpr, rExpr, rValue, lValue);
+            rValue = ImplicitCastingConverter.convertWithType(lExpr, rExpr, rValue, lValue);
         }
 
         return binaryExpr.getEvalFunc().apply(lValue, rValue);

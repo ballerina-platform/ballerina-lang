@@ -32,7 +32,7 @@ public final class BLong extends BValueType {
 
     @Override
     public int intValue() {
-        return 0;
+        return (int) this.value;
     }
 
     @Override

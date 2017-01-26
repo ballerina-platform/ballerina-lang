@@ -610,11 +610,14 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // TODO Remove the MAP related logic when type casting is implemented
         if ((lExpr.getType() != BTypes.MAP_TYPE) && (rExpr.getType() != BTypes.MAP_TYPE) &&
-                (lExpr.getType() != rExpr.getType()) && !checkWideningPossible(lExpr.getType(), rExpr.getType(),
-                assignStmt)) {
-            throw new SemanticException(lExpr.getLocation().getFileName() + ":"
-                    + lExpr.getLocation().getLine() + ": incompatible types: " + rExpr.getType() +
-                    " cannot be converted to " + lExpr.getType());
+                (lExpr.getType() != rExpr.getType())) {
+            if (checkWideningPossible(lExpr.getType(), rExpr.getType())) {
+                assignStmt.setWideningRequired(true);
+            } else {
+                throw new SemanticException(lExpr.getLocation().getFileName() + ":"
+                        + lExpr.getLocation().getLine() + ": incompatible types: " + rExpr.getType() +
+                        " cannot be converted to " + lExpr.getType());
+            }
         }
     }
 
@@ -1431,11 +1434,14 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression rExpr = binaryExpr.getRExpr();
         Expression lExpr = binaryExpr.getLExpr();
 
-        if (lExpr.getType() != rExpr.getType() && !checkWideningPossible(lExpr.getType(), rExpr.getType(),
-                binaryExpr)) {
-            throw new SemanticException(binaryExpr.getLocation().getFileName() + ":" +
-                    binaryExpr.getLocation().getLine() +
-                    ": incompatible types in binary expression: " + lExpr.getType() + " vs " + rExpr.getType());
+        if (lExpr.getType() != rExpr.getType()) {
+            if (checkWideningPossible(lExpr.getType(), rExpr.getType())) {
+                binaryExpr.setWideningRequired(true);
+            } else {
+                throw new SemanticException(binaryExpr.getLocation().getFileName() + ":" +
+                        binaryExpr.getLocation().getLine() +
+                        ": incompatible types in binary expression: " + lExpr.getType() + " vs " + rExpr.getType());
+            }
         }
 
         return lExpr.getType();
@@ -1686,11 +1692,12 @@ public class SemanticAnalyzer implements NodeVisitor {
             typeCastingExpression.setTypeConverterName(symbolName);
             symbol = symbolTable.lookup(symbolName);
         }
+
         if (symbol == null) {
-            throw new LinkerException(typeCastingExpression.getLocation().getFileName() + ":" +
-                    typeCastingExpression.getLocation().getLine() +
-                    ": type converter cannot be found for '" + typeCastingExpression.getSourceExpression().getType()
-                    + "to " + typeCastingExpression.getTargetType() + "'");
+                throw new LinkerException(typeCastingExpression.getLocation().getFileName() + ":" +
+                        typeCastingExpression.getLocation().getLine() +
+                        ": type converter cannot be found for '" + typeCastingExpression.getSourceExpression().getType()
+                        + "to " + typeCastingExpression.getTargetType() + "'");
         }
 
         // Link
@@ -1700,26 +1707,14 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     // Function to check whether implicit widening (casting) is possible for assignment statement
-    private boolean checkWideningPossible(BType lhsType, BType rhsType, AssignStmt assignStmt) {
+    private boolean checkWideningPossible(BType lhsType, BType rhsType) {
         if ((rhsType == BTypes.INT_TYPE && (lhsType == BTypes.LONG_TYPE || lhsType == BTypes.FLOAT_TYPE
                 || lhsType == BTypes.DOUBLE_TYPE)) || (rhsType == BTypes.LONG_TYPE && (lhsType == BTypes.FLOAT_TYPE
                 || lhsType == BTypes.DOUBLE_TYPE)) || (rhsType == BTypes.FLOAT_TYPE && lhsType == BTypes.DOUBLE_TYPE)) {
-            assignStmt.setWideningRequired(true);
             return true;
         } else {
             return false;
         }
     }
 
-    // Function to check whether implicit widening (casting) is possible for binary expression
-    private boolean checkWideningPossible(BType lhsType, BType rhsType, BinaryExpression binaryExpression) {
-        if ((rhsType == BTypes.INT_TYPE && (lhsType == BTypes.LONG_TYPE || lhsType == BTypes.FLOAT_TYPE
-                || lhsType == BTypes.DOUBLE_TYPE)) || (rhsType == BTypes.LONG_TYPE && (lhsType == BTypes.FLOAT_TYPE
-                || lhsType == BTypes.DOUBLE_TYPE)) || (rhsType == BTypes.FLOAT_TYPE && lhsType == BTypes.DOUBLE_TYPE)) {
-            binaryExpression.setWideningRequired(true);
-            return true;
-        } else {
-            return false;
-        }
-    }
 }
