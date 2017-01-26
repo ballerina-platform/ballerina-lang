@@ -308,8 +308,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 .attr("height", "14");
 
             // Bottom center point.
-            var centerPointX = lifeLineView._bottomCenter._x;
-            var centerPointY = lifeLineView._bottomCenter._y + 15;
+            var centerPointX = lifeLineView._topCenter._x;
+            var centerPointY = lifeLineView._topCenter._y + 15;
 
             var smallArrowPoints =
                 // Bottom point of the polygon.
