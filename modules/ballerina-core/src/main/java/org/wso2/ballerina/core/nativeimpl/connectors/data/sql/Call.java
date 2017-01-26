@@ -19,8 +19,11 @@
 package org.wso2.ballerina.core.nativeimpl.connectors.data.sql;
 
 import org.osgi.service.component.annotations.Component;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BConnector;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
@@ -37,9 +40,9 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
                 @Argument(name = "connector",
                           type = TypeEnum.CONNECTOR),
                 @Argument(name = "query",
-                          type = TypeEnum.STRING), //TODO:Add Parameter[]
+                          type = TypeEnum.STRING)/*, //TODO:Add Parameter[]
                 @Argument(name = "optionalProperties",
-                          type = TypeEnum.MAP)
+                          type = TypeEnum.MAP)*/
         },
         returnType = { TypeEnum.DATAFRAME })
 @Component(
@@ -49,6 +52,14 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 public class Call extends AbstractSQLAction {
     @Override
     public BValue execute(Context context) {
-        return null;
+        BConnector bConnector = (BConnector) getArgument(context, 0);
+        String query = getArgument(context, 1).stringValue();
+
+        Connector connector = bConnector.value();
+        if (!(connector instanceof SQLConnector)) {
+            throw new BallerinaException("Need to use a SQL Connector as the first argument", context);
+        }
+
+        return executeProcedure(context, connector, query);
     }
 }
