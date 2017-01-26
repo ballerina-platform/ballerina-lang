@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'require', 'event_channel', 'lodash'], function(log, require, EventChannel, _) {
+define(['require', 'lodash','jquery','jsPlumb','nano_scroller'], function(require, _,$,jsPlumb,ggg) {
 
     var TypeMapper = {};
 
@@ -151,4 +151,6 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
             }
         });
     }
+
+    return TypeMapper;
 });

@@ -500,7 +500,7 @@
             ace: "lib/ace_v1.2.6",
             beautify: "lib/beautify/beautify",
             mousetrap: "lib/mousetrap_v1.6.0/mousetrap.min",
-            
+            jsPlumb: "lib/jsPlumb-1.5.0/jquery.jsPlumb-1.5.0-min",
             ///////////////////////
             // custom modules ////
             //////////////////////
@@ -518,10 +518,15 @@
             alerts: "js/utils/alerts",
             breadcrumbs: "js/breadcrumbs/breadcrumbs",
             property_pane_utils: "js/property-pane/property-pane-utils",
-            constants: 'js/constants/constants'
+            constants: 'js/constants/constants',
+            typeMapper: 'js/type-mapper/type-mapper-renderer'
         },
         shim: {
-            "bootstrap": {"deps": ['jquery']}
+            "bootstrap": {"deps": ['jquery']},
+            "jsPlumb": {
+                deps: ['jquery','jquery_ui'],
+                exports: 'jsPlumb'
+            }
         },
         map: {
             "*": {

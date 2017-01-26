@@ -91,11 +91,51 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             var leftTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
             leftTypeStructDef.setTypeStructName("Left Struct");
             leftTypeStructDef.setSchema(person);
+            leftTypeStructDef.setType("SOURCE");
             self._model.addChild(leftTypeStructDef);
+            self._model.accept(this);
+
+            var newVariableDeclaration = BallerinaASTFactory.createVariableDeclaration();
+            // Pushing new variable declaration//todo setType
+            newVariableDeclaration.setType("Person");
+            newVariableDeclaration.setIdentifier("p");
+            self._model.addChild(newVariableDeclaration);
+
+            var newReturnStatement = BallerinaASTFactory.createReturnStatement();
+            newReturnStatement.setReturnExpression("p");
+            self._model.addChild(newReturnStatement);
+
+        });
+
+//        var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+//        var leftOp = BallerinaASTFactory.createLeftOperandExpression();
+//        var rightOp = BallerinaASTFactory.createRightOperandExpression();
+//        assignmentStmt.addChild(leftOp);
+//        assignmentStmt.addChild(rightOp);
+
+        $("#targetStructs").change(function() {
+
+            var employee = BallerinaASTFactory.createStructDefinition();
+            employee.setStructName("Employee");
+            var v1 = BallerinaASTFactory.createVariableDeclaration();
+            v1.setType("string");
+            v1.setIdentifier("empName");
+            var v2 = BallerinaASTFactory.createVariableDeclaration();
+            v2.setType("string");
+            v2.setIdentifier("empSurName");
+
+            employee.addChild(v1);
+            employee.addChild(v2);
+
+            var rightTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
+            rightTypeStructDef.setTypeStructName("Right Struct");
+            rightTypeStructDef.setSchema(employee);
+            rightTypeStructDef.setType("TARGET");
+            self._model.addChild(rightTypeStructDef);
             self._model.accept(this);
         });
 
-            this._container = currentContainer;
+        this._container = currentContainer;
         this.getBoundingBox().fromTopLeft(new Point(0, 0), currentContainer.width(), currentContainer.height());
         this.getModel().accept(this);
 
