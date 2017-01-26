@@ -79,7 +79,7 @@ public class SymScope {
 
         return null;
     }
-
+    
     /**
      * Resolve all ballerina.* packages
      *
@@ -132,7 +132,8 @@ public class SymScope {
         CONNECTOR("_connector"),
         FUNCTION("_function"),
         RESOURCE("_resource"),
-        ACTION("_action");
+        ACTION("_action"),
+        STRUCT("_struct");
 
         private String name;
 

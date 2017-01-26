@@ -55,6 +55,15 @@ public class SymTable {
         return current.lookup(symName);
     }
 
+    /**
+     * Get the parent scope of this scope.
+     *
+     * @return  Parent scope
+     */
+    public SymScope getParentScope() {
+        return current.getParent();
+    }
+
     public String resolveBallerinaPackageName(SymbolName symName) {
         return current.resolveBallerinaPackageName(symName);
     }
