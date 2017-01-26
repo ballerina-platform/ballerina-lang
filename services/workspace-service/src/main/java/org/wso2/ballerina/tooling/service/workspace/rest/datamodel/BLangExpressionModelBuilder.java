@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.interpreter.ConstantLocation;
 import org.wso2.ballerina.core.interpreter.LocalVarLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.BTypeConverter;
+import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -120,7 +120,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(BTypeConverter typeConverter) {
+    public void visit(BTypeConvertor typeConverter) {
 
     }
 
