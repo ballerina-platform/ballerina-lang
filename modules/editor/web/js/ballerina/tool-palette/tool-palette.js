@@ -169,24 +169,26 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
 
             var definitions = [];
             _.each(package.getConnectors(), function (connector) {
-                connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration();
+                connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration
                 connector.meta = {
                     connectorName: connector.getName(),
                     connectorPackageName: import_pkg.getName()
                 };
+                //TODO : use a generic icon
                 connector.icon = "images/tool-icons/http.svg";
+                connector.title = connector.getTitle();
                 definitions.push(connector);
-                if (connector['actions'] != undefined) {
-                    _.forEach(connector.getActions(), function (action, index, collection) {
-                        /* We need to add a special class to actions to indent them in tool palette. */
-                        action.classNames = "tool-connector-action";
-                        if ((index + 1 ) == collection.length) {
-                            action.classNames = "tool-connector-action tool-connector-last-action";
-                        }
-                        action.nodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression();
-                        definitions.push(action);
-                    });
-                }
+                _.each(connector.getActions(), function (action, index, collection) {
+                    /* We need to add a special class to actions to indent them in tool palette. */
+                    action.classNames = "tool-connector-action";
+                    if ((index + 1 ) == collection.length) {
+                        action.classNames = "tool-connector-action tool-connector-last-action";
+                    }
+                    action.icon = "images/tool-icons/http.svg";
+                    action.title = action.getTitle();
+                    action.nodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression
+                    definitions.push(action);
+                });
             });
 
             this._imports.push(package);
