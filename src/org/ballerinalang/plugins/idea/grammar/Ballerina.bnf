@@ -406,9 +406,13 @@ actionInvocationStatement
 
 //todo: fix left recursion here
 variableReference
-    ::=   Identifier '['expression']'                 // mapArrayVariableIdentifier// array and map reference
-//    |   variableReference ('.' variableReference)+  // structFieldIdentifier// struct field reference
-    |   Identifier                                    // simpleVariableIdentifier// simple identifier
+    ::=   variableReferenceTypes ('.' variableReferenceTypes)+  // structFieldIdentifier// struct field reference
+    |     variableReferenceTypes
+
+private variableReferenceTypes
+    ::=   Identifier '['expression']'                           // mapArrayVariableIdentifier// array and map reference
+    |     Identifier                                            // simpleVariableIdentifier// simple identifier
+
 argumentList
     ::=   '(' expressionList? ')'
 

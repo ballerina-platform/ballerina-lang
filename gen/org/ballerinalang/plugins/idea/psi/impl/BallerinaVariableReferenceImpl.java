@@ -43,15 +43,9 @@ public class BallerinaVariableReferenceImpl extends ASTWrapperPsiElement impleme
   }
 
   @Override
-  @Nullable
-  public BallerinaExpression getExpression() {
-    return findChildByClass(BallerinaExpression.class);
-  }
-
-  @Override
   @NotNull
-  public PsiElement getIdentifier() {
-    return findNotNullChildByType(IDENTIFIER);
+  public List<BallerinaExpression> getExpressionList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaExpression.class);
   }
 
 }

@@ -2623,28 +2623,53 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // Identifier '['expression']'                 // mapArrayVariableIdentifier// array and map reference
-  // //    |   variableReference ('.' variableReference)+  // structFieldIdentifier// struct field reference
-  //     |   Identifier
+  // variableReferenceTypes ('.' variableReferenceTypes)+  // structFieldIdentifier// struct field reference
+  //     |     variableReferenceTypes
   public static boolean variableReference(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "variableReference")) return false;
     if (!nextTokenIs(b, IDENTIFIER)) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = variableReference_0(b, l + 1);
-    if (!r) r = consumeToken(b, IDENTIFIER);
+    if (!r) r = variableReferenceTypes(b, l + 1);
     exit_section_(b, m, VARIABLE_REFERENCE, r);
     return r;
   }
 
-  // Identifier '['expression']'
+  // variableReferenceTypes ('.' variableReferenceTypes)+
   private static boolean variableReference_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "variableReference_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeTokens(b, 0, IDENTIFIER, LBRACK);
-    r = r && expression(b, l + 1);
-    r = r && consumeToken(b, RBRACK);
+    r = variableReferenceTypes(b, l + 1);
+    r = r && variableReference_0_1(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // ('.' variableReferenceTypes)+
+  private static boolean variableReference_0_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "variableReference_0_1")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = variableReference_0_1_0(b, l + 1);
+    int c = current_position_(b);
+    while (r) {
+      if (!variableReference_0_1_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "variableReference_0_1", c)) break;
+      c = current_position_(b);
+    }
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // '.' variableReferenceTypes
+  private static boolean variableReference_0_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "variableReference_0_1_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, DOT);
+    r = r && variableReferenceTypes(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -2681,6 +2706,32 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b);
     r = consumeToken(b, COMMA);
     r = r && variableReference(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // Identifier '['expression']'                           // mapArrayVariableIdentifier// array and map reference
+  //     |     Identifier
+  static boolean variableReferenceTypes(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "variableReferenceTypes")) return false;
+    if (!nextTokenIs(b, IDENTIFIER)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = variableReferenceTypes_0(b, l + 1);
+    if (!r) r = consumeToken(b, IDENTIFIER);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // Identifier '['expression']'
+  private static boolean variableReferenceTypes_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "variableReferenceTypes_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeTokens(b, 0, IDENTIFIER, LBRACK);
+    r = r && expression(b, l + 1);
+    r = r && consumeToken(b, RBRACK);
     exit_section_(b, m, null, r);
     return r;
   }
