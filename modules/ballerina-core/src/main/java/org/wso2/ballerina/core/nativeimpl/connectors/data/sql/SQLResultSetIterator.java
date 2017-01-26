@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.ballerina.core.data;
+package org.wso2.ballerina.core.nativeimpl.connectors.data.sql;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.DataIterator;
@@ -29,13 +29,13 @@ import java.sql.Statement;
 /**
  * This iterator mainly wrap Java ResultSet.
  */
-public class RDBMSResultSetIterator implements DataIterator {
+public class SQLResultSetIterator implements DataIterator {
 
     private Connection conn;
     private Statement stmt;
     private ResultSet rs;
 
-    public RDBMSResultSetIterator(Connection conn, Statement stmt, ResultSet rs) throws SQLException {
+    public SQLResultSetIterator(Connection conn, Statement stmt, ResultSet rs) throws SQLException {
         this.conn = conn;
         this.stmt = stmt;
         this.rs = rs;

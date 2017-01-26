@@ -18,9 +18,9 @@
 
 package org.wso2.ballerina.core.model.types;
 
-import org.wso2.ballerina.core.data.EmptyDataIterator;
 import org.wso2.ballerina.core.model.values.BDataframe;
 import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.EmptyDataIterator;
 
 import java.util.HashMap;
 

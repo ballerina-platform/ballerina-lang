@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.ballerina.core.data;
+package org.wso2.ballerina.core.nativeimpl.connectors.data;
 
 import org.wso2.ballerina.core.model.DataIterator;
 
