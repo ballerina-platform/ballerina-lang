@@ -86,4 +86,3 @@ function main (string[] args) {
 
     system:println(xml:toString(message:getXmlPayload(sfResponse)));
 }
-

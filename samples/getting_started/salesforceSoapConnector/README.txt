@@ -12,4 +12,4 @@ Prerequisites
 
 How to run this sample
 ======================
-bin$ ./ballerina ../samples/salesforceSoapConnectorConnector/salesforceSoapConnectorConnector.bal <username> <password+securityToken> <message1> <message2>
+bin$ ./ballerina ../samples/salesforceSoapConnector/salesforceSoapConnector.bal <username> <password+securityToken> <message1> <message2>
