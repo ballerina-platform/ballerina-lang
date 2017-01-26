@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1485423169470
+Build-Jdk: 1.8.0_121
+Built-By: Chanuka
+Bundle-Contributors: WSO2 Inc
+Bundle-Copyright: WSO2 Inc
+Bundle-Description: WSO2 is an open source application development softw
+ are company focused on providing service-orientedarchitecture solutions
+  for professional developers.
+Bundle-Developers: WSO2 Inc
+Bundle-DocURL: https://docs.wso2.com
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-ManifestVersion: 2
+Bundle-Name: testerina-core
+Bundle-SymbolicName: testerina-core
+Bundle-Vendor: WSO2 Inc
+Bundle-Version: 0.8.0.SNAPSHOT
+Created-By: Apache Maven Bundle Plugin
+SCM-Revision: a091de098c0fb94148a5b0b64783eee9a497e875
+Tool: Bnd-3.0.0.201509101326
