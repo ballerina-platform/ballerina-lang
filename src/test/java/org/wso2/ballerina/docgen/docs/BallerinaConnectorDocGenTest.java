@@ -4,7 +4,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.docgen.docs.model.BallerinaConnectorDoc;
-import org.wso2.ballerina.docgen.docs.model.BallerinaDoc;
+import org.wso2.ballerina.docgen.docs.model.BallerinaPackageDoc;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocGenTestUtils;
 
 import java.util.List;
@@ -21,12 +21,12 @@ public class BallerinaConnectorDocGenTest {
     @Test(description = "Test single action in a connector file")
     public void testConnectorWithSingleAction() {
         try {
-            Map<String, BallerinaDoc> docsMap = BallerinaDocGeneratorMain.generateDocsFromBallerina(resources
-                    + "helloWorldConnector.bal");
+            Map<String, BallerinaPackageDoc> docsMap = BallerinaDocGeneratorMain
+                    .generatePackageDocsFromBallerina(resources + "helloWorldConnector.bal");
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
             BallerinaDocGenTestUtils.printDocMap(docsMap);
-            BallerinaDoc doc = docsMap.get("a.b");
+            BallerinaPackageDoc doc = docsMap.get("a.b");
             List<BallerinaConnectorDoc> connectorDocs = doc.getBallerinaConnectorDocs();
             Assert.assertEquals(connectorDocs.size(), 1);
         } finally {
