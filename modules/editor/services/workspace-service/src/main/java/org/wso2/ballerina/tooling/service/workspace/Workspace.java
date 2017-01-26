@@ -16,6 +16,7 @@
 package org.wso2.ballerina.tooling.service.workspace;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import java.io.IOException;
 
@@ -29,6 +30,10 @@ public interface Workspace {
       JsonArray listDirectoriesInPath(String path) throws IOException;
 
       JsonArray listFilesInPath(String path) throws IOException;
+
+      JsonObject exists(String path) throws IOException;
+
+      void create(String path, String type) throws IOException;
 
       void write(String path, String content) throws IOException;
 
