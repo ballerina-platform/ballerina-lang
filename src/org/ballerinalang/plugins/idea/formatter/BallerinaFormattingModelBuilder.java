@@ -67,6 +67,10 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(BITOR).spaceIf(true)
                 .around(MOD).spaceIf(true)
                 .before(SEMI).spaceIf(false)
+                .around(THROWS).spaceIf(true)
+                .around(MAP_INIT_KEY_VALUE).spaceIf(false)
+                .around(MAP_INIT_KEY_VALUE_LIST).spaceIf(false)
+
 
                 .after(IF).spaceIf(true)
                 .between(RPAREN, LBRACE).spaceIf(true)
@@ -75,6 +79,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(ELSE, IF).spaceIf(true)
                 .between(ELSE, LBRACE).spaceIf(true)
                 .after(WHILE).spaceIf(true)
+                .between(RPAREN, TYPE_NAME).spaceIf(true)
 
                 .after(NEW).spaceIf(true)
                 .after(RETURN).spaceIf(true)
@@ -84,6 +89,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .after(FUNCTION).spaceIf(true)
                 .after(CONNECTOR).spaceIf(true)
                 .after(REPLY).spaceIf(true)
+                .after(TYPECONVERTOR).spaceIf(true)
 
 
                 .between(LBRACK, RBRACK).spaceIf(false)
