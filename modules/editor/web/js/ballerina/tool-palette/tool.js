@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['require', 'backbone'], function (require, Backbone) {
+define(['lodash','require', 'backbone'], function (_, require, Backbone) {
 
     var tool = Backbone.Model.extend({
         initialize: function (args) {

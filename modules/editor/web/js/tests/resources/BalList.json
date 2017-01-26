@@ -1,0 +1,11 @@
+{
+    "sources":{
+        "source":[
+            "helloWorldService.bal",
+            "passthroughService.bal",
+            "ecommerceService.bal",
+            "echoService.bal",
+            "helloWorld.bal"
+        ]
+    }
+}
