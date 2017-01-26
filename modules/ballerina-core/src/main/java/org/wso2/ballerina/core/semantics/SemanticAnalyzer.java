@@ -209,6 +209,12 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         ConstantLocation location = new ConstantLocation(staticMemAddrOffset);
         BType type = constant.getType();
+        
+        // constants can be only of value types.
+        if (!BTypes.isValueType(type)) {
+            throw new SemanticException(getLocationStr(constant.getLocation()) + "constant cannot be of type '" 
+                    + type.toString() + "'.");
+        }
         validateType(type, constant.getLocation());
         symbol = new Symbol(type, SymScope.Name.PACKAGE, location);
 
@@ -509,7 +515,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             // type is defined.
             Symbol structSymbol = symbolTable.lookup(new SymbolName(type.toString()));
             if (structSymbol == null) {
-                throw new SemanticException(getLocationStr(location) + "Type '" + type + "' is undefined.");
+                throw new SemanticException(getLocationStr(location) + "type '" + type + "' is undefined.");
             }
         }
     }

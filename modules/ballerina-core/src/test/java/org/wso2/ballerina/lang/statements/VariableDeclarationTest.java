@@ -44,7 +44,7 @@ public class VariableDeclarationTest {
     }
     
     @Test(expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "unsupported-type-variable.bal:6: Type 'Foo' is undefined.")
+            expectedExceptionsMessageRegExp = "unsupported-type-variable.bal:6: type 'Foo' is undefined.")
     public void testUnsupportedTypeVariable() {
         ParserUtils.parseBalFile("lang/statements/unsupported-type-variable.bal");
     }
@@ -53,5 +53,12 @@ public class VariableDeclarationTest {
           expectedExceptionsMessageRegExp = "Duplicate constant name: b in duplicate-constant-variables.bal:4")
     public void testDuplicateConstantVariable() {
         ParserUtils.parseBalFile("lang/statements/duplicate-constant-variables.bal");
+    }
+    
+    @Test(description = "Test defining a constant from an array type",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "array-type-constants.bal:3: constant cannot be of type 'int\\[\\]'.")
+    public void testArrayTypeConstant() {
+        ParserUtils.parseBalFile("lang/statements/array-type-constants.bal");
     }
 }
