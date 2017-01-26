@@ -58,7 +58,9 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerin
      */
     TypeStructDefinitionView.prototype.render = function (diagramRenderingContext) {
         this._diagramRenderingContext = diagramRenderingContext;
-        //TODO : render the type struct rectangles here
+        console.log("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ");
+        console.log(diagramRenderingContext);
+        alert(555);
 
     };
 
