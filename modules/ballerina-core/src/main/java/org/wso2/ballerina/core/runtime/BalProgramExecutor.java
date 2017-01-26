@@ -40,9 +40,11 @@ import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BArray;
+import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
+
 import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -91,9 +93,12 @@ public class BalProgramExecutor {
 
                 for (Annotation annotation : parameter.getAnnotations()) {
                     if (resourceArgsMap.get(annotation.getValue()) != null) {
-                        // ToDo Only String params are supported.
+                        // ToDo Only String and Int param types are supported.
                         if (parameter.getType() == BTypes.STRING_TYPE) {
                             argValues[locationCounter] = new BString(resourceArgsMap.get(annotation.getValue()));
+                        } else if (parameter.getType() == BTypes.INT_TYPE) {
+                            argValues[locationCounter] = new BInteger(Integer.parseInt(
+                                    resourceArgsMap.get(annotation.getValue())));
                         }
                     }
                 }
