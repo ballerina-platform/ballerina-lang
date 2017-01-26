@@ -11,7 +11,7 @@ connector SoapConnector (string url) {
 
     http:HTTPConnector httpConnector = new http:HTTPConnector("");
 
-    action post(SoapConnector s, xml payload, string soapAction, string url) (message response) {
+    action post (SoapConnector s, xml payload, string soapAction, string url) (message response) {
         message backendServiceReq;
 
         string soapBody;
@@ -33,7 +33,7 @@ connector Salesforce (string url) {
     sample:SoapConnector soapConnector = new sample:SoapConnector("");
     string sessionID;
 
-    action addAccount(Salesforce s, string msg1, string msg2, string soapAction, string url) (message response) {
+    action addAccount (Salesforce s, string msg1, string msg2, string soapAction, string url) (message response) {
         message backendServiceReq;
         xml payload;
         payload = `<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
@@ -54,7 +54,7 @@ connector Salesforce (string url) {
     }
 
 
-    action login(Salesforce s, string username, string password, string url) (message response) {
+    action login (Salesforce s, string username, string password, string url) (message response) {
         message backendServiceReq;
         xml payload;
         string soapBody;
@@ -69,20 +69,19 @@ connector Salesforce (string url) {
                             </soapenv:Body>
                         </soapenv:Envelope>`;
         response = sample:SoapConnector.post(soapConnector, payload, "''", url);
-        resp=message:getXmlPayload(response);
-        sessionID = xml:getString(resp, "/soapenv:Envelope/soapenv:Body/ns:loginResponse/ns:result/ns:sessionId/text()",{"soapenv" : "http://schemas.xmlsoap.org/soap/envelope/", "ns": "urn:partner.soap.sforce.com"});
+        resp = message:getXmlPayload(response);
+        sessionID = xml:getString(resp, "/soapenv:Envelope/soapenv:Body/ns:loginResponse/ns:result/ns:sessionId/text()", {"soapenv" :"http://schemas.xmlsoap.org/soap/envelope/", "ns":"urn:partner.soap.sforce.com"});
         return response;
     }
 }
 
-
 function main (string[] args) {
-    sample:Salesforce soapConnector = new sample:Salesforce("");
+    sample:Salesforce sfConnector = new sample:Salesforce("");
     message login;
     message sfResponse;
 
-    login = sample:Salesforce.login(soapConnector, args[0], args[1], "https://login.salesforce.com/services/Soap/u/27.0");
-    sfResponse = sample:Salesforce.addAccount(soapConnector, args[2], args[3], "''", "https://ap2.salesforce.com/services/Soap/class/ConnectorAutomation");
+    login = sample:Salesforce.login(sfConnector, args[0], args[1], "https://login.salesforce.com/services/Soap/u/27.0");
+    sfResponse = sample:Salesforce.addAccount(sfConnector, args[2], args[3], "''", "https://ap2.salesforce.com/services/Soap/class/ConnectorAutomation");
 
     system:println(xml:toString(message:getXmlPayload(sfResponse)));
 }
