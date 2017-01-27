@@ -1182,6 +1182,14 @@ a:hover {
 .modal-dialog.file-dialog {
     margin: 100px auto 0;
 }
+
+.delete-item-dialog .icon{
+    float: left;
+    margin-left: 25px;
+    margin-top: 5px;
+}
+.delete-item-dialog .text{
+    margin-left: 150px;
 .tool-group-import-header > a.tool-group-header-title {
     color: #fff;
 }
