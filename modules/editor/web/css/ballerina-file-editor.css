@@ -448,4 +448,7 @@
     height: 22px;
 }
 
+.outer-box .mCustomScrollBox {
+    height: auto;
+}
 /** End of Return type CSS **/
