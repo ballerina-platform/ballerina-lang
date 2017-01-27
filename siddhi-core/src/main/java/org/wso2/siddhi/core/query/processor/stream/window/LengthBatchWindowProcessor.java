@@ -38,8 +38,8 @@ import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -141,37 +141,26 @@ public class LengthBatchWindowProcessor extends WindowProcessor implements Finda
     }
 
     @Override
-    public Object[] currentState() {
-        if (expiredEventChunk != null) {
-            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("CurrentEventChunk", currentEventChunk.getFirst()), new AbstractMap.SimpleEntry<String, Object>("ExpiredEventChunk", expiredEventChunk.getFirst()), new AbstractMap.SimpleEntry<String, Object>("Count", count), new AbstractMap.SimpleEntry<String, Object>("ResetEvent", resetEvent)};
-        } else {
-            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("CurrentEventChunk", currentEventChunk.getFirst()), new AbstractMap.SimpleEntry<String, Object>("Count", count), new AbstractMap.SimpleEntry<String, Object>("ResetEvent", resetEvent)};
-        }
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("Count", count);
+        state.put("CurrentEventChunk", currentEventChunk.getFirst());
+        state.put("ExpiredEventChunk", expiredEventChunk != null ? expiredEventChunk.getFirst() : null);
+        state.put("ResetEvent", resetEvent);
+        return state;
     }
 
-    @Override
-    public void restoreState(Object[] state) {
-        if (state.length > 3) {
-            currentEventChunk.clear();
-            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-            currentEventChunk.add((StreamEvent) stateEntry.getValue());
-            expiredEventChunk.clear();
-            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
-            expiredEventChunk.add((StreamEvent) stateEntry2.getValue());
-            Map.Entry<String, Object> stateEntry3 = (Map.Entry<String, Object>) state[2];
-            count = (Integer) stateEntry3.getValue();
-            Map.Entry<String, Object> stateEntry4 = (Map.Entry<String, Object>) state[3];
-            resetEvent = (StreamEvent) stateEntry4.getValue();
 
-        } else {
-            currentEventChunk.clear();
-            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-            currentEventChunk.add((StreamEvent) stateEntry.getValue());
-            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
-            count = (Integer) stateEntry2.getValue();
-            Map.Entry<String, Object> stateEntry3 = (Map.Entry<String, Object>) state[2];
-            resetEvent = (StreamEvent) stateEntry3.getValue();
+    @Override
+    public void restoreState(Map<String, Object> state) {
+        count = (int) state.get("Count");
+        currentEventChunk.clear();
+        currentEventChunk.add((StreamEvent) state.get("CurrentEventChunk"));
+        if (expiredEventChunk != null) {
+            expiredEventChunk.clear();
+            expiredEventChunk.add((StreamEvent) state.get("ExpiredEventChunk"));
         }
+        resetEvent = (StreamEvent) state.get("ResetEvent");
     }
 
     @Override

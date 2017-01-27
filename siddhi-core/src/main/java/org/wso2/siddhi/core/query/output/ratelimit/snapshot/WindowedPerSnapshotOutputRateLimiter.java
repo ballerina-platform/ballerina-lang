@@ -130,13 +130,15 @@ public class WindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimi
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{eventList};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("EventList", eventList);
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        eventList = (LinkedList<ComplexEvent>) state[0];
+    public void restoreState(Map<String, Object> state) {
+        eventList = (LinkedList<ComplexEvent>) state.get("EventList");
     }
 
 }

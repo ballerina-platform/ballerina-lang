@@ -122,13 +122,15 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{groupByKeyEvents};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("GroupByKeyEvents", groupByKeyEvents);
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        groupByKeyEvents = (Map<String, LastEventHolder>) state[0];
+    public void restoreState(Map<String, Object> state) {
+        groupByKeyEvents = (Map<String, LastEventHolder>) state.get("GroupByKeyEvents");
     }
 
     private class LastEventHolder {

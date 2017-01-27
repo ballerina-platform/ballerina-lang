@@ -317,15 +317,20 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{currentStateEventChunk, pendingStateEventList, newAndEveryStateEventList};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("CurrentStateEventChunk", currentStateEventChunk.getFirst());
+        state.put("PendingStateEventList", pendingStateEventList);
+        state.put("NewAndEveryStateEventList", newAndEveryStateEventList);
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        currentStateEventChunk = (ComplexEventChunk<StateEvent>) state[0];
-        pendingStateEventList = (LinkedList<StateEvent>) state[1];
-        newAndEveryStateEventList = (LinkedList<StateEvent>) state[2];
+    public void restoreState(Map<String, Object> state) {
+        currentStateEventChunk.clear();
+        currentStateEventChunk.add((StateEvent) state.get("FirstEvent"));
+        pendingStateEventList = (LinkedList<StateEvent>) state.get("PendingStateEventList");
+        newAndEveryStateEventList = (LinkedList<StateEvent>) state.get("NewAndEveryStateEventList");
     }
 
     @Override

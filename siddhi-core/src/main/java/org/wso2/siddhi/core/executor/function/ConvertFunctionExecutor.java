@@ -28,6 +28,8 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
+import java.util.Map;
+
 @Description("Converts the first input parameter according to the convertedTo parameter.")
 @Parameters({
         @Parameter(name = "arg", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
@@ -202,13 +204,13 @@ public class ConvertFunctionExecutor extends FunctionExecutor {
     }
 
     @Override
-    public Object[] currentState() {
+    public Map<String, Object> currentState() {
         //No states
         return null;
     }
 
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> state) {
         //Nothing to be done
     }
 }

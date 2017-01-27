@@ -17,17 +17,7 @@
  */
 package org.wso2.siddhi.core.query.processor.stream.window;
 
-import org.quartz.CronScheduleBuilder;
-import org.quartz.Job;
-import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.SchedulerFactory;
-import org.quartz.Trigger;
+import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 import org.wso2.siddhi.annotation.Description;
 import org.wso2.siddhi.annotation.Parameter;
@@ -41,7 +31,7 @@ import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 
-import java.util.AbstractMap;
+import java.util.HashMap;
 import java.util.Map;
 
 @Description("This window returns events processed periodically as the " +
@@ -97,18 +87,20 @@ public class CronWindowProcessor extends WindowProcessor implements Job {
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("CurrentEventChunk", currentEventChunk.getFirst()), new AbstractMap.SimpleEntry<String, Object>("ExpiredEventChunk", expiredEventChunk.getFirst())};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("CurrentEventChunk", currentEventChunk.getFirst());
+        state.put("ExpiredEventChunk", expiredEventChunk.getFirst());
+        return state;
     }
 
+
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> state) {
         currentEventChunk.clear();
-        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-        currentEventChunk.add((StreamEvent) stateEntry.getValue());
+        currentEventChunk.add((StreamEvent) state.get("CurrentEventChunk"));
         expiredEventChunk.clear();
-        Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
-        expiredEventChunk.add((StreamEvent) stateEntry2.getValue());
+        expiredEventChunk.add((StreamEvent) state.get("ExpiredEventChunk"));
     }
 
     private void scheduleCronJob(String cronString, String elementId) {

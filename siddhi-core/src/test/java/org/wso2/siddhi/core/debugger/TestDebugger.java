@@ -29,7 +29,6 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -603,10 +602,10 @@ public class TestDebugger {
 
                 int count = debugEventCount.addAndGet(getCount(event));
                 if (count == 2) {
-                    QueryState queryState = debugger.getQueryState(queryName);
+                    Map<String, Object> queryState = debugger.getQueryState(queryName);
                     System.out.println(queryState);
-                    StreamEvent streamEvent = (StreamEvent) ((Map<String, Object>) queryState.getKnownFields().values
-                            ().toArray()[0]).get("ExpiredEventChunk");
+                    StreamEvent streamEvent = (StreamEvent) ((Map<String, Object>) queryState.values().toArray()[0])
+                            .get("ExpiredEventChunk");
                     Assert.assertArrayEquals(streamEvent.getOutputData(), new Object[]{"WSO2", 50.0f, null});
                 }
                 debugger.next();

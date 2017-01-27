@@ -34,6 +34,7 @@ import org.wso2.siddhi.core.util.lock.LockWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class WrappedSnapshotOutputRateLimiter extends OutputRateLimiter {
@@ -136,12 +137,12 @@ public class WrappedSnapshotOutputRateLimiter extends OutputRateLimiter {
     }
 
     @Override
-    public Object[] currentState() {
+    public Map<String, Object> currentState() {
         return outputRateLimiter.currentState();
     }
 
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> state) {
         outputRateLimiter.restoreState(state);
     }
 }

@@ -27,8 +27,8 @@ import org.wso2.siddhi.core.util.Schedulable;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.parser.SchedulerParser;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -104,14 +104,15 @@ public class LastPerTimeOutputRateLimiter extends OutputRateLimiter implements S
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("LastEvent", lastEvent)};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("LastEvent", lastEvent);
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-        lastEvent = (ComplexEvent) stateEntry.getValue();
+    public void restoreState(Map<String, Object> state) {
+        lastEvent = (ComplexEvent) state.get("LastEvent");
     }
 
 }

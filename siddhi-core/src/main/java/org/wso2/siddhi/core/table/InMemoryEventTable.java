@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core.table;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
@@ -38,11 +39,11 @@ import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.expression.Expression;
 
-import java.util.AbstractMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * In-memory event table implementation of SiddhiQL.
@@ -66,7 +67,7 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
         eventHolder = EventHolderPasser.parse(tableDefinition, tableStreamEventPool);
 
         if (elementId == null) {
-            elementId = "InMemoryEventTable" + executionPlanContext.getElementIdGenerator().createNewId();
+            elementId = "InMemoryEventTable-" + executionPlanContext.getElementIdGenerator().createNewId();
         }
         executionPlanContext.getSnapshotService().addSnapshotable(tableDefinition.getId(), this);
     }
@@ -167,14 +168,15 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
 
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("EventHolder", eventHolder)};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+                state.put("EventHolder", eventHolder);
+                return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-        eventHolder = (EventHolder) stateEntry.getValue();
+    public void restoreState(Map<String, Object> state) {
+        eventHolder = (EventHolder) state.get("EventHolder");
     }
 
     @Override
