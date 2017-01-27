@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -47,7 +47,7 @@ import java.nio.file.Path;
 public class BallerinaDocUtils {
 
     private static final PrintStream out = System.out;
-    
+
     /**
      * @return the string representation of a type
      */
@@ -81,10 +81,11 @@ public class BallerinaDocUtils {
             // This is required by the parser-error strategy.
             ANTLRInputStream antlrInputStream = new ANTLRInputStream(new FileInputStream(sourceFilePath.toFile()));
 
-//            if (antlrInputStream != null) {
-//                antlrInputStream.name = sourceFilePath.getFileName() == null ? "dummy" : sourceFilePath.getFileName()
-//                        .toString();
-//            }
+            //            if (antlrInputStream != null) {
+            //                antlrInputStream.name = sourceFilePath.getFileName() == null ? "dummy" :
+            // sourceFilePath.getFileName()
+            //                        .toString();
+            //            }
 
             BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
             CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);

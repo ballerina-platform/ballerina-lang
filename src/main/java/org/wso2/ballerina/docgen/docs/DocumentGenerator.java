@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -181,7 +181,6 @@ public class DocumentGenerator implements NodeVisitor {
                 doc.setDescription(annotation.getValue());
             }
         }
-
     }
 
     @Override
@@ -192,7 +191,7 @@ public class DocumentGenerator implements NodeVisitor {
     public void visit(BallerinaFunction function) {
         BallerinaFunctionDoc doc = new BallerinaFunctionDoc();
         BallerinaDocDataHolder.getInstance().getBallerinaDocsMap().get(currentPkg).addBallerinaFunctionDoc(doc);
-        
+
         StringBuilder s = new StringBuilder(function.getFunctionName() + " (");
         for (Parameter parameter : function.getParameters()) {
             s.append(BallerinaDocUtils.getType(parameter.getType()) + " " + parameter.getName() + ",");
@@ -201,10 +200,10 @@ public class DocumentGenerator implements NodeVisitor {
 
         s = new StringBuilder();
         for (Parameter parameter : function.getReturnParameters()) {
-                s.append(BallerinaDocUtils.getType(parameter.getType()) + ",");
+            s.append(BallerinaDocUtils.getType(parameter.getType()) + ",");
         }
         doc.setReturnType(s.length() == 0 ? "" : s.substring(0, s.length() - 1));
-        
+
         for (Annotation annotation : function.getAnnotations()) {
             if (annotation.getName().equalsIgnoreCase("param")) {
                 doc.getParameters().add(annotation.getValue());

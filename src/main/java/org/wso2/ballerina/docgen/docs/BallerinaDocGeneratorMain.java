@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -35,7 +35,7 @@ import java.util.Map.Entry;
  * Main class to generate a ballerina documentation
  */
 public class BallerinaDocGeneratorMain {
-    
+
     private static final PrintStream out = System.out;
 
     public static void main(String[] args) {
@@ -46,7 +46,7 @@ public class BallerinaDocGeneratorMain {
         }
 
     }
-    
+
     /**
      * Generates {@link BallerinaPackageDoc} objects for each Ballerina package from the given ballerina files.
      * @param path should point either to a ballerina file or a folder with ballerina files.
@@ -61,7 +61,7 @@ public class BallerinaDocGeneratorMain {
         File ballerinaFolderFile = new File(ballerinaFolder);
         if (ballerinaFolderFile.isDirectory()) {
             ballerinaFiles = ballerinaFolderFile.listFiles(new FileFilter() {
-                
+
                 @Override
                 public boolean accept(File file) {
                     // TODO get .bal from Core constants.
