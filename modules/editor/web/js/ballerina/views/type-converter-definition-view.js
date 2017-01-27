@@ -96,7 +96,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             leftTypeStructDef.setSchema(employee);
             leftTypeStructDef.setCategory("SOURCE");
             self._model.addChild(leftTypeStructDef);
-            self._model.accept(this);
+            //self._model.accept(self);
 
 
         });
@@ -127,7 +127,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             rightTypeStructDef.setSchema(person);
             rightTypeStructDef.setCategory("TARGET");
             self._model.addChild(rightTypeStructDef);
-            self._model.accept(this);
+            //self._model.accept(self);
 
             var newVariableDeclaration = BallerinaASTFactory.createVariableDeclaration();
             // Pushing new variable declaration//todo setType

@@ -72,14 +72,6 @@ define(['lodash', './node'], function (_, ASTNode) {
             return self.BallerinaASTFactory.isVariableDeclaration(child);
         });
 
-        // index = -1 when there are not any variable declarations, hence get the index for connector
-        // declarations.
-        if (index == -1) {
-            index = _.findLastIndex(this.getChildren(), function (child) {
-                return self.BallerinaASTFactory.isConnectorDeclaration(child);
-            });
-        }
-
         this.addChild(newVariableDeclaration, index + 1);
     };
 
@@ -96,78 +88,37 @@ define(['lodash', './node'], function (_, ASTNode) {
         });
         this.removeChild(variableDeclarationChild);
     };
-
+    
     /**
-     * Gets the return type model. A type converter definition can have only one {ReturnType} model.
-     * @return {ReturnType|undefined} - The return type model.
+     * Gets the return type
+     * @return {string} - Return type.
      */
-    TypeConverterDefinition.prototype.getReturnTypeModel = function() {
-        var self = this;
-        var returnTypeModel = undefined;
-        _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isReturnType(child)) {
-                returnTypeModel = child;
-                // break
-                return false;
-            }
-        });
-        return returnTypeModel;
-    };
-
-    /**
-     * Gets the defined return types.
-     * @return {Argument[]} - Array of args.
-     */
-    TypeConverterDefinition.prototype.getReturnTypes = function () {
-        var returnTypeModel = this.getReturnTypeModel();
-        return !_.isUndefined(returnTypeModel) ? this.getReturnTypeModel().getChildren().slice(0) : [];
-    };
-
-    /**
-     * Gets the return type as a string separated by commas.
-     * @return {string} - Return types.
-     */
-    TypeConverterDefinition.prototype.getReturnTypesAsString = function () {
-        var returnTypes = [];
-        _.forEach(this.getReturnTypes(), function (returnTypeChild) {
-            returnTypes.push(returnTypeChild.getArgumentAsString())
-        });
-
-        return _.join(returnTypes, ", ");
-    };
-
-    /**
-     * returns the arguments array
-     * @returns {Array} arguments array
-     */
-    TypeConverterDefinition.prototype.getArguments = function () {
-        var functionArgs = [];
+    TypeConverterDefinition.prototype.getReturnType = function () {
+        var returnType = "";
         var self = this;
 
         _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isArgument(child)) {
-                functionArgs.push(child);
+            if (self.BallerinaASTFactory.isTypeStructDefinition(child) && child._category === "TARGET") {
+                returnType = child.getTypeStructName();
             }
         });
-        return functionArgs;
+        return returnType;
     };
 
     /**
-     * Returns the list of arguments as a string separated by commas.
-     * @return {string} - Arguments as string.
+     * returns the argument
+     * @returns {String} argument
      */
-    TypeConverterDefinition.prototype.getArgumentsAsString = function () {
-        var argsAsString = "";
-        var args = this.getArguments();
-        _.forEach(args, function(argument, index){
-            argsAsString += argument.type + " ";
-            argsAsString += argument.identifier;
-            if (args.length - 1 != index) {
-                argsAsString += ", ";
+    TypeConverterDefinition.prototype.getSourceAndIdentifier = function () {
+       var sourceAndIdentifier = "";
+       var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.BallerinaASTFactory.isTypeStructDefinition(child) && child._category === "SOURCE") {
+                sourceAndIdentifier = child.getTypeStructName() + " " + child.getIdentifier();
             }
         });
-
-        return argsAsString;
+        return sourceAndIdentifier;
     };
 
     return TypeConverterDefinition;
