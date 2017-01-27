@@ -104,6 +104,10 @@
             <groupId>org.apache.james</groupId>
             <artifactId>apache-mime4j-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.staxon</groupId>
+            <artifactId>staxon-core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -219,13 +223,6 @@
                     <formats>
                         <format>html</format>
                     </formats>
-                     <reportSets>
-                         <reportSet>
-                             <reports>
-                                 <report>cobertura</report>
-                             </reports>
-                         </reportSet>
-                     </reportSets>
                 </configuration>
                 <executions>
                     <execution>
@@ -241,32 +238,6 @@
 
     <properties>
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
-        <!--<export.package>-->
-            <!--org.wso2.ballerina.core.*;version="${ballerina.package.export.version}"-->
-        <!--</export.package>-->
-        <!--<import.package>-->
-            <!--org.osgi.framework.*;version="${osgi.framework.import.version.range}",-->
-            <!--org.osgi.util.tracker;version="${osgi.service.tracker.import.version.range}",-->
-            <!--org.wso2.carbon.kernel.utils.*;version="${carbon.kernel.package.import.version.range}",-->
-            <!--org.wso2.carbon.kernel.transports.*;version="${carbon.kernel.package.import.version.range}",-->
-            <!--org.wso2.carbon.kernel.deployment.*;version="${carbon.kernel.package.import.version.range}",-->
-            <!--org.wso2.carbon.kernel.startupresolver.*;version="${carbon.kernel.package.import.version.range}",-->
-            <!--org.slf4j.*;version="${slf4j.logging.package.import.version.range}",-->
-            <!--org.antlr.v4.runtime.*,-->
-            <!--org.apache.axiom.*;version="0.0.0",-->
-            <!--org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",-->
-            <!--org.wso2.carbon.deployment.engine.*;version="${carbon.deployment.export.version}",-->
-            <!--com.google.gson.*;version="${gson.import.version.range}",-->
-            <!--com.jayway.jsonpath.*;version="${jayway.jsonpath.import.version.range}",-->
-            <!--org.jaxen.*;version="${jaxen.import.version.range}",-->
-            <!--net.sf.saxon.*;version="${saxon.import.version.range}"-->
-        <!--</import.package>-->
-        <!--<carbon.component>-->
-            <!--startup.listener;componentName="ballerina-native-provider";-->
-            <!--requiredService="org.wso2.ballerina.core.model.AbstractNativeFunction",-->
-            <!--osgi.service; objectClass="org.wso2.carbon.messaging.CarbonMessageProcessor";-->
-            <!--requiredByComponentName="netty-transports-mgt"-->
-        <!--</carbon.component>-->
     </properties>
 
 </project>

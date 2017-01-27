@@ -17,9 +17,9 @@
  */
 define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-group',
         './drag-drop-manager', './../ast/ballerina-ast-factory','./initial-definitions',
-        './../search/search', './../search/import-search-adapter', 'mousetrap' ],
+        './../search/search', './../search/import-search-adapter', 'mousetrap', 'mcustom_scroller'],
     function (require, log, $, Backbone, ToolGroupView, ToolGroup,
-              DragDropManager, BallerinaASTFactory, initialTools, Search, ImportSearchAdapter, Mousetrap) {
+              DragDropManager, BallerinaASTFactory, initialTools, Search, ImportSearchAdapter, Mousetrap, mcustomScroller) {
 
     var ToolPalette = Backbone.View.extend({
         initialize: function (options) {
@@ -96,18 +96,22 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             }  
 
             var importForm = $('<div class="tool-import-wrapper">'+
-                               '<div class="tool-group-import-header">'+
-                               '  <a class="tool-group-header-title">Imports</a> ( Ctrl + I )'+
-                               '  <span id="addImportSearch" class="tool-import-icon fw-stack fw-lg">'+
-                               '      <i class="fw fw-square fw-stack-2x"></i>'+
-                               '      <i class="fw fw-add fw-stack-1x fw-inverse"></i>'+
-                               '  </span>'+
-                               '</div>'+
-                               '</div>');
+                                '<div class="tool-group-import-header">'+
+                                '  <a class="tool-group-header-title">Imports</a> '+
+                                '  <span id="addImportSearch" class="tool-import-icon fw-stack fw-lg">'+
+                                '      <i class="fw fw-add"></i>'+
+                                '  </span>'+
+                                '</div>'+
+                                '</div>');
             this.$el.append(importForm);
             
             this._toolGroups.imports.forEach(function (package){
                 self.addImport(package);
+            });
+
+            $(this._$parent_el).mCustomScrollbar({
+                theme: "minimal-dark",
+                scrollInertia: 0
             });
             return this;
         },

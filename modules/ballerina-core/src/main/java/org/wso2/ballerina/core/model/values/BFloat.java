@@ -32,12 +32,12 @@ public final class BFloat extends BValueType {
 
     @Override
     public int intValue() {
-        return 0;
+        return (int) this.value;
     }
 
     @Override
     public long longValue() {
-        return 0;
+        return (long) this.value;
     }
 
     @Override
@@ -47,7 +47,7 @@ public final class BFloat extends BValueType {
 
     @Override
     public double doubleValue() {
-        return 0;
+        return (double) this.value;
     }
 
     @Override

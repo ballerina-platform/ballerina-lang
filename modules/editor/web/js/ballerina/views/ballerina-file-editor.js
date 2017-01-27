@@ -19,10 +19,11 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view',
         './../visitors/source-gen/ballerina-ast-root-visitor','./../visitors/symbol-table/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
         './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer', './connector-definition-view', './struct-definition-view',
-        './../env/package', './../env/package-scoped-environment', './../env/environment'],
+        './../env/package', './../env/package-scoped-environment', './../env/environment', './constant-definitions-pane-view'],
     function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory,
               PackageDefinition, SourceView, SourceGenVisitor, SymbolTableGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer,
-              ConnectorDefinitionView, StructDefinitionView, Package, PackageScopedEnvironment, BallerinaEnvironment) {
+              ConnectorDefinitionView, StructDefinitionView, Package, PackageScopedEnvironment, BallerinaEnvironment,
+              ConstantsDefinitionsPaneView) {
 
         /**
          * The view to represent a ballerina file editor which is an AST visitor.
@@ -49,6 +50,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             }
             this.backend = new Backend(_.get(args, 'viewOptions.backend', {}));
             this._isInSourceView = false;
+            this._constantDefinitionsPane = undefined;
             this.deserializer = BallerinaASTDeserializer;
             this.init();
         };
@@ -280,6 +282,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             // render tool palette
             this.toolPalette.render();
             this.toolPalette.addImport(this._package);
+
+            // Creating the constants view.
+            this._createConstantDefinitionsView(this._$canvasContainer);
 
             this._model.accept(this);
 
@@ -583,6 +588,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 log.error(errMsg);
                 throw errMsg;
             }
+            // Creating the constants view.
+            this._createConstantDefinitionsView(this._$canvasContainer);
+
             this._model.accept(this);
             this.initDropTarget();
             this.trigger('redraw');
@@ -590,6 +598,23 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
         BallerinaFileEditor.prototype.getUndoManager = function(){
             return this._undoManager;
+        };
+
+        BallerinaFileEditor.prototype._createConstantDefinitionsView = function(container) {
+
+            var constantsWrapper = $("<div/>",{
+                class: "constant-definition-main-wrapper"
+            }).appendTo(container);
+
+            var constantsDefinitionPaneProperties = {
+                model: this.getModel(),
+                paneAppendElement: constantsWrapper,
+                view: this
+            };
+
+            this._constantDefinitionsPane = new ConstantsDefinitionsPaneView(constantsDefinitionPaneProperties);
+
+            this._constantDefinitionsPane.createConstantDefinitionPane();
         };
 
         return BallerinaFileEditor;

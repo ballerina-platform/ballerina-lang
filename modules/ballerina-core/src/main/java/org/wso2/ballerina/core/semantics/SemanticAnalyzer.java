@@ -29,6 +29,7 @@ import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.interpreter.SymTable;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -48,6 +49,7 @@ import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.TypeConvertor;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
@@ -80,6 +82,7 @@ import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
+import org.wso2.ballerina.core.model.expressions.TypeCastExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
@@ -100,6 +103,7 @@ import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.model.values.BString;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.NativeCastConvertor;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -148,6 +152,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             addConnectorSymbol(connector);
             Arrays.asList(connector.getActions()).forEach(this::addActionSymbol);
         });
+        Arrays.asList(bFile.getTypeConvertors()).forEach(this::addTypeConverterSymbol);
     }
 
     @Override
@@ -177,6 +182,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (Function function : bFile.getFunctions()) {
             BallerinaFunction bFunction = (BallerinaFunction) function;
             bFunction.accept(this);
+        }
+
+        for (TypeConvertor tConverter : bFile.getTypeConvertors()) {
+            BTypeConvertor typeConvertor = (BTypeConvertor) tConverter;
+            typeConvertor.accept(this);
         }
 
         int setSizeOfStaticMem = staticMemAddrOffset + 1;
@@ -375,6 +385,56 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
+    public void visit(BTypeConvertor typeConvertor) {
+        // Open a new symbol scope
+        openScope(SymScope.Name.TYPECONVERTOR);
+        currentCallableUnit = typeConvertor;
+
+        // Check whether the return statement is missing. Ignore if the function does not return anything.
+        // TODO Define proper error message codes
+        //checkForMissingReturnStmt(function, "missing return statement at end of function");
+
+        for (Parameter parameter : typeConvertor.getParameters()) {
+            stackFrameOffset++;
+            visit(parameter);
+        }
+
+        for (VariableDcl variableDcl : typeConvertor.getVariableDcls()) {
+            stackFrameOffset++;
+            visit(variableDcl);
+        }
+
+        for (Parameter parameter : typeConvertor.getReturnParameters()) {
+            // Check whether these are unnamed set of return types.
+            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
+            if (parameter.getName() == null) {
+                break;
+            }
+
+            stackFrameOffset++;
+            visit(parameter);
+        }
+
+        BlockStmt blockStmt = typeConvertor.getCallableUnitBody();
+        blockStmt.accept(this);
+
+        // Here we need to calculate size of the BValue array which will be created in the stack frame
+        // Values in the stack frame are stored in the following order.
+        // -- Parameter values --
+        // -- Local var values --
+        // -- Temp values      --
+        // -- Return values    --
+        // These temp values are results of intermediate expression evaluations.
+        int sizeOfStackFrame = stackFrameOffset + 1;
+        typeConvertor.setStackFrameSize(sizeOfStackFrame);
+
+        // Close the symbol scope
+        stackFrameOffset = -1;
+        currentCallableUnit = null;
+        closeScope();
+    }
+
+    @Override
     public void visit(BallerinaAction action) {
         // Open a new symbol scope
         openScope(SymScope.Name.ACTION);
@@ -454,7 +514,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             location = new ConnectorVarLocation(connectorMemAddrOffset);
         } else if (isInScope(SymScope.Name.FUNCTION) ||
                 isInScope(SymScope.Name.RESOURCE) ||
-                isInScope(SymScope.Name.ACTION)) {
+                isInScope(SymScope.Name.ACTION) ||
+                isInScope(SymScope.Name.TYPECONVERTOR)) {
 
             location = new LocalVarLocation(stackFrameOffset);
         } else {
@@ -487,7 +548,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             location = new ServiceVarLocation(staticMemAddrOffset);
         } else if (isInScope(SymScope.Name.FUNCTION) ||
                 isInScope(SymScope.Name.RESOURCE) ||
-                isInScope(SymScope.Name.ACTION)) {
+                isInScope(SymScope.Name.ACTION) ||
+                isInScope(SymScope.Name.TYPECONVERTOR)) {
             location = new LocalVarLocation(stackFrameOffset);
         } else if (isInScope(SymScope.Name.PACKAGE)) {
             location = new StructVarLocation(structMemAddrOffset);
@@ -504,7 +566,8 @@ public class SemanticAnalyzer implements NodeVisitor {
      * Check whether the Type is a valid one.
      * A valid type can be either a primitive type, or a user defined type.
      * 
-     * @param variableDcl   Variable Declaration
+     * @param type   type name
+     * @param location source location
      */
     private void validateType(BType type, Position location) {
         if (type instanceof BArrayType) {
@@ -600,10 +663,17 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // TODO Remove the MAP related logic when type casting is implemented
-        if (lExpr.getType() == null || rExpr.getType() == null || ((lExpr.getType() != BTypes.MAP_TYPE) && 
-                (rExpr.getType() != BTypes.MAP_TYPE) && (!lExpr.getType().equals(rExpr.getType())))) {
-            throw new SemanticException(getLocationStr(lExpr.getLocation()) + "incompatible types: " + rExpr.getType() 
-                + " cannot be converted to " + lExpr.getType());
+        if ((lExpr.getType() != BTypes.MAP_TYPE) && (rExpr.getType() != BTypes.MAP_TYPE) &&
+                (!lExpr.getType().equals(rExpr.getType()))) {
+            TypeCastExpression newExpr = checkWideningPossibleForAssign(lExpr, rExpr);
+            if (newExpr != null) {
+                newExpr.accept(this);
+                assignStmt.setRhsExpr(newExpr);
+            } else {
+                throw new SemanticException(lExpr.getLocation().getFileName() + ":"
+                        + lExpr.getLocation().getLine() + ": incompatible types: " + rExpr.getType() +
+                        " cannot be converted to " + lExpr.getType());
+            }
         }
     }
     
@@ -1285,6 +1355,97 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
+    public void visit(TypeCastExpression typeCastExpression) {
+        // Evaluate the expression and set the type
+        typeCastExpression.getSourceExpression().accept(this);
+        BType sourceType = typeCastExpression.getSourceExpression().getType();
+        BType targetType = typeCastExpression.getTargetType();
+        // Check whether this is a native conversion
+        if (BTypes.isValueType(sourceType) &&
+                BTypes.isValueType(targetType)) {
+            if (sourceType == BTypes.STRING_TYPE) {
+                if (targetType == BTypes.INT_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_INT_FUNC);
+                } else if (targetType == BTypes.LONG_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_LONG_FUNC);
+                } else if (targetType == BTypes.FLOAT_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_FLOAT_FUNC);
+                } else if (targetType == BTypes.DOUBLE_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_DOUBLE_FUNC);
+                } else if (targetType == BTypes.BOOLEAN_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_BOOLEAN_FUNC);
+                } else {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_STRING_FUNC);
+                }
+            } else if (sourceType == BTypes.INT_TYPE) {
+                if (targetType == BTypes.STRING_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_STRING_FUNC);
+                } else if (targetType == BTypes.LONG_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_LONG_FUNC);
+                } else if (targetType == BTypes.FLOAT_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_FLOAT_FUNC);
+                } else if (targetType == BTypes.DOUBLE_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_DOUBLE_FUNC);
+                } else if (targetType == BTypes.INT_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_INT_FUNC);
+                }
+            } else if (sourceType == BTypes.LONG_TYPE) {
+                if (targetType == BTypes.INT_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_INT_FUNC);
+                } else if (targetType == BTypes.STRING_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_STRING_FUNC);
+                } else if (targetType == BTypes.FLOAT_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_FLOAT_FUNC);
+                } else if (targetType == BTypes.DOUBLE_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_DOUBLE_FUNC);
+                } else if (targetType == BTypes.LONG_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_LONG_FUNC);
+                }
+            } else if (sourceType == BTypes.FLOAT_TYPE) {
+                if (targetType == BTypes.INT_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_INT_FUNC);
+                } else if (targetType == BTypes.LONG_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_LONG_FUNC);
+                } else if (targetType == BTypes.FLOAT_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_FLOAT_FUNC);
+                } else if (targetType == BTypes.DOUBLE_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_DOUBLE_FUNC);
+                } else if (targetType == BTypes.STRING_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_STRING_FUNC);
+                }
+            } else if (sourceType == BTypes.DOUBLE_TYPE) {
+                if (targetType == BTypes.INT_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_INT_FUNC);
+                } else if (targetType == BTypes.LONG_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_LONG_FUNC);
+                } else if (targetType == BTypes.FLOAT_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_FLOAT_FUNC);
+                } else if (targetType == BTypes.DOUBLE_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_DOUBLE_FUNC);
+                } else if (targetType == BTypes.STRING_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_STRING_FUNC);
+                }
+            } else if (sourceType == BTypes.BOOLEAN_TYPE) {
+                if (targetType == BTypes.STRING_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.BOOLEAN_TO_STRING_FUNC);
+                } else if (targetType == BTypes.BOOLEAN_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.BOOLEAN_TO_BOOLEAN_FUNC);
+                }
+            } else if (sourceType == BTypes.XML_TYPE) {
+                if (targetType == BTypes.STRING_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.XML_TO_STRING_FUNC);
+                }
+            } else if (sourceType == BTypes.JSON_TYPE) {
+                if (targetType == BTypes.STRING_TYPE) {
+                    typeCastExpression.setEvalFunc(NativeCastConvertor.JSON_TO_STRING_FUNC);
+                }
+            }
+        } else {
+            linkTypeConverter(typeCastExpression, sourceType, targetType);
+        }
+    }
+
+    @Override
     public void visit(LocalVarLocation localVarLocation) {
 
     }
@@ -1362,6 +1523,21 @@ public class SemanticAnalyzer implements NodeVisitor {
         symbolTable.insert(symbolName, symbol);
     }
 
+    private void addTypeConverterSymbol(TypeConvertor typeConvertor) {
+        SymbolName symbolName = LangModelUtils.getTypeConverterSymName(typeConvertor.getPackageName(),
+                typeConvertor.getParameters(),
+                typeConvertor.getReturnParameters());
+        typeConvertor.setSymbolName(symbolName);
+
+        if (symbolTable.lookup(symbolName) != null) {
+            throw new SemanticException(typeConvertor.getLocation().getFileName() + ":" + typeConvertor.getLocation()
+                    .getLine() + ": duplicate typeConvertor '" + typeConvertor.getTypeConverterName() + "'");
+        }
+
+        Symbol symbol = new Symbol(typeConvertor);
+        symbolTable.insert(symbolName, symbol);
+    }
+
     private void addActionSymbol(BallerinaAction action) {
         SymbolName actionSymbolName = action.getSymbolName();
         BType[] paramTypes = LangModelUtils.getTypesOfParams(action.getParameters());
@@ -1411,9 +1587,15 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression lExpr = binaryExpr.getLExpr();
 
         if (lExpr.getType() != rExpr.getType()) {
-            throw new SemanticException(binaryExpr.getLocation().getFileName() + ":" +
-                    binaryExpr.getLocation().getLine() +
-                    ": incompatible types in binary expression: " + lExpr.getType() + " vs " + rExpr.getType());
+            TypeCastExpression newExpr = checkWideningPossibleForBinary(lExpr, rExpr, binaryExpr.getOperator());
+            if (newExpr != null) {
+                newExpr.accept(this);
+                binaryExpr.setRExpr(newExpr);
+            } else {
+                throw new SemanticException(binaryExpr.getLocation().getFileName() + ":" +
+                        binaryExpr.getLocation().getLine() +
+                        ": incompatible types in binary expression: " + lExpr.getType() + " vs " + rExpr.getType());
+            }
         }
 
         return lExpr.getType();
@@ -1775,7 +1957,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             fieldExpr.accept(this);
         }
     }
-    
     /**
      * Set the memory location for a expression.
      * 
@@ -1835,4 +2016,128 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
         return fieldSymbol;
     }
+
+    private void linkTypeConverter(TypeCastExpression typeCastExpression, BType sourceType, BType targetType) {
+        // Check on the same package
+        SymbolName symbolName = new SymbolName(currentPkg + ":" + "_" + sourceType + "->" + "_" + targetType);
+        typeCastExpression.setTypeConverterName(symbolName);
+        Symbol symbol = symbolTable.lookup(symbolName);
+
+        if (symbol == null) {
+            // Check on the global scope for native type convertors
+            symbolName = LangModelUtils.getTypeConverterSymNameWithoutPackage
+                    (sourceType, targetType);
+            typeCastExpression.setTypeConverterName(symbolName);
+            symbol = symbolTable.lookup(symbolName);
+        }
+
+        if (symbol == null) {
+                throw new LinkerException(typeCastExpression.getLocation().getFileName() + ":" +
+                        typeCastExpression.getLocation().getLine() +
+                        ": type converter cannot be found for '" + sourceType
+                        + "to " + targetType + "'");
+        }
+
+        // Link
+        TypeConvertor typeConvertor = symbol.getTypeConvertor();
+        typeCastExpression.setCallableUnit(typeConvertor);
+
+    }
+
+    // Function to check whether implicit widening (casting) is possible for binary expression
+    private TypeCastExpression checkWideningPossibleForBinary(Expression lhsExpr, Expression rhsExpr, Operator op) {
+        BType rhsType = rhsExpr.getType();
+        BType lhsType = lhsExpr.getType();
+        TypeCastExpression newExpr = null;
+        if ((rhsType == BTypes.INT_TYPE && lhsType == BTypes.LONG_TYPE) ||
+                (lhsType == BTypes.INT_TYPE && rhsType == BTypes.LONG_TYPE)) {
+            newExpr = new TypeCastExpression(rhsExpr, BTypes.LONG_TYPE);
+            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_LONG_FUNC);
+        } else if ((rhsType == BTypes.INT_TYPE && lhsType == BTypes.FLOAT_TYPE) ||
+                (lhsType == BTypes.INT_TYPE && rhsType == BTypes.FLOAT_TYPE)) {
+            newExpr = new TypeCastExpression(rhsExpr, BTypes.FLOAT_TYPE);
+            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_FLOAT_FUNC);
+        } else if ((rhsType == BTypes.INT_TYPE && lhsType == BTypes.DOUBLE_TYPE) ||
+                (lhsType == BTypes.INT_TYPE && rhsType == BTypes.DOUBLE_TYPE)) {
+            newExpr = new TypeCastExpression(rhsExpr, BTypes.DOUBLE_TYPE);
+            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_DOUBLE_FUNC);
+        } else if (((rhsType == BTypes.INT_TYPE && lhsType == BTypes.STRING_TYPE) ||
+                (lhsType == BTypes.INT_TYPE && rhsType == BTypes.STRING_TYPE)) && op.equals(Operator.ADD)) {
+            newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
+            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_STRING_FUNC);
+        } else if ((rhsType == BTypes.LONG_TYPE && lhsType == BTypes.FLOAT_TYPE) ||
+                (lhsType == BTypes.LONG_TYPE && rhsType == BTypes.FLOAT_TYPE)) {
+                newExpr = new TypeCastExpression(rhsExpr, BTypes.FLOAT_TYPE);
+                newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_FLOAT_FUNC);
+        } else if ((rhsType == BTypes.LONG_TYPE && lhsType == BTypes.DOUBLE_TYPE) ||
+                (lhsType == BTypes.LONG_TYPE && rhsType == BTypes.DOUBLE_TYPE)) {
+                newExpr = new TypeCastExpression(rhsExpr, BTypes.DOUBLE_TYPE);
+                newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_DOUBLE_FUNC);
+        } else if (((rhsType == BTypes.LONG_TYPE && lhsType == BTypes.STRING_TYPE) ||
+                (lhsType == BTypes.LONG_TYPE && rhsType == BTypes.STRING_TYPE)) && op.equals(Operator.ADD))  {
+                newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
+                newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_STRING_FUNC);
+        } else if ((rhsType == BTypes.FLOAT_TYPE && lhsType == BTypes.DOUBLE_TYPE) ||
+                (lhsType == BTypes.FLOAT_TYPE && rhsType == BTypes.DOUBLE_TYPE)) {
+                newExpr = new TypeCastExpression(rhsExpr, BTypes.DOUBLE_TYPE);
+                newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_DOUBLE_FUNC);
+        } else if (((rhsType == BTypes.FLOAT_TYPE && lhsType == BTypes.STRING_TYPE) ||
+                (lhsType == BTypes.FLOAT_TYPE && rhsType == BTypes.STRING_TYPE)) && op.equals(Operator.ADD)) {
+                newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
+                newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_STRING_FUNC);
+        } else if (((rhsType == BTypes.DOUBLE_TYPE && lhsType == BTypes.STRING_TYPE) ||
+                (lhsType == BTypes.DOUBLE_TYPE && rhsType == BTypes.STRING_TYPE)) && op.equals(Operator.ADD)) {
+                newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
+                newExpr.setEvalFunc(NativeCastConvertor.DOUBLE_TO_STRING_FUNC);
+        }
+
+        if (newExpr != null) {
+            newExpr.setLocation(rhsExpr.getLocation());
+        }
+        return newExpr;
+    }
+
+    // Function to check whether implicit widening (casting) is possible for assignment statement
+    private TypeCastExpression checkWideningPossibleForAssign(Expression lhsExpr, Expression rhsExpr) {
+        BType rhsType = rhsExpr.getType();
+        BType lhsType = lhsExpr.getType();
+        TypeCastExpression newExpr = null;
+        if (rhsType == BTypes.INT_TYPE && lhsType == BTypes.LONG_TYPE) {
+            newExpr = new TypeCastExpression(rhsExpr, BTypes.LONG_TYPE);
+            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_LONG_FUNC);
+        } else if (rhsType == BTypes.INT_TYPE && lhsType == BTypes.FLOAT_TYPE) {
+            newExpr = new TypeCastExpression(rhsExpr, BTypes.FLOAT_TYPE);
+            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_FLOAT_FUNC);
+        } else if (rhsType == BTypes.INT_TYPE && lhsType == BTypes.DOUBLE_TYPE) {
+            newExpr = new TypeCastExpression(rhsExpr, BTypes.DOUBLE_TYPE);
+            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_DOUBLE_FUNC);
+        } else if (rhsType == BTypes.INT_TYPE && lhsType == BTypes.STRING_TYPE) {
+            newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
+            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_STRING_FUNC);
+        } else if (rhsType == BTypes.LONG_TYPE && lhsType == BTypes.FLOAT_TYPE) {
+            newExpr = new TypeCastExpression(rhsExpr, BTypes.FLOAT_TYPE);
+            newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_FLOAT_FUNC);
+        } else if (rhsType == BTypes.LONG_TYPE && lhsType == BTypes.DOUBLE_TYPE) {
+            newExpr = new TypeCastExpression(rhsExpr, BTypes.DOUBLE_TYPE);
+            newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_DOUBLE_FUNC);
+        } else if (rhsType == BTypes.LONG_TYPE && lhsType == BTypes.STRING_TYPE) {
+            newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
+            newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_STRING_FUNC);
+        } else if (rhsType == BTypes.FLOAT_TYPE && lhsType == BTypes.DOUBLE_TYPE) {
+            newExpr = new TypeCastExpression(rhsExpr, BTypes.DOUBLE_TYPE);
+            newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_DOUBLE_FUNC);
+        } else if (rhsType == BTypes.FLOAT_TYPE && lhsType == BTypes.STRING_TYPE) {
+            newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
+            newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_STRING_FUNC);
+        } else if (rhsType == BTypes.DOUBLE_TYPE && lhsType == BTypes.STRING_TYPE) {
+            newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
+            newExpr.setEvalFunc(NativeCastConvertor.DOUBLE_TO_STRING_FUNC);
+        }
+
+        if (newExpr != null) {
+            newExpr.setLocation(rhsExpr.getLocation());
+        }
+        return newExpr;
+    }
+
 }
