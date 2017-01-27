@@ -37,7 +37,7 @@ define(['require', 'log', 'jquery', 'backbone' ,'event_channel'],
 
         this.search_box.on("keydown keyup paste", _.bindKey(this, 'search'));
         this.list.on("click", 'li', _.bindKey(this, 'select'));
-    }
+    };
 
     Search.prototype = Object.create(EventChannel.prototype);
     Search.prototype.constructor = Search;    
@@ -69,7 +69,7 @@ define(['require', 'log', 'jquery', 'backbone' ,'event_channel'],
             var html = "";
             var adapter = this.adapter;
             var self = this;
-            _.forEach(result , function(value, key){
+            _.forEach(this.result , function(value, key){
                 var item = adapter.render(value);
                 html = html + self.template({ 'item':item, 'key':key });
             });
