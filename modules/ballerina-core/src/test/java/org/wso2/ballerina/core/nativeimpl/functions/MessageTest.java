@@ -29,8 +29,8 @@ import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
+import org.wso2.ballerina.core.utils.Functions;
 import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Header;
 
@@ -154,11 +154,11 @@ public class MessageTest {
         DefaultCarbonMessage carbonMsg = new DefaultCarbonMessage();
         carbonMsg.setStringMessageBody(payload1);
         BValue[] args = {new BMessage(carbonMsg), new BString(payload2)};
-        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "testClone", args.length);
-        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        FunctionInvocationExpr funcIExpr = TFunctionUtils.createInvocationExpr(bFile, "testClone", args.length);
+        Context bContext = TFunctionUtils.createInvocationContext(args, 1);
         BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
         funcIExpr.accept(bLangInterpreter);
-        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).intValue(), 1);*/
+        Assert.assertEquals(TFunctionUtils.getReturnBValue(bContext).intValue(), 1);*/
     }
 
     // TODO : Add test cases fot other native functions.

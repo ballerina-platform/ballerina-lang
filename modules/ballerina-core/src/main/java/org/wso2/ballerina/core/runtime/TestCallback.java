@@ -16,26 +16,22 @@
  * under the License.
  */
 
-package org.wso2.ballerina.lang.util;
+package org.wso2.ballerina.core.runtime;
 
-
-import org.wso2.ballerina.core.TestCallback;
-import org.wso2.ballerina.core.runtime.ServerConnectorMessageHandler;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * This contains test utils related to Ballerina service invocations.
- *
- * @since 0.8.0
+ * Callback for testing service/resource invocations.
  */
-public class Services {
+public class TestCallback implements BalCallback {
 
-    public static CarbonMessage invoke(CarbonMessage cMsg) {
+    CarbonMessage response;
 
-        TestCallback callback = new TestCallback();
-        ServerConnectorMessageHandler.handleInbound(cMsg, callback);
-
-        return callback.getResponse();  // This will only work for blocking behaviour
+    public void done(CarbonMessage carbonMessage) {
+        response = carbonMessage;
     }
 
+    public CarbonMessage getResponse() {
+        return response;
+    }
 }

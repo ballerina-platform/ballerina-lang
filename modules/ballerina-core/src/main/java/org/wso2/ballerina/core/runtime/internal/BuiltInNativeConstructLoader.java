@@ -49,6 +49,8 @@ import org.wso2.ballerina.core.nativeimpl.lang.array.StringArrayRangeCopy;
 import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayCopyOf;
 import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayLength;
 import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayRangeCopy;
+import org.wso2.ballerina.core.nativeimpl.lang.assertion.AssertFalse;
+import org.wso2.ballerina.core.nativeimpl.lang.assertion.AssertTrue;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddBooleanToArray;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddBooleanToObject;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddDoubleToArray;
@@ -290,6 +292,10 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new PrintlnString());
         registerFunction(scope, new PrintLong());
         registerFunction(scope, new PrintString());
+
+        //lang.assertion
+        registerFunction(scope, new AssertTrue());
+        registerFunction(scope, new AssertFalse());
 
         // lang.xml
         registerFunction(scope, new AddAttribute());

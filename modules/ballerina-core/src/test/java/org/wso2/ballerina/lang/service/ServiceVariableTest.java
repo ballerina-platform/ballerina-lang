@@ -23,7 +23,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.EnvironmentInitializer;
 import org.wso2.ballerina.core.utils.MessageUtils;
-import org.wso2.ballerina.lang.util.Services;
+import org.wso2.ballerina.core.utils.Services;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**

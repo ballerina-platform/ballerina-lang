@@ -31,8 +31,8 @@ import org.wso2.ballerina.core.nativeimpl.lang.json.GetString;
 import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.runtime.registry.PackageRegistry;
+import org.wso2.ballerina.core.utils.Functions;
 import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
 
 /**
  * Runtime Errors test class for ballerina filers.
