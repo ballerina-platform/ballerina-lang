@@ -27,6 +27,15 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
+import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Delete;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Execute;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Get;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.client.HTTPConnector;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Patch;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Post;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Put;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayCopyOf;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayLength;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayRangeCopy;
@@ -162,6 +171,8 @@ import org.wso2.ballerina.core.nativeimpl.net.http.SetReasonPhrase;
 import org.wso2.ballerina.core.nativeimpl.net.http.SetStatusCode;
 import org.wso2.ballerina.core.nativeimpl.net.uri.Encode;
 import org.wso2.ballerina.core.nativeimpl.net.uri.GetQueryParam;
+import org.wso2.ballerina.core.nativeimpl.util.GetHmac;
+import org.wso2.ballerina.core.nativeimpl.util.GetRandomString;
 
 
 /**
@@ -280,6 +291,7 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new Trim());
         registerFunction(scope, new Unescape());
         registerFunction(scope, new XmlValueOf());
+        registerFunction(scope, new GetRandomString());
 
         // lang.system
         registerFunction(scope, new CurrentTimeMillis());
@@ -325,6 +337,9 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new SetXMLWithNamespaces());
         registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.ToString());
 
+        // lang.util
+        registerFunction(scope, new GetHmac());
+
         // net.uri
         registerFunction(scope, new Encode());
         registerFunction(scope, new GetQueryParam());
@@ -345,6 +360,15 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new ConvertToResponse());
         registerFunction(scope, new GetMethod());
         registerFunction(scope, new AcceptAndReturn());
+
+        registerConnector(scope, new HTTPConnector());
+
+        registerAction(scope, new Get());
+        registerAction(scope, new Post());
+        registerAction(scope, new Put());
+        registerAction(scope, new Delete());
+        registerAction(scope, new Execute());
+        registerAction(scope, new Patch());
 
     }
 
@@ -369,8 +393,30 @@ public class BuiltInNativeConstructLoader {
     }
 
     /**
-     * Load native type convertors
+     * Register Native Action.
+     *
+     * @param action AbstractNativeAction instance.
      */
+    public static void registerAction(SymScope symScope, AbstractNativeAction action) {
+        String actionName = action.getSymbolName().getName();
+        SymbolName symbolName = LangModelUtils.getSymNameWithParams(actionName, action.getParameters());
+        Symbol symbol = new Symbol(action);
+
+        symScope.insert(symbolName, symbol);
+    }
+
+    public static void registerConnector(SymScope symScope, AbstractNativeConnector connector) {
+        org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector connectorAnnotation =
+                connector.getClass().getAnnotation(
+                        org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector.class);
+        Symbol symbol = new Symbol(connector);
+
+        SymbolName symbolName = new SymbolName(connectorAnnotation.packageName() + ":" +
+                connectorAnnotation.connectorName());
+
+        symScope.insert(symbolName, symbol);
+    }
+
     private static void loadNativeTypeConverters() {
         SymScope scope = GlobalScopeHolder.getInstance().getScope();
 
