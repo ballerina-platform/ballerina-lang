@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.wso2.carbon.transport</groupId>
         <artifactId>org.wso2.carbon.transport.http.netty.parent</artifactId>
-        <version>3.0.4</version>
+        <version>3.0.5-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -33,7 +33,7 @@
         <url>https://github.com/wso2/carbon-transports.git</url>
         <developerConnection>scm:git:https://github.com/wso2/carbon-transports.git</developerConnection>
         <connection>scm:git:https://github.com/wso2/carbon-transports.git</connection>
-        <tag>v3.0.4</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <dependencies>
