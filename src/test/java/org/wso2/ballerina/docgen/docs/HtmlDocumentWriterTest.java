@@ -24,8 +24,10 @@ import org.wso2.ballerina.docgen.docs.model.BallerinaPackageDoc;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocGenTestUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.Map;
+import java.util.Scanner;
 
 /**
  * HTML document writer test.
@@ -38,9 +40,9 @@ public class HtmlDocumentWriterTest {
     public void testHtmlGeneration() {
         try {
             String userDir = System.getProperty("user.dir");
-            String balPath = userDir + File.separator + "src" + File.separator + "test" + File.separator + "resources"
-                    + File.separator + "balFiles" + File.separator + "htmlWriter" + File.separator + "foo"
-                    + File.separator + "bar";
+            String balPackagePath = userDir + File.separator + "src" + File.separator + "test" + File.separator
+                    + "resources" + File.separator + "balFiles" + File.separator + "htmlWriter" + File.separator
+                    + "foo" + File.separator + "bar";
             String outputPath =  userDir + File.separator + "api-docs" + File.separator + "html";
             String outputFilePath = outputPath + File.separator + "foo.bar.mediation.html";
 
@@ -53,15 +55,20 @@ public class HtmlDocumentWriterTest {
 
             // Generate HTML file
             Map<String, BallerinaPackageDoc> docsMap =
-                    BallerinaDocGeneratorMain.generatePackageDocsFromBallerina(balPath);
-            HtmlDocumentWriter htmlDocumentWriter =
-                    new HtmlDocumentWriter("templates" + File.separator + "html"
-                            + File.separator + "package.vm", outputPath);
+                    BallerinaDocGeneratorMain.generatePackageDocsFromBallerina(balPackagePath);
+            HtmlDocumentWriter htmlDocumentWriter = new HtmlDocumentWriter();
             htmlDocumentWriter.write(docsMap.values());
             htmlFile = new File(outputFilePath);
 
             // Assert file creation
             Assert.assertTrue(htmlFile.exists());
+
+            // Assert function definitions
+            String content = new Scanner(htmlFile).useDelimiter("\\Z").next();
+            Assert.assertTrue(content.contains("addHeader"));
+            Assert.assertTrue(content.contains("getHeader"));
+        } catch (FileNotFoundException e) {
+            Assert.fail(e.getMessage());
         } finally {
             BallerinaDocGenTestUtils.cleanUp();
         }
