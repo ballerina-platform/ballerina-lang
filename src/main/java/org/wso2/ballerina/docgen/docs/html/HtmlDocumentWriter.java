@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.util.Collection;
+import java.util.Properties;
 
 /**
  * HTML document writer generates ballerina API documentation in HTML format.
@@ -37,17 +38,32 @@ public class HtmlDocumentWriter implements DocumentWriter {
 
     private static PrintStream out = System.out;
 
-    private String packageTemplateFilePath;
-    private String outputFilePath;
+    public static final String FILE_RESOURCE_LOADER_PATH_KEY = "file.resource.loader.path";
+    public static final String PACKAGE_TEMPLATE_FILE_KEY = "package.template.filename";
+    public static final String HTML_OUTPUT_PATH_KEY = "html.output.path";
+    public static final String TEMPLATES_FOLDER_PATH_KEY = "templates.folder.path";
 
-    public HtmlDocumentWriter(String packageTemplateFilePath, String outputFilePath) {
-        this.packageTemplateFilePath = packageTemplateFilePath;
-        this.outputFilePath = outputFilePath;
+    private String templatesFolderPath;
+    private String outputFilePath;
+    private String packageTemplateFileName;
+
+    public HtmlDocumentWriter() {
+        String userDir = System.getProperty("user.dir");
+        this.outputFilePath = System.getProperty(HTML_OUTPUT_PATH_KEY,
+                userDir + File.separator + "api-docs" + File.separator + "html");
+        this.templatesFolderPath =  System.getProperty(TEMPLATES_FOLDER_PATH_KEY,
+                userDir + File.separator + "templates" + File.separator + "html");
+        this.packageTemplateFileName = System.getProperty(PACKAGE_TEMPLATE_FILE_KEY, "package.vm");
     }
 
     @Override
     public void write(Collection<BallerinaPackageDoc> ballerinaPackageDocs) {
-        out.println("Generating HTML documents...");
+        if (ballerinaPackageDocs == null || ballerinaPackageDocs.size() == 0) {
+            out.println("No package definitions found!");
+            return;
+        }
+
+        out.println("Generating HTML API documentation...");
         for (BallerinaPackageDoc ballerinaPackageDoc : ballerinaPackageDocs) {
             writeHtmlDocument(ballerinaPackageDoc);
         }
@@ -62,10 +78,12 @@ public class HtmlDocumentWriter implements DocumentWriter {
         try {
             // Create velocity engine instance
             VelocityEngine ve = new VelocityEngine();
-            ve.init();
+            Properties properties = new Properties();
+            properties.put(FILE_RESOURCE_LOADER_PATH_KEY, templatesFolderPath);
+            ve.init(properties);
 
             // Set template file
-            Template template = ve.getTemplate(packageTemplateFilePath);
+            Template template = ve.getTemplate(packageTemplateFileName);
 
             // Create context and add data
             VelocityContext context = new VelocityContext();

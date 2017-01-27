@@ -30,7 +30,6 @@ import java.io.FileFilter;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Main class to generate a ballerina documentation
@@ -41,16 +40,13 @@ public class BallerinaDocGeneratorMain {
 
     public static void main(String[] args) {
 
-        Map<String, BallerinaPackageDoc> docsMap = generatePackageDocsFromBallerina(args[0]);
-        for (Entry<String, BallerinaPackageDoc> entry : docsMap.entrySet()) {
-            out.println(entry.getValue().toString());
+        if ((args == null) || (args.length != 1)) {
+            out.println("Usage: docerina [ballerina-package-path]");
+            return;
         }
 
-        String userDir = System.getProperty("user.dir");
-        String outputPath = userDir + File.separator + "api-docs" + File.separator + "html";
-        String templatePath =  "templates" + File.separator + "html" + File.separator + "package.vm";
-
-        HtmlDocumentWriter htmlDocumentWriter = new HtmlDocumentWriter(templatePath, outputPath);
+        Map<String, BallerinaPackageDoc> docsMap = generatePackageDocsFromBallerina(args[0]);
+        HtmlDocumentWriter htmlDocumentWriter = new HtmlDocumentWriter();
         htmlDocumentWriter.write(docsMap.values());
     }
     
