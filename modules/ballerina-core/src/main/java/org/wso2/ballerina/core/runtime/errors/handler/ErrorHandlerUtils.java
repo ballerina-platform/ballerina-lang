@@ -40,11 +40,11 @@ public class ErrorHandlerUtils {
      */
     public static String getErrorMessage(Throwable throwable) {
         String errorMsg;
-        String errorPrefix = "Error while executing ballerina program. ";
+        String errorPrefix = "error in ballerina program: ";
         if (throwable instanceof StackOverflowError) {
-            errorMsg = errorPrefix + "Ballerina stack overflow occured. ";
+            errorMsg = "fatal " + errorPrefix + "stack overflow ";
         } else if (throwable.getMessage() != null) {
-            errorMsg = errorPrefix + throwable.getMessage();
+            errorMsg = errorPrefix + makeFirstLetterUpperCase(throwable.getMessage());
         } else {
             errorMsg = errorPrefix;
         }
@@ -72,8 +72,8 @@ public class ErrorHandlerUtils {
         // print the service info
         CallableUnitInfo serviceInfo = context.getServiceInfo();
         if (serviceInfo != null) {
-            stackTrace = stackTrace + "\t at " + serviceInfo.getPackage() + ":" + serviceInfo.getName() +
-                    getNodeLocation(serviceInfo) + "\n";
+            String pkgName = (serviceInfo.getPackage() != null) ? serviceInfo.getPackage() + ":" : "";
+            stackTrace = stackTrace + "\t at " + pkgName + serviceInfo.getName() + getNodeLocation(serviceInfo) + "\n";
         }
         
         return stackTrace;
@@ -153,5 +153,11 @@ public class ErrorHandlerUtils {
             sb.append("\t at " + pkgName + frameInfo.getName() + getNodeLocation(frameInfo)
                     + "\n");
         }
+    }
+
+    private static String makeFirstLetterUpperCase(String s) {
+        char c[] = s.toCharArray();
+        c[0] = Character.toLowerCase(c[0]);
+        return new String(c);
     }
 }

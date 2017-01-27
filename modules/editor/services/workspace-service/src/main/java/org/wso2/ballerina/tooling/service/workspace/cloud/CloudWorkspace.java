@@ -47,6 +47,11 @@ public class CloudWorkspace  implements Workspace {
     }
 
     @Override
+    public void delete(String path, String type) throws IOException {
+
+    }
+
+    @Override
     public void log(String logger, String timestamp, String level, String URL, String message, String layout) throws IOException {
 
     }

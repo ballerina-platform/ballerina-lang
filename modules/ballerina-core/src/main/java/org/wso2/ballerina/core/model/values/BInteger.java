@@ -37,17 +37,17 @@ public final class BInteger extends BValueType {
 
     @Override
     public long longValue() {
-        return 0;
+        return (long) this.value;
     }
 
     @Override
     public float floatValue() {
-        return 0;
+        return (float) this.value;
     }
 
     @Override
     public double doubleValue() {
-        return 0;
+        return (double) this.value;
     }
 
     @Override
