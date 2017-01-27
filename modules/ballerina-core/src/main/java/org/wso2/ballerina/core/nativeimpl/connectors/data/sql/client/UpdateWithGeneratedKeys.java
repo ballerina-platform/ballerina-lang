@@ -60,7 +60,7 @@ public class UpdateWithGeneratedKeys extends AbstractSQLAction {
         if (!(connector instanceof SQLConnector)) {
             throw new BallerinaException("Need to use a SQL Connector as the first argument", context);
         }
-
-        return executeUpdate(context, connector, query, true);
+        executeUpdate(context, (SQLConnector) connector, query, true);
+        return null;
     }
 }

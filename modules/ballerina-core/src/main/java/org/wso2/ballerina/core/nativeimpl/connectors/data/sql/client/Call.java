@@ -60,7 +60,7 @@ public class Call extends AbstractSQLAction {
         if (!(connector instanceof SQLConnector)) {
             throw new BallerinaException("Need to use a SQL Connector as the first argument", context);
         }
-
-        return executeProcedure(context, connector, query);
+        executeProcedure(context, (SQLConnector) connector, query);
+        return null;
     }
 }
