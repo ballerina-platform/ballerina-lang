@@ -30,4 +30,7 @@ public @interface Argument {
 
     // elementType specially used with Arrays to specify the type of array.
     TypeEnum elementType() default TypeEnum.EMPTY;
+
+    // used with struct types to specify the struct type
+    String structType() default "";
 }
