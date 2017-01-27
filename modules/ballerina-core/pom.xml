@@ -104,6 +104,10 @@
             <groupId>org.apache.james</groupId>
             <artifactId>apache-mime4j-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.staxon</groupId>
+            <artifactId>staxon-core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -219,13 +223,6 @@
                     <formats>
                         <format>html</format>
                     </formats>
-                     <reportSets>
-                         <reportSet>
-                             <reports>
-                                 <report>cobertura</report>
-                             </reports>
-                         </reportSet>
-                     </reportSets>
                 </configuration>
                 <executions>
                     <execution>
@@ -260,7 +257,8 @@
             com.google.gson.*;version="${gson.import.version.range}",
             com.jayway.jsonpath.*;version="${jayway.jsonpath.import.version.range}",
             org.jaxen.*;version="${jaxen.import.version.range}",
-            net.sf.saxon.*;version="${saxon.import.version.range}"
+            net.sf.saxon.*;version="${saxon.import.version.range}",
+            de.odysseus.staxon.*;version="${staxon.version}
         </import.package>
         <carbon.component>
             startup.listener;componentName="ballerina-native-provider";

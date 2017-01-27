@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.ParserException;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -63,6 +64,7 @@ import org.wso2.ballerina.core.model.expressions.ReferenceExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
+import org.wso2.ballerina.core.model.expressions.TypeCastExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
@@ -511,6 +513,15 @@ public class BLangModelBuilder {
         exprStack.push(invocationExpr);
     }
 
+    public void createTypeCastExpr(String targetTypeName, Position sourceLocation) {
+        TypeCastExpression typeCastExpression = new TypeCastExpression(exprStack.pop(),
+                BTypes.getType(targetTypeName));
+        typeCastExpression.setLocation(sourceLocation);
+        //Remove the type added to type queue
+        typeQueue.remove();
+        exprStack.push(typeCastExpression);
+    }
+
     public void createActionInvocationExpr(Position sourceLocation) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
         cIExprBuilder.setExpressionList(exprListStack.pop());
@@ -598,6 +609,16 @@ public class BLangModelBuilder {
         function.setRelativePosition(position);
         bFileBuilder.addFunction(function);
 
+        currentCUBuilder = null;
+    }
+
+    public void createTypeConverter(String name, boolean isPublic, Position sourceLocation, int position) {
+        currentCUBuilder.setName(new SymbolName(name, pkgName));
+        currentCUBuilder.setPublic(isPublic);
+        currentCUBuilder.setPosition(sourceLocation);
+        BTypeConvertor typeConvertor = currentCUBuilder.buildTypeConverter();
+        typeConvertor.setRelativePosition(position);
+        bFileBuilder.addTypeConverter(typeConvertor);
         currentCUBuilder = null;
     }
 
