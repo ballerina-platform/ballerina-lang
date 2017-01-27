@@ -7,18 +7,10 @@ import ballerina.lang.string;
 service Ecommerce {
 
     @GET
-    @Path ("/products/{productId}/{regId}")
-    resource productsInfo (message m, @UIParam("location") @PathParam("productId") string prdID, @PathParam("regId") string rID)  {
+    @Path ("/products")
+    resource productsInfo (message m)  {
         http:HTTPConnector productsService = new http:HTTPConnector("http://localhost:9090");
         message response;
-        string orderId;
-
-        orderId = message:getHeader(m, "X-ORDER_ID");
-        system:println("Order ID " + orderId);
-
-        system:println("Product ID " + prdID);
-        system:println("Reg ID " + rID);
-
         response = http:HTTPConnector.get(productsService, "/productsservice", m);
 
 
