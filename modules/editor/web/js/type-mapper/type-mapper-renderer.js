@@ -17,21 +17,18 @@
  */
 define(['require', 'lodash','jquery','jsPlumb','nano_scroller'], function(require, _,$,jsPlumb,ggg) {
 
-    var TypeMapper = {};
+    var TypeMapper = function(onConnectionCallback, onDisconnectCallback) {
+        this.placeHolderName = "data-mapper-container"
+        this.idNameSeperator = "-";
+        this.onConnection = onConnectionCallback;
 
-    var placeHolderName = "data-mapper-container"
-    var strokeColor = "#414e66";
-    var strokeWidth = 2;
-    var pointColor = "#414e66";
-    var pointSize = 5;
-    var dashStyle = "3 3";
-    var idNameSeperator = "-";
-    var onConnection;
+        var strokeColor = "#414e66";
+        var strokeWidth = 2;
+        var pointColor = "#414e66";
+        var pointSize = 5;
+        var dashStyle = "3 3";
 
-    TypeMapper.init = function(onConnectionCallback, onDisconnectCallback) {
-        TypeMapper.onConnection = onConnectionCallback;
-
-        jsPlumb.Defaults.Container = $("#" + placeHolderName);
+        jsPlumb.Defaults.Container = $("#" + this.placeHolderName);
         jsPlumb.Defaults.PaintStyle = {
             strokeStyle:strokeColor,
             lineWidth:strokeWidth,
@@ -54,12 +51,12 @@ define(['require', 'lodash','jquery','jsPlumb','nano_scroller'], function(requir
         jsPlumb.importDefaults({Connector : [ "Bezier", { curviness:1 } ]});
         jsPlumb.bind('dblclick', function (connection, e) {
             var PropertyConnection = {
-                sourceStruct : connection.source.id.split(idNameSeperator)[0],
-                sourceProperty : connection.source.id.split(idNameSeperator)[1],
-                sourceType : connection.source.id.split(idNameSeperator)[2],
-                targetStruct : connection.target.id.split(idNameSeperator)[0],
-                targetProperty : connection.target.id.split(idNameSeperator)[1],
-                targetType : connection.target.id.split(idNameSeperator)[2]
+                sourceStruct : connection.source.id.split(this.idNameSeperator)[0],
+                sourceProperty : connection.source.id.split(this.idNameSeperator)[1],
+                sourceType : connection.source.id.split(this.idNameSeperator)[2],
+                targetStruct : connection.target.id.split(this.idNameSeperator)[0],
+                targetProperty : connection.target.id.split(this.idNameSeperator)[1],
+                targetType : connection.target.id.split(this.idNameSeperator)[2]
             }
 
             jsPlumb.detach(connection);
@@ -69,30 +66,29 @@ define(['require', 'lodash','jquery','jsPlumb','nano_scroller'], function(requir
 
     }
 
-    TypeMapper.removeStruct  = function (name){
+    TypeMapper.prototype.removeStruct  = function (name){
         jsPlumb.detachEveryConnection();
         $("#" + name).remove();
-        onRemoveConnectionCallback();
     }
 
-    TypeMapper.addConnection  = function (connection) {
+    TypeMapper.prototype.addConnection  = function (connection) {
         jsPlumb.connect({
-            source:connection.sourceStruct + idNameSeperator + connection.sourceProperty + idNameSeperator + connection.sourceType,
-            target:connection.targetStruct + idNameSeperator + connection.targetProperty + idNameSeperator + connection.targetType
+            source:connection.sourceStruct + this.idNameSeperator + connection.sourceProperty + this.idNameSeperator + connection.sourceType,
+            target:connection.targetStruct + this.idNameSeperator + connection.targetProperty + this.idNameSeperator + connection.targetType
         });
     }
 
-    TypeMapper.getConnections  = function () {
+    TypeMapper.prototype.getConnections  = function () {
         var connections = [];
 
         for (var i = 0; i < jsPlumb.getConnections().length; i++) {
             var connection = {
-                sourceStruct : jsPlumb.getConnections()[i].sourceId.split(idNameSeperator)[0],
-                sourceProperty : jsPlumb.getConnections()[i].sourceId.split(idNameSeperator)[1],
-                sourceType : jsPlumb.getConnections()[i].sourceId.split(idNameSeperator)[2],
-                targetStruct : jsPlumb.getConnections()[i].targetId.split(idNameSeperator)[0],
-                targetProperty : jsPlumb.getConnections()[i].targetId.split(idNameSeperator)[1],
-                targetType : jsPlumb.getConnections()[i].targetId.split(idNameSeperator)[2]
+                sourceStruct : jsPlumb.getConnections()[i].sourceId.split(this.idNameSeperator)[0],
+                sourceProperty : jsPlumb.getConnections()[i].sourceId.split(this.idNameSeperator)[1],
+                sourceType : jsPlumb.getConnections()[i].sourceId.split(this.idNameSeperator)[2],
+                targetStruct : jsPlumb.getConnections()[i].targetId.split(this.idNameSeperator)[0],
+                targetProperty : jsPlumb.getConnections()[i].targetId.split(this.idNameSeperator)[1],
+                targetType : jsPlumb.getConnections()[i].targetId.split(this.idNameSeperator)[2]
             }
             connections.push(connection);
         };
@@ -100,23 +96,23 @@ define(['require', 'lodash','jquery','jsPlumb','nano_scroller'], function(requir
         return connections;
     }
 
-    TypeMapper.addSourceStruct  = function (struct) {
-        TypeMapper.makeStruct(struct, 50, 50);
+    TypeMapper.prototype.addSourceStruct  = function (struct) {
+        this.makeStruct(struct, 50, 50);
         for (var i = 0; i < struct.properties.length; i++) {
-            TypeMapper.addSourceProperty($('#' + struct.name), struct.properties[i].name, struct.properties[i].type);
+            this.addSourceProperty($('#' + struct.name), struct.properties[i].name, struct.properties[i].type);
         };
     }
 
-    TypeMapper.addTargetStruct  = function (struct) {
-        var placeHolderWidth = document.getElementById(placeHolderName).offsetWidth;
+    TypeMapper.prototype.addTargetStruct  = function (struct) {
+        var placeHolderWidth = document.getElementById(this.placeHolderName).offsetWidth;
         var posY = placeHolderWidth - (placeHolderWidth/4);
-        TypeMapper.makeStruct(struct, 50, posY);
+        this.makeStruct(struct, 50, posY);
         for (var i = 0; i < struct.properties.length; i++) {
-            TypeMapper.addTargetProperty($('#' +struct.name), struct.properties[i].name, struct.properties[i].type);
+            this.addTargetProperty($('#' +struct.name), struct.properties[i].name, struct.properties[i].type);
         };
     }
 
-    TypeMapper.makeStruct  = function (struct, posX, posY) {
+    TypeMapper.prototype.makeStruct  = function (struct, posX, posY) {
         var newStruct = $('<div>').attr('id', struct.name).addClass('struct');
 
         var structName = $('<div>').addClass('struct-name').text(struct.name);
@@ -127,14 +123,14 @@ define(['require', 'lodash','jquery','jsPlumb','nano_scroller'], function(requir
             'left': posY
         });
 
-        $("#" + placeHolderName).append(newStruct);
+        $("#" + this.placeHolderName).append(newStruct);
         jsPlumb.draggable(newStruct, {
             containment: 'parent'
         });
     }
 
-    TypeMapper.makeProperty  = function (parentId, name, type) {
-        var id = parentId.selector.replace("#","") + idNameSeperator + name + idNameSeperator  + type;
+    TypeMapper.prototype.makeProperty  = function (parentId, name, type) {
+        var id = parentId.selector.replace("#","") + this.idNameSeperator + name + this.idNameSeperator  + type;
         var property = $('<div>').attr('id', id).addClass('property')
         var propertyName = $('<span>').addClass('property-name').text(name);
         var seperator = $('<span>').addClass('property-name').text(":");
@@ -148,38 +144,38 @@ define(['require', 'lodash','jquery','jsPlumb','nano_scroller'], function(requir
         return property;
     }
 
-    TypeMapper.addSourceProperty  = function (parentId, name, type) {
-        jsPlumb.makeSource(TypeMapper.makeProperty(parentId, name, type), {
+    TypeMapper.prototype.addSourceProperty  = function (parentId, name, type) {
+        jsPlumb.makeSource(this.makeProperty(parentId, name, type), {
             anchor:["Continuous", { faces:["right"] } ]
         });
     }
 
-    TypeMapper.addTargetProperty  = function (parentId, name, type) {
-        jsPlumb.makeTarget(TypeMapper.makeProperty(parentId, name, type), {
+    TypeMapper.prototype.addTargetProperty  = function (parentId, name, type) {
+        var callback = this.onConnection;
+
+        jsPlumb.makeTarget(this.makeProperty(parentId, name, type), {
             maxConnections:1,
             anchor:["Continuous", { faces:[ "left"] } ],
             beforeDrop: function (params) {
                 //Checks property types are equal
-                var isValidTypes = params.sourceId.split(idNameSeperator)[2] == params.targetId.split(idNameSeperator)[2];
+                var isValidTypes = params.sourceId.split(this.idNameSeperator)[2] == params.targetId.split(this.idNameSeperator)[2];
 
                 if (isValidTypes) {
 
                     var connection = {
-                        sourceStruct : params.sourceId.split(idNameSeperator)[0],
-                        sourceProperty : params.sourceId.split(idNameSeperator)[1],
-                        sourceType : params.sourceId.split(idNameSeperator)[2],
-                        targetStruct : params.targetId.split(idNameSeperator)[0],
-                        targetProperty : params.targetId.split(idNameSeperator)[1],
-                        targetType : params.targetId.split(idNameSeperator)[2]
+                        sourceStruct : params.sourceId.split(this.idNameSeperator)[0],
+                        sourceProperty : params.sourceId.split(this.idNameSeperator)[1],
+                        sourceType : params.sourceId.split(this.idNameSeperator)[2],
+                        targetStruct : params.targetId.split(this.idNameSeperator)[0],
+                        targetProperty : params.targetId.split(this.idNameSeperator)[1],
+                        targetType : params.targetId.split(this.idNameSeperator)[2]
                     }
 
-                    TypeMapper.onConnection(connection);
+                    callback(connection);
                 }
-
                 return isValidTypes;
             }
         });
     }
 
-    return TypeMapper;
 });
