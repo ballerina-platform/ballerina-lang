@@ -97,7 +97,7 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
 
             var importForm = $('<div class="tool-import-wrapper">'+
                                '<div class="tool-group-import-header">'+
-                               '  <a class="tool-group-header-title">Imports</a> ( Ctrl + I )'+
+                               '  <a class="tool-group-header-title">Imports</a> '+
                                '  <span id="addImportSearch" class="tool-import-icon fw-stack fw-lg">'+
                                '      <i class="fw fw-square fw-stack-2x"></i>'+
                                '      <i class="fw fw-add fw-stack-1x fw-inverse"></i>'+
