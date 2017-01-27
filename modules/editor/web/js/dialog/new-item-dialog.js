@@ -40,6 +40,10 @@ define(['require', 'jquery', 'lodash', './modal-dialog', 'alerts'], function (re
                 this.showError(response.message);
             } else {
                 this.hide();
+                var successCallBack = _.get(data, 'onSuccess');
+                if(_.isFunction(successCallBack)){
+                    successCallBack.call();
+                }
                 alerts.success(path + " created successfully");
                 if(!_.isEqual('folder', data.type)){
                     var file = this._serviceClient.readFile(path);
@@ -54,6 +58,7 @@ define(['require', 'jquery', 'lodash', './modal-dialog', 'alerts'], function (re
         this.setSubmitBtnText("create");
         var body = this.getBody();
         body.empty();
+        this.getSubmitBtn().unbind('click');
         this.clearError();
         var modalBody = $("<div class='container-fluid'>" +
                                 "<div class='form-group'>" +
