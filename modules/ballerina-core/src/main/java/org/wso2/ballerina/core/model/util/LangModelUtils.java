@@ -77,6 +77,26 @@ public class LangModelUtils {
 
         return new SymbolName(sBuilder.toString());
     }
+    
+    /**
+     * Get the symbol name of a struct field.
+     * 
+     * @param fieldName         Local name of the field
+     * @param structName        Name os the struct to which this field belongs to
+     * @param pkgPath           Package name of the struct
+     * @return                  Symbol name of a struct field
+     */
+    public static SymbolName getStructFieldSymName(String fieldName, String structName, String pkgPath) {
+        String prefix;
+        if (pkgPath == null) {
+            prefix = structName + "." + fieldName;
+        } else {
+            prefix = pkgPath + ":" + structName + "." + fieldName;
+        }
+
+        StringBuilder sBuilder = new StringBuilder(prefix);
+        return new SymbolName(sBuilder.toString());
+    }
 
     public static BType[] getTypesOfParams(Parameter[] parameters) {
         BType[] types = new BType[parameters.length];

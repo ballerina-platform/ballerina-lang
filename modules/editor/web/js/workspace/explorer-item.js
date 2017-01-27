@@ -65,7 +65,7 @@ define(['lodash', 'log', 'file_browser', 'event_channel', 'theme_wso2'],
             container: body,
             application: this.application, root: this.path,
             fetchFiles: true,
-            contextMenuProvider: this.contextMenuProvider
+            contextMenuProvider: this.createContextMenuProvider()
         });
         fileBrowser.render();
         fileBrowser.on("double-click-node", function(node){
@@ -76,28 +76,37 @@ define(['lodash', 'log', 'file_browser', 'event_channel', 'theme_wso2'],
         this._fileBrowser = fileBrowser;
     };
 
-    ExplorerItem.prototype.contextMenuProvider = function(node) {
-        var items = {},
-            self = this;
+    ExplorerItem.prototype.createContextMenuProvider = function(){
+        var self = this;
+        return function(node) {
+            var items = {};
 
-        if(_.isEqual('folder', node.type)){
-            items.createNewFile = {
-                label: "new file",
-                action: function () {
-                    this.application.commandManager.dispatch("create-new-file-at-path", node.id);
+            if(_.isEqual('folder', node.type)){
+                items.createNewFile = {
+                    label: "new file",
+                    action: function () {
+                        self.application.commandManager.dispatch("create-new-item-at-path",
+                            {path: node.id, type: 'ballerina-file'});
+                    }
+                };
+                items.createNewFolder = {
+                    label: "new folder",
+                    action: function () {
+                        self.application.commandManager.dispatch("create-new-item-at-path",
+                            {path: node.id, type: 'folder'});
+                    }
                 }
             }
-        }
-        else if(_.isEqual('file', node.type)){
-            items.deleteFile = {
-                label: "remove",
-                action: function () {
-                    this.application.commandManager.dispatch("remove-file", node.id);
+            else if(_.isEqual('file', node.type)){
+                items.deleteFile = {
+                    label: "remove",
+                    action: function () {
+                        self.application.commandManager.dispatch("remove-file", node.id);
+                    }
                 }
             }
-        }
-
-        return items;
+            return items;
+        };
     };
 
     return ExplorerItem;
