@@ -206,7 +206,7 @@ ol#breadcrumbList {
     text-anchor: middle;
     dominant-baseline: central;
     width:120px;
-    max-width:250px:
+    max-width:250px;
 }
 
 /*//////////////////////////////////////////////////*/
@@ -277,10 +277,11 @@ button.variable-list {
 }
 
 .variable-wrapper i {
-    padding: 6px;
+    padding: 10px;
     font-size: 8px;
     background-color: #fff;
-    color: #8a8a8a;
+    color: #19b89c;
+    opacity: 0.5;
 }
 
 .variable-wrapper i:hover {
@@ -291,22 +292,19 @@ button.variable-list {
 .variable-type {
     float: left;
     color: white;
-    padding: 0 4px 4px 4px;
-    height: 22px;
-    margin-bottom: 10px;
+    padding: 4px 8px;
+    height: 29px;
 }
 
 .variable-identifier {
     float: left;
-    padding-left: 5px;
-    height: 22px;
+    padding: 4px 8px;
 }
 
 /*Start Message*/
 
 .variable-wrapper-message i {
-    border: 1px solid #19b89c;
-    border-left-width: 0;
+    border: 0;
 }
 
 .variable-type-message {
@@ -314,8 +312,7 @@ button.variable-list {
 }
 
 .variable-identifier-message {
-    border: 1px solid #19b89c;
-    border-right-width: 0;
+    border: 0;
     max-width: 100px;
 }
 
@@ -323,7 +320,7 @@ button.variable-list {
 
 .variable-wrapper-connection i {
     border: 1px solid orange;
-    border-left-width: 0;
+
 }
 
 .variable-type-connection {
@@ -847,6 +844,7 @@ button.variable-list {
     float: left;
     margin-left: 6px;
     margin-bottom: 3px;
+    border: 1px solid #19b89c;
 }
 
 .variable-pane-collapser-wrapper {
@@ -1179,8 +1177,11 @@ a:hover {
 }
 
 .sidebar-left{
-    background: #333333;
+    background: #333;
 }
 .modal-dialog.file-dialog {
     margin: 100px auto 0;
+}
+.tool-group-import-header > a.tool-group-header-title {
+    color: #fff;
 }
