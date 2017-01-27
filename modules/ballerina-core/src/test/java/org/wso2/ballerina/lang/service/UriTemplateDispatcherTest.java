@@ -30,6 +30,10 @@ import org.wso2.ballerina.core.utils.MessageUtils;
 import org.wso2.ballerina.lang.util.Services;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+/**
+ * Test class for Uri Template based resource dispatching.
+ * Ex: /products/{productId}?regID={regID}
+ */
 public class UriTemplateDispatcherTest {
 
     @BeforeClass()
