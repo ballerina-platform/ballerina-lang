@@ -23,26 +23,38 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.TypeConvertor;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.model.values.BValueType;
+
+import java.util.function.Function;
 
 /**
  * Class to hold the data related to type casting expression
  */
-public class TypeCastingExpression extends AbstractExpression implements CallableUnitInvocationExpr<TypeConvertor> {
+public class TypeCastExpression extends AbstractExpression implements CallableUnitInvocationExpr<TypeConvertor> {
 
     private Expression sourceExpression;
     private BType targetType;
     private String packageName;
     private SymbolName typeConverterName;
     private TypeConvertor typeConvertor;
+    protected Function<BValueType, BValueType> evalFuncNewNew;
 
-    public TypeCastingExpression(Expression sourceExpression, BType targetType) {
+    public TypeCastExpression(Expression sourceExpression, BType targetType) {
         this.sourceExpression = sourceExpression;
         this.targetType = targetType;
     }
 
-    public TypeCastingExpression(String packageName, SymbolName typeConverterName) {
+    public TypeCastExpression(String packageName, SymbolName typeConverterName) {
         this.packageName = packageName;
         this.typeConverterName = typeConverterName;
+    }
+
+    public Function<BValueType, BValueType> getEvalFunc() {
+        return evalFuncNewNew;
+    }
+
+    public void setEvalFunc(Function<BValueType, BValueType> evalFuncNewNew) {
+        this.evalFuncNewNew = evalFuncNewNew;
     }
 
     public Expression getSourceExpression() {

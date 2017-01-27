@@ -21,7 +21,7 @@ package org.wso2.ballerina.core.model;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
-import org.wso2.ballerina.core.model.expressions.TypeCastingExpression;
+import org.wso2.ballerina.core.model.expressions.TypeCastExpression;
 import org.wso2.ballerina.core.model.types.BTypes;
 
 import java.util.ArrayList;
@@ -234,7 +234,7 @@ public class BallerinaFile implements Node {
 
         private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
         private List<ActionInvocationExpr> actionIExprList = new ArrayList<>();
-        private List<TypeCastingExpression> typeCastExprList = new ArrayList<>();
+        private List<TypeCastExpression> typeCastExprList = new ArrayList<>();
 
         private List<Const> constList = new ArrayList<>();
         
@@ -276,7 +276,7 @@ public class BallerinaFile implements Node {
             this.funcIExprList.add(expr);
         }
 
-        public void addTypeCastExpr(TypeCastingExpression expr) {
+        public void addTypeCastExpr(TypeCastExpression expr) {
             this.typeCastExprList.add(expr);
         }
 
