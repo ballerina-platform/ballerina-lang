@@ -35,7 +35,6 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
         this.connectorDefinitions = _.get(args, 'connectorDefinitions', []);
         this.typeDefinitions = _.get(args, 'typeDefinitions', []);
         this.typeConvertorDefinitions = _.get(args, 'typeConvertorDefinitions', []);
-        this.constantDefinitions = _.get(args, 'constantDefinitions', []);
         ASTNode.call(this, "BallerinaASTRoot");
     };
 
@@ -223,6 +222,78 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
          */
         this.trigger('tree-modified', modifiedEvent);
     };
+
+    //// Start of constant definition functions
+
+    /**
+     * Adds a new constance definition.
+     * @param {string} bType - The ballerina type.
+     * @param {string} identifier - The identifier.
+     * @param {string} value - The value of the constant.
+     */
+    BallerinaASTRoot.prototype.addConstantDefinition = function(bType, identifier, value) {
+
+        // Check if already constant declaration exists with same identifier.
+        var identifierAlreadyExists = _.findIndex(this.getConstantDefinitions(), function (constantDefinition) {
+                return constantDefinition.getIdentifier() === identifier;
+            }) !== -1;
+
+        // If constant declaration with the same identifier exists, then throw an error. Else create the new constant
+        // declaration.
+        if (identifierAlreadyExists) {
+            var errorString = "A constant with identifier '" + identifier + "' already exists.";
+            log.error(errorString);
+            throw errorString;
+        } else {
+            // Creating new constant definition.
+            var newConstantDefinition = this.getFactory().createConstantDefinition({
+                bType: bType,
+                identifier: identifier,
+                value: value
+            });
+
+            var self = this;
+
+            // Get the index of the last constant declaration.
+            var index = _.findLastIndex(this.getChildren(), function (child) {
+                return self.getFactory().isConstantDefinition(child);
+            });
+
+            this.addChild(newConstantDefinition, index + 1);
+        }
+    };
+
+    /**
+     * Removes a constant definition.
+     * @param {string} modelID - The ID of the constant definition.
+     */
+    BallerinaASTRoot.prototype.removeConstantDefinition = function(modelID) {
+        var self = this;
+        // Deleting the variable from the children.
+        var resourceParameter = _.find(this.getChildren(), function (child) {
+            return self.getFactory().isConstantDefinition(child) && child.id === modelID;
+        });
+
+        this.removeChild(resourceParameter);
+    };
+
+    /**
+     * Gets all the constant definitions.
+     * @return {ConstantDefinition[]} - The constant definitions.
+     */
+    BallerinaASTRoot.prototype.getConstantDefinitions = function () {
+        var constantDeclarations = [];
+        var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.getFactory().isConstantDefinition(child)) {
+                constantDeclarations.push(child);
+            }
+        });
+        return constantDeclarations;
+    };
+
+    //// End of constant definition functions
 
     /**
      * Validates possible immediate child types.
