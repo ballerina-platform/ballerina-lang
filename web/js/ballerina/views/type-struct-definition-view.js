@@ -38,7 +38,6 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerin
             throw "Container for Type Struct definition is undefined." + this._container;
         }
         this.init();
-        TypeMapper.init();
     };
 
     TypeStructDefinitionView.prototype = Object.create(Canvas.prototype);
@@ -59,15 +58,16 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerin
      */
     TypeStructDefinitionView.prototype.render = function (diagramRenderingContext) {
         this._diagramRenderingContext = diagramRenderingContext;
+        var self = this;
         console.log("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ");
         console.log(diagramRenderingContext);
         var struct = this._model.getSchemaPropertyObj();
         var category = this._model.getCategory();
 
         if(category == "SOURCE"){
-            TypeMapper.addSourceStruct(struct);
+            self._model.getDataMapperInstance().addSourceStruct(struct);
         }else{
-            TypeMapper.addTargetStruct(struct);
+            self._model.getDataMapperInstance().addTargetStruct(struct);
         }
     };
 
