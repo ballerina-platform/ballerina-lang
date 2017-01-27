@@ -170,7 +170,7 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
      */
     ConnectorDefinition.prototype.initFromJson = function (jsonNode) {
         var self = this;
-        this._serviceName = jsonNode.connector_name;
+        this.connector_name = jsonNode.connector_name;
 
         // Populate the annotations array
         for (var itr = 0; itr < this.getAnnotations().length; itr ++) {
