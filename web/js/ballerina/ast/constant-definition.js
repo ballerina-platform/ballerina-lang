@@ -57,10 +57,11 @@ define(['lodash', 'log', './variable-declaration'], function (_, log, VariableDe
     };
 
     /**
-     * initialize ConnectorDefinition from json object
-     * @param {Object} jsonNode to initialize from
-     * @param {string} [jsonNode.connector_name] - Name of the service definition
-     * @param {string} [jsonNode.annotations] - Annotations of the function definition
+     * Initialize ConstantDefinition from json object for parsing.
+     * @param {Object} jsonNode - Model of a constant definition for parsing.
+     * @param {string} jsonNode.constant_definition_btype - The ballerina type of the constant.
+     * @param {string} jsonNode.constant_definition_identifier - The identifier of the constant.
+     * @param {string} jsonNode.constant_definition_value - The value of the constant.
      */
     ConstantDefinition.prototype.initFromJson = function (jsonNode) {
         this._type = jsonNode.constant_definition_btype;

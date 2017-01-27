@@ -118,10 +118,6 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                 }
             }).appendTo(constantDefinitionWrapper);
 
-            // When variable identifier is changed, update the model.
-            // TODO : Update identifier.
-            //$(constantDefinitionIdentifierWrapper);
-
             // Creating delete button.
             var deleteButton = $("<i class='fw fw-cancel'></i>").appendTo(constantDefinitionWrapper);
 
