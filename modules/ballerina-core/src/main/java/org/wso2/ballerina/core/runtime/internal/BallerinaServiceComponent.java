@@ -41,7 +41,6 @@ import org.wso2.carbon.messaging.TransportSender;
 
 import java.io.File;
 
-
 /**
  * Service component for Ballerina.
  */
@@ -64,8 +63,6 @@ public class BallerinaServiceComponent {
 
         // Registering HTTP Listener Manager with transport framework
         bundleContext.registerService(TransportListenerManager.class, HTTPListenerManager.getInstance(), null);
-
-        ServiceContextHolder.getInstance().setBundleContext(bundleContext);
 
         //Determine the runtime mode
         String runtimeMode = System.getProperty(Constants.SYSTEM_PROP_RUN_MODE);

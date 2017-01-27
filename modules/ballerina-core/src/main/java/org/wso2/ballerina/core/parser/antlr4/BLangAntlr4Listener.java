@@ -39,6 +39,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     private BLangModelBuilder modelBuilder;
     private int childPosition;
+    private static final String PUBLIC = "public";
 
     public BLangAntlr4Listener(BLangModelBuilder modelBuilder) {
         this.modelBuilder = modelBuilder;
@@ -153,7 +154,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 ParseTree child = ctx.getChild(annotations.size());
                 if (child != null) {
                     String tokenStr = child.getText();
-                    if ("public".equals(tokenStr)) {
+                    if (PUBLIC.equals(tokenStr)) {
                         isPublic = true;
                     }
 
@@ -254,48 +255,103 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterStructDefinition(BallerinaParser.StructDefinitionContext ctx) {
-
+        if (ctx.exception == null) {
+            modelBuilder.startStruct();
+        }
     }
 
     @Override
     public void exitStructDefinition(BallerinaParser.StructDefinitionContext ctx) {
-
+        if (ctx.exception == null) {
+            boolean isPublic = false;
+            // TODO: get the child in the (anotation.length) instead of 0, once the annotation support is added.
+            String tokenStr = ctx.getChild(0).getText();
+            if (PUBLIC.equals(tokenStr)) {
+                isPublic = true;
+            }
+            modelBuilder.createStructDefinition(ctx.Identifier().getText(), isPublic, getCurrentLocation(ctx));
+        }
     }
 
     @Override
     public void enterStructDefinitionBody(BallerinaParser.StructDefinitionBodyContext ctx) {
-
     }
 
     @Override
     public void exitStructDefinitionBody(BallerinaParser.StructDefinitionBodyContext ctx) {
-
+        if (ctx.exception != null) {
+            return;
+        }
+        
+        List<TerminalNode> fieldList = ctx.Identifier();
+        // Each field is added separately rather than sending the whole list at once, coz
+        // in future, fields will have annotations, and there will be a new event for each field.
+        for (TerminalNode node : fieldList) {
+            modelBuilder.createStructField(node.getText(), getCurrentLocation(node));
+        }
     }
 
     @Override
     public void enterTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startCallableUnit();
+        }
     }
 
     @Override
     public void exitTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx) {
+        if (ctx.exception == null) {
+            // Create the return type of the type convertor
+            modelBuilder.createReturnTypes(getCurrentLocation(ctx));
+            boolean isPublic = true;
+            // Set the location info needed to generate the stack trace
+            TerminalNode identifier = ctx.Identifier();
+            if (identifier != null) {
+                String fileName = identifier.getSymbol().getInputStream().getSourceName();
+                int lineNo = identifier.getSymbol().getLine();
+                Position functionLocation = new Position(fileName, lineNo);
+                String typeConverterName = "_" + ctx.typeConvertorInput().typeConvertorType().getText() + "->" + "_" +
+                        ctx.typeConvertorType().getText();
+                modelBuilder.createTypeConverter(typeConverterName, isPublic, functionLocation, childPosition);
+                childPosition++;
+            }
+        }
     }
 
+    /**
+     * Enter a parse tree produced by {@link BallerinaParser#typeConvertorInput}.
+     *
+     * @param ctx the parse tree
+     */
     @Override
     public void enterTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx) {
-
     }
 
+    /**
+     * Exit a parse tree produced by {@link BallerinaParser#typeConvertorInput}.
+     *
+     * @param ctx the parse tree
+     */
     @Override
     public void exitTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx) {
-
+        if (ctx.exception == null) {
+            // Create the input parameter for type convertor
+            modelBuilder.createParam(ctx.Identifier().getText(), getCurrentLocation(ctx));
+        }
     }
 
     @Override
     public void enterTypeConvertorBody(BallerinaParser.TypeConvertorBodyContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startCallableUnitBody();
+        }
     }
 
     @Override
     public void exitTypeConvertorBody(BallerinaParser.TypeConvertorBodyContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.endCallableUnitBody();
+        }
     }
 
     @Override
@@ -392,7 +448,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterTypeConvertorType(BallerinaParser.TypeConvertorTypeContext ctx) {
-
     }
 
     @Override
@@ -898,6 +953,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitStructFieldIdentifier(BallerinaParser.StructFieldIdentifierContext ctx) {
+        if (ctx.exception != null || ctx.getChild(0) == null) {
+            return;
+        }
+        modelBuilder.createStructFieldRefExpr(getCurrentLocation(ctx));
     }
 
     @Override
@@ -1083,11 +1142,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitTypeCastingExpression(BallerinaParser.TypeCastingExpressionContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.createTypeCastExpr(ctx.typeName().getText(), getCurrentLocation(ctx));
+        }
     }
 
     @Override
     public void enterStructInitializeExpression(BallerinaParser.StructInitializeExpressionContext ctx) {
-
     }
 
     @Override
@@ -1095,10 +1156,8 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-
         boolean exprListAvailable = ctx.expressionList() != null;
         modelBuilder.createInstanceCreaterExpr(ctx.Identifier().getText(), exprListAvailable, getCurrentLocation(ctx));
-
     }
 
     @Override
@@ -1356,6 +1415,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
     private Position getCurrentLocation(ParserRuleContext ctx) {
         String fileName = ctx.getStart().getInputStream().getSourceName();
         int lineNo = ctx.getStart().getLine();
+        return new Position(fileName, lineNo);
+    }
+    
+    private Position getCurrentLocation(TerminalNode node) {
+        String fileName = node.getSymbol().getInputStream().getSourceName();
+        int lineNo = node.getSymbol().getLine();
         return new Position(fileName, lineNo);
     }
 

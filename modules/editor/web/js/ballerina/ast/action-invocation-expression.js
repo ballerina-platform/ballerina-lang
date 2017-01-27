@@ -181,7 +181,8 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
         var parent = this.getParent();
         var factory = this.getFactory();
         while (!factory.isBallerinaAstRoot(parent)) {
-            if (factory.isResourceDefinition(parent) || factory.isFunctionDefinition(parent) || factory.isServiceDefinition(parent)) {
+            if (factory.isResourceDefinition(parent) || factory.isFunctionDefinition(parent)
+                || factory.isServiceDefinition(parent) || factory.isConnectorAction(parent)) {
                 break;
             }
             parent = parent.getParent();
