@@ -106,9 +106,15 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 anImport.accept(this);
             }
         }
-
+        
         ArrayList<PositionAwareNode> rootElements = new ArrayList<>();
-
+    
+        if (bFile.getConstants() != null && bFile.getConstants().length > 0) {
+            for (Const constDefinition : bFile.getConstants()) {
+                rootElements.add(constDefinition);
+            }
+        }
+        
         if (bFile.getServices() != null) {
             Service[] services = new Service[bFile.getServices().size()];
             bFile.getServices().toArray(services);
@@ -940,7 +946,16 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(Const constant) {
-        //TODO
+        JsonObject constantDefinitionDefine = new JsonObject();
+        constantDefinitionDefine.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
+                BLangJSONModelConstants.CONSTANT_DEFINITION);
+        constantDefinitionDefine.addProperty(BLangJSONModelConstants.CONSTANT_DEFINITION_BTYPE,
+                constant.getType().toString());
+        constantDefinitionDefine.addProperty(BLangJSONModelConstants.CONSTANT_DEFINITION_IDENTIFIER,
+                constant.getName().toString());
+        constantDefinitionDefine.addProperty(BLangJSONModelConstants.CONSTANT_DEFINITION_VALUE,
+                ((BasicLiteral)constant.getValueExpr()).getBValue().stringValue());
+        tempJsonArrayRef.peek().add(constantDefinitionDefine);
     }
 
     @Override

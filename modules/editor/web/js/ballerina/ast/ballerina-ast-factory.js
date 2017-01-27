@@ -1050,7 +1050,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                     case 'action':
                         node = BallerinaASTFactory.createConnectorAction();
                         break;
-                        // TODO : Test
                     case 'constant_definition':
                         node = BallerinaASTFactory.createConstantDefinition();
                         break;
