@@ -344,7 +344,7 @@ request the appropriate convertor by applying a cast.
 
 In addition to the built-in value type coercions, Ballerina also ships with a few pre-defined type
 convertors to make development easier. The following predefined type convertors are declared in
-the Ballerina package `ballerina.lang.types`:
+the Ballerina package `ballerina.lang.convertors`:
 - string/xml/json to message: creates a new message with the given string/xml/json as its payload
 - down conversions for numeral types: int -> boolean (0 is false), long -> int/boolean, float -> int/boolean, double -> float/long/int/boolean,
 

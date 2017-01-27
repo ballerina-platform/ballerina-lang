@@ -19,7 +19,7 @@
 package org.wso2.ballerina.core.runtime;
 
 /**
- * Constants related to Ballerina runtime
+ * Constants related to Ballerina runtime.
  */
 public class Constants {
 
@@ -46,7 +46,7 @@ public class Constants {
     public static final String INTERMEDIATE_HEADERS = "INTERMEDIATE_HEADERS";
 
     /**
-     * Runtime modes of Ballerina engine
+     * Runtime modes of Ballerina engine.
      */
     public enum RuntimeMode {
         // Run File Mode.

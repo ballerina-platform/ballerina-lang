@@ -31,6 +31,9 @@ import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
+/**
+ * Test class for return statement.
+ */
 public class ReturnStmtTest {
     private BallerinaFile bFile;
 

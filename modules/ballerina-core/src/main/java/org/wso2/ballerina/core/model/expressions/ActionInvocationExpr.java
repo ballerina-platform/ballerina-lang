@@ -25,7 +25,7 @@ import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code ActionInvocationExpr} represents action invocation expression
+ * {@code ActionInvocationExpr} represents action invocation expression.
  *
  * @since 0.8.0
  */

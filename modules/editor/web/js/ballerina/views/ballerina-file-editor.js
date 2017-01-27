@@ -17,10 +17,13 @@
  */
 define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view',  './function-definition-view', './../ast/ballerina-ast-root',
         './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view',
-        './../visitors/source-gen/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
-        './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer'],
+        './../visitors/source-gen/ballerina-ast-root-visitor','./../visitors/symbol-table/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
+        './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer', './connector-definition-view', './struct-definition-view',
+        './../env/package', './../env/package-scoped-environment', './../env/environment', './constant-definitions-pane-view'],
     function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory,
-              PackageDefinition, SourceView, SourceGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer) {
+              PackageDefinition, SourceView, SourceGenVisitor, SymbolTableGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer,
+              ConnectorDefinitionView, StructDefinitionView, Package, PackageScopedEnvironment, BallerinaEnvironment,
+              ConstantsDefinitionsPaneView) {
 
         /**
          * The view to represent a ballerina file editor which is an AST visitor.
@@ -46,12 +49,37 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 // not throwing an exception for now since we need to work without a backend.
             }
             this.backend = new Backend(_.get(args, 'viewOptions.backend', {}));
+            this._isInSourceView = false;
+            this._constantDefinitionsPane = undefined;
             this.deserializer = BallerinaASTDeserializer;
             this.init();
         };
 
         BallerinaFileEditor.prototype = Object.create(BallerinaView.prototype);
         BallerinaFileEditor.prototype.constructor = BallerinaFileEditor;
+
+        BallerinaFileEditor.prototype.getContent = function(){
+            if (this.isInSourceView()) {
+                return this._sourceView.getContent();
+            } else {
+                return this.generateSource();
+            }
+        };
+
+        BallerinaFileEditor.prototype.isInSourceView = function(){
+                    return this._isInSourceView;
+        };
+
+        BallerinaFileEditor.prototype.setInSourceView = function(isInSourceView){
+            this._isInSourceView = isInSourceView;
+            if(isInSourceView){
+                this.trigger('source-view-activated');
+                this.trigger('design-view-deactivated');
+            } else {
+                this.trigger('design-view-activated');
+                this.trigger('source-view-deactivated');
+            }
+        };
 
         BallerinaFileEditor.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof BallerinaASTRoot) {
@@ -138,6 +166,22 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         };
 
         /**
+         * Creates a connector definition view for a connector definition model and calls it's render.
+         * @param connectorDefinition
+         */
+        BallerinaFileEditor.prototype.visitConnectorDefinition = function (connectorDefinition) {
+            var connectorDefinitionView = new ConnectorDefinitionView({
+                viewOptions: this._viewOptions,
+                container: this._$canvasContainer,
+                model: connectorDefinition,
+                parentView: this,
+                toolPalette: this.toolPalette
+            });
+            this.diagramRenderingContext.getViewModelMap()[connectorDefinition.id] = connectorDefinitionView;
+            connectorDefinitionView.render(this.diagramRenderingContext);
+        };
+
+        /**
          * Visits FunctionDefinition
          * @param functionDefinition
          */
@@ -151,6 +195,18 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             });
             this.diagramRenderingContext.getViewModelMap()[functionDefinition.id] = functionDefinitionView;
             functionDefinitionView.render(this.diagramRenderingContext);
+        };
+
+        BallerinaFileEditor.prototype.visitStructDefinition = function (structDefinition) {
+            var structDefinitionView = new StructDefinitionView({
+                viewOptions: this._viewOptions,
+                container: this._$canvasContainer,
+                model: structDefinition,
+                parentView: this,
+                toolPalette: this.toolPalette
+            });
+            this.diagramRenderingContext.getViewModelMap()[structDefinition.id] = structDefinitionView;
+            structDefinitionView.render(this.diagramRenderingContext);
         };
 
         /**
@@ -181,19 +237,27 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var toolPaletteContainer = $(this._container).find(_.get(this._viewOptions, 'design_view.tool_palette.container')).get(0);
             var toolPaletteOpts = _.clone(_.get(this._viewOptions, 'design_view.tool_palette'));
             toolPaletteOpts.container = toolPaletteContainer;
+            toolPaletteOpts.ballerinaFileEditor = this;
             this.toolPalette = new ToolPalette(toolPaletteOpts);
-            //TODO adding a temporary tool
-            this.toolPalette.addConnectorTool({
-                id: "http-connector-declaration",
-                name: "HTTPConnector",
-                icon: "images/tool-icons/http-connector.svg",
-                title: "HTTPConnector",
-                nodeFactoryMethod: this._model.getFactory().createConnectorDeclaration
-            });
 
             this._createPackagePropertyPane(canvasContainer);
+
             // init undo manager
             this._undoManager = new UndoManager();
+
+            this._environment =  new PackageScopedEnvironment();
+            this._package = this._environment.getCurrentPackage();
+        };
+
+        BallerinaFileEditor.prototype.importPackage = function(packageName){
+            if (!_.isEmpty(packageName)) {
+                log.debug("Adding new import");
+                var package = this._environment.searchPackage(packageName, []);
+                if (_.isUndefined(package)) {
+                    log.error("Unable to find the package.");
+                    return;
+                }
+            }
         };
 
         /**
@@ -205,8 +269,22 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this.diagramRenderingContext = diagramRenderingContext;
             //TODO remove this for adding filecontext to the map
             this.diagramRenderingContext.ballerinaFileEditor = this;
+
+            var symbolTableGenVisitor = new SymbolTableGenVisitor(this._package);
+            this._model.accept(symbolTableGenVisitor);
+            var package = symbolTableGenVisitor.getPackage();
+            this.toolPalette._toolGroups.imports.push(package);
+
+            //adding default packages TODO : this needs to be rendered by referring to imports in the model
+            var httpPackage = BallerinaEnvironment.searchPackage("ballerina.net.http");
+            this.toolPalette._toolGroups.imports.push(httpPackage[0]);
+
             // render tool palette
             this.toolPalette.render();
+            this.toolPalette.addImport(this._package);
+
+            // Creating the constants view.
+            this._createConstantDefinitionsView(this._$canvasContainer);
 
             this._model.accept(this);
 
@@ -235,8 +313,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self._$designViewContainer.hide();
                 designViewBtn.show();
                 sourceViewBtn.hide();
-                self.trigger('source-view-activated');
-                self.trigger('design-view-deactivated');
+                self.setInSourceView(true);
             });
 
             var designViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
@@ -244,7 +321,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 // re-parse if there are modifications to source
                 var isSourceChanged = !self._sourceView._editor.getSession().getUndoManager().isClean();
                 if (isSourceChanged) {
-                    var source = self._sourceView._editor.getValue();
+                    var source = self._sourceView.getContent();
                     var response = self.backend.parse(source);
                     //if there are errors display the error.
                     //@todo: proper error handling need to get the service specs
@@ -265,8 +342,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self._$designViewContainer.show();
                 sourceViewBtn.show();
                 designViewBtn.hide();
-                self.trigger('design-view-activated');
-                self.trigger('source-view-deactivated');
+                self.setInSourceView(false);
                 if(isSourceChanged){
                     // reset undo manager for the design view
                     self.getUndoManager().reset();
@@ -512,6 +588,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 log.error(errMsg);
                 throw errMsg;
             }
+            // Creating the constants view.
+            this._createConstantDefinitionsView(this._$canvasContainer);
+
             this._model.accept(this);
             this.initDropTarget();
             this.trigger('redraw');
@@ -519,6 +598,23 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
         BallerinaFileEditor.prototype.getUndoManager = function(){
             return this._undoManager;
+        };
+
+        BallerinaFileEditor.prototype._createConstantDefinitionsView = function(container) {
+
+            var constantsWrapper = $("<div/>",{
+                class: "constant-definition-main-wrapper"
+            }).appendTo(container);
+
+            var constantsDefinitionPaneProperties = {
+                model: this.getModel(),
+                paneAppendElement: constantsWrapper,
+                view: this
+            };
+
+            this._constantDefinitionsPane = new ConstantsDefinitionsPaneView(constantsDefinitionPaneProperties);
+
+            this._constantDefinitionsPane.createConstantDefinitionPane();
         };
 
         return BallerinaFileEditor;

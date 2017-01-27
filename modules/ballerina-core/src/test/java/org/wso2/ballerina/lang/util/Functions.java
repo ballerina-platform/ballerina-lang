@@ -35,7 +35,7 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 import java.util.Arrays;
 
 /**
- * This contains test utils related to Ballerina function invocations
+ * This contains test utils related to Ballerina function invocations.
  *
  * @since 0.8.0
  */
@@ -45,7 +45,7 @@ public class Functions {
     }
 
     /**
-     * Invokes a Ballerina function defined in the given source file
+     * Invokes a Ballerina function defined in the given source file.
      *
      * @param sourceFilePath Ballerina source file path relative to test resources dir. If not absolute path
      * @param functionName   name of the function to be invoked
@@ -60,7 +60,7 @@ public class Functions {
     }
 
     /**
-     * Invokes a Ballerina function defined in the given language model
+     * Invokes a Ballerina function defined in the given language model.
      *
      * @param bFile        parsed, analyzed and linked object model
      * @param functionName name of the function to be invoked
@@ -122,7 +122,7 @@ public class Functions {
     }
 
     /**
-     * Invokes a Ballerina function defined in the given language model
+     * Invokes a Ballerina function defined in the given language model.
      *
      * @param bFile        parsed, analyzed and linked object model
      * @param functionName name of the function to be invoked
@@ -134,7 +134,7 @@ public class Functions {
     }
     
     /**
-     * Invokes a Ballerina function defined in the given language model
+     * Invokes a Ballerina function defined in the given language model.
      *
      * @param bFile        parsed, analyzed and linked object model
      * @param functionName name of the function to be invoked

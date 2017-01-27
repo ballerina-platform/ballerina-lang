@@ -20,9 +20,6 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
     function (require, _, $, log, D3Utils, d3, Point, BallerinaASTFactory,
               VariableDeclaration, ConnectorDeclaration) {
 
-        // TODO move variable types into constant class
-        var variableTypes = ['message', 'connection', 'string', 'int', 'exception', 'json', 'xml', 'map', 'string[]', 'int[]'];
-
         /**
          * Creating the variable variable button.
          * @param serviceContentSvg -  The <svg> element which contains the content of the service.
@@ -53,7 +50,7 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
          * @param {Object} args.paneAppendElement - The element to which the pane should be appended to.
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
          */
-        var createVariablePane = function (args) {
+        var createVariablePane = function (args, diagramRenderingContext) {
             var activatorElement = _.get(args, "activatorElement");
             var model = _.get(args, "model");
             var paneElement = _.get(args, "paneAppendElement");
@@ -92,6 +89,8 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
 
             var variableSelect = $("<select/>").appendTo(variableAddPane);
             var variableText = $("<input id='text' placeholder='Variable Name'/>").appendTo(variableAddPane);
+
+            var variableTypes = diagramRenderingContext.getEnvironment().getTypes();
             for (var typeCount = 0; typeCount < variableTypes.length; typeCount++) {
                 $("<option value=" + variableTypes[typeCount] + ">" + variableTypes[typeCount] + "</option>")
                     .appendTo($(variableSelect));
@@ -137,31 +136,32 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
                 var typeOfNewVariable = variableSelect.val();
                 var identifierOfNewVariable = variableText.val();
 
-                // Validate whether there already a variable with the same identifier.
-                var alreadyDeclaredVariable = _.find(declaredVariables, function (declaredVariable) {
-                    return declaredVariable.getIdentifier() == identifierOfNewVariable;
-                });
+                if (!_.isEmpty(identifierOfNewVariable)) {
+                    // Validate whether there already a variable with the same identifier.
+                    var alreadyDeclaredVariable = _.find(declaredVariables, function (declaredVariable) {
+                        return declaredVariable.getIdentifier() == identifierOfNewVariable;
+                    });
 
-                if (_.isNil(alreadyDeclaredVariable)) {
-                    var newVariableDeclaration = BallerinaASTFactory.createVariableDeclaration();
+                    if (_.isNil(alreadyDeclaredVariable)) {
+                        var newVariableDeclaration = BallerinaASTFactory.createVariableDeclaration();
 
-                    // Pushing new variable declaration
-                    newVariableDeclaration.setType(typeOfNewVariable);
-                    newVariableDeclaration.setIdentifier(identifierOfNewVariable);
+                        // Pushing new variable declaration
+                        newVariableDeclaration.setType(typeOfNewVariable);
+                        newVariableDeclaration.setIdentifier(identifierOfNewVariable);
 
-                    model.addVariableDeclaration(newVariableDeclaration);
+                        model.addVariableDeclaration(newVariableDeclaration);
 
-                    // Rendering the variables after adding a new variable.
-                    _renderVariables(variablesContentWrapper, model, collapserWrapper, variablesContentWrapper);
+                        // Rendering the variables after adding a new variable.
+                        _renderVariables(variablesContentWrapper, model, collapserWrapper, variablesContentWrapper);
 
-                    // Changing the content of the collapser.
-                    collapserWrapper.empty();
-                    collapserWrapper.data("collapsed", "false");
-                    $("<i class='fw fw-left'></i>").appendTo(collapserWrapper);
-                } else {
-                    // TODO : Show alert of error.
+                        // Changing the content of the collapser.
+                        collapserWrapper.empty();
+                        collapserWrapper.data("collapsed", "false");
+                        $("<i class='fw fw-left'></i>").appendTo(collapserWrapper);
+                    } else {
+                        // TODO : Show alert of error.
+                    }
                 }
-
                 variableText.val("");
             });
 

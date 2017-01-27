@@ -35,7 +35,7 @@ import org.wso2.ballerina.core.utils.XMLUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
 /**
- * Test Native function in ballerina.lang.xml
+ * Test Native function in ballerina.lang.xml.
  */
 public class XMLTest {
 

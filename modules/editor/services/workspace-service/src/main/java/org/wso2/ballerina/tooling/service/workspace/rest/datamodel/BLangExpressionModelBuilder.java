@@ -18,11 +18,15 @@
 
 package org.wso2.ballerina.tooling.service.workspace.rest.datamodel;
 
+import org.wso2.ballerina.core.interpreter.*;
+import org.wso2.ballerina.core.model.*;
+import org.wso2.ballerina.core.model.expressions.*;
 import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
 import org.wso2.ballerina.core.interpreter.ConstantLocation;
 import org.wso2.ballerina.core.interpreter.LocalVarLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -58,10 +62,10 @@ import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
+import org.wso2.ballerina.core.model.expressions.TypeCastExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
-import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
@@ -113,6 +117,11 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(BallerinaFunction function) {
+    }
+
+    @Override
+    public void visit(BTypeConvertor typeConvertor) {
+
     }
 
     @Override
@@ -507,6 +516,11 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
+    public void visit(TypeCastExpression typeCastExpression) {
+
+    }
+
+    @Override
     public void visit(ArrayInitExpr arrayInitExpr) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
@@ -585,6 +599,30 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(KeyValueExpression arrayMapAccessExpr) {
+        //TODO
+    }
+
+    @Override
+    public void visit(BallerinaStruct ballerinaStruct) {
+        //TODO
+    }
+    @Override
+    public void visit(StructDcl structDcl) {
+        //TODO
+    }
+    
+    @Override
+    public void visit(StructVarLocation structVarLocation) {
+        //TODO
+    }
+
+    @Override
+    public void visit(StructInitExpr structInitExpr) {
+        //TODO
+    }
+
+    @Override
+    public void visit(StructFieldAccessExpr structFieldAccessExpr) {
         //TODO
     }
 

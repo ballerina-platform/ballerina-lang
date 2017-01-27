@@ -1,7 +1,23 @@
+
+<!--Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.-->
+
+<!--WSO2 Inc. licenses this file to you under the Apache License,-->
+<!--Version 2.0 (the "License"); you may not use this file except-->
+<!--in compliance with the License.-->
+<!--You may obtain a copy of the License at-->
+
+<!--http://www.apache.org/licenses/LICENSE-2.0-->
+
+<!--Unless required by applicable law or agreed to in writing,-->
+<!--software distributed under the License is distributed on an-->
+<!--"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY-->
+<!--KIND, either express or implied. See the License for the-->
+<!--specific language governing permissions and limitations-->
+<!--under the License.-->
+
+
+
 <html lang="en" class=" webkit chrome mac js gr__localhost">
-
-
-
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -22,6 +38,7 @@
     <link href="css/notification.css" rel="stylesheet" type="text/css"/>
     <link href="css/fileDialog.css" rel="stylesheet" type="text/css"/>
     <link href="lib/nanoscroller_0.8.7/nanoscroller.css" rel="stylesheet" type="text/css"/>
+    <link href="lib/mCustomScrollbar_v3.1.5/css/jquery.mCustomScrollbar.css" rel="stylesheet" type="text/css"/>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -74,11 +91,17 @@
             <!-- Start: file explorer and editor area row -->
             <div class="row">
                 <!-- Start: left container -->
-                <div id="left-container">
-                    <!-- Start: file explorer -->
-                    <div id="workspace-explorer">
+                <div class="left-container">
+                    <!-- Start: left tool bar -->
+                    <div class="left-tool-bar" data-toggle="tooltip">
+                        <i class="fw fw-file-browse fw-lg workspace-explorer-activate-btn"></i>
                     </div>
-                    <!-- End: file explorer -->
+                    <!-- End: left tool bar -->
+                    <!-- Start: left side-bar -->
+                    <div class="sidebar-left nano">
+                    </div>
+                    <div class="sidebar-left-separator"  draggable="true"></div>
+                    <!-- End: left side-bar -->
                 </div>
                 <!-- End: left container -->
                 <!-- Start: right container -->
@@ -368,7 +391,8 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content clearfix">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">x</button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="fw fw-cancel  about-dialog-close"></i></button>
                 <h3 class="modal-title" id="errorModalLabel">Error</h3>
             </div>
             <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
@@ -381,6 +405,79 @@
     </div>
 </div>
 <!--End: About Modal-->
+
+<!--Start: Search Modal-->
+<div class="modal fade" id="modalSearch" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content clearfix">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="fw fw-cancel about-dialog-close"></i>
+                </button>
+                <h4 class="modal-title" >Search</h4>
+            </div>
+            <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
+                <div class="modal-search-bar">
+                    <i class="fw fw-search modal-search-icon"></i>
+                    <input class="search-input" id="modal-search-field" placeholder="Search" type="text">
+                </div>
+                <div class="search-results">
+                    <ul class="list-group">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--End: Search Modal-->
+
+<!--Start: Open Folder Modal-->
+<div class='modal fade' id='open-folder-modal' tabindex='-1' role='dialog' aria-tydden='true'>
+    <div class='modal-dialog file-dialog' role='document'>
+        <div class='modal-content'>
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+                    <span aria-hidden='true'>&times;</span>
+                </button>
+                <h4 class='modal-title file-dialog-title'>Open Folder</h4>
+                <hr class='style1'>
+            </div>
+            <div class='modal-body'>
+                <div class='container-fluid'>
+                    <form class='form-horizontal'>
+                        <div class='form-group'>
+                            <label for='location' class='col-sm-2 file-dialog-label'>Location :</label>
+                            <div class='col-sm-9'>
+                                <input type='text' class='file-dialog-form-control location-input'
+                                       placeholder='eg: /home/user/wso2-integration-server/ballerina-configs'>
+                            </div>
+                        </div>
+                        <div class='form-group'>
+                            <div class='file-dialog-form-scrollable-block'>
+                                <div class='file-tree'>
+                                </div>
+                                <div class='alert alert-danger file-browser-error' style='display: none;'>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='form-group'>
+                            <div class='folder-dialog-form-btn'>
+                                <button type='button' class='btn btn-file-dialog open-button'>open
+                                </button>
+                                <div class='divider'/>
+                                <button type='button' class='btn btn-file-dialog' data-dismiss='modal'>cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class='alert alert-danger errors-container'>
+                        <strong>Error!</strong> Something went wrong.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--End: Open Folder Modal-->
 
 <script src="lib/requirejs-2.3.2/require.js"></script>
 <script type="text/javascript">
@@ -406,6 +503,7 @@
             ace: "lib/ace_v1.2.6",
             beautify: "lib/beautify/beautify",
             mousetrap: "lib/mousetrap_v1.6.0/mousetrap.min",
+            mcustom_scroller: "lib/mCustomScrollbar_v3.1.5/js/jquery.mCustomScrollbar.concat.min",
             ///////////////////////
             // custom modules ////
             //////////////////////
@@ -418,10 +516,8 @@
             main_elements: "js/main-elements/module",
             processors: "js/processors/module",
             file_browser: "js/file-browser/file-browser",
-            dialogs: "js/dialog/module",
             menu_bar: "js/menu-bar/menu-bar",
             tool_bar: "js/tool-bar/tool-bar",
-            tab: "js/tab/",
             alerts: "js/utils/alerts",
             breadcrumbs: "js/breadcrumbs/breadcrumbs",
             property_pane_utils: "js/property-pane/property-pane-utils"
@@ -461,6 +557,16 @@
                 name: 'antlr',
                 location: 'lib/antlr_v4.5.3',
                 main: 'index'
+            },
+            {
+                name: 'tab',
+                location: 'js/tab',
+                main: 'module'
+            },
+            {
+                name: 'dialogs',
+                location: 'js/dialog',
+                main: 'module'
             }
         ]
     });
@@ -517,13 +623,13 @@
                         }
                     },
                     cssClass: {
-                        group: "menu-group",
-                        menu: "dropdown-menu",
+                        group: "menu-group file-menu-group",
+                        menu: "dropdown-menu file-dropdown-menu",
                         toggle: "dropdown-toggle"
                     }
                 },
                 cssClass: {
-                    menu_bar: "dropdown-menu"
+                    menu_bar: "dropdown-menu file-dropdown-menu"
                 }
             },
             breadcrumbs:{
@@ -605,8 +711,9 @@
                                 outer_div: 'panel panel-default container-outer-div',
                                 panel_title: 'panel-title',
                                 panel_icon: 'panel-icon',
-                                service_icon: 'fw fw-dmg-service fw-inverse',
-                                connector_icon:'fw fw-dgm-connector fw-inverse',
+                                service_icon: 'fw fw-dgm-service fw-inverse',
+                                struct_icon: 'fw fw-dgm-service fw-inverse',
+                                connector_icon:'fw fw-connector fw-inverse',
                                 function_icon:'fw fw-function fw-inverse',
                                 title_link:'collapsed',
                                 panel_right_icon:'fw fw-down pull-right right-icon-clickable collapser hoverable',
@@ -633,18 +740,50 @@
 
             },
             workspace_explorer: {
-                container: "#workspace-explorer",
+                container: ".sidebar-left",
+                activateBtn: '.workspace-explorer-activate-btn',
+                separator: '.sidebar-left-separator',
+                containerToAdjust: ".right-container",
+                command: {
+                    id: "toggle-file-explorer",
+                    shortcuts: {
+                        mac: {
+                            key: "command+shift+e",
+                            label: "\u2318\u21E7E"
+                        },
+                        other: {
+                            key: "ctrl+shift+e",
+                            label: "Ctrl+Shift+E"
+                        }
+                    }
+                },
+                leftOffset: 40,
+                separatorOffset: 5,
+                defaultWidth: 250,
+                resizeLimits:{
+                    minX: 200,
+                    maxX: 800
+                },
                 cssClass: {
-                    activateBtn: 'fw fw-file-browse fw-lg workspace-explorer-activate-btn',
-                    container: 'workspace-explorer-container',
-                    separator: 'workspace-explorer-separator'
+                    container: 'workspace-explorer-container nano-content',
+                    openFolderButton: 'btn  btn-default open-folder-button'
                 }
             },
+            notifications:{
+                container: "#notification-container"
+            },
             dialog: {
-                container: $('body')
+                container: 'body'
             },
             about_dialog:{
                 selector: "#modalAbout"
+            },
+            open_folder_dialog:{
+                modal_selector: "#open-folder-modal",
+                tree_container: ".file-tree",
+                errors_container: ".errors-container",
+                location_input: ".location-input",
+                submit_button: ".open-button"
             }
         };
         app = new Application(config);

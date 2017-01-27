@@ -19,12 +19,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         './default-worker', './point', './connector-declaration-view', './statement-view-factory',
         'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message', './statement-container',
         './../ast/variable-declaration', './variables-view', './client-life-line', './annotation-view',
-        './arguments-view'],
+        './resource-parameters-pane-view'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
               DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory,
               BallerinaASTFactory, ExpressionViewFactory, MessageView, StatementContainer,
               VariableDeclaration, VariablesView, ClientLifeLine, AnnotationView,
-              ArgumentsView) {
+              ResourceParametersPaneView) {
 
         /**
          * The view to represent a resource definition which is an AST visitor.
@@ -43,6 +43,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._statementExpressionViewList = [];
             // TODO: Instead of using the parentView use the parent. Fix this from BallerinaView.js and bellow
             this._parentView = _.get(args, "parentView");
+
+            this._resourceParamatersView_ = undefined;
 
             if (_.isNil(this._model) || !(this._model instanceof ResourceDefinition)) {
                 log.error("Resource definition is undefined or is of different type." + this._model);
@@ -92,8 +94,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 cssClass: 'start-action'
             });
 
-            this._viewOptions.heading.minWidth = 1000;
-            this._viewOptions.contentMinWidth = 1000;
+            this._viewOptions.heading.minWidth = 700;
+            this._viewOptions.contentMinWidth = 700;
 
             this._viewOptions.totalHeightGap = 50;
             this._viewOptions.LifeLineCenterGap = 180;
@@ -472,11 +474,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var contentGroup = D3utils.group(resourceGroup);
             contentGroup.attr('id', "contentGroup");
 
-            nameSpan.on("change paste keydown", function (e) {
-                if (e.which == 13) {
+            nameSpan.on("change paste keyup", function (e) {
+                self._model.setResourceName($(this).text());
+            }).on("keydown", function (e) {
+                // Check whether the Enter key has been pressed. If so return false. Won't type the character
+                if (e.keyCode === 13) {
                     return false;
                 }
-                self._model.setResourceName($(this).text());
             });
 
             this._contentGroup = contentGroup;
@@ -599,7 +603,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 }
             };
 
-            this._variablePane = VariablesView.createVariablePane(variableProperties);
+            this._variablePane = VariablesView.createVariablePane(variableProperties, diagramRenderingContext);
 
             var annotationProperties = {
                 model: this._model,
@@ -616,20 +620,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             AnnotationView.createAnnotationPane(annotationProperties);
 
-            var argumentsProperties = {
-                model: this._model,
-                activatorElement: headingArgumentsIcon.node(),
-                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
-                viewOptions: {
-                    position: {
-                        // "-1" to remove the svg stroke line
-                        left: parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
-                        top: this.getChildContainer().attr("y")
-                    }
-                }
-            };
-
-            ArgumentsView.createArgumentsPane(argumentsProperties);
+            this._createParametersView(headingArgumentsIcon.node(), diagramRenderingContext);
 
             var operationButtons = [headingAnnotationIcon.node(), headingArgumentsIcon.node()];
 
@@ -970,8 +961,31 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             }
         };
 
-        return ResourceDefinitionView;
+        /**
+         * Creates the parameter view.
+         * @param {HTMLElement} headingParametersIcon - The icon which triggers to show the parameters editor.
+         * @private
+         */
+        ResourceDefinitionView.prototype._createParametersView = function (headingParametersIcon, diagramRenderingContext) {
+            var parametersPaneProperties = {
+                model: this._model,
+                activatorElement: headingParametersIcon,
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+                viewOptions: {
+                    position: new Point(parseFloat(this.getChildContainer().attr("x")) +
+                        parseFloat(this.getChildContainer().attr("width")) - 1,
+                        this.getChildContainer().attr("y"))
+                },
+                enableAnnotations: true,
+                view: this
+            };
 
+            this._resourceParamatersPaneView = new ResourceParametersPaneView(parametersPaneProperties);
+            this._resourceParamatersPaneView.createParametersPane(diagramRenderingContext);
+
+        };
+
+        return ResourceDefinitionView;
 
     });
 

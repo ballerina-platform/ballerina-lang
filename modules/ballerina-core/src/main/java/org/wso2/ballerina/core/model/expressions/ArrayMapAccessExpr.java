@@ -30,12 +30,11 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
-public class ArrayMapAccessExpr extends UnaryExpression {
+public class ArrayMapAccessExpr extends UnaryExpression implements ReferenceExpr {
 
     private SymbolName symbolName;
     private Expression indexExpr;
     private boolean isLHSExpr;
-
 
     private ArrayMapAccessExpr(SymbolName symbolName, Expression arrayVarRefExpr, Expression indexExpr) {
         super(null, arrayVarRefExpr);
@@ -69,7 +68,7 @@ public class ArrayMapAccessExpr extends UnaryExpression {
     }
 
     /**
-     * {@code ArrayMapAccessExprBuilder} represents an array access expression builder
+     * {@code ArrayMapAccessExprBuilder} represents an array access expression builder.
      *
      * @since 0.8.0
      */

@@ -51,7 +51,7 @@ public class BlockStmt extends AbstractStatement {
     }
 
     /**
-     * Builds a {@code BlockStmt}
+     * Builds a {@code BlockStmt}.
      *
      * @since 0.8.0
      */

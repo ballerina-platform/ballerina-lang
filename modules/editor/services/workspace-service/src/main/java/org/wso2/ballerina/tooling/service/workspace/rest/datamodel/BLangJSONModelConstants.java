@@ -49,7 +49,15 @@ public class BLangJSONModelConstants {
     public static final String IMPORT_PACKAGE_NAME = "import_package_name";
 
     public static final String IMPORT_PACKAGE_PATH = "import_package_path";
-
+    
+    public static final String CONSTANT_DEFINITION = "constant_definition";
+    
+    public static final String CONSTANT_DEFINITION_BTYPE = "constant_definition_btype";
+    
+    public static final String CONSTANT_DEFINITION_IDENTIFIER = "constant_definition_identifier";
+    
+    public static final String CONSTANT_DEFINITION_VALUE = "constant_definition_value";
+    
     public static final String SERVICE_DEFINITION = "service_definition";
 
     public static final String SERVICE_NAME = "service_name";
@@ -110,7 +118,7 @@ public class BLangJSONModelConstants {
 
     public static final String RETURN_TYPE = "return_type";
 
-    public static final String RETURN_TYPE_NAME = "type_name";
+    public static final String RETURN_ARGUMENT = "return_argument";
 
     public static final String REPLY_STATEMENT = "reply_statement";
 

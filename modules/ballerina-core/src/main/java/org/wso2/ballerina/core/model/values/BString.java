@@ -17,8 +17,10 @@
 */
 package org.wso2.ballerina.core.model.values;
 
+import org.wso2.ballerina.core.exception.BallerinaException;
+
 /**
- * The {@code BString} represents a string in Ballerina
+ * The {@code BString} represents a string in Ballerina.
  *
  * @since 0.8.0
  */
@@ -32,22 +34,46 @@ public final class BString extends BValueType {
 
     @Override
     public int intValue() {
-        return 0;
+        int result;
+        try {
+            result = Integer.parseInt(this.value);
+        } catch (NumberFormatException e) {
+            throw new BallerinaException("input value " + this.value + " cannot be cast to integer");
+        }
+        return result;
     }
 
     @Override
     public long longValue() {
-        return 0;
+        long result;
+        try {
+           result = Long.parseLong(this.value);
+        } catch (NumberFormatException e) {
+            throw new BallerinaException("input value " + this.value + " cannot be cast to long");
+        }
+        return result;
     }
 
     @Override
     public float floatValue() {
-        return 0;
+        float result;
+        try {
+            result = Float.parseFloat(this.value);
+        } catch (NumberFormatException e) {
+            throw new BallerinaException("input value " + this.value + " cannot be cast to float");
+        }
+        return result;
     }
 
     @Override
     public double doubleValue() {
-        return 0;
+        double result;
+        try {
+            result = Double.parseDouble(this.value);
+        } catch (NumberFormatException e) {
+            throw new BallerinaException("input value " + this.value + " cannot be cast to double");
+        }
+        return result;
     }
 
     @Override

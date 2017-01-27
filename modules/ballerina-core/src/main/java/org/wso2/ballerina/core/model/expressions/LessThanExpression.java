@@ -27,7 +27,7 @@ import java.util.function.BiFunction;
 import static org.wso2.ballerina.core.model.Operator.LESS_THAN;
 
 /**
- * {@code LessThanExpression} represents a less than (<) expression in Ballerina
+ * {@code LessThanExpression} represents a less than (<) expression in Ballerina.
  *
  * @since 0.8.0
  */

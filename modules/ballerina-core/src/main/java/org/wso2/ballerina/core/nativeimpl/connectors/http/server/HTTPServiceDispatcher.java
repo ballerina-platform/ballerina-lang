@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Service Dispatcher for HTTP Protocol
+ * Service Dispatcher for HTTP Protocol.
  *
  * @since 0.8.0
  */
@@ -68,7 +68,8 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             if (!uri.startsWith("/")) {
                 uri = "/".concat(uri);
             }
-
+            //replacing from single slash if multiple slashes are present in path.
+            uri = uri.replaceAll("//+", "/");
             String[] path = uri.split("/");
             String basePath;
             if (path.length > 1) {

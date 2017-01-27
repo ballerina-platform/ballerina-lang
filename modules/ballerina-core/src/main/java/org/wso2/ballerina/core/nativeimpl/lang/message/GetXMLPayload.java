@@ -28,7 +28,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 
 /**
- * Get the payload of the Message as a XML
+ * Get the payload of the Message as a XML.
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.message",

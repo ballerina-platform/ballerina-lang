@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
 /**
- * Array access expression test
+ * Array access expression test.
  *
  * @since 0.8.0
  */

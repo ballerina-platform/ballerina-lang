@@ -19,7 +19,6 @@
 package org.wso2.ballerina.lang.statements;
 
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.exception.ParserException;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.utils.ParserUtils;
 
@@ -29,11 +28,11 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 public class VariableDeclarationTest {
 
     /*
-     * Negative tests
+     * Negative tests.
      */
     
     @Test(expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Duplicate variable 'b' in duplicate-variables.bal:7")
+            expectedExceptionsMessageRegExp = "duplicate-variables.bal:7: Duplicate variable 'b'.")
     public void testDuplicateVariables() {
         ParserUtils.parseBalFile("lang/statements/duplicate-variables.bal");
     }
@@ -44,8 +43,8 @@ public class VariableDeclarationTest {
         ParserUtils.parseBalFile("lang/statements/undeclared-variables.bal");
     }
     
-    @Test(expectedExceptions = {ParserException.class },
-            expectedExceptionsMessageRegExp = "unsupported-type-variable.bal:6: unsupported type 'Foo'")
+    @Test(expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "unsupported-type-variable.bal:6: type 'Foo' is undefined.")
     public void testUnsupportedTypeVariable() {
         ParserUtils.parseBalFile("lang/statements/unsupported-type-variable.bal");
     }
@@ -54,5 +53,12 @@ public class VariableDeclarationTest {
           expectedExceptionsMessageRegExp = "Duplicate constant name: b in duplicate-constant-variables.bal:4")
     public void testDuplicateConstantVariable() {
         ParserUtils.parseBalFile("lang/statements/duplicate-constant-variables.bal");
+    }
+    
+    @Test(description = "Test defining a constant from an array type",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "array-type-constants.bal:3: constant cannot be of type 'int\\[\\]'.")
+    public void testArrayTypeConstant() {
+        ParserUtils.parseBalFile("lang/statements/array-type-constants.bal");
     }
 }

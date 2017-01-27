@@ -27,6 +27,10 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
+/**
+ * Test class for named return statement.
+ * return;
+ */
 public class NamedReturnParameterTest {
     private BallerinaFile bFile;
 

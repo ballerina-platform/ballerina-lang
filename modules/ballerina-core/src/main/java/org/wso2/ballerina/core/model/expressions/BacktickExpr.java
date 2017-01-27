@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code BacktickExpr} represents an xml or a json string wrapped in between backticks/backquotes
+ * {@code BacktickExpr} represents an xml or a json string wrapped in between backticks/backquotes.
  *
  * @since 0.8.0
  */

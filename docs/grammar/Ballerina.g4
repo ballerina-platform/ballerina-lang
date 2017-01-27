@@ -76,7 +76,11 @@ structDefinitionBody
     ;
 
 typeConvertorDefinition
-    :   'typeconvertor' Identifier '(' typeConvertorTypes Identifier ')' '('typeConvertorTypes')' typeConvertorBody
+    :   'typeconvertor' Identifier '(' typeConvertorInput ')' '('typeConvertorType')' typeConvertorBody
+    ;
+
+typeConvertorInput
+    :   typeConvertorType Identifier
     ;
 
 typeConvertorBody
@@ -116,7 +120,7 @@ qualifiedTypeName
     :   packageName ':' unqualifiedTypeName
     ;
 
-typeConvertorTypes
+typeConvertorType
     :   simpleType
     |   withFullSchemaType
     |   withSchemaIdType
@@ -360,9 +364,9 @@ actionInvocationStatement
     ;
 
 variableReference
-    :   Identifier                          # simpleVariableIdentifier// simple identifier
-    |   Identifier '['expression']'         # mapArrayVariableIdentifier// array and map reference
-    |   Identifier ('.' variableReference)+ # structFieldIdentifier// struct field reference
+    :   Identifier                                  # simpleVariableIdentifier// simple identifier
+    |   Identifier '['expression']'                 # mapArrayVariableIdentifier// array and map reference
+    |   variableReference ('.' variableReference)+  # structFieldIdentifier// struct field reference
     ;
 
 argumentList

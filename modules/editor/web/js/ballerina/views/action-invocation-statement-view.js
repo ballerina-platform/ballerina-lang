@@ -134,7 +134,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             processorConnectorPoint.attr("fill-opacity", 0.01);
 
             this.processorConnectPoint = processorConnectorPoint;
-            var assignmentText = "HTTP:" + actionInvocationModel.getActionName();
+            var assignmentText = actionInvocationModel.getActionPackageName() + ":" + actionInvocationModel.getActionName();
             // TODO : Please revisit these calculations.
             var expressionText = D3Utils.textElement(x + width / 2, y + height / 2, assignmentText, assignmentStatementGroup)
                 .classed('statement-text', true);
@@ -146,8 +146,8 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                     propertyType: "text",
                     key: "Assign To",
                     model: leftOperandModel,
-                    getterMethod: leftOperandModel.getVariableReferenceName,
-                    setterMethod: leftOperandModel.setVariableReferenceName
+                    getterMethod: leftOperandModel.getLeftOperandExpressionString,
+                    setterMethod: leftOperandModel.setLeftOperandExpressionString
                 },
                 {
                     propertyType: "text",
