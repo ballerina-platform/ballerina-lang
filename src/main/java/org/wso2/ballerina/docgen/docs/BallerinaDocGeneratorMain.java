@@ -46,9 +46,11 @@ public class BallerinaDocGeneratorMain {
             out.println(entry.getValue().toString());
         }
 
-        String outputPath = System.getProperty("user.dir") + File.separator + "src/main/api-docs";
-        HtmlDocumentWriter htmlDocumentWriter =
-                new HtmlDocumentWriter("src/main/templates/package.vm", outputPath);
+        String userDir = System.getProperty("user.dir");
+        String outputPath = userDir + File.separator + "api-docs" + File.separator + "html";
+        String templatePath =  "templates" + File.separator + "html" + File.separator + "package.vm";
+
+        HtmlDocumentWriter htmlDocumentWriter = new HtmlDocumentWriter(templatePath, outputPath);
         htmlDocumentWriter.write(docsMap.values());
     }
     

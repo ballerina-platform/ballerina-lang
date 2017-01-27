@@ -148,8 +148,8 @@ public class DocumentGenerator implements NodeVisitor {
         StringBuilder s = new StringBuilder("function " + function.getFunctionName() + " (");
         for (Parameter parameter : function.getParameters()) {
             // Prepare parameter signature
-            String parameterName = (parameter.getName() != null) ? " " + parameter.getName().getName() : "";
-            s.append(BallerinaDocUtils.getType(parameter.getType()) + parameterName + ", ");
+            String parameterName = (parameter.getName() != null) ? parameter.getName().getName() : "";
+            s.append(BallerinaDocUtils.getType(parameter.getType()) + " " + parameterName + ", ");
 
             // Add parameter to the function document
             doc.addParameter(new BallerinaParameterDoc(parameterName, BallerinaDocUtils.getType(parameter.getType())));

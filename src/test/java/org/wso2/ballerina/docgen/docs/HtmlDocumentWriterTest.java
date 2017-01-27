@@ -24,6 +24,7 @@ import org.wso2.ballerina.docgen.docs.model.BallerinaPackageDoc;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocGenTestUtils;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.Map;
 
 /**
@@ -31,16 +32,22 @@ import java.util.Map;
  */
 public class HtmlDocumentWriterTest {
 
+    private static PrintStream out = System.out;
+
     @Test(description = "HTML generation test")
     public void testHtmlGeneration() {
         try {
-            String balPath = "src/test/resources/balFiles/htmlWriter/foo/bar/";
-            String outputPath = System.getProperty("user.dir") + File.separator + "src/main/api-docs";
+            String userDir = System.getProperty("user.dir");
+            String balPath = userDir + File.separator + "src" + File.separator + "test" + File.separator + "resources"
+                    + File.separator + "balFiles" + File.separator + "htmlWriter" + File.separator + "foo"
+                    + File.separator + "bar";
+            String outputPath =  userDir + File.separator + "api-docs" + File.separator + "html";
             String outputFilePath = outputPath + File.separator + "foo.bar.mediation.html";
 
             // Delete if file already exists
             File htmlFile = new File(outputFilePath);
             if (htmlFile.exists()) {
+                out.println("Deleting existing file: " + htmlFile.getAbsolutePath());
                 htmlFile.delete();
             }
 
@@ -48,7 +55,8 @@ public class HtmlDocumentWriterTest {
             Map<String, BallerinaPackageDoc> docsMap =
                     BallerinaDocGeneratorMain.generatePackageDocsFromBallerina(balPath);
             HtmlDocumentWriter htmlDocumentWriter =
-                    new HtmlDocumentWriter("src/main/templates/package.vm", outputPath);
+                    new HtmlDocumentWriter("templates" + File.separator + "html"
+                            + File.separator + "package.vm", outputPath);
             htmlDocumentWriter.write(docsMap.values());
             htmlFile = new File(outputFilePath);
 

@@ -81,7 +81,8 @@ public class HtmlDocumentWriter implements DocumentWriter {
             out.println("HTML file written: " + file.getPath());
             writer.flush();
         } catch (Exception e) {
-            out.println("Error! Could not write HTML file of package " + ballerinaPackageDoc.getName());
+            out.println("Docerina: Could not write HTML file of package " + ballerinaPackageDoc.getName() +
+                    System.lineSeparator() + e.getMessage());
         } finally {
             if (writer != null) {
                 try {
