@@ -64,7 +64,9 @@ define(['require', 'lodash','jquery','jsPlumb','nano_scroller'], function(requir
         });
 
 
-    }
+    };
+
+    TypeMapper.prototype.constructor = TypeMapper;
 
     TypeMapper.prototype.removeStruct  = function (name){
         jsPlumb.detachEveryConnection();
@@ -177,5 +179,7 @@ define(['require', 'lodash','jquery','jsPlumb','nano_scroller'], function(requir
             }
         });
     }
+
+    return TypeMapper;
 
 });

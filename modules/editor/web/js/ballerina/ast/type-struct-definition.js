@@ -33,6 +33,7 @@ define(['lodash', 'require', 'log', './node'],
             this._schema;
             this._category;
             this._identifier;
+            this._dataMapperInstance;
             this.BallerinaASTFactory = this.getFactory();
         };
 
@@ -77,6 +78,16 @@ define(['lodash', 'require', 'log', './node'],
 
         TypeStructDefinition.prototype.getIdentifier = function(){
             return this._identifier;
+        };
+
+        TypeStructDefinition.prototype.getDataMapperInstance = function () {
+            return this._dataMapperInstance;
+        };
+
+        TypeStructDefinition.prototype.setDataMapperInstance = function (dataMapperInstance) {
+            if(!_.isUndefined(dataMapperInstance)){
+                this._dataMapperInstance = dataMapperInstance;
+            }
         };
 
         return TypeStructDefinition;
