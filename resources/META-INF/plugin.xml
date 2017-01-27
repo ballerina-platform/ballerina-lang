@@ -48,6 +48,8 @@
 
         <!-- sdk -->
         <sdkType implementation="org.ballerinalang.plugins.idea.sdk.BallerinaSdkType"/>
+        <projectSdkSetupValidator id="BallerinaSdk"
+                                  implementation="org.ballerinalang.plugins.idea.codeinsight.daemon.impl.BallerinaProjectSdkSetupValidator"/>
 
     </extensions>
 
