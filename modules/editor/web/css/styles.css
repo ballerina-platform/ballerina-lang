@@ -1047,11 +1047,11 @@ button.variable-list {
 }
 
 #modalSearch .modal-dialog {
-    width: 30%;
+    width: 60%;
 }
 
 #modalSearch input {
-    color:black !important;
+    color:black;
 }
 
 .modal-search-icon{
@@ -1062,19 +1062,20 @@ button.variable-list {
 }
 
 .search-results {
-    height: 50%;
     overflow: auto;
     background-color: #2C2C2C;
+    margin-top: 10px;
 }
 
 .search-results ul li{
-    background-color: #2C2C2C !important;
-    border: 1px solid #6f6f6f !important;
+    background-color: #2C2C2C ;
+    border: 0;
     cursor: pointer;
 }
 
 .search-results ul li:hover{
-    background-color: #6f6f6f !important;
+    background-color: #222;
+    color: #ff7916;
 }
 
 .service-title-text:hover {
@@ -1192,4 +1193,13 @@ a:hover {
     margin-left: 150px;
 .tool-group-import-header > a.tool-group-header-title {
     color: #fff;
+}
+i.fw-lg.fw.fw-cancel.about-dialog-close {
+    font-size: 12px;
+}
+i.fw.fw-cancel.about-dialog-close {
+    font-size: 12px;
+}
+ul.list-group {
+    margin-bottom: 0;
 }
