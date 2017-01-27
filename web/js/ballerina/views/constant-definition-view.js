@@ -19,8 +19,8 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
     function (_, $, log, Alerts, BallerinaView, VariableDeclaration) {
 
         /**
-         *
-         * @param args
+         * Arguments for creating a constant definition view.
+         * @param args - See docs of {@link BallerinaView}.
          * @constructor
          */
         var ConstantDefinitionView = function (args) {
@@ -34,7 +34,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
 
         /**
          * @inheritDoc
-         * Implements the view for a resource parameter.
+         * Implements the view for a constant definition.
          */
         ConstantDefinitionView.prototype.render = function (diagramRenderContext) {
             this.setDiagramRenderingContext(diagramRenderContext);

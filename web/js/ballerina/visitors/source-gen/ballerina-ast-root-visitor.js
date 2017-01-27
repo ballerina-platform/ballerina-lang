@@ -17,9 +17,10 @@
  */
 define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './service-definition-visitor',
         './function-definition-visitor', './package-definition-visitor', './import-declaration-visitor',
-        './connector-definition-visitor', './struct-definition-visitor'],
+        './connector-definition-visitor', './struct-definition-visitor', './constant-definition-visitor'],
     function(_, log, EventChannel, AbstractSourceGenVisitor, ServiceDefinitionVisitor, FunctionDefinitionVisitor,
-             PackageDefinitionVisitor, ImportDeclarationVisitor, ConnectorDefinitionVisitor, StructDefinitionVisitor) {
+             PackageDefinitionVisitor, ImportDeclarationVisitor, ConnectorDefinitionVisitor, StructDefinitionVisitor,
+             ConstantDefinitionVisitor) {
 
     var BallerinaASTRootVisitor = function() {
         AbstractSourceGenVisitor.call(this);
@@ -72,6 +73,11 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './se
     BallerinaASTRootVisitor.prototype.visitImportDeclaration = function(importDeclaration){
         var importDeclarationVisitor = new ImportDeclarationVisitor(this);
         importDeclaration.accept(importDeclarationVisitor);
+    };
+
+    BallerinaASTRootVisitor.prototype.visitConstantDefinition = function(constantDefinition){
+        var constantDefinitionVisitor = new ConstantDefinitionVisitor(this);
+        constantDefinition.accept(constantDefinitionVisitor);
     };
 
     return BallerinaASTRootVisitor;

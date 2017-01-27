@@ -24,22 +24,6 @@ define(['lodash', 'log', './variable-declaration'], function (_, log, VariableDe
      * @augments VariableDeclaration
      */
     var ConstantDefinition = function(args) {
-
-        if(_.isNil(_.get(args, "bType")) || _.isEmpty(_.get(args, "bType"))) {
-            log.error("A constant requires to have a type.");
-            throw "A constant requires to have a type.";
-        }
-
-        if(_.isNil(_.get(args, "identifier")) || _.isEmpty(_.get(args, "identifier"))) {
-            log.error("A constant requires an identifier.");
-            throw "A constant requires an identifier.";
-        }
-
-        if(_.isNil(_.get(args, "value")) || _.isEmpty(_.get(args, "value"))) {
-            log.error("A constant requires a value.");
-            throw "A constant requires a value.";
-        }
-
         VariableDeclaration.call(this, {
             type: "Constant-Declaration",
             bType: _.get(args, "bType"),
@@ -65,7 +49,23 @@ define(['lodash', 'log', './variable-declaration'], function (_, log, VariableDe
     };
 
     ConstantDefinition.prototype.getConstantDefinitionAsString = function() {
-        return "const " + this._type + " " + this._identifier + " = " + this._value;
+        if (this._type === "string") {
+            return "const " + this._type + " " + this._identifier + " = \"" + this._value + "\"";
+        } else {
+            return "const " + this._type + " " + this._identifier + " = " + this._value;
+        }
+    };
+
+    /**
+     * initialize ConnectorDefinition from json object
+     * @param {Object} jsonNode to initialize from
+     * @param {string} [jsonNode.connector_name] - Name of the service definition
+     * @param {string} [jsonNode.annotations] - Annotations of the function definition
+     */
+    ConstantDefinition.prototype.initFromJson = function (jsonNode) {
+        this._type = jsonNode.constant_definition_btype;
+        this._identifier = jsonNode.constant_definition_identifier;
+        this._value = jsonNode.constant_definition_value;
     };
 
     return ConstantDefinition;

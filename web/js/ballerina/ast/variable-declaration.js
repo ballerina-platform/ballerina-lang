@@ -46,7 +46,7 @@ define(['lodash', 'log', './node'], function(_, log, ASTNode){
 
     VariableDeclaration.prototype.setIdentifier = function (identifier) {
         if (!_.isNil(identifier) && VariableDeclaration.isValidIdentifier(identifier)) {
-            this.identifier = identifier;
+            this._identifier = identifier;
         } else {
             var exceptionString = "Invalid identifier: \'" + identifier + "\'. An identifier must match the regex " +
                 "^[a-zA-Z$_][a-zA-Z0-9$_]*$";

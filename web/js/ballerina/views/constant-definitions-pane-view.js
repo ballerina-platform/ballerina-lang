@@ -20,6 +20,14 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
     function (require, _, $, log, D3Utils, d3, Alerts, Point,
               BallerinaASTFactory, ConstantDefinitionView, VariableDeclaration) {
 
+        /**
+         * Creates a new instance for a constant definition pane view.
+         * @param args - Arguments for creating the constant definitions pane.
+         * @param {BallerinaASTRoot} args.model - The Ballerina AST root model.
+         * @param {HTMLElement} args.paneAppendElement - The element to which the pane to be appended.
+         * @param {BallerinaFileEditor} args.view - The ballerina filed editor view.
+         * @constructor
+         */
         var ConstantDefinitionPaneView = function(args) {
             this._model = _.get(args, "model");
             this._paneAppendElement = _.get(args, "paneAppendElement");
@@ -31,6 +39,9 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
 
         ConstantDefinitionPaneView.prototype.constructor = ConstantDefinitionPaneView;
 
+        /**
+         * Creates the pane view of the constant definitions.
+         */
         ConstantDefinitionPaneView.prototype.createConstantDefinitionPane = function() {
             var self = this;
 
@@ -201,6 +212,12 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
             });
         };
 
+        /**
+         * Renders the view for the created constant definitions.
+         * @param {HTMLElement} wrapper - The container of the constant definition views.
+         * @param {HTMLElement} collapserWrapper - The collapsible arrow.
+         * @private
+         */
         ConstantDefinitionPaneView.prototype._renderConstantDefinitions = function(wrapper, collapserWrapper) {
             $(wrapper).empty();
             var self = this;
