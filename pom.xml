@@ -53,6 +53,11 @@
 	    	<artifactId>ballerina-core</artifactId>
         	<version>${ballerina.version}</version>
 		</dependency>
+       <dependency>
+           <groupId>org.apache.velocity</groupId>
+           <artifactId>velocity</artifactId>
+           <version>1.7</version>
+       </dependency>
     </dependencies>
 
     <build>

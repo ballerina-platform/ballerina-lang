@@ -19,7 +19,10 @@
 package org.wso2.ballerina.docgen.docs.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a Ballerina function document object.
@@ -32,24 +35,19 @@ public class BallerinaFunctionDoc {
     private String signature;
 
     /**
-     * return types of the function.
-     */
-    private String returnTypes;
-
-    /**
      * comment specified via description annotation.
      */
     private String description;
 
     /**
-     * comments specified via param annotations.
+     * parameters.
      */
-    private List<String> parameters;
+    private Map<String, BallerinaParameterDoc> parameters;
 
     /**
-     * comments specified via return annotations.
+     * return parameters.
      */
-    private List<String> returnParams;
+    private Map<String, BallerinaParameterDoc> returnParameters;
 
     /**
      * comments specified via exceptions annotations.
@@ -57,8 +55,8 @@ public class BallerinaFunctionDoc {
     private List<String> thrownExceptions;
 
     public BallerinaFunctionDoc() {
-        parameters = new ArrayList<String>();
-        returnParams = new ArrayList<String>();
+        parameters = new HashMap<String, BallerinaParameterDoc>();
+        returnParameters = new HashMap<String, BallerinaParameterDoc>();
         thrownExceptions = new ArrayList<String>();
     }
 
@@ -70,14 +68,6 @@ public class BallerinaFunctionDoc {
         this.signature = signature;
     }
 
-    public String getReturnType() {
-        return returnTypes;
-    }
-
-    public void setReturnType(String returnType) {
-        this.returnTypes = returnType;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -86,20 +76,28 @@ public class BallerinaFunctionDoc {
         this.description = description;
     }
 
-    public List<String> getParameters() {
-        return parameters;
+    public Collection<BallerinaParameterDoc> getParameters() {
+        return parameters.values();
     }
 
-    public void setParameters(List<String> parameters) {
-        this.parameters = parameters;
+    public void addParameter(BallerinaParameterDoc parameter) {
+        parameters.put(parameter.getName(), parameter);
     }
 
-    public List<String> getReturnParams() {
-        return returnParams;
+    public Collection<BallerinaParameterDoc> getReturnParameters() {
+        return returnParameters.values();
     }
 
-    public void setReturnParams(List<String> returnParams) {
-        this.returnParams = returnParams;
+    public BallerinaParameterDoc getReturnParameter(String name) {
+        return returnParameters.get(name);
+    }
+
+    public void addReturnParameter(BallerinaParameterDoc parameter) {
+        returnParameters.put(parameter.getName(), parameter);
+    }
+
+    public BallerinaParameterDoc getParameter(String name) {
+        return parameters.get(name);
     }
 
     public List<String> getThrownExceptions() {
@@ -112,8 +110,8 @@ public class BallerinaFunctionDoc {
 
     @Override
     public String toString() {
-        return "BallerinaFunctionDoc [signature=" + signature + ", returnType=" + returnTypes + ", description="
-                + description + ", parameters=" + parameters + ", returnParams=" + returnParams + ", thrownExceptions="
-                + thrownExceptions + "]";
+        return "BallerinaFunctionDoc [signature=" + signature + ", description="
+                + description + ", parameters=" + parameters + ", returnParameters=" + returnParameters + ", " +
+                "thrownExceptions=" + thrownExceptions + "]";
     }
 }

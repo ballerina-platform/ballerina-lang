@@ -45,11 +45,11 @@ public class BallerinaFunctionDocGenTest {
             BallerinaDocGenTestUtils.printDocMap(docsMap);
             
             BallerinaPackageDoc doc = docsMap.get("a.b");
-            List<BallerinaFunctionDoc> funcDocs = doc.getBallerinaFunctionDocs();
+            List<BallerinaFunctionDoc> funcDocs = doc.getFunctionDocs();
             Assert.assertEquals(funcDocs.size(), 1);
             BallerinaFunctionDoc funcDoc = funcDocs.get(0);
             Assert.assertEquals(funcDoc.getParameters().size(), 1);
-            Assert.assertEquals(funcDoc.getReturnParams().size(), 1);
+            Assert.assertEquals(funcDoc.getReturnParameters().size(), 1);
             Assert.assertEquals(funcDoc.getThrownExceptions().size(), 0);
         } finally {
             BallerinaDocGenTestUtils.cleanUp();
@@ -66,16 +66,16 @@ public class BallerinaFunctionDocGenTest {
             BallerinaDocGenTestUtils.printDocMap(docsMap);
             
             BallerinaPackageDoc doc = docsMap.get("a.b");
-            List<BallerinaFunctionDoc> funcDocs = doc.getBallerinaFunctionDocs();
+            List<BallerinaFunctionDoc> funcDocs = doc.getFunctionDocs();
             Assert.assertEquals(funcDocs.size(), 2);
             BallerinaFunctionDoc funcDoc = funcDocs.get(0);
             Assert.assertEquals(funcDoc.getParameters().size(), 1);
-            Assert.assertEquals(funcDoc.getReturnParams().size(), 1);
+            Assert.assertEquals(funcDoc.getReturnParameters().size(), 1);
             Assert.assertEquals(funcDoc.getThrownExceptions().size(), 0);
 
             BallerinaFunctionDoc funcDoc1 = funcDocs.get(1);
             Assert.assertEquals(funcDoc1.getParameters().size(), 2);
-            Assert.assertEquals(funcDoc1.getReturnParams().size(), 0);
+            Assert.assertEquals(funcDoc1.getReturnParameters().size(), 0);
             Assert.assertEquals(funcDoc1.getThrownExceptions().size(), 0);
         } finally {
             BallerinaDocGenTestUtils.cleanUp();

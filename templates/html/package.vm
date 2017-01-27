@@ -1,0 +1,122 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>$package.name</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+	<link rel="stylesheet" href="assets/css/main.css" />
+	<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+	<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+</head>
+<body>
+	<!-- Wrapper -->
+	<div id="wrapper">
+
+		<!-- Main -->
+		<div id="main">
+			<div class="inner">
+
+				<!-- Header -->
+				<header id="header">
+					<a href="index.html" class="logo"><strong>Ballerina</strong> API Documentation</a>
+				</header>
+
+				<!-- Banner -->
+				<section id="banner">
+					<div class="content">
+
+						    <h2>Functions of $package.name package</h2>
+						    #foreach($balarinaFunctionDoc in $package.functionDocs)
+						        <div style="padding-bottom: 30px;">
+                                <h3>
+                                    $balarinaFunctionDoc.signature
+                                </h3>
+                                <p>$balarinaFunctionDoc.description</p>
+
+                                <p>
+                                <b>Parameters:</b>
+                                <table>
+                                    <tr>
+                                        <th>Parameter Name</th><th>Data Type</th><th>Description</th>
+                                    </tr>
+                                    #foreach($parameter in $balarinaFunctionDoc.parameters)
+                                    <tr>
+                                        <td>$parameter.name</td><td>$parameter.dataType</td><td>$parameter.description</td>
+                                    </tr>
+                                    #end
+                                </table>
+                                </p>
+
+                                #if( $balarinaFunctionDoc.returnParameters.size() > 0 )
+                                <p>
+                                <b>Return Parameters:</b>
+                                <table>
+                                    <tr>
+                                        <th>Return Variable</th><th>Data Type</th><th>Description</th>
+                                    </tr>
+                                    #foreach($returnType in $balarinaFunctionDoc.returnParameters)
+                                    <tr>
+                                        <td>$returnType.name</td><td>$returnType.dataType</td><td>$returnType.description</td>
+                                    </tr>
+                                    #end
+                                </table>
+                                </p>
+                                #end
+                                </div>
+                            #end
+						<p></p>
+					</div>
+				</section>
+			</div>
+		</div>
+
+		<!-- Sidebar -->
+		<div id="sidebar">
+			<div class="inner">
+				<!-- Menu -->
+				<nav id="menu">
+					<header class="major">
+						<h2>Menu</h2>
+					</header>
+					<ul>
+						<li>
+							<span class="opener">Packages</span>
+							<ul>
+								<li>
+									<a href="#">ballerina.lang.system</a>
+								</li>
+								<li>
+									<a href="#">ballerina.lang.string</a>
+								</li>
+								<li>
+									<a href="#">ballerina.lang.types</a>
+								</li>
+								<li>
+									<a href="#">ballerina.lang.map.json</a>
+								</li>
+							</ul>
+						</li>
+						<li><a href="/">Functions</a></li>
+						<li><a href="/">APIs</a></li>
+						<li><a href="/">JMS Endpoints</a></li>
+						<li><a href="/">Web Sockets</a></li>
+					</ul>
+				</nav>
+
+				<!-- Footer -->
+				<footer id="footer">
+					<p class="copyright">Copyright 2017 Ballerina API Documentation</p>
+				</footer>
+			</div>
+		</div>
+	</div>
+
+	<!-- Scripts -->
+	<script src="assets/js/jquery.min.js"></script>
+	<script src="assets/js/skel.min.js"></script>
+	<script src="assets/js/util.js"></script>
+	<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+	<script src="assets/js/main.js"></script>
+</body>
+</html>

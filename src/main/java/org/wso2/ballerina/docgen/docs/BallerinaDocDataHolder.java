@@ -29,25 +29,25 @@ import java.util.Map;
 public class BallerinaDocDataHolder {
 
     private static final BallerinaDocDataHolder instance = new BallerinaDocDataHolder();
-    /**
-     * Key - package name
-     * Value - {@link BallerinaPackageDoc}
-     */
-    private Map<String, BallerinaPackageDoc> ballerinaDocsMap;
-    
-    protected BallerinaDocDataHolder() {
-        ballerinaDocsMap = new HashMap<String, BallerinaPackageDoc>();
-    }
 
     public static BallerinaDocDataHolder getInstance() {
         return instance;
     }
-
-    public Map<String, BallerinaPackageDoc> getBallerinaDocsMap() {
-        return ballerinaDocsMap;
+    /**
+     * Key - package name
+     * Value - {@link BallerinaPackageDoc}
+     */
+    private Map<String, BallerinaPackageDoc> ballerinaPackageDocsMap;
+    
+    protected BallerinaDocDataHolder() {
+        ballerinaPackageDocsMap = new HashMap<String, BallerinaPackageDoc>();
     }
 
-    public void setBallerinaDocsMap(Map<String, BallerinaPackageDoc> ballerinaDocsMap) {
-        this.ballerinaDocsMap = ballerinaDocsMap;
+    public Map<String, BallerinaPackageDoc> getBallerinaPackageDocsMap() {
+        return ballerinaPackageDocsMap;
+    }
+
+    public void setBallerinaPackageDocsMap(Map<String, BallerinaPackageDoc> ballerinaPackageDocsMap) {
+        this.ballerinaPackageDocsMap = ballerinaPackageDocsMap;
     }
 }
