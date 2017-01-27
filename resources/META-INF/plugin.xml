@@ -47,7 +47,7 @@
                 implementation="org.ballerinalang.plugins.idea.actions.BallerinaTemplatePropertiesProvider"/>
 
         <!-- sdk -->
-        <sdkType implementation="org.ballerinalang.sdk.BallerinaSdkType"/>
+        <sdkType implementation="org.ballerinalang.plugins.idea.sdk.BallerinaSdkType"/>
 
     </extensions>
 

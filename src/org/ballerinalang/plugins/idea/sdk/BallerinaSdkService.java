@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.sdk;
+package org.ballerinalang.plugins.idea.sdk;
 
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
 import com.intellij.openapi.diagnostic.Logger;

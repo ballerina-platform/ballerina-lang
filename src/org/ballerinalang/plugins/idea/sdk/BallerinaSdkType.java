@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.sdk;
+package org.ballerinalang.plugins.idea.sdk;
 
 import com.intellij.openapi.projectRoots.AdditionalDataConfigurable;
 import com.intellij.openapi.projectRoots.Sdk;
@@ -24,7 +24,7 @@ import com.intellij.openapi.projectRoots.SdkModificator;
 import com.intellij.openapi.projectRoots.SdkType;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.ballerinalang.BallerinaIcons;
+import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;

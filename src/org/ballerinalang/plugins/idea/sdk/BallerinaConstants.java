@@ -13,7 +13,25 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.ui;
 
-public class ProjectTutorialNotification {
+package org.ballerinalang.plugins.idea.sdk;
+
+import com.intellij.notification.NotificationGroup;
+import org.jetbrains.annotations.NonNls;
+
+public class BallerinaConstants {
+
+    private BallerinaConstants() {
+
+    }
+
+    @NonNls
+    public static final String BALLERINA_EXECUTABLE_NAME = "ballerina";
+
+    @NonNls
+    public static final String BALLERINA_VERSION_FILE_PATH = "bin/version.txt";
+
+    public static final NotificationGroup BALLERINA_NOTIFICATION_GROUP =
+            NotificationGroup.balloonGroup("Ballerina plugin notifications");
+
 }

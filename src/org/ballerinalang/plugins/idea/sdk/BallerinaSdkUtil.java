@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.sdk;
+package org.ballerinalang.plugins.idea.sdk;
 
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
 import com.intellij.openapi.util.Key;
@@ -94,11 +94,7 @@ public class BallerinaSdkUtil {
 
                 VirtualFile versionFile = sdkRoot.findFileByRelativePath(
                         BallerinaConstants.BALLERINA_VERSION_FILE_PATH);
-                // If the version file is null, check on other locations.
-                //                if (versionFile == null) {
-                //                    versionFile = sdkRoot.findFileByRelativePath(BallerinaConstants
-                // .BALLERINA_VERSION_FILE_PATH);
-                //                }
+                // Please note that if the above versionFile is null, we can check on other locations as well.
                 if (versionFile != null) {
                     String text = VfsUtilCore.loadText(versionFile);
                     String version = parseBallerinaVersion(text);

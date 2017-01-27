@@ -13,7 +13,22 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package sdk;
 
-public class BallerinaSdkLibraryPresentationProvider {
+package org.ballerinalang.plugins.idea.sdk;
+
+import com.intellij.openapi.util.SystemInfo;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.util.PathUtil;
+import org.jetbrains.annotations.NotNull;
+
+public class BallerinaEnvironmentUtil {
+
+    private BallerinaEnvironmentUtil() {
+    }
+
+    @NotNull
+    public static String getBinaryFileNameForPath(@NotNull String path) {
+        String resultBinaryName = FileUtil.getNameWithoutExtension(PathUtil.getFileName(path));
+        return SystemInfo.isWindows ? resultBinaryName + ".exe" : resultBinaryName;
+    }
 }
