@@ -17,9 +17,9 @@
  */
 define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-group',
         './drag-drop-manager', './../ast/ballerina-ast-factory','./initial-definitions',
-        './../search/search', './../search/import-search-adapter', 'mousetrap' ],
+        './../search/search', './../search/import-search-adapter', 'mousetrap', 'mcustom_scroller'],
     function (require, log, $, Backbone, ToolGroupView, ToolGroup,
-              DragDropManager, BallerinaASTFactory, initialTools, Search, ImportSearchAdapter, Mousetrap) {
+              DragDropManager, BallerinaASTFactory, initialTools, Search, ImportSearchAdapter, Mousetrap, mcustomScroller) {
 
     var ToolPalette = Backbone.View.extend({
         initialize: function (options) {
@@ -108,6 +108,11 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             
             this._toolGroups.imports.forEach(function (package){
                 self.addImport(package);
+            });
+
+            $(this._$parent_el).mCustomScrollbar({
+                theme: "minimal-dark",
+                scrollInertia: 0
             });
             return this;
         },
