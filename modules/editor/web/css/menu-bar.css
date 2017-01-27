@@ -66,6 +66,7 @@ div#header-container{
     background-color: #333;
     margin-top: 13px;
     width: 210px;
+    z-index: 2000;
 }
 li.menu-item-disabled > a {
     color: #777;
