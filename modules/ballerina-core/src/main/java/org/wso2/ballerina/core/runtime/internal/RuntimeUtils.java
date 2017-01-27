@@ -17,8 +17,6 @@
 */
 package org.wso2.ballerina.core.runtime.internal;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,15 +34,5 @@ public class RuntimeUtils {
      * Shutdown Ballerina Runtime.
      */
     public static void shutdownRuntime() {
-        BundleContext bundleContext = ServiceContextHolder.getInstance().getBundleContext();
-        if (bundleContext != null) {
-            try {
-                bundleContext.getBundle(0).stop();
-            } catch (BundleException e) {
-                logger.error("Fatal: Error while unloading Ballerina runtime. Manual termination is required.", e);
-            }
-        } else {
-            logger.error("Fatal: Unable to Shutdown Ballerina Runtime. Manual termination is required.");
-        }
     }
 }
