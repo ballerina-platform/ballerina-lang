@@ -59,4 +59,10 @@
         </action>
     </actions>
 
+    <application-components>
+        <component>
+            <implementation-class>org.ballerinalang.plugins.idea.ui.BallerinaNotification</implementation-class>
+        </component>
+    </application-components>
+
 </idea-plugin>
