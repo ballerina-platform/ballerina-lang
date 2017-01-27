@@ -66,7 +66,6 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             URI requestUri = URI.create(uriStr);
             if (requestUri == null) {
                 throw new BallerinaException("URI not found in the message or found an invalid URI.");
-
             }
 
             String basePath = URIUtil.getFirstPathSegment(requestUri.getPath());
