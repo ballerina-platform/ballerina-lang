@@ -121,7 +121,7 @@ senderConfigurations:
  -
   id: "https-sender"
   scheme: "https"
-  trustStoreFile: "bre/security/client-truststore.jks"
+  trustStoreFile: "${ballerina.home}/bre/security/client-truststore.jks"
   trustStorePass: "wso2carbon"
   parameters:
     -
