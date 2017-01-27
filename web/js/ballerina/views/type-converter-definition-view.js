@@ -39,6 +39,8 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         }
         this.init();
         this._typeMapper = new TypeMapper(this.onAttributesConnect,this.onAttributesDisConnect);
+        console.log("PPPPPPPPPPPPPPPPPPPPPPPPPPPPPP");
+        console.log(this._typeMapper);
     };
 
     TypeConverterDefinitionView.prototype = Object.create(Canvas.prototype);
@@ -95,7 +97,9 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             leftTypeStructDef.setIdentifier("p");
             leftTypeStructDef.setSchema(employee);
             leftTypeStructDef.setCategory("SOURCE");
-            leftTypeStructDef.setDataMapperInstance(self._typeMapper);
+            //leftTypeStructDef.setDataMapperInstance(self._typeMapper);
+            leftTypeStructDef.setOnConnectInstance(self.onAttributesConnect);
+            leftTypeStructDef.setOnDisconnectInstance(self.onAttributesDisConnect);
             self._model.addChild(leftTypeStructDef);
 
         });
@@ -125,7 +129,9 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             rightTypeStructDef.setIdentifier("e");
             rightTypeStructDef.setSchema(person);
             rightTypeStructDef.setCategory("TARGET");
-            rightTypeStructDef.setDataMapperInstance(self._typeMapper);
+            //rightTypeStructDef.setDataMapperInstance(self._typeMapper);
+            rightTypeStructDef.setOnConnectInstance(self.onAttributesConnect);
+            rightTypeStructDef.setOnDisconnectInstance(self.onAttributesDisConnect);
             self._model.addChild(rightTypeStructDef);
 
 
@@ -199,7 +205,20 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
      * @param connection object
      */
     TypeConverterDefinitionView.prototype.onAttributesConnect = function (connection) {
-          alert("connected");
+
+        var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+        var leftOp = BallerinaASTFactory.createLeftOperandExpression();
+        var leftOperandExpression = "e." + connection.sourceProperty;
+        leftOp.setLeftOperandExpressionString(leftOperandExpression);
+        var rightOp = BallerinaASTFactory.createRightOperandExpression();
+        var rightOperandExpression = "p." + connection.targetProperty;
+        rightOp.setRightOperandExpressionString(rightOperandExpression);
+        assignmentStmt.addChild(leftOp);
+        assignmentStmt.addChild(rightOp);
+
+        this._model.addChild(assignmentStmt);
+
+
     };
 
     /**
@@ -207,7 +226,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
      * @param connection object
      */
     TypeConverterDefinitionView.prototype.onAttributesDisConnect = function (connection) {
-        alert("disconnected");
+
     };
 
     return TypeConverterDefinitionView;

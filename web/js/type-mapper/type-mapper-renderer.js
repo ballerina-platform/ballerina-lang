@@ -153,6 +153,8 @@ define(['require', 'lodash','jquery','jsPlumb','nano_scroller'], function(requir
     }
 
     TypeMapper.prototype.addTargetProperty  = function (parentId, name, type) {
+        console.log("PPPPPPPPPPPPPPP");
+        console.log(this.onConnection);
         var callback = this.onConnection;
 
         jsPlumb.makeTarget(this.makeProperty(parentId, name, type), {
