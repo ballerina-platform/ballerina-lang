@@ -36,7 +36,7 @@ public class BallerinaDocGenTestUtils {
     }
     
     public static void cleanUp() {
-        BallerinaDocDataHolder.getInstance().setBallerinaDocsMap(new HashMap<String, BallerinaPackageDoc>());
+        BallerinaDocDataHolder.getInstance().setBallerinaPackageDocsMap(new HashMap<String, BallerinaPackageDoc>());
     }
 
 }

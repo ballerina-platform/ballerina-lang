@@ -81,12 +81,6 @@ public class BallerinaDocUtils {
             // This is required by the parser-error strategy.
             ANTLRInputStream antlrInputStream = new ANTLRInputStream(new FileInputStream(sourceFilePath.toFile()));
 
-            //            if (antlrInputStream != null) {
-            //                antlrInputStream.name = sourceFilePath.getFileName() == null ? "dummy" :
-            // sourceFilePath.getFileName()
-            //                        .toString();
-            //            }
-
             BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
             CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
 
@@ -110,11 +104,8 @@ public class BallerinaDocUtils {
             out.println(e.getMessage());
 
         } catch (Throwable e) {
-            // TODO Fix this error message
-            out.println(e.getMessage());
+            out.println("Error! Could not parse ballerina file " + sourceFilePath + ": " + e.getMessage());
         }
-
         return null;
     }
-
 }

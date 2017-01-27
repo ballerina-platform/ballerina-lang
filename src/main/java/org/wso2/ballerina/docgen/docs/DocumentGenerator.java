@@ -75,6 +75,7 @@ import org.wso2.ballerina.docgen.docs.model.BallerinaActionDoc;
 import org.wso2.ballerina.docgen.docs.model.BallerinaConnectorDoc;
 import org.wso2.ballerina.docgen.docs.model.BallerinaFunctionDoc;
 import org.wso2.ballerina.docgen.docs.model.BallerinaPackageDoc;
+import org.wso2.ballerina.docgen.docs.model.BallerinaParameterDoc;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocUtils;
 
 /**
@@ -88,10 +89,10 @@ public class DocumentGenerator implements NodeVisitor {
 
     public DocumentGenerator(BallerinaFile bFile, SymScope globalScope) {
         currentPkg = bFile.getPackageName();
-        ballerinaDoc = BallerinaDocDataHolder.getInstance().getBallerinaDocsMap().get(currentPkg);
+        ballerinaDoc = BallerinaDocDataHolder.getInstance().getBallerinaPackageDocsMap().get(currentPkg);
         if (ballerinaDoc == null) {
             ballerinaDoc = new BallerinaPackageDoc(currentPkg);
-            BallerinaDocDataHolder.getInstance().getBallerinaDocsMap().put(currentPkg, ballerinaDoc);
+            BallerinaDocDataHolder.getInstance().getBallerinaPackageDocsMap().put(currentPkg, ballerinaDoc);
         }
     }
 
@@ -136,8 +137,8 @@ public class DocumentGenerator implements NodeVisitor {
     @Override
     public void visit(BallerinaConnector connector) {
         BallerinaConnectorDoc doc = new BallerinaConnectorDoc(connector);
-        BallerinaDocDataHolder.getInstance().getBallerinaDocsMap().get(currentPkg)
-                .addBallerinaConnectorDoc(doc);
+        BallerinaDocDataHolder.getInstance().getBallerinaPackageDocsMap().get(currentPkg)
+                .addConnectorDoc(doc);
 
         StringBuilder s = new StringBuilder(connector.getConnectorName() + " (");
         for (Parameter p : connector.getParameters()) {
@@ -190,27 +191,56 @@ public class DocumentGenerator implements NodeVisitor {
     @Override
     public void visit(BallerinaFunction function) {
         BallerinaFunctionDoc doc = new BallerinaFunctionDoc();
-        BallerinaDocDataHolder.getInstance().getBallerinaDocsMap().get(currentPkg).addBallerinaFunctionDoc(doc);
+        BallerinaDocDataHolder.getInstance().getBallerinaPackageDocsMap().get(currentPkg).addFunctionDoc(doc);
 
-        StringBuilder s = new StringBuilder(function.getFunctionName() + " (");
+        StringBuilder s = new StringBuilder("function " + function.getFunctionName() + " (");
         for (Parameter parameter : function.getParameters()) {
-            s.append(BallerinaDocUtils.getType(parameter.getType()) + " " + parameter.getName() + ",");
-        }
-        doc.setSignature(s.substring(0, s.length() - 1).concat(")"));
+            // Prepare parameter signature
+            String parameterName = (parameter.getName() != null) ? parameter.getName().getName() : "";
+            s.append(BallerinaDocUtils.getType(parameter.getType()) + " " + parameterName + ", ");
 
-        s = new StringBuilder();
-        for (Parameter parameter : function.getReturnParameters()) {
-            s.append(BallerinaDocUtils.getType(parameter.getType()) + ",");
+            // Add parameter to the function document
+            doc.addParameter(new BallerinaParameterDoc(parameterName, BallerinaDocUtils.getType(parameter.getType())));
         }
-        doc.setReturnType(s.length() == 0 ? "" : s.substring(0, s.length() - 1));
+        s = new StringBuilder(s.substring(0, s.length() - 2).concat(")"));
 
+        if ((function.getReturnParameters() != null) && (function.getReturnParameters().length > 0)) {
+            s.append(" (");
+            for (Parameter parameter : function.getReturnParameters()) {
+                // Prepare return parameter signature
+                s.append(BallerinaDocUtils.getType(parameter.getType()) + " " + parameter.getName() + ", ");
+
+                // Add return parameters to the function document
+                String parameterName = (parameter.getName() != null) ? parameter.getName().getName() : "";
+                doc.addReturnParameter(new BallerinaParameterDoc(parameterName,
+                        BallerinaDocUtils.getType(parameter.getType())));
+            }
+            s = new StringBuilder(s.substring(0, s.length() - 2).concat(")"));
+        }
+        doc.setSignature(s.toString());
+
+        // Read function annotations
         for (Annotation annotation : function.getAnnotations()) {
             if (annotation.getName().equalsIgnoreCase("param")) {
-                doc.getParameters().add(annotation.getValue());
+                // Set parameter description
+                String[] paramValues = annotation.getValue().split(":");
+                if (paramValues.length == 2) {
+                    BallerinaParameterDoc parameterDoc = doc.getParameter(paramValues[0]);
+                    if (parameterDoc != null) {
+                        parameterDoc.setDescription(paramValues[1]);
+                    }
+                }
             } else if (annotation.getName().equalsIgnoreCase("description")) {
                 doc.setDescription(annotation.getValue());
             } else if (annotation.getName().equalsIgnoreCase("return")) {
-                doc.getReturnParams().add(annotation.getValue());
+                // Set return parameter description
+                String[] paramValues = annotation.getValue().split(":");
+                if (paramValues.length == 2) {
+                    BallerinaParameterDoc parameterDoc = doc.getReturnParameter(paramValues[0]);
+                    if (parameterDoc != null) {
+                        parameterDoc.setDescription(paramValues[1]);
+                    }
+                }
             } else if (annotation.getName().equalsIgnoreCase("throws")) {
                 doc.getThrownExceptions().add(annotation.getValue());
             }
@@ -394,5 +424,4 @@ public class DocumentGenerator implements NodeVisitor {
     @Override
     public void visit(MainInvoker arg0) {
     }
-
 }
