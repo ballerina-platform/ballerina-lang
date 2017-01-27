@@ -131,12 +131,12 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
 
             var newVariableDeclaration = BallerinaASTFactory.createVariableDeclaration();
             // Pushing new variable declaration//todo setType
-            newVariableDeclaration.setType("Person");
-            newVariableDeclaration.setIdentifier("p");
+            newVariableDeclaration.setType("Employee");
+            newVariableDeclaration.setIdentifier("e");
             self._model.addChild(newVariableDeclaration);
 
             var newReturnStatement = BallerinaASTFactory.createReturnStatement();
-            newReturnStatement.setReturnExpression("p");
+            newReturnStatement.setReturnExpression("e");
             self._model.addChild(newReturnStatement);
 
         });
@@ -207,7 +207,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
      * @param connection object
      */
     TypeConverterDefinitionView.prototype.onAttributesDisConnect = function (connection) {
- 
+
     };
 
     return TypeConverterDefinitionView;
