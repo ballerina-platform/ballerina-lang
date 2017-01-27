@@ -58,7 +58,7 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
             log.debug('End Visit TypeConverterDefinition');
         };
 
-        TypeConverterDefinitionVisitor.prototype.visitAssignment = function (statement) {
+        TypeConverterDefinitionVisitor.prototype.visitStatement = function (statement) {
             var statementVisitorFactory = new StatementVisitorFactory();
             var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
             statement.accept(statementVisitor);
