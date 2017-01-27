@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016-2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,28 +15,57 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function(_, ASTNode){
+define(['lodash', 'log', './variable-declaration'], function (_, log, VariableDeclaration) {
 
+    /**
+     * Constructor for constant declaration
+     * @param {Object} args - Arguments to create the Constant Declaration
+     * @constructor
+     * @augments VariableDeclaration
+     */
     var ConstantDefinition = function(args) {
-        this._name = _.get(args, 'name');
-        this._type = _.get(args, 'type');
-        this._value = _.get(args, 'value');
-        ASTNode.call(this, "ConstantDefinition");
+
+        if(_.isNil(_.get(args, "bType")) || _.isEmpty(_.get(args, "bType"))) {
+            log.error("A constant requires to have a type.");
+            throw "A constant requires to have a type.";
+        }
+
+        if(_.isNil(_.get(args, "identifier")) || _.isEmpty(_.get(args, "identifier"))) {
+            log.error("A constant requires an identifier.");
+            throw "A constant requires an identifier.";
+        }
+
+        if(_.isNil(_.get(args, "value")) || _.isEmpty(_.get(args, "value"))) {
+            log.error("A constant requires a value.");
+            throw "A constant requires a value.";
+        }
+
+        VariableDeclaration.call(this, {
+            type: "Constant-Declaration",
+            bType: _.get(args, "bType"),
+            identifier: _.get(args, "identifier")
+        });
+        this._value = _.get(args, "value");
     };
 
-    ConstantDefinition.prototype = Object.create(ASTNode.prototype);
+    ConstantDefinition.prototype = Object.create(VariableDeclaration.prototype);
     ConstantDefinition.prototype.constructor = ConstantDefinition;
 
-    ConstantDefinition.prototype.getName = function () {
-        return this._name;
-    };
-
-    ConstantDefinition.prototype.getType = function () {
-        return this._type;
+    ConstantDefinition.prototype.setValue = function (value) {
+        if (_.isNil(value) || _.isEmpty(value)) {
+            log.error("A constant requires to have a type.");
+            throw "A constant requires to have a type.";
+        } else {
+            this._value = value;
+        }
     };
 
     ConstantDefinition.prototype.getValue = function () {
         return this._value;
+    };
+
+    ConstantDefinition.prototype.getConstantDefinitionAsString = function() {
+        return "const " + this._type + " " + this._identifier + " = " + this._value;
     };
 
     return ConstantDefinition;

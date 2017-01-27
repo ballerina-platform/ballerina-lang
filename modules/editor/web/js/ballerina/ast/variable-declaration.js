@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016-2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,14 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function(_, ASTNode){
+define(['lodash', 'log', './node'], function(_, log, ASTNode){
 
-    var VariableDeclaration = function (type, identifier) {
-        ASTNode.call(this, "VariableDeclaration");
-        this._type = type;
-        this._identifier = identifier;
-        this.initialValue = undefined;
-        this.type = "VariableDeclaration";
+    var VariableDeclaration = function (args) {
+        ASTNode.call(this, _.get(args, "type", "VariableDeclaration"));
+        this._type = _.get(args, "bType");
+        this._identifier = _.get(args, "identifier");
+
+        // Validating the identifier.
+        if (!_.isUndefined(this.identifier) && !VariableDeclaration.isValidIdentifier(this.identifier)) {
+            var exceptionString = "Invalid identifier: \'" + this.identifier + "\'. An identifier must match the " +
+                "regex ^[a-zA-Z$_][a-zA-Z0-9$_]*$";
+            log.error(exceptionString);
+            throw exceptionString;
+        }
     };
 
     VariableDeclaration.prototype = Object.create(ASTNode.prototype);
@@ -39,8 +45,13 @@ define(['lodash', './node'], function(_, ASTNode){
     };
 
     VariableDeclaration.prototype.setIdentifier = function (identifier) {
-        if(!_.isUndefined(identifier)){
-            this._identifier = identifier;
+        if (!_.isNil(identifier) && VariableDeclaration.isValidIdentifier(identifier)) {
+            this.identifier = identifier;
+        } else {
+            var exceptionString = "Invalid identifier: \'" + identifier + "\'. An identifier must match the regex " +
+                "^[a-zA-Z$_][a-zA-Z0-9$_]*$";
+            log.error(exceptionString);
+            throw exceptionString;
         }
     };
 
@@ -55,6 +66,16 @@ define(['lodash', './node'], function(_, ASTNode){
     VariableDeclaration.prototype.initFromJson = function (jsonNode) {
         this.setType(jsonNode.variable_type);
         this.setIdentifier(jsonNode.variable_name);
+    };
+
+    /**
+     * Checks whether the identifier is valid or not.
+     * @param {string} identifier - The identifier
+     * @return {boolean} - True if valid identifier, else false.
+     * @static
+     */
+    VariableDeclaration.isValidIdentifier = function (identifier) {
+        return identifier === undefined ? false : /^[a-zA-Z$_][a-zA-Z0-9$_]*$/.test(identifier);
     };
 
     return VariableDeclaration;
