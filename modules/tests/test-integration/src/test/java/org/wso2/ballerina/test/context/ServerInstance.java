@@ -224,7 +224,7 @@ public class ServerInstance implements Server {
             process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);
 
         } else {
-            cmdArray = new String[]{"bash", "bin/" + scriptName};
+            cmdArray = new String[]{"bash", "bin/" + scriptName, "service"};
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
                     .toArray(String[]::new);
             process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);

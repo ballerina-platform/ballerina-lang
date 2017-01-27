@@ -18,8 +18,6 @@
 
 package org.wso2.ballerina.core.runtime.internal;
 
-
-import org.osgi.framework.BundleContext;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.errors.handler.ServerConnectorErrorHandler;
@@ -39,8 +37,6 @@ public class ServiceContextHolder {
 
     /* Protocol specific error handlers */
     private Map<String, ServerConnectorErrorHandler> errorHandlers = new HashMap<>();
-
-    private BundleContext bundleContext;
 
     private BallerinaFile ballerinaFile;
 
@@ -101,24 +97,6 @@ public class ServiceContextHolder {
      */
     public ServerConnectorErrorHandler getErrorHandler(String protocol) {
         return errorHandlers.get(protocol);
-    }
-
-    /**
-     * Get Ballerina Bundle Context.
-     *
-     * @return BundleContext instance.
-     */
-    public BundleContext getBundleContext() {
-        return this.bundleContext;
-    }
-
-    /**
-     * Set Ballerina Bundle Context instance.
-     *
-     * @param bundleContext of the Ballerina Bundle.
-     */
-    void setBundleContext(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
     }
 
     /**

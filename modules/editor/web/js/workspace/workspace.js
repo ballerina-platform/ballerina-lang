@@ -116,8 +116,8 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
         this.openFileSaveDialog = function openFileSaveDialog() {
             if(_.isNil(this._saveFileDialog)){
                 this._saveFileDialog = new Dialogs.save_to_file_dialog(app);
-                this._saveFileDialog.render();
             }
+            this._saveFileDialog.render();
             this._saveFileDialog.show();
             var activeTab = app.tabController.getActiveTab();
             if(!_.isNil(activeTab) && _.isFunction(activeTab.getFile)){
@@ -136,8 +136,8 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
                 var opts = _.cloneDeep(_.get(app.config, 'open_folder_dialog'));
                 _.set(opts, "application", app);
                 this._folderOpenDialog = new Dialogs.FolderOpenDialog(opts);
-                this._folderOpenDialog.render();
             }
+            this._folderOpenDialog.render();
             this._folderOpenDialog.show();
         };
 
@@ -256,8 +256,12 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
             this._newItemDialog.displayWizard(data);
         };
 
-        this.handleRemoveFile = function(){
-            //TODO
+        this.handleRemoveFromDisk = function(data){
+            if(_.isNil(this._deleteItemWizard)){
+                this._deleteItemWizard = new Dialogs.DeleteItemDialog({application: app});
+                this._deleteItemWizard.render();
+            }
+            this._deleteItemWizard.displayWizard(data);
         };
 
         app.commandManager.registerHandler('create-new-tab', this.createNewTab);
@@ -283,7 +287,7 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
 
         app.commandManager.registerHandler('create-new-item-at-path', this.handleCreateNewItemAtPath, this);
 
-        app.commandManager.registerHandler('remove-file', this.handleRemoveFile, this);
+        app.commandManager.registerHandler('remove-from-disk', this.handleRemoveFromDisk, this);
 
     }
 

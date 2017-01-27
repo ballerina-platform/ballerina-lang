@@ -15,9 +15,6 @@
  */
 package org.wso2.ballerina.core.nativeimpl.connectors.http.client;
 
-import org.osgi.framework.Bundle;
-import org.osgi.framework.ServiceFactory;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -38,7 +35,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
         name = "ballerina.net.connectors.http",
         immediate = true,
         service = AbstractNativeConnector.class)
-public class HTTPConnector extends AbstractNativeConnector implements ServiceFactory {
+public class HTTPConnector extends AbstractNativeConnector {
 
     public static final String CONNECTOR_NAME = "HTTPConnector";
 
@@ -66,14 +63,4 @@ public class HTTPConnector extends AbstractNativeConnector implements ServiceFac
     public String getPackageName() {
         return "ballerina.net.http";
     }
-
-    @Override
-    public Object getService(Bundle bundle, ServiceRegistration serviceRegistration) {
-        return new HTTPConnector();
-    }
-
-    @Override
-    public void ungetService(Bundle bundle, ServiceRegistration serviceRegistration, Object o) {
-    }
-
 }

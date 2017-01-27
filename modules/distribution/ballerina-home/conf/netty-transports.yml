@@ -89,8 +89,6 @@ listenerConfigurations:
   id: "default"
   host: "0.0.0.0"
   port: 9090
-  bindOnStartup: false
-
 
 senderConfigurations:
  -
@@ -123,7 +121,7 @@ senderConfigurations:
  -
   id: "https-sender"
   scheme: "https"
-  trustStoreFile: "resources/security/client-truststore.jks"
+  trustStoreFile: "${ballerina.home}/bre/security/client-truststore.jks"
   trustStorePass: "wso2carbon"
   parameters:
     -

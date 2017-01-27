@@ -56,6 +56,18 @@ public class BallerinaException extends RuntimeException {
     public BallerinaException(String message, Throwable cause) {
         super(message, cause);
     }
+    
+    /**
+     * Constructs a new {@link BallerinaException} with the specified detail message, cause and ballerina context.
+     *
+     * @param message   Error message
+     * @param cause     Cause
+     * @param context   Ballerina context
+     */
+    public BallerinaException(String message, Throwable cause, Context context) {
+        super(message, cause);
+        this.context = context;
+    }
 
     /**
      * Constructs a new {@link BallerinaException} with the cause.

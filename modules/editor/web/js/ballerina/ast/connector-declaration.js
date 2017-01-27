@@ -32,7 +32,7 @@ define(['lodash', './node'], function(_, ASTNode){
     var ConnectorDeclaration = function(options) {
         ASTNode.call(this, "ConnectorDeclaration");
         this._connectorName = _.get(options, "connectorName", "HTTPConnector");
-        this._connectorVariable = _.get(options, "connectorVariable", "ep");
+        this._connectorVariable = _.get(options, "connectorVariable", "endpoint1");
         this._connectorType = _.get(options, "connectorType", "ConnectorDeclaration");
         this._connectorPkgName = _.get(options, "connectorPackageName", "http");
         this._timeout = _.get(options, "timeout", "");
