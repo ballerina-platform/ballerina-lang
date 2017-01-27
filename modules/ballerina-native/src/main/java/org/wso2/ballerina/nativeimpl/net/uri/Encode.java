@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.net.uri;
+package org.wso2.ballerina.nativeimpl.net.uri;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

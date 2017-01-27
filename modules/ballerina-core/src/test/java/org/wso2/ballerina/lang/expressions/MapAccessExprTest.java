@@ -27,11 +27,11 @@ import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnInt;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnString;
 import org.wso2.ballerina.core.utils.FunctionUtils;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.nativeimpl.lang.system.PrintlnInt;
+import org.wso2.ballerina.nativeimpl.lang.system.PrintlnString;
 
 /**
  * Map access expression test.

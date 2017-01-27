@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.core.nativeimpl.lang.xml;
+package org.wso2.ballerina.nativeimpl.lang.xml;
 
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.s9api.DocumentBuilder;
@@ -40,7 +40,7 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
-import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
+import org.wso2.ballerina.nativeimpl.lang.utils.ErrorHandler;
 
 /**
  * Evaluate xPath on a XML object and returns the matching XML object. Namespaces are supported

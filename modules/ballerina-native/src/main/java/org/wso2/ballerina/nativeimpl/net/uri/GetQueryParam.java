@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.net.uri;
+package org.wso2.ballerina.nativeimpl.net.uri;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
+import org.wso2.ballerina.nativeimpl.connectors.http.Constants;
 
 import java.net.URLDecoder;
 import java.util.HashMap;

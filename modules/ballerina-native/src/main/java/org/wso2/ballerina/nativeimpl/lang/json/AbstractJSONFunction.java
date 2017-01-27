@@ -17,7 +17,7 @@
  **/
 
 
-package org.wso2.ballerina.core.nativeimpl.lang.json;
+package org.wso2.ballerina.nativeimpl.lang.json;
 
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.Option;

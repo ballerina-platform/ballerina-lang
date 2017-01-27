@@ -16,7 +16,7 @@
  * under the License.
  **/
 
-package org.wso2.ballerina.core.nativeimpl.lang.message;
+package org.wso2.ballerina.nativeimpl.lang.message;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
-import org.wso2.ballerina.core.nativeimpl.lang.utils.Constants;
+import org.wso2.ballerina.nativeimpl.lang.utils.Constants;
 
 /**
  * Set the payload of the Message as a JSON.

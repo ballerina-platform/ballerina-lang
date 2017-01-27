@@ -16,7 +16,7 @@
  * under the License.
  **/
 
-package org.wso2.ballerina.core.nativeimpl.lang.message;
+package org.wso2.ballerina.nativeimpl.lang.message;
 
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
@@ -29,7 +29,7 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
-import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
+import org.wso2.ballerina.nativeimpl.lang.utils.ErrorHandler;
 
 /**
  *  Get the payload of the Message as a JSON.

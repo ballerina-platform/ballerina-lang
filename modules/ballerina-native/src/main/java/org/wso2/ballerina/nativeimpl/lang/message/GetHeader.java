@@ -1,4 +1,4 @@
-package org.wso2.ballerina.core.nativeimpl.lang.message;
+package org.wso2.ballerina.nativeimpl.lang.message;
 
 
 import org.wso2.ballerina.core.interpreter.Context;
@@ -10,7 +10,7 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
-import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
+import org.wso2.ballerina.nativeimpl.lang.utils.ErrorHandler;
 
 /**
  * Get the Headers of the Message.

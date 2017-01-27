@@ -19,8 +19,8 @@ package org.wso2.ballerina.core.nativeimpl.connectors;
 import org.testng.annotations.BeforeClass;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnString;
 import org.wso2.ballerina.core.utils.ParserUtils;
+import org.wso2.ballerina.nativeimpl.lang.system.PrintlnString;
 
 /**
  * Test class for Native Action test.

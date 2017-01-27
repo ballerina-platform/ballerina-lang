@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.util;
+package org.wso2.ballerina.nativeimpl.util;
 
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;

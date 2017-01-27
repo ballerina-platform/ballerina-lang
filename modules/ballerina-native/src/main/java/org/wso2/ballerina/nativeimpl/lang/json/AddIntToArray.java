@@ -16,7 +16,7 @@
  * under the License.
  **/
 
-package org.wso2.ballerina.core.nativeimpl.lang.json;
+package org.wso2.ballerina.nativeimpl.lang.json;
 
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
-import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
+import org.wso2.ballerina.nativeimpl.lang.utils.ErrorHandler;
 
 /**
  * Insert an integer element to a JSON Array. This method will add a new integer element
