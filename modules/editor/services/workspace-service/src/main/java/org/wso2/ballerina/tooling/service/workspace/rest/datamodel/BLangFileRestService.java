@@ -84,14 +84,21 @@ public class BLangFileRestService {
             String response = parseJsonDataModel(stream);
             return Response.ok(response, MediaType.APPLICATION_JSON).header("Access-Control-Allow-Origin", '*').build();
         } catch (IOException ex) {
-            logger.error("IOException occured while generating JSON data model for ballerina file", ex);
+            logger.error("IOException occurred while generating JSON data model for ballerina file", ex.toString());
             JsonObject entity = new JsonObject();
             entity.addProperty("Error", ex.toString());
             return Response.status(Response.Status.BAD_REQUEST).entity(entity)
                     .header("Access-Control-Allow-Origin", '*')
                     .type(MediaType.APPLICATION_JSON).build();
         } catch (Exception e) {
-            logger.error("Exception occured while generating JSON data model for ballerina file", e.toString());
+            logger.error("Exception occurred while generating JSON data model for ballerina file", e.toString());
+            JsonObject entity = new JsonObject();
+            entity.addProperty("Error", e.toString());
+            return Response.status(Response.Status.BAD_REQUEST).entity(entity)
+                           .header("Access-Control-Allow-Origin", '*')
+                           .type(MediaType.APPLICATION_JSON).build();
+        } catch (Throwable e) {
+            logger.error("Exception occurred while generating JSON data model for ballerina file", e.toString());
             JsonObject entity = new JsonObject();
             entity.addProperty("Error", e.toString());
             return Response.status(Response.Status.BAD_REQUEST).entity(entity)
