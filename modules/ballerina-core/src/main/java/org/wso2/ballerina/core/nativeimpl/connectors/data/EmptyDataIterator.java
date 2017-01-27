@@ -46,6 +46,16 @@ public class EmptyDataIterator implements DataIterator {
     }
 
     @Override
+    public String[] getStringArray(int columnIndex) {
+        return new String[0];
+    }
+
+    @Override
+    public String[] getStringArray(String columnName) {
+        return new String[0];
+    }
+
+    @Override
     public long getLong(int index) {
         return 0;
     }
@@ -53,6 +63,16 @@ public class EmptyDataIterator implements DataIterator {
     @Override
     public long getLong(String columnName) {
         return 0;
+    }
+
+    @Override
+    public long[] getLongArray(int columnIndex) {
+        return new long[0];
+    }
+
+    @Override
+    public long[] getLongArray(String columnName) {
+        return new long[0];
     }
 
     @Override
@@ -66,6 +86,16 @@ public class EmptyDataIterator implements DataIterator {
     }
 
     @Override
+    public int[] getIntArray(int columnIndex) {
+        return new int[0];
+    }
+
+    @Override
+    public int[] getIntArray(String columnName) {
+        return new int[0];
+    }
+
+    @Override
     public float getFloat(int index) {
         return 0;
     }
@@ -73,6 +103,16 @@ public class EmptyDataIterator implements DataIterator {
     @Override
     public float getFloat(String columnName) {
         return 0;
+    }
+
+    @Override
+    public float[] getFloatArray(int columnIndex) {
+        return new float[0];
+    }
+
+    @Override
+    public float[] getFloatArray(String columnName) {
+        return new float[0];
     }
 
     @Override
@@ -86,6 +126,16 @@ public class EmptyDataIterator implements DataIterator {
     }
 
     @Override
+    public double[] getDoubleArray(int columnIndex) {
+        return new double[0];
+    }
+
+    @Override
+    public double[] getDoubleArray(String columnName) {
+        return new double[0];
+    }
+
+    @Override
     public boolean getBoolean(int index) {
         return false;
     }
@@ -93,6 +143,16 @@ public class EmptyDataIterator implements DataIterator {
     @Override
     public boolean getBoolean(String columnName) {
         return false;
+    }
+
+    @Override
+    public boolean[] getBooleanArray(int columnIndex) {
+        return new boolean[0];
+    }
+
+    @Override
+    public boolean[] getBooleanArray(String columnName) {
+        return new boolean[0];
     }
 
     @Override

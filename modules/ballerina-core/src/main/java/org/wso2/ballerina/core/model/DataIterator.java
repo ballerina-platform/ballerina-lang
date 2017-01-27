@@ -33,25 +33,49 @@ public interface DataIterator {
 
     String getString(String columnName);
 
+    String[] getStringArray(int columnIndex);
+
+    String[] getStringArray(String columnName);
+
     long getLong(int columnIndex);
 
     long getLong(String columnName);
+
+    long[] getLongArray(int columnIndex);
+
+    long[] getLongArray(String columnName);
 
     int getInt(int columnIndex);
 
     int getInt(String columnName);
 
+    int[] getIntArray(int columnIndex);
+
+    int[] getIntArray(String columnName);
+
     float getFloat(int columnIndex);
 
     float getFloat(String columnName);
+
+    float[] getFloatArray(int columnIndex);
+
+    float[] getFloatArray(String columnName);
 
     double getDouble(int columnIndex);
 
     double getDouble(String columnName);
 
+    double[] getDoubleArray(int columnIndex);
+
+    double[] getDoubleArray(String columnName);
+
     boolean getBoolean(int columnIndex);
 
     boolean getBoolean(String columnName);
+
+    boolean[] getBooleanArray(int columnIndex);
+
+    boolean[] getBooleanArray(String columnName);
 
     BValue get(int columnIndex, String type);
 

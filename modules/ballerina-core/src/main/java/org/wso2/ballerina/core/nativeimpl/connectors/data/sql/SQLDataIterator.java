@@ -25,10 +25,10 @@ import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 
 import java.nio.charset.Charset;
+import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
-import java.sql.NClob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -80,6 +80,26 @@ public class SQLDataIterator implements DataIterator {
         }
     }
 
+    @Override
+    public String[] getStringArray(int columnIndex) {
+        try {
+            Array array = rs.getArray(columnIndex);
+            return (String[]) array.getArray();
+        } catch (SQLException e) {
+            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public String[] getStringArray(String columnName) {
+        try {
+            Array array = rs.getArray(columnName);
+            return (String[]) array.getArray();
+        } catch (SQLException e) {
+            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+        }
+    }
+
     public long getLong(int index) {
         try {
             return rs.getLong(index);
@@ -94,6 +114,26 @@ public class SQLDataIterator implements DataIterator {
             return rs.getLong(columnName);
         } catch (SQLException e) {
             throw new BallerinaException("Unable to perform getLong: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public long[] getLongArray(int columnIndex) {
+        try {
+            Array array = rs.getArray(columnIndex);
+            return (long[]) array.getArray();
+        } catch (SQLException e) {
+            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public long[] getLongArray(String columnName) {
+        try {
+            Array array = rs.getArray(columnName);
+            return (long[]) array.getArray();
+        } catch (SQLException e) {
+            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
         }
     }
 
@@ -114,6 +154,26 @@ public class SQLDataIterator implements DataIterator {
         }
     }
 
+    @Override
+    public int[] getIntArray(int columnIndex) {
+        try {
+            Array array = rs.getArray(columnIndex);
+            return (int[]) array.getArray();
+        } catch (SQLException e) {
+            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public int[] getIntArray(String columnName) {
+        try {
+            Array array = rs.getArray(columnName);
+            return (int[]) array.getArray();
+        } catch (SQLException e) {
+            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+        }
+    }
+
     public float getFloat(int index) {
         try {
             return rs.getFloat(index);
@@ -128,6 +188,26 @@ public class SQLDataIterator implements DataIterator {
             return rs.getFloat(columnName);
         } catch (SQLException e) {
             throw new BallerinaException("Unable to perform getFloat: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public float[] getFloatArray(int columnIndex) {
+        try {
+            Array array = rs.getArray(columnIndex);
+            return (float[]) array.getArray();
+        } catch (SQLException e) {
+            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public float[] getFloatArray(String columnName) {
+        try {
+            Array array = rs.getArray(columnName);
+            return (float[]) array.getArray();
+        } catch (SQLException e) {
+            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
         }
     }
 
@@ -148,6 +228,26 @@ public class SQLDataIterator implements DataIterator {
         }
     }
 
+    @Override
+    public double[] getDoubleArray(int columnIndex) {
+        try {
+            Array array = rs.getArray(columnIndex);
+            return (double[]) array.getArray();
+        } catch (SQLException e) {
+            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public double[] getDoubleArray(String columnName) {
+        try {
+            Array array = rs.getArray(columnName);
+            return (double[]) array.getArray();
+        } catch (SQLException e) {
+            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+        }
+    }
+
     public boolean getBoolean(int index) {
         try {
             return rs.getBoolean(index);
@@ -165,6 +265,26 @@ public class SQLDataIterator implements DataIterator {
         }
     }
 
+    @Override
+    public boolean[] getBooleanArray(int columnIndex) {
+        try {
+            Array array = rs.getArray(columnIndex);
+            return (boolean[]) array.getArray();
+        } catch (SQLException e) {
+            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public boolean[] getBooleanArray(String columnName) {
+        try {
+            Array array = rs.getArray(columnName);
+            return (boolean[]) array.getArray();
+        } catch (SQLException e) {
+            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+        }
+    }
+
     // Below method doesn't support streaming.
     @Override
     public BValue get(int columnIndex, String type) {
@@ -173,37 +293,57 @@ public class SQLDataIterator implements DataIterator {
             // new String in memory.
             switch (type) {
             case "blob":
-                Blob blob = rs.getBlob(columnIndex);
-                byte[] decode = getBase64Decode(
-                        new String(blob.getBytes(1L, (int) blob.length()), Charset.defaultCharset()));
-                return new BString(new String(decode, Charset.defaultCharset()));
+                return getBString(rs.getBlob(columnIndex));
             case "clob":
-                Clob clob = rs.getClob(columnIndex);
-                decode = getBase64Decode(clob.getSubString(0, (int) clob.length()));
-                return new BString(new String(decode, Charset.defaultCharset()));
+                return getBString(rs.getClob(columnIndex));
             case "nclob":
-                NClob nClob = rs.getNClob(columnIndex);
-                decode = getBase64Decode(nClob.getSubString(0, (int) nClob.length()));
-                return new BString(new String(decode, Charset.defaultCharset()));
+                return getBString(rs.getNClob(columnIndex));
             case "date":
                 return new BLong(rs.getDate(columnIndex).getTime());
             case "timestamp":
                 return new BLong(rs.getTimestamp(columnIndex).getTime());
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Unable to get given column value as " + type + ": " + e.getMessage(), e);
+            throw new BallerinaException("Unable to get given column as " + type + ": " + e.getMessage(), e);
         }
         return null;
-    }
-
-    private byte[] getBase64Decode(String st) {
-        return Base64.getDecoder().decode(st.getBytes(Charset.defaultCharset()));
     }
 
     // Below method doesn't support streaming.
     @Override
     public BValue get(String columnName, String type) {
+        try {
+            switch (type) {
+            case "blob":
+                return getBString(rs.getBlob(columnName));
+            case "clob":
+                return getBString(rs.getClob(columnName));
+            case "nclob":
+                return getBString(rs.getNClob(columnName));
+            case "date":
+                return new BLong(rs.getDate(columnName).getTime());
+            case "timestamp":
+                return new BLong(rs.getTimestamp(columnName).getTime());
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException("Unable to get given column as " + type + ": " + e.getMessage(), e);
+        }
         return null;
+    }
+
+    private BValue getBString(Clob clob) throws SQLException {
+        byte[] decode;
+        decode = getBase64Decode(clob.getSubString(0, (int) clob.length()));
+        return new BString(new String(decode, Charset.defaultCharset()));
+    }
+
+    private BValue getBString(Blob blob) throws SQLException {
+        byte[] decode = getBase64Decode(new String(blob.getBytes(1L, (int) blob.length()), Charset.defaultCharset()));
+        return new BString(new String(decode, Charset.defaultCharset()));
+    }
+
+    private byte[] getBase64Decode(String st) {
+        return Base64.getDecoder().decode(st.getBytes(Charset.defaultCharset()));
     }
 
     @Override
