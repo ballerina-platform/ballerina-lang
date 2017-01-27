@@ -77,6 +77,7 @@ import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetStringArrayByName;
 import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetStringByIndex;
 import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetStringByName;
 import org.wso2.ballerina.core.nativeimpl.lang.dataframe.ToJSON;
+import org.wso2.ballerina.core.nativeimpl.lang.dataframe.ToXML;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddBooleanToArray;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddBooleanToObject;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddDoubleToArray;
@@ -385,6 +386,7 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.dataframe.Next());
         registerFunction(scope, new Close());
         registerFunction(scope, new ToJSON());
+        registerFunction(scope, new ToXML());
         registerFunction(scope, new GetByIndex());
         registerFunction(scope, new GetByName());
 
