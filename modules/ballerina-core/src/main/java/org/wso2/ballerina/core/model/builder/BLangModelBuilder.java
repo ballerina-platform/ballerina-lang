@@ -513,9 +513,10 @@ public class BLangModelBuilder {
         exprStack.push(invocationExpr);
     }
 
-    public void createTypeCastInvocationExpr(String targetTypeName, Position sourceLocation) {
+    public void createTypeCastExpr(String targetTypeName, Position sourceLocation) {
         TypeCastExpression typeCastExpression = new TypeCastExpression(exprStack.pop(),
                 BTypes.getType(targetTypeName));
+        typeCastExpression.setLocation(sourceLocation);
         //Remove the type added to type queue
         typeQueue.remove();
         exprStack.push(typeCastExpression);

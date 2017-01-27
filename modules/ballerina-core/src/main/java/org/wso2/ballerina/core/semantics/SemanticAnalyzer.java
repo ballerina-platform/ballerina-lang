@@ -387,7 +387,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(BTypeConvertor typeConvertor) {
         // Open a new symbol scope
-        openScope(SymScope.Name.FUNCTION);
+        openScope(SymScope.Name.TYPECONVERTOR);
         currentCallableUnit = typeConvertor;
 
         // Check whether the return statement is missing. Ignore if the function does not return anything.
@@ -514,7 +514,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             location = new ConnectorVarLocation(connectorMemAddrOffset);
         } else if (isInScope(SymScope.Name.FUNCTION) ||
                 isInScope(SymScope.Name.RESOURCE) ||
-                isInScope(SymScope.Name.ACTION)) {
+                isInScope(SymScope.Name.ACTION) ||
+                isInScope(SymScope.Name.TYPECONVERTOR)) {
 
             location = new LocalVarLocation(stackFrameOffset);
         } else {
@@ -547,7 +548,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             location = new ServiceVarLocation(staticMemAddrOffset);
         } else if (isInScope(SymScope.Name.FUNCTION) ||
                 isInScope(SymScope.Name.RESOURCE) ||
-                isInScope(SymScope.Name.ACTION)) {
+                isInScope(SymScope.Name.ACTION) ||
+                isInScope(SymScope.Name.TYPECONVERTOR)) {
             location = new LocalVarLocation(stackFrameOffset);
         } else if (isInScope(SymScope.Name.PACKAGE)) {
             location = new StructVarLocation(structMemAddrOffset);
