@@ -18,6 +18,8 @@
 define(['require', 'lodash','jquery','jsPlumb','nano_scroller'], function(require, _,$,jsPlumb,ggg) {
 
     var TypeMapper = function(onConnectionCallback, onDisconnectCallback) {
+
+        this.references = []
         this.placeHolderName = "data-mapper-container"
         this.idNameSeperator = "-";
         this.onConnection = onConnectionCallback;
@@ -64,7 +66,7 @@ define(['require', 'lodash','jquery','jsPlumb','nano_scroller'], function(requir
         });
 
 
-    };
+    }
 
     TypeMapper.prototype.constructor = TypeMapper;
 
@@ -98,23 +100,24 @@ define(['require', 'lodash','jquery','jsPlumb','nano_scroller'], function(requir
         return connections;
     }
 
-    TypeMapper.prototype.addSourceStruct  = function (struct) {
-        this.makeStruct(struct, 50, 50);
+    TypeMapper.prototype.addSourceStruct  = function (struct, reference) {
+        this.makeStruct(struct, 50, 50, reference);
         for (var i = 0; i < struct.properties.length; i++) {
             this.addSourceProperty($('#' + struct.name), struct.properties[i].name, struct.properties[i].type);
         };
     }
 
-    TypeMapper.prototype.addTargetStruct  = function (struct) {
+    TypeMapper.prototype.addTargetStruct  = function (struct, reference) {
         var placeHolderWidth = document.getElementById(this.placeHolderName).offsetWidth;
         var posY = placeHolderWidth - (placeHolderWidth/4);
-        this.makeStruct(struct, 50, posY);
+        this.makeStruct(struct, 50, posY, reference);
         for (var i = 0; i < struct.properties.length; i++) {
             this.addTargetProperty($('#' +struct.name), struct.properties[i].name, struct.properties[i].type);
         };
     }
 
-    TypeMapper.prototype.makeStruct  = function (struct, posX, posY) {
+    TypeMapper.prototype.makeStruct  = function (struct, posX, posY, reference) {
+        this.references.push({ name : struct.name, refObj : reference});
         var newStruct = $('<div>').attr('id', struct.name).addClass('struct');
 
         var structName = $('<div>').addClass('struct-name').text(struct.name);
@@ -153,30 +156,45 @@ define(['require', 'lodash','jquery','jsPlumb','nano_scroller'], function(requir
     }
 
     TypeMapper.prototype.addTargetProperty  = function (parentId, name, type) {
-        console.log("PPPPPPPPPPPPPPP");
-        console.log(this.onConnection);
         var callback = this.onConnection;
+        var refObjects = this.references;
+        var seperator = this.idNameSeperator;
 
         jsPlumb.makeTarget(this.makeProperty(parentId, name, type), {
             maxConnections:1,
             anchor:["Continuous", { faces:[ "left"] } ],
             beforeDrop: function (params) {
                 //Checks property types are equal
-                var isValidTypes = params.sourceId.split(this.idNameSeperator)[2] == params.targetId.split(this.idNameSeperator)[2];
+                var isValidTypes = params.sourceId.split(seperator)[2] == params.targetId.split(seperator)[2];
+
 
                 if (isValidTypes) {
 
+                    var sourceRefObj;
+                    var targetRefObj;
+
+                    for (var i = 0; i < refObjects.length; i++) {
+                        if (refObjects[i].name == params.sourceId.split(seperator)[0]) {
+                            sourceRefObj = refObjects[i].refObj;
+                        } else if (refObjects[i].name == params.targetId.split(seperator)[0]) {
+                            targetRefObj = refObjects[i].refObj;
+                        }
+                    };
+
                     var connection = {
-                        sourceStruct : params.sourceId.split(this.idNameSeperator)[0],
-                        sourceProperty : params.sourceId.split(this.idNameSeperator)[1],
-                        sourceType : params.sourceId.split(this.idNameSeperator)[2],
-                        targetStruct : params.targetId.split(this.idNameSeperator)[0],
-                        targetProperty : params.targetId.split(this.idNameSeperator)[1],
-                        targetType : params.targetId.split(this.idNameSeperator)[2]
+                        sourceStruct : params.sourceId.split(seperator)[0],
+                        sourceProperty : params.sourceId.split(seperator)[1],
+                        sourceType : params.sourceId.split(seperator)[2],
+                        sourceReference : sourceRefObj,
+                        targetStruct : params.targetId.split(seperator)[0],
+                        targetProperty : params.targetId.split(seperator)[1],
+                        targetType : params.targetId.split(seperator)[2],
+                        targetReference : targetRefObj
                     }
 
                     callback(connection);
                 }
+
                 return isValidTypes;
             }
         });
