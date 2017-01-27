@@ -30,6 +30,8 @@ public class Main {
     public static void main(String... args) {
         try {
             Optional<BLauncherCmd> optionalInvokedCmd = getInvokedCmd(args);
+
+            Utils.writePID(System.getProperty("ballerina.home"));
             optionalInvokedCmd.ifPresent(BLauncherCmd::execute);
         } catch (BLauncherException e) {
             Utils.printLauncherException(e, outStream);
@@ -268,7 +270,7 @@ public class Main {
 
             Path[] paths = new Path[sourceFileList.size()];
             for (int i = 0; i < sourceFileList.size(); i++) {
-                paths[i] = Paths.get(sourceFileList.get(0)).toAbsolutePath();
+                paths[i] = Paths.get(sourceFileList.get(i)).toAbsolutePath();
             }
 
             BServiceRunner.start(paths);

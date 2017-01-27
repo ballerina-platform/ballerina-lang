@@ -33,11 +33,19 @@ import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -122,5 +130,48 @@ public class Utils {
         char c[] = s.toCharArray();
         c[0] = Character.toLowerCase(c[0]);
         return new String(c);
+    }
+
+    /**
+     * Write the process ID of this process to the file.
+     *
+     * @param ballerinaHome ballerina.home sys property value.
+     */
+    static void writePID(String ballerinaHome) {
+
+        String[] cmd = {"bash", "-c", "echo $PPID"};
+        Process p;
+        String pid = "";
+        try {
+            p = Runtime.getRuntime().exec(cmd);
+        } catch (IOException e) {
+            //Ignored. We might be invoking this on a Window platform. Therefore if an error occurs
+            //we simply ignore the error.
+            return;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream(),
+                StandardCharsets.UTF_8))) {
+            StringBuilder builder = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                builder.append(line);
+            }
+            pid = builder.toString();
+        } catch (Throwable e) {
+            throw createLauncherException("error: fail to write ballerina.pid file: " +
+                    makeFirstLetterUpperCase(e.getMessage()));
+        }
+
+        if (pid.length() != 0) {
+            try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream(Paths.get(ballerinaHome, "ballerina.pid").toString()),
+                    StandardCharsets.UTF_8))) {
+                writer.write(pid);
+            } catch (IOException e) {
+                throw createLauncherException("error: fail to write ballerina.pid file: " +
+                        makeFirstLetterUpperCase(e.getMessage()));
+            }
+        }
     }
 }
