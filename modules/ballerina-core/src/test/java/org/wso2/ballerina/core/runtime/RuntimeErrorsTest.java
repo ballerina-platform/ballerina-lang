@@ -140,8 +140,8 @@ public class RuntimeErrorsTest {
             
             // Check error message
             String errorMsg = ex.getCause().getMessage();
-            Assert.assertEquals(errorMsg, "Error while executing ballerina program. Array index out of range: " +
-                    "Index: 24, Size: 0", "Incorrect error message printed.");
+            Assert.assertEquals(errorMsg, "error in ballerina program: array index out of range: Index: 24, Size: 0",
+                    "Incorrect error message printed.");
             
             // Check the stack trace
             String stackTrace = ErrorHandlerUtils.getServiceStackTrace(
