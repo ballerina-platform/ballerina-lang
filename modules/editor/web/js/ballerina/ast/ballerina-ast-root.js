@@ -246,11 +246,10 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
             throw errorString;
         } else {
             // Creating new constant definition.
-            var newConstantDefinition = this.getFactory().createConstantDefinition({
-                bType: bType,
-                identifier: identifier,
-                value: value
-            });
+            var newConstantDefinition = this.getFactory().createConstantDefinition();
+            newConstantDefinition.setType(bType);
+            newConstantDefinition.setIdentifier(identifier);
+            newConstantDefinition.setValue(value);
 
             var self = this;
 
@@ -258,6 +257,12 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
             var index = _.findLastIndex(this.getChildren(), function (child) {
                 return self.getFactory().isConstantDefinition(child);
             });
+
+            if (index == -1) {
+                index = _.findLastIndex(this.getChildren(), function (child) {
+                    return self.getFactory().isImportDeclaration(child);
+                })
+            }
 
             this.addChild(newConstantDefinition, index + 1);
         }
