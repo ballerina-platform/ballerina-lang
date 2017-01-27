@@ -88,7 +88,7 @@ public class BallerinaDocGeneratorMain {
         for (File file : ballerinaFiles) {
             BallerinaFile balFile = BallerinaDocUtils.buildLangModel(file.toPath());
             if (balFile == null) {
-                out.println(String.format("Error! Invalid ballerina file: %s", file.getAbsolutePath()));
+                out.println(String.format("Docerina: Invalid Ballerina file: %s", file.getAbsolutePath()));
                 continue;
             }
             SymScope globalScope = GlobalScopeHolder.getInstance().getScope();

@@ -145,35 +145,33 @@ public class DocumentGenerator implements NodeVisitor {
         BallerinaFunctionDoc doc = new BallerinaFunctionDoc();
         BallerinaDocDataHolder.getInstance().getBallerinaPackageDocsMap().get(currentPkg).addFunctionDoc(doc);
 
-        // Prepare function signature
         StringBuilder s = new StringBuilder("function " + function.getFunctionName() + " (");
         for (Parameter parameter : function.getParameters()) {
-            s.append(BallerinaDocUtils.getType(parameter.getType()) + " " + parameter.getName() + ", ");
+            // Prepare parameter signature
+            String parameterName = (parameter.getName() != null) ? " " + parameter.getName().getName() : "";
+            s.append(BallerinaDocUtils.getType(parameter.getType()) + parameterName + ", ");
+
+            // Add parameter to the function document
+            doc.addParameter(new BallerinaParameterDoc(parameterName, BallerinaDocUtils.getType(parameter.getType())));
         }
         s = new StringBuilder(s.substring(0, s.length() - 2).concat(")"));
 
         if ((function.getReturnParameters() != null) && (function.getReturnParameters().length > 0)) {
             s.append(" (");
             for (Parameter parameter : function.getReturnParameters()) {
+                // Prepare return parameter signature
                 s.append(BallerinaDocUtils.getType(parameter.getType()) + " " + parameter.getName() + ", ");
+
+                // Add return parameters to the function document
+                String parameterName = (parameter.getName() != null) ? parameter.getName().getName() : "";
+                doc.addReturnParameter(new BallerinaParameterDoc(parameterName,
+                        BallerinaDocUtils.getType(parameter.getType())));
             }
             s = new StringBuilder(s.substring(0, s.length() - 2).concat(")"));
         }
         doc.setSignature(s.toString());
 
-        // Add parameters
-        for (Parameter parameter : function.getParameters()) {
-            doc.addParameter(new BallerinaParameterDoc(parameter.getName().getName(),
-                    BallerinaDocUtils.getType(parameter.getType())));
-        }
-
-        // Add return parameters
-        for (Parameter parameter : function.getReturnParameters()) {
-            String parameterName = (parameter.getName() != null) ? parameter.getName().getName() : "";
-            doc.addReturnParameter(new BallerinaParameterDoc(parameterName,
-                    BallerinaDocUtils.getType(parameter.getType())));
-        }
-
+        // Read function annotations
         for (Annotation annotation : function.getAnnotations()) {
             if (annotation.getName().equalsIgnoreCase("param")) {
                 // Set parameter description
