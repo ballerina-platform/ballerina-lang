@@ -124,7 +124,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group', './..
             name: "Assignment",
             icon: "images/tool-icons/assign.svg",
             title: "Assignment",
-            nodeFactoryMethod: BallerinaASTFactory.createAssignment
+            nodeFactoryMethod: BallerinaASTFactory.createAggregatedAssignmentStatement
         };
 
         var createFunctionInvocationTool = {

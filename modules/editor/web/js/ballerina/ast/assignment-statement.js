@@ -50,5 +50,24 @@ define(['lodash', './statement'], function (_, Statement) {
         this.getParent().removeChild(this);
     };
 
+    /**
+     * Get the assignment expression
+     * @return {string} assignment expression
+     */
+    AssignmentStatement.prototype.getExpression = function () {
+        return (!_.isNil(this.getChildren()[0].getLeftOperandExpressionString()) ? this.getChildren()[0].getLeftOperandExpressionString() : "leftExpression") + " = " +
+            (!_.isNil(this.getChildren()[1].getRightOperandExpressionString()) ? this.getChildren()[1].getRightOperandExpressionString() : "rightExpression");
+    };
+
+    /**
+     * Set the assignment expression
+     * @param {string} expression - expression
+     */
+    AssignmentStatement.prototype.setExpression = function (expression) {
+        var leftAndRightOperands = expression.split("=");
+        this.getChildren()[0].setLeftOperandExpressionString(_.isNil(leftAndRightOperands[0]) ? "leftExpression" : leftAndRightOperands[0]);
+        this.getChildren()[1].setRightOperandExpressionString(_.isNil(leftAndRightOperands[1]) ? "rightExpression" : leftAndRightOperands[1]);
+    };
+
     return AssignmentStatement;
 });
