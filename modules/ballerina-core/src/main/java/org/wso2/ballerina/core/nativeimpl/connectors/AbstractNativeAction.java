@@ -27,7 +27,9 @@ import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
+import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.NativeConstruct;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
@@ -78,8 +80,13 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
         Arrays.stream(action.args()).
                 forEach(argument -> {
                     try {
-                        parameters.add(new Parameter(BTypes.getType(argument.type().getName()),
-                                new SymbolName(argument.name())));
+                        BType bType;
+                        if (!argument.type().equals(TypeEnum.ARRAY)) {
+                            bType = BTypes.getType(argument.type().getName());
+                        } else {
+                            bType = BTypes.getArrayType(argument.elementType().getName());
+                        }
+                        parameters.add(new Parameter(bType, new SymbolName(argument.name())));
                     } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
                         log.error("Internal Error..! Error while processing Parameters for Native ballerina" +

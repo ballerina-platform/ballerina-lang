@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Connector;
+import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
@@ -37,7 +38,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- * {@code AbstractHTTPAction} is the base class for all HTTP Connector Actions
+ * {@code AbstractHTTPAction} is the base class for all HTTP Connector Actions.
  */
 public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
@@ -101,8 +102,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                             .set(Constants.HTTP_CONTENT_LENGTH, String.valueOf(message.getFullMessageLength()));
 
                 } else {
-                    String errMsg = "Message is already built but cannot find the MessageDataSource";
-                    throw new BallerinaException("FATAL: Internal error.! " + errMsg, context);
+                    message.setEndOfMsgAdded(true);
+                    logger.debug("Sending an empty message");
                 }
             }
             ServiceContextHolder.getInstance().getSender().send(message, balConnectorCallback);
@@ -115,6 +116,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                     }
                 }
             }
+            handleTransportException(balConnectorCallback.getValueRef());
             return balConnectorCallback.getValueRef();
         } catch (MessageProcessorException e) {
             throw new BallerinaException("Failed to send the message to an endpoint ", context);
@@ -125,4 +127,17 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         return null;
     }
 
+    private void handleTransportException(BValue valueRef) {
+        if (valueRef instanceof BMessage) {
+            BMessage bMsg = (BMessage) valueRef;
+            if (bMsg.value() == null) {
+                throw new BallerinaException("Received unknown message for the action invocation");
+            }
+            if (bMsg.value().getMessagingException() != null) {
+                throw new BallerinaException(bMsg.value().getMessagingException().getMessage());
+            }
+        } else {
+            throw new BallerinaException("Invalid message received for the action invocation");
+        }
+    }
 }

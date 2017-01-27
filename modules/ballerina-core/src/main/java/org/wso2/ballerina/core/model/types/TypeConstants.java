@@ -18,7 +18,7 @@
 package org.wso2.ballerina.core.model.types;
 
 /**
- * This class contains all the supported type names as string
+ * This class contains all the supported type names as string.
  *
  * @since 0.8.0
  */
@@ -40,5 +40,6 @@ public class TypeConstants {
     static final String CONNECTOR_TNAME = "connector";
     static final String EXCEPTION_TNAME = "exception";
     static final String ITERATOR_TNAME = "iterator";
+    static final String STRUCT_TNAME = "struct";
 }
 

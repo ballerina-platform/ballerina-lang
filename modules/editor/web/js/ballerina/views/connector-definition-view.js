@@ -17,10 +17,11 @@
  */
 define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './../ast/connector-definition',
         './client-life-line', './connector-action-view', 'ballerina/ast/ballerina-ast-factory', './axis',
-        './connector-declaration-view', './../ast/variable-declaration', './variables-view', './annotation-view'],
+        './connector-declaration-view', './../ast/variable-declaration', './variables-view', './annotation-view',
+        './function-arguments-view'],
     function (_, log, d3, D3utils, $, Canvas, Point, ConnectorDefinition,
               ClientLifeLine, ConnectorActionView, BallerinaASTFactory, Axis,
-              ConnectorDeclarationView, VariableDeclaration, VariablesView, AnnotationView) {
+              ConnectorDeclarationView, VariableDeclaration, VariablesView, AnnotationView, ArgumentsView) {
 
         /**
          * The view to represent a connector definition which is an AST visitor.
@@ -38,6 +39,8 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             this._parentView = _.get(args, "parentView");
             this._viewOptions.offsetTop = _.get(args, "viewOptionsOffsetTop", 50);
             this._viewOptions.topBottomTotalGap = _.get(args, "viewOptionsTopBottomTotalGap", 100);
+            //set panel icon for the connector
+            this._viewOptions.panelIcon = _.get(args.viewOptions, "cssClass.connector_icon");
             //set initial height for the connector definition container svg
             this._totalHeight = 170;
             //set initial connector margin for the connector definition
@@ -221,9 +224,38 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 }
             };
 
-            VariablesView.createVariablePane(variableProperties);
+            VariablesView.createVariablePane(variableProperties, diagramRenderingContext);
+
+            var operationsPane = this.getOperationsPane();
+
+            // Creating arguments icon.
+            var panelArgumentsIcon = $("<i/>", {
+                class: "fw fw-import pull-right right-icon-clickable hoverable"
+            }).appendTo(operationsPane);
+
+            // Stopping event propagation to the elements behind.
+            panelArgumentsIcon.click(function (event) {
+                event.stopPropagation();
+            });
+
+            // Adding separator for arguments icon.
+            $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(operationsPane);
+
+            var argumentsProperties = {
+                model: this._model,
+                activatorElement: panelArgumentsIcon,
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+                viewOptions: {
+                    position: {
+                        // "-1" to remove the svg stroke line
+                        left: parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
+                        top: 0
+                    }
+                }
+            };
 
             this.setServiceContainerWidth(this._container.width());
+            ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
         };
 
         /**
@@ -279,6 +311,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
          */
         ConnectorDefinitionView.prototype.visitConnectorAction = function (connectorAction) {
             log.debug("Visiting connector action");
+            var self = this;
             var actionContainer = this.getChildContainer();
             var connectorActionView = undefined;
             // If more than one action
@@ -317,7 +350,15 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             this.setLifelineMargin(connectorActionView.getBoundingBox().getRight());
             // If the lifeline margin is changed then accordingly the action should move the bounding box
             this.getLifeLineMargin().on('moved', function (offset) {
-                connectorActionView.getBoundingBox().w(connectorActionView.getBoundingBox().w() + offset);
+                var newWidth = connectorActionView.getBoundingBox().w() + offset;
+                var minWidth = connectorActionView.getContentMinWidth();
+                if (newWidth > minWidth) {
+                    connectorActionView.getBoundingBox().w(newWidth);
+                } else {
+                    // reset lifeline margin position
+                    self.setLifelineMargin(minWidth + self._viewOptions.offsetTop);
+                    connectorActionView.getBoundingBox().w(minWidth);
+                }
             });
 
             //setting height of the connector definition view

@@ -86,7 +86,7 @@ public class RuntimeErrorsTest {
     }
 
     @Test(expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "Failed to invoke 'Get' action in HTTPConnector. Malformed url " +
+            expectedExceptionsMessageRegExp = "Failed to invoke 'get' action in HTTPConnector. Malformed url " +
             "specified. no protocol: malformed/url/context")
     public void testNativeConnectorError() {
         Functions.invoke(bFile, "nativeConnectorErrorTest");

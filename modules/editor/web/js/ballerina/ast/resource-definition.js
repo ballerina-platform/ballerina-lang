@@ -128,8 +128,14 @@ define(['lodash', 'require', 'log', './node'],
     /**
      * Adds new variable declaration.
      */
-    ResourceDefinition.prototype.removeVariableDeclaration = function (variableDeclaration) {
-        this.removeChild(variableDeclaration);
+    ResourceDefinition.prototype.removeVariableDeclaration = function (variableDeclarationIdentifier) {
+        var self = this;
+        // Removing the variable from the children.
+        var variableDeclarationChild = _.find(this.getChildren(), function (child) {
+            return self.BallerinaASTFactory.isVariableDeclaration(child)
+                && child.getIdentifier() === variableDeclarationIdentifier;
+        });
+        this.removeChild(variableDeclarationChild);
     };
 
     /**
@@ -302,12 +308,12 @@ define(['lodash', 'require', 'log', './node'],
         });
     };
 
-        /**
-         * Override the addChild method for ordering the child elements as
-         * [Statements, Workers, Connectors]
-         * @param {ASTNode} child
-         * @param {number|undefined} index
-         */
+    /**
+     * Override the addChild method for ordering the child elements as
+     * [Statements, Workers, Connectors]
+     * @param {ASTNode} child
+     * @param {number|undefined} index
+     */
     ResourceDefinition.prototype.addChild = function (child, index) {
         var indexNew;
         var self = this;

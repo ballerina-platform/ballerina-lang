@@ -18,11 +18,11 @@
 define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-definition', './default-worker', 'd3utils', '' +
         'd3', './worker-declaration-view', './statement-view-factory', './point', './axis',
         './connector-declaration-view', './statement-container', './variables-view', './function-arguments-view',
-        './return-type-view'],
+        './return-types-pane-view'],
     function (_, log, EventChannel, Canvas, FunctionDefinition, DefaultWorkerView, D3Utils,
               d3, WorkerDeclarationView, StatementViewFactory, Point, Axis,
               ConnectorDeclarationView, StatementContainer, VariablesView, ArgumentsView,
-              ReturnTypeView) {
+              ReturnTypePaneView) {
 
         /**
          * The view to represent a function definition which is an AST visitor.
@@ -39,6 +39,8 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             this._statementExpressionViewList = [];
             // TODO: Instead of using the parentView use the parent. Fix this from BallerinaView.js and bellow
             this._parentView = _.get(args, "parentView");
+            //set panel icon for the function
+            this._viewOptions.panelIcon = _.get(args.viewOptions, "cssClass.function_icon");
             //set initial height for the service container svg
             this._totalHeight = 170;
             this._statementContainer = undefined;
@@ -208,7 +210,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 }
             };
 
-            VariablesView.createVariablePane(variableProperties);
+            VariablesView.createVariablePane(variableProperties, diagramRenderingContext);
 
             var operationsPane = this.getOperationsPane();
 
@@ -241,7 +243,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             };
 
             // Creating arguments pane.
-            ArgumentsView.createArgumentsPane(argumentsProperties);
+            ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
 
             this.setServiceContainerWidth(this._container.width());
 
@@ -264,15 +266,16 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 activatorElement: panelReturnTypeIcon,
                 paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
                 viewOptions: {
-                    position: {
-                        left: parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
-                        top: 0
-                    }
-                }
+                    position: new Point(parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
+                        0)
+                },
+                view: this
             };
 
+            this._returnTypePaneView = new ReturnTypePaneView(returnTypeProperties);
+
             // Creating return type pane.
-            ReturnTypeView.createReturnTypePane(returnTypeProperties);
+            this._returnTypePaneView.createReturnTypePane(diagramRenderingContext);
 
             // Closing the shown pane when another operation button is clicked.
             _.forEach(operationButtons, function (button) {

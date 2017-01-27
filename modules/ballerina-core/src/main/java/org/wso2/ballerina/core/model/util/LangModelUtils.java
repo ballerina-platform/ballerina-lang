@@ -22,7 +22,7 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.types.BType;
 
 /**
- *
+ * Language model utils.
  */
 public class LangModelUtils {
 
@@ -75,6 +75,26 @@ public class LangModelUtils {
             sBuilder.append("_").append(type);
         }
 
+        return new SymbolName(sBuilder.toString());
+    }
+    
+    /**
+     * Get the symbol name of a struct field.
+     * 
+     * @param fieldName         Local name of the field
+     * @param structName        Name os the struct to which this field belongs to
+     * @param pkgPath           Package name of the struct
+     * @return                  Symbol name of a struct field
+     */
+    public static SymbolName getStructFieldSymName(String fieldName, String structName, String pkgPath) {
+        String prefix;
+        if (pkgPath == null) {
+            prefix = structName + "." + fieldName;
+        } else {
+            prefix = pkgPath + ":" + structName + "." + fieldName;
+        }
+
+        StringBuilder sBuilder = new StringBuilder(prefix);
         return new SymbolName(sBuilder.toString());
     }
 

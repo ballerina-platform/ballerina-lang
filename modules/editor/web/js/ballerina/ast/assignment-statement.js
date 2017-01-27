@@ -42,5 +42,13 @@ define(['lodash', './statement'], function (_, Statement) {
         });
     };
 
+    /**
+     * Override the removeChild function
+     * @param {ASTNode} child - child node
+     */
+    AssignmentStatement.prototype.removeChild = function (child) {
+        this.getParent().removeChild(this);
+    };
+
     return AssignmentStatement;
 });

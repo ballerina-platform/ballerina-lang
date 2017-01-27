@@ -21,14 +21,14 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
 
 /**
- * {@code BXMLType} represents an XML Element
+ * {@code BXMLType} represents an XML Element.
  *
  * @since 0.8.0
  */
 class BXMLType extends BType {
 
     /**
-     * Create a {@code BXMLType} which represents the boolean type
+     * Create a {@code BXMLType} which represents the boolean type.
      *
      * @param typeName string name of the type
      */

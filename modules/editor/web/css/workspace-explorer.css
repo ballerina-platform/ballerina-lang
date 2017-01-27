@@ -4,6 +4,10 @@
     opacity: 0.4;
 }
 
+.workspace-explorer-activate-btn.active{
+    opacity: 1;
+}
+
 .workspace-explorer-activate-btn:hover{
     opacity: 1;
     cursor: pointer;
@@ -56,10 +60,6 @@
    vertical-align:middle;
 }
 
-.folder-tree-body{
-    margin-left: 25px;
-}
-
 .folder-tree-header:hover{
     color: white;
     cursor: pointer;
@@ -90,3 +90,51 @@
 }
 
 .nano .workspace-explorer-container.nano-content { padding: 0px; }
+
+.workspace-explorer-container .jstree-default-small .jstree-wholerow{
+    height: 28px;
+}
+
+.workspace-explorer-container .jstree-default .jstree-wholerow-clicked{
+    background-color: #232323;
+    background: linear-gradient(to bottom, #232323 0%, #232323 100%);
+}
+
+.workspace-explorer-container .jstree-default .jstree-wholerow-hovered{
+    background-color: #232323;
+}
+
+.workspace-explorer-container .jstree-default-small > .jstree-container-ul > .jstree-node{
+    margin-left: 25px;
+}
+
+
+.vakata-context li > a {
+    display: block;
+    padding: 0 1em 0 1em;
+    text-decoration: none;
+    width: auto;
+    color: #dedede;
+    white-space: nowrap;
+    text-shadow: none;
+    border-radius: 0px;
+}
+
+.vakata-context-hover, li.vakata-context-hover > a, .vakata-context li > a:hover {
+    background-color: #232323;
+    color: white;
+    border: none;
+    box-shadow: none;
+}
+
+.vakata-context, .vakata-context ul {
+    background: #333333;
+    border-width: 1px;
+    padding: 0;
+    color: black;
+    box-shadow: none;
+}
+
+.vakata-context li > a .vakata-contextmenu-sep{
+    display: none;
+}

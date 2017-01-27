@@ -16,9 +16,10 @@
  * under the License.
  */
 define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-group',
-        'main_elements', 'processors', './drag-drop-manager', './../ast/ballerina-ast-factory','./initial-definitions'],
+        './drag-drop-manager', './../ast/ballerina-ast-factory','./initial-definitions',
+        './../search/search', './../search/import-search-adapter', 'mousetrap' ],
     function (require, log, $, Backbone, ToolGroupView, ToolGroup,
-              MainElements, Processors, DragDropManager, BallerinaASTFactory, initialTools) {
+              DragDropManager, BallerinaASTFactory, initialTools, Search, ImportSearchAdapter, Mousetrap) {
 
     var ToolPalette = Backbone.View.extend({
         initialize: function (options) {
@@ -37,12 +38,22 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             }
             this._$parent_el = container;
             this._options = options;
+            this.ballerinaFileEditor = options.ballerinaFileEditor;
             this._toolGroups = _.cloneDeep(initialTools);
+            this._imports = [];
             this.dragDropManager = new DragDropManager();
+
+            this.search = Search(new ImportSearchAdapter());
+            this.search.on('select', _.bindKey(this, 'addImport'));
+            //bind event handlers
+            this._$parent_el.on("click", "#addImportSearch", _.bindKey(this, 'showSearchImport'));
+            Mousetrap.bind('ctrl+i', _.bindKey(this, 'showSearchImport'));
+
         },
 
         render: function () {
             var self = this;
+            this._$parent_el.empty();
             var toolPaletteDiv = $('<div></div>');
             //Adding search bar to tool-palette
             var searchBarDiv = $('<div></div>');
@@ -61,15 +72,52 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             this._$parent_el.append(toolPaletteDiv);
             this.$el = toolPaletteDiv;
 
-            this._toolGroups.forEach(function (group){
+            var toolGroupOptions = _.clone(_.get(self._options, 'toolGroup'));
+            _.set(toolGroupOptions, 'toolPalette', self);
+            _.set(toolGroupOptions, 'model', this._toolGroups.elements);
+            var groupView = new ToolGroupView(toolGroupOptions);
+            groupView.render(self.$el, false);
+            this.$el.addClass('non-user-selectable');
+
+            var toolGroupOptions = _.clone(_.get(self._options, 'toolGroup'));
+            _.set(toolGroupOptions, 'toolPalette', self);
+            _.set(toolGroupOptions, 'model', this._toolGroups.statements);
+            var groupView = new ToolGroupView(toolGroupOptions);
+            groupView.render(self.$el, false);
+            this.$el.addClass('non-user-selectable');   
+
+            if(this._toolGroups.package.tools.length != 0){
                 var toolGroupOptions = _.clone(_.get(self._options, 'toolGroup'));
                 _.set(toolGroupOptions, 'toolPalette', self);
-                _.set(toolGroupOptions, 'model', group);
+                _.set(toolGroupOptions, 'model', this._toolGroups.package);
                 var groupView = new ToolGroupView(toolGroupOptions);
-                groupView.render(self.$el, _.isEqual('vertical', group.get('toolOrder')));
-                self.$el.addClass('non-user-selectable');
+                groupView.render(self.$el, true);
+                this.$el.addClass('non-user-selectable');
+            }  
+
+            var importForm = $('<div class="tool-import-wrapper">'+
+                               '<div class="tool-group-import-header">'+
+                               '  <a class="tool-group-header-title">Imports</a> ( Ctrl + I )'+
+                               '  <span id="addImportSearch" class="tool-import-icon fw-stack fw-lg">'+
+                               '      <i class="fw fw-square fw-stack-2x"></i>'+
+                               '      <i class="fw fw-add fw-stack-1x fw-inverse"></i>'+
+                               '  </span>'+
+                               '</div>'+
+                               '</div>');
+            this.$el.append(importForm);
+            
+            this._toolGroups.imports.forEach(function (package){
+                self.addImport(package);
             });
             return this;
+        },
+
+
+        showSearchImport : function(){
+            var adapter = new ImportSearchAdapter();
+            adapter.setExcludes(this._imports);
+            this.search.setAdapter(adapter);
+            this.search.show();
         },
 
         /**
@@ -105,6 +153,66 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
            if(!_.isNil(toolDef)){
                toolGroup.addTool(toolDef);
            }
+        },
+
+        /**
+         * Adds a package to a tool palette.
+         * @param package {Object} Package Object.
+         */
+        addImport: function(package){
+            var import_pkg = package;
+            if (_.find(this._imports, function (_import) {
+                    return (_import.getName() == import_pkg.getName())
+                }) != undefined) {
+                return false;
+            }
+
+            var definitions = [];
+            _.each(package.getConnectors(), function (connector) {
+                var packageName = _.last(_.split(import_pkg.getName(), '.'));
+                connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration
+                connector.meta = {
+                    connectorName: connector.getName(),
+                    connectorPackageName: packageName
+                };
+                //TODO : use a generic icon
+                connector.icon = "images/tool-icons/http.svg";
+                connector.title = connector.getTitle();
+                definitions.push(connector);
+                _.each(connector.getActions(), function (action, index, collection) {
+                    /* We need to add a special class to actions to indent them in tool palette. */
+                    action.classNames = "tool-connector-action";
+                    if ((index + 1 ) == collection.length) {
+                        action.classNames = "tool-connector-action tool-connector-last-action";
+                    }
+                    action.meta = {
+                        action: action.getAction(),
+                        actionConnectorName : connector.getName(),
+                        actionPackageName : packageName
+                    };
+                    action.icon = "images/tool-icons/http.svg";
+                    action.title = action.getTitle();
+                    action.nodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression
+                    definitions.push(action);
+                });
+            });
+
+            this._imports.push(package);
+            var group = new ToolGroup({
+                toolGroupName: package.getName(),
+                toolGroupID: package.getName() + "-tool-group",
+                toolOrder: "vertical",
+                toolDefinitions: definitions
+            });
+            
+            var toolGroupOptions = _.clone(_.get(this._options, 'toolGroup'));
+            _.set(toolGroupOptions, 'toolPalette', this);
+            _.set(toolGroupOptions, 'model', group);
+            var groupView = new ToolGroupView(toolGroupOptions);
+            var group = groupView.render(this.$el.find('.tool-import-wrapper'), _.isEqual('vertical', group.get('toolOrder')));
+            this.$el.addClass('non-user-selectable');
+
+            this.ballerinaFileEditor.importPackage(package.getName());
         },
 
         addConnectorTool: function(toolDef){

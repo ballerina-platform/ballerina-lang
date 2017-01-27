@@ -54,7 +54,35 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
      * @return {Object[]} arguments - Connector Arguments
      */
     ConnectorDefinition.prototype.getArguments = function () {
-        return this.arguments
+        var argumentsList = [];
+        var self = this;
+        _.forEach(this.getChildren(), function (child) {
+            if (self.BallerinaASTFactory.isArgument(child)) {
+                argumentsList.push(child);
+            }
+        });
+        return argumentsList;
+    };
+
+    /**
+     * Adds new argument to the connector definition.
+     * @param type - The type of the argument.
+     * @param identifier - The identifier of the argument.
+     */
+    ConnectorDefinition.prototype.addArgument = function(type, identifier) {
+        //creating argument
+        var newArgument = this.BallerinaASTFactory.createArgument();
+        newArgument.setType(type);
+        newArgument.setIdentifier(identifier);
+
+        var self = this;
+
+        // Get the index of the last argument declaration.
+        var index = _.findLastIndex(this.getChildren(), function (child) {
+            return self.BallerinaASTFactory.isArgument(child);
+        });
+
+        this.addChild(newArgument, index + 1);
     };
 
     /**
@@ -132,6 +160,32 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
      */
     ConnectorDefinition.prototype.removeVariableDeclaration = function (variableDeclaration) {
         this.removeChild(variableDeclaration)
+    };
+
+    /**
+     * initialize ConnectorDefinition from json object
+     * @param {Object} jsonNode to initialize from
+     * @param {string} [jsonNode.connector_name] - Name of the service definition
+     * @param {string} [jsonNode.annotations] - Annotations of the function definition
+     */
+    ConnectorDefinition.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+        this._serviceName = jsonNode.connector_name;
+
+        // Populate the annotations array
+        for (var itr = 0; itr < this.getAnnotations().length; itr ++) {
+            var key = this.getAnnotations()[itr].key;
+            for (var itrInner = 0; itrInner < jsonNode.annotations.length; itrInner ++) {
+                if (jsonNode.annotations[itrInner].annotation_name === key) {
+                    this._annotations[itr].value = jsonNode.annotations[itrInner].annotation_value;
+                }
+            }
+        }
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.BallerinaASTFactory.createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
     };
 
     /**

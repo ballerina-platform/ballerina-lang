@@ -22,7 +22,7 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * Worker Thread which is executable through the worker pool
+ * Worker Thread which is executable through the worker pool.
  */
 public abstract class WorkerThread implements Runnable {
 

@@ -36,7 +36,6 @@ define(['lodash', 'log'], function (_, log) {
     };
 
     BallerinaSDK.prototype.init = function () {
-        this._nativetype = ['message', 'connection', 'string', 'int', 'exception', 'json', 'xml', 'map', 'string[]', 'int[]'];
         this._type = _.union(this.getNativeTypes(), this.getStructs());
     };
 

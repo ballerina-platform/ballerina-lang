@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConstant;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
 /**
- * Native function ballerina.lang.system:log
+ * Native function ballerina.lang.system:log.
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.system",

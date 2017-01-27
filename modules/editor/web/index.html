@@ -1,7 +1,23 @@
+
+<!--Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.-->
+
+<!--WSO2 Inc. licenses this file to you under the Apache License,-->
+<!--Version 2.0 (the "License"); you may not use this file except-->
+<!--in compliance with the License.-->
+<!--You may obtain a copy of the License at-->
+
+<!--http://www.apache.org/licenses/LICENSE-2.0-->
+
+<!--Unless required by applicable law or agreed to in writing,-->
+<!--software distributed under the License is distributed on an-->
+<!--"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY-->
+<!--KIND, either express or implied. See the License for the-->
+<!--specific language governing permissions and limitations-->
+<!--under the License.-->
+
+
+
 <html lang="en" class=" webkit chrome mac js gr__localhost">
-
-
-
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -77,7 +93,7 @@
                 <div class="left-container">
                     <!-- Start: left tool bar -->
                     <div class="left-tool-bar" data-toggle="tooltip">
-                        <i class="fw fw-file-browse fw-2x workspace-explorer-activate-btn"></i>
+                        <i class="fw fw-file-browse fw-lg workspace-explorer-activate-btn"></i>
                     </div>
                     <!-- End: left tool bar -->
                     <!-- Start: left side-bar -->
@@ -388,6 +404,29 @@
 </div>
 <!--End: About Modal-->
 
+<!--Start: Search Modal-->
+<div class="modal fade" id="modalSearch" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content clearfix">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">x</button>
+                <h4 class="modal-title" >Search</h4>
+            </div>
+            <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
+                <div class="modal-search-bar">
+                    <i class="fw fw-search modal-search-icon"></i>
+                    <input class="search-input" id="modal-search-field" placeholder="Search" type="text">
+                </div>
+                <div class="search-results">
+                    <ul class="list-group">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--End: Search Modal-->
+
 <!--Start: Open Folder Modal-->
 <div class='modal fade' id='open-folder-modal' tabindex='-1' role='dialog' aria-tydden='true'>
     <div class='modal-dialog file-dialog' role='document'>
@@ -474,7 +513,6 @@
             file_browser: "js/file-browser/file-browser",
             menu_bar: "js/menu-bar/menu-bar",
             tool_bar: "js/tool-bar/tool-bar",
-            tab: "js/tab/",
             alerts: "js/utils/alerts",
             breadcrumbs: "js/breadcrumbs/breadcrumbs",
             property_pane_utils: "js/property-pane/property-pane-utils"
@@ -514,6 +552,11 @@
                 name: 'antlr',
                 location: 'lib/antlr_v4.5.3',
                 main: 'index'
+            },
+            {
+                name: 'tab',
+                location: 'js/tab',
+                main: 'module'
             },
             {
                 name: 'dialogs',
@@ -663,8 +706,9 @@
                                 outer_div: 'panel panel-default container-outer-div',
                                 panel_title: 'panel-title',
                                 panel_icon: 'panel-icon',
-                                service_icon: 'fw fw-dmg-service fw-inverse',
-                                connector_icon:'fw fw-dgm-connector fw-inverse',
+                                service_icon: 'fw fw-dgm-service fw-inverse',
+                                struct_icon: 'fw fw-dgm-service fw-inverse',
+                                connector_icon:'fw fw-connector fw-inverse',
                                 function_icon:'fw fw-function fw-inverse',
                                 title_link:'collapsed',
                                 panel_right_icon:'fw fw-down pull-right right-icon-clickable collapser hoverable',
@@ -708,7 +752,7 @@
                         }
                     }
                 },
-                leftOffset: 50,
+                leftOffset: 40,
                 separatorOffset: 5,
                 defaultWidth: 250,
                 resizeLimits:{

@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 
 /**
- * {@code BasicLiteral} represents a literal in Ballerina
+ * {@code BasicLiteral} represents a literal in Ballerina.
  * <p>
  * This class is used to hold IntegerLiterals, FloatingPointLiterals, QuotedStringLiterals, BooleanLiterals and 'nil'
  *

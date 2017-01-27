@@ -26,6 +26,14 @@ function testGetStringPayload(message msg) (message){
     return msg;
 }
 
+function testEmptyString() (string){
+    message msg;
+    string strPayload;
+
+    strPayload = ballerina.lang.message:getStringPayload(msg);
+    return strPayload;
+}
+
 function testClone(message msg, string payload2) (int) {
     message clone;
     string v1;

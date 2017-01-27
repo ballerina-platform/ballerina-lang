@@ -21,6 +21,7 @@ import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
 import org.wso2.ballerina.core.interpreter.ConstantLocation;
 import org.wso2.ballerina.core.interpreter.LocalVarLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
+import org.wso2.ballerina.core.interpreter.StructVarLocation;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
@@ -42,6 +43,8 @@ import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
+import org.wso2.ballerina.core.model.expressions.StructInitExpr;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
@@ -57,7 +60,7 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 
 /**
- * {@code NodeVisitor} responsible for executing a Ballerina applications by traversing statements and expressions
+ * {@code NodeVisitor} responsible for executing a Ballerina applications by traversing statements and expressions.
  *
  * @since 0.8.0
  */
@@ -88,6 +91,10 @@ public interface NodeVisitor {
     void visit(ConnectorDcl connectorDcl);
 
     void visit(VariableDcl variableDcl);
+    
+    void visit(BallerinaStruct ballerinaStruct);
+
+    void visit(StructDcl structDcl);
 
     // Statements
 
@@ -164,8 +171,14 @@ public interface NodeVisitor {
     void visit(ConnectorVarLocation connectorVarLocation);
 
     void visit(ConstantLocation constantLocation);
-
+    
     void visit(ResourceInvocationExpr resourceIExpr);
 
     void visit(MainInvoker mainInvoker);
+
+    void visit(StructVarLocation structVarLocation);
+
+    void visit(StructInitExpr structInitExpr);
+
+    void visit(StructFieldAccessExpr structAttributeAccessExpr);
 }

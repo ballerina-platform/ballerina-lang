@@ -29,7 +29,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
         './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression',
         './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
-        './if-condition', './array-map-access-expression', './binary-expression', './connector-action'],
+        './if-condition', './array-map-access-expression', './binary-expression', './connector-action', './struct-definition'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -38,7 +38,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               functionInvocationExpression, variableReferenceExpression, actionInvocationStatement, arithmeticExpression,
               logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
-              thenBody, ifCondition, arrayMapAccessExpression, binaryExpression, connectorAction) {
+              thenBody, ifCondition, arrayMapAccessExpression, binaryExpression, connectorAction, structDefinition) {
 
 
         /**
@@ -137,6 +137,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createTypeElement = function (args) {
             return new typeElement(args);
+        };
+
+        /**
+         * creates structDefinition
+         * @param {Object} args - object for structDefinition creation
+         * @returns {StructDefinition}
+         */
+        BallerinaASTFactory.createStructDefinition = function (args) {
+            return new structDefinition(args);
         };
 
         /**
@@ -370,9 +379,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
 
         /**
          * creates Argument
-         * @param {Object} args - The arguments to create the Argument
-         * @param {string} args.type - Type of the argument
-         * @param {string} args.identifier - Identifier of the argument
+         * @param {Object} [args] - The arguments to create the Argument
+         * @param {string} [args.type] - Type of the argument
+         * @param {string} [args.identifier] - Identifier of the argument
          * @returns {Argument}
          */
         BallerinaASTFactory.createArgument = function (args) {
@@ -559,6 +568,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.isTypeElement = function (child) {
             return child instanceof typeElement;
+        };
+
+        /**
+         * instanceof check for StructDefinition
+         * @param {ASTNode} child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isStructDefinition = function (child) {
+          return child instanceof structDefinition;
         };
 
         /**
@@ -919,6 +937,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                     case 'return_type':
                         node = BallerinaASTFactory.createReturnType();
                         break;
+                    case 'return_argument':
+                        node = BallerinaASTFactory.createArgument();
+                        break;
                     case 'type_name':
                         node = BallerinaASTFactory.createTypeName();
                         break;
@@ -1002,6 +1023,12 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'array_map_access_expression':
                         node = BallerinaASTFactory.createArrayMapAccessExpression();
+                        break;
+                    case 'connector':
+                        node = BallerinaASTFactory.createConnectorDefinition();
+                        break;
+                    case 'action':
+                        node = BallerinaASTFactory.createConnectorAction();
                         break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;

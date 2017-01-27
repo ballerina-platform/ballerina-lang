@@ -39,6 +39,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             this._parentView = _.get(args, "parentView");
             this._viewOptions.offsetTop = _.get(args, "viewOptionsOffsetTop", 50);
             this._viewOptions.topBottomTotalGap = _.get(args, "viewOptionsTopBottomTotalGap", 100);
+            this._viewOptions.panelIcon = _.get(args.viewOptions, "cssClass.service_icon");
             //set initial height for the service container svg
             this._totalHeight = 170;
             //set initial connector margin for the service
@@ -185,7 +186,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 }
             };
 
-            VariablesView.createVariablePane(variableProperties);
+            VariablesView.createVariablePane(variableProperties, diagramRenderingContext);
 
             var operationsPane = this.getOperationsPane();
 
@@ -279,6 +280,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
          */
         ServiceDefinitionView.prototype.visitResourceDefinition = function (resourceDefinition) {
             log.debug("Visiting resource definition");
+            var self = this;
             var resourceContainer = this.getChildContainer();
             // If more than 1 resource
             if (this.getResourceViewList().length > 0) {
@@ -315,7 +317,16 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             this.setLifelineMargin(resourceDefinitionView.getBoundingBox().getRight());
             // If the lifeline margin is changed then accordingly the resource should move the bounding box
             this.getLifeLineMargin().on('moved', function (offset) {
-                resourceDefinitionView.getBoundingBox().w(resourceDefinitionView.getBoundingBox().w() + offset);
+                var newWidth = resourceDefinitionView.getBoundingBox().w() + offset;
+                var minWidth = resourceDefinitionView.getContentMinWidth();
+                // resource bounding box should not shrink than min width
+                if (newWidth > minWidth) {
+                    resourceDefinitionView.getBoundingBox().w(newWidth);
+                } else {
+                    // reset lifeline margin position
+                    self.setLifelineMargin(minWidth + self._viewOptions.offsetTop);
+                    resourceDefinitionView.getBoundingBox().w(minWidth);
+                }
             });
 
             //setting height of the service view

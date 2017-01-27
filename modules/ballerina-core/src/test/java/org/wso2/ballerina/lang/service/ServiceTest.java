@@ -33,7 +33,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import java.nio.ByteBuffer;
 
 /**
- * Service/Resource dispatching test class
+ * Service/Resource dispatching test class.
  */
 public class ServiceTest {
 

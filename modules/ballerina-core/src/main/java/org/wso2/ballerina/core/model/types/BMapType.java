@@ -22,7 +22,7 @@ import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code BMapType} represents a type of a map in Ballerina
+ * {@code BMapType} represents a type of a map in Ballerina.
  * <p>
  * Maps are defined using the map keyword as follows:
  * map mapName
@@ -34,7 +34,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 public class BMapType extends BType {
 
     /**
-     * Create a type from the given name
+     * Create a type from the given name.
      *
      * @param typeName string name of the type
      */

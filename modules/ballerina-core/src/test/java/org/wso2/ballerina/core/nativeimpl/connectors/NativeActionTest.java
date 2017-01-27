@@ -22,6 +22,9 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnString;
 import org.wso2.ballerina.core.utils.ParserUtils;
 
+/**
+ * Test class for Native Action test.
+ */
 public class NativeActionTest {
 
     private BallerinaFile bFile;

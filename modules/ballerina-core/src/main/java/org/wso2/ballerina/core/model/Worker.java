@@ -53,7 +53,7 @@ public class Worker implements Node {
     public Worker(){}
 
     /**
-     * Get all Connections declared within the Worker
+     * Get all Connections declared within the Worker.
      *
      * @return list of all the Connections belongs to the Worker
      */
@@ -62,7 +62,7 @@ public class Worker implements Node {
     }
 
     /**
-     * Assign connections to the Worker
+     * Assign connections to the Worker.
      *
      * @param connectorDcls list of connections to be assigned to the Worker
      */
@@ -71,7 +71,7 @@ public class Worker implements Node {
     }
 
     /**
-     * Add a {@code Connection} to the Worker
+     * Add a {@code Connection} to the Worker.
      *
      * @param connectorDcl Connection to be added to the Worker
      */
@@ -83,7 +83,7 @@ public class Worker implements Node {
     }
 
     /**
-     * Get all the variables declared in the Worker
+     * Get all the variables declared in the Worker.
      *
      * @return list of all Worker scoped variables
      */
@@ -92,7 +92,7 @@ public class Worker implements Node {
     }
 
     /**
-     * Assign variables to the Worker
+     * Assign variables to the Worker.
      *
      * @param variables list of variables
      */
@@ -101,7 +101,7 @@ public class Worker implements Node {
     }
 
     /**
-     * Add a {@code Variable} to the Worker
+     * Add a {@code Variable} to the Worker.
      *
      * @param variable variable to be added the Worker
      */
@@ -113,7 +113,7 @@ public class Worker implements Node {
     }
 
     /**
-     * Get all the Statements associated with the Worker
+     * Get all the Statements associated with the Worker.
      *
      * @return list of Statements associated with the Worker
      */
@@ -122,7 +122,7 @@ public class Worker implements Node {
     }
 
     /**
-     * Set Statements to be associated with the Worker
+     * Set Statements to be associated with the Worker.
      *
      * @param statements list of Statements
      */
@@ -131,7 +131,7 @@ public class Worker implements Node {
     }
 
     /**
-     * Add a {@code Statement} to the Worker
+     * Add a {@code Statement} to the Worker.
      *
      * @param statement a Statement to be added to the Worker
      */

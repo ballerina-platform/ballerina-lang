@@ -24,22 +24,8 @@ import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
 import org.wso2.ballerina.core.interpreter.ConstantLocation;
 import org.wso2.ballerina.core.interpreter.LocalVarLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
-import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.BallerinaAction;
-import org.wso2.ballerina.core.model.BallerinaConnector;
-import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.ConnectorDcl;
-import org.wso2.ballerina.core.model.Const;
-import org.wso2.ballerina.core.model.Function;
-import org.wso2.ballerina.core.model.ImportPackage;
-import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.Parameter;
-import org.wso2.ballerina.core.model.PositionAwareNode;
-import org.wso2.ballerina.core.model.Resource;
-import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.VariableDcl;
-import org.wso2.ballerina.core.model.Worker;
+import org.wso2.ballerina.core.interpreter.StructVarLocation;
+import org.wso2.ballerina.core.model.*;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
@@ -66,6 +52,9 @@ import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
+import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
+import org.wso2.ballerina.core.model.expressions.StructInitExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
@@ -321,8 +310,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         if (function.getReturnParameters() != null) {
             for (Parameter parameter : function.getReturnParameters()) {
                 JsonObject typeObj = new JsonObject();
-                typeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_TYPE_NAME);
-                typeObj.addProperty(BLangJSONModelConstants.RETURN_TYPE_NAME, parameter.getType().toString());
+                typeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_ARGUMENT);
+                typeObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameter.getType().toString());
+                if (parameter.getName() != null) {
+                    typeObj.addProperty(BLangJSONModelConstants.PARAMETER_NAME, parameter.getName().toString());
+                }
                 returnTypeArray.add(typeObj);
             }
         }
@@ -358,9 +350,18 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 variableDcl.accept(this);
             }
         }
+        if (action.getConnectorDcls() != null) {
+            for (ConnectorDcl connectDcl : action.getConnectorDcls()) {
+                connectDcl.accept(this);
+            }
+        }
+        action.getCallableUnitBody().accept(this);
         jsonAction.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(jsonAction);
+
+        JsonObject returnTypeObj = new JsonObject();
+        returnTypeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_TYPE);
     }
 
     @Override
@@ -946,5 +947,29 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(KeyValueExpression arrayMapAccessExpr) {
         //TODO
     }
+    
+    @Override
+    public void visit(StructVarLocation structVarLocation) {
+        // TODO
+    }
 
+    @Override
+    public void visit(StructInitExpr structInitExpr) {
+        // TODO
+    }
+
+    @Override
+    public void visit(StructFieldAccessExpr structFieldAccessExpr) {
+        // TODO
+    }
+
+    @Override
+    public void visit(BallerinaStruct ballerinaStruct) {
+        // TODO
+    }
+
+    @Override
+    public void visit(StructDcl structDcl) {
+        // TODO
+    }
 }

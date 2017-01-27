@@ -61,8 +61,12 @@ define(['lodash', 'log', 'file_browser', 'event_channel', 'theme_wso2'],
             arrowHeadIcon.toggleClass("fw-rotate-90");
         });
 
-        var fileBrowser = new FileBrowser({container: body, application: this.application, root: this.path,
-            fetchFiles: true});
+        var fileBrowser = new FileBrowser({
+            container: body,
+            application: this.application, root: this.path,
+            fetchFiles: true,
+            contextMenuProvider: this.createContextMenuProvider()
+        });
         fileBrowser.render();
         fileBrowser.on("double-click-node", function(node){
             if(_.isEqual('file', node.type)){
@@ -70,6 +74,39 @@ define(['lodash', 'log', 'file_browser', 'event_channel', 'theme_wso2'],
             }
         }, this);
         this._fileBrowser = fileBrowser;
+    };
+
+    ExplorerItem.prototype.createContextMenuProvider = function(){
+        var self = this;
+        return function(node) {
+            var items = {};
+
+            if(_.isEqual('folder', node.type)){
+                items.createNewFile = {
+                    label: "new file",
+                    action: function () {
+                        self.application.commandManager.dispatch("create-new-item-at-path",
+                            {path: node.id, type: 'ballerina-file'});
+                    }
+                };
+                items.createNewFolder = {
+                    label: "new folder",
+                    action: function () {
+                        self.application.commandManager.dispatch("create-new-item-at-path",
+                            {path: node.id, type: 'folder'});
+                    }
+                }
+            }
+            else if(_.isEqual('file', node.type)){
+                items.deleteFile = {
+                    label: "remove",
+                    action: function () {
+                        self.application.commandManager.dispatch("remove-file", node.id);
+                    }
+                }
+            }
+            return items;
+        };
     };
 
     return ExplorerItem;

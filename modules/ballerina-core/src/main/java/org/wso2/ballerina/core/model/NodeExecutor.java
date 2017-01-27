@@ -21,6 +21,7 @@ import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
 import org.wso2.ballerina.core.interpreter.ConstantLocation;
 import org.wso2.ballerina.core.interpreter.LocalVarLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
+import org.wso2.ballerina.core.interpreter.StructVarLocation;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
@@ -31,6 +32,8 @@ import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
+import org.wso2.ballerina.core.model.expressions.StructInitExpr;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
@@ -44,7 +47,7 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code NodeExecutor} responsible for executing a Ballerina applications by traversing statements and expressions
+ * {@code NodeExecutor} responsible for executing a Ballerina applications by traversing statements and expressions.
  *
  * @since 0.8.0
  */
@@ -97,4 +100,10 @@ public interface NodeExecutor {
     BValue visit(ServiceVarLocation serviceVarLocation);
 
     BValue visit(ConnectorVarLocation connectorVarLocation);
+
+    BValue visit(StructVarLocation structVarLocation);
+
+    BValue visit(StructInitExpr structInitExpr);
+
+    BValue visit(StructFieldAccessExpr structAttributeAccessExpr);
 }
