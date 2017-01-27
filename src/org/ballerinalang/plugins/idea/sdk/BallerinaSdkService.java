@@ -38,16 +38,16 @@ public class BallerinaSdkService {
             File binDirectory = new File(sdkHomePath, "bin");
             if (!binDirectory.exists() && SystemInfo.isLinux) {
                 LOG.debug(sdkHomePath + "/bin doesn't exist, checking linux-specific paths");
-                File ballerinaFromPath = PathEnvironmentVariableUtil.findInPath(BallerinaConstants
-                        .BALLERINA_EXECUTABLE_NAME);
+                File ballerinaFromPath = PathEnvironmentVariableUtil.findInPath(
+                        BallerinaConstants.BALLERINA_EXECUTABLE_NAME);
                 if (ballerinaFromPath != null && ballerinaFromPath.exists()) {
                     LOG.debug("Ballerina executable found at " + ballerinaFromPath.getAbsolutePath());
                     return ballerinaFromPath.getAbsolutePath();
                 }
             }
 
-            String executableName = BallerinaEnvironmentUtil.getBinaryFileNameForPath(BallerinaConstants
-                    .BALLERINA_EXECUTABLE_NAME);
+            String executableName = BallerinaEnvironmentUtil.getBinaryFileNameForPath(
+                    BallerinaConstants.BALLERINA_EXECUTABLE_NAME);
             String executable = FileUtil.join(sdkHomePath, "bin", executableName);
             if (!new File(executable).exists() && SystemInfo.isLinux) {
                 LOG.debug(executable + " doesn't exists. Looking for binaries in fedora-specific directories");
