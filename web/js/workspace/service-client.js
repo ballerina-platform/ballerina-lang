@@ -132,6 +132,26 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file', 'alerts'],
             return data;
         };
 
+        ServiceClient.prototype.delete = function (path, type) {
+            var data = {};
+            $.ajax({
+                type: "GET",
+                context: this,
+                url: _.get(this.application, 'config.services.workspace.endpoint') + "/delete?" + "path=" + btoa(path)
+                    + "&type=" + btoa(type),
+                contentType: "text/plain; charset=utf-8",
+                async: false,
+                success: function (response) {
+                    data = response;
+                },
+                error: function(xhr, textStatus, errorThrown){
+                    data = {"error":true, "message":"Unable to invoke delete file/folder. Status " + textStatus};
+                    alerts.error(data.message);
+                }
+            });
+            return data;
+        };
+
         ServiceClient.prototype.writeFile = function (file) {
             var data = {};
             $.ajax({
