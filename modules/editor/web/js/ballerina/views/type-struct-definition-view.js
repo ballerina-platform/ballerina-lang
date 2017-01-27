@@ -58,22 +58,39 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerin
      */
     TypeStructDefinitionView.prototype.render = function (diagramRenderingContext) {
         this._diagramRenderingContext = diagramRenderingContext;
-        var self = this;
         console.log("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ");
         console.log(diagramRenderingContext);
         var struct = this._model.getSchemaPropertyObj();
         var category = this._model.getCategory();
 
+        var mapper = new TypeMapper(this._model.getOnConnectInstance(),this._model.getOnDisconnectInstance());
+
         if(category == "SOURCE"){
-            self._model.getDataMapperInstance().addSourceStruct(struct);
+            mapper.addSourceStruct(struct);
         }else{
-            self._model.getDataMapperInstance().addTargetStruct(struct);
+            mapper.addTargetStruct(struct);
         }
     };
 
     TypeStructDefinitionView.prototype.getChildContainer = function () {
         return this._rootGroup;
     };
+
+//    /**
+//     * Receives attributes connected
+//     * @param connection object
+//     */
+//    TypeStructDefinitionView.prototype.onAttributesConnect = function (connection) {
+//        alert("connected");
+//    };
+//
+//    /**
+//     * Receives the attributes disconnected
+//     * @param connection object
+//     */
+//    TypeStructDefinitionView.prototype.onAttributesDisConnect = function (connection) {
+//        alert("disconnected");
+//    };
 
     return TypeStructDefinitionView;
 });
