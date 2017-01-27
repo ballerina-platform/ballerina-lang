@@ -15,17 +15,16 @@
 #  limitations under the License.
 
 # ----------------------------------------------------------------------------
-# Main Script for the WSO2 Ballerina
+# Startup Script for Ballerina
 #
 # Environment Variable Prerequisites
 #
-#   CARBON_HOME   Home of WSO2 Carbon installation. If not set I will  try
-#                   to figure it out.
+#   BALLERINA_HOME      (Optional) Home of Ballerina installation.
 #
-#   JAVA_HOME       Must point at your Java Development Kit installation.
+#   JAVA_HOME           Must point at your Java Development Kit installation.
 #
-#   JAVA_OPTS       (Optional) Java runtime options used when the commands
-#                   is executed.
+#   JAVA_OPTS           (Optional) Java runtime options used when the commands
+#                       is executed.
 #
 # NOTE: Borrowed generously from Apache Tomcat startup scripts.
 # -----------------------------------------------------------------------------
@@ -69,13 +68,13 @@ done
 # Get standard environment variables
 PRGDIR=`dirname "$PRG"`
 
-# Only set CARBON_HOME if not already set
-[ -z "$CARBON_HOME" ] && CARBON_HOME=`cd "$PRGDIR/.." ; pwd`
+# Only set BALLERINA_HOME if not already set
+[ -z "$BALLERINA_HOME" ] && BALLERINA_HOME=`cd "$PRGDIR/.." ; pwd`
 
 # For Cygwin, ensure paths are in UNIX format before anything is touched
 if $cygwin; then
   [ -n "$JAVA_HOME" ] && JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
-  [ -n "$CARBON_HOME" ] && CARBON_HOME=`cygpath --unix "$CARBON_HOME"`
+  [ -n "$BALLERINA_HOME" ] && BALLERINA_HOME=`cygpath --unix "$BALLERINA_HOME"`
 fi
 
 # For OS400
@@ -93,8 +92,8 @@ fi
 
 # For Migwn, ensure paths are in UNIX format before anything is touched
 if $mingw ; then
-  [ -n "$CARBON_HOME" ] &&
-    CARBON_HOME="`(cd "$CARBON_HOME"; pwd)`"
+  [ -n "$BALLERINA_HOME" ] &&
+    BALLERINA_HOME="`(cd "$BALLERINA_HOME"; pwd)`"
   [ -n "$JAVA_HOME" ] &&
     JAVA_HOME="`(cd "$JAVA_HOME"; pwd)`"
   # TODO classpath?
@@ -115,7 +114,6 @@ fi
 
 if [ ! -x "$JAVACMD" ] ; then
   echo "Error: JAVA_HOME is not defined correctly."
-  echo " CARBON cannot execute $JAVACMD"
   exit 1
 fi
 
@@ -125,13 +123,7 @@ if [ -z "$JAVA_HOME" ]; then
   exit 1
 fi
 
-if [ -e "$CARBON_HOME/carbon.pid" ]; then
-  PID=`cat "$CARBON_HOME"/carbon.pid`
-fi
-
 # ----- Process the input command ----------------------------------------------
-
-BARGS=
 
 for c in "$@"
 do
@@ -139,38 +131,8 @@ do
           CMD="--debug"
     elif [ "$CMD" = "--debug" ] && [ -z "$PORT" ]; then
           PORT=$c
-    elif [ "$c" = "-version" ]; then
-          cat $CARBON_HOME/bin/version.txt
-          exit 0
-    elif [ "$c" = "-help" ]; then
-          cat $CARBON_HOME/resources/help/ballerina-bash-help.txt
-          exit 0
-    elif [[ "$c" = *.bal ]] && [ -z "$BAL_FILE_NAME" ]; then
-          BAL_FILE_NAME="$c"
-          BAL_EXECUTION_SUB_CMD="-bargs"
-    # Parsing Argument Values.
-    elif [ "$BAL_EXECUTION_SUB_CMD" = "-bargs" ] ; then
-        if [[ -z "$BARGS" ]]; then
-          BARGS="$c"
-        else
-          BARGS="$BARGS;$c"
-        fi
-    else
-        echo "Not supported option or command : $c"
-        cat $CARBON_HOME/resources/help/ballerina-bash-help.txt
-        exit 1
     fi
 done
-
-if [ "$BAL_FILE_NAME" = "" ]; then
-    echo "Please specify Ballerina file to run."
-    cat $CARBON_HOME/resources/help/ballerina-bash-help.txt
-    exit 1
-else
-    if [[ "$BAL_FILE_NAME" != /* ]]; then
-        BAL_FILE_NAME="$BASE_DIR/$BAL_FILE_NAME"
-    fi
-fi
 
 if [ "$CMD" = "--debug" ]; then
   if [ "$PORT" = "" ]; then
@@ -184,80 +146,62 @@ if [ "$CMD" = "--debug" ]; then
   echo "Please start the remote debugging client to continue..."
 fi
 
-# ---------- Handle the SSL Issue with proper JDK version --------------------
-jdk_18=`$JAVA_HOME/bin/java -version 2>&1 | grep "1.[8]"`
-if [ "$jdk_18" = "" ]; then
-   echo " Starting WSO2 Ballerina (in unsupported JDK)"
-   echo " [ERROR] WSO2 Ballerina is supported only on JDK 1.8"
-fi
-
-CARBON_XBOOTCLASSPATH=""
-for f in "$CARBON_HOME"/bin/bootstrap/xboot/*.jar
+BALLERINA_XBOOTCLASSPATH=""
+for f in "$BALLERINA_HOME"/bre/lib/bootstrap/xboot/*.jar
 do
-    if [ "$f" != "$CARBON_HOME/bin/bootstrap/xboot/*.jar" ];then
-        CARBON_XBOOTCLASSPATH="$CARBON_XBOOTCLASSPATH":$f
+    if [ "$f" != "$BALLERINA_HOME/bre/lib/bootstrap/xboot/*.jar" ];then
+        BALLERINA_XBOOTCLASSPATH="$BALLERINA_XBOOTCLASSPATH":$f
     fi
 done
 
-JAVA_ENDORSED_DIRS="$CARBON_HOME/bin/bootstrap/endorsed":"$JAVA_HOME/jre/lib/endorsed":"$JAVA_HOME/lib/endorsed"
+JAVA_ENDORSED_DIRS="$BALLERINA_HOME/bin/bootstrap/endorsed":"$JAVA_HOME/jre/lib/endorsed":"$JAVA_HOME/lib/endorsed"
 
-CARBON_CLASSPATH=""
-if [ -e "$JAVA_HOME/bin/bootstrap/tools.jar" ]; then
-    CARBON_CLASSPATH="$JAVA_HOME/lib/tools.jar"
+BALLERINA_CLASSPATH=""
+if [ -e "$CARBON_HOME/bre/lib/bootstrap/tools.jar" ]; then
+    BALLERINA_CLASSPATH="$JAVA_HOME/lib/tools.jar"
 fi
-for f in "$CARBON_HOME"/bin/bootstrap/*.jar
+
+for f in "$BALLERINA_HOME"/bre/lib/bootstrap/*.jar
 do
-    if [ "$f" != "$CARBON_HOME/bin/bootstrap/*.jar" ];then
-        CARBON_CLASSPATH="$CARBON_CLASSPATH":$f
+    if [ "$f" != "$BALLERINA_HOME/bre/lib/bootstrap/*.jar" ];then
+        BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":$f
     fi
 done
-for t in "$CARBON_HOME"/bin/bootstrap/commons-lang*.jar
+
+for j in "$BALLERINA_HOME"/bre/lib/*.jar
 do
-    CARBON_CLASSPATH="$CARBON_CLASSPATH":$t
+    BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":$j
 done
+
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
   JAVA_HOME=`cygpath --absolute --windows "$JAVA_HOME"`
-  CARBON_HOME=`cygpath --absolute --windows "$CARBON_HOME"`
+  BALLERINA_HOME=`cygpath --absolute --windows "$BALLERINA_HOME"`
   CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
   JAVA_ENDORSED_DIRS=`cygpath --path --windows "$JAVA_ENDORSED_DIRS"`
-  CARBON_CLASSPATH=`cygpath --path --windows "$CARBON_CLASSPATH"`
-  CARBON_XBOOTCLASSPATH=`cygpath --path --windows "$CARBON_XBOOTCLASSPATH"`
+  BALLERINA_CLASSPATH=`cygpath --path --windows "$BALLERINA_CLASSPATH"`
+  BALLERINA_XBOOTCLASSPATH=`cygpath --path --windows "$BALLERINA_XBOOTCLASSPATH"`
 fi
 
 # ----- Execute The Requested Command -----------------------------------------
 
 #echo JAVA_HOME environment variable is set to $JAVA_HOME
-#echo CARBON_HOME environment variable is set to $CARBON_HOME
+#echo BALLERINA_HOME environment variable is set to $BALLERINA_HOME
 
-cd "$CARBON_HOME"
+#   cd "$BALLERINA_HOME"
 
-START_EXIT_STATUS=121
-status=$START_EXIT_STATUS
-
-#To monitor a Carbon server in remote JMX mode on linux host machines, set the below system property.
-#   -Djava.rmi.server.hostname="your.IP.goes.here"
-
-while [ "$status" = "$START_EXIT_STATUS" ]
-do
-    $JAVACMD \
-    -Xbootclasspath/a:"$CARBON_XBOOTCLASSPATH" \
-    -Xms256m -Xmx1024m \
-    -XX:+HeapDumpOnOutOfMemoryError \
-    -XX:HeapDumpPath="$CARBON_HOME/logs/heap-dump.hprof" \
-    $JAVA_OPTS \
-    -classpath "$CARBON_CLASSPATH" \
-    -Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" \
-    -Djava.io.tmpdir="$CARBON_HOME/tmp" \
-    -Dcarbon.registry.root=/ \
-    -Djava.command="$JAVACMD" \
-    -Dcarbon.home="$CARBON_HOME" \
-    -Djava.util.logging.config.file="$CARBON_HOME/bin/bootstrap/logging.properties" \
-    -Djava.security.egd=file:/dev/./urandom \
-    -Dfile.encoding=UTF8 \
-    -Drun-mode=run \
-    -Drun-file="$BAL_FILE_NAME" \
-    -Dbargs="$BARGS" \
-    org.wso2.carbon.launcher.Main $*
-    status=$?
-done
+$JAVACMD \
+	-Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
+	-Xms256m -Xmx1024m \
+	-XX:+HeapDumpOnOutOfMemoryError \
+	-XX:HeapDumpPath="$BALLERINA_HOME/logs/heap-dump.hprof" \
+	$JAVA_OPTS \
+	-classpath "$BALLERINA_CLASSPATH" \
+	-Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" \
+	-Dballerina.home=$BALLERINA_HOME \
+	-Djava.util.logging.config.file="$BALLERINA_HOME/bre/conf/logging.properties" \
+	-Dtransports.netty.conf="$BALLERINA_HOME/bre/conf/netty-transports.yml" \
+	-Djava.io.tmpdir="$BALLERINA_HOME/tmp" \
+	-Djava.security.egd=file:/dev/./urandom \
+	-Dfile.encoding=UTF8 \
+	org.ballerinalang.launcher.Main $*
