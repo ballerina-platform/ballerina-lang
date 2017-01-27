@@ -173,7 +173,9 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
             this.setPath(child.getExpression());
         }
 
-        this.setMessageVariableReference(jsonNode.children[2].variable_reference_name);
+        if (!_.isUndefined(jsonNode.children[2])) {
+            this.setMessageVariableReference(jsonNode.children[2].variable_reference_name);
+        }
     };
 
     ActionInvocationExpression.prototype.getInvocationConnector = function (variable_reference_name) {
