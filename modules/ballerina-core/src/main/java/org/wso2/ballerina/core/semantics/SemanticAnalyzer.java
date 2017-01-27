@@ -1326,14 +1326,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
         // Then get the variable references
         // ${var} --> group0: ${var}, group1: var, group2: var
-        // ${arr[10]} --> group0: ${arr[10]}, group1: arr[10], group2: arr, group3: [
-        // 10], group4: 10
+        // ${arr[10]} --> group0: ${arr[10]}, group1: arr[10], group2: arr, group3: [10], group4: 10
         // ${myMap["key"]} --> group0: ${myMap["key"]}, group1: myMap["key"],
         //                                          group2: myMap, group3: ["key"], group4: "key", group5: key
         Matcher m = compiledPattern.matcher(backtickExpr.getTemplateStr());
 
         while (m.find()) {
-            //checks whether map or array reference
             if (m.group(3) != null) {
                 BasicLiteral indexExpr;
                 if (m.group(5) != null) {
