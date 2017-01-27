@@ -18,50 +18,10 @@
 
 package org.wso2.ballerina.tooling.service.workspace.rest.datamodel;
 
-import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
-import org.wso2.ballerina.core.interpreter.ConstantLocation;
-import org.wso2.ballerina.core.interpreter.LocalVarLocation;
-import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
-import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.BallerinaAction;
-import org.wso2.ballerina.core.model.BallerinaConnector;
-import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.ConnectorDcl;
-import org.wso2.ballerina.core.model.Const;
-import org.wso2.ballerina.core.model.ImportPackage;
-import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.Parameter;
-import org.wso2.ballerina.core.model.Resource;
-import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.VariableDcl;
-import org.wso2.ballerina.core.model.Worker;
-import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
-import org.wso2.ballerina.core.model.expressions.AddExpression;
-import org.wso2.ballerina.core.model.expressions.AndExpression;
-import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
-import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
-import org.wso2.ballerina.core.model.expressions.BacktickExpr;
-import org.wso2.ballerina.core.model.expressions.BasicLiteral;
-import org.wso2.ballerina.core.model.expressions.DivideExpr;
-import org.wso2.ballerina.core.model.expressions.EqualExpression;
-import org.wso2.ballerina.core.model.expressions.Expression;
-import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
-import org.wso2.ballerina.core.model.expressions.GreaterEqualExpression;
-import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
-import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
-import org.wso2.ballerina.core.model.expressions.KeyValueExpression;
-import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
-import org.wso2.ballerina.core.model.expressions.LessThanExpression;
-import org.wso2.ballerina.core.model.expressions.MapInitExpr;
-import org.wso2.ballerina.core.model.expressions.MultExpression;
-import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
-import org.wso2.ballerina.core.model.expressions.OrExpression;
-import org.wso2.ballerina.core.model.expressions.SubtractExpression;
-import org.wso2.ballerina.core.model.expressions.UnaryExpression;
-import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
+import org.wso2.ballerina.core.interpreter.*;
+import org.wso2.ballerina.core.model.*;
+import org.wso2.ballerina.core.model.expressions.*;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
-import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
@@ -585,6 +545,30 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(KeyValueExpression arrayMapAccessExpr) {
+        //TODO
+    }
+
+    @Override
+    public void visit(BallerinaStruct ballerinaStruct) {
+        //TODO
+    }
+    @Override
+    public void visit(StructDcl structDcl) {
+        //TODO
+    }
+    
+    @Override
+    public void visit(StructVarLocation structVarLocation) {
+        //TODO
+    }
+
+    @Override
+    public void visit(StructInitExpr structInitExpr) {
+        //TODO
+    }
+
+    @Override
+    public void visit(StructFieldAccessExpr structFieldAccessExpr) {
         //TODO
     }
 
