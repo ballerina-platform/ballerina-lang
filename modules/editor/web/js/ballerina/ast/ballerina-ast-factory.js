@@ -29,7 +29,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
         './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression',
         './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
-        './if-condition', './array-map-access-expression', './binary-expression', './connector-action', './struct-definition'],
+        './if-condition', './array-map-access-expression', './binary-expression', './connector-action', './struct-definition',
+        './constant-definition'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -38,7 +39,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               functionInvocationExpression, variableReferenceExpression, actionInvocationStatement, arithmeticExpression,
               logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
-              thenBody, ifCondition, arrayMapAccessExpression, binaryExpression, connectorAction, structDefinition) {
+              thenBody, ifCondition, arrayMapAccessExpression, binaryExpression, connectorAction, structDefinition,
+              constantDefinition) {
 
 
         /**
@@ -490,6 +492,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * creates ConstantDefinition
+         * @param {Object} args - Arguments for creating a new constant definition.
+         * @returns {ConstantDefinition}
+         */
+        BallerinaASTFactory.createConstantDefinition = function (args) {
+            return new constantDefinition(args);
+        };
+
+        /**
          * instanceof check for BallerinaAstRoot
          * @param {Object} child
          * @returns {boolean}
@@ -889,6 +900,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
             return child instanceof connectorAction;
         };
 
+        /**
+         * instanceof check for constantDefinition
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isConstantDefinition = function (child) {
+            return child instanceof constantDefinition;
+        };
+
         BallerinaASTFactory.createFromJson = function (jsonNode) {
             var node;
             var nodeType = jsonNode.type;
@@ -1029,6 +1049,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'action':
                         node = BallerinaASTFactory.createConnectorAction();
+                        break;
+                    case 'constant_definition':
+                        node = BallerinaASTFactory.createConstantDefinition();
                         break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;

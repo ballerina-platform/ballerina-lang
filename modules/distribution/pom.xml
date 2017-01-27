@@ -147,6 +147,10 @@
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.staxon</groupId>
+            <artifactId>staxon-core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
