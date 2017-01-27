@@ -83,6 +83,10 @@ public class ResponseCallback implements CarbonCallback {
                 }
             } else if (cMsg instanceof DefaultCarbonMessage) {
                 DefaultCarbonMessage defaultCMsg = (DefaultCarbonMessage) cMsg;
+                if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
+                    ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+                    return;
+                }
                 while (true) {
                     ByteBuffer byteBuffer = defaultCMsg.getMessageBody();
                     ByteBuf bbuf = Unpooled.wrappedBuffer(byteBuffer);
