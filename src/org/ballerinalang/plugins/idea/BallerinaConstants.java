@@ -24,6 +24,8 @@ public class BallerinaConstants {
 
     }
 
+    public static final String MODULE_TYPE_ID = "BALLERINA_MODULE";
+
     @NonNls
     public static final String BALLERINA_EXECUTABLE_NAME = "ballerina";
 
