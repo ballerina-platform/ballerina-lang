@@ -34,7 +34,7 @@ import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
-import org.wso2.ballerina.core.model.expressions.TypeCastingExpression;
+import org.wso2.ballerina.core.model.expressions.TypeCastExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
@@ -92,7 +92,7 @@ public interface NodeExecutor {
 
     BValue visit(VariableRefExpr variableRefExpr);
 
-    BValue visit(TypeCastingExpression typeCastingExpression);
+    BValue visit(TypeCastExpression typeCastExpression);
 
     BValue visit(BasicLiteral basicLiteral);
 

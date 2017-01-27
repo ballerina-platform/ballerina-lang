@@ -64,7 +64,7 @@ import org.wso2.ballerina.core.model.expressions.ReferenceExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
-import org.wso2.ballerina.core.model.expressions.TypeCastingExpression;
+import org.wso2.ballerina.core.model.expressions.TypeCastExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
@@ -514,11 +514,11 @@ public class BLangModelBuilder {
     }
 
     public void createTypeCastInvocationExpr(String targetTypeName, Position sourceLocation) {
-        TypeCastingExpression typeCastingExpression = new TypeCastingExpression(exprStack.pop(),
+        TypeCastExpression typeCastExpression = new TypeCastExpression(exprStack.pop(),
                 BTypes.getType(targetTypeName));
         //Remove the type added to type queue
         typeQueue.remove();
-        exprStack.push(typeCastingExpression);
+        exprStack.push(typeCastExpression);
     }
 
     public void createActionInvocationExpr(Position sourceLocation) {

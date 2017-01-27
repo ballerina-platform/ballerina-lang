@@ -1,4 +1,4 @@
-import ballerina.lang.converters;
+import ballerina.lang.convertors;
 
 function xmltojson(xml input)(json) {
     json result;
