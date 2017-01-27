@@ -189,6 +189,22 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
     Canvas.prototype.setServiceContainerHeight = function (newHeight) {
         this._svg.attr('height', newHeight);
         this.getBoundingBox().h(newHeight);
+
+        // If service container's height is lesser than the height of the svg
+        // Increase the height of the service container and the inner div
+        if($(this._container).closest("svg").attr('height')) {
+            if ($(this._container).closest(".panel-body").height() < $(this._container).closest("svg").attr('height')) {
+                $(this._container).closest(".panel-body").height($(this._container).closest("svg").attr("height"));
+                $(this._container).closest(".panel-body").find("#" + $(this._container).closest(".panel-body").attr("id"))
+                    .height($(this._container).closest("svg").attr('height'));
+            }
+        }else{
+            if($(this._container).height() < $(this._container).find('svg').attr('height')) {
+                $(this._container).height($(this._container).find('svg').attr('height'));
+                $(this._container).find("#" + $(this._container).attr('id')).
+                    height($(this._container).find('svg').attr('height'));
+            }
+        }
     };
 
     /**
