@@ -70,8 +70,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(THROWS).spaceIf(true)
                 .around(MAP_INIT_KEY_VALUE).spaceIf(false)
                 .around(MAP_INIT_KEY_VALUE_LIST).spaceIf(false)
-
-
                 .after(IF).spaceIf(true)
                 .between(RPAREN, LBRACE).spaceIf(true)
                 .around(ELSE_IF_CLAUSE).spaceIf(true)
@@ -80,56 +78,36 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(ELSE, LBRACE).spaceIf(true)
                 .after(WHILE).spaceIf(true)
                 .between(RPAREN, TYPE_NAME).spaceIf(true)
-
                 .after(NEW).spaceIf(true)
                 .after(RETURN).spaceIf(true)
-
                 .after(SERVICE).spaceIf(true)
                 .after(RESOURCE).spaceIf(true)
                 .after(FUNCTION).spaceIf(true)
                 .after(CONNECTOR).spaceIf(true)
                 .after(REPLY).spaceIf(true)
                 .after(TYPECONVERTOR).spaceIf(true)
-
-
                 .between(LBRACK, RBRACK).spaceIf(false)
                 .before(LBRACK).spaceIf(false)
-
                 .between(PACKAGE_NAME, COLON).spaceIf(false)
                 .between(COLON, IDENTIFIER).spaceIf(false)
-
                 .between(IDENTIFIER, DOT).spaceIf(false)
                 .between(DOT, IDENTIFIER).spaceIf(false)
-
-
                 .between(LPAREN, ELEMENT_VALUE).spaceIf(false)
                 .between(ELEMENT_VALUE, RPAREN).spaceIf(false)
-
                 .between(IDENTIFIER, LBRACE).spaceIf(true)
-
                 .before(EXPRESSION_LIST).spaceIf(false)
                 .after(EXPRESSION_LIST).spaceIf(false)
                 .around(EXPRESSION).spaceIf(false)
-
                 .around(RETURN_TYPE_LIST).spaceIf(false)
                 .around(RETURN_PARAMETERS).spaceIf(true)
-
-
                 .after(PACKAGE).spaceIf(true)
-
                 .after(IMPORT).spaceIf(true)
-
                 .after(ANNOTATION_NAME).spaceIf(true)
                 .between(AT, ANNOTATION_NAME).spaceIf(false)
-
                 .between(TYPE_NAME, IDENTIFIER).spaceIf(true)
                 .between(IDENTIFIER, LPAREN).spaceIf(true)
-
-
                 .after(PARAMETER_LIST).spaceIf(false)
                 .before(PARAMETER_LIST).spaceIf(false)
-
-
                 .after(PACKAGE_DECLARATION).blankLines(1)
                 .before(FUNCTION_DEFINITION).blankLines(1)
                 .after(FUNCTION_DEFINITION).blankLines(1)

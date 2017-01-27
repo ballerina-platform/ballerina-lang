@@ -134,7 +134,6 @@ public class BallerinaBlock extends AbstractBlock {
                     }
                 }
 
-
                 Block block = new BallerinaBlock(
                         child,
                         Alignment.createAlignment(),
