@@ -199,8 +199,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
      * @param connection object
      */
     TypeConverterDefinitionView.prototype.onAttributesConnect = function (connection) {
-
-        alert("connected");
+          
     };
 
     /**
@@ -208,7 +207,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
      * @param connection object
      */
     TypeConverterDefinitionView.prototype.onAttributesDisConnect = function (connection) {
-        alert("disconnected");
+ 
     };
 
     return TypeConverterDefinitionView;
