@@ -6,22 +6,22 @@ Docerina is the API documentation generator tool of the Ballerina language.
 
 Follow below steps to generate Ballerina API documentation using Docerina:
 
-1. Clone Docerina git repository:
+- Clone Docerina git repository:
 
-```
-git clone https://github.com/wso2/docerina.git
-```
+  ```
+  git clone https://github.com/wso2/docerina.git
+  ```
 
-2. Build and extract Docerina distribution:
-```
-mvn clean install
-cd target
-unzip docerina-<version>.zip
-```
+- Build and extract Docerina distribution:
+  ```
+  mvn clean install
+  cd target
+  unzip docerina-<version>.zip
+  ```
 
-3. Generate Ballerina API documentation:
+- Generate Ballerina API documentation:
 
-```
-cd docerina-<version>/bin
-./docerina [ballerina-package-path]
-```
+  ```
+  cd docerina-<version>/bin
+  ./docerina [ballerina-package-path]
+  ```
