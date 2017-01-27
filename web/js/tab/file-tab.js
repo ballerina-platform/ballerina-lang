@@ -136,12 +136,6 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
             importDeclaration_langSystem.setParent(ballerinaAstRoot);
             ballerinaAstRoot.addImport(importDeclaration_langSystem);
 
-            //import declarations
-            var importDeclaration_netHttp = BallerinaASTFactory.createImportDeclaration();
-            importDeclaration_netHttp.setPackageName("ballerina.net.http");
-            importDeclaration_netHttp.setParent(ballerinaAstRoot);
-            ballerinaAstRoot.addImport(importDeclaration_netHttp);
-
             return ballerinaAstRoot;
         },
 
