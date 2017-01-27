@@ -1143,7 +1143,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitTypeCastingExpression(BallerinaParser.TypeCastingExpressionContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.createTypeCastInvocationExpr(ctx.typeName().getText(), getCurrentLocation(ctx));
+            modelBuilder.createTypeCastExpr(ctx.typeName().getText(), getCurrentLocation(ctx));
         }
     }
 
