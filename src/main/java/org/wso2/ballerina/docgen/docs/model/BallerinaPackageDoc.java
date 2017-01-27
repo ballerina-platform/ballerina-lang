@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -28,6 +28,7 @@ public class BallerinaPackageDoc {
 
     private String name;
     private List<BallerinaFunctionDoc> functionDocs;
+    private List<BallerinaConnectorDoc> connectorDocs;
 
     /**
      * Constructor
@@ -36,6 +37,7 @@ public class BallerinaPackageDoc {
     public BallerinaPackageDoc(String name) {
         this.name = name;
         functionDocs = new ArrayList<BallerinaFunctionDoc>();
+        connectorDocs = new ArrayList<BallerinaConnectorDoc>();
     }
 
     /**
@@ -52,6 +54,14 @@ public class BallerinaPackageDoc {
      */
     public void addFunctionDoc(BallerinaFunctionDoc ballerinaFunctionDoc) {
         functionDocs.add(ballerinaFunctionDoc);
+    }
+
+    /**
+     * Add a ballerina connector document to the package
+     * @param ballerinaConnectorDoc Ballerina connector document
+     */
+    public void addConnectorDoc(BallerinaConnectorDoc ballerinaConnectorDoc) {
+        connectorDocs.add(ballerinaConnectorDoc);
     }
 
     /**
@@ -78,8 +88,25 @@ public class BallerinaPackageDoc {
         return functionDocs;
     }
 
+    /**
+     * Get ballerina connector documents.
+     * @return
+     */
+    public List<BallerinaConnectorDoc> getBallerinaConnectorDocs() {
+        return connectorDocs;
+    }
+
+    /**
+     * Set ballerina connector documents.
+     * @param connectorDocs Ballerina connector documents
+     */
+    public void setBallerinaConnectorDocs(List<BallerinaConnectorDoc> connectorDocs) {
+        this.connectorDocs = connectorDocs;
+    }
+
     @Override
     public String toString() {
-        return "BallerinaPackageDoc [name=" + name + ", functionDocs=" + functionDocs + "]";
+        return "BallerinaPackageDoc [name=" + name + ", ballerinaFunctionDocs=" + functionDocs
+                + ", ballerinaConnectorDocs=" + connectorDocs + "]";
     }
 }

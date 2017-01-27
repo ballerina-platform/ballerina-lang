@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -71,6 +71,8 @@ import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.docgen.docs.model.BallerinaActionDoc;
+import org.wso2.ballerina.docgen.docs.model.BallerinaConnectorDoc;
 import org.wso2.ballerina.docgen.docs.model.BallerinaFunctionDoc;
 import org.wso2.ballerina.docgen.docs.model.BallerinaPackageDoc;
 import org.wso2.ballerina.docgen.docs.model.BallerinaParameterDoc;
@@ -134,6 +136,52 @@ public class DocumentGenerator implements NodeVisitor {
 
     @Override
     public void visit(BallerinaConnector connector) {
+        BallerinaConnectorDoc doc = new BallerinaConnectorDoc(connector);
+        BallerinaDocDataHolder.getInstance().getBallerinaPackageDocsMap().get(currentPkg)
+                .addConnectorDoc(doc);
+
+        StringBuilder s = new StringBuilder(connector.getConnectorName() + " (");
+        for (Parameter p : connector.getParameters()) {
+            s.append(BallerinaDocUtils.getType(p.getType()) + " " + p.getName() + ",");
+        }
+        doc.setSignature(s.substring(0, s.length() - 1).concat(")"));
+
+        for (BallerinaAction action : connector.getActions()) {
+            BallerinaActionDoc actionDoc = new BallerinaActionDoc(action);
+
+            s = new StringBuilder(connector.getConnectorName() + " (");
+            for (Parameter p : connector.getParameters()) {
+                s.append(BallerinaDocUtils.getType(p.getType()) + " " + p.getName() + ",");
+            }
+            actionDoc.setSignature(s.substring(0, s.length() - 1).concat(")"));
+
+            s = new StringBuilder();
+            for (Parameter p : action.getReturnParameters()) {
+                s.append(BallerinaDocUtils.getType(p.getType()) + ",");
+            }
+            actionDoc.setReturnTypes(s.length() == 0 ? "" : s.substring(0, s.length() - 1));
+
+            for (Annotation annotation : action.getAnnotations()) {
+                if (annotation.getName().equalsIgnoreCase("param")) {
+                    actionDoc.getParameters().add(annotation.getValue());
+                } else if (annotation.getName().equalsIgnoreCase("description")) {
+                    actionDoc.setDescription(annotation.getValue());
+                } else if (annotation.getName().equalsIgnoreCase("return")) {
+                    actionDoc.getReturnParams().add(annotation.getValue());
+                } else if (annotation.getName().equalsIgnoreCase("throws")) {
+                    actionDoc.getThrownExceptions().add(annotation.getValue());
+                }
+            }
+            doc.addAction(actionDoc);
+        }
+
+        for (Annotation annotation : connector.getAnnotations()) {
+            if (annotation.getName().equalsIgnoreCase("param")) {
+                doc.getParameters().add(annotation.getValue());
+            } else if (annotation.getName().equalsIgnoreCase("description")) {
+                doc.setDescription(annotation.getValue());
+            }
+        }
     }
 
     @Override
