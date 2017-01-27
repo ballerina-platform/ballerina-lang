@@ -256,7 +256,6 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
             this.setServiceContainerWidth(this._container.width());
             ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
-            $(this._container).height($(this._container).find('svg').attr('height'));
         };
 
         /**
@@ -367,7 +366,6 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             var staticHeights = childView.getGapBetweenConnectorActions();
             this._totalHeight = this._totalHeight + childView.getBoundingBox().h() + staticHeights;
             this.setServiceContainerHeight(this._totalHeight);
-            $("#" + this._model.id).height($("#" + this._model.id).find("svg").attr('height'));
         };
 
         ConnectorDefinitionView.prototype.canVisitConnectorDeclaration = function (connectorDeclaration) {
