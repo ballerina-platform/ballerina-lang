@@ -38,7 +38,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             throw "Container for Type Converter definition is undefined." + this._container;
         }
         this.init();
-        TypeMapper.init(this.onAttributesConnect,this.onAttributesDisConnect);
+        TypeMapper.init(this.onAttributesConnect(),this.onAttributesDisConnect());
     };
 
     TypeConverterDefinitionView.prototype = Object.create(Canvas.prototype);
@@ -91,11 +91,14 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
 
             var leftTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
             //todo set person value dynamically
-            leftTypeStructDef.setTypeStructName("Employee");
-            leftTypeStructDef.setIdentifier("e");
+            leftTypeStructDef.setTypeStructName("Person");
+            leftTypeStructDef.setIdentifier("p");
             leftTypeStructDef.setSchema(employee);
             leftTypeStructDef.setCategory("SOURCE");
             self._model.addChild(leftTypeStructDef);
+            //self._model.accept(self);
+
+
         });
 
 //        var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
@@ -119,21 +122,23 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             person.addChild(v2);
 
             var rightTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
-            rightTypeStructDef.setTypeStructName("Person");
-            rightTypeStructDef.setIdentifier("p");
+            rightTypeStructDef.setTypeStructName("Employee");
+            rightTypeStructDef.setIdentifier("e");
             rightTypeStructDef.setSchema(person);
             rightTypeStructDef.setCategory("TARGET");
             self._model.addChild(rightTypeStructDef);
+            //self._model.accept(self);
 
             var newVariableDeclaration = BallerinaASTFactory.createVariableDeclaration();
             // Pushing new variable declaration//todo setType
-            newVariableDeclaration.setType("Person");
-            newVariableDeclaration.setIdentifier("p");
+            newVariableDeclaration.setType("Employee");
+            newVariableDeclaration.setIdentifier("e");
             self._model.addChild(newVariableDeclaration);
 
             var newReturnStatement = BallerinaASTFactory.createReturnStatement();
-            newReturnStatement.setReturnExpression("p");
+            newReturnStatement.setReturnExpression("e");
             self._model.addChild(newReturnStatement);
+
         });
 
         this._container = currentContainer;
@@ -194,8 +199,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
      * @param connection object
      */
     TypeConverterDefinitionView.prototype.onAttributesConnect = function (connection) {
-
-        alert("connected");
+          
     };
 
     /**
@@ -203,7 +207,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
      * @param connection object
      */
     TypeConverterDefinitionView.prototype.onAttributesDisConnect = function (connection) {
-        alert("disconnected");
+
     };
 
     return TypeConverterDefinitionView;

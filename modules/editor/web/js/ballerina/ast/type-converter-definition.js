@@ -26,22 +26,28 @@ define(['lodash', './node'], function (_, ASTNode) {
     TypeConverterDefinition.prototype = Object.create(ASTNode.prototype);
     TypeConverterDefinition.prototype.constructor = TypeConverterDefinition;
 
+    /**
+     * Set the type converter name
+     * @param typeConverterName
+     */
     TypeConverterDefinition.prototype.setTypeConverterName = function (typeConverterName) {
         if (!_.isNil(typeConverterName)) {
             this._typeConverterName = typeConverterName;
         }
     };
 
+    /**
+     * returns the type converter name
+     * @returns {string} type converter name
+     */
     TypeConverterDefinition.prototype.getTypeConverterName = function () {
         return this._typeConverterName;
     };
 
-    TypeConverterDefinition.prototype.setVariableDeclarations = function (variableDeclarations) {
-        if (!_.isNil(variableDeclarations)) {
-            this.variableDeclarations = variableDeclarations;
-        }
-    };
-
+    /**
+     * return variable declarations
+     * @returns {Array} variable declarations array
+     */
     TypeConverterDefinition.prototype.getVariableDeclarations = function () {
         var variableDeclarations = [];
         var self = this;
@@ -52,6 +58,67 @@ define(['lodash', './node'], function (_, ASTNode) {
             }
         });
         return variableDeclarations;
+    };
+
+    /**
+     * Add variable declaration
+     * @param newVariableDeclaration
+     */
+    TypeConverterDefinition.prototype.addVariableDeclaration = function (newVariableDeclaration) {
+        // Get the index of the last variable declaration.
+        var self = this;
+
+        var index = _.findLastIndex(this.getChildren(), function (child) {
+            return self.BallerinaASTFactory.isVariableDeclaration(child);
+        });
+
+        this.addChild(newVariableDeclaration, index + 1);
+    };
+
+    /**
+     * Remove variable declaration
+     * @param variableDeclarationIdentifier
+     */
+    TypeConverterDefinition.prototype.removeVariableDeclaration = function (variableDeclarationIdentifier) {
+        var self = this;
+        // Removing the variable from the children.
+        var variableDeclarationChild = _.find(this.getChildren(), function (child) {
+            return self.BallerinaASTFactory.isVariableDeclaration(child)
+                && child.getIdentifier() === variableDeclarationIdentifier;
+        });
+        this.removeChild(variableDeclarationChild);
+    };
+    
+    /**
+     * Gets the return type
+     * @return {string} - Return type.
+     */
+    TypeConverterDefinition.prototype.getReturnType = function () {
+        var returnType = "";
+        var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.BallerinaASTFactory.isTypeStructDefinition(child) && child._category === "TARGET") {
+                returnType = child.getTypeStructName();
+            }
+        });
+        return returnType;
+    };
+
+    /**
+     * returns the argument
+     * @returns {String} argument
+     */
+    TypeConverterDefinition.prototype.getSourceAndIdentifier = function () {
+       var sourceAndIdentifier = "";
+       var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.BallerinaASTFactory.isTypeStructDefinition(child) && child._category === "SOURCE") {
+                sourceAndIdentifier = child.getTypeStructName() + " " + child.getIdentifier();
+            }
+        });
+        return sourceAndIdentifier;
     };
 
     return TypeConverterDefinition;
