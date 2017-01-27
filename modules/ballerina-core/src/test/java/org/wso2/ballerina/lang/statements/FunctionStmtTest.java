@@ -24,10 +24,10 @@ import org.wso2.ballerina.core.exception.LinkerException;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Function;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnString;
 import org.wso2.ballerina.core.utils.FunctionUtils;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.nativeimpl.lang.system.PrintlnString;
 
 /**
  * Validate Function statement.

@@ -16,7 +16,7 @@
  * under the License.
  **/
 
-package org.wso2.ballerina.core.nativeimpl.lang.json;
+package org.wso2.ballerina.nativeimpl.lang.json;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
@@ -34,7 +34,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
-import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
+import org.wso2.ballerina.nativeimpl.lang.utils.ErrorHandler;
 
 /**
  * Evaluate jsonpath on a JSON object and returns the integer value.

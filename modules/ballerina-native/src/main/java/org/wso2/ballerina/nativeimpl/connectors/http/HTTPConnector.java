@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.ballerina.core.nativeimpl.connectors.http.client;
+package org.wso2.ballerina.nativeimpl.connectors.http;
 
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.model.types.TypeEnum;

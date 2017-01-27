@@ -18,163 +18,6 @@
 
 package org.wso2.ballerina.core.runtime.internal;
 
-import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.model.Symbol;
-import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.util.LangModelUtils;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
-import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
-import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Delete;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Execute;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Get;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.client.HTTPConnector;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Patch;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Post;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Put;
-import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayCopyOf;
-import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayLength;
-import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayRangeCopy;
-import org.wso2.ballerina.core.nativeimpl.lang.array.FloatArrayCopyOf;
-import org.wso2.ballerina.core.nativeimpl.lang.array.FloatArrayLength;
-import org.wso2.ballerina.core.nativeimpl.lang.array.FloatArrayRangeCopy;
-import org.wso2.ballerina.core.nativeimpl.lang.array.IntArrayCopyOf;
-import org.wso2.ballerina.core.nativeimpl.lang.array.IntArrayLength;
-import org.wso2.ballerina.core.nativeimpl.lang.array.IntArrayRangeCopy;
-import org.wso2.ballerina.core.nativeimpl.lang.array.JsonArrayCopyOf;
-import org.wso2.ballerina.core.nativeimpl.lang.array.JsonArrayLength;
-import org.wso2.ballerina.core.nativeimpl.lang.array.JsonArrayRangeCopy;
-import org.wso2.ballerina.core.nativeimpl.lang.array.LongArrayCopyOf;
-import org.wso2.ballerina.core.nativeimpl.lang.array.LongArrayLength;
-import org.wso2.ballerina.core.nativeimpl.lang.array.LongArrayRangeCopy;
-import org.wso2.ballerina.core.nativeimpl.lang.array.MessageArrayCopyOf;
-import org.wso2.ballerina.core.nativeimpl.lang.array.MessageArrayLength;
-import org.wso2.ballerina.core.nativeimpl.lang.array.MessageArrayRangeCopy;
-import org.wso2.ballerina.core.nativeimpl.lang.array.StringArrayCopyOf;
-import org.wso2.ballerina.core.nativeimpl.lang.array.StringArrayLength;
-import org.wso2.ballerina.core.nativeimpl.lang.array.StringArrayRangeCopy;
-import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayCopyOf;
-import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayLength;
-import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayRangeCopy;
-import org.wso2.ballerina.core.nativeimpl.lang.convertors.JSONToString;
-import org.wso2.ballerina.core.nativeimpl.lang.convertors.JSONToXML;
-import org.wso2.ballerina.core.nativeimpl.lang.convertors.StringToJSON;
-import org.wso2.ballerina.core.nativeimpl.lang.convertors.StringToXML;
-import org.wso2.ballerina.core.nativeimpl.lang.convertors.XMLToJSON;
-import org.wso2.ballerina.core.nativeimpl.lang.convertors.XMLToString;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddBooleanToArray;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddBooleanToObject;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddDoubleToArray;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddDoubleToObject;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddFloatToArray;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddFloatToObject;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddIntToArray;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddIntToObject;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddJSONToArray;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddJSONToObject;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddStringToArray;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddStringToObject;
-import org.wso2.ballerina.core.nativeimpl.lang.json.GetBoolean;
-import org.wso2.ballerina.core.nativeimpl.lang.json.GetDouble;
-import org.wso2.ballerina.core.nativeimpl.lang.json.GetFloat;
-import org.wso2.ballerina.core.nativeimpl.lang.json.GetInt;
-import org.wso2.ballerina.core.nativeimpl.lang.json.GetJSON;
-import org.wso2.ballerina.core.nativeimpl.lang.json.GetString;
-import org.wso2.ballerina.core.nativeimpl.lang.json.Remove;
-import org.wso2.ballerina.core.nativeimpl.lang.json.Rename;
-import org.wso2.ballerina.core.nativeimpl.lang.json.SetBoolean;
-import org.wso2.ballerina.core.nativeimpl.lang.json.SetDouble;
-import org.wso2.ballerina.core.nativeimpl.lang.json.SetFloat;
-import org.wso2.ballerina.core.nativeimpl.lang.json.SetInt;
-import org.wso2.ballerina.core.nativeimpl.lang.json.SetJSON;
-import org.wso2.ballerina.core.nativeimpl.lang.json.SetString;
-import org.wso2.ballerina.core.nativeimpl.lang.json.ToString;
-import org.wso2.ballerina.core.nativeimpl.lang.map.GetKeys;
-import org.wso2.ballerina.core.nativeimpl.lang.message.AddHeader;
-import org.wso2.ballerina.core.nativeimpl.lang.message.Clone;
-import org.wso2.ballerina.core.nativeimpl.lang.message.GetHeader;
-import org.wso2.ballerina.core.nativeimpl.lang.message.GetHeaders;
-import org.wso2.ballerina.core.nativeimpl.lang.message.GetJsonPayload;
-import org.wso2.ballerina.core.nativeimpl.lang.message.GetStringPayload;
-import org.wso2.ballerina.core.nativeimpl.lang.message.GetXMLPayload;
-import org.wso2.ballerina.core.nativeimpl.lang.message.RemoveHeader;
-import org.wso2.ballerina.core.nativeimpl.lang.message.SetHeader;
-import org.wso2.ballerina.core.nativeimpl.lang.message.SetJsonPayload;
-import org.wso2.ballerina.core.nativeimpl.lang.message.SetStringPayload;
-import org.wso2.ballerina.core.nativeimpl.lang.message.SetXMLPayload;
-import org.wso2.ballerina.core.nativeimpl.lang.string.BooleanValueOf;
-import org.wso2.ballerina.core.nativeimpl.lang.string.Contains;
-import org.wso2.ballerina.core.nativeimpl.lang.string.DoubleValueOf;
-import org.wso2.ballerina.core.nativeimpl.lang.string.EqualsIgnoreCase;
-import org.wso2.ballerina.core.nativeimpl.lang.string.FloatValueOf;
-import org.wso2.ballerina.core.nativeimpl.lang.string.HasPrefix;
-import org.wso2.ballerina.core.nativeimpl.lang.string.HasSuffix;
-import org.wso2.ballerina.core.nativeimpl.lang.string.IndexOf;
-import org.wso2.ballerina.core.nativeimpl.lang.string.IntValueOf;
-import org.wso2.ballerina.core.nativeimpl.lang.string.JsonValueOf;
-import org.wso2.ballerina.core.nativeimpl.lang.string.LastIndexOf;
-import org.wso2.ballerina.core.nativeimpl.lang.string.Length;
-import org.wso2.ballerina.core.nativeimpl.lang.string.LongValueOf;
-import org.wso2.ballerina.core.nativeimpl.lang.string.Replace;
-import org.wso2.ballerina.core.nativeimpl.lang.string.ReplaceAll;
-import org.wso2.ballerina.core.nativeimpl.lang.string.ReplaceFirst;
-import org.wso2.ballerina.core.nativeimpl.lang.string.StringValueOf;
-import org.wso2.ballerina.core.nativeimpl.lang.string.ToLowerCase;
-import org.wso2.ballerina.core.nativeimpl.lang.string.ToUpperCase;
-import org.wso2.ballerina.core.nativeimpl.lang.string.Trim;
-import org.wso2.ballerina.core.nativeimpl.lang.string.Unescape;
-import org.wso2.ballerina.core.nativeimpl.lang.string.XmlValueOf;
-import org.wso2.ballerina.core.nativeimpl.lang.system.CurrentTimeMillis;
-import org.wso2.ballerina.core.nativeimpl.lang.system.EpochTime;
-import org.wso2.ballerina.core.nativeimpl.lang.system.LogBoolean;
-import org.wso2.ballerina.core.nativeimpl.lang.system.LogDouble;
-import org.wso2.ballerina.core.nativeimpl.lang.system.LogFloat;
-import org.wso2.ballerina.core.nativeimpl.lang.system.LogInt;
-import org.wso2.ballerina.core.nativeimpl.lang.system.LogLong;
-import org.wso2.ballerina.core.nativeimpl.lang.system.LogString;
-import org.wso2.ballerina.core.nativeimpl.lang.system.NanoTime;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintBoolean;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintDouble;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintFloat;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintInt;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintJSON;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintLong;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintString;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintXML;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnBoolean;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnDouble;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnFloat;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnInt;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnJSON;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnLong;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnString;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnXML;
-import org.wso2.ballerina.core.nativeimpl.lang.xml.AddAttribute;
-import org.wso2.ballerina.core.nativeimpl.lang.xml.AddAttributeWithNamespaces;
-import org.wso2.ballerina.core.nativeimpl.lang.xml.AddElement;
-import org.wso2.ballerina.core.nativeimpl.lang.xml.AddElementWithNamespaces;
-import org.wso2.ballerina.core.nativeimpl.lang.xml.GetXML;
-import org.wso2.ballerina.core.nativeimpl.lang.xml.GetXMLWithNamespaces;
-import org.wso2.ballerina.core.nativeimpl.lang.xml.SetXML;
-import org.wso2.ballerina.core.nativeimpl.lang.xml.SetXMLWithNamespaces;
-import org.wso2.ballerina.core.nativeimpl.net.http.AcceptAndReturn;
-import org.wso2.ballerina.core.nativeimpl.net.http.ConvertToResponse;
-import org.wso2.ballerina.core.nativeimpl.net.http.GetContentLength;
-import org.wso2.ballerina.core.nativeimpl.net.http.GetMethod;
-import org.wso2.ballerina.core.nativeimpl.net.http.GetStatusCode;
-import org.wso2.ballerina.core.nativeimpl.net.http.SetContentLength;
-import org.wso2.ballerina.core.nativeimpl.net.http.SetReasonPhrase;
-import org.wso2.ballerina.core.nativeimpl.net.http.SetStatusCode;
-import org.wso2.ballerina.core.nativeimpl.net.uri.Encode;
-import org.wso2.ballerina.core.nativeimpl.net.uri.GetQueryParam;
-import org.wso2.ballerina.core.nativeimpl.util.GetHmac;
-import org.wso2.ballerina.core.nativeimpl.util.GetRandomString;
-
-
 /**
  * {@code BuiltInNativeConstructLoader} is responsible for loading built-in native constructs in the ballerina core.
  * itself.
@@ -189,13 +32,12 @@ public class BuiltInNativeConstructLoader {
 
 
     public static void loadConstructs() {
-        loadNativeFunctions();
-        loadNativeTypeConverters();
+//        loadNativeFunctions();
+//        loadNativeTypeConverters();
+        // TODO
     }
 
-    /**
-     * Load native functions to the runtime.
-     */
+/*
     private static void loadNativeFunctions() {
         SymScope scope = GlobalScopeHolder.getInstance().getScope();
 
@@ -325,17 +167,17 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new AddAttributeWithNamespaces());
         registerFunction(scope, new AddElement());
         registerFunction(scope, new AddElementWithNamespaces());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.GetString());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.GetStringWithNamespaces());
+        registerFunction(scope, new org.wso2.ballerina.nativeimpl.lang.xml.GetString());
+        registerFunction(scope, new org.wso2.ballerina.nativeimpl.lang.xml.GetStringWithNamespaces());
         registerFunction(scope, new GetXML());
         registerFunction(scope, new GetXMLWithNamespaces());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.Remove());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.RemoveWithNamespaces());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.SetString());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.SetStringWithNamespaces());
+        registerFunction(scope, new org.wso2.ballerina.nativeimpl.lang.xml.Remove());
+        registerFunction(scope, new org.wso2.ballerina.nativeimpl.lang.xml.RemoveWithNamespaces());
+        registerFunction(scope, new org.wso2.ballerina.nativeimpl.lang.xml.SetString());
+        registerFunction(scope, new org.wso2.ballerina.nativeimpl.lang.xml.SetStringWithNamespaces());
         registerFunction(scope, new SetXML());
         registerFunction(scope, new SetXMLWithNamespaces());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.ToString());
+        registerFunction(scope, new org.wso2.ballerina.nativeimpl.lang.xml.ToString());
 
         // lang.util
         registerFunction(scope, new GetHmac());
@@ -353,8 +195,8 @@ public class BuiltInNativeConstructLoader {
 
         // lang.map
         registerFunction(scope, new GetKeys());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.map.Length());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.map.Remove());
+        registerFunction(scope, new org.wso2.ballerina.nativeimpl.lang.map.Length());
+        registerFunction(scope, new org.wso2.ballerina.nativeimpl.lang.map.Remove());
 
         //http
         registerFunction(scope, new ConvertToResponse());
@@ -371,6 +213,7 @@ public class BuiltInNativeConstructLoader {
         registerAction(scope, new Patch());
 
     }
+*/
 
     /**
      * Add Native Function instance to given SymScope.
@@ -378,7 +221,7 @@ public class BuiltInNativeConstructLoader {
      * @param symScope SymScope instance.
      * @param function Function instance.
      */
-    private static void registerFunction(SymScope symScope, AbstractNativeFunction function) {
+    /*private static void registerFunction(SymScope symScope, AbstractNativeFunction function) {
 
         BallerinaFunction functionNameAnnotation = function.getClass().getAnnotation(BallerinaFunction.class);
         if (functionNameAnnotation == null) {
@@ -390,14 +233,14 @@ public class BuiltInNativeConstructLoader {
                         functionNameAnnotation.functionName(), function.getParameters());
         Symbol symbol = new Symbol(function);
         symScope.insert(symbolName, symbol);
-    }
+    }*/
 
     /**
      * Register Native Action.
      *
      * @param action AbstractNativeAction instance.
      */
-    public static void registerAction(SymScope symScope, AbstractNativeAction action) {
+    /*public static void registerAction(SymScope symScope, AbstractNativeAction action) {
         String actionName = action.getSymbolName().getName();
         SymbolName symbolName = LangModelUtils.getSymNameWithParams(actionName, action.getParameters());
         Symbol symbol = new Symbol(action);
@@ -427,7 +270,7 @@ public class BuiltInNativeConstructLoader {
         registerTypeConverter(scope, new XMLToString());
         registerTypeConverter(scope, new JSONToString());
 
-    }
+    }*/
 
     /**
      * Add Native TypeConvertor instance to given SymScope.
@@ -435,7 +278,7 @@ public class BuiltInNativeConstructLoader {
      * @param symScope SymScope instance.
      * @param typeConvertor TypeConvertor instance.
      */
-    private static void registerTypeConverter(SymScope symScope, AbstractNativeTypeConvertor typeConvertor) {
+    /*private static void registerTypeConverter(SymScope symScope, AbstractNativeTypeConvertor typeConvertor) {
         BallerinaTypeConvertor typeConverterNameAnnotation = typeConvertor.getClass()
                 .getAnnotation(BallerinaTypeConvertor.class);
         if (typeConverterNameAnnotation == null) {
@@ -448,5 +291,5 @@ public class BuiltInNativeConstructLoader {
         Symbol symbol = new Symbol(typeConvertor);
         symScope.insert(symbolName, symbol);
 
-    }
+    }*/
 }

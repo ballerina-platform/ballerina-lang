@@ -103,7 +103,7 @@ import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.model.values.BString;
-import org.wso2.ballerina.core.nativeimpl.lang.convertors.NativeCastConvertor;
+import org.wso2.ballerina.core.nativeimpl.convertors.NativeCastConvertor;
 
 import java.util.Arrays;
 import java.util.HashMap;

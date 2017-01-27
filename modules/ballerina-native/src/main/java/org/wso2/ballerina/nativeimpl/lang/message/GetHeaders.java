@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.lang.message;
+package org.wso2.ballerina.nativeimpl.lang.message;
 
 
 import org.wso2.ballerina.core.interpreter.Context;

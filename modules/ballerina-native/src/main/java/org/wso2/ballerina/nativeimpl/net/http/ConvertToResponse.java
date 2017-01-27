@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.core.nativeimpl.net.http;
+package org.wso2.ballerina.nativeimpl.net.http;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
@@ -41,10 +41,10 @@ public class ConvertToResponse extends AbstractNativeFunction {
                 equals(ctx.getCarbonMessage().getProperty(org.wso2.carbon.messaging.Constants.DIRECTION))) {
             // getting the Content-Type of request message
             String requestContentType = ctx.getCarbonMessage().getHeader(
-                    org.wso2.ballerina.core.nativeimpl.lang.utils.Constants.CONTENT_TYPE);
+                    org.wso2.ballerina.nativeimpl.lang.utils.Constants.CONTENT_TYPE);
             ctx.getCarbonMessage().getHeaders().clear();
             // setting the request Content-Type for response message
-            ctx.getCarbonMessage().setHeader(org.wso2.ballerina.core.nativeimpl.lang.utils.Constants.CONTENT_TYPE
+            ctx.getCarbonMessage().setHeader(org.wso2.ballerina.nativeimpl.lang.utils.Constants.CONTENT_TYPE
                     , requestContentType);
             // Set any intermediate headers set during ballerina execution
             if (ctx.getCarbonMessage().getProperty(Constants.INTERMEDIATE_HEADERS) != null) {

@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.core.nativeimpl.lang.utils;
+package org.wso2.ballerina.nativeimpl.lang.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

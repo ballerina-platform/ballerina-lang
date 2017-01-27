@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.connectors.http.server;
+package org.wso2.ballerina.core.runtime.dispatching;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +24,7 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
-import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
+import org.wso2.ballerina.core.runtime.listner.HTTPListenerManager;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
