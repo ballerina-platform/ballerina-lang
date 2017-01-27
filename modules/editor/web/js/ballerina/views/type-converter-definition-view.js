@@ -65,6 +65,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         var divId = this._model.id;
         var currentContainer = $('#' + divId);
         var self = this;
+        this._assignedModel = this;
 
         var selectorContainer = $('<div class="selector"><div class="source-view"><span>Source :</span><select id="sourceStructs">' +
             '</select></div><div class="target-view"><span>Target :</span><select id="targetStructs"></select></div></div>');
@@ -74,10 +75,10 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         currentContainer.find('svg').parent().append(dataMapperContainer);
         currentContainer.find('svg').remove();
 
-        this.loadSchemas("#sourceStructs");
-        this.loadSchemas("#targetStructs");
+        this.loadSchemas(currentContainer,"#sourceStructs");
+        this.loadSchemas(currentContainer,"#targetStructs");
 
-        $("#sourceStructs").change(function() {
+        $(currentContainer).find("#sourceStructs").change(function() {
 
             var employee = BallerinaASTFactory.createStructDefinition();
             employee.setStructName("Employee");
@@ -110,7 +111,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
 //        assignmentStmt.addChild(leftOp);
 //        assignmentStmt.addChild(rightOp);
 
-        $("#targetStructs").change(function() {
+        $(currentContainer).find("#targetStructs").change(function() {
 
             var person = BallerinaASTFactory.createStructDefinition();
             person.setStructName("Person");
@@ -175,12 +176,12 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         return this._rootGroup;
     };
 
-    TypeConverterDefinitionView.prototype.loadSchemas = function (selectId) {
+    TypeConverterDefinitionView.prototype.loadSchemas = function (parentId,selectId) {
 
         var types = ['-select-','employee','student','person'];
 
         for (var i = 0; i < types.length; i++) {
-            $(selectId).append('<option value="'+i+'">'+types[i]+'</option>');
+            $(parentId).find(selectId).append('<option value="'+i+'">'+types[i]+'</option>');
 
         };
 
@@ -216,10 +217,12 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         assignmentStmt.addChild(leftOp);
         assignmentStmt.addChild(rightOp);
 
-        this._model.addChild(assignmentStmt);
+        connection.targetReference.getParent().addChild(assignmentStmt);
 
 
     };
+
+
 
     /**
      * Receives the attributes disconnected
@@ -227,6 +230,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
      */
     TypeConverterDefinitionView.prototype.onAttributesDisConnect = function (connection) {
 
+        alert(888);
     };
 
     return TypeConverterDefinitionView;
