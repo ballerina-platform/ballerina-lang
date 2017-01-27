@@ -38,7 +38,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             throw "Container for Type Converter definition is undefined." + this._container;
         }
         this.init();
-        TypeMapper.init(this.onAttributesConnect(),this.onAttributesDisConnect());
+        this._typeMapper = new TypeMapper(this.onAttributesConnect,this.onAttributesDisConnect);
     };
 
     TypeConverterDefinitionView.prototype = Object.create(Canvas.prototype);
@@ -95,9 +95,8 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             leftTypeStructDef.setIdentifier("p");
             leftTypeStructDef.setSchema(employee);
             leftTypeStructDef.setCategory("SOURCE");
+            leftTypeStructDef.setDataMapperInstance(self._typeMapper);
             self._model.addChild(leftTypeStructDef);
-            //self._model.accept(self);
-
 
         });
 
@@ -126,8 +125,9 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             rightTypeStructDef.setIdentifier("e");
             rightTypeStructDef.setSchema(person);
             rightTypeStructDef.setCategory("TARGET");
+            rightTypeStructDef.setDataMapperInstance(self._typeMapper);
             self._model.addChild(rightTypeStructDef);
-            //self._model.accept(self);
+
 
             var newVariableDeclaration = BallerinaASTFactory.createVariableDeclaration();
             // Pushing new variable declaration//todo setType
@@ -199,7 +199,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
      * @param connection object
      */
     TypeConverterDefinitionView.prototype.onAttributesConnect = function (connection) {
-          
+          alert("connected");
     };
 
     /**
@@ -207,7 +207,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
      * @param connection object
      */
     TypeConverterDefinitionView.prototype.onAttributesDisConnect = function (connection) {
-
+        alert("disconnected");
     };
 
     return TypeConverterDefinitionView;
