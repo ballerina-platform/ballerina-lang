@@ -217,8 +217,10 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         assignmentStmt.addChild(leftOp);
         assignmentStmt.addChild(rightOp);
 
-        connection.targetReference.getParent().addChild(assignmentStmt);
-
+        var index = _.findLastIndex(connection.targetReference.getParent().getChildren(), function (child) {
+            return connection.targetReference.getParent().BallerinaASTFactory.isVariableDeclaration(child);
+        });
+        connection.targetReference.getParent().addChild(assignmentStmt, index + 1);
 
     };
 
