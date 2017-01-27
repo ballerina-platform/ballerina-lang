@@ -16,6 +16,7 @@
 
 package org.ballerinalang.plugins.idea;
 
+import com.intellij.notification.NotificationGroup;
 import org.jetbrains.annotations.NonNls;
 
 public class BallerinaConstants {
@@ -29,5 +30,8 @@ public class BallerinaConstants {
 
     @NonNls
     public static final String BALLERINA_VERSION_FILE_PATH = "bin/version.txt";
+
+    public static final NotificationGroup BALLERINA_NOTIFICATION_GROUP =
+            NotificationGroup.balloonGroup("Ballerina plugin notifications");
 
 }

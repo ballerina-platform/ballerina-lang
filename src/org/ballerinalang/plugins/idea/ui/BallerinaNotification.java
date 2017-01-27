@@ -14,14 +14,14 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.ui;
+package org.ballerinalang.plugins.idea.ui;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.components.ApplicationComponent;
-import org.ballerinalang.BallerinaConstants;
+import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.jetbrains.annotations.NotNull;
 
 public class BallerinaNotification implements ApplicationComponent {
@@ -44,8 +44,8 @@ public class BallerinaNotification implements ApplicationComponent {
         }
 
         Notifications.Bus.notify(BallerinaConstants.BALLERINA_NOTIFICATION_GROUP.createNotification(
-                "Learn Ballerina", "Visit <a href=\"http://ballerinalang.org\">Ballerina website<a/>" +
-                        " to learn more about Ballerina.",
+                "Learn Ballerina",
+                "Visit <a href=\"http://ballerinalang.org\">Ballerina website<a/> to learn more about Ballerina.",
                 NotificationType.INFORMATION,
                 NotificationListener.URL_OPENING_LISTENER));
     }
