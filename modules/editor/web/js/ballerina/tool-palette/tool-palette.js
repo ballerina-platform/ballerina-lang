@@ -16,10 +16,10 @@
  * under the License.
  */
 define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-group',
-        'main_elements', 'processors', './drag-drop-manager', './../ast/ballerina-ast-factory','./initial-definitions',
+        './drag-drop-manager', './../ast/ballerina-ast-factory','./initial-definitions',
         './../search/search', './../search/import-search-adapter', 'mousetrap' ],
     function (require, log, $, Backbone, ToolGroupView, ToolGroup,
-              MainElements, Processors, DragDropManager, BallerinaASTFactory, initialTools, Search, ImportSearchAdapter, Mousetrap) {
+              DragDropManager, BallerinaASTFactory, initialTools, Search, ImportSearchAdapter, Mousetrap) {
 
     var ToolPalette = Backbone.View.extend({
         initialize: function (options) {
@@ -97,7 +97,7 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
 
             var importForm = $('<div class="tool-import-wrapper">'+
                                '<div class="tool-group-import-header">'+
-                               '  <a class="tool-group-header-title">Imports</a> ( Ctrl + I )'+
+                               '  <a class="tool-group-header-title">Imports</a> '+
                                '  <span id="addImportSearch" class="tool-import-icon fw-stack fw-lg">'+
                                '      <i class="fw fw-square fw-stack-2x"></i>'+
                                '      <i class="fw fw-add fw-stack-1x fw-inverse"></i>'+
@@ -161,35 +161,46 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
          */
         addImport: function(package){
             var import_pkg = package;
-            if(_.find(this._imports, function(o){ return (o.name == import_pkg.name) }) != undefined){
+            if (_.find(this._imports, function (_import) {
+                    return (_import.getName() == import_pkg.getName())
+                }) != undefined) {
                 return false;
-            }            
+            }
 
             var definitions = [];
-            _.forEach( package.connectors , function(connector) {
-                connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
+            _.each(package.getConnectors(), function (connector) {
+                var packageName = _.last(_.split(import_pkg.getName(), '.'));
+                connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration
                 connector.meta = {
-                    connectorName: connector.name,
-                    connectorPackageName: import_pkg.name
-                };               
+                    connectorName: connector.getName(),
+                    connectorPackageName: packageName
+                };
+                //TODO : use a generic icon
+                connector.icon = "images/tool-icons/http.svg";
+                connector.title = connector.getTitle();
                 definitions.push(connector);
-                if(connector['actions'] != undefined){
-                    _.forEach(connector.actions , function(action ,index, collection){
-                        /* We need to add a special class to actions to indent them in tool palette. */
-                        action.classNames = "tool-connector-action";
-                        if( (index + 1 ) == collection.length){
-                            action.classNames = "tool-connector-action tool-connector-last-action";
-                        }
-                        action.nodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression
-                        definitions.push(action);
-                    });
-                }
+                _.each(connector.getActions(), function (action, index, collection) {
+                    /* We need to add a special class to actions to indent them in tool palette. */
+                    action.classNames = "tool-connector-action";
+                    if ((index + 1 ) == collection.length) {
+                        action.classNames = "tool-connector-action tool-connector-last-action";
+                    }
+                    action.meta = {
+                        action: action.getAction(),
+                        actionConnectorName : connector.getName(),
+                        actionPackageName : packageName
+                    };
+                    action.icon = "images/tool-icons/http.svg";
+                    action.title = action.getTitle();
+                    action.nodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression
+                    definitions.push(action);
+                });
             });
 
             this._imports.push(package);
             var group = new ToolGroup({
-                toolGroupName: package.name,
-                toolGroupID: package.name + "-tool-group",
+                toolGroupName: package.getName(),
+                toolGroupID: package.getName() + "-tool-group",
                 toolOrder: "vertical",
                 toolDefinitions: definitions
             });
@@ -201,7 +212,7 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             var group = groupView.render(this.$el.find('.tool-import-wrapper'), _.isEqual('vertical', group.get('toolOrder')));
             this.$el.addClass('non-user-selectable');
 
-            this.ballerinaFileEditor.importPackage(package.name);
+            this.ballerinaFileEditor.importPackage(package.getName());
         },
 
         addConnectorTool: function(toolDef){
