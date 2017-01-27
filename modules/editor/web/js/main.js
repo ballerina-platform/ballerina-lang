@@ -56,17 +56,19 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
             // init breadcrumbs controller
             this.breadcrumbController = new BreadcrumbController(breadCrumbsOpts);
 
-            //init workspace explorer
-            var workspaceExplorerOpts = _.get(this.config, "workspace_explorer");
-            _.set(workspaceExplorerOpts, 'application', this);
-            this.workspaceExplorer = new Workspace.Explorer(workspaceExplorerOpts);
-
             //init tab controller
             var tabControlOpts = _.get(this.config, "tab_controller");
             _.set(tabControlOpts, 'application', this);
 
             // tab controller will take care of rendering tool palette
             this.tabController = new TabController(tabControlOpts);
+            this.workspaceManager.listenToTabController();
+
+            //init workspace explorer
+            var workspaceExplorerOpts = _.get(this.config, "workspace_explorer");
+            _.set(workspaceExplorerOpts, 'application', this);
+            this.workspaceExplorer = new Workspace.Explorer(workspaceExplorerOpts);
+
         },
 
         validateConfig: function(config){

@@ -21,13 +21,14 @@ package org.wso2.ballerina.core.model;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.TypeCastExpression;
 import org.wso2.ballerina.core.model.types.BTypes;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code BallerinaFile} represent a content of a Ballerina source file
+ * {@code BallerinaFile} represent a content of a Ballerina source file.
  * <p>
  * A Ballerina file is structured as follows:
  * <p>
@@ -50,12 +51,12 @@ public class BallerinaFile implements Node {
     private List<Service> services = new ArrayList<>();
     private List<BallerinaConnector> connectorList = new ArrayList<>();
     private Function[] functions;
+    private TypeConvertor[] typeConvertors;
     private Function mainFunction;
     private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
     private List<ActionInvocationExpr> actionIExprList = new ArrayList<>();
     private Const[] consts;
-    //TODO: add TypeConverters
-    //TODO: add constants
+    private BallerinaStruct[] structs;
 
     private int sizeOfStaticMem;
 
@@ -70,7 +71,9 @@ public class BallerinaFile implements Node {
             Function mainFunction,
             List<FunctionInvocationExpr> funcIExprList,
             List<ActionInvocationExpr> actionInvocationExpr,
-            Const[] consts) {
+            Const[] consts,
+            BallerinaStruct[] structs,
+            TypeConvertor[] typeConvertors) {
 
         this.packageName = packageName;
         this.importPackages = importPackages;
@@ -81,6 +84,8 @@ public class BallerinaFile implements Node {
         this.funcIExprList = funcIExprList;
         this.actionIExprList = actionInvocationExpr;
         this.consts = consts;
+        this.structs = structs;
+        this.typeConvertors = typeConvertors;
 
         packageScope = new SymScope(SymScope.Name.PACKAGE);
     }
@@ -95,7 +100,7 @@ public class BallerinaFile implements Node {
     }
 
     /**
-     * Set the package name which file belongs to
+     * Set the package name which file belongs to.
      *
      * @param packageName name of the package
      */
@@ -104,7 +109,7 @@ public class BallerinaFile implements Node {
     }
 
     /**
-     * Get {@code Import} statements the file
+     * Get {@code Import} statements the file.
      *
      * @return list of imports
      */
@@ -117,7 +122,7 @@ public class BallerinaFile implements Node {
     }
 
     /**
-     * Get list of Connectors
+     * Get list of Connectors.
      *
      * @return connectors list
      */
@@ -126,7 +131,7 @@ public class BallerinaFile implements Node {
     }
 
     /**
-     * Get {@code BallerinaConnector} defined the file
+     * Get {@code BallerinaConnector} defined the file.
      *
      * @return list of imports
      */
@@ -135,7 +140,7 @@ public class BallerinaFile implements Node {
     }
 
     /**
-     * Get {@code Service} list defined in the file
+     * Get {@code Service} list defined in the file.
      *
      * @return list of Services
      */
@@ -144,7 +149,7 @@ public class BallerinaFile implements Node {
     }
 
     /**
-     * Set {@code Service} list
+     * Set {@code Service} list.
      *
      * @param services list of Services
      */
@@ -153,7 +158,7 @@ public class BallerinaFile implements Node {
     }
 
     /**
-     * Add a {@code Service} to the File
+     * Add a {@code Service} to the File.
      *
      * @param service a Service
      */
@@ -165,8 +170,16 @@ public class BallerinaFile implements Node {
         return functions;
     }
 
+    public TypeConvertor[] getTypeConvertors() {
+        return typeConvertors;
+    }
+
     public Function getMainFunction() {
         return this.mainFunction;
+    }
+    
+    public BallerinaStruct[] getStructs() {
+        return this.structs;
     }
 
     public void addFuncInvocationExpr(FunctionInvocationExpr expr) {
@@ -207,7 +220,7 @@ public class BallerinaFile implements Node {
     }
 
     /**
-     * Builds a BFile which represents physical ballerina source file
+     * Builds a BFile which represents physical ballerina source file.
      */
     public static class BFileBuilder {
 
@@ -216,12 +229,16 @@ public class BallerinaFile implements Node {
         private List<Service> serviceList = new ArrayList<>();
         private List<BallerinaConnector> connectorList = new ArrayList<>();
         private List<Function> functionList = new ArrayList<>();
+        private List<TypeConvertor> typeConvertorList = new ArrayList<>();
         private Function mainFunction;
 
         private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
         private List<ActionInvocationExpr> actionIExprList = new ArrayList<>();
+        private List<TypeCastExpression> typeCastExprList = new ArrayList<>();
 
         private List<Const> constList = new ArrayList<>();
+        
+        private List<BallerinaStruct> structList = new ArrayList<>();
 
         public BFileBuilder() {
         }
@@ -259,8 +276,16 @@ public class BallerinaFile implements Node {
             this.funcIExprList.add(expr);
         }
 
+        public void addTypeCastExpr(TypeCastExpression expr) {
+            this.typeCastExprList.add(expr);
+        }
+
         public void addConst(Const constant) {
             this.constList.add(constant);
+        }
+
+        public void addTypeConverter(TypeConvertor typeConvertor) {
+            this.typeConvertorList.add(typeConvertor);
         }
 
         public BallerinaFile build() {
@@ -277,7 +302,17 @@ public class BallerinaFile implements Node {
                     mainFunction,
                     funcIExprList,
                     actionIExprList,
-                    constList.toArray(new Const[constList.size()]));
+                    constList.toArray(new Const[constList.size()]),
+                    structList.toArray(new BallerinaStruct[structList.size()]),
+                    typeConvertorList.toArray(new TypeConvertor[typeCastExprList.size()])
+                    );
+        }
+
+        /**
+         * Add a ballerina user defined Struct to the ballerina file
+         */
+        public void addStruct(BallerinaStruct struct) {
+            this.structList.add(struct);
         }
     }
 }

@@ -57,6 +57,5 @@ define(['log', 'lodash', 'jquery', 'event_channel'],
         return data;
     };
 
-
     return Backend;
 });

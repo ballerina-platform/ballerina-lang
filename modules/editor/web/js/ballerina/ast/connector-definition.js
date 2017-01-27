@@ -15,59 +15,189 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function(_, ASTNode){
+define(['lodash', './node', 'log'], function(_, ASTNode, log){
 
-    var ConnectorDefinition = function() {
-        this.id = autoGenerateId();
-        this.connectionDeclarations =  [];
-        this.variableDeclarations =  [];
-        this.actionDefinitions =  [];
-
+    /**
+     * Constructor for ConnectorDefinition
+     * @param {object} args - Constructor arguments
+     * @constructor
+     */
+    var ConnectorDefinition = function(args) {
         ASTNode.call(this, "ConnectorDefinition");
+        this.BallerinaASTFactory = this.getFactory();
+        this.connector_name = _.get(args, 'connector_name', 'newConnector');
+        this.annotations = _.get(args, 'annotations', []);
+        this.arguments = _.get(args, 'arguments', []);
     };
 
     ConnectorDefinition.prototype = Object.create(ASTNode.prototype);
     ConnectorDefinition.prototype.constructor = ConnectorDefinition;
 
-    // Auto generated Id for service definitions (for accordion views)
-    function autoGenerateId(){
-        function s4() {
-            return Math.floor((1 + Math.random()) * 0x10000)
-                .toString(16)
-                .substring(1);
+    /**
+     * Get the name of connector
+     * @return {string} connector_name - Connector Name
+     */
+    ConnectorDefinition.prototype.getConnectorName = function () {
+        return this.connector_name
+    };
+
+    /**
+     * Get the annotations
+     * @return {string[]} annotations - Connector Annotations
+     */
+    ConnectorDefinition.prototype.getAnnotations = function () {
+        return this.annotations
+    };
+
+    /**
+     * Get the connector Arguments
+     * @return {Object[]} arguments - Connector Arguments
+     */
+    ConnectorDefinition.prototype.getArguments = function () {
+        var argumentsList = [];
+        var self = this;
+        _.forEach(this.getChildren(), function (child) {
+            if (self.BallerinaASTFactory.isArgument(child)) {
+                argumentsList.push(child);
+            }
+        });
+        return argumentsList;
+    };
+
+    /**
+     * Adds new argument to the connector definition.
+     * @param type - The type of the argument.
+     * @param identifier - The identifier of the argument.
+     */
+    ConnectorDefinition.prototype.addArgument = function(type, identifier) {
+        //creating argument
+        var newArgument = this.BallerinaASTFactory.createArgument();
+        newArgument.setType(type);
+        newArgument.setIdentifier(identifier);
+
+        var self = this;
+
+        // Get the index of the last argument declaration.
+        var index = _.findLastIndex(this.getChildren(), function (child) {
+            return self.BallerinaASTFactory.isArgument(child);
+        });
+
+        this.addChild(newArgument, index + 1);
+    };
+
+    /**
+     * Set the Connector name
+     * @param {string} name - Connector Name
+     */
+    ConnectorDefinition.prototype.setConnectorName = function (name) {
+        this.connector_name = name;
+    };
+
+    /**
+     * Set the connector annotations
+     * @param {string[]} annotations - Connector Annotations
+     */
+    ConnectorDefinition.prototype.setAnnotations = function (annotations) {
+        if (!_.isNil(annotations)) {
+            this.annotations = annotations;
+        } else {
+            log.warn('Trying to set a null or undefined array to annotations');
         }
-        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-            s4() + '-' + s4() + s4() + s4();
     };
 
-    ConnectorDefinition.prototype.setConnectionDeclarations = function (connectionDeclarations) {
-        if (!_.isNil(connectionDeclarations)) {
-            this.connectionDeclarations = connections;
+    /**
+     * Set the Connector Arguments
+     * @param {object[]} arguments - Connector Arguments
+     */
+    ConnectorDefinition.prototype.setArguments = function (arguments) {
+        if (!_.isNil(arguments)) {
+            this.arguments = arguments;
+        } else {
+            log.warn('Trying to set a null or undefined array to arguments');
         }
     };
 
-    ConnectorDefinition.prototype.getConnectionDeclaration = function () {
-            return this.connectionDeclarations;
-    };
-
-    ConnectorDefinition.prototype.setVariableDeclarations = function (variableDeclarations) {
-        if (!_.isNil(variableDeclarations)) {
-            this.variableDeclarations = variableDeclarations;
-        }
-    };
-
+    /**
+     * Get the variable declarations
+     * @return {VariableDeclaration[]}
+     */
     ConnectorDefinition.prototype.getVariableDeclarations = function () {
-            return this.variableDeclarations;
+        var variableDeclarations = [];
+        var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.BallerinaASTFactory.isVariableDeclaration(child)) {
+                variableDeclarations.push(child);
+            }
+        });
+        return variableDeclarations;
     };
 
-    ConnectorDefinition.prototype.setActionDefinitions = function (actionDefinitions) {
-        if (!_.isNil(actionDefinitions)) {
-            this.actionDefinitions = actionDefinitions;
+    /**
+     * Adds new variable declaration.
+     */
+    ConnectorDefinition.prototype.addVariableDeclaration = function (newVariableDeclaration) {
+        var self = this;
+
+        // Get the index of the last variable declaration.
+        var index = _.findLastIndex(this.getChildren(), function (child) {
+            return self.BallerinaASTFactory.isVariableDeclaration(child);
+        });
+
+        // index = -1 when there are not any variable declarations, hence get the index for connector
+        // declarations.
+        if (index == -1) {
+            index = _.findLastIndex(this.getChildren(), function (child) {
+                return self.BallerinaASTFactory.isConnectorDeclaration(child);
+            });
         }
+
+        this.addChild(newVariableDeclaration, index + 1);
     };
 
-    ConnectorDefinition.prototype.getActionDefinitions = function () {
-            return this.actionDefinitions;
+    /**
+     * Remove a variable declaration.
+     */
+    ConnectorDefinition.prototype.removeVariableDeclaration = function (variableDeclaration) {
+        this.removeChild(variableDeclaration)
+    };
+
+    /**
+     * initialize ConnectorDefinition from json object
+     * @param {Object} jsonNode to initialize from
+     * @param {string} [jsonNode.connector_name] - Name of the service definition
+     * @param {string} [jsonNode.annotations] - Annotations of the function definition
+     */
+    ConnectorDefinition.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+        this.connector_name = jsonNode.connector_name;
+
+        // Populate the annotations array
+        for (var itr = 0; itr < this.getAnnotations().length; itr ++) {
+            var key = this.getAnnotations()[itr].key;
+            for (var itrInner = 0; itrInner < jsonNode.annotations.length; itrInner ++) {
+                if (jsonNode.annotations[itrInner].annotation_name === key) {
+                    this._annotations[itr].value = jsonNode.annotations[itrInner].annotation_value;
+                }
+            }
+        }
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.BallerinaASTFactory.createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
+    };
+
+    /**
+     * Validates possible immediate child types.
+     * @override
+     * @param node
+     * @return {boolean}
+     */
+    ConnectorDefinition.prototype.canBeParentOf = function (node) {
+        return this.BallerinaASTFactory.isConnectorAction(node)
+            || this.BallerinaASTFactory.isVariableDeclaration(node)
+            || this.BallerinaASTFactory.isConnectorDeclaration(node);
     };
 
     return ConnectorDefinition;

@@ -28,12 +28,15 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
              */
             initialize: function (options) {
                 this.app = options;
-                this.dialog_container = _.get(options.config.dialog, 'container');
+                this.dialog_container = $(_.get(options.config.dialog, 'container'));
                 this.notification_container = _.get(options.config.tab_controller.tabs.tab.ballerina_editor.notifications, 'container');
             },
 
             show: function(){
-                this._fileSaveModal.modal('show');
+                var self = this;
+                this._fileSaveModal.modal('show').on('shown.bs.modal', function(){
+                    self.trigger('loaded');
+                });
             },
 
             setSelectedFile: function(path, fileName){
@@ -48,6 +51,10 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                 var fileBrowser;
                 var app = this.app;
                 var notification_container = this.notification_container;
+
+                if(!_.isNil(this._fileSaveModal)){
+                    this._fileSaveModal.remove();
+                }
 
                 var fileSave = $(
                     "<div class='modal fade' id='saveConfigModal' tabindex='-1' role='dialog' aria-tydden='true'>" +
@@ -64,6 +71,12 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     "<div class='container-fluid'>" +
                     "<form class='form-horizontal'>" +
                     "<div class='form-group'>" +
+                    "<label for='configName' class='col-sm-2 file-dialog-label'>File Name :</label>" +
+                    "<div class='col-sm-9'>" +
+                    "<input class='file-dialog-form-control' id='configName' placeholder='eg: sample.bal'>" +
+                    "</div>" +
+                    "</div>" +
+                    "<div class='form-group'>" +
                     "<label for='location' class='col-sm-2 file-dialog-label'>Location :</label>" +
                     "<div class='col-sm-9'>" +
                     "<input type='text' class='file-dialog-form-control' id='location' placeholder='eg: /home/user/wso2-integration-server/ballerina-configs'>" +
@@ -75,12 +88,6 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     "</div>" +
                     "<div id='file-browser-error' class='alert alert-danger' style='display: none;'>" +
                     "</div>" +
-                    "</div>" +
-                    "</div>" +
-                    "<div class='form-group'>" +
-                    "<label for='configName' class='col-sm-2 file-dialog-label'>File Name :</label>" +
-                    "<div class='col-sm-9'>" +
-                    "<input class='file-dialog-form-control' id='configName' placeholder='eg: sample.bal'>" +
                     "</div>" +
                     "</div>" +
                     "<div class='form-group'>" +
@@ -123,7 +130,7 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                 var configName = fileSave.find("input").filter("#configName");
 
                 var treeContainer  = fileSave.find("div").filter("#fileTree")
-                fileBrowser = new FileBrowser({container: treeContainer, application:app, action:'saveFile'});
+                fileBrowser = new FileBrowser({container: treeContainer, application:app, fetchFiles:false});
 
                 fileBrowser.render();
                 this._fileBrowser = fileBrowser;
@@ -141,12 +148,12 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     var _location = location.val();
                     var _configName = configName.val();
                     if (_.isEmpty(_location)) {
-                        newWizardError.text("Invalid Value for Location.");
+                        newWizardError.text("Please enter valid file location");
                         newWizardError.show();
                         return;
                     }
                     if (_.isEmpty(_configName)) {
-                        newWizardError.text("Invalid Value for File Name.");
+                        newWizardError.text("Please enter valid file name");
                         newWizardError.show();
                         return;
                     }
@@ -194,7 +201,14 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                                             .setName(configName.val())
                                             .setContent(config)
                                             .setPersisted(true)
+                                            .setDirty(false)
                                             .save();
+                                if(app.workspaceExplorer.isEmpty()){
+                                    app.commandManager.dispatch("open-folder", location.val());
+                                    if(!app.workspaceExplorer.isActive()){
+                                        app.commandManager.dispatch("toggle-file-explorer");
+                                    }
+                                }
                                 app.breadcrumbController.setPath(location.val(), configName.val());
                                 alertSuccess();
                             } else {

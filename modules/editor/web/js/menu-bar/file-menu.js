@@ -41,7 +41,7 @@ define(([],function (){
             },
             {
                 id: "open",
-                label: "Open",
+                label: "Open File",
                 command: {
                     id: "open-file-open-dialog",
                     shortcuts: {
@@ -58,10 +58,28 @@ define(([],function (){
                 disabled: false
             },
             {
+                id: "open_folder",
+                label: "Open Folder",
+                command: {
+                    id: "show-folder-open-dialog",
+                    shortcuts: {
+                        mac: {
+                            key: "command+shift+o",
+                            label: "\u2318\u21E7O"
+                        },
+                        other: {
+                            key: "ctrl+shift+o",
+                            label: "Ctrl+Shift+O"
+                        }
+                    }
+                },
+                disabled: false
+            },
+            {
                 id: "save",
                 label: "Save",
                 command: {
-                    id: "open-file-save-dialog",
+                    id: "save",
                     shortcuts: {
                         mac: {
                             key: "command+s",
@@ -70,6 +88,24 @@ define(([],function (){
                         other: {
                             key: "ctrl+s",
                             label: "Ctrl+S"
+                        }
+                    }
+                },
+                disabled: false
+            },
+            {
+                id: "saveAs",
+                label: "Save As",
+                command: {
+                    id: "open-file-save-dialog",
+                    shortcuts: {
+                        mac: {
+                            key: "command+shift+s",
+                            label: "\u2318\u21E7S"
+                        },
+                        other: {
+                            key: "ctrl+shift+s",
+                            label: "Ctrl+Shift+S"
                         }
                     }
                 },

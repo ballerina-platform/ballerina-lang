@@ -24,11 +24,11 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code VariableRefExpr} represents a variable reference in Ballerina
+ * {@code VariableRefExpr} represents a variable reference in Ballerina.
  *
  * @since 0.8.0
  */
-public class VariableRefExpr extends AbstractExpression {
+public class VariableRefExpr extends AbstractExpression implements ReferenceExpr {
 
     private SymbolName symbolName;
 

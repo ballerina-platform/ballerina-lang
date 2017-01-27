@@ -95,7 +95,7 @@ public class Resource implements Node, CallableUnit {
     }
 
     /**
-     * Get an Annotation from a given name
+     * Get an Annotation from a given name.
      *
      * @param name name of the annotation
      * @return Annotation
@@ -112,7 +112,7 @@ public class Resource implements Node, CallableUnit {
     }
 
     /**
-     * Get all the Annotations associated with a Resource
+     * Get all the Annotations associated with a Resource.
      *
      * @return map of Annotations
      */
@@ -121,7 +121,7 @@ public class Resource implements Node, CallableUnit {
     }
 
     /**
-     * Get all the Annotations associated with a Resource
+     * Get all the Annotations associated with a Resource.
      *
      * @return list of Annotations
      */
@@ -130,7 +130,7 @@ public class Resource implements Node, CallableUnit {
     }
 
     /**
-     * Set Annotations
+     * Set Annotations.
      *
      * @param annotations map of Annotations
      */
@@ -139,7 +139,7 @@ public class Resource implements Node, CallableUnit {
     }
 
     /**
-     * Add an {@code Annotation} to the Resource
+     * Add an {@code Annotation} to the Resource.
      *
      * @param annotation Annotation to be added
      */
@@ -148,16 +148,16 @@ public class Resource implements Node, CallableUnit {
     }
 
     /**
-     * Get all Connections declared within the default Worker scope of the Resource
+     * Get all Connections declared within the default Worker scope of the Resource.
      *
      * @return list of all the Connections belongs to the default Worker of the Resource
      */
     public ConnectorDcl[] getConnectorDcls() {
         return connectorDcls;
     }
-
+    
     /**
-     * Get all the Workers associated with a Resource
+     * Get all the Workers associated with a Resource.
      *
      * @return list of Workers
      */
@@ -166,7 +166,7 @@ public class Resource implements Node, CallableUnit {
     }
 
     /**
-     * Assign Workers to the Resource
+     * Assign Workers to the Resource.
      *
      * @param workers list of all the Workers
      */
@@ -175,7 +175,7 @@ public class Resource implements Node, CallableUnit {
     }
 
     /**
-     * Add a {@code Worker} to the Resource
+     * Add a {@code Worker} to the Resource.
      *
      * @param worker Worker to be added to the Resource
      */
@@ -184,7 +184,7 @@ public class Resource implements Node, CallableUnit {
     }
 
     /**
-     * Get resource body
+     * Get resource body.
      *
      * @return returns the block statement
      */
@@ -193,7 +193,7 @@ public class Resource implements Node, CallableUnit {
     }
 
     /**
-     * Get variable declarations
+     * Get variable declarations.
      *
      * @return returns the variable declarations
      */

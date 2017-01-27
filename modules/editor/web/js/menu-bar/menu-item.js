@@ -31,12 +31,15 @@ define(['lodash', 'event_channel'],
         var parent = _.get(this, 'options.parent');
 
         var item = $('<li></li>');
+        var title = $('<span class="pull-left"></span>');
         var link = $('<a></a>');
         parent.append(item);
         item.append(link);
+        link.append(title);
 
-        link.text(_.get(this, 'definition.label'));
+        title.text(_.get(this, 'definition.label'));
         this._linkElement = link;
+        this._title = title;
         this._listItemElement = item;
 
         var shortcuts = _.get(this, 'definition.command.shortcuts'),
@@ -87,14 +90,12 @@ define(['lodash', 'event_channel'],
 
     MenuItem.prototype.addLabelSuffix = function(labelSuffix){
        if(!_.isNil(labelSuffix)){
-           this._linkElement.text(_.get(this, 'definition.label') + " " + labelSuffix)
-           this.renderShortcutLabel();
+           this._title.text(_.get(this, 'definition.label') + ' ' + labelSuffix);
        }
     };
 
     MenuItem.prototype.clearLabelSuffix = function () {
-        this._linkElement.text(_.get(this, 'definition.label'))
-        this.renderShortcutLabel();
+        this._title.text(_.get(this, 'definition.label'));
     };
 
     return MenuItem;

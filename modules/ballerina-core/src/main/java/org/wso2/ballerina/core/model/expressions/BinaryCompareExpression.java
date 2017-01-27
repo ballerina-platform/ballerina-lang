@@ -21,7 +21,7 @@ import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.Position;
 
 /**
- * {@code BinaryCompareExpression} represents a comparison expression in Ballerina
+ * {@code BinaryCompareExpression} represents a comparison expression in Ballerina.
  *
  * @see GreaterEqualExpression
  * @see GreaterThanExpression

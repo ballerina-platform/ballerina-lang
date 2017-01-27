@@ -30,7 +30,7 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
         this._actionConnectorName = _.get(args, 'actionConnectorName', '');
         this._actionInvocationReference = _.get(args, 'actionInvocationReference', '');
         this._connectorVariableReference = _.get(args, 'connectorVariableReference', '');
-        this._path = _.get(args, 'path', '/');
+        this._path = _.get(args, 'path', '\"/\"');
         this._messageVariableReference = _.get(args, 'messageRef', 'm');
         this.type = "ActionInvocationExpression";
     };
@@ -168,7 +168,7 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
         } else if (pathNode.type == "variable_reference_expression") {
             this.setPath(pathNode.variable_reference_name);
         } else {
-            var child = self.getFactory().createFromJson(pathNode);
+            var child = this.getFactory().createFromJson(pathNode);
             child.initFromJson(pathNode);
             this.setPath(child.getExpression());
         }
@@ -181,7 +181,8 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
         var parent = this.getParent();
         var factory = this.getFactory();
         while (!factory.isBallerinaAstRoot(parent)) {
-            if (factory.isResourceDefinition(parent) || factory.isFunctionDefinition(parent) || factory.isServiceDefinition(parent)) {
+            if (factory.isResourceDefinition(parent) || factory.isFunctionDefinition(parent)
+                || factory.isServiceDefinition(parent) || factory.isConnectorAction(parent)) {
                 break;
             }
             parent = parent.getParent();

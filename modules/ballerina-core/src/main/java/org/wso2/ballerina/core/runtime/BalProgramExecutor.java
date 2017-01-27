@@ -48,7 +48,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_BAL_ARGS;
 
 /**
- * {@code BalProgramExecutor} is responsible for executing a BallerinaProgram
+ * {@code BalProgramExecutor} is responsible for executing a BallerinaProgram.
  *
  * @since 0.8.0
  */
@@ -98,7 +98,7 @@ public class BalProgramExecutor {
                 String balArgs = System.getProperty(SYSTEM_PROP_BAL_ARGS);
                 String[] arguments;
 
-                if (balArgs.trim().length() == 0) {
+                if (balArgs == null || balArgs.trim().length() == 0) {
                     arguments = new String[0];
                 } else {
                     arguments = balArgs.split(";");

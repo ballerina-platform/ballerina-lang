@@ -18,7 +18,7 @@
 package org.wso2.ballerina.core.exception;
 
 /**
- * Class for capturing syntax errors and handle them gracefully
+ * Class for capturing syntax errors and handle them gracefully.
  */
 public class ParserException extends BallerinaException {
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -21,13 +21,15 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
      * Constructor for the ASTNode
      * @class ASTNode
      * @augments EventChannel
-     * @param type
+     * @param {string} type - An identifier for the type of the object.
+     * Example for a service definition : "ServiceDefinition". This is useful when debugging.
      * @constructor
      */
     var ASTNode = function(type) {
         this.object = undefined;
         this.parent = undefined;
         this.children = [];
+        // TODO : Rename this to bType.
         this.type = type;
         this.id = uuid();
         this.on('tree-modified', function(event){
@@ -57,6 +59,10 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
 
     ASTNode.prototype.getType = function () {
         return this.type;
+    };
+
+    ASTNode.prototype.getID = function() {
+        return this.id;
     };
 
     ASTNode.prototype.getLength = function () {

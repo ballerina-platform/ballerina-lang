@@ -27,7 +27,7 @@ import org.wso2.ballerina.lang.util.Services;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * Service/Resource variable test class
+ * Service/Resource variable test class.
  */
 public class ServiceVariableTest {
 
