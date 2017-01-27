@@ -230,7 +230,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
      */
     TypeConverterDefinitionView.prototype.onAttributesDisConnect = function (connection) {
 
-        alert(888);
+       // alert(888);
     };
 
     return TypeConverterDefinitionView;
