@@ -61,7 +61,7 @@ public class Select extends AbstractSQLAction {
         if (!(connector instanceof SQLConnector)) {
             throw new BallerinaException("Need to use a SQL Connector as the first argument", context);
         }
-
-        return executeQuery(context, connector, query);
+        executeQuery(context, (SQLConnector) connector, query);
+        return null;
     }
 }
