@@ -104,6 +104,18 @@
             <groupId>org.apache.james</groupId>
             <artifactId>apache-mime4j-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons.wso2</groupId>
+            <artifactId>commons-vfs2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -260,7 +272,10 @@
             com.google.gson.*;version="${gson.import.version.range}",
             com.jayway.jsonpath.*;version="${jayway.jsonpath.import.version.range}",
             org.jaxen.*;version="${jaxen.import.version.range}",
-            net.sf.saxon.*;version="${saxon.import.version.range}"
+            net.sf.saxon.*;version="${saxon.import.version.range}",
+            org.apache.commons.lang.*;version="${commons.lang.version}",
+            org.apache.commons.io.*;version="${commons.io.version}",
+            org.apache.commons.vfs2.*;version="${commons.vfs.version}"
         </import.package>
         <carbon.component>
             startup.listener;componentName="ballerina-native-provider";

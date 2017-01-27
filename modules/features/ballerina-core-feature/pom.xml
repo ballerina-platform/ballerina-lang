@@ -106,6 +106,26 @@
             <groupId>org.wso2.ballerina</groupId>
             <artifactId>gson-fragment</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons.wso2</groupId>
+            <artifactId>commons-vfs2</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -205,6 +225,26 @@
                                 <bundle>
                                     <symbolicName>gson-fragment</symbolicName>
                                     <version>${ballerina.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.apache.commons.compress</symbolicName>
+                                    <version>${commons.compress.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.apache.commons.net</symbolicName>
+                                    <version>${commons.net.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.apache.commons.lang</symbolicName>
+                                    <version>${commons.lang.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.apache.commons.io</symbolicName>
+                                    <version>${commons.io.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>commons-vfs2</symbolicName>
+                                    <version>${commons.vfs.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>
