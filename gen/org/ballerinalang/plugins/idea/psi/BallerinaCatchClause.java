@@ -24,7 +24,7 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaCatchClause extends PsiElement {
 
   @NotNull
-  List<BallerinaStatement> getStatementList();
+  BallerinaTryCatchStatementBody getTryCatchStatementBody();
 
   @NotNull
   BallerinaTypeName getTypeName();

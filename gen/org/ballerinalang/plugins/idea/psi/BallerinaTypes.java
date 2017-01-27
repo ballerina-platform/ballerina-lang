@@ -88,6 +88,7 @@ public interface BallerinaTypes {
   IElementType TIMEOUT_CLAUSE = new BallerinaElementType("TIMEOUT_CLAUSE");
   IElementType TRIGGER_WORKER = new BallerinaElementType("TRIGGER_WORKER");
   IElementType TRY_CATCH_STATEMENT = new BallerinaElementType("TRY_CATCH_STATEMENT");
+  IElementType TRY_CATCH_STATEMENT_BODY = new BallerinaElementType("TRY_CATCH_STATEMENT_BODY");
   IElementType TYPE_CONVERTER_TYPES = new BallerinaElementType("TYPE_CONVERTER_TYPES");
   IElementType TYPE_CONVERTOR_BODY = new BallerinaElementType("TYPE_CONVERTOR_BODY");
   IElementType TYPE_CONVERTOR_DEFINITION = new BallerinaElementType("TYPE_CONVERTOR_DEFINITION");
@@ -382,6 +383,9 @@ public interface BallerinaTypes {
       }
       else if (type == TRY_CATCH_STATEMENT) {
         return new BallerinaTryCatchStatementImpl(node);
+      }
+      else if (type == TRY_CATCH_STATEMENT_BODY) {
+        return new BallerinaTryCatchStatementBodyImpl(node);
       }
       else if (type == TYPE_CONVERTER_TYPES) {
         return new BallerinaTypeConverterTypesImpl(node);

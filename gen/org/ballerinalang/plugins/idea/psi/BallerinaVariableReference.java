@@ -23,10 +23,7 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaVariableReference extends PsiElement {
 
-  @Nullable
-  BallerinaExpression getExpression();
-
   @NotNull
-  PsiElement getIdentifier();
+  List<BallerinaExpression> getExpressionList();
 
 }

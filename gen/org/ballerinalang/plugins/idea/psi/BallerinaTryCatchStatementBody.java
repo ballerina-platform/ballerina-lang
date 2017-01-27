@@ -21,12 +21,9 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaTryCatchStatement extends PsiElement {
+public interface BallerinaTryCatchStatementBody extends PsiElement {
 
   @NotNull
-  BallerinaCatchClause getCatchClause();
-
-  @NotNull
-  BallerinaTryCatchStatementBody getTryCatchStatementBody();
+  List<BallerinaStatement> getStatementList();
 
 }

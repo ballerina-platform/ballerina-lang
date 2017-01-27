@@ -27,14 +27,14 @@ import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.ballerinalang.plugins.idea.psi.*;
 
-public class BallerinaVariableReferenceImpl extends ASTWrapperPsiElement implements BallerinaVariableReference {
+public class BallerinaTryCatchStatementBodyImpl extends ASTWrapperPsiElement implements BallerinaTryCatchStatementBody {
 
-  public BallerinaVariableReferenceImpl(ASTNode node) {
+  public BallerinaTryCatchStatementBodyImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitVariableReference(this);
+    visitor.visitTryCatchStatementBody(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -44,8 +44,8 @@ public class BallerinaVariableReferenceImpl extends ASTWrapperPsiElement impleme
 
   @Override
   @NotNull
-  public List<BallerinaExpression> getExpressionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaExpression.class);
+  public List<BallerinaStatement> getStatementList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaStatement.class);
   }
 
 }

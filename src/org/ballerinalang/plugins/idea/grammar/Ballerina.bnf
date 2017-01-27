@@ -175,10 +175,10 @@ structDefinitionBody
     ::=   '{' (typeName Identifier ';')+ '}'
 
 typeConvertorDefinition
-    ::=   'typeconvertor' Identifier '(' typeConverterTypes Identifier ')' '('typeConverterTypes')' typeConvertorBody
+    ::=   'typeconvertor' Identifier '(' typeConverterTypes Identifier ')' '('typeConverterTypes')' '{' typeConvertorBody '}'
 
 typeConvertorBody
-    ::=   '{' variableDeclaration* statement+ '}'
+    ::=    variableDeclaration* statement+
 
 constantDefinition
     ::=   'const' typeName Identifier '=' literalValue ';'
@@ -206,10 +206,10 @@ qualifiedTypeName
     ::=   packageName ':' unqualifiedTypeName
 
 typeConverterTypes
-    ::=   simpleType
-    |   withFullSchemaType
+    ::=   withFullSchemaType
     |   withSchemaIdType
     |   withScheamURLType
+    |   simpleType
 
 unqualifiedTypeName
     ::=   simpleTypeArray
@@ -369,12 +369,16 @@ joinConditions
 timeoutClause
     ::=   'timeout' '(' expression ')' '(' typeName Identifier ')'  '{' statement+ '}'
 
+//todo: need to rearrange
 tryCatchStatement
-    ::=   'try' '{' statement+ '}' catchClause
+    ::=   'try' '{' tryCatchStatementBody '}' catchClause '}'
 
 // below tyeName is only 'exception'
 catchClause
-    ::=   'catch' '(' typeName Identifier ')' '{' statement+ '}'
+    ::=   'catch' '(' typeName Identifier ')' '{' tryCatchStatementBody
+
+tryCatchStatementBody
+    ::=   statement+
 
 throwStatement
     ::=   'throw' expression ';'
@@ -406,9 +410,13 @@ actionInvocationStatement
 
 //todo: fix left recursion here
 variableReference
-    ::=   Identifier '['expression']'                 // mapArrayVariableIdentifier// array and map reference
-//    |   variableReference ('.' variableReference)+  // structFieldIdentifier// struct field reference
-    |   Identifier                                    // simpleVariableIdentifier// simple identifier
+    ::=   variableReferenceTypes ('.' variableReferenceTypes)+  // structFieldIdentifier// struct field reference
+    |     variableReferenceTypes
+
+private variableReferenceTypes
+    ::=   Identifier '['expression']'                           // mapArrayVariableIdentifier// array and map reference
+    |     Identifier                                            // simpleVariableIdentifier// simple identifier
+
 argumentList
     ::=   '(' expressionList? ')'
 

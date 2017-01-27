@@ -50,8 +50,8 @@ public class BallerinaTryCatchStatementImpl extends ASTWrapperPsiElement impleme
 
   @Override
   @NotNull
-  public List<BallerinaStatement> getStatementList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaStatement.class);
+  public BallerinaTryCatchStatementBody getTryCatchStatementBody() {
+    return findNotNullChildByClass(BallerinaTryCatchStatementBody.class);
   }
 
 }
