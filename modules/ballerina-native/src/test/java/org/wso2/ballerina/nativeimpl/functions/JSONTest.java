@@ -32,10 +32,10 @@ import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
-import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.nativeimpl.util.Functions;
+import org.wso2.ballerina.nativeimpl.util.NativeConstructLoader;
+import org.wso2.ballerina.nativeimpl.util.ParserUtils;
 
 /**
  * Test Native functions in ballerina.lang.json.
@@ -58,9 +58,9 @@ public class JSONTest {
         // Add Native functions.
         SymScope symScope = GlobalScopeHolder.getInstance().getScope();
         if (symScope.lookup(new SymbolName("ballerina.lang.system:print_string")) == null) {
-            BuiltInNativeConstructLoader.loadConstructs();
+            NativeConstructLoader.loadConstructs();
         }
-        bFile = ParserUtils.parseBalFile("samples/nativeimpl/jsonTest.bal", symScope);
+        bFile = ParserUtils.parseBalFile("samples/jsonTest.bal", symScope);
     }
 
     

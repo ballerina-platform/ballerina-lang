@@ -35,6 +35,10 @@
             <groupId>org.wso2.ballerina</groupId>
             <artifactId>ballerina-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+        </dependency>
     </dependencies>
 
         <properties>

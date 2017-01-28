@@ -29,8 +29,8 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.nativeimpl.util.Functions;
+import org.wso2.ballerina.nativeimpl.util.ParserUtils;
 
 public class NativeTypeConvertersTest {
     private BallerinaFile bFile;
@@ -42,7 +42,7 @@ public class NativeTypeConvertersTest {
         if (symScope.lookup(new SymbolName("ballerina.lang.convertors:_xml->_json")) == null) {
             BuiltInNativeConstructLoader.loadConstructs();
         }
-        bFile = ParserUtils.parseBalFile("lang/expressions/type-conversion.bal", symScope);
+        bFile = ParserUtils.parseBalFile("samples/type-conversion.bal", symScope);
     }
 
     @Test
