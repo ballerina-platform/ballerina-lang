@@ -103,7 +103,7 @@ trigger_name
     ;
 
 annotation
-    : '@' name ('(' annotation_element (',' annotation_element )* ')' )?
+    : '@' name ('(' (annotation_element|annotation) (',' (annotation_element|annotation) )* ')' )?
     ;
 
 plan_annotation

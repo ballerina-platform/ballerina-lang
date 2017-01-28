@@ -72,7 +72,7 @@ public class DefineTableTestCase {
                         id("cseStream").
                         attribute("symbol", Attribute.Type.STRING).
                         attribute("price", Attribute.Type.INT).
-                        attribute("volume", Attribute.Type.FLOAT).annotation(Annotation.annotation("from").element("datasource", "MyDatabase").element("CUSTOM")).toString(),
+                        attribute("volume", Attribute.Type.FLOAT).annotation(Annotation.create("from").element("datasource", "MyDatabase").element("CUSTOM")).toString(),
                 streamDefinition.toString());
     }
 

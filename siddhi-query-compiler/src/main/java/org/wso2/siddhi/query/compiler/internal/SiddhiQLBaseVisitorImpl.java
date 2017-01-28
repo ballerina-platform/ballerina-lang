@@ -763,14 +763,17 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      */
     @Override
     public Annotation visitAnnotation(@NotNull SiddhiQLParser.AnnotationContext ctx) {
-        Annotation annotation = new Annotation((String) visit(ctx.name()));
+        Annotation annotation = Annotation.create((String) visit(ctx.name()));
 
         for (SiddhiQLParser.Annotation_elementContext elementContext : ctx.annotation_element()) {
             annotation.element((Element) visit(elementContext));
         }
 
-        return annotation;
+        for (SiddhiQLParser.AnnotationContext annotationContext : ctx.annotation()) {
+            annotation.annotation((Annotation) visit(annotationContext));
+        }
 
+        return annotation;
     }
 
     /**
