@@ -19,6 +19,7 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.symbols.SymbolScope;
 import org.wso2.ballerina.core.model.types.BType;
 
 /**
@@ -37,7 +38,7 @@ import org.wso2.ballerina.core.model.types.BType;
  * @since 0.8.0
  */
 @SuppressWarnings("unused")
-public class BallerinaAction implements Action, Node {
+public class BallerinaAction implements Action, SymbolScope, Node {
 
     private SymbolName name;
     private Annotation[] annotations;
@@ -159,5 +160,27 @@ public class BallerinaAction implements Action, Node {
     @Override
     public Position getLocation() {
         return actionLocation;
+    }
+
+    // Methods in the SymbolScope interface
+
+    @Override
+    public String getScopeName() {
+        return null;
+    }
+
+    @Override
+    public SymbolScope getEnclosingScope() {
+        return null;
+    }
+
+    @Override
+    public void define(Symbol sym) {
+
+    }
+
+    @Override
+    public Symbol resolve(String name) {
+        return null;
     }
 }

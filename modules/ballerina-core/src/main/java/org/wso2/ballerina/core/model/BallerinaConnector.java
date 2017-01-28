@@ -18,6 +18,8 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.model.symbols.SymbolScope;
+
 /**
  * A {@code Connector} represents a participant in the integration and is used to interact with an external system.
  * Ballerina includes a set of standard Connectors.
@@ -33,7 +35,7 @@ package org.wso2.ballerina.core.model;
  *
  * @since 0.8.0
  */
-public class BallerinaConnector implements Connector, CompilationUnit {
+public class BallerinaConnector implements Connector, SymbolScope, CompilationUnit {
 
     private SymbolName name;
     private Annotation[] annotations;
@@ -161,5 +163,27 @@ public class BallerinaConnector implements Connector, CompilationUnit {
     @Override
     public void setLocation(Position location) {
         this.connectorLocation = location;
+    }
+
+    // Methods in the SymbolScope interface
+
+    @Override
+    public String getScopeName() {
+        return null;
+    }
+
+    @Override
+    public SymbolScope getEnclosingScope() {
+        return null;
+    }
+
+    @Override
+    public void define(Symbol sym) {
+
+    }
+
+    @Override
+    public Symbol resolve(String name) {
+        return null;
     }
 }

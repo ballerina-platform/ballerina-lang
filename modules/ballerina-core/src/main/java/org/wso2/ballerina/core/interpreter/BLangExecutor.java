@@ -23,13 +23,13 @@ import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.BallerinaStruct;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.Struct;
 import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.TypeConvertor;
@@ -714,7 +714,7 @@ public class BLangExecutor implements NodeExecutor {
         StructDcl structDcl = structInitExpr.getStructDcl();
         BValue[] structMemBlock;
         int offset = 0;
-        BallerinaStruct struct = structDcl.getStruct();
+        Struct struct = structDcl.getStruct();
         structMemBlock = new BValue[struct.getStructMemorySize()];
 
         // create a memory block to hold field of the struct, and populate it with default values

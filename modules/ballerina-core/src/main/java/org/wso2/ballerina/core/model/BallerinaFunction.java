@@ -19,6 +19,7 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.symbols.SymbolScope;
 
 /**
  * A {@code BallerinaFunction} is an operation that is executed by a {@code Worker}.
@@ -36,7 +37,8 @@ import org.wso2.ballerina.core.model.statements.BlockStmt;
  *
  * @since 0.8.0
  */
-public class BallerinaFunction implements Function, CompilationUnit {
+public class BallerinaFunction implements Function, SymbolScope, CompilationUnit {
+    private SymbolScope enclosingScope;
 
     // TODO: Rename this to BFunction after M1.
     private SymbolName symbolName;
@@ -225,5 +227,27 @@ public class BallerinaFunction implements Function, CompilationUnit {
     @Override
     public Position getLocation() {
         return functionLocation;
+    }
+
+    // Methods in the SymbolScope interface
+
+    @Override
+    public String getScopeName() {
+        return null;
+    }
+
+    @Override
+    public SymbolScope getEnclosingScope() {
+        return enclosingScope;
+    }
+
+    @Override
+    public void define(Symbol sym) {
+
+    }
+
+    @Override
+    public Symbol resolve(String name) {
+        return null;
     }
 }

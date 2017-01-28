@@ -95,7 +95,7 @@ public interface NodeVisitor {
 
     void visit(VariableDcl variableDcl);
     
-    void visit(BallerinaStruct ballerinaStruct);
+    void visit(Struct struct);
 
     void visit(StructDcl structDcl);
 

@@ -1016,7 +1016,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(BallerinaStruct ballerinaStruct) {
+    public void visit(Struct struct) {
         // TODO
     }
 

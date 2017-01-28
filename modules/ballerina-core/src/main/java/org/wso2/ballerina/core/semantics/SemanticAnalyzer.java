@@ -34,7 +34,6 @@ import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.BallerinaStruct;
 import org.wso2.ballerina.core.model.CallableUnit;
 import org.wso2.ballerina.core.model.CompilationUnit;
 import org.wso2.ballerina.core.model.ConnectorDcl;
@@ -47,6 +46,7 @@ import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.model.Struct;
 import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -148,7 +148,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Arrays.asList(bFile.getFunctions()).forEach(this::addFuncSymbol);
 
         // Add struct symbols to symbol table
-        for (BallerinaStruct struct : bFile.getStructs()) {
+        for (Struct struct : bFile.getStructs()) {
             addStructSymbol(struct);
         }
 
@@ -1885,11 +1885,11 @@ public class SemanticAnalyzer implements NodeVisitor {
      * Visit and semantically analyze a ballerina Struct definition.
      */
     @Override
-    public void visit(BallerinaStruct ballerinaStruct) {
-        String structName = ballerinaStruct.getName();
-        String structStructPackage = ballerinaStruct.getPackageName();
+    public void visit(Struct struct) {
+        String structName = struct.getName();
+        String structStructPackage = struct.getPackageName();
 
-        for (VariableDcl field : ballerinaStruct.getFields()) {
+        for (VariableDcl field : struct.getFields()) {
             structMemAddrOffset++;
             BType type = field.getType();
             validateType(type, field.getLocation());
@@ -1906,7 +1906,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             symbolTable.insert(fieldSym, symbol);
         }
 
-        ballerinaStruct.setStructMemorySize(structMemAddrOffset + 1);
+        struct.setStructMemorySize(structMemAddrOffset + 1);
         structMemAddrOffset = -1;
     }
 
@@ -1915,7 +1915,7 @@ public class SemanticAnalyzer implements NodeVisitor {
      *
      * @param struct Ballerina struct
      */
-    private void addStructSymbol(BallerinaStruct struct) {
+    private void addStructSymbol(Struct struct) {
         if (symbolTable.lookup(struct.getSymbolName()) != null) {
             throw new SemanticException(getLocationStr(struct.getLocation()) + "duplicate struct '" + struct.getName()
                     + "'.");
