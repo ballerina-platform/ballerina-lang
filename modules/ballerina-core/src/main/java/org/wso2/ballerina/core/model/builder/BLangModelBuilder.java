@@ -318,7 +318,7 @@ public class BLangModelBuilder {
         // Add this variable declaration to the current callable unit or callable unit group
         if (currentCUBuilder != null) {
             // This connector declaration should added to the relevant function/action or resource
-            currentCUBuilder.addVariableDcl(variableDcl);
+//            currentCUBuilder.addVariableDcl(variableDcl);
         } else {
             currentCUGroupBuilder.addVariableDcl(variableDcl);
         }
@@ -349,7 +349,7 @@ public class BLangModelBuilder {
         connectorDcl.setLocation(sourceLocation);
         if (currentCUBuilder != null) {
             // This connector declaration should added to the relevant function/action or resource
-            currentCUBuilder.addConnectorDcl(connectorDcl);
+//            currentCUBuilder.addConnectorDcl(connectorDcl);
         } else {
             currentCUGroupBuilder.addConnectorDcl(connectorDcl);
         }
@@ -596,7 +596,7 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void createFunction(String name, boolean isPublic, Position sourceLocation, int position) {
+    public void createFunction(String name, boolean isPublic, Position sourceLocation) {
         currentCUBuilder.setName(new SymbolName(name, pkgName));
         currentCUBuilder.setPublic(isPublic);
         currentCUBuilder.setPosition(sourceLocation);
@@ -606,18 +606,16 @@ public class BLangModelBuilder {
         annotationList.forEach(currentCUBuilder::addAnnotation);
 
         BallerinaFunction function = currentCUBuilder.buildFunction();
-        function.setRelativePosition(position);
         bFileBuilder.addFunction(function);
 
         currentCUBuilder = null;
     }
 
-    public void createTypeConverter(String name, boolean isPublic, Position sourceLocation, int position) {
+    public void createTypeConverter(String name, boolean isPublic, Position sourceLocation) {
         currentCUBuilder.setName(new SymbolName(name, pkgName));
         currentCUBuilder.setPublic(isPublic);
         currentCUBuilder.setPosition(sourceLocation);
         BTypeConvertor typeConvertor = currentCUBuilder.buildTypeConverter();
-        typeConvertor.setRelativePosition(position);
         bFileBuilder.addTypeConverter(typeConvertor);
         currentCUBuilder = null;
     }
@@ -657,7 +655,7 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void createService(String name, Position sourceLocation, int position) {
+    public void createService(String name, Position sourceLocation) {
         currentCUGroupBuilder.setName(new SymbolName(name, pkgName));
         currentCUGroupBuilder.setLocation(sourceLocation);
 
@@ -666,13 +664,12 @@ public class BLangModelBuilder {
         annotationList.forEach(currentCUGroupBuilder::addAnnotation);
 
         Service service = currentCUGroupBuilder.buildService();
-        service.setRelativePosition(position);
         bFileBuilder.addService(service);
 
         currentCUGroupBuilder = null;
     }
 
-    public void createConnector(String name, Position sourceLocation, int position) {
+    public void createConnector(String name, Position sourceLocation) {
         currentCUGroupBuilder.setName(new SymbolName(name, pkgName));
         currentCUGroupBuilder.setLocation(sourceLocation);
 
@@ -681,7 +678,6 @@ public class BLangModelBuilder {
         annotationList.forEach(currentCUGroupBuilder::addAnnotation);
 
         BallerinaConnector connector = currentCUGroupBuilder.buildConnector();
-        connector.setRelativePosition(position);
         bFileBuilder.addConnector(connector);
 
         currentCUGroupBuilder = null;

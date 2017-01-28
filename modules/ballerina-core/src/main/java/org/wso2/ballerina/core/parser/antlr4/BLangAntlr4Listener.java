@@ -39,12 +39,10 @@ import java.util.List;
 public class BLangAntlr4Listener implements BallerinaListener {
 
     private BLangModelBuilder modelBuilder;
-    private int childPosition;
     private static final String PUBLIC = "public";
 
     public BLangAntlr4Listener(BLangModelBuilder modelBuilder) {
         this.modelBuilder = modelBuilder;
-        this.childPosition = 0;
     }
 
     @Override
@@ -95,8 +93,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 int lineNo = identifier.getSymbol().getLine();
                 Position serviceLocation = new Position(fileName, lineNo);
 
-                modelBuilder.createService(identifier.getText(), serviceLocation, childPosition);
-                childPosition++;
+                modelBuilder.createService(identifier.getText(), serviceLocation);
             }
         }
     }
@@ -166,8 +163,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                         int lineNo = identifier.getSymbol().getLine();
                         Position functionLocation = new Position(fileName, lineNo);
 
-                        modelBuilder.createFunction(identifier.getText(), isPublic, functionLocation, childPosition);
-                        childPosition++;
+                        modelBuilder.createFunction(identifier.getText(), isPublic, functionLocation);
                     }
                 }
             }
@@ -204,8 +200,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 int lineNo = identifier.getSymbol().getLine();
                 Position connectorLocation = new Position(fileName, lineNo);
 
-                modelBuilder.createConnector(identifier.getText(), connectorLocation, childPosition);
-                childPosition++;
+                modelBuilder.createConnector(identifier.getText(), connectorLocation);
             }
         }
     }
@@ -302,8 +297,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 Position functionLocation = new Position(fileName, lineNo);
                 String typeConverterName = "_" + ctx.typeConvertorInput().typeConvertorType().getText() + "->" + "_" +
                         ctx.typeConvertorType().getText();
-                modelBuilder.createTypeConverter(typeConverterName, isPublic, functionLocation, childPosition);
-                childPosition++;
+                modelBuilder.createTypeConverter(typeConverterName, isPublic, functionLocation);
             }
         }
     }

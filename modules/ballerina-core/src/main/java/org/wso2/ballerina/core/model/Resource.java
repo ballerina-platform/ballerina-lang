@@ -66,13 +66,6 @@ public class Resource implements Node, CallableUnit {
 
     private Application application;
 
-    public Resource() {
-    }
-
-    public Resource(String name) {
-        this.name = name;
-    }
-
     public Resource(SymbolName name,
                     Position position,
                     Annotation[] annotations,
@@ -88,8 +81,21 @@ public class Resource implements Node, CallableUnit {
         this.parameters = parameters;
         this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
+        this.workers = workers;
+        this.resourceBody = functionBody;
+    }
 
-        /* To Do : Do we pass multiple workers from the model? */
+    public Resource(SymbolName name,
+                    Position position,
+                    Annotation[] annotations,
+                    Parameter[] parameters,
+                    Worker[] workers,
+                    BlockStmt functionBody) {
+
+        this.resourceName = name;
+        this.position = position;
+        this.annotations = annotations;
+        this.parameters = parameters;
         this.workers = workers;
         this.resourceBody = functionBody;
     }

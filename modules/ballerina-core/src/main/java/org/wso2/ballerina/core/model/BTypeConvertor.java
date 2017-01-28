@@ -22,7 +22,7 @@ import org.wso2.ballerina.core.model.statements.BlockStmt;
 /**
  * Class to represent TypeConvertor written in ballerina
  */
-public class BTypeConvertor extends PositionAwareNode implements TypeConvertor, Node {
+public class BTypeConvertor implements TypeConvertor, CompilationUnit {
 
     private SymbolName symbolName;
     private String typeConverterName;
@@ -31,7 +31,6 @@ public class BTypeConvertor extends PositionAwareNode implements TypeConvertor, 
     private Annotation[] annotations;
     private Parameter[] parameters;
     private VariableDcl[] variableDcls;
-    private Worker[] workers;
     private Parameter[] returnParams;
     private BlockStmt typeConverterBody;
 
@@ -45,7 +44,6 @@ public class BTypeConvertor extends PositionAwareNode implements TypeConvertor, 
                           Parameter[] parameters,
                           Parameter[] returnParams,
                           VariableDcl[] variableDcls,
-                          Worker[] workers,
                           BlockStmt typeConverterBody) {
 
         this.symbolName = name;
@@ -56,7 +54,24 @@ public class BTypeConvertor extends PositionAwareNode implements TypeConvertor, 
         this.parameters = parameters;
         this.returnParams = returnParams;
         this.variableDcls = variableDcls;
-        this.workers = workers;
+        this.typeConverterBody = typeConverterBody;
+    }
+
+    public BTypeConvertor(SymbolName name,
+                          Position position,
+                          Boolean isPublic,
+                          Annotation[] annotations,
+                          Parameter[] parameters,
+                          Parameter[] returnParams,
+                          BlockStmt typeConverterBody) {
+
+        this.symbolName = name;
+        this.typeConverterName = symbolName.getName();
+        this.typeConverterLocation = position;
+        this.publicFunc = isPublic;
+        this.annotations = annotations;
+        this.parameters = parameters;
+        this.returnParams = returnParams;
         this.typeConverterBody = typeConverterBody;
     }
 
@@ -116,15 +131,6 @@ public class BTypeConvertor extends PositionAwareNode implements TypeConvertor, 
      */
     public VariableDcl[] getVariableDcls() {
         return variableDcls;
-    }
-
-    /**
-     * Get all the Workers associated with a BallerinaTypeConvertor
-     *
-     * @return list of Workers
-     */
-    public Worker[] getWorkers() {
-        return workers;
     }
 
     public Parameter[] getReturnParameters() {

@@ -21,12 +21,10 @@ import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 
@@ -48,8 +46,6 @@ class CallableUnitBuilder {
     private boolean publicFunc;
     private List<Parameter> parameterList = new ArrayList<>();
     private List<Parameter> returnParamList = new ArrayList<>();
-    private List<ConnectorDcl> connectorDclList = new ArrayList<>();
-    private List<VariableDcl> variableDclList = new ArrayList<>();
     private List<Worker> workerList = new ArrayList<>();
     private BlockStmt body;
 
@@ -76,14 +72,6 @@ class CallableUnitBuilder {
         this.returnParamList.add(param);
     }
 
-    void addConnectorDcl(ConnectorDcl connectorDcl) {
-        this.connectorDclList.add(connectorDcl);
-    }
-
-    void addVariableDcl(VariableDcl variableDcl) {
-        this.variableDclList.add(variableDcl);
-    }
-
     void addWorker(Worker worker) {
         this.workerList.add(worker);
     }
@@ -101,16 +89,12 @@ class CallableUnitBuilder {
                 annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
                 returnParamList.toArray(new Parameter[returnParamList.size()]),
-                connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
-                variableDclList.toArray(new VariableDcl[variableDclList.size()]),
                 workerList.toArray(new Worker[workerList.size()]), body);
     }
 
     Resource buildResource() {
         return new Resource(name, position, annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
-                connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
-                variableDclList.toArray(new VariableDcl[variableDclList.size()]),
                 workerList.toArray(new Worker[workerList.size()]), body);
     }
 
@@ -118,8 +102,6 @@ class CallableUnitBuilder {
         return new BallerinaAction(name, position, annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
                 returnParamList.toArray(new Parameter[returnParamList.size()]),
-                connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
-                variableDclList.toArray(new VariableDcl[variableDclList.size()]),
                 workerList.toArray(new Worker[workerList.size()]), body);
     }
 
@@ -127,8 +109,6 @@ class CallableUnitBuilder {
         return new BTypeConvertor(name, position, publicFunc,
                 annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
-                returnParamList.toArray(new Parameter[returnParamList.size()]),
-                variableDclList.toArray(new VariableDcl[variableDclList.size()]),
-                workerList.toArray(new Worker[workerList.size()]), body);
+                returnParamList.toArray(new Parameter[returnParamList.size()]), body);
     }
 }

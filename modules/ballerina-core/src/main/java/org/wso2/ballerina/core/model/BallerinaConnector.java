@@ -33,7 +33,7 @@ package org.wso2.ballerina.core.model;
  *
  * @since 0.8.0
  */
-public class BallerinaConnector extends PositionAwareNode implements Connector , Node {
+public class BallerinaConnector implements Connector, CompilationUnit {
 
     private SymbolName name;
     private Annotation[] annotations;

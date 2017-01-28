@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * @since 0.8.0
  */
 @SuppressWarnings("unused")
-public class Service extends PositionAwareNode implements Node {
+public class Service implements CompilationUnit {
 
     private static final Logger logger = LoggerFactory.getLogger(Service.class);
 
@@ -51,8 +51,8 @@ public class Service extends PositionAwareNode implements Node {
     private VariableDcl[] variableDcls;
     private Resource[] resources;
 
-    public Service(SymbolName serviceName, Position serviceLocation, Annotation[] annotations, 
-            ConnectorDcl[] connectorDcls, VariableDcl[] variableDcls, Resource[] resources) {
+    public Service(SymbolName serviceName, Position serviceLocation, Annotation[] annotations,
+                   ConnectorDcl[] connectorDcls, VariableDcl[] variableDcls, Resource[] resources) {
         this.name = serviceName;
         this.serviceLocation = serviceLocation;
         this.annotations = annotations;
@@ -123,11 +123,11 @@ public class Service extends PositionAwareNode implements Node {
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
-    
+
     /**
      * Get the location of this service in the ballerina source file.
-     * 
-     * @return  Location of this service in the ballerina source file.
+     *
+     * @return Location of this service in the ballerina source file.
      */
     public Position getServiceLocation() {
         return serviceLocation;

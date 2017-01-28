@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Ballerina Struct represents a user defined type in ballerina.
  */
-public class BallerinaStruct implements Node {
+public class BallerinaStruct implements CompilationUnit {
 
     private SymbolName symbolName;
     private Position structLocation;

@@ -36,7 +36,7 @@ import org.wso2.ballerina.core.model.statements.BlockStmt;
  *
  * @since 0.8.0
  */
-public class BallerinaFunction extends PositionAwareNode implements Function, Node {
+public class BallerinaFunction implements Function, CompilationUnit {
 
     // TODO: Rename this to BFunction after M1.
     private SymbolName symbolName;
@@ -74,6 +74,26 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
         this.returnParams = returnParams;
         this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
+        this.workers = workers;
+        this.functionBody = functionBody;
+    }
+
+    public BallerinaFunction(SymbolName name,
+                             Position position,
+                             Boolean isPublic,
+                             Annotation[] annotations,
+                             Parameter[] parameters,
+                             Parameter[] returnParams,
+                             Worker[] workers,
+                             BlockStmt functionBody) {
+
+        this.symbolName = name;
+        this.functionName = symbolName.getName();
+        this.functionLocation = position;
+        this.publicFunc = isPublic;
+        this.annotations = annotations;
+        this.parameters = parameters;
+        this.returnParams = returnParams;
         this.workers = workers;
         this.functionBody = functionBody;
     }
