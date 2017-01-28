@@ -34,11 +34,9 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Const;
-import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Parameter;
-import org.wso2.ballerina.core.model.PositionAwareNode;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.VariableDcl;
@@ -83,9 +81,6 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Stack;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -124,26 +119,26 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             }
         }
         
-        ArrayList<PositionAwareNode> rootElements = new ArrayList<>();
+//        ArrayList<PositionAwareNode> rootElements = new ArrayList<>();
     
-        if (bFile.getConstants() != null && bFile.getConstants().length > 0) {
-            for (Const constDefinition : bFile.getConstants()) {
-                rootElements.add(constDefinition);
-            }
-        }
-        
-        if (bFile.getServices() != null) {
-            Service[] services = new Service[bFile.getServices().size()];
-            bFile.getServices().toArray(services);
-            for (Service service : services) {
-                rootElements.add(service);
-            }
-        }
-
-        for (Function function : bFile.getFunctions()) {
-            BallerinaFunction bFunction = (BallerinaFunction) function;
-            rootElements.add(bFunction);
-        }
+//        if (bFile.getConstants() != null && bFile.getConstants().length > 0) {
+//            for (Const constDefinition : bFile.getConstants()) {
+//                rootElements.add(constDefinition);
+//            }
+//        }
+//
+//        if (bFile.getServices() != null) {
+//            Service[] services = new Service[bFile.getServices().size()];
+//            bFile.getServices().toArray(services);
+//            for (Service service : services) {
+//                rootElements.add(service);
+//            }
+//        }
+//
+//        for (Function function : bFile.getFunctions()) {
+//            BallerinaFunction bFunction = (BallerinaFunction) function;
+//            rootElements.add(bFunction);
+//        }
 
 
         if (bFile.getConnectors() != null) {
@@ -152,15 +147,15 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             }
         }
 
-        Collections.sort(rootElements, new Comparator<PositionAwareNode>() {
-            @Override
-            public int compare(PositionAwareNode o1, PositionAwareNode o2) {
-                return Integer.compare(o1.getRelativePosition(), o2.getRelativePosition());
-            }
-        });
+//        Collections.sort(rootElements, new Comparator<PositionAwareNode>() {
+//            @Override
+//            public int compare(PositionAwareNode o1, PositionAwareNode o2) {
+//                return Integer.compare(o1.getRelativePosition(), o2.getRelativePosition());
+//            }
+//        });
 
         //service definitions //connector definitions //function definition
-        for (PositionAwareNode node : rootElements) {
+        for (CompilationUnit node : bFile.getCompilationUnits()) {
             node.accept(this);
         }
 

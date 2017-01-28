@@ -73,6 +73,23 @@ public class BallerinaAction implements Action, Node {
         this.actionBody = actionBody;
     }
 
+    public BallerinaAction(SymbolName name,
+                           Position location,
+                           Annotation[] annotations,
+                           Parameter[] parameters,
+                           Parameter[] returnParams,
+                           Worker[] workers,
+                           BlockStmt actionBody) {
+
+        this.name = name;
+        this.actionLocation = location;
+        this.annotations = annotations;
+        this.parameters = parameters;
+        this.returnParams = returnParams;
+        this.workers = workers;
+        this.actionBody = actionBody;
+    }
+
     @Override
     public String getName() {
         return name.getName();

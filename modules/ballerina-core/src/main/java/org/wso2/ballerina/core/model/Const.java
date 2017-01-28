@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
-public class Const extends PositionAwareNode implements Node {
+public class Const implements CompilationUnit {
 
     private BType type;
     private SymbolName symbolName;
@@ -120,12 +120,12 @@ public class Const extends PositionAwareNode implements Node {
             return new Const(type, symbolName, valueExpr);
         }
     }
-    
+
     /**
      * Get the source location of this constant.
      * Return the source file and the line number of this constant.
-     * 
-     * @return  Source location of this constant
+     *
+     * @return Source location of this constant
      */
     public Position getLocation() {
         return sourceLocation;
@@ -133,8 +133,8 @@ public class Const extends PositionAwareNode implements Node {
 
     /**
      * Set the source location of this constant.
-     * 
-     * @param location  Source location of this constant.
+     *
+     * @param location Source location of this constant.
      */
     public void setLocation(Position location) {
         this.sourceLocation = location;
