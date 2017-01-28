@@ -19,20 +19,8 @@ under the License.
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="ballerina-natives-test-suite">
+<suite name="ballerina-annotation-processor-test-suite">
 
-    <!-- Native Function Related Test Cases. -->
-    <test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">
-        <packages>
-            <package name="org.wso2.ballerina.nativeimpl.functions" />
-            <package name="org.wso2.ballerina.nativeimpl.lang" />
-        </packages>
-    </test>
-
-    <!-- Native Connectors Related Test Cases -->
-    <test name="ballerina-native-connectors-unit-tests" preserve-order="true" parallel="false">
-        <packages>
-            <package name="org.wso2.ballerina.nativeimpl.connectors"/>
-        </packages>
+    <test name="ballerina-annotation-processor-unit-tests" preserve-order="true" parallel="false">
     </test>
 </suite>

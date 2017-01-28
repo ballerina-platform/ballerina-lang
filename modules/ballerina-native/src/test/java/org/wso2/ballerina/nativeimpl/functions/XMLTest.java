@@ -28,11 +28,11 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
-import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.core.utils.XMLUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.nativeimpl.util.Functions;
+import org.wso2.ballerina.nativeimpl.util.NativeConstructLoader;
+import org.wso2.ballerina.nativeimpl.util.ParserUtils;
+import org.wso2.ballerina.nativeimpl.util.XMLUtils;
 
 /**
  * Test Native function in ballerina.lang.xml.
@@ -51,9 +51,9 @@ public class XMLTest {
         // Add Native functions.
         SymScope symScope = GlobalScopeHolder.getInstance().getScope();
         if (symScope.lookup(new SymbolName("ballerina.lang.system:print_string")) == null) {
-            BuiltInNativeConstructLoader.loadConstructs();
+            NativeConstructLoader.loadConstructs();
         }
-        bFile = ParserUtils.parseBalFile("samples/nativeimpl/xmlTest.bal", symScope);
+        bFile = ParserUtils.parseBalFile("samples/xmlTest.bal", symScope);
     }
 
     @Test
