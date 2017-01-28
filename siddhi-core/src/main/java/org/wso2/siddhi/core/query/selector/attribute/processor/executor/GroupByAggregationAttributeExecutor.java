@@ -23,7 +23,6 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
 
-import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,22 +60,22 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
         return new GroupByAggregationAttributeExecutor(attributeAggregator.cloneAggregator(key), attributeExpressionExecutors, executionPlanContext, queryName);
     }
 
-
     @Override
-    public Object[] currentState() {
-        HashMap<String, Object[]> data = new HashMap<String, Object[]>();
+    public Map<String, Object> currentState() {
+        HashMap<String, Map<String, Object>> data = new HashMap<>();
         for (Map.Entry<String, AttributeAggregator> entry : aggregatorMap.entrySet()) {
             data.put(entry.getKey(), entry.getValue().currentState());
         }
-        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Data", data)};
+        Map<String, Object> state = new HashMap<>();
+        state.put("Data", data);
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-        HashMap<String, Object[]> data = (HashMap<String, Object[]>) stateEntry.getValue();
+    public void restoreState(Map<String, Object> state) {
+        HashMap<String, Map<String, Object>> data = (HashMap<String, Map<String, Object>>) state.get("Data");
 
-        for (Map.Entry<String, Object[]> entry : data.entrySet()) {
+        for (Map.Entry<String, Map<String, Object>> entry : data.entrySet()) {
             String key = entry.getKey();
             AttributeAggregator aAttributeAggregator = attributeAggregator.cloneAggregator(key);
             aAttributeAggregator.initAggregator(attributeExpressionExecutors, executionPlanContext);

@@ -27,8 +27,8 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 @Description("Returns the average for all the events.")
@@ -113,12 +113,12 @@ public class AvgAttributeAggregator extends AttributeAggregator {
     }
 
     @Override
-    public Object[] currentState() {
+    public Map<String, Object> currentState() {
         return avgOutputAttributeAggregator.currentState();
     }
 
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> state) {
         avgOutputAttributeAggregator.restoreState(state);
     }
 
@@ -160,16 +160,17 @@ public class AvgAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Value", value), new AbstractMap.SimpleEntry<String, Object>("Count", count)};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("Value", value);
+            state.put("Count", count);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-            value = (Double) stateEntry.getValue();
-            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
-            count = (Long) stateEntry2.getValue();
+        public void restoreState(Map<String, Object> state) {
+            value = (double) state.get("Value");
+            count = (int) state.get("Count");
         }
     }
 
@@ -211,16 +212,17 @@ public class AvgAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Value", value), new AbstractMap.SimpleEntry<String, Object>("Count", count)};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("Value", value);
+            state.put("Count", count);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-            value = (Double) stateEntry.getValue();
-            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
-            count = (Long) stateEntry2.getValue();
+        public void restoreState(Map<String, Object> state) {
+            value = (double) state.get("Value");
+            count = (int) state.get("Count");
         }
     }
 
@@ -262,16 +264,17 @@ public class AvgAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Value", value), new AbstractMap.SimpleEntry<String, Object>("Count", count)};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("Value", value);
+            state.put("Count", count);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-            value = (Double) stateEntry.getValue();
-            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
-            count = (Long) stateEntry2.getValue();
+        public void restoreState(Map<String, Object> state) {
+            value = (double) state.get("Value");
+            count = (int) state.get("Count");
         }
 
     }
@@ -314,16 +317,17 @@ public class AvgAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Value", value), new AbstractMap.SimpleEntry<String, Object>("Count", count)};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("Value", value);
+            state.put("Count", count);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-            value = (Double) stateEntry.getValue();
-            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
-            count = (Long) stateEntry2.getValue();
+        public void restoreState(Map<String, Object> state) {
+            value = (double) state.get("Value");
+            count = (int) state.get("Count");
         }
 
     }

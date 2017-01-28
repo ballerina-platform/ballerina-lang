@@ -42,8 +42,8 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -367,18 +367,32 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
         //Do nothing
     }
 
-    public Object[] currentState() {
-        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("CurrentEventChunk", currentEventChunk.getFirst()), new AbstractMap.SimpleEntry<String, Object>("ExpiredEventChunk", expiredEventChunk != null ? expiredEventChunk.getFirst() : null), new AbstractMap.SimpleEntry<String, Object>("ResetEvent", resetEvent), new AbstractMap.SimpleEntry<String, Object>("EndTime", endTime), new AbstractMap.SimpleEntry<String, Object>("StartTime", startTime), new AbstractMap.SimpleEntry<String, Object>("LastScheduledTime", lastScheduledTime), new AbstractMap.SimpleEntry<String, Object>("LastCurrentEventTime", lastCurrentEventTime), new AbstractMap.SimpleEntry<String, Object>("Flushed", flushed)};
+    @Override
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("StartTime", startTime);
+        state.put("EndTime", endTime);
+        state.put("LastScheduledTime", lastScheduledTime);
+        state.put("LastCurrentEventTime", lastCurrentEventTime);
+        state.put("CurrentEventChunk", currentEventChunk.getFirst());
+        state.put("ExpiredEventChunk", expiredEventChunk != null ? expiredEventChunk.getFirst() : null);
+        state.put("ResetEvent", resetEvent);
+        state.put("Flushed", flushed);
+        return state;
     }
 
-    public void restoreState(Object[] state) {
+
+    @Override
+    public void restoreState(Map<String, Object> state) {
+        startTime = (long) state.get("StartTime");
+        endTime = (long) state.get("EndTime");
+        lastScheduledTime = (long) state.get("LastScheduledTime");
+        lastCurrentEventTime = (long) state.get("LastCurrentEventTime");
         currentEventChunk.clear();
-        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-        currentEventChunk.add((StreamEvent) stateEntry.getValue());
-        if (state[1] != null) {
+        currentEventChunk.add((StreamEvent) state.get("CurrentEventChunk"));
+        if (expiredEventChunk != null) {
             expiredEventChunk.clear();
-            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
-            expiredEventChunk.add((StreamEvent) stateEntry2.getValue());
+            expiredEventChunk.add((StreamEvent) state.get("ExpiredEventChunk"));
         } else {
             if (outputExpectsExpiredEvents) {
                 expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
@@ -387,19 +401,9 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
                 expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
             }
         }
+        resetEvent = (StreamEvent) state.get("ResetEvent");
+        flushed = (boolean) state.get("Flushed");
 
-        Map.Entry<String, Object> stateEntry3 = (Map.Entry<String, Object>) state[2];
-        resetEvent = (StreamEvent) stateEntry3.getValue();
-        Map.Entry<String, Object> stateEntry4 = (Map.Entry<String, Object>) state[3];
-        endTime = (Long) stateEntry4.getValue();
-        Map.Entry<String, Object> stateEntry5 = (Map.Entry<String, Object>) state[4];
-        startTime = (Long) stateEntry5.getValue();
-        Map.Entry<String, Object> stateEntry6 = (Map.Entry<String, Object>) state[5];
-        lastScheduledTime = (Long) stateEntry6.getValue();
-        Map.Entry<String, Object> stateEntry7 = (Map.Entry<String, Object>) state[6];
-        lastCurrentEventTime = (Long) stateEntry7.getValue();
-        Map.Entry<String, Object> stateEntry8 = (Map.Entry<String, Object>) state[7];
-        flushed = (Boolean) stateEntry8.getValue();
     }
 
     public synchronized StreamEvent find(StateEvent matchingEvent, Finder finder) {

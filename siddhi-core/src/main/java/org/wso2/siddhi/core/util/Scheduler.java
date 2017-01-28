@@ -30,6 +30,8 @@ import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -83,13 +85,15 @@ public abstract class Scheduler implements Snapshotable {
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{toNotifyQueue};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("ToNotifyQueue", toNotifyQueue);
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        BlockingQueue<Long> restoreToNotifyQueue = (BlockingQueue<Long>) state[0];
+    public void restoreState(Map<String, Object> state) {
+        BlockingQueue<Long> restoreToNotifyQueue = (BlockingQueue<Long>) state.get("ToNotifyQueue");
         for (Long time : restoreToNotifyQueue) {
             notifyAt(time);
         }

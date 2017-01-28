@@ -151,14 +151,17 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{eventList, aggregateAttributeValueMap};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("EventList", eventList);
+        state.put("AggregateAttributeValueMap", aggregateAttributeValueMap);
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        eventList = (LinkedList<ComplexEvent>) state[0];
-        aggregateAttributeValueMap = (Map<Integer, Object>) state[1];
+    public void restoreState(Map<String, Object> state) {
+        eventList = (LinkedList<ComplexEvent>) state.get("EventList");
+        aggregateAttributeValueMap = (Map<Integer, Object>) state.get("AdgregateAttributeValueMap");
     }
 
     @Override

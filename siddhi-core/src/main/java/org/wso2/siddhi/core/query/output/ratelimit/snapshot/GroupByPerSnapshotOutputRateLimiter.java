@@ -26,10 +26,7 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.parser.SchedulerParser;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class GroupByPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
@@ -105,13 +102,15 @@ public class GroupByPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimit
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{groupByKeyEvents};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("GroupByKeyEvents", groupByKeyEvents);
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        groupByKeyEvents = (Map<String, ComplexEvent>) state[0];
+    public void restoreState(Map<String, Object> state) {
+        groupByKeyEvents = (Map<String, ComplexEvent>) state.get("groupByKeyEvents");
     }
 
     @Override

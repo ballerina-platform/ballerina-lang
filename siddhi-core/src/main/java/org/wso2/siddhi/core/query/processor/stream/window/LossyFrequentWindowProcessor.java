@@ -37,8 +37,8 @@ import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
 import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.query.api.expression.Expression;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -157,15 +157,18 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
         //Do nothing
     }
 
-    @Override
-    public Object[] currentState() {
-        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("CountMap", countMap)};
-    }
 
     @Override
-    public void restoreState(Object[] state) {
-        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-        countMap = (ConcurrentHashMap<String, LossyCount>) stateEntry.getValue();
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("CountMap", countMap);
+        return state;
+    }
+
+
+    @Override
+    public void restoreState(Map<String, Object> state) {
+        countMap = (ConcurrentHashMap<String, LossyCount>) state.get("CountMap");
     }
 
     private String generateKey(StreamEvent event) {      // for performance reason if its all attribute we don't do the attribute list check

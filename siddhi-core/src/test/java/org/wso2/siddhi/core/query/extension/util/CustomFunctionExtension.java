@@ -23,6 +23,8 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+import java.util.Map;
+
 public class CustomFunctionExtension extends FunctionExecutor {
 
     private Attribute.Type returnType;
@@ -105,13 +107,13 @@ public class CustomFunctionExtension extends FunctionExecutor {
     }
 
     @Override
-    public Object[] currentState() {
+    public Map<String, Object> currentState() {
         //No state
         return null;
     }
 
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> state) {
         //Nothing to be done
     }
 }

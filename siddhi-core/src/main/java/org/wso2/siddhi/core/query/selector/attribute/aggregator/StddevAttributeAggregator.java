@@ -28,8 +28,8 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 @Description("Returns the calculated standard deviation for all the events.")
@@ -104,7 +104,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
     }
 
     @Override
-    public Object[] currentState() {
+    public Map<String, Object> currentState() {
         return stddevOutputAttributeAggregator.currentState();
     }
 
@@ -117,7 +117,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
     }
 
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> state) {
         stddevOutputAttributeAggregator.restoreState(state);
     }
 
@@ -183,17 +183,23 @@ public class StddevAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{sum, mean, oldMean, stdDeviation, count};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("Sum", sum);
+            state.put("Mean", mean);
+            state.put("OldMean", oldMean);
+            state.put("StdDeviation", stdDeviation);
+            state.put("Count", count);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            sum = (Double) state[0];
-            mean = (Double) state[1];
-            oldMean = (Double) state[2];
-            stdDeviation = (Double) state[3];
-            count = (Integer) state[4];
+        public void restoreState(Map<String, Object> state) {
+            sum = (Long) state.get("Sum");
+            mean = (Long) state.get("Mean");
+            oldMean = (Long) state.get("OldMean");
+            stdDeviation = (Long) state.get("StdDeviation");
+            count = (int) state.get("Count");
         }
     }
 
@@ -259,22 +265,23 @@ public class StddevAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Sum", sum), new AbstractMap.SimpleEntry<String, Object>("Mean", mean), new AbstractMap.SimpleEntry<String, Object>("OldMean", oldMean), new AbstractMap.SimpleEntry<String, Object>("StandardDeviation", stdDeviation), new AbstractMap.SimpleEntry<String, Object>("Count", count)};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("Sum", sum);
+            state.put("Mean", mean);
+            state.put("OldMean", oldMean);
+            state.put("StdDeviation", stdDeviation);
+            state.put("Count", count);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-            sum = (Double) stateEntry.getValue();
-            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
-            mean = (Double) stateEntry2.getValue();
-            Map.Entry<String, Object> stateEntry3 = (Map.Entry<String, Object>) state[2];
-            oldMean = (Double) stateEntry3.getValue();
-            Map.Entry<String, Object> stateEntry4 = (Map.Entry<String, Object>) state[3];
-            stdDeviation = (Double) stateEntry4.getValue();
-            Map.Entry<String, Object> stateEntry5 = (Map.Entry<String, Object>) state[4];
-            count = (Integer) stateEntry5.getValue();
+        public void restoreState(Map<String, Object> state) {
+            sum = (Long) state.get("Sum");
+            mean = (Long) state.get("Mean");
+            oldMean = (Long) state.get("OldMean");
+            stdDeviation = (Long) state.get("StdDeviation");
+            count = (int) state.get("Count");
         }
     }
 
@@ -340,22 +347,23 @@ public class StddevAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Sum", sum), new AbstractMap.SimpleEntry<String, Object>("Mean", mean), new AbstractMap.SimpleEntry<String, Object>("OldMean", oldMean), new AbstractMap.SimpleEntry<String, Object>("StandardDeviation", stdDeviation), new AbstractMap.SimpleEntry<String, Object>("Count", count)};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("Sum", sum);
+            state.put("Mean", mean);
+            state.put("OldMean", oldMean);
+            state.put("StdDeviation", stdDeviation);
+            state.put("Count", count);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-            sum = (Double) stateEntry.getValue();
-            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
-            mean = (Double) stateEntry2.getValue();
-            Map.Entry<String, Object> stateEntry3 = (Map.Entry<String, Object>) state[2];
-            oldMean = (Double) stateEntry3.getValue();
-            Map.Entry<String, Object> stateEntry4 = (Map.Entry<String, Object>) state[3];
-            stdDeviation = (Double) stateEntry4.getValue();
-            Map.Entry<String, Object> stateEntry5 = (Map.Entry<String, Object>) state[4];
-            count = (Integer) stateEntry5.getValue();
+        public void restoreState(Map<String, Object> state) {
+            sum = (Long) state.get("Sum");
+            mean = (Long) state.get("Mean");
+            oldMean = (Long) state.get("OldMean");
+            stdDeviation = (Long) state.get("StdDeviation");
+            count = (int) state.get("Count");
         }
     }
 
@@ -421,22 +429,23 @@ public class StddevAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Sum", sum), new AbstractMap.SimpleEntry<String, Object>("Mean", mean), new AbstractMap.SimpleEntry<String, Object>("OldMean", oldMean), new AbstractMap.SimpleEntry<String, Object>("StandardDeviation", stdDeviation), new AbstractMap.SimpleEntry<String, Object>("Count", count)};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("Sum", sum);
+            state.put("Mean", mean);
+            state.put("OldMean", oldMean);
+            state.put("StdDeviation", stdDeviation);
+            state.put("Count", count);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-            sum = (Double) stateEntry.getValue();
-            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
-            mean = (Double) stateEntry2.getValue();
-            Map.Entry<String, Object> stateEntry3 = (Map.Entry<String, Object>) state[2];
-            oldMean = (Double) stateEntry3.getValue();
-            Map.Entry<String, Object> stateEntry4 = (Map.Entry<String, Object>) state[3];
-            stdDeviation = (Double) stateEntry4.getValue();
-            Map.Entry<String, Object> stateEntry5 = (Map.Entry<String, Object>) state[4];
-            count = (Integer) stateEntry5.getValue();
+        public void restoreState(Map<String, Object> state) {
+            sum = (Long) state.get("Sum");
+            mean = (Long) state.get("Mean");
+            oldMean = (Long) state.get("OldMean");
+            stdDeviation = (Long) state.get("StdDeviation");
+            count = (int) state.get("Count");
         }
     }
 }

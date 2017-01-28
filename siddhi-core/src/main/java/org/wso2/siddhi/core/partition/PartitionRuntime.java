@@ -18,6 +18,7 @@
 package org.wso2.siddhi.core.partition;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
@@ -43,12 +44,12 @@ import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PartitionRuntime implements Snapshotable {
 
@@ -254,14 +255,15 @@ public class PartitionRuntime implements Snapshotable {
     }
 
     @Override
-    public Object[] currentState() {
-        List<String> partitionKeys = new ArrayList<String>(partitionInstanceRuntimeMap.keySet());
-        return new Object[]{partitionKeys};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+                state.put("PartitionKeys", partitionInstanceRuntimeMap.keySet());
+                return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        List<String> partitionKeys = (List<String>) state[0];
+    public void restoreState(Map<String, Object> state) {
+        List<String> partitionKeys  = (List<String>) state.get("PartitionKeys");
         for (String key : partitionKeys) {
             clonePartition(key);
         }

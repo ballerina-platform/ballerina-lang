@@ -17,6 +17,8 @@
  */
 package org.wso2.siddhi.core.util.snapshot;
 
+import java.util.Map;
+
 public interface Snapshotable {
 
     /**
@@ -25,7 +27,7 @@ public interface Snapshotable {
      *
      * @return stateful objects of the processing element as an array
      */
-    Object[] currentState();
+    Map<String, Object> currentState();
 
     /**
      * Used to restore serialized state of the processing element, for reconstructing
@@ -34,7 +36,7 @@ public interface Snapshotable {
      * @param state the stateful objects of the element as an array on
      *              the same order provided by currentState().
      */
-    void restoreState(Object[] state);
+    void restoreState(Map<String, Object> state);
 
     String getElementId();
 }
