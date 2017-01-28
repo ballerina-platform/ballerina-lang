@@ -25,6 +25,11 @@ public class BallerinaUtil {
 
     @NotNull
     public static String suggestPackageForDirectory(@Nullable PsiDirectory directory) {
-        return BallerinaPsiImplUtil.getLocalPackageName(directory != null ? directory.getName() : "");
+        // If the directory is not null, get the package name
+        if (directory != null) {
+            return BallerinaPsiImplUtil.getLocalPackageName(directory.getVirtualFile());
+        }
+        // If the directory is null, return empty string
+        return "";
     }
 }
