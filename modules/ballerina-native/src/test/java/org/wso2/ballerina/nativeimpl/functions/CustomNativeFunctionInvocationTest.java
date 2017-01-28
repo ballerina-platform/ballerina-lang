@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.ballerina.core.nativeimpl.functions;
+package org.wso2.ballerina.nativeimpl.functions;
 
 import org.apache.log4j.Logger;
 import org.testng.Assert;
@@ -27,6 +27,8 @@ import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 import org.wso2.ballerina.core.nativeimpl.exceptions.ArgumentOutOfRangeException;
+import org.wso2.ballerina.core.nativeimpl.functions.EchoStringNativeFunction;
+import org.wso2.ballerina.core.nativeimpl.functions.IncorrectParamCountNativeFunction;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.runtime.registry.PackageRegistry;
 import org.wso2.ballerina.core.utils.ParserUtils;

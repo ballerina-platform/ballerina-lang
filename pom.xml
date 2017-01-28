@@ -72,6 +72,16 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.ballerina</groupId>
+                <artifactId>ballerina-native</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.ballerina</groupId>
+                <artifactId>annotation-processor</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.ballerina</groupId>
                 <artifactId>ballerina-core-feature</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
@@ -445,6 +455,8 @@
     <modules>
         <module>modules/ballerina-core</module>
         <module>modules/launcher</module>
+        <module>modules/ballerina-native</module>
+        <module>modules/annotation-processor</module>
         <!--<module>modules/gson-fragment</module>-->
         <!--<module>modules/features</module>-->
         <module>modules/editor/services/workspace-service</module>

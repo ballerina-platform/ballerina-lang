@@ -30,19 +30,6 @@ function getApple(string[] fruits) (string) {
   return fruits[24];
 }
 
-function nativeFunctionErrorTest() (string) {
-    json j;
-    j = `{"name":"wso2"}`;
-    return json:getString(j, "malformed/jsontpath/.");
-}
-
-function nativeConnectorErrorTest() {
-	http:HTTPConnector endpoint = new http:HTTPConnector("malformed/url");
-	message request;
-	request = new message("test");
-	http:HTTPConnector.get(endpoint, "/context", request);
-}
-
 function testStackOverflow() {
 	infiniteRecurse();
 }

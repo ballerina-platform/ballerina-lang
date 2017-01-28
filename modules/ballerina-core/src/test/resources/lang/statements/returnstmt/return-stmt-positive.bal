@@ -1,5 +1,3 @@
-import ballerina.lang.string;
-
 function testReturn() {
     return;
 }
@@ -77,13 +75,13 @@ function testSplitString() (string part1, string part2, string part3) {
 
 function testToUpperUtil(string s) (string) {
     // Covert s to upper
-    return string:toUpperCase(s);
+    return "SECTION";
 }
 
 function testToUpperUtilDouble(string s1, string s2) (string s3, string s4) {
     // Covert s to upper
-    s3 = string:toUpperCase(s1);
-    s4 = string:toUpperCase(s2);
+    s3 = "NAME1";
+    s4 = "NAME2";
     return s3, s4;
 }
 

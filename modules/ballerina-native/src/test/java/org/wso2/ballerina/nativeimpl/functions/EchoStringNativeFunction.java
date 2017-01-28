@@ -17,7 +17,7 @@
  **/
 
 
-package org.wso2.ballerina.core.nativeimpl.functions;
+package org.wso2.ballerina.nativeimpl.functions;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
