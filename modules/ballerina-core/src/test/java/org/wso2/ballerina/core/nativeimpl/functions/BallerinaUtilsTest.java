@@ -26,13 +26,8 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.util.Base64Decode;
-import org.wso2.ballerina.core.nativeimpl.util.Base64Encode;
-import org.wso2.ballerina.core.nativeimpl.util.GetHmac;
-import org.wso2.ballerina.core.nativeimpl.util.GetRandomString;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
-import org.wso2.ballerina.core.utils.FunctionUtils;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
@@ -52,10 +47,6 @@ public class BallerinaUtilsTest {
         if (symScope.lookup(new SymbolName("ballerina.lang.system:print_string")) == null) {
             BuiltInNativeConstructLoader.loadConstructs();
         }
-        FunctionUtils.addNativeFunction(symScope, new Base64Decode());
-        FunctionUtils.addNativeFunction(symScope, new Base64Encode());
-        FunctionUtils.addNativeFunction(symScope, new GetRandomString());
-        FunctionUtils.addNativeFunction(symScope, new GetHmac());
         bFile = ParserUtils.parseBalFile("samples/nativeimpl/utilsTest.bal", symScope);
     }
 
