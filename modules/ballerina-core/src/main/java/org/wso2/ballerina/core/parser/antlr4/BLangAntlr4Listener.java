@@ -244,17 +244,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterConnectorDeclaration(BallerinaParser.ConnectorDeclarationContext ctx) {
-    }
-
-    @Override
-    public void exitConnectorDeclaration(BallerinaParser.ConnectorDeclarationContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.createConnectorDcl(ctx.Identifier().getText(), getCurrentLocation(ctx));
-        }
-    }
-
-    @Override
     public void enterStructDefinition(BallerinaParser.StructDefinitionContext ctx) {
         if (ctx.exception == null) {
             modelBuilder.startStruct();
@@ -369,18 +358,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
             modelBuilder.createConstant(ctx.Identifier().getText(), getCurrentLocation(ctx));
         }
     }
-
-    @Override
-    public void enterVariableDeclaration(BallerinaParser.VariableDeclarationContext ctx) {
-    }
-
-    @Override
-    public void exitVariableDeclaration(BallerinaParser.VariableDeclarationContext ctx) {
-        if (ctx.exception == null && ctx.Identifier() != null) {
-            modelBuilder.createVariableDcl(ctx.Identifier().getText(), getCurrentLocation(ctx));
-        }
-    }
-
 
     @Override
     public void enterWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx) {
@@ -575,17 +552,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterQualifiedReference(BallerinaParser.QualifiedReferenceContext ctx) {
-    }
-
-    @Override
-    public void exitQualifiedReference(BallerinaParser.QualifiedReferenceContext ctx) {
-        if (ctx.exception == null && ctx.Identifier() != null) {
-            modelBuilder.createSymbolName(ctx.Identifier().getText());
-        }
-    }
-
-    @Override
     public void enterParameterList(BallerinaParser.ParameterListContext ctx) {
     }
 
@@ -695,6 +661,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitStatement(BallerinaParser.StatementContext ctx) {
+    }
+
+    @Override
+    public void enterVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) {
+
+    }
+
+    @Override
+    public void exitVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) {
+
     }
 
     @Override
@@ -1005,9 +981,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitFunctionName(BallerinaParser.FunctionNameContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.createSymbolName(ctx.Identifier().getText());
-        }
+
     }
 
     @Override
@@ -1016,12 +990,18 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitActionInvocation(BallerinaParser.ActionInvocationContext ctx) {
-        // Corresponding production
-        // actionInvocation
-        //      :   packageName ':' Identifier '.' Identifier
-        // Here first identifier is the connector name and the second identifier in the action name.
+
+    }
+
+    @Override
+    public void enterCallableUnitName(BallerinaParser.CallableUnitNameContext ctx) {
+
+    }
+
+    @Override
+    public void exitCallableUnitName(BallerinaParser.CallableUnitNameContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.createSymbolName(ctx.Identifier(0).getText(), ctx.Identifier(1).getText());
+                modelBuilder.createSymbolName(ctx.Identifier().getText());
         }
     }
 
@@ -1110,6 +1090,22 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterRefTypeInitExpression(BallerinaParser.RefTypeInitExpressionContext ctx) {
+
+    }
+
+    @Override
+    public void exitRefTypeInitExpression(BallerinaParser.RefTypeInitExpressionContext ctx) {
+//        if (ctx.exception == null) {
+//            if (ctx.mapStructInitKeyValueList() != null) {
+//                //initi map or struct
+//            } else {
+//                //init message, exception
+//            }
+//        }
+    }
+
+    @Override
     public void enterBracedExpression(BallerinaParser.BracedExpressionContext ctx) {
     }
 
@@ -1149,16 +1145,15 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterStructInitializeExpression(BallerinaParser.StructInitializeExpressionContext ctx) {
+    public void enterArrayInitExpression(BallerinaParser.ArrayInitExpressionContext ctx) {
+
     }
 
     @Override
-    public void exitStructInitializeExpression(BallerinaParser.StructInitializeExpressionContext ctx) {
-        if (ctx.exception != null) {
-            return;
+    public void exitArrayInitExpression(BallerinaParser.ArrayInitExpressionContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.createArrayInitExpr(getCurrentLocation(ctx));
         }
-        boolean exprListAvailable = ctx.expressionList() != null;
-        modelBuilder.createInstanceCreaterExpr(ctx.Identifier().getText(), exprListAvailable, getCurrentLocation(ctx));
     }
 
     @Override
@@ -1180,18 +1175,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
     public void exitBinaryNotEqualExpression(BallerinaParser.BinaryNotEqualExpressionContext ctx) {
         if (ctx.exception == null) {
             createBinaryExpr(ctx);
-        }
-    }
-
-    @Override
-    public void enterArrayInitializerExpression(BallerinaParser.ArrayInitializerExpressionContext ctx) {
-
-    }
-
-    @Override
-    public void exitArrayInitializerExpression(BallerinaParser.ArrayInitializerExpressionContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.createArrayInitExpr(getCurrentLocation(ctx));
         }
     }
 
@@ -1274,17 +1257,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterMapInitializerExpression(BallerinaParser.MapInitializerExpressionContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.startMapInitKeyValue();
-        }
+    public void enterConnectorInitExpression(BallerinaParser.ConnectorInitExpressionContext ctx) {
+
     }
 
     @Override
-    public void exitMapInitializerExpression(BallerinaParser.MapInitializerExpressionContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.createMapInitExpr(getCurrentLocation(ctx));
-        }
+    public void exitConnectorInitExpression(BallerinaParser.ConnectorInitExpressionContext ctx) {
+
     }
 
     @Override
@@ -1309,42 +1288,24 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
     }
 
-    /**
-     * Enter a parse tree produced by {@link BallerinaParser#mapInitKeyValueList}.
-     *
-     * @param ctx the parse tree
-     */
     @Override
-    public void enterMapInitKeyValueList(BallerinaParser.MapInitKeyValueListContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.startMapInitKeyValue();
-        }
-    }
+    public void enterMapStructInitKeyValueList(BallerinaParser.MapStructInitKeyValueListContext ctx) {
 
-    /**
-     * Exit a parse tree produced by {@link BallerinaParser#mapInitKeyValueList}.
-     *
-     * @param ctx the parse tree
-     */
-    @Override
-    public void exitMapInitKeyValueList(BallerinaParser.MapInitKeyValueListContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.endMapInitKeyValue(ctx.mapInitKeyValue().size());
-        }
     }
 
     @Override
-    public void enterMapInitKeyValue(BallerinaParser.MapInitKeyValueContext ctx) {
+    public void exitMapStructInitKeyValueList(BallerinaParser.MapStructInitKeyValueListContext ctx) {
+
     }
 
     @Override
-    public void exitMapInitKeyValue(BallerinaParser.MapInitKeyValueContext ctx) {
-        if (ctx.exception == null) {
-            // Remove the double quotes
-            String key = ctx.QuotedStringLiteral().toString().substring(1,
-                    ctx.QuotedStringLiteral().toString().length() - 1);
-            modelBuilder.createMapInitKeyValue(key, getCurrentLocation(ctx));
-        }
+    public void enterMapStructInitKeyValue(BallerinaParser.MapStructInitKeyValueContext ctx) {
+
+    }
+
+    @Override
+    public void exitMapStructInitKeyValue(BallerinaParser.MapStructInitKeyValueContext ctx) {
+
     }
 
     @Override
