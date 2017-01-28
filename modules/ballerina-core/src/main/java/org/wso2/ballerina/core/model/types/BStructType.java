@@ -21,7 +21,7 @@ import org.wso2.ballerina.core.model.values.BStruct;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code BStructType} represents a user defined {@link org.wso2.ballerina.core.model.BallerinaStruct} in Ballerina
+ * {@code BStructType} represents a user defined {@link org.wso2.ballerina.core.model.Struct} in Ballerina
  *
  * @since 1.0.0
  */

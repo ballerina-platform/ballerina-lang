@@ -29,7 +29,7 @@ public class StructDcl implements Node {
     SymbolName structName;
 
     /* Reference to the struct instance which is referred by the declaration */
-    BallerinaStruct struct;
+    Struct struct;
     
     protected Position sourceLocation;
 
@@ -60,7 +60,7 @@ public class StructDcl implements Node {
      *
      * @param struct reference to the struct instance
      */
-    public void setStruct(BallerinaStruct struct) {
+    public void setStruct(Struct struct) {
         this.struct = struct;
     }
 
@@ -69,7 +69,7 @@ public class StructDcl implements Node {
      *
      * @return reference to the struct instance
      */
-    public BallerinaStruct getStruct() {
+    public Struct getStruct() {
         return struct;
     }
 

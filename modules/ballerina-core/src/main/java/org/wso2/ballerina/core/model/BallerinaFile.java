@@ -52,7 +52,7 @@ public class BallerinaFile implements Node {
     private TypeConvertor[] typeConvertors;
     private Function mainFunction;
     private Const[] consts;
-    private BallerinaStruct[] structs;
+    private Struct[] structs;
 
     private int sizeOfStaticMem;
 
@@ -67,7 +67,7 @@ public class BallerinaFile implements Node {
             Function[] functions,
             Function mainFunction,
             Const[] consts,
-            BallerinaStruct[] structs,
+            Struct[] structs,
             TypeConvertor[] typeConvertors) {
 
         this.packageName = packageName;
@@ -167,7 +167,7 @@ public class BallerinaFile implements Node {
         return this.mainFunction;
     }
 
-    public BallerinaStruct[] getStructs() {
+    public Struct[] getStructs() {
         return this.structs;
     }
 
@@ -205,7 +205,7 @@ public class BallerinaFile implements Node {
 
         private List<Const> constList = new ArrayList<>();
 
-        private List<BallerinaStruct> structList = new ArrayList<>();
+        private List<Struct> structList = new ArrayList<>();
 
         public BFileBuilder() {
         }
@@ -255,7 +255,7 @@ public class BallerinaFile implements Node {
         /**
          * Add a ballerina user defined Struct to the ballerina file
          */
-        public void addStruct(BallerinaStruct struct) {
+        public void addStruct(Struct struct) {
             this.compilationUnitList.add(struct);
             this.structList.add(struct);
         }
@@ -274,7 +274,7 @@ public class BallerinaFile implements Node {
                     functionList.toArray(new Function[functionList.size()]),
                     mainFunction,
                     constList.toArray(new Const[constList.size()]),
-                    structList.toArray(new BallerinaStruct[structList.size()]),
+                    structList.toArray(new Struct[structList.size()]),
                     typeConvertorList.toArray(new TypeConvertor[typeConvertorList.size()])
             );
         }

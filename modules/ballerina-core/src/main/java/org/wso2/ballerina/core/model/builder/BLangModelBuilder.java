@@ -26,7 +26,6 @@ import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.BallerinaStruct;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.ImportPackage;
@@ -35,6 +34,7 @@ import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.model.Struct;
 import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
@@ -76,6 +76,7 @@ import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.symbols.SymbolScope;
 import org.wso2.ballerina.core.model.types.BStructType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
@@ -100,21 +101,22 @@ import java.util.regex.Pattern;
  *
  * @since 0.8.0
  */
-@SuppressWarnings("javadoc")
 public class BLangModelBuilder {
     private static final Logger log = LoggerFactory.getLogger(BLangModelBuilder.class);
 
     private String pkgName;
     private BallerinaFile.BFileBuilder bFileBuilder = new BallerinaFile.BFileBuilder();
 
+    private SymbolScope currentScope;
+
     // Builds connectors and services.
     private CallableUnitGroupBuilder currentCUGroupBuilder;
 
     // Builds functions, actions and resources.
     private CallableUnitBuilder currentCUBuilder;
-    
+
     // Builds user defined structs.
-    private BallerinaStruct.StructBuilder structBuilder;
+    private Struct.StructBuilder structBuilder;
 
     private Stack<Annotation.AnnotationBuilder> annotationBuilderStack = new Stack<>();
     private Stack<BlockStmt.BlockStmtBuilder> blockStmtBuilderStack = new Stack<>();
@@ -129,7 +131,14 @@ public class BLangModelBuilder {
     private Stack<List<Expression>> exprListStack = new Stack<>();
     private Stack<List<Annotation>> annotationListStack = new Stack<>();
     private Stack<List<KeyValueExpression>> mapInitKeyValueListStack = new Stack<>();
-    
+
+    public BLangModelBuilder() {
+    }
+
+    public BLangModelBuilder(SymbolScope packageScope) {
+        this.currentScope = packageScope;
+    }
+
     public BallerinaFile build() {
         return bFileBuilder.build();
     }
@@ -190,7 +199,7 @@ public class BLangModelBuilder {
             // This is not yet supported. Therefore ignoring for the moment.
             exprListStack.pop();
         }
-        
+
         InstanceCreationExpr expression = new InstanceCreationExpr(null);
         expression.setType(type);
         expression.setLocation(sourceLocation);
@@ -311,7 +320,7 @@ public class BLangModelBuilder {
         // Create a variable declaration
         SymbolName localVarId = new SymbolName(varName);
         BType localVarType = typeQueue.remove();
-        
+
         VariableDcl variableDcl = new VariableDcl(localVarType, localVarId);
         variableDcl.setLocation(sourceLocation);
 
@@ -381,7 +390,7 @@ public class BLangModelBuilder {
 
     public void createMapArrayVarRefExpr(String varName, Position sourceLocation) {
         SymbolName symName = new SymbolName(varName);
-        
+
         Expression indexExpr = exprStack.pop();
         VariableRefExpr arrayVarRefExpr = new VariableRefExpr(symName);
         arrayVarRefExpr.setLocation(sourceLocation);
@@ -929,56 +938,56 @@ public class BLangModelBuilder {
      * Start a struct builder.
      */
     public void startStruct() {
-        structBuilder = new BallerinaStruct.StructBuilder();
+        structBuilder = new Struct.StructBuilder();
     }
-    
+
     /**
-     * Creates a {@link BallerinaStruct}.
-     * 
-     * @param name              Name of the {@link BallerinaStruct}
-     * @param isPublic          Flag indicating whether the {@link BallerinaStruct} is public
-     * @param sourceLocation    Location of this {@link BallerinaStruct} in the source file
+     * Creates a {@link Struct}.
+     *
+     * @param name           Name of the {@link Struct}
+     * @param isPublic       Flag indicating whether the {@link Struct} is public
+     * @param sourceLocation Location of this {@link Struct} in the source file
      */
     public void createStructDefinition(String name, boolean isPublic, Position sourceLocation) {
         structBuilder.setStructName(new SymbolName(name, pkgName));
         structBuilder.setLocation(sourceLocation);
         structBuilder.setPublic(isPublic);
-        BallerinaStruct struct = structBuilder.build();
+        Struct struct = structBuilder.build();
         bFileBuilder.addStruct(struct);
         structBuilder = null;
         registerStructType(name);
     }
 
     /**
-     * Add an field of the {@link BallerinaStruct}.
-     * 
-     * @param fieldName         Name of the field in the {@link BallerinaStruct}
-     * @param sourceLocation    Location of the field in the source file
+     * Add an field of the {@link Struct}.
+     *
+     * @param fieldName      Name of the field in the {@link Struct}
+     * @param sourceLocation Location of the field in the source file
      */
     public void createStructField(String fieldName, Position sourceLocation) {
         // Create a struct field declaration
         SymbolName localVarId = new SymbolName(fieldName);
         BType localVarType = typeQueue.remove();
-        
+
         VariableDcl variableDcl = new VariableDcl(localVarType, localVarId);
         variableDcl.setLocation(sourceLocation);
         structBuilder.addField(variableDcl);
     }
-    
-    /** 
+
+    /**
      * Register the user defined struct type as a data type
-     * 
-     * @param typeName  Name of the Struct 
+     *
+     * @param typeName Name of the Struct
      */
     private void registerStructType(String typeName) {
         BTypes.addStructType(typeName);
     }
-    
+
     /**
      * Create a struct initializing expression
-     * 
-     * @param structName        Name of the struct type 
-     * @param sourceLocation    Location of the initialization in the source bal file
+     *
+     * @param structName     Name of the struct type
+     * @param sourceLocation Location of the initialization in the source bal file
      */
     public void createStructInitExpr(String structName, Position sourceLocation) {
         // Create the Struct declaration
@@ -997,11 +1006,11 @@ public class BLangModelBuilder {
         structInitExpr.setType(new BStructType(structName));
         exprStack.push(structInitExpr);
     }
-    
+
     /**
      * Create an expression for accessing fields of user defined struct types.
-     * 
-     * @param sourceLocation    Source location of the ballerina file
+     *
+     * @param sourceLocation Source location of the ballerina file
      */
     public void createStructFieldRefExpr(Position sourceLocation) {
         if (exprStack.size() < 2) {
@@ -1015,11 +1024,11 @@ public class BLangModelBuilder {
             fieldExpr = new StructFieldAccessExpr(field.getSymbolName(), field);
         }
         fieldExpr.setLocation(sourceLocation);
-        
+
         ReferenceExpr parent = (ReferenceExpr) exprStack.pop();
         StructFieldAccessExpr parentExpr = new StructFieldAccessExpr(parent.getSymbolName(), parent);
         parentExpr.setLocation(sourceLocation);
-        
+
         parentExpr.setFieldExpr(fieldExpr);
         fieldExpr.setParent(parentExpr);
         exprStack.push(parentExpr);

@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.model;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.model.symbols.SymbolScope;
 
 /**
  * A {@code Service} is an HTTP web service described by a Swagger.
@@ -38,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * @since 0.8.0
  */
 @SuppressWarnings("unused")
-public class Service implements CompilationUnit {
+public class Service implements CompilationUnit, SymbolScope {
 
     private static final Logger logger = LoggerFactory.getLogger(Service.class);
 
@@ -131,5 +132,28 @@ public class Service implements CompilationUnit {
      */
     public Position getServiceLocation() {
         return serviceLocation;
+    }
+
+
+    // Methods in the SymbolScope interface
+
+    @Override
+    public String getScopeName() {
+        return null;
+    }
+
+    @Override
+    public SymbolScope getEnclosingScope() {
+        return null;
+    }
+
+    @Override
+    public void define(Symbol sym) {
+
+    }
+
+    @Override
+    public Symbol resolve(String name) {
+        return null;
     }
 }

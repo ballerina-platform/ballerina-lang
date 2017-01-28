@@ -21,6 +21,7 @@ package org.wso2.ballerina.core.model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.symbols.SymbolScope;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +46,7 @@ import java.util.Map;
  * @since 0.8.0
  */
 @SuppressWarnings("unused")
-public class Resource implements Node, CallableUnit {
+public class Resource implements Node, SymbolScope, CallableUnit {
 
     private static final Logger LOG = LoggerFactory.getLogger(Resource.class);
 
@@ -161,7 +162,7 @@ public class Resource implements Node, CallableUnit {
     public ConnectorDcl[] getConnectorDcls() {
         return connectorDcls;
     }
-    
+
     /**
      * Get all the Workers associated with a Resource.
      *
@@ -268,5 +269,27 @@ public class Resource implements Node, CallableUnit {
 
     public Parameter[] getParameters() {
         return parameters;
+    }
+
+    // Methods in the SymbolScope interface
+
+    @Override
+    public String getScopeName() {
+        return null;
+    }
+
+    @Override
+    public SymbolScope getEnclosingScope() {
+        return null;
+    }
+
+    @Override
+    public void define(Symbol sym) {
+
+    }
+
+    @Override
+    public Symbol resolve(String name) {
+        return null;
     }
 }
