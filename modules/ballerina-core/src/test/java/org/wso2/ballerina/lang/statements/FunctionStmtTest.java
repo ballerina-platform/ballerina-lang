@@ -24,10 +24,8 @@ import org.wso2.ballerina.core.exception.LinkerException;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Function;
-import org.wso2.ballerina.core.utils.FunctionUtils;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
-import org.wso2.ballerina.nativeimpl.lang.system.PrintlnString;
 
 /**
  * Validate Function statement.
@@ -42,7 +40,6 @@ public class FunctionStmtTest {
     @BeforeClass
     public void setup() {
         SymScope globalScope = new SymScope(SymScope.Name.GLOBAL);
-        FunctionUtils.addNativeFunction(globalScope, new PrintlnString());
         BallerinaFile bFile = ParserUtils.parseBalFile("lang/statements/function-stmt.bal", globalScope);
         testHelloWorldPublic = Functions.getFunction(bFile, funcPublic);
         testHelloWorldPrivate = Functions.getFunction(bFile, funcPrivate);

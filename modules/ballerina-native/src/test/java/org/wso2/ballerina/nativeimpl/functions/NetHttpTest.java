@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.ballerina.core.nativeimpl.functions;
+package org.wso2.ballerina.nativeimpl.functions;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -29,11 +29,11 @@ import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.nativeimpl.connectors.http.Constants;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Headers;
 

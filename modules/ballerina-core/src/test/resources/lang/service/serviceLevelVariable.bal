@@ -10,8 +10,6 @@ service echo {
     @Path ("/message")
     resource echo (message m) {
         int_value = 10;
-        system:println(int_value);
-        http:convertToResponse(m);
         reply m;
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.connectors;
+package org.wso2.ballerina.nativeimpl.connectors;
 
 import org.testng.annotations.BeforeClass;
 import org.wso2.ballerina.core.interpreter.SymScope;

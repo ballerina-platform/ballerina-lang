@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.ballerina.core.nativeimpl.functions;
+package org.wso2.ballerina.nativeimpl.functions;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -26,15 +26,15 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.util.Base64Decode;
-import org.wso2.ballerina.core.nativeimpl.util.Base64Encode;
-import org.wso2.ballerina.core.nativeimpl.util.GetHmac;
-import org.wso2.ballerina.core.nativeimpl.util.GetRandomString;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.FunctionUtils;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.nativeimpl.util.Base64Decode;
+import org.wso2.ballerina.nativeimpl.util.Base64Encode;
+import org.wso2.ballerina.nativeimpl.util.GetHmac;
+import org.wso2.ballerina.nativeimpl.util.GetRandomString;
 
 import java.util.ArrayList;
 import java.util.List;

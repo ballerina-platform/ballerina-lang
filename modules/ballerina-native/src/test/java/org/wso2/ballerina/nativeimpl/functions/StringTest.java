@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.core.nativeimpl.functions;
+package org.wso2.ballerina.nativeimpl.functions;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
