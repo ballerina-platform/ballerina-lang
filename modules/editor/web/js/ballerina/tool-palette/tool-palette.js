@@ -17,9 +17,10 @@
  */
 define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-group',
         './drag-drop-manager', './../ast/ballerina-ast-factory','./initial-definitions',
-        './../search/search', './../search/import-search-adapter', 'mousetrap', 'mcustom_scroller'],
+        './../search/search', './../search/import-search-adapter', 'mousetrap', 'mcustom_scroller', './../env/package'],
     function (require, log, $, Backbone, ToolGroupView, ToolGroup,
-              DragDropManager, BallerinaASTFactory, initialTools, Search, ImportSearchAdapter, Mousetrap, mcustomScroller) {
+              DragDropManager, BallerinaASTFactory, initialTools, Search, ImportSearchAdapter, Mousetrap, mcustomScroller, Package) {
+
 
     var ToolPalette = Backbone.View.extend({
         initialize: function (options) {
@@ -39,7 +40,7 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             this._$parent_el = container;
             this._options = options;
             this.ballerinaFileEditor = options.ballerinaFileEditor;
-            this._toolGroups = _.cloneDeep(initialTools);
+            this._toolGroups = _.slice(initialTools);
             this._imports = [];
             this.dragDropManager = new DragDropManager();
 
@@ -72,28 +73,12 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             this._$parent_el.append(toolPaletteDiv);
             this.$el = toolPaletteDiv;
 
-            var toolGroupOptions = _.clone(_.get(self._options, 'toolGroup'));
-            _.set(toolGroupOptions, 'toolPalette', self);
-            _.set(toolGroupOptions, 'model', this._toolGroups.elements);
-            var groupView = new ToolGroupView(toolGroupOptions);
-            groupView.render(self.$el, false);
-            this.$el.addClass('non-user-selectable');
-
-            var toolGroupOptions = _.clone(_.get(self._options, 'toolGroup'));
-            _.set(toolGroupOptions, 'toolPalette', self);
-            _.set(toolGroupOptions, 'model', this._toolGroups.statements);
-            var groupView = new ToolGroupView(toolGroupOptions);
-            groupView.render(self.$el, false);
-            this.$el.addClass('non-user-selectable');   
-
-            if(this._toolGroups.package.tools.length != 0){
-                var toolGroupOptions = _.clone(_.get(self._options, 'toolGroup'));
-                _.set(toolGroupOptions, 'toolPalette', self);
-                _.set(toolGroupOptions, 'model', this._toolGroups.package);
-                var groupView = new ToolGroupView(toolGroupOptions);
-                groupView.render(self.$el, true);
-                this.$el.addClass('non-user-selectable');
-            }  
+            _.forEach(this._toolGroups, function (group) {
+                var toolOrder = group.get('toolOrder');
+                if(toolOrder === "horizontal"){
+                    self.addHorizontallyFormattedToolGroup({group: group});
+                }
+            });
 
             var importForm = $('<div class="tool-import-wrapper">'+
                                 '<div class="tool-group-import-header">'+
@@ -104,9 +89,12 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
                                 '</div>'+
                                 '</div>');
             this.$el.append(importForm);
-            
-            this._toolGroups.imports.forEach(function (package){
-                self.addImport(package);
+
+            this._imports.forEach(function (package){
+                if(package instanceof Package){
+                    var group = self.getToolGroup(package);
+                    self.addVerticallyFormattedToolGroup({group: group});
+                }
             });
 
             $(this._$parent_el).mCustomScrollbar({
@@ -160,20 +148,13 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
         },
 
         /**
-         * Adds a package to a tool palette.
-         * @param package {Object} Package Object.
+         * Create and return a ToolGroup object for a given package
+         * @param package {Package} Package Object.
          */
-        addImport: function(package){
-            var import_pkg = package;
-            if (_.find(this._imports, function (_import) {
-                    return (_import.getName() == import_pkg.getName())
-                }) != undefined) {
-                return false;
-            }
-
+        getToolGroup: function(package){
             var definitions = [];
             _.each(package.getConnectors(), function (connector) {
-                var packageName = _.last(_.split(import_pkg.getName(), '.'));
+                var packageName = _.last(_.split(package.getName(), '.'));
                 connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration
                 connector.meta = {
                     connectorName: connector.getName(),
@@ -208,15 +189,26 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
                 toolOrder: "vertical",
                 toolDefinitions: definitions
             });
-            
+
+            return group;
+        },
+
+        addVerticallyFormattedToolGroup: function (args) {
             var toolGroupOptions = _.clone(_.get(this._options, 'toolGroup'));
             _.set(toolGroupOptions, 'toolPalette', this);
-            _.set(toolGroupOptions, 'model', group);
+            _.set(toolGroupOptions, 'model', args.group);
             var groupView = new ToolGroupView(toolGroupOptions);
-            var group = groupView.render(this.$el.find('.tool-import-wrapper'), _.isEqual('vertical', group.get('toolOrder')));
+            var group = groupView.render(this.$el.find('.tool-import-wrapper'), _.isEqual('vertical', args.group.get('toolOrder')));
             this.$el.addClass('non-user-selectable');
+        },
 
-            this.ballerinaFileEditor.importPackage(package.getName());
+        addHorizontallyFormattedToolGroup : function (args) {
+            var toolGroupOptions = _.clone(_.get(this._options, 'toolGroup'));
+            _.set(toolGroupOptions, 'toolPalette', this);
+            _.set(toolGroupOptions, 'model', args.group);
+            var groupView = new ToolGroupView(toolGroupOptions);
+            groupView.render(this.$el, false);
+            this.$el.addClass('non-user-selectable');
         },
 
         addConnectorTool: function(toolDef){
