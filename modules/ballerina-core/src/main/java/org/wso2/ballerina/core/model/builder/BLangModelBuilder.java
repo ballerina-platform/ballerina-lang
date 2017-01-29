@@ -34,8 +34,8 @@ import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.core.model.StructDcl;
+import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
@@ -183,7 +183,7 @@ public class BLangModelBuilder {
 
     // Add constant definitions;
 
-    public void createConstantDef(NodeLocation location, String name) {
+    public void addConstantDef(NodeLocation location, String name) {
         SymbolName symbolName = new SymbolName(name, currentPackagePath);
         VariableRefSymbol varRefSymbol = new VariableRefSymbol(symbolName, currentScope);
 
@@ -217,7 +217,7 @@ public class BLangModelBuilder {
      * @param location  Location of the field in the source file
      * @param fieldName Name of the field in the {@link StructDef}
      */
-    public void createStructField(NodeLocation location, String fieldName) {
+    public void addStructField(NodeLocation location, String fieldName) {
         SymbolName symbolName = new SymbolName(fieldName, currentPackagePath);
         VariableRefSymbol varRefSymbol = new VariableRefSymbol(symbolName, currentScope);
 
@@ -241,7 +241,7 @@ public class BLangModelBuilder {
      * @param name     Name of the {@link StructDef}
      * @param isPublic Flag indicating whether the {@link StructDef} is public
      */
-    public void createStructDef(NodeLocation location, String name, boolean isPublic) {
+    public void addStructDef(NodeLocation location, String name, boolean isPublic) {
         currentStructBuilder.setNodeLocation(location);
         currentStructBuilder.setName(name);
         currentStructBuilder.setPublic(isPublic);

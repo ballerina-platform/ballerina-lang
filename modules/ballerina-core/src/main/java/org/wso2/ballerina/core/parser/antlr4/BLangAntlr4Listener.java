@@ -275,7 +275,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (PUBLIC.equals(tokenStr)) {
             isPublic = true;
         }
-        modelBuilder.createStructDef(getCurrentLocation(ctx), ctx.Identifier().getText(), isPublic);
+        modelBuilder.addStructDef(getCurrentLocation(ctx), ctx.Identifier().getText(), isPublic);
     }
 
     @Override
@@ -292,7 +292,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         // Each field is added separately rather than sending the whole list at once, coz
         // in future, fields will have annotations, and there will be a new event for each field.
         for (TerminalNode node : fieldList) {
-            modelBuilder.createStructField(getCurrentLocation(node), node.getText());
+            modelBuilder.addStructField(getCurrentLocation(node), node.getText());
         }
     }
 
@@ -369,7 +369,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         createBasicLiteral(ctx.literalValue());
-        modelBuilder.createConstantDef(getCurrentLocation(ctx), ctx.Identifier().getText());
+        modelBuilder.addConstantDef(getCurrentLocation(ctx), ctx.Identifier().getText());
     }
 
     @Override
