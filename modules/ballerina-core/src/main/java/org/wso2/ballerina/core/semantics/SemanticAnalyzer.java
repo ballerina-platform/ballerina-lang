@@ -101,10 +101,11 @@ import org.wso2.ballerina.core.model.types.BMapType;
 import org.wso2.ballerina.core.model.types.BStructType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
+import org.wso2.ballerina.core.model.types.TypeEdge;
+import org.wso2.ballerina.core.model.types.TypeLattice;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
-import org.wso2.ballerina.core.nativeimpl.lang.convertors.NativeCastConvertor;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -656,7 +657,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (rExpr.getType() == null && rExpr instanceof BacktickExpr) {
 
             // In this case, type of the lExpr should be either xml or json
-            if (lExpr.getType() != BTypes.JSON_TYPE && lExpr.getType() != BTypes.XML_TYPE) {
+            if (!(lExpr.getType().equals(BTypes.JSON_TYPE)) && !(lExpr.getType().equals(BTypes.XML_TYPE))) {
                 throw new SemanticException(getLocationStr(lExpr.getLocation()) + "incompatible types: expected json" +
                     " or xml on the left side of assignment");
             }
@@ -665,9 +666,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // TODO Remove the MAP related logic when type casting is implemented
-        if ((lExpr.getType() != BTypes.MAP_TYPE) && (rExpr.getType() != BTypes.MAP_TYPE) &&
+        if (!(lExpr.getType().equals(BTypes.MAP_TYPE)) && !(rExpr.getType().equals(BTypes.MAP_TYPE)) &&
                 (!lExpr.getType().equals(rExpr.getType()))) {
-            TypeCastExpression newExpr = checkWideningPossibleForAssign(lExpr, rExpr);
+            TypeCastExpression newExpr = checkWideningPossible(lExpr, rExpr, null);
             if (newExpr != null) {
                 newExpr.accept(this);
                 assignStmt.setRhsExpr(newExpr);
@@ -1395,83 +1396,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Check whether this is a native conversion
         if (BTypes.isValueType(sourceType) &&
                 BTypes.isValueType(targetType)) {
-            if (sourceType == BTypes.STRING_TYPE) {
-                if (targetType == BTypes.INT_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_INT_FUNC);
-                } else if (targetType == BTypes.LONG_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_LONG_FUNC);
-                } else if (targetType == BTypes.FLOAT_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_FLOAT_FUNC);
-                } else if (targetType == BTypes.DOUBLE_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_DOUBLE_FUNC);
-                } else if (targetType == BTypes.BOOLEAN_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_BOOLEAN_FUNC);
-                } else {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_STRING_FUNC);
-                }
-            } else if (sourceType == BTypes.INT_TYPE) {
-                if (targetType == BTypes.STRING_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_STRING_FUNC);
-                } else if (targetType == BTypes.LONG_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_LONG_FUNC);
-                } else if (targetType == BTypes.FLOAT_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_FLOAT_FUNC);
-                } else if (targetType == BTypes.DOUBLE_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_DOUBLE_FUNC);
-                } else if (targetType == BTypes.INT_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_INT_FUNC);
-                }
-            } else if (sourceType == BTypes.LONG_TYPE) {
-                if (targetType == BTypes.INT_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_INT_FUNC);
-                } else if (targetType == BTypes.STRING_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_STRING_FUNC);
-                } else if (targetType == BTypes.FLOAT_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_FLOAT_FUNC);
-                } else if (targetType == BTypes.DOUBLE_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_DOUBLE_FUNC);
-                } else if (targetType == BTypes.LONG_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_LONG_FUNC);
-                }
-            } else if (sourceType == BTypes.FLOAT_TYPE) {
-                if (targetType == BTypes.INT_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_INT_FUNC);
-                } else if (targetType == BTypes.LONG_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_LONG_FUNC);
-                } else if (targetType == BTypes.FLOAT_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_FLOAT_FUNC);
-                } else if (targetType == BTypes.DOUBLE_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_DOUBLE_FUNC);
-                } else if (targetType == BTypes.STRING_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_STRING_FUNC);
-                }
-            } else if (sourceType == BTypes.DOUBLE_TYPE) {
-                if (targetType == BTypes.INT_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_INT_FUNC);
-                } else if (targetType == BTypes.LONG_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_LONG_FUNC);
-                } else if (targetType == BTypes.FLOAT_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_FLOAT_FUNC);
-                } else if (targetType == BTypes.DOUBLE_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_DOUBLE_FUNC);
-                } else if (targetType == BTypes.STRING_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_STRING_FUNC);
-                }
-            } else if (sourceType == BTypes.BOOLEAN_TYPE) {
-                if (targetType == BTypes.STRING_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.BOOLEAN_TO_STRING_FUNC);
-                } else if (targetType == BTypes.BOOLEAN_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.BOOLEAN_TO_BOOLEAN_FUNC);
-                }
-            } else if (sourceType == BTypes.XML_TYPE) {
-                if (targetType == BTypes.STRING_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.XML_TO_STRING_FUNC);
-                }
-            } else if (sourceType == BTypes.JSON_TYPE) {
-                if (targetType == BTypes.STRING_TYPE) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.JSON_TO_STRING_FUNC);
-                }
-            }
+            TypeEdge newEdge = null;
+            newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType);
+            typeCastExpression.setEvalFunc(newEdge.getTypeConvertor());
         } else {
             linkTypeConverter(typeCastExpression, sourceType, targetType);
         }
@@ -1618,8 +1545,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression rExpr = binaryExpr.getRExpr();
         Expression lExpr = binaryExpr.getLExpr();
 
-        if (lExpr.getType() != rExpr.getType()) {
-            TypeCastExpression newExpr = checkWideningPossibleForBinary(lExpr, rExpr, binaryExpr.getOperator());
+        if (!(lExpr.getType().equals(rExpr.getType()))) {
+            TypeCastExpression newExpr = checkWideningPossible(lExpr, rExpr, binaryExpr.getOperator());
             if (newExpr != null) {
                 newExpr.accept(this);
                 binaryExpr.setRExpr(newExpr);
@@ -2076,97 +2003,20 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     }
 
-    // Function to check whether implicit widening (casting) is possible for binary expression
-    private TypeCastExpression checkWideningPossibleForBinary(Expression lhsExpr, Expression rhsExpr, Operator op) {
+    private TypeCastExpression checkWideningPossible(Expression lhsExpr, Expression rhsExpr, Operator op) {
         BType rhsType = rhsExpr.getType();
         BType lhsType = lhsExpr.getType();
         TypeCastExpression newExpr = null;
-        if ((rhsType == BTypes.INT_TYPE && lhsType == BTypes.LONG_TYPE) ||
-                (lhsType == BTypes.INT_TYPE && rhsType == BTypes.LONG_TYPE)) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.LONG_TYPE);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_LONG_FUNC);
-        } else if ((rhsType == BTypes.INT_TYPE && lhsType == BTypes.FLOAT_TYPE) ||
-                (lhsType == BTypes.INT_TYPE && rhsType == BTypes.FLOAT_TYPE)) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.FLOAT_TYPE);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_FLOAT_FUNC);
-        } else if ((rhsType == BTypes.INT_TYPE && lhsType == BTypes.DOUBLE_TYPE) ||
-                (lhsType == BTypes.INT_TYPE && rhsType == BTypes.DOUBLE_TYPE)) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.DOUBLE_TYPE);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_DOUBLE_FUNC);
-        } else if (((rhsType == BTypes.INT_TYPE && lhsType == BTypes.STRING_TYPE) ||
-                (lhsType == BTypes.INT_TYPE && rhsType == BTypes.STRING_TYPE)) && op.equals(Operator.ADD)) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_STRING_FUNC);
-        } else if ((rhsType == BTypes.LONG_TYPE && lhsType == BTypes.FLOAT_TYPE) ||
-                (lhsType == BTypes.LONG_TYPE && rhsType == BTypes.FLOAT_TYPE)) {
-                newExpr = new TypeCastExpression(rhsExpr, BTypes.FLOAT_TYPE);
-                newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_FLOAT_FUNC);
-        } else if ((rhsType == BTypes.LONG_TYPE && lhsType == BTypes.DOUBLE_TYPE) ||
-                (lhsType == BTypes.LONG_TYPE && rhsType == BTypes.DOUBLE_TYPE)) {
-                newExpr = new TypeCastExpression(rhsExpr, BTypes.DOUBLE_TYPE);
-                newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_DOUBLE_FUNC);
-        } else if (((rhsType == BTypes.LONG_TYPE && lhsType == BTypes.STRING_TYPE) ||
-                (lhsType == BTypes.LONG_TYPE && rhsType == BTypes.STRING_TYPE)) && op.equals(Operator.ADD))  {
-                newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
-                newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_STRING_FUNC);
-        } else if ((rhsType == BTypes.FLOAT_TYPE && lhsType == BTypes.DOUBLE_TYPE) ||
-                (lhsType == BTypes.FLOAT_TYPE && rhsType == BTypes.DOUBLE_TYPE)) {
-                newExpr = new TypeCastExpression(rhsExpr, BTypes.DOUBLE_TYPE);
-                newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_DOUBLE_FUNC);
-        } else if (((rhsType == BTypes.FLOAT_TYPE && lhsType == BTypes.STRING_TYPE) ||
-                (lhsType == BTypes.FLOAT_TYPE && rhsType == BTypes.STRING_TYPE)) && op.equals(Operator.ADD)) {
-                newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
-                newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_STRING_FUNC);
-        } else if (((rhsType == BTypes.DOUBLE_TYPE && lhsType == BTypes.STRING_TYPE) ||
-                (lhsType == BTypes.DOUBLE_TYPE && rhsType == BTypes.STRING_TYPE)) && op.equals(Operator.ADD)) {
-                newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
-                newExpr.setEvalFunc(NativeCastConvertor.DOUBLE_TO_STRING_FUNC);
+        TypeEdge newEdge = null;
+        if (((rhsType.equals(BTypes.STRING_TYPE) || lhsType.equals(BTypes.STRING_TYPE)) && op != null
+                && op.equals(Operator.ADD)) || (!(rhsType.equals(BTypes.STRING_TYPE)) &&
+                !(lhsType.equals(BTypes.STRING_TYPE)) && op != null) || op == null) {
+            newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rhsType, lhsType);
         }
 
-        if (newExpr != null) {
-            newExpr.setLocation(rhsExpr.getLocation());
-        }
-        return newExpr;
-    }
-
-    // Function to check whether implicit widening (casting) is possible for assignment statement
-    private TypeCastExpression checkWideningPossibleForAssign(Expression lhsExpr, Expression rhsExpr) {
-        BType rhsType = rhsExpr.getType();
-        BType lhsType = lhsExpr.getType();
-        TypeCastExpression newExpr = null;
-        if (rhsType == BTypes.INT_TYPE && lhsType == BTypes.LONG_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.LONG_TYPE);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_LONG_FUNC);
-        } else if (rhsType == BTypes.INT_TYPE && lhsType == BTypes.FLOAT_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.FLOAT_TYPE);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_FLOAT_FUNC);
-        } else if (rhsType == BTypes.INT_TYPE && lhsType == BTypes.DOUBLE_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.DOUBLE_TYPE);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_DOUBLE_FUNC);
-        } else if (rhsType == BTypes.INT_TYPE && lhsType == BTypes.STRING_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_STRING_FUNC);
-        } else if (rhsType == BTypes.LONG_TYPE && lhsType == BTypes.FLOAT_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.FLOAT_TYPE);
-            newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_FLOAT_FUNC);
-        } else if (rhsType == BTypes.LONG_TYPE && lhsType == BTypes.DOUBLE_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.DOUBLE_TYPE);
-            newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_DOUBLE_FUNC);
-        } else if (rhsType == BTypes.LONG_TYPE && lhsType == BTypes.STRING_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
-            newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_STRING_FUNC);
-        } else if (rhsType == BTypes.FLOAT_TYPE && lhsType == BTypes.DOUBLE_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.DOUBLE_TYPE);
-            newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_DOUBLE_FUNC);
-        } else if (rhsType == BTypes.FLOAT_TYPE && lhsType == BTypes.STRING_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
-            newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_STRING_FUNC);
-        } else if (rhsType == BTypes.DOUBLE_TYPE && lhsType == BTypes.STRING_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
-            newExpr.setEvalFunc(NativeCastConvertor.DOUBLE_TO_STRING_FUNC);
-        }
-
-        if (newExpr != null) {
+        if (newEdge != null) {
+            newExpr = new TypeCastExpression(rhsExpr, lhsType);
+            newExpr.setEvalFunc(newEdge.getTypeConvertor());
             newExpr.setLocation(rhsExpr.getLocation());
         }
         return newExpr;
