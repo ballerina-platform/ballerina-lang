@@ -142,7 +142,7 @@ public class BallerinaSdkUtil {
 
     @NotNull
     private static String getSrcLocation(@NotNull String version) {
-        return "src/ballerina";
+        return "src";
     }
 
     public static String getSdkHome(Project project) {
