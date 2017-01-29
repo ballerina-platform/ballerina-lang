@@ -18,22 +18,23 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 
 /**
- * {@code BasicLiteral} represents a literal in Ballerina.
+ * {@code BasicLiteral} represents a basic literal in Ballerina.
  * <p>
  * This class is used to hold IntegerLiterals, FloatingPointLiterals, QuotedStringLiterals, BooleanLiterals and 'nil'
  *
  * @since 0.8.0
  */
 public class BasicLiteral extends AbstractExpression {
-
     private BValueType bValueType;
 
-    public BasicLiteral(BValueType bValueType) {
+    public BasicLiteral(NodeLocation location, BValueType bValueType) {
+        super(location);
         this.bValueType = bValueType;
     }
 
@@ -49,5 +50,4 @@ public class BasicLiteral extends AbstractExpression {
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this);
     }
-
 }

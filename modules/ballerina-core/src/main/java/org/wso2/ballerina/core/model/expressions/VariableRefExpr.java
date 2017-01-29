@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.interpreter.MemoryLocation;
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -34,7 +35,8 @@ public class VariableRefExpr extends AbstractExpression implements ReferenceExpr
 
     private MemoryLocation memoryLocation;
 
-    public VariableRefExpr(SymbolName symbolName) {
+    public VariableRefExpr(NodeLocation location, SymbolName symbolName) {
+        super(location);
         this.symbolName = symbolName;
     }
 

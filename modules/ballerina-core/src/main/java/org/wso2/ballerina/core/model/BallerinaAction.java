@@ -20,7 +20,6 @@ package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.SymbolScope;
-import org.wso2.ballerina.core.model.types.BType;
 
 /**
  * An {@code Action} is a operation (function) that can be executed against a connector.
@@ -37,7 +36,6 @@ import org.wso2.ballerina.core.model.types.BType;
  *
  * @since 0.8.0
  */
-@SuppressWarnings("unused")
 public class BallerinaAction implements Action, SymbolScope, Node {
 
     private SymbolName name;
@@ -46,44 +44,22 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     private ConnectorDcl[] connectorDcls;
     private VariableDcl[] variableDcls;
     private Worker[] workers;
-    private BType[] returnTypes;
     private Parameter[] returnParams;
     private BlockStmt actionBody;
-    private Position actionLocation;
+    private NodeLocation location;
 
     private int stackFrameSize;
 
-    public BallerinaAction(SymbolName name,
-                           Position location,
-                           Annotation[] annotations,
-                           Parameter[] parameters,
-                           Parameter[] returnParams,
-                           ConnectorDcl[] connectorDcls,
-                           VariableDcl[] variableDcls,
-                           Worker[] workers,
-                           BlockStmt actionBody) {
-
-        this.name = name;
-        this.actionLocation = location;
-        this.annotations = annotations;
-        this.parameters = parameters;
-        this.returnParams = returnParams;
-        this.connectorDcls = connectorDcls;
-        this.variableDcls = variableDcls;
-        this.workers = workers;
-        this.actionBody = actionBody;
-    }
-
-    public BallerinaAction(SymbolName name,
-                           Position location,
+    public BallerinaAction(NodeLocation location,
+                           SymbolName name,
                            Annotation[] annotations,
                            Parameter[] parameters,
                            Parameter[] returnParams,
                            Worker[] workers,
                            BlockStmt actionBody) {
 
+        this.location = location;
         this.name = name;
-        this.actionLocation = location;
         this.annotations = annotations;
         this.parameters = parameters;
         this.returnParams = returnParams;
@@ -154,12 +130,9 @@ public class BallerinaAction implements Action, SymbolScope, Node {
         return connectorDcls;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public Position getLocation() {
-        return actionLocation;
+    public NodeLocation getNodeLocation() {
+        return location;
     }
 
     // Methods in the SymbolScope interface

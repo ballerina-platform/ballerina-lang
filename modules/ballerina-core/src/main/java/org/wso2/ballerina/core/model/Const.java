@@ -22,7 +22,7 @@ import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code Const} represent a Constant declaration.
+ * {@code Const} represents a Constant in Ballerina.
  *
  * @since 0.8.0
  */
@@ -30,12 +30,12 @@ public class Const implements CompilationUnit {
 
     private BType type;
     private SymbolName symbolName;
-    private Expression valueExpr;
+    private Expression rhsExpr;
     private BValue value;
-    protected Position sourceLocation;
+    protected NodeLocation location;
 
     /**
-     * Constructing a Ballerina Const Statement.
+     * Constructing a Ballerina Constant Node.
      *
      * @param type       Type of the constant
      * @param symbolName Identifier of the constant
@@ -47,10 +47,16 @@ public class Const implements CompilationUnit {
         this.value = value;
     }
 
-    public Const(BType type, SymbolName symbolName, Expression valueExpr) {
+    /**
+     * @param type       Type of the constant
+     * @param symbolName Identifier of the constant
+     * @param rhsExpr    Rhs expression
+     */
+    public Const(NodeLocation location, BType type, SymbolName symbolName, Expression rhsExpr) {
+        this.location = location;
         this.type = type;
         this.symbolName = symbolName;
-        this.valueExpr = valueExpr;
+        this.rhsExpr = rhsExpr;
     }
 
     /**
@@ -71,8 +77,8 @@ public class Const implements CompilationUnit {
         return symbolName;
     }
 
-    public Expression getValueExpr() {
-        return valueExpr;
+    public Expression getRhsExpr() {
+        return rhsExpr;
     }
 
     /**
@@ -93,15 +99,24 @@ public class Const implements CompilationUnit {
         visitor.visit(this);
     }
 
+    @Override
+    public NodeLocation getNodeLocation() {
+        return location;
+    }
+
     /**
+     * This class is builds a {@code Constant} node from parser events.
      *
+     * @since 0.8.0
      */
     public static class ConstBuilder {
+        private NodeLocation location;
         private BType type;
         private SymbolName symbolName;
         private Expression valueExpr;
 
-        public ConstBuilder() {
+        public void setNodeLocation(NodeLocation location) {
+            this.location = location;
         }
 
         public void setType(BType type) {
@@ -117,26 +132,7 @@ public class Const implements CompilationUnit {
         }
 
         public Const build() {
-            return new Const(type, symbolName, valueExpr);
+            return new Const(location, type, symbolName, valueExpr);
         }
-    }
-
-    /**
-     * Get the source location of this constant.
-     * Return the source file and the line number of this constant.
-     *
-     * @return Source location of this constant
-     */
-    public Position getLocation() {
-        return sourceLocation;
-    }
-
-    /**
-     * Set the source location of this constant.
-     *
-     * @param location Source location of this constant.
-     */
-    public void setLocation(Position location) {
-        this.sourceLocation = location;
     }
 }

@@ -18,15 +18,15 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.symbols.SymbolScope;
 
 /**
  * Class to represent TypeConvertor written in ballerina
  */
-public class BTypeConvertor implements TypeConvertor, CompilationUnit {
-
+public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUnit {
+    private NodeLocation location;
     private SymbolName symbolName;
     private String typeConverterName;
-    private Position typeConverterLocation;
 
     private Annotation[] annotations;
     private Parameter[] parameters;
@@ -37,37 +37,17 @@ public class BTypeConvertor implements TypeConvertor, CompilationUnit {
     private boolean publicFunc;
     private int stackFrameSize;
 
-    public BTypeConvertor(SymbolName name,
-                          Position position,
-                          Boolean isPublic,
-                          Annotation[] annotations,
-                          Parameter[] parameters,
-                          Parameter[] returnParams,
-                          VariableDcl[] variableDcls,
-                          BlockStmt typeConverterBody) {
-
-        this.symbolName = name;
-        this.typeConverterName = symbolName.getName();
-        this.typeConverterLocation = position;
-        this.publicFunc = isPublic;
-        this.annotations = annotations;
-        this.parameters = parameters;
-        this.returnParams = returnParams;
-        this.variableDcls = variableDcls;
-        this.typeConverterBody = typeConverterBody;
-    }
-
-    public BTypeConvertor(SymbolName name,
-                          Position position,
+    public BTypeConvertor(NodeLocation location,
+                          SymbolName name,
                           Boolean isPublic,
                           Annotation[] annotations,
                           Parameter[] parameters,
                           Parameter[] returnParams,
                           BlockStmt typeConverterBody) {
 
+        this.location = location;
         this.symbolName = name;
         this.typeConverterName = symbolName.getName();
-        this.typeConverterLocation = position;
         this.publicFunc = isPublic;
         this.annotations = annotations;
         this.parameters = parameters;
@@ -177,11 +157,30 @@ public class BTypeConvertor implements TypeConvertor, CompilationUnit {
         visitor.visit(this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public Position getLocation() {
-        return typeConverterLocation;
+    public NodeLocation getNodeLocation() {
+        return location;
+    }
+
+    @Override
+    public String getScopeName() {
+        return null;
+    }
+
+    // Methods in the SymbolScope interface
+
+    @Override
+    public SymbolScope getEnclosingScope() {
+        return null;
+    }
+
+    @Override
+    public void define(Symbol sym) {
+
+    }
+
+    @Override
+    public Symbol resolve(String name) {
+        return null;
     }
 }

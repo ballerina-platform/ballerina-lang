@@ -22,7 +22,7 @@ import org.wso2.ballerina.core.model.types.BType;
 
 /**
  * {@code Variable} represent a Variable declaration.
- *
+ * <p>
  * <p>
  * Ballerina has variables of various types. The type system includes built-in primitives,
  * a collection of built-in structured types and array and record type constructors.
@@ -30,12 +30,12 @@ import org.wso2.ballerina.core.model.types.BType;
  * @since 0.8.0
  */
 public class VariableDcl implements Node {
-
     private BType type;
     private SymbolName symbolName;
-    protected Position sourceLocation;
+    protected NodeLocation location;
 
-    public VariableDcl(BType type, SymbolName symbolName) {
+    public VariableDcl(NodeLocation location, BType type, SymbolName symbolName) {
+        this.location = location;
         this.type = type;
         this.symbolName = symbolName;
     }
@@ -57,23 +57,9 @@ public class VariableDcl implements Node {
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
-    
-    /**
-     * Get the source location of this variable declaration.
-     * Return the source file and the line number of this variable declaration.
-     * 
-     * @return  Source location of this variable declaration
-     */
-    public Position getLocation() {
-        return sourceLocation;
-    }
 
-    /**
-     * Set the source location of this variable declaration.
-     * 
-     * @param location  Source location of this variable declaration.
-     */
-    public void setLocation(Position location) {
-        this.sourceLocation = location;
+    @Override
+    public NodeLocation getNodeLocation() {
+        return location;
     }
 }

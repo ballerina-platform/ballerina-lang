@@ -17,31 +17,37 @@
 package org.wso2.ballerina.core.model;
 
 /**
- * Bean class to hold the position in the file, of a ballerina expression.
+ * {@code NodeLocation} represents the location of a particular language construct in the source file.
+ *
+ * @since 0.8.0
  */
-public class Position {
+public class NodeLocation {
     private String fileName;
-    private int line = -1;
+    private int lineNumber = -1;
 
-    public Position(String fileName) {
+    public NodeLocation(String fileName) {
         this.fileName = fileName;
     }
 
-    public Position(String fileName, int line) {
+    public NodeLocation(String fileName, int lineNumber) {
         this.fileName = fileName;
-        this.line = line;
+        this.lineNumber = lineNumber;
     }
 
     public String getFileName() {
         return this.fileName;
     }
 
-    public int getLine() {
-        return this.line;
+    public int getLineNumber() {
+        return this.lineNumber;
     }
 
     public boolean equals(Object obj) {
-        Position other = (Position) obj;
+        if (!(obj instanceof NodeLocation)) {
+            return false;
+        }
+
+        NodeLocation other = (NodeLocation) obj;
         return this.fileName.equals(other.getFileName());
     }
 

@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.types.BType;
@@ -29,14 +30,15 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
-public class ActionInvocationExpr extends AbstractExpression implements CallableUnitInvocationExpr<Action>  {
+public class ActionInvocationExpr extends AbstractExpression implements CallableUnitInvocationExpr<Action> {
 
     private SymbolName actionName;
     private Expression[] exprs;
     private Action action;
     private BType[] types = new BType[0];
 
-    public ActionInvocationExpr(SymbolName actionName, Expression[] exprs) {
+    public ActionInvocationExpr(NodeLocation location, SymbolName actionName, Expression[] exprs) {
+        super(location);
         this.actionName = actionName;
         this.exprs = exprs;
     }

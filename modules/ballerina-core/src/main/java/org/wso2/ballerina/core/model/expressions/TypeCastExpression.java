@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.TypeConvertor;
@@ -39,14 +40,10 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     private TypeConvertor typeConvertor;
     protected Function<BValueType, BValueType> evalFuncNewNew;
 
-    public TypeCastExpression(Expression sourceExpression, BType targetType) {
+    public TypeCastExpression(NodeLocation location, Expression sourceExpression, BType targetType) {
+        super(location);
         this.sourceExpression = sourceExpression;
         this.targetType = targetType;
-    }
-
-    public TypeCastExpression(String packageName, SymbolName typeConverterName) {
-        this.packageName = packageName;
-        this.typeConverterName = typeConverterName;
     }
 
     public Function<BValueType, BValueType> getEvalFunc() {

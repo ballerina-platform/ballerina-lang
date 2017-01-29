@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.builder;
 
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.Expression;
@@ -31,8 +32,13 @@ import java.util.List;
  * @since 0.8.0
  */
 class CallableUnitInvocationExprBuilder {
+    private NodeLocation location;
     private SymbolName name;
     private List<Expression> expressionList = new ArrayList<>();
+
+    void setNodeLocation(NodeLocation location) {
+        this.location = location;
+    }
 
     SymbolName getName() {
         return name;
@@ -51,10 +57,16 @@ class CallableUnitInvocationExprBuilder {
     }
 
     FunctionInvocationExpr buildFuncInvocExpr() {
-        return new FunctionInvocationExpr(name, expressionList.toArray(new Expression[expressionList.size()]));
+        return new FunctionInvocationExpr(
+                location,
+                name,
+                expressionList.toArray(new Expression[expressionList.size()]));
     }
 
     ActionInvocationExpr buildActionInvocExpr() {
-        return new ActionInvocationExpr(name, expressionList.toArray(new Expression[expressionList.size()]));
+        return new ActionInvocationExpr(
+                location,
+                name,
+                expressionList.toArray(new Expression[expressionList.size()]));
     }
 }

@@ -18,8 +18,6 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.SymbolScope;
 
@@ -45,11 +43,7 @@ import java.util.Map;
  *
  * @since 0.8.0
  */
-@SuppressWarnings("unused")
 public class Resource implements Node, SymbolScope, CallableUnit {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Resource.class);
-
     // TODO Refactor
     private Map<String, Annotation> annotationMap = new HashMap<>();
     private List<Worker> workerList = new ArrayList<>();
@@ -63,38 +57,19 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     private Worker[] workers;
     private BlockStmt resourceBody;
     private SymbolName resourceName;
-    private Position position;
+    private NodeLocation location;
 
     private Application application;
 
-    public Resource(SymbolName name,
-                    Position position,
-                    Annotation[] annotations,
-                    Parameter[] parameters,
-                    ConnectorDcl[] connectorDcls,
-                    VariableDcl[] variableDcls,
-                    Worker[] workers,
-                    BlockStmt functionBody) {
-
-        this.resourceName = name;
-        this.position = position;
-        this.annotations = annotations;
-        this.parameters = parameters;
-        this.connectorDcls = connectorDcls;
-        this.variableDcls = variableDcls;
-        this.workers = workers;
-        this.resourceBody = functionBody;
-    }
-
-    public Resource(SymbolName name,
-                    Position position,
+    public Resource(NodeLocation location,
+                    SymbolName name,
                     Annotation[] annotations,
                     Parameter[] parameters,
                     Worker[] workers,
                     BlockStmt functionBody) {
 
+        this.location = location;
         this.resourceName = name;
-        this.position = position;
         this.annotations = annotations;
         this.parameters = parameters;
         this.workers = workers;
@@ -250,8 +225,8 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     }
 
     @Override
-    public Position getLocation() {
-        return position;
+    public NodeLocation getNodeLocation() {
+        return location;
     }
 
     public Application getApplication() {

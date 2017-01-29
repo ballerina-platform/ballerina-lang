@@ -21,7 +21,7 @@ package org.wso2.ballerina.core.model;
 /**
  * A {@code Connection} represents the instantiation of a struct with a particular configuration.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class StructDcl implements Node {
 
@@ -30,10 +30,11 @@ public class StructDcl implements Node {
 
     /* Reference to the struct instance which is referred by the declaration */
     Struct struct;
-    
-    protected Position sourceLocation;
 
-    public StructDcl(SymbolName structName) {
+    protected NodeLocation location;
+
+    public StructDcl(NodeLocation location, SymbolName structName) {
+        this.location = location;
         this.structName = structName;
     }
 
@@ -49,7 +50,7 @@ public class StructDcl implements Node {
     /**
      * Set the {@code Identifier} of the struct type
      *
-     * @param structName   Identifier of the struct type
+     * @param structName Identifier of the struct type
      */
     public void setStructName(SymbolName structName) {
         this.structName = structName;
@@ -78,38 +79,8 @@ public class StructDcl implements Node {
         visitor.visit(this);
     }
 
-    /**
-     * Builder calls to collect information and build a struct declaration.
-     */
-    public static class StructDclBuilder {
-        private SymbolName structName;
-
-        public void setStructName(SymbolName structName) {
-            this.structName = structName;
-        }
-
-        public StructDcl build() {
-            return new StructDcl(
-                    structName);
-        }
-    }
-    
-    /**
-     * Get the source location of this struct declaration.
-     * Return the source file and the line number of this struct declaration.
-     * 
-     * @return  Source location of this struct declaration
-     */
-    public Position getLocation() {
-        return sourceLocation;
-    }
-
-    /**
-     * Set the source location of this struct declaration.
-     * 
-     * @param location  Source location of this struct declaration.
-     */
-    public void setLocation(Position location) {
-        this.sourceLocation = location;
+    @Override
+    public NodeLocation getNodeLocation() {
+        return location;
     }
 }

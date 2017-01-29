@@ -43,19 +43,19 @@ public class BallerinaConnector implements Connector, SymbolScope, CompilationUn
     private ConnectorDcl[] connectorDcls;
     private VariableDcl[] variableDcls;
     private BallerinaAction[] actions;
-    private Position connectorLocation;
+    private NodeLocation location;
 
     private int sizeOfConnectorMem;
 
-    public BallerinaConnector(SymbolName serviceName,
-                              Position position,
+    public BallerinaConnector(NodeLocation location,
+                              SymbolName serviceName,
                               Annotation[] annotations,
                               Parameter[] parameters,
                               ConnectorDcl[] connectorDcls,
                               VariableDcl[] variableDcls,
                               BallerinaAction[] actions) {
+        this.location = location;
         this.name = serviceName;
-        this.connectorLocation = position;
         this.parameters = parameters;
         this.annotations = annotations;
         this.connectorDcls = connectorDcls;
@@ -149,20 +149,9 @@ public class BallerinaConnector implements Connector, SymbolScope, CompilationUn
         visitor.visit(this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public Position getLocation() {
-        return connectorLocation;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setLocation(Position location) {
-        this.connectorLocation = location;
+    public NodeLocation getNodeLocation() {
+        return location;
     }
 
     // Methods in the SymbolScope interface

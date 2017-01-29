@@ -25,8 +25,8 @@ import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.Parameter;
-import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
@@ -88,11 +88,12 @@ class BMainRunner {
         try {
             SymbolName argsName;
             BallerinaFunction mainFunction = (BallerinaFunction) balFile.getMainFunction();
+            NodeLocation mainFuncLocation = mainFunction.getNodeLocation();
             Parameter[] parameters = mainFunction.getParameters();
             argsName = parameters[0].getName();
 
             Expression[] exprs = new Expression[1];
-            VariableRefExpr variableRefExpr = new VariableRefExpr(argsName);
+            VariableRefExpr variableRefExpr = new VariableRefExpr(mainFuncLocation, argsName);
             LocalVarLocation location = new LocalVarLocation(0);
             variableRefExpr.setMemoryLocation(location);
             variableRefExpr.setType(BTypes.STRING_TYPE);
@@ -106,12 +107,10 @@ class BMainRunner {
             BValue[] argValues = {arrayArgs};
 
             // 3) Create a function invocation expression
-            Position mainFuncLocation = mainFunction.getLocation();
-            FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(
+            FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(mainFuncLocation,
                     new SymbolName("main", balFile.getPackageName()), exprs);
             funcIExpr.setOffset(1);
             funcIExpr.setCallableUnit(mainFunction);
-            funcIExpr.setLocation(mainFuncLocation);
 
             SymbolName functionSymbolName = funcIExpr.getCallableUnitName();
             CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),

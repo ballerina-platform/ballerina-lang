@@ -23,8 +23,8 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Const;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.Parameter;
-import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.TypeConvertor;
 import org.wso2.ballerina.core.model.VariableDcl;
@@ -42,7 +42,6 @@ import org.wso2.ballerina.core.nativeimpl.exceptions.MalformedEntryException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 
 /**
  * {@code {@link AbstractNativeTypeConvertor }} represents a Abstract implementation of Native Ballerina TypeConvertor.
@@ -238,8 +237,7 @@ public abstract class AbstractNativeTypeConvertor implements NativeConstruct, Ty
     /**
      * {@inheritDoc}
      */
-    @Override
-    public Position getLocation() {
+    public NodeLocation getNodeLocation() {
         return null;
     }
 

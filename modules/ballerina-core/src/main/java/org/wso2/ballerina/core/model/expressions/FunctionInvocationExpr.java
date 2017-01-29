@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.types.BType;
@@ -36,7 +37,8 @@ public class FunctionInvocationExpr extends AbstractExpression implements Callab
     private Function calleeFunction;
     private BType[] types = new BType[0];
 
-    public FunctionInvocationExpr(SymbolName functionName, Expression[] exprs) {
+    public FunctionInvocationExpr(NodeLocation location, SymbolName functionName, Expression[] exprs) {
+        super(location);
         this.functionName = functionName;
         this.exprs = exprs;
     }

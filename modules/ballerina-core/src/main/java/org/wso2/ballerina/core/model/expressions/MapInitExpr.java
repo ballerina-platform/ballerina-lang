@@ -18,11 +18,9 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.values.BValue;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * {@code MapInitExpr} represents a map initializer expression.
@@ -36,8 +34,8 @@ import java.util.List;
  */
 public class MapInitExpr extends NaryExpression {
 
-    public MapInitExpr(Expression[] argExprs) {
-        super(null, null, argExprs);
+    public MapInitExpr(NodeLocation location, Expression[] argExprs) {
+        super(location, null, null, argExprs);
     }
 
     @Override
@@ -47,25 +45,5 @@ public class MapInitExpr extends NaryExpression {
 
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this);
-    }
-
-    /**
-     * {@code MapInitExprBuilder} represents a map initializer expression builder.
-     *
-     * @since 0.8.0
-     */
-    public static class MapInitExprBuilder {
-        List<KeyValueExpression> argList = new ArrayList<>();
-
-        public MapInitExprBuilder() {
-        }
-
-        public void setArgList(List<KeyValueExpression> argList) {
-            this.argList = argList;
-        }
-
-        public MapInitExpr build() {
-            return new MapInitExpr(argList.toArray(new Expression[argList.size()]));
-        }
     }
 }

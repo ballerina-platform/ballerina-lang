@@ -29,9 +29,9 @@ import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.ImportPackage;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.Parameter;
-import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.Struct;
@@ -176,22 +176,22 @@ public class BLangModelBuilder {
         bFileBuilder.setPkgName(pkgName);
     }
 
-    public void addImportPackage(String pkgName, Position sourceLocation) {
+    public void addImportPackage(String pkgName, NodeLocation location) {
         String pkgPath = getPkgName();
         if (pkgName != null) {
-            bFileBuilder.addImportPackage(new ImportPackage(pkgPath, pkgName, sourceLocation));
+            bFileBuilder.addImportPackage(new ImportPackage(location, pkgPath, pkgName));
         } else {
-            bFileBuilder.addImportPackage(new ImportPackage(pkgPath, sourceLocation));
+            bFileBuilder.addImportPackage(new ImportPackage(location, pkgPath));
         }
     }
 
     // Annotations
 
-    public void createInstanceCreaterExpr(String typeName, boolean exprListAvailable, Position sourceLocation) {
+    public void createInstanceCreaterExpr(String typeName, boolean exprListAvailable, NodeLocation location) {
         BType type = BTypes.getType(typeName);
         if (type == null || type instanceof BStructType) {
             // if the type is undefined or of struct type, treat it as a user defined struct
-            createStructInitExpr(typeName, sourceLocation);
+            createStructInitExpr(location, typeName);
             return;
         }
 
@@ -200,9 +200,8 @@ public class BLangModelBuilder {
             exprListStack.pop();
         }
 
-        InstanceCreationExpr expression = new InstanceCreationExpr(null);
+        InstanceCreationExpr expression = new InstanceCreationExpr(location, null);
         expression.setType(type);
-        expression.setLocation(sourceLocation);
         exprStack.push(expression);
     }
 
@@ -220,8 +219,9 @@ public class BLangModelBuilder {
         log.warn("Warning: Key/Value pairs in annotations are not supported");
     }
 
-    public void endAnnotation(String name, boolean valueAvailable, Position sourceLocation) {
+    public void endAnnotation(String name, boolean valueAvailable, NodeLocation location) {
         Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.pop();
+        annotationBuilder.setNodeLocation(location);
         annotationBuilder.setName(new SymbolName(name));
 
         if (valueAvailable) {
@@ -233,13 +233,12 @@ public class BLangModelBuilder {
                 annotationBuilder.setValue(value);
             } else {
                 throw new RuntimeException("Annotations with key/value pars are not support at the moment" + " in " +
-                        sourceLocation.getFileName() + ":" + sourceLocation.getLine());
+                        location.getFileName() + ":" + location.getLineNumber());
             }
         }
 
         List<Annotation> annotationList = annotationListStack.peek();
         Annotation annotation = annotationBuilder.build();
-        annotation.setLocation(sourceLocation);
         annotationList.add(annotation);
     }
 
@@ -253,10 +252,10 @@ public class BLangModelBuilder {
      *
      * @param paramName name of the function parameter
      */
-    public void createParam(String paramName, Position sourceLocation) {
+    public void createParam(String paramName, NodeLocation location) {
         SymbolName paramNameId = new SymbolName(paramName);
         BType paramType = typeQueue.remove();
-        Parameter param = new Parameter(paramType, paramNameId, sourceLocation);
+        Parameter param = new Parameter(location, paramType, paramNameId);
 
         if (currentCUBuilder != null) {
             // Add the parameter to callableUnitBuilder.
@@ -266,7 +265,7 @@ public class BLangModelBuilder {
         }
     }
 
-    public void createType(String typeName, Position sourceLocation) {
+    public void createType(String typeName, NodeLocation location) {
         BType type = BTypes.getType(typeName);
         if (type == null) {
             type = new BStructType(typeName);
@@ -274,7 +273,7 @@ public class BLangModelBuilder {
         typeQueue.add(type);
     }
 
-    public void createArrayType(String typeName, Position sourceLocation) {
+    public void createArrayType(String typeName, NodeLocation location) {
         BType type = BTypes.getArrayType(typeName);
         typeQueue.add(type);
     }
@@ -284,45 +283,44 @@ public class BLangModelBuilder {
         BTypes.addConnectorType(typeName);
     }
 
-    public void createReturnTypes(Position sourceLocation) {
+    public void createReturnTypes(NodeLocation location) {
         while (!typeQueue.isEmpty()) {
             BType paramType = typeQueue.remove();
-            Parameter param = new Parameter(paramType, null, sourceLocation);
+            Parameter param = new Parameter(location, paramType, null);
             currentCUBuilder.addReturnParameter(param);
         }
     }
 
-    public void createNamedReturnParams(String paramName, Position sourceLocation) {
+    public void createNamedReturnParams(String paramName, NodeLocation location) {
         SymbolName paramNameId = new SymbolName(paramName);
         BType paramType = typeQueue.remove();
 
-        Parameter param = new Parameter(paramType, paramNameId, sourceLocation);
+        Parameter param = new Parameter(location, paramType, paramNameId);
         currentCUBuilder.addReturnParameter(param);
     }
 
     // Variable declarations, reference expressions
 
-    public void createConstant(String constName, Position sourceLocation) {
+    public void createConstant(String constName, NodeLocation location) {
         SymbolName symbolName = new SymbolName(constName);
         BType type = typeQueue.remove();
 
         Const.ConstBuilder builder = new Const.ConstBuilder();
+        builder.setNodeLocation(location);
         builder.setType(type);
         builder.setSymbolName(symbolName);
         builder.setValueExpr(exprStack.pop());
 
         Const constant = builder.build();
-        constant.setLocation(sourceLocation);
         bFileBuilder.addConst(constant);
     }
 
-    public void createVariableDcl(String varName, Position sourceLocation) {
+    public void createVariableDcl(String varName, NodeLocation location) {
         // Create a variable declaration
         SymbolName localVarId = new SymbolName(varName);
         BType localVarType = typeQueue.remove();
 
-        VariableDcl variableDcl = new VariableDcl(localVarType, localVarId);
-        variableDcl.setLocation(sourceLocation);
+        VariableDcl variableDcl = new VariableDcl(location, localVarType, localVarId);
 
         // Add this variable declaration to the current callable unit or callable unit group
         if (currentCUBuilder != null) {
@@ -334,7 +332,7 @@ public class BLangModelBuilder {
 
     }
 
-    public void createConnectorDcl(String varName, Position sourceLocation) {
+    public void createConnectorDcl(String varName, NodeLocation location) {
         // Here we build the object model for the following line
 
         // Here we need to pop the symbolName stack twice as the connector name appears twice in the declaration.
@@ -342,7 +340,7 @@ public class BLangModelBuilder {
             IllegalStateException ex = new IllegalStateException("symbol stack size should be " +
                     "greater than or equal to two");
             throw new ParserException("Failed to parse connector declaration" + varName + " in " +
-                    sourceLocation.getFileName() + ":" + sourceLocation.getLine(), ex);
+                    location.getFileName() + ":" + location.getLineNumber(), ex);
         }
 
         symbolNameStack.pop();
@@ -353,9 +351,9 @@ public class BLangModelBuilder {
         builder.setConnectorName(cSymName);
         builder.setVarName(new SymbolName(varName));
         builder.setExprList(exprList);
+        builder.setNodeLocation(location);
 
         ConnectorDcl connectorDcl = builder.build();
-        connectorDcl.setLocation(sourceLocation);
         if (currentCUBuilder != null) {
             // This connector declaration should added to the relevant function/action or resource
 //            currentCUBuilder.addConnectorDcl(connectorDcl);
@@ -381,126 +379,121 @@ public class BLangModelBuilder {
      * 2) Map or array access a[1], m["key"]
      * 3) Struct field access  Person.name
      */
-    public void createVarRefExpr(String varName, Position sourceLocation) {
+    public void createVarRefExpr(String varName, NodeLocation location) {
         SymbolName symName = new SymbolName(varName);
-        VariableRefExpr variableRefExpr = new VariableRefExpr(symName);
-        variableRefExpr.setLocation(sourceLocation);
+        VariableRefExpr variableRefExpr = new VariableRefExpr(location, symName);
         exprStack.push(variableRefExpr);
     }
 
-    public void createMapArrayVarRefExpr(String varName, Position sourceLocation) {
+    public void createMapArrayVarRefExpr(String varName, NodeLocation location) {
         SymbolName symName = new SymbolName(varName);
 
         Expression indexExpr = exprStack.pop();
-        VariableRefExpr arrayVarRefExpr = new VariableRefExpr(symName);
-        arrayVarRefExpr.setLocation(sourceLocation);
+        VariableRefExpr arrayVarRefExpr = new VariableRefExpr(location, symName);
 
         ArrayMapAccessExpr.ArrayMapAccessExprBuilder builder = new ArrayMapAccessExpr.ArrayMapAccessExprBuilder();
         builder.setVarName(symName);
         builder.setIndexExpr(indexExpr);
         builder.setArrayMapVarRefExpr(arrayVarRefExpr);
+        builder.setNodeLocation(location);
 
         ArrayMapAccessExpr accessExpr = builder.build();
-        accessExpr.setLocation(sourceLocation);
         exprStack.push(accessExpr);
     }
 
     // Expressions
 
-    public void createBinaryExpr(String opStr, Position sourceLocation) {
+    public void createBinaryExpr(String opStr, NodeLocation location) {
         Expression rExpr = exprStack.pop();
         Expression lExpr = exprStack.pop();
 
         BinaryExpression expr;
         switch (opStr) {
             case "+":
-                expr = new AddExpression(lExpr, rExpr, sourceLocation);
+                expr = new AddExpression(location, lExpr, rExpr);
                 break;
 
             case "-":
-                expr = new SubtractExpression(lExpr, rExpr, sourceLocation);
+                expr = new SubtractExpression(location, lExpr, rExpr);
                 break;
 
             case "*":
-                expr = new MultExpression(lExpr, rExpr, sourceLocation);
+                expr = new MultExpression(location, lExpr, rExpr);
                 break;
 
             case "/":
-                expr = new DivideExpr(lExpr, rExpr, sourceLocation);
+                expr = new DivideExpr(location, lExpr, rExpr);
                 break;
 
             case "&&":
-                expr = new AndExpression(lExpr, rExpr, sourceLocation);
+                expr = new AndExpression(location, lExpr, rExpr);
                 break;
 
             case "||":
-                expr = new OrExpression(lExpr, rExpr, sourceLocation);
+                expr = new OrExpression(location, lExpr, rExpr);
                 break;
 
             case "==":
-                expr = new EqualExpression(lExpr, rExpr, sourceLocation);
+                expr = new EqualExpression(location, lExpr, rExpr);
                 break;
 
             case "!=":
-                expr = new NotEqualExpression(lExpr, rExpr, sourceLocation);
+                expr = new NotEqualExpression(location, lExpr, rExpr);
                 break;
 
             case ">=":
-                expr = new GreaterEqualExpression(lExpr, rExpr, sourceLocation);
+                expr = new GreaterEqualExpression(location, lExpr, rExpr);
                 break;
 
             case ">":
-                expr = new GreaterThanExpression(lExpr, rExpr, sourceLocation);
+                expr = new GreaterThanExpression(location, lExpr, rExpr);
                 break;
 
             case "<":
-                expr = new LessThanExpression(lExpr, rExpr, sourceLocation);
+                expr = new LessThanExpression(location, lExpr, rExpr);
                 break;
 
             case "<=":
-                expr = new LessEqualExpression(lExpr, rExpr, sourceLocation);
+                expr = new LessEqualExpression(location, lExpr, rExpr);
                 break;
 
             default:
                 throw new ParserException("Unsupported operator '" + opStr + "' in " +
-                        sourceLocation.getFileName() + ":" + sourceLocation.getLine());
+                        location.getFileName() + ":" + location.getLineNumber());
         }
 
         exprStack.push(expr);
     }
 
-    public void createUnaryExpr(String op, Position sourceLocation) {
+    public void createUnaryExpr(String op, NodeLocation location) {
         Expression rExpr = exprStack.pop();
 
         UnaryExpression expr;
         switch (op) {
             case "+":
-                expr = new UnaryExpression(Operator.ADD, rExpr, sourceLocation);
+                expr = new UnaryExpression(location, Operator.ADD, rExpr);
                 break;
 
             case "-":
-                expr = new UnaryExpression(Operator.SUB, rExpr, sourceLocation);
+                expr = new UnaryExpression(location, Operator.SUB, rExpr);
                 break;
 
             case "!":
-                expr = new UnaryExpression(Operator.NOT, rExpr, sourceLocation);
+                expr = new UnaryExpression(location, Operator.NOT, rExpr);
                 break;
 
             default:
                 throw new ParserException("Unsupported operator '" + op + "' in " +
-                        sourceLocation.getFileName() + ":" + sourceLocation.getLine());
+                        location.getFileName() + ":" + location.getLineNumber());
         }
 
         exprStack.push(expr);
     }
 
-    public void createBacktickExpr(String stringContent, Position sourceLocation) {
+    public void createBacktickExpr(String stringContent, NodeLocation location) {
         String templateStr = getValueWithinBackquote(stringContent);
-        BacktickExpr.BacktickExprBuilder builder = new BacktickExpr.BacktickExprBuilder();
-        builder.setTemplateStr(templateStr);
-        BacktickExpr expr = builder.build();
-        expr.setLocation(sourceLocation);
-        exprStack.push(expr);
+        BacktickExpr backtickExpr = new BacktickExpr(location, templateStr);
+        exprStack.push(backtickExpr);
     }
 
     public void startExprList() {
@@ -512,58 +505,55 @@ public class BLangModelBuilder {
         addExprToList(exprList, exprCount);
     }
 
-    public void createFunctionInvocationExpr(Position sourceLocation) {
+    public void createFunctionInvocationExpr(NodeLocation location) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
         cIExprBuilder.setExpressionList(exprListStack.pop());
         cIExprBuilder.setName(symbolNameStack.pop());
+        cIExprBuilder.setNodeLocation(location);
 
         FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
-        invocationExpr.setLocation(sourceLocation);
         exprStack.push(invocationExpr);
     }
 
-    public void createTypeCastExpr(String targetTypeName, Position sourceLocation) {
-        TypeCastExpression typeCastExpression = new TypeCastExpression(exprStack.pop(),
+    public void createTypeCastExpr(String targetTypeName, NodeLocation location) {
+        TypeCastExpression typeCastExpression = new TypeCastExpression(location, exprStack.pop(),
                 BTypes.getType(targetTypeName));
-        typeCastExpression.setLocation(sourceLocation);
         //Remove the type added to type queue
         typeQueue.remove();
         exprStack.push(typeCastExpression);
     }
 
-    public void createActionInvocationExpr(Position sourceLocation) {
+    public void createActionInvocationExpr(NodeLocation location) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
         cIExprBuilder.setExpressionList(exprListStack.pop());
         cIExprBuilder.setName(symbolNameStack.pop());
+        cIExprBuilder.setNodeLocation(location);
 
         ActionInvocationExpr invocationExpr = cIExprBuilder.buildActionInvocExpr();
-        invocationExpr.setLocation(sourceLocation);
         exprStack.push(invocationExpr);
     }
 
-    public void createArrayInitExpr(Position sourceLocation) {
-        ArrayInitExpr.ArrayInitExprBuilder builder = new ArrayInitExpr.ArrayInitExprBuilder();
-
+    public void createArrayInitExpr(NodeLocation location) {
+        List<Expression> argList;
         if (!exprListStack.isEmpty()) {
-            List<Expression> argList = exprListStack.pop();
-            builder.setArgList(argList);
+            argList = exprListStack.pop();
+        } else {
+            argList = new ArrayList<>(0);
         }
 
-        ArrayInitExpr arrayInitExpr = builder.build();
-        arrayInitExpr.setLocation(sourceLocation);
+        ArrayInitExpr arrayInitExpr = new ArrayInitExpr(location, argList.toArray(new Expression[argList.size()]));
         exprStack.push(arrayInitExpr);
     }
 
-    public void createMapInitExpr(Position sourceLocation) {
-        MapInitExpr.MapInitExprBuilder builder = new MapInitExpr.MapInitExprBuilder();
-
+    public void createMapInitExpr(NodeLocation location) {
+        List<KeyValueExpression> argList;
         if (!mapInitKeyValueListStack.isEmpty()) {
-            List<KeyValueExpression> argList = mapInitKeyValueListStack.pop();
-            builder.setArgList(argList);
+            argList = mapInitKeyValueListStack.pop();
+        } else {
+            argList = new ArrayList<>(0);
         }
 
-        MapInitExpr mapInitExpr = builder.build();
-        mapInitExpr.setLocation(sourceLocation);
+        MapInitExpr mapInitExpr = new MapInitExpr(location, argList.toArray(new Expression[argList.size()]));
         exprStack.push(mapInitExpr);
     }
 
@@ -576,12 +566,12 @@ public class BLangModelBuilder {
         addKeyValueToList(keyValueList, exprCount);
     }
 
-    public void createMapInitKeyValue(String key, Position sourceLocation) {
+    public void createMapInitKeyValue(String key, NodeLocation location) {
         if (!exprStack.isEmpty()) {
             Expression currentExpression = exprStack.pop();
-            keyValueStack.push(new KeyValueExpression(key, currentExpression, sourceLocation));
+            keyValueStack.push(new KeyValueExpression(location, key, currentExpression));
         } else {
-            keyValueStack.push(new KeyValueExpression(key, null, sourceLocation));
+            keyValueStack.push(new KeyValueExpression(location, key, null));
         }
 
 
@@ -605,10 +595,10 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void createFunction(String name, boolean isPublic, Position sourceLocation) {
+    public void createFunction(String name, boolean isPublic, NodeLocation location) {
         currentCUBuilder.setName(new SymbolName(name, pkgName));
         currentCUBuilder.setPublic(isPublic);
-        currentCUBuilder.setPosition(sourceLocation);
+        currentCUBuilder.setNodeLocation(location);
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -620,18 +610,18 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
-    public void createTypeConverter(String name, boolean isPublic, Position sourceLocation) {
+    public void createTypeConverter(String name, boolean isPublic, NodeLocation location) {
         currentCUBuilder.setName(new SymbolName(name, pkgName));
         currentCUBuilder.setPublic(isPublic);
-        currentCUBuilder.setPosition(sourceLocation);
+        currentCUBuilder.setNodeLocation(location);
         BTypeConvertor typeConvertor = currentCUBuilder.buildTypeConverter();
         bFileBuilder.addTypeConverter(typeConvertor);
         currentCUBuilder = null;
     }
 
-    public void createResource(String name, Position sourceLocation) {
+    public void createResource(String name, NodeLocation location) {
         currentCUBuilder.setName(new SymbolName(name, pkgName));
-        currentCUBuilder.setPosition(sourceLocation);
+        currentCUBuilder.setNodeLocation(location);
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -643,9 +633,9 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
-    public void createAction(String name, Position sourceLocation) {
+    public void createAction(String name, NodeLocation location) {
         currentCUBuilder.setName(new SymbolName(name, pkgName));
-        currentCUBuilder.setPosition(sourceLocation);
+        currentCUBuilder.setNodeLocation(location);
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -664,9 +654,9 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void createService(String name, Position sourceLocation) {
+    public void createService(String name, NodeLocation location) {
         currentCUGroupBuilder.setName(new SymbolName(name, pkgName));
-        currentCUGroupBuilder.setLocation(sourceLocation);
+        currentCUGroupBuilder.setNodeLocation(location);
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -678,9 +668,9 @@ public class BLangModelBuilder {
         currentCUGroupBuilder = null;
     }
 
-    public void createConnector(String name, Position sourceLocation) {
+    public void createConnector(String name, NodeLocation location) {
         currentCUGroupBuilder.setName(new SymbolName(name, pkgName));
-        currentCUGroupBuilder.setLocation(sourceLocation);
+        currentCUGroupBuilder.setNodeLocation(location);
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -694,35 +684,32 @@ public class BLangModelBuilder {
 
     // Statements
 
-    public void createAssignmentStmt(Position sourceLocation) {
+    public void createAssignmentStmt(NodeLocation location) {
         Expression rExpr = exprStack.pop();
         List<Expression> lExprList = exprListStack.pop();
 
-        AssignStmt assignStmt = new AssignStmt(lExprList.toArray(new Expression[lExprList.size()]), rExpr);
-        assignStmt.setLocation(sourceLocation);
+        AssignStmt assignStmt = new AssignStmt(location, lExprList.toArray(new Expression[lExprList.size()]), rExpr);
         addToBlockStmt(assignStmt);
     }
 
-    public void createReturnStmt(Position sourceLocation) {
-        ReturnStmt.ReturnStmtBuilder returnStmtBuilder = new ReturnStmt.ReturnStmtBuilder();
-
+    public void createReturnStmt(NodeLocation location) {
+        Expression[] exprs;
         // Get the expression list from the expression list stack
         if (!exprListStack.isEmpty()) {
             // Return statement with empty expression list.
             // Just a return statement
-            returnStmtBuilder.setExpressionList(exprListStack.pop());
+            List<Expression> exprList = exprListStack.pop();
+            exprs = exprList.toArray(new Expression[exprList.size()]);
+        } else {
+            exprs = new Expression[0];
         }
 
-        ReturnStmt returnStmt = returnStmtBuilder.build();
-        returnStmt.setLocation(sourceLocation);
+        ReturnStmt returnStmt = new ReturnStmt(location, exprs);
         addToBlockStmt(returnStmt);
     }
 
-    public void createReplyStmt(Position sourceLocation) {
-        ReplyStmt.ReplyStmtBuilder replyStmtBuilder = new ReplyStmt.ReplyStmtBuilder();
-        replyStmtBuilder.setExpression(exprStack.pop());
-        ReplyStmt replyStmt = replyStmtBuilder.build();
-        replyStmt.setLocation(sourceLocation);
+    public void createReplyStmt(NodeLocation location) {
+        ReplyStmt replyStmt = new ReplyStmt(location, exprStack.pop());
         addToBlockStmt(replyStmt);
     }
 
@@ -730,9 +717,10 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder());
     }
 
-    public void endWhileStmt(Position sourceLocation) {
+    public void endWhileStmt(NodeLocation location) {
         // Create a while statement builder
         WhileStmt.WhileStmtBuilder whileStmtBuilder = new WhileStmt.WhileStmtBuilder();
+        whileStmtBuilder.setNodeLocation(location);
 
         // Get the expression at the top of the expression stack and set it as the while condition
         whileStmtBuilder.setCondition(exprStack.pop());
@@ -742,41 +730,45 @@ public class BLangModelBuilder {
 
         // Add the while statement to the statement block which is at the top of the stack.
         WhileStmt whileStmt = whileStmtBuilder.build();
-        whileStmt.setLocation(sourceLocation);
         blockStmtBuilderStack.peek().addStmt(whileStmt);
     }
 
-    public void startIfElseStmt() {
-        blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder());
-        ifElseStmtBuilderStack.push(new IfElseStmt.IfElseStmtBuilder());
+    public void startIfElseStmt(NodeLocation location) {
+        IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = new IfElseStmt.IfElseStmtBuilder();
+        ifElseStmtBuilder.setNodeLocation(location);
+        ifElseStmtBuilderStack.push(ifElseStmtBuilder);
+
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder();
+        blockStmtBuilder.setNodeLocation(location);
+        blockStmtBuilderStack.push(blockStmtBuilder);
     }
 
-    public void startElseIfClause() {
-        blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder());
+    public void startElseIfClause(NodeLocation location) {
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder();
+        blockStmtBuilder.setNodeLocation(location);
+        blockStmtBuilderStack.push(blockStmtBuilder);
     }
 
-    public void endElseIfClause(Position sourceLocation) {
+    public void endElseIfClause() {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.peek();
 
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
-        BlockStmt elseIfStmt = blockStmtBuilder.build();
-        elseIfStmt.setLocation(sourceLocation);
-        ifElseStmtBuilder.addElseIfBlock(exprStack.pop(), elseIfStmt);
+        BlockStmt elseIfStmtBlock = blockStmtBuilder.build();
+        ifElseStmtBuilder.addElseIfBlock(elseIfStmtBlock.getNodeLocation(), exprStack.pop(), elseIfStmtBlock);
     }
 
     public void startElseClause() {
         blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder());
     }
 
-    public void endElseClause(Position sourceLocation) {
+    public void endElseClause() {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt elseStmt = blockStmtBuilder.build();
-        elseStmt.setLocation(sourceLocation);
         ifElseStmtBuilder.setElseBody(elseStmt);
     }
 
-    public void endIfElseStmt(Position sourceLocation) {
+    public void endIfElseStmt() {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.pop();
         ifElseStmtBuilder.setIfCondition(exprStack.pop());
 
@@ -784,77 +776,67 @@ public class BLangModelBuilder {
         ifElseStmtBuilder.setThenBody(blockStmtBuilder.build());
 
         IfElseStmt ifElseStmt = ifElseStmtBuilder.build();
-        ifElseStmt.setLocation(sourceLocation);
         addToBlockStmt(ifElseStmt);
     }
 
-    public void createFunctionInvocationStmt(Position sourceLocation) {
+    public void createFunctionInvocationStmt(NodeLocation location) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
         cIExprBuilder.setExpressionList(exprListStack.pop());
         cIExprBuilder.setName(symbolNameStack.pop());
+        cIExprBuilder.setNodeLocation(location);
 
         FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
-        invocationExpr.setLocation(sourceLocation);
-
-        FunctionInvocationStmt.FunctionInvokeStmtBuilder stmtBuilder =
-                new FunctionInvocationStmt.FunctionInvokeStmtBuilder();
-        stmtBuilder.setFunctionInvocationExpr(invocationExpr);
-        FunctionInvocationStmt functionInvocationStmt = stmtBuilder.build();
-
+        FunctionInvocationStmt functionInvocationStmt = new FunctionInvocationStmt(location, invocationExpr);
         blockStmtBuilderStack.peek().addStmt(functionInvocationStmt);
     }
 
-    public void createActionInvocationStmt(Position sourceLocation) {
+    public void createActionInvocationStmt(NodeLocation location) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
         cIExprBuilder.setExpressionList(exprListStack.pop());
         cIExprBuilder.setName(symbolNameStack.pop());
+        cIExprBuilder.setNodeLocation(location);
 
         ActionInvocationExpr invocationExpr = cIExprBuilder.buildActionInvocExpr();
-        invocationExpr.setLocation(sourceLocation);
 
-        ActionInvocationStmt.ActionInvocationStmtBuilder stmtBuilder =
-                new ActionInvocationStmt.ActionInvocationStmtBuilder();
-        stmtBuilder.setFunctionInvocationExpr(invocationExpr);
-        ActionInvocationStmt actionInvocationStmt = stmtBuilder.build();
-
+        ActionInvocationStmt actionInvocationStmt = new ActionInvocationStmt(location, invocationExpr);
         blockStmtBuilderStack.peek().addStmt(actionInvocationStmt);
     }
 
     // Literal Values
 
-    public void createIntegerLiteral(String value, Position sourceLocation) {
+    public void createIntegerLiteral(String value, NodeLocation location) {
         BValueType bValue = new BInteger(Integer.parseInt(value));
-        createLiteral(bValue, BTypes.INT_TYPE, sourceLocation);
+        createLiteral(bValue, BTypes.INT_TYPE, location);
     }
 
-    public void createLongLiteral(String value, Position sourceLocation) {
+    public void createLongLiteral(String value, NodeLocation location) {
         BValueType bValue = new BLong(Long.parseLong(value));
-        createLiteral(bValue, BTypes.LONG_TYPE, sourceLocation);
+        createLiteral(bValue, BTypes.LONG_TYPE, location);
     }
 
-    public void createFloatLiteral(String value, Position sourceLocation) {
+    public void createFloatLiteral(String value, NodeLocation location) {
         BValueType bValue = new BFloat(Float.parseFloat(value));
-        createLiteral(bValue, BTypes.FLOAT_TYPE, sourceLocation);
+        createLiteral(bValue, BTypes.FLOAT_TYPE, location);
     }
 
-    public void createDoubleLiteral(String value, Position sourceLocation) {
+    public void createDoubleLiteral(String value, NodeLocation location) {
         BValueType bValue = new BDouble(Double.parseDouble(value));
-        createLiteral(bValue, BTypes.DOUBLE_TYPE, sourceLocation);
+        createLiteral(bValue, BTypes.DOUBLE_TYPE, location);
     }
 
-    public void createStringLiteral(String value, Position sourceLocation) {
+    public void createStringLiteral(String value, NodeLocation location) {
         BValueType bValue = new BString(value);
-        createLiteral(bValue, BTypes.STRING_TYPE, sourceLocation);
+        createLiteral(bValue, BTypes.STRING_TYPE, location);
     }
 
-    public void createBooleanLiteral(String value, Position sourceLocation) {
+    public void createBooleanLiteral(String value, NodeLocation location) {
         BValueType bValue = new BBoolean(Boolean.parseBoolean(value));
-        createLiteral(bValue, BTypes.BOOLEAN_TYPE, sourceLocation);
+        createLiteral(bValue, BTypes.BOOLEAN_TYPE, location);
     }
 
-    public void createNullLiteral(String value, Position sourceLocation) {
-        throw new RuntimeException("Null values are not yet supported in Ballerina in " + sourceLocation.getFileName()
-                + ":" + sourceLocation.getLine());
+    public void createNullLiteral(String value, NodeLocation location) {
+        throw new RuntimeException("Null values are not yet supported in Ballerina in " + location.getFileName()
+                + ":" + location.getLineNumber());
     }
 
     // Private methods
@@ -864,10 +846,9 @@ public class BLangModelBuilder {
         blockStmtBuilder.addStmt(stmt);
     }
 
-    private void createLiteral(BValueType bValueType, BType type, Position sourceLocation) {
-        BasicLiteral basicLiteral = new BasicLiteral(bValueType);
+    private void createLiteral(BValueType bValueType, BType type, NodeLocation location) {
+        BasicLiteral basicLiteral = new BasicLiteral(location, bValueType);
         basicLiteral.setType(type);
-        basicLiteral.setLocation(sourceLocation);
         exprStack.push(basicLiteral);
     }
 
@@ -944,13 +925,13 @@ public class BLangModelBuilder {
     /**
      * Creates a {@link Struct}.
      *
-     * @param name           Name of the {@link Struct}
-     * @param isPublic       Flag indicating whether the {@link Struct} is public
-     * @param sourceLocation Location of this {@link Struct} in the source file
+     * @param name     Name of the {@link Struct}
+     * @param isPublic Flag indicating whether the {@link Struct} is public
+     * @param location Location of this {@link Struct} in the source file
      */
-    public void createStructDefinition(String name, boolean isPublic, Position sourceLocation) {
+    public void createStructDefinition(String name, boolean isPublic, NodeLocation location) {
         structBuilder.setStructName(new SymbolName(name, pkgName));
-        structBuilder.setLocation(sourceLocation);
+        structBuilder.setNodeLocation(location);
         structBuilder.setPublic(isPublic);
         Struct struct = structBuilder.build();
         bFileBuilder.addStruct(struct);
@@ -961,16 +942,15 @@ public class BLangModelBuilder {
     /**
      * Add an field of the {@link Struct}.
      *
-     * @param fieldName      Name of the field in the {@link Struct}
-     * @param sourceLocation Location of the field in the source file
+     * @param fieldName Name of the field in the {@link Struct}
+     * @param location  Location of the field in the source file
      */
-    public void createStructField(String fieldName, Position sourceLocation) {
+    public void createStructField(String fieldName, NodeLocation location) {
         // Create a struct field declaration
         SymbolName localVarId = new SymbolName(fieldName);
         BType localVarType = typeQueue.remove();
 
-        VariableDcl variableDcl = new VariableDcl(localVarType, localVarId);
-        variableDcl.setLocation(sourceLocation);
+        VariableDcl variableDcl = new VariableDcl(location, localVarType, localVarId);
         structBuilder.addField(variableDcl);
     }
 
@@ -986,23 +966,16 @@ public class BLangModelBuilder {
     /**
      * Create a struct initializing expression
      *
-     * @param structName     Name of the struct type
-     * @param sourceLocation Location of the initialization in the source bal file
+     * @param location   Location of the initialization in the source bal file
+     * @param structName Name of the struct type
      */
-    public void createStructInitExpr(String structName, Position sourceLocation) {
+    public void createStructInitExpr(NodeLocation location, String structName) {
         // Create the Struct declaration
         SymbolName structSymName = new SymbolName(structName);
-        StructDcl.StructDclBuilder structDclBuilder = new StructDcl.StructDclBuilder();
-        structDclBuilder.setStructName(structSymName);
-        StructDcl structDcl = structDclBuilder.build();
-        structDcl.setLocation(sourceLocation);
+        StructDcl structDcl = new StructDcl(location, structSymName);
 
         // Create the RHS of the expression
-        StructInitExpr.StructInitExprBuilder structExprBuilder = new StructInitExpr.StructInitExprBuilder();
-        structExprBuilder.setStructDcl(structDcl);
-
-        StructInitExpr structInitExpr = structExprBuilder.build();
-        structInitExpr.setLocation(sourceLocation);
+        StructInitExpr structInitExpr = new StructInitExpr(location, structDcl);
         structInitExpr.setType(new BStructType(structName));
         exprStack.push(structInitExpr);
     }
@@ -1010,9 +983,9 @@ public class BLangModelBuilder {
     /**
      * Create an expression for accessing fields of user defined struct types.
      *
-     * @param sourceLocation Source location of the ballerina file
+     * @param location Source location of the ballerina file
      */
-    public void createStructFieldRefExpr(Position sourceLocation) {
+    public void createStructFieldRefExpr(NodeLocation location) {
         if (exprStack.size() < 2) {
             return;
         }
@@ -1021,13 +994,11 @@ public class BLangModelBuilder {
         if (field instanceof StructFieldAccessExpr) {
             fieldExpr = (StructFieldAccessExpr) field;
         } else {
-            fieldExpr = new StructFieldAccessExpr(field.getSymbolName(), field);
+            fieldExpr = new StructFieldAccessExpr(location, field.getSymbolName(), field);
         }
-        fieldExpr.setLocation(sourceLocation);
 
         ReferenceExpr parent = (ReferenceExpr) exprStack.pop();
-        StructFieldAccessExpr parentExpr = new StructFieldAccessExpr(parent.getSymbolName(), parent);
-        parentExpr.setLocation(sourceLocation);
+        StructFieldAccessExpr parentExpr = new StructFieldAccessExpr(location, parent.getSymbolName(), parent);
 
         parentExpr.setFieldExpr(fieldExpr);
         fieldExpr.setParent(parentExpr);

@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.types.BType;
@@ -71,7 +72,8 @@ public class StructFieldAccessExpr extends AbstractExpression implements Referen
      * @param symbolName        Symbol Name of the current field
      * @param structVarRefExpr  Variable reference represented by the current field
      */
-    public StructFieldAccessExpr(SymbolName symbolName,  ReferenceExpr structVarRefExpr) {
+    public StructFieldAccessExpr(NodeLocation location, SymbolName symbolName, ReferenceExpr structVarRefExpr) {
+        super(location);
         this.symbolName = symbolName;
         this.varRefExpr = structVarRefExpr;
     }    

@@ -17,34 +17,34 @@
  */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.Position;
 
 /**
  * Class to hold map initialization data.
+ *
+ * @since 0.8.0
  */
 public class KeyValueExpression extends AbstractExpression {
-    String key;
-    Expression valueExpression;
+    private String key;
+    private Expression valueExpr;
 
-    public KeyValueExpression(String key, Expression valueExpression) {
+    public KeyValueExpression(NodeLocation location, String key, Expression valueExpr) {
+        super(location);
         this.key = key;
-        this.valueExpression = valueExpression;
+        this.valueExpr = valueExpr;
     }
-    
-    public KeyValueExpression(String key, Expression valueExpression, Position location) {
-        this(key, valueExpression);
-        super.expressionLocation = location;
-    }
-    
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+
     public String getKey() {
         return key;
     }
-    public Expression getValueExpression() {
-        return valueExpression;
+
+    public Expression getValueExpr() {
+        return valueExpr;
     }
 }
