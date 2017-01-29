@@ -13,8 +13,11 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Syntax highlighting support.</li>
-        <li>Code formatting support.</li>
+        <li>Syntax highlighting.</li>
+        <li>Code formatting.</li>
+        <li>Support to create new Ballerina Projects.</li>
+        <li>Support to add Ballerina SDKs.</li>
+        <li>Support to run Ballerina applications, services.</li>
       </ul>
     ]]>
     </change-notes>
