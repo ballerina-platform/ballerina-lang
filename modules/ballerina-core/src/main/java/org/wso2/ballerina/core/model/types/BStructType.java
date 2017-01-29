@@ -17,12 +17,11 @@
 */
 package org.wso2.ballerina.core.model.types;
 
-import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.core.model.values.BStruct;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code BStructType} represents a user defined {@link StructDef} in Ballerina
+ * {@code BStructType} represents a user defined {@link org.wso2.ballerina.core.model.StructDef} in Ballerina.
  *
  * @since 1.0.0
  */
