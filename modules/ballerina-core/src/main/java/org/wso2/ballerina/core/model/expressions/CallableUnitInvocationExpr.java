@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.types.BType;
 
 /**
- * {@code CallableUnitInvocationExpr} represent function, action and resource invocation expressions.
+ * {@code CallableUnitInvocationExpr} represents a function, action or a resource invocation expression.
  *
  * @param <T> type of the invocation expression
  * @see FunctionInvocationExpr

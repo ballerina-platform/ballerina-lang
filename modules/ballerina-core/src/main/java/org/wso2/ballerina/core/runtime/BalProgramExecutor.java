@@ -28,8 +28,8 @@ import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.Parameter;
-import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -60,7 +60,7 @@ public class BalProgramExecutor {
                                Context balContext) {
         SymbolName symbolName = service.getSymbolName();
         balContext.setServiceInfo(
-            new CallableUnitInfo(symbolName.getName(), symbolName.getPkgName(), service.getServiceLocation()));
+                new CallableUnitInfo(symbolName.getName(), symbolName.getPkgName(), service.getNodeLocation()));
 
         balContext.setBalCallback(new DefaultBalCallback(callback));
 
@@ -93,6 +93,7 @@ public class BalProgramExecutor {
 //                    throw new BallerinaException("Main function does not comply with standard main function in" +
 //                            " ballerina");
 //                }
+                NodeLocation mainFuncLocation = mainFunction.getNodeLocation();
 
                 // Read from command line arguments
                 String balArgs = System.getProperty(SYSTEM_PROP_BAL_ARGS);
@@ -105,7 +106,7 @@ public class BalProgramExecutor {
                 }
 
                 Expression[] exprs = new Expression[1];
-                VariableRefExpr variableRefExpr = new VariableRefExpr(argsName);
+                VariableRefExpr variableRefExpr = new VariableRefExpr(mainFuncLocation, argsName);
                 LocalVarLocation location = new LocalVarLocation(0);
                 variableRefExpr.setMemoryLocation(location);
                 variableRefExpr.setType(BTypes.STRING_TYPE);
@@ -118,12 +119,10 @@ public class BalProgramExecutor {
                 BValue[] argValues = {arrayArgs};
 
                 // 3) Create a function invocation expression
-                Position mainFuncLocation = mainFunction.getLocation();
-                FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(
+                FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(mainFuncLocation,
                         new SymbolName("main", balFile.getPackageName()), exprs);
                 funcIExpr.setOffset(1);
                 funcIExpr.setCallableUnit(mainFunction);
-                funcIExpr.setLocation(mainFuncLocation);
 
                 SymbolName functionSymbolName = funcIExpr.getCallableUnitName();
                 CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),

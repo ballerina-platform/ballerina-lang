@@ -21,8 +21,8 @@ import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaFunction;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.Parameter;
-import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.Worker;
@@ -39,18 +39,14 @@ import java.util.List;
  * @since 0.8.0
  */
 class CallableUnitBuilder {
-
+    private NodeLocation location;
     private SymbolName name;
-    private Position position;
     private List<Annotation> annotationList = new ArrayList<>();
     private boolean publicFunc;
     private List<Parameter> parameterList = new ArrayList<>();
     private List<Parameter> returnParamList = new ArrayList<>();
     private List<Worker> workerList = new ArrayList<>();
     private BlockStmt body;
-
-    CallableUnitBuilder() {
-    }
 
     void setName(SymbolName name) {
         this.name = name;
@@ -80,12 +76,12 @@ class CallableUnitBuilder {
         this.body = body;
     }
 
-    public void setPosition(Position position) {
-        this.position = position;
+    public void setNodeLocation(NodeLocation location) {
+        this.location = location;
     }
 
     BallerinaFunction buildFunction() {
-        return new BallerinaFunction(name, position, publicFunc,
+        return new BallerinaFunction(location, name, publicFunc,
                 annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
                 returnParamList.toArray(new Parameter[returnParamList.size()]),
@@ -93,20 +89,20 @@ class CallableUnitBuilder {
     }
 
     Resource buildResource() {
-        return new Resource(name, position, annotationList.toArray(new Annotation[annotationList.size()]),
+        return new Resource(location, name, annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
                 workerList.toArray(new Worker[workerList.size()]), body);
     }
 
     BallerinaAction buildAction() {
-        return new BallerinaAction(name, position, annotationList.toArray(new Annotation[annotationList.size()]),
+        return new BallerinaAction(location, name, annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
                 returnParamList.toArray(new Parameter[returnParamList.size()]),
                 workerList.toArray(new Worker[workerList.size()]), body);
     }
 
     BTypeConvertor buildTypeConverter() {
-        return new BTypeConvertor(name, position, publicFunc,
+        return new BTypeConvertor(location, name, publicFunc,
                 annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
                 returnParamList.toArray(new Parameter[returnParamList.size()]), body);

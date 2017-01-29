@@ -21,7 +21,7 @@ import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
 import org.wso2.ballerina.core.interpreter.StackFrame;
-import org.wso2.ballerina.core.model.Position;
+import org.wso2.ballerina.core.model.NodeLocation;
 
 import java.util.Stack;
 
@@ -123,10 +123,10 @@ public class ErrorHandlerUtils {
      * @return          source location of this {@link CallableUnitInfo}
      */
     private static String getNodeLocation(CallableUnitInfo nodeInfo) {
-        Position nodePosition = nodeInfo.getLocation();
-        if (nodePosition != null) {
-            String fileName = nodePosition.getFileName();
-            int line = nodePosition.getLine();
+        NodeLocation nodeLocation = nodeInfo.getNodeLocation();
+        if (nodeLocation != null) {
+            String fileName = nodeLocation.getFileName();
+            int line = nodeLocation.getLineNumber();
             return "(" + fileName + ":" + line + ")";
         } else {
             return "";

@@ -261,7 +261,7 @@ public class BLangExecutor implements NodeExecutor {
         // return values and function invocation location;
         SymbolName functionSymbolName = funcIExpr.getCallableUnitName();
         CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
-                functionSymbolName.getPkgName(), funcIExpr.getLocation());
+                functionSymbolName.getPkgName(), funcIExpr.getNodeLocation());
 
         StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
         controlStack.pushFrame(stackFrame);
@@ -321,7 +321,7 @@ public class BLangExecutor implements NodeExecutor {
         // return values;
         SymbolName actionSymbolName = actionIExpr.getCallableUnitName();
         CallableUnitInfo actionInfo = new CallableUnitInfo(actionSymbolName.getName(), actionSymbolName.getPkgName(),
-                actionIExpr.getLocation());
+                actionIExpr.getNodeLocation());
         StackFrame stackFrame = new StackFrame(localVals, returnVals, actionInfo);
         controlStack.pushFrame(stackFrame);
 
@@ -369,7 +369,7 @@ public class BLangExecutor implements NodeExecutor {
 
         SymbolName resourceSymbolName = resource.getSymbolName();
         CallableUnitInfo resourceInfo = new CallableUnitInfo(resourceSymbolName.getName(),
-                resourceSymbolName.getPkgName(), resource.getLocation());
+                resourceSymbolName.getPkgName(), resource.getNodeLocation());
 
         StackFrame stackFrame = new StackFrame(valueParams, ret, resourceInfo);
         controlStack.pushFrame(stackFrame);
@@ -462,7 +462,7 @@ public class BLangExecutor implements NodeExecutor {
         for (int i = 0; i < argExprs.length; i++) {
             KeyValueExpression expr = (KeyValueExpression) argExprs[i];
             BString key = new BString(expr.getKey());
-            Expression expression = expr.getValueExpression();
+            Expression expression = expr.getValueExpr();
             BValue value = expression.execute(this);
             bMap.put(key, value);
         }
@@ -526,7 +526,7 @@ public class BLangExecutor implements NodeExecutor {
             // return values and function invocation location;
             SymbolName functionSymbolName = typeCastExpression.getCallableUnitName();
             CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
-                    functionSymbolName.getPkgName(), typeCastExpression.getLocation());
+                    functionSymbolName.getPkgName(), typeCastExpression.getNodeLocation());
 
             StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
             controlStack.pushFrame(stackFrame);

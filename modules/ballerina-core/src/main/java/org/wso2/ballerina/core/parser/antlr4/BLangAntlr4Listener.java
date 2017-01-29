@@ -22,7 +22,7 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.wso2.ballerina.core.model.Position;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.parser.BallerinaListener;
 import org.wso2.ballerina.core.parser.BallerinaParser;
@@ -91,7 +91,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             if (identifier != null) {
                 String fileName = identifier.getSymbol().getInputStream().getSourceName();
                 int lineNo = identifier.getSymbol().getLine();
-                Position serviceLocation = new Position(fileName, lineNo);
+                NodeLocation serviceLocation = new NodeLocation(fileName, lineNo);
 
                 modelBuilder.createService(identifier.getText(), serviceLocation);
             }
@@ -129,7 +129,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             if (identifier != null) {
                 String fileName = identifier.getSymbol().getInputStream().getSourceName();
                 int lineNo = identifier.getSymbol().getLine();
-                Position resourceLocation = new Position(fileName, lineNo);
+                NodeLocation resourceLocation = new NodeLocation(fileName, lineNo);
 
                 modelBuilder.createResource(identifier.getText(), resourceLocation);
             }
@@ -161,7 +161,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                     if (identifier != null) {
                         String fileName = identifier.getSymbol().getInputStream().getSourceName();
                         int lineNo = identifier.getSymbol().getLine();
-                        Position functionLocation = new Position(fileName, lineNo);
+                        NodeLocation functionLocation = new NodeLocation(fileName, lineNo);
 
                         modelBuilder.createFunction(identifier.getText(), isPublic, functionLocation);
                     }
@@ -198,7 +198,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             if (identifier != null) {
                 String fileName = identifier.getSymbol().getInputStream().getSourceName();
                 int lineNo = identifier.getSymbol().getLine();
-                Position connectorLocation = new Position(fileName, lineNo);
+                NodeLocation connectorLocation = new NodeLocation(fileName, lineNo);
 
                 modelBuilder.createConnector(identifier.getText(), connectorLocation);
             }
@@ -231,7 +231,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             if (identifier != null) {
                 String fileName = identifier.getSymbol().getInputStream().getSourceName();
                 int lineNo = identifier.getSymbol().getLine();
-                Position actionLocation = new Position(fileName, lineNo);
+                NodeLocation actionLocation = new NodeLocation(fileName, lineNo);
 
                 modelBuilder.createAction(identifier.getText(), actionLocation);
             }
@@ -294,7 +294,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             if (identifier != null) {
                 String fileName = identifier.getSymbol().getInputStream().getSourceName();
                 int lineNo = identifier.getSymbol().getLine();
-                Position functionLocation = new Position(fileName, lineNo);
+                NodeLocation functionLocation = new NodeLocation(fileName, lineNo);
                 String typeConverterName = "_" + ctx.typeConvertorInput().typeConvertorType().getText() + "->" + "_" +
                         ctx.typeConvertorType().getText();
                 modelBuilder.createTypeConverter(typeConverterName, isPublic, functionLocation);
@@ -702,28 +702,28 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void enterIfElseStatement(BallerinaParser.IfElseStatementContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startIfElseStmt();
+            modelBuilder.startIfElseStmt(getCurrentLocation(ctx));
         }
     }
 
     @Override
     public void exitIfElseStatement(BallerinaParser.IfElseStatementContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.endIfElseStmt(getCurrentLocation(ctx));
+            modelBuilder.endIfElseStmt();
         }
     }
 
     @Override
     public void enterElseIfClause(BallerinaParser.ElseIfClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startElseIfClause();
+            modelBuilder.startElseIfClause(getCurrentLocation(ctx));
         }
     }
 
     @Override
     public void exitElseIfClause(BallerinaParser.ElseIfClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.endElseIfClause(getCurrentLocation(ctx));
+            modelBuilder.endElseIfClause();
         }
     }
 
@@ -737,7 +737,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitElseClause(BallerinaParser.ElseClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.endElseClause(getCurrentLocation(ctx));
+            modelBuilder.endElseClause();
         }
     }
 
@@ -1369,16 +1369,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
     }
 
-    private Position getCurrentLocation(ParserRuleContext ctx) {
+    private NodeLocation getCurrentLocation(ParserRuleContext ctx) {
         String fileName = ctx.getStart().getInputStream().getSourceName();
         int lineNo = ctx.getStart().getLine();
-        return new Position(fileName, lineNo);
+        return new NodeLocation(fileName, lineNo);
     }
     
-    private Position getCurrentLocation(TerminalNode node) {
+    private NodeLocation getCurrentLocation(TerminalNode node) {
         String fileName = node.getSymbol().getInputStream().getSourceName();
         int lineNo = node.getSymbol().getLine();
-        return new Position(fileName, lineNo);
+        return new NodeLocation(fileName, lineNo);
     }
 
     private int getNoOfArgumentsInList(ParserRuleContext ctx) {

@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 
 import java.util.ArrayList;
@@ -32,7 +33,8 @@ public class BlockStmt extends AbstractStatement {
 
     private Statement[] statements;
 
-    public BlockStmt(Statement[] statements) {
+    public BlockStmt(NodeLocation location, Statement[] statements) {
+        super(location);
         this.statements = statements;
     }
 
@@ -56,10 +58,11 @@ public class BlockStmt extends AbstractStatement {
      * @since 0.8.0
      */
     public static class BlockStmtBuilder {
-
+        private NodeLocation location;
         private List<Statement> statementList = new ArrayList<>();
 
-        public BlockStmtBuilder() {
+        public void setNodeLocation(NodeLocation location) {
+            this.location = location;
         }
 
         public void addStmt(Statement statement) {
@@ -67,7 +70,7 @@ public class BlockStmt extends AbstractStatement {
         }
 
         public BlockStmt build() {
-            return new BlockStmt(statementList.toArray(new Statement[statementList.size()]));
+            return new BlockStmt(location, statementList.toArray(new Statement[statementList.size()]));
         }
     }
 }

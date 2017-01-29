@@ -188,6 +188,11 @@ public class BallerinaFile implements Node {
         visitor.visit(this);
     }
 
+    @Override
+    public NodeLocation getNodeLocation() {
+        return null;
+    }
+
     /**
      * Builds a BFile which represents physical ballerina source file.
      */

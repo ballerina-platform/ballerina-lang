@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.model.invokers;
 
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Node;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 
 /**
@@ -40,5 +41,10 @@ public class MainInvoker implements Node {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public NodeLocation getNodeLocation() {
+        return null;
     }
 }

@@ -112,5 +112,5 @@ public interface CallableUnit {
      *
      * @return location of this function in the ballerina source file
      */
-    Position getLocation();
+    NodeLocation getNodeLocation();
 }

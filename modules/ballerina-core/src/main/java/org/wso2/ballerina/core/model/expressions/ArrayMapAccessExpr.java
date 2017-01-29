@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -36,8 +37,9 @@ public class ArrayMapAccessExpr extends UnaryExpression implements ReferenceExpr
     private Expression indexExpr;
     private boolean isLHSExpr;
 
-    private ArrayMapAccessExpr(SymbolName symbolName, Expression arrayVarRefExpr, Expression indexExpr) {
-        super(null, arrayVarRefExpr);
+    private ArrayMapAccessExpr(NodeLocation location, SymbolName symbolName,
+                               Expression arrayVarRefExpr, Expression indexExpr) {
+        super(location, null, arrayVarRefExpr);
         this.symbolName = symbolName;
         this.indexExpr = indexExpr;
     }
@@ -73,11 +75,13 @@ public class ArrayMapAccessExpr extends UnaryExpression implements ReferenceExpr
      * @since 0.8.0
      */
     public static class ArrayMapAccessExprBuilder {
+        private NodeLocation location;
         private SymbolName varName;
         private Expression arrayMapVarRefExpr;
         private Expression indexExpr;
 
-        public ArrayMapAccessExprBuilder() {
+        public void setNodeLocation(NodeLocation location) {
+            this.location = location;
         }
 
         public void setVarName(SymbolName varName) {
@@ -93,7 +97,7 @@ public class ArrayMapAccessExpr extends UnaryExpression implements ReferenceExpr
         }
 
         public ArrayMapAccessExpr build() {
-            return new ArrayMapAccessExpr(varName, arrayMapVarRefExpr, indexExpr);
+            return new ArrayMapAccessExpr(location, varName, arrayMapVarRefExpr, indexExpr);
         }
     }
 }

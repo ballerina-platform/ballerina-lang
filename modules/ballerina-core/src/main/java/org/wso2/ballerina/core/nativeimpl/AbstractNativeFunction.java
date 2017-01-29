@@ -25,8 +25,8 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.Function;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.Parameter;
-import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
@@ -60,7 +60,7 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
     private boolean isPublicFunction;
     private List<Const> constants;
     private int stackFrameSize;
-    private Position functionLocation;
+    private NodeLocation location;
 
     public AbstractNativeFunction() {
         parameters = new ArrayList<>();
@@ -240,9 +240,8 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
     /**
      * {@inheritDoc}
      */
-    @Override
-    public Position getLocation() {
-        return functionLocation;
+    public NodeLocation getNodeLocation() {
+        return location;
     }
 
     @Override

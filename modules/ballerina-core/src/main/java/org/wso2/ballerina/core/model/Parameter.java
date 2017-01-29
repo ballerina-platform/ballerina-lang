@@ -20,33 +20,31 @@ package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.types.BType;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * {@code Parameter} represent a Parameter in various signatures.
  * <p>
  * This can be a part of {@link Function}, {@link Resource}
- * or {@link BallerinaAction} signature
+ * or {@link Action} signature
  *
  * @since 0.8.0
  */
-@SuppressWarnings("unused")
 public class Parameter implements Node {
 
     private BType type;
     private SymbolName name;
     private List<Annotation> annotations;
-    protected Position location;
+    protected NodeLocation nodeLocation;
 
     public Parameter(BType type, SymbolName name) {
-        this(type, name, null);
+        this(null, type, name);
     }
 
-    public Parameter(BType type, SymbolName name, Position location) {
+    public Parameter(NodeLocation location, BType type, SymbolName name) {
         this.type = type;
         this.name = name;
-        this.location = location;
+        this.nodeLocation = location;
     }
 
     /**
@@ -85,18 +83,6 @@ public class Parameter implements Node {
         this.annotations = annotations;
     }
 
-    /**
-     * Add an {@code Annotation} to the Argument.
-     *
-     * @param annotation Annotation to be added to the Argument
-     */
-    public void addAnnotation(Annotation annotation) {
-        if (annotations == null) {
-            annotations = new ArrayList<Annotation>();
-        }
-        annotations.add(annotation);
-    }
-
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -108,8 +94,8 @@ public class Parameter implements Node {
      *
      * @return Source location of this parameter
      */
-    public Position getLocation() {
-        return location;
+    public NodeLocation getNodeLocation() {
+        return nodeLocation;
     }
 
     /**
@@ -117,7 +103,7 @@ public class Parameter implements Node {
      *
      * @param location Source location of this parameter.
      */
-    public void setLocation(Position location) {
-        this.location = location;
+    public void setNodeLocation(NodeLocation location) {
+        this.nodeLocation = location;
     }
 }

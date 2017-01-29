@@ -40,10 +40,10 @@ import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.ImportPackage;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.Parameter;
-import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.Struct;
@@ -206,7 +206,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(ImportPackage importPkg) {
         if (importPkgMap.containsKey(importPkg.getName())) {
             throw new RuntimeException("Duplicate import package declaration: " + importPkg.getPath() + " in " +
-                    importPkg.getLocation().getFileName() + ":" + importPkg.getLocation().getLine());
+                    importPkg.getNodeLocation().getFileName() + ":" + importPkg.getNodeLocation().getLineNumber());
         }
 
         importPkgMap.put(importPkg.getName(), importPkg);
@@ -220,10 +220,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         Symbol symbol = symbolTable.lookup(symName);
         if (symbol != null && isSymbolInCurrentScope(symbol)) {
             throw new SemanticException("Duplicate constant name: " + symName.getName() + " in " +
-                    constant.getLocation().getFileName() + ":" + constant.getLocation().getLine());
+                    constant.getNodeLocation().getFileName() + ":" + constant.getNodeLocation().getLineNumber());
         }
 
-        BasicLiteral basicLiteral = (BasicLiteral) constant.getValueExpr();
+        BasicLiteral basicLiteral = (BasicLiteral) constant.getRhsExpr();
         constant.setValue(basicLiteral.getBValue());
 
         ConstantLocation location = new ConstantLocation(staticMemAddrOffset);
@@ -231,10 +231,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // constants can be only of value types.
         if (!BTypes.isValueType(type)) {
-            throw new SemanticException(getLocationStr(constant.getLocation()) + "constant cannot be of type '"
+            throw new SemanticException(getNodeLocationStr(constant.getNodeLocation()) + "constant cannot be of type '"
                     + type.toString() + "'.");
         }
-        validateType(type, constant.getLocation());
+        validateType(type, constant.getNodeLocation());
         symbol = new Symbol(type, SymScope.Name.PACKAGE, location);
 
         symbolTable.insert(symName, symbol);
@@ -313,7 +313,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         for (Parameter parameter : resource.getReturnParameters()) {
-            validateType(parameter.getType(), parameter.getLocation());
+            validateType(parameter.getType(), parameter.getNodeLocation());
         }
 
         for (ConnectorDcl connectorDcl : resource.getConnectorDcls()) {
@@ -514,8 +514,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         Symbol symbol = symbolTable.lookup(symName);
         if (symbol != null && isSymbolInCurrentScope(symbol)) {
-            throw new SemanticException(parameter.getLocation().getFileName() + ":" +
-                    parameter.getLocation().getLine() + ": duplicate parameter '" + symName.getName() + "'");
+            throw new SemanticException(parameter.getNodeLocation().getFileName() + ":" +
+                    parameter.getNodeLocation().getLineNumber() + ": duplicate parameter '" + symName.getName() + "'");
         }
 
         MemoryLocation location;
@@ -533,7 +533,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         BType type = parameter.getType();
-        validateType(type, parameter.getLocation());
+        validateType(type, parameter.getNodeLocation());
         symbol = new Symbol(type, currentScopeName(), location);
         symbolTable.insert(symName, symbol);
     }
@@ -541,13 +541,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(VariableDcl variableDcl) {
         BType type = variableDcl.getType();
-        validateType(type, variableDcl.getLocation());
+        validateType(type, variableDcl.getNodeLocation());
 
         SymbolName symName = variableDcl.getName();
         Symbol symbol = symbolTable.lookup(symName);
         if (symbol != null && isSymbolInCurrentScope(symbol)) {
-            throw new SemanticException(getLocationStr(variableDcl.getLocation()) + "Duplicate variable '" +
-                    symName.getName() + "'.");
+            throw new SemanticException(getNodeLocationStr(variableDcl.getNodeLocation()) + "duplicate variable '" +
+                    symName.getName() + "'");
         }
 
         MemoryLocation location;
@@ -575,10 +575,10 @@ public class SemanticAnalyzer implements NodeVisitor {
      * Check whether the Type is a valid one.
      * A valid type can be either a primitive type, or a user defined type.
      *
-     * @param type     type name
-     * @param location source location
+     * @param type         type name
+     * @param nodeLocation source location
      */
-    private void validateType(BType type, Position location) {
+    private void validateType(BType type, NodeLocation nodeLocation) {
         if (type instanceof BArrayType) {
             type = ((BArrayType) type).getElementType();
         }
@@ -587,7 +587,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             // type is defined.
             Symbol structSymbol = symbolTable.lookup(new SymbolName(type.toString()));
             if (structSymbol == null) {
-                throw new SemanticException(getLocationStr(location) + "type '" + type + "' is undefined.");
+                throw new SemanticException(getNodeLocationStr(nodeLocation) + "type '" + type + "' is undefined.");
             }
         }
     }
@@ -598,8 +598,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         Symbol symbol = symbolTable.lookup(symbolName);
         if (symbol != null && isSymbolInCurrentScope(symbol)) {
-            throw new SemanticException("Duplicate connector declaration with name: " + symbolName.getName() + " in " +
-                    connectorDcl.getLocation().getFileName() + ":" + connectorDcl.getLocation().getLine());
+            throw new SemanticException(getNodeLocationStr(connectorDcl.getNodeLocation()) +
+                    "duplicate connector declaration '" + symbolName.getName() + "'");
         }
 
         MemoryLocation location;
@@ -631,7 +631,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         Symbol connectorSym = symbolTable.lookup(connectorName);
         if (connectorSym == null) {
             throw new SemanticException("Connector : " + connectorName + " not found in " +
-                    connectorDcl.getLocation().getFileName() + ":" + connectorDcl.getLocation().getLine());
+                    connectorDcl.getNodeLocation().getFileName() + ":" +
+                    connectorDcl.getNodeLocation().getLineNumber());
         }
         connectorDcl.setConnector(connectorSym.getConnector());
 
@@ -664,7 +665,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             // In this case, type of the lExpr should be either xml or json
             if (lExpr.getType() != BTypes.JSON_TYPE && lExpr.getType() != BTypes.XML_TYPE) {
-                throw new SemanticException(getLocationStr(lExpr.getLocation()) + "incompatible types: expected json" +
+                throw new SemanticException(getNodeLocationStr(lExpr.getNodeLocation()) +
+                        "incompatible types: expected json" +
                         " or xml on the left side of assignment");
             }
 
@@ -679,8 +681,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                 newExpr.accept(this);
                 assignStmt.setRhsExpr(newExpr);
             } else {
-                throw new SemanticException(lExpr.getLocation().getFileName() + ":"
-                        + lExpr.getLocation().getLine() + ": incompatible types: " + rExpr.getType() +
+                throw new SemanticException(lExpr.getNodeLocation().getFileName() + ":"
+                        + lExpr.getNodeLocation().getLineNumber() + ": incompatible types: " + rExpr.getType() +
                         " cannot be converted to " + lExpr.getType());
             }
         }
@@ -705,7 +707,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (expr.getType() != BTypes.BOOLEAN_TYPE) {
             throw new SemanticException("Incompatible types: expected a boolean expression in " +
-                    expr.getLocation().getFileName() + ":" + expr.getLocation().getLine());
+                    expr.getNodeLocation().getFileName() + ":" + expr.getNodeLocation().getLineNumber());
         }
 
         Statement thenBody = ifElseStmt.getThenBody();
@@ -717,7 +719,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             if (elseIfCondition.getType() != BTypes.BOOLEAN_TYPE) {
                 throw new SemanticException("Incompatible types: expected a boolean expression in " +
-                        elseIfCondition.getLocation().getFileName() + ":" + elseIfCondition.getLocation().getLine());
+                        elseIfCondition.getNodeLocation().getFileName() + ":" +
+                        elseIfCondition.getNodeLocation().getLineNumber());
             }
 
             Statement elseIfBody = elseIfBlock.getElseIfBody();
@@ -737,14 +740,14 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (expr.getType() != BTypes.BOOLEAN_TYPE) {
             throw new SemanticException("Incompatible types: expected a boolean expression in " +
-                    whileStmt.getLocation().getFileName() + ":" + whileStmt.getLocation().getLine());
+                    whileStmt.getNodeLocation().getFileName() + ":" + whileStmt.getNodeLocation().getLineNumber());
         }
 
         BlockStmt blockStmt = whileStmt.getBody();
         if (blockStmt.getStatements().length == 0) {
             // This can be optimized later to skip the while statement
             throw new SemanticException("No statements in the while loop in " +
-                    blockStmt.getLocation().getFileName() + ":" + blockStmt.getLocation().getLine());
+                    blockStmt.getNodeLocation().getFileName() + ":" + blockStmt.getNodeLocation().getLineNumber());
         }
 
         blockStmt.accept(this);
@@ -763,19 +766,19 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(ReplyStmt replyStmt) {
         if (currentCallableUnit instanceof Function) {
-            throw new SemanticException(currentCallableUnit.getLocation().getFileName() + ":" +
-                    currentCallableUnit.getLocation().getLine() +
+            throw new SemanticException(currentCallableUnit.getNodeLocation().getFileName() + ":" +
+                    currentCallableUnit.getNodeLocation().getLineNumber() +
                     ": reply statement cannot be used in a function definition");
 
         } else if (currentCallableUnit instanceof Action) {
-            throw new SemanticException(currentCallableUnit.getLocation().getFileName() + ":" +
-                    currentCallableUnit.getLocation().getLine() +
+            throw new SemanticException(currentCallableUnit.getNodeLocation().getFileName() + ":" +
+                    currentCallableUnit.getNodeLocation().getLineNumber() +
                     ": reply statement cannot be used in a action definition");
         }
 
         if (replyStmt.getReplyExpr() instanceof ActionInvocationExpr) {
-            throw new SemanticException(currentCallableUnit.getLocation().getFileName() + ":" +
-                    currentCallableUnit.getLocation().getLine() +
+            throw new SemanticException(currentCallableUnit.getNodeLocation().getFileName() + ":" +
+                    currentCallableUnit.getNodeLocation().getLineNumber() +
                     ": action invocation is not allowed in a reply statement");
         }
 
@@ -785,8 +788,8 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(ReturnStmt returnStmt) {
         if (currentCallableUnit instanceof Resource) {
-            throw new SemanticException(returnStmt.getLocation().getFileName() + ":" +
-                    returnStmt.getLocation().getLine() +
+            throw new SemanticException(returnStmt.getNodeLocation().getFileName() + ":" +
+                    returnStmt.getNodeLocation().getLineNumber() +
                     ": return statement cannot be used in a resource definition");
         }
 
@@ -806,7 +809,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             // This function/action has named return parameters.
             Expression[] returnExprs = new Expression[returnParamsOfCU.length];
             for (int i = 0; i < returnParamsOfCU.length; i++) {
-                VariableRefExpr variableRefExpr = new VariableRefExpr(returnParamsOfCU[i].getName());
+                VariableRefExpr variableRefExpr = new VariableRefExpr(returnStmt.getNodeLocation(),
+                        returnParamsOfCU[i].getName());
                 visit(variableRefExpr);
                 returnExprs[i] = variableRefExpr;
             }
@@ -816,8 +820,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (returnArgExprs.length == 0) {
             // This function/action does not contain named return parameters.
             // Therefore this is a semantic error.
-            throw new SemanticException(returnStmt.getLocation().getFileName() + ":" +
-                    returnStmt.getLocation().getLine() +
+            throw new SemanticException(returnStmt.getNodeLocation().getFileName() + ":" +
+                    returnStmt.getNodeLocation().getLineNumber() +
                     ": not enough arguments to return");
         }
 
@@ -834,21 +838,21 @@ public class SemanticAnalyzer implements NodeVisitor {
             // Return types of the function invocations expression
             BType[] funcIExprReturnTypes = funcIExpr.getTypes();
             if (funcIExprReturnTypes.length > returnParamsOfCU.length) {
-                throw new SemanticException(returnStmt.getLocation().getFileName() + ":" +
-                        returnStmt.getLocation().getLine() +
+                throw new SemanticException(returnStmt.getNodeLocation().getFileName() + ":" +
+                        returnStmt.getNodeLocation().getLineNumber() +
                         ": too many arguments to return");
 
             } else if (funcIExprReturnTypes.length < returnParamsOfCU.length) {
-                throw new SemanticException(returnStmt.getLocation().getFileName() + ":" +
-                        returnStmt.getLocation().getLine() +
+                throw new SemanticException(returnStmt.getNodeLocation().getFileName() + ":" +
+                        returnStmt.getNodeLocation().getLineNumber() +
                         ": not enough arguments to return");
 
             }
 
             for (int i = 0; i < returnParamsOfCU.length; i++) {
                 if (!funcIExprReturnTypes[i].equals(returnParamsOfCU[i].getType())) {
-                    throw new SemanticException(returnStmt.getLocation().getFileName() + ":" +
-                            returnStmt.getLocation().getLine() +
+                    throw new SemanticException(returnStmt.getNodeLocation().getFileName() + ":" +
+                            returnStmt.getNodeLocation().getLineNumber() +
                             ": cannot use " + funcIExprReturnTypes[i] + " as type " +
                             returnParamsOfCU[i].getType() + " in return statement");
                 }
@@ -858,13 +862,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         if (typesOfReturnExprs.length > returnParamsOfCU.length) {
-            throw new SemanticException(returnStmt.getLocation().getFileName() + ":" +
-                    returnStmt.getLocation().getLine() +
+            throw new SemanticException(returnStmt.getNodeLocation().getFileName() + ":" +
+                    returnStmt.getNodeLocation().getLineNumber() +
                     ": too many arguments to return");
 
         } else if (typesOfReturnExprs.length < returnParamsOfCU.length) {
-            throw new SemanticException(returnStmt.getLocation().getFileName() + ":" +
-                    returnStmt.getLocation().getLine() +
+            throw new SemanticException(returnStmt.getNodeLocation().getFileName() + ":" +
+                    returnStmt.getNodeLocation().getLineNumber() +
                     ": not enough arguments to return");
 
         } else {
@@ -873,8 +877,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             for (int i = 0; i < returnParamsOfCU.length; i++) {
                 // Check for ActionInvocationExprs in return arguments
                 if (returnArgExprs[i] instanceof ActionInvocationExpr) {
-                    throw new SemanticException(returnStmt.getLocation().getFileName() + ":" +
-                            returnStmt.getLocation().getLine() +
+                    throw new SemanticException(returnStmt.getNodeLocation().getFileName() + ":" +
+                            returnStmt.getNodeLocation().getLineNumber() +
                             ": action invocation is not allowed in a return statement");
                 }
 
@@ -883,16 +887,16 @@ public class SemanticAnalyzer implements NodeVisitor {
                 if (returnArgExprs[i] instanceof FunctionInvocationExpr) {
                     FunctionInvocationExpr funcIExpr = ((FunctionInvocationExpr) returnArgExprs[i]);
                     if (funcIExpr.getTypes().length > 1) {
-                        throw new SemanticException(returnStmt.getLocation().getFileName() + ":" +
-                                returnStmt.getLocation().getLine() +
+                        throw new SemanticException(returnStmt.getNodeLocation().getFileName() + ":" +
+                                returnStmt.getNodeLocation().getLineNumber() +
                                 ": multiple-value " + funcIExpr.getCallableUnit().getFunctionName() +
                                 "() in single-value context");
                     }
                 }
 
                 if (!typesOfReturnExprs[i].equals(returnParamsOfCU[i].getType())) {
-                    throw new SemanticException(returnStmt.getLocation().getFileName() + ":" +
-                            returnStmt.getLocation().getLine() +
+                    throw new SemanticException(returnStmt.getNodeLocation().getFileName() + ":" +
+                            returnStmt.getNodeLocation().getLineNumber() +
                             ": cannot use " + typesOfReturnExprs[i] + " as type " +
                             returnParamsOfCU[i].getType() + " in return statement");
                 }
@@ -908,8 +912,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (BTypes.isValueType(instanceCreationExpr.getType())) {
             throw new SemanticException("Error: cannot use 'new' for value types: " + instanceCreationExpr.getType() +
-                    " in " + instanceCreationExpr.getLocation().getFileName() + ":" +
-                    instanceCreationExpr.getLocation().getLine());
+                    " in " + instanceCreationExpr.getNodeLocation().getFileName() + ":" +
+                    instanceCreationExpr.getNodeLocation().getLineNumber());
         }
         // TODO here the type shouldn't be a value type
 //        Expression expr = instanceCreationExpr.getRExpr();
@@ -976,7 +980,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else {
             throw new SemanticException("Divide operation is not supported for type: " + arithmeticExprType + " in " +
-                    divideExpr.getLocation().getFileName() + ":" + divideExpr.getLocation().getLine());
+                    divideExpr.getNodeLocation().getFileName() + ":" + divideExpr.getNodeLocation().getLineNumber());
         }
     }
 
@@ -996,7 +1000,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_FLOAT_FUNC);
             } else {
                 throw new SemanticException("Incompatible type in unary expression: " + unaryExpr.getType() + " in " +
-                        unaryExpr.getLocation().getFileName() + ":" + unaryExpr.getLocation().getLine());
+                        unaryExpr.getNodeLocation().getFileName() + ":" + unaryExpr.getNodeLocation().getLineNumber());
             }
         } else if (Operator.ADD.equals(unaryExpr.getOperator())) {
             if (unaryExpr.getType() == BTypes.INT_TYPE) {
@@ -1009,7 +1013,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_FLOAT_FUNC);
             } else {
                 throw new SemanticException("Incompatible type in unary expression: " + unaryExpr.getType() + " in " +
-                        unaryExpr.getLocation().getFileName() + ":" + unaryExpr.getLocation().getLine());
+                        unaryExpr.getNodeLocation().getFileName() + ":" + unaryExpr.getNodeLocation().getLineNumber());
             }
 
         } else if (Operator.NOT.equals(unaryExpr.getOperator())) {
@@ -1017,14 +1021,14 @@ public class SemanticAnalyzer implements NodeVisitor {
                 unaryExpr.setEvalFunc(UnaryExpression.NOT_BOOLEAN_FUNC);
             } else {
                 throw new SemanticException("Incompatible type in unary expression: " + unaryExpr.getType() + " in " +
-                        unaryExpr.getLocation().getFileName() + ":" + unaryExpr.getLocation().getLine()
+                        unaryExpr.getNodeLocation().getFileName() + ":" + unaryExpr.getNodeLocation().getLineNumber()
                         + " 'Not' operation only supports boolean");
             }
 
         } else {
             throw new SemanticException("Incompatible operation for unary expression " +
-                    unaryExpr.getOperator().name() + " in " + unaryExpr.getLocation().getFileName() + ":" +
-                    unaryExpr.getLocation().getLine());
+                    unaryExpr.getOperator().name() + " in " + unaryExpr.getNodeLocation().getFileName() + ":" +
+                    unaryExpr.getNodeLocation().getLineNumber());
         }
 
     }
@@ -1050,7 +1054,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else {
             throw new SemanticException("Add operation is not supported for type: " + arithmeticExprType + " in " +
-                    addExpr.getLocation().getFileName() + ":" + addExpr.getLocation().getLine());
+                    addExpr.getNodeLocation().getFileName() + ":" + addExpr.getNodeLocation().getLineNumber());
         }
     }
 
@@ -1072,7 +1076,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else {
             throw new SemanticException("Multiply operation is not supported for type: " + binaryExprType + " in " +
-                    multExpr.getLocation().getFileName() + ":" + multExpr.getLocation().getLine());
+                    multExpr.getNodeLocation().getFileName() + ":" + multExpr.getNodeLocation().getLineNumber());
         }
     }
 
@@ -1094,7 +1098,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else {
             throw new SemanticException("Subtract operation is not supported for type: " + binaryExprType + " in " +
-                    subtractExpr.getLocation().getFileName() + ":" + subtractExpr.getLocation().getLine());
+                    subtractExpr.getNodeLocation().getFileName() + ":" +
+                    subtractExpr.getNodeLocation().getLineNumber());
         }
     }
 
@@ -1128,7 +1133,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else {
             throw new SemanticException("Equals operation is not supported for type: " + compareExprType + " in " +
-                    expr.getLocation().getFileName() + ":" + expr.getLocation().getLine());
+                    expr.getNodeLocation().getFileName() + ":" + expr.getNodeLocation().getLineNumber());
         }
     }
 
@@ -1150,7 +1155,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else {
             throw new SemanticException("NotEqual operation is not supported for type: " + compareExprType + " in " +
-                    notEqualExpr.getLocation().getFileName() + ":" + notEqualExpr.getLocation().getLine());
+                    notEqualExpr.getNodeLocation().getFileName() + ":" +
+                    notEqualExpr.getNodeLocation().getLineNumber());
         }
     }
 
@@ -1166,8 +1172,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else {
             throw new SemanticException("Greater than equal operation is not supported for type: " + compareExprType +
-                    " in " + greaterEqualExpr.getLocation().getFileName() + ":" +
-                    greaterEqualExpr.getLocation().getLine());
+                    " in " + greaterEqualExpr.getNodeLocation().getFileName() + ":" +
+                    greaterEqualExpr.getNodeLocation().getLineNumber());
         }
     }
 
@@ -1183,8 +1189,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else {
             throw new SemanticException("Greater than operation is not supported for type: " + compareExprType +
-                    " in " + greaterThanExpr.getLocation().getFileName() + ":" +
-                    greaterThanExpr.getLocation().getLine());
+                    " in " + greaterThanExpr.getNodeLocation().getFileName() + ":" +
+                    greaterThanExpr.getNodeLocation().getLineNumber());
         }
     }
 
@@ -1200,7 +1206,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else {
             throw new SemanticException("Less than equal operation is not supported for type: " + compareExprType +
-                    " in " + lessEqualExpr.getLocation().getFileName() + ":" + lessEqualExpr.getLocation().getLine());
+                    " in " + lessEqualExpr.getNodeLocation().getFileName() + ":" +
+                    lessEqualExpr.getNodeLocation().getLineNumber());
         }
     }
 
@@ -1216,7 +1223,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else {
             throw new SemanticException("Less than operation is not supported for type: " + compareExprType + " in "
-                    + lessThanExpr.getLocation().getFileName() + ":" + lessThanExpr.getLocation().getLine());
+                    + lessThanExpr.getNodeLocation().getFileName() + ":" +
+                    lessThanExpr.getNodeLocation().getLineNumber());
         }
     }
 
@@ -1245,9 +1253,11 @@ public class SemanticAnalyzer implements NodeVisitor {
             Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
             indexExpr.accept(this);
             if (indexExpr.getType() != BTypes.INT_TYPE) {
-                throw new SemanticException("Array index should be of type int, not " + indexExpr.getType().toString() +
+                throw new SemanticException("Array index should be of type int, not " +
+                        indexExpr.getType().toString() +
                         ". Array name: " + arrayMapVarRefExpr.getSymbolName().getName() + " in "
-                        + indexExpr.getLocation().getFileName() + ":" + indexExpr.getLocation().getLine());
+                        + indexExpr.getNodeLocation().getFileName() + ":" +
+                        indexExpr.getNodeLocation().getLineNumber());
             }
             // Set type of the array access expression
             BType typeOfArray = ((BArrayType) arrayMapVarRefExpr.getType()).getElementType();
@@ -1259,7 +1269,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (indexExpr.getType() != BTypes.STRING_TYPE) {
                 throw new SemanticException("Map index should be of type string, not " + indexExpr.getType().toString()
                         + ". Map name: " + arrayMapVarRefExpr.getSymbolName().getName() + " in "
-                        + indexExpr.getLocation().getFileName() + ":" + indexExpr.getLocation().getLine());
+                        + indexExpr.getNodeLocation().getFileName() + ":" +
+                        indexExpr.getNodeLocation().getLineNumber());
             }
             // Set type of the map access expression
             BType typeOfMap = arrayMapVarRefExpr.getType();
@@ -1267,7 +1278,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else {
             throw new SemanticException("Attempt to index non-array, non-map variable: " +
                     arrayMapVarRefExpr.getSymbolName().getName() + " in " +
-                    arrayMapVarRefExpr.getLocation().getFileName() + ":" + arrayMapVarRefExpr.getLocation().getLine());
+                    arrayMapVarRefExpr.getNodeLocation().getFileName() + ":" +
+                    arrayMapVarRefExpr.getNodeLocation().getLineNumber());
         }
     }
 
@@ -1277,7 +1289,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (argExprs.length == 0) {
             throw new SemanticException("Map initializer should have at least one argument" + " in "
-                    + mapInitExpr.getLocation().getFileName() + ":" + mapInitExpr.getLocation().getLine());
+                    + mapInitExpr.getNodeLocation().getFileName() + ":" +
+                    mapInitExpr.getNodeLocation().getLineNumber());
         }
 
         for (int i = 0; i < argExprs.length; i++) {
@@ -1294,7 +1307,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (argExprs.length == 0) {
             throw new SemanticException("Array initializer should have at least one argument" + " in "
-                    + arrayInitExpr.getLocation().getFileName() + ":" + arrayInitExpr.getLocation().getLine());
+                    + arrayInitExpr.getNodeLocation().getFileName() + ":" +
+                    arrayInitExpr.getNodeLocation().getLineNumber());
         }
 
         argExprs[0].accept(this);
@@ -1305,8 +1319,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             if (argExprs[i].getType() != typeOfArray) {
                 throw new SemanticException("Incompatible types used in array initializer. All arguments must have " +
-                        "the same type." + " in " + arrayInitExpr.getLocation().getFileName() + ":" +
-                        arrayInitExpr.getLocation().getLine());
+                        "the same type." + " in " + arrayInitExpr.getNodeLocation().getFileName() + ":" +
+                        arrayInitExpr.getNodeLocation().getLineNumber());
             }
         }
 
@@ -1326,7 +1340,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Split will always have at least one matching literal
         int i = 0;
         if (literals.length > i) {
-            BasicLiteral basicLiteral = new BasicLiteral(new BString(literals[i]));
+            BasicLiteral basicLiteral = new BasicLiteral(backtickExpr.getNodeLocation(), new BString(literals[i]));
             visit(basicLiteral);
             backtickExpr.addExpression(basicLiteral);
             i++;
@@ -1342,19 +1356,20 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (m.group(3) != null) {
                 BasicLiteral indexExpr;
                 if (m.group(5) != null) {
-                    indexExpr = new BasicLiteral(new BString(m.group(5)));
+                    indexExpr = new BasicLiteral(backtickExpr.getNodeLocation(), new BString(m.group(5)));
                     indexExpr.setType(BTypes.STRING_TYPE);
                 } else {
-                    indexExpr = new BasicLiteral(new BInteger(Integer.parseInt(m.group(4))));
+                    indexExpr = new BasicLiteral(backtickExpr.getNodeLocation(),
+                            new BInteger(Integer.parseInt(m.group(4))));
                     indexExpr.setType(BTypes.INT_TYPE);
                 }
-                indexExpr.setLocation(backtickExpr.getLocation());
+
                 SymbolName mapOrArrName = new SymbolName(m.group(2));
 
                 ArrayMapAccessExpr.ArrayMapAccessExprBuilder builder =
                         new ArrayMapAccessExpr.ArrayMapAccessExprBuilder();
 
-                VariableRefExpr arrayMapVarRefExpr = new VariableRefExpr(mapOrArrName);
+                VariableRefExpr arrayMapVarRefExpr = new VariableRefExpr(backtickExpr.getNodeLocation(), mapOrArrName);
                 visit(arrayMapVarRefExpr);
 
                 builder.setArrayMapVarRefExpr(arrayMapVarRefExpr);
@@ -1364,13 +1379,13 @@ public class SemanticAnalyzer implements NodeVisitor {
                 visit(arrayMapAccessExpr);
                 backtickExpr.addExpression(arrayMapAccessExpr);
             } else {
-                VariableRefExpr variableRefExpr = new VariableRefExpr(new SymbolName(m.group(1)));
-                variableRefExpr.setLocation(backtickExpr.getLocation());
+                VariableRefExpr variableRefExpr = new VariableRefExpr(backtickExpr.getNodeLocation(),
+                        new SymbolName(m.group(1)));
                 visit(variableRefExpr);
                 backtickExpr.addExpression(variableRefExpr);
             }
             if (literals.length > i) {
-                BasicLiteral basicLiteral = new BasicLiteral(new BString(literals[i]));
+                BasicLiteral basicLiteral = new BasicLiteral(backtickExpr.getNodeLocation(), new BString(literals[i]));
                 visit(basicLiteral);
                 backtickExpr.addExpression(basicLiteral);
                 i++;
@@ -1385,7 +1400,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymbolName varName = variableRefExpr.getSymbolName();
 
         // Check whether this symName is declared
-        Symbol symbol = getSymbol(varName, variableRefExpr.getLocation());
+        Symbol symbol = getSymbol(varName, variableRefExpr.getNodeLocation());
 
         variableRefExpr.setType(symbol.getType());
 //        variableRefExpr.setOffset(symbol.getOffset());
@@ -1554,7 +1569,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         function.setSymbolName(symbolName);
 
         if (symbolTable.lookup(symbolName) != null) {
-            throw new SemanticException(function.getLocation().getFileName() + ":" + function.getLocation().getLine() +
+            throw new SemanticException(function.getNodeLocation().getFileName() + ":" +
+                    function.getNodeLocation().getLineNumber() +
                     ": duplicate function '" + function.getFunctionName() + "'");
         }
 
@@ -1569,8 +1585,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         typeConvertor.setSymbolName(symbolName);
 
         if (symbolTable.lookup(symbolName) != null) {
-            throw new SemanticException(typeConvertor.getLocation().getFileName() + ":" + typeConvertor.getLocation()
-                    .getLine() + ": duplicate typeConvertor '" + typeConvertor.getTypeConverterName() + "'");
+            throw new SemanticException(typeConvertor.getNodeLocation().getFileName() + ":" +
+                    typeConvertor.getNodeLocation()
+                    .getLineNumber() + ": duplicate typeConvertor '" + typeConvertor.getTypeConverterName() + "'");
         }
 
         Symbol symbol = new Symbol(typeConvertor);
@@ -1589,7 +1606,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (symbolTable.lookup(symbolName) != null) {
             throw new SemanticException("Duplicate action definition: " + symbolName + " in "
-                    + action.getLocation().getFileName() + ":" + action.getLocation().getLine());
+                    + action.getNodeLocation().getFileName() + ":" + action.getNodeLocation().getLineNumber());
         }
 
         symbolTable.insert(symbolName, symbol);
@@ -1601,7 +1618,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymbolName symbolName = new SymbolName(connector.getPackageQualifiedName());
         if (symbolTable.lookup(symbolName) != null) {
             throw new SemanticException("Duplicate connector definition: " + symbolName + " in "
-                    + connector.getLocation().getFileName() + ":" + connector.getLocation().getLine());
+                    + connector.getNodeLocation().getFileName() + ":" + connector.getNodeLocation().getLineNumber());
         }
 
         symbolTable.insert(new SymbolName(connector.getPackageQualifiedName()), symbol);
@@ -1631,8 +1648,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                 newExpr.accept(this);
                 binaryExpr.setRExpr(newExpr);
             } else {
-                throw new SemanticException(binaryExpr.getLocation().getFileName() + ":" +
-                        binaryExpr.getLocation().getLine() +
+                throw new SemanticException(binaryExpr.getNodeLocation().getFileName() + ":" +
+                        binaryExpr.getNodeLocation().getLineNumber() +
                         ": incompatible types in binary expression: " + lExpr.getType() + " vs " + rExpr.getType());
             }
         }
@@ -1650,7 +1667,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             expr.setType(BTypes.BOOLEAN_TYPE);
         } else {
             throw new SemanticException("Incompatible types used for '&&' operator" + " in " +
-                    expr.getLocation().getFileName() + ":" + expr.getLocation().getLine());
+                    expr.getNodeLocation().getFileName() + ":" + expr.getNodeLocation().getLineNumber());
         }
     }
 
@@ -1686,12 +1703,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         return pkgPath;
     }
 
-    private Symbol getSymbol(SymbolName symName, Position sourceLocation) {
+    private Symbol getSymbol(SymbolName symName, NodeLocation location) {
         // Check whether this symName is declared
         Symbol symbol = symbolTable.lookup(symName);
 
         if (symbol == null) {
-            throw new SemanticException(sourceLocation.getFileName() + ":" + sourceLocation.getLine() +
+            throw new SemanticException(location.getFileName() + ":" + location.getLineNumber() +
                     ": undeclared variable '" + symName.getName() + "'");
         }
 
@@ -1711,8 +1728,8 @@ public class SemanticAnalyzer implements NodeVisitor {
     private void checkForConstAssignment(AssignStmt assignStmt, Expression lExpr) {
         if (lExpr instanceof VariableRefExpr &&
                 ((VariableRefExpr) lExpr).getMemoryLocation() instanceof ConstantLocation) {
-            throw new SemanticException(assignStmt.getLocation().getFileName() + ":"
-                    + assignStmt.getLocation().getLine() + ": cannot assign a value to constant '" +
+            throw new SemanticException(assignStmt.getNodeLocation().getFileName() + ":"
+                    + assignStmt.getNodeLocation().getLineNumber() + ": cannot assign a value to constant '" +
                     ((VariableRefExpr) lExpr).getSymbolName() + "'");
         }
     }
@@ -1721,8 +1738,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                                                CallableUnitInvocationExpr rExpr) {
         BType[] returnTypes = rExpr.getTypes();
         if (lExprs.length != returnTypes.length) {
-            throw new SemanticException(assignStmt.getLocation().getFileName() + ":"
-                    + assignStmt.getLocation().getLine() + ": assignment count mismatch: " +
+            throw new SemanticException(assignStmt.getNodeLocation().getFileName() + ":"
+                    + assignStmt.getNodeLocation().getLineNumber() + ": assignment count mismatch: " +
                     lExprs.length + " = " + returnTypes.length);
         }
 
@@ -1733,8 +1750,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             BType returnType = returnTypes[i];
             if (!lExpr.getType().equals(returnType)) {
                 String varName = getVarNameFromExpression(lExpr);
-                throw new SemanticException(assignStmt.getLocation().getFileName() + ":"
-                        + assignStmt.getLocation().getLine() + ": cannot assign " + returnType + " to '" +
+                throw new SemanticException(assignStmt.getNodeLocation().getFileName() + ":"
+                        + assignStmt.getNodeLocation().getLineNumber() + ": cannot assign " + returnType + " to '" +
                         varName + "' (type " + lExpr.getType() + ") in multiple assignment");
             }
         }
@@ -1747,8 +1764,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (Expression lExpr : lExprs) {
             String varName = getVarNameFromExpression(lExpr);
             if (!varNameSet.add(varName)) {
-                throw new SemanticException(assignStmt.getLocation().getFileName() + ":"
-                        + assignStmt.getLocation().getLine() + ": '" + varName + "' is repeated " +
+                throw new SemanticException(assignStmt.getNodeLocation().getFileName() + ":"
+                        + assignStmt.getNodeLocation().getLineNumber() + ": '" + varName + "' is repeated " +
                         "on the left side of assignment");
             }
 
@@ -1774,7 +1791,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 //        if (callableUnit.getReturnParameters().length > 0 &&
 //                !(lastStmt instanceof ReturnStmt)) {
 //            throw new SemanticException(currentCallableUnit.getLocation().getFileName() + ":" +
-//                    currentCallableUnit.getLocation().getLine() +
+//                    currentCallableUnit.getLocation().getLineNumber() +
 //                    ": " + errorMsg);
 //        }
 //    }
@@ -1786,7 +1803,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 //        if (resource.getReturnParameters().length > 0 &&
 //                !(lastStmt instanceof ReplyStmt)) {
 //            throw new SemanticException(currentCallableUnit.getLocation().getFileName() + ":" +
-//                    currentCallableUnit.getLocation().getLine() +
+//                    currentCallableUnit.getLocation().getLineNumber() +
 //                    ": missing reply statement at end of resource");
 //        }
 //    }
@@ -1807,7 +1824,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymbolName symbolName = LangModelUtils.getSymNameWithParams(funcName.getName(), pkgPath, paramTypes);
         Symbol symbol = symbolTable.lookup(symbolName);
         if (symbol == null) {
-            throw new LinkerException(funcIExpr.getLocation().getFileName() + ":" + funcIExpr.getLocation().getLine() +
+            throw new LinkerException(funcIExpr.getNodeLocation().getFileName() + ":" +
+                    funcIExpr.getNodeLocation().getLineNumber() +
                     ": undefined function '" + funcIExpr.getCallableUnitName().getName() + "'");
         }
 
@@ -1833,7 +1851,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymbolName actionName = actionIExpr.getCallableUnitName();
         if (actionName.getConnectorName() == null) {
             throw new SemanticException("Connector type is not associated with the action invocation in "
-                    + actionIExpr.getLocation().getFileName() + ":" + actionIExpr.getLocation().getLine());
+                    + actionIExpr.getNodeLocation().getFileName() + ":" +
+                    actionIExpr.getNodeLocation().getLineNumber());
         }
 
         String pkgPath = getPackagePath(actionName);
@@ -1853,7 +1872,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         Symbol symbol = symbolTable.lookup(symName);
         if (symbol == null) {
             throw new LinkerException("Undefined action: " + actionIExpr.getCallableUnitName().getName() + " in "
-                    + actionIExpr.getLocation().getFileName() + ":" + actionIExpr.getLocation().getLine());
+                    + actionIExpr.getNodeLocation().getFileName() + ":" +
+                    actionIExpr.getNodeLocation().getLineNumber());
         }
 
         // Package name null means the action is defined in the same bal file. 
@@ -1873,8 +1893,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                 action.getReturnParameters()[0].getType() : null);
     }
 
-    private String getLocationStr(Position location) {
-        return location.getFileName() + ":" + location.getLine() + ": ";
+    private String getNodeLocationStr(NodeLocation nodeLocation) {
+        return nodeLocation.getFileName() + ":" + nodeLocation.getLineNumber() + ": ";
     }
     
     /*
@@ -1892,13 +1912,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (VariableDcl field : struct.getFields()) {
             structMemAddrOffset++;
             BType type = field.getType();
-            validateType(type, field.getLocation());
+            validateType(type, field.getNodeLocation());
 
             SymbolName fieldSym = LangModelUtils.getStructFieldSymName(field.getName().getName(),
                     structName, structStructPackage);
             Symbol symbol = symbolTable.lookup(fieldSym);
             if (symbol != null && isSymbolInCurrentScope(symbol)) {
-                throw new SemanticException(getLocationStr(field.getLocation()) + "duplicate field '" +
+                throw new SemanticException(getNodeLocationStr(field.getNodeLocation()) + "duplicate field '" +
                         fieldSym.getName() + "'.");
             }
             MemoryLocation location = new StructVarLocation(structMemAddrOffset);
@@ -1917,8 +1937,8 @@ public class SemanticAnalyzer implements NodeVisitor {
      */
     private void addStructSymbol(Struct struct) {
         if (symbolTable.lookup(struct.getSymbolName()) != null) {
-            throw new SemanticException(getLocationStr(struct.getLocation()) + "duplicate struct '" + struct.getName()
-                    + "'.");
+            throw new SemanticException(getNodeLocationStr(struct.getNodeLocation()) +
+                    "duplicate struct '" + struct.getName() + "'");
         }
         Symbol symbol = new Symbol(struct);
         symbolTable.insert(struct.getSymbolName(), symbol);
@@ -1939,7 +1959,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         Symbol structSymbol = symbolTable.lookup(structName);
         if (structSymbol == null) {
-            throw new SemanticException(getLocationStr(structDcl.getLocation()) + "struct '" + structName +
+            throw new SemanticException(getNodeLocationStr(structDcl.getNodeLocation()) + "struct '" + structName +
                     "' not found.");
         }
         structDcl.setStruct(structSymbol.getStruct());
@@ -2034,7 +2054,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             fieldSymbol = symbolTable.lookup(new SymbolName(expr.getSymbolName().getName()));
             // Check for variable existence
             if (fieldSymbol == null) {
-                throw new SemanticException(getLocationStr(expr.getLocation()) +
+                throw new SemanticException(getNodeLocationStr(expr.getNodeLocation()) +
                         "undeclraed struct '" + expr.getSymbolName() + "'.");
             }
             return fieldSymbol;
@@ -2051,7 +2071,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         fieldSymbol = symbolTable.lookup(structFieldSym);
         // Check for field existence
         if (fieldSymbol == null) {
-            throw new SemanticException(getLocationStr(expr.getLocation()) +
+            throw new SemanticException(getNodeLocationStr(expr.getNodeLocation()) +
                     "undeclraed field '" + expr.getSymbolName() + "' for type '" + parentType + "'.");
         }
         return fieldSymbol;
@@ -2072,8 +2092,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         if (symbol == null) {
-            throw new LinkerException(typeCastExpression.getLocation().getFileName() + ":" +
-                    typeCastExpression.getLocation().getLine() +
+            throw new LinkerException(typeCastExpression.getNodeLocation().getFileName() + ":" +
+                    typeCastExpression.getNodeLocation().getLineNumber() +
                     ": type converter cannot be found for '" + sourceType
                     + "to " + targetType + "'");
         }
@@ -2091,49 +2111,46 @@ public class SemanticAnalyzer implements NodeVisitor {
         TypeCastExpression newExpr = null;
         if ((rhsType == BTypes.INT_TYPE && lhsType == BTypes.LONG_TYPE) ||
                 (lhsType == BTypes.INT_TYPE && rhsType == BTypes.LONG_TYPE)) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.LONG_TYPE);
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.LONG_TYPE);
             newExpr.setEvalFunc(NativeCastConvertor.INT_TO_LONG_FUNC);
         } else if ((rhsType == BTypes.INT_TYPE && lhsType == BTypes.FLOAT_TYPE) ||
                 (lhsType == BTypes.INT_TYPE && rhsType == BTypes.FLOAT_TYPE)) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.FLOAT_TYPE);
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.FLOAT_TYPE);
             newExpr.setEvalFunc(NativeCastConvertor.INT_TO_FLOAT_FUNC);
         } else if ((rhsType == BTypes.INT_TYPE && lhsType == BTypes.DOUBLE_TYPE) ||
                 (lhsType == BTypes.INT_TYPE && rhsType == BTypes.DOUBLE_TYPE)) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.DOUBLE_TYPE);
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.DOUBLE_TYPE);
             newExpr.setEvalFunc(NativeCastConvertor.INT_TO_DOUBLE_FUNC);
         } else if (((rhsType == BTypes.INT_TYPE && lhsType == BTypes.STRING_TYPE) ||
                 (lhsType == BTypes.INT_TYPE && rhsType == BTypes.STRING_TYPE)) && op.equals(Operator.ADD)) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.STRING_TYPE);
             newExpr.setEvalFunc(NativeCastConvertor.INT_TO_STRING_FUNC);
         } else if ((rhsType == BTypes.LONG_TYPE && lhsType == BTypes.FLOAT_TYPE) ||
                 (lhsType == BTypes.LONG_TYPE && rhsType == BTypes.FLOAT_TYPE)) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.FLOAT_TYPE);
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.FLOAT_TYPE);
             newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_FLOAT_FUNC);
         } else if ((rhsType == BTypes.LONG_TYPE && lhsType == BTypes.DOUBLE_TYPE) ||
                 (lhsType == BTypes.LONG_TYPE && rhsType == BTypes.DOUBLE_TYPE)) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.DOUBLE_TYPE);
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.DOUBLE_TYPE);
             newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_DOUBLE_FUNC);
         } else if (((rhsType == BTypes.LONG_TYPE && lhsType == BTypes.STRING_TYPE) ||
                 (lhsType == BTypes.LONG_TYPE && rhsType == BTypes.STRING_TYPE)) && op.equals(Operator.ADD)) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.STRING_TYPE);
             newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_STRING_FUNC);
         } else if ((rhsType == BTypes.FLOAT_TYPE && lhsType == BTypes.DOUBLE_TYPE) ||
                 (lhsType == BTypes.FLOAT_TYPE && rhsType == BTypes.DOUBLE_TYPE)) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.DOUBLE_TYPE);
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.DOUBLE_TYPE);
             newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_DOUBLE_FUNC);
         } else if (((rhsType == BTypes.FLOAT_TYPE && lhsType == BTypes.STRING_TYPE) ||
                 (lhsType == BTypes.FLOAT_TYPE && rhsType == BTypes.STRING_TYPE)) && op.equals(Operator.ADD)) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.STRING_TYPE);
             newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_STRING_FUNC);
         } else if (((rhsType == BTypes.DOUBLE_TYPE && lhsType == BTypes.STRING_TYPE) ||
                 (lhsType == BTypes.DOUBLE_TYPE && rhsType == BTypes.STRING_TYPE)) && op.equals(Operator.ADD)) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.STRING_TYPE);
             newExpr.setEvalFunc(NativeCastConvertor.DOUBLE_TO_STRING_FUNC);
         }
 
-        if (newExpr != null) {
-            newExpr.setLocation(rhsExpr.getLocation());
-        }
         return newExpr;
     }
 
@@ -2143,40 +2160,37 @@ public class SemanticAnalyzer implements NodeVisitor {
         BType lhsType = lhsExpr.getType();
         TypeCastExpression newExpr = null;
         if (rhsType == BTypes.INT_TYPE && lhsType == BTypes.LONG_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.LONG_TYPE);
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.LONG_TYPE);
             newExpr.setEvalFunc(NativeCastConvertor.INT_TO_LONG_FUNC);
         } else if (rhsType == BTypes.INT_TYPE && lhsType == BTypes.FLOAT_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.FLOAT_TYPE);
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.FLOAT_TYPE);
             newExpr.setEvalFunc(NativeCastConvertor.INT_TO_FLOAT_FUNC);
         } else if (rhsType == BTypes.INT_TYPE && lhsType == BTypes.DOUBLE_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.DOUBLE_TYPE);
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.DOUBLE_TYPE);
             newExpr.setEvalFunc(NativeCastConvertor.INT_TO_DOUBLE_FUNC);
         } else if (rhsType == BTypes.INT_TYPE && lhsType == BTypes.STRING_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.STRING_TYPE);
             newExpr.setEvalFunc(NativeCastConvertor.INT_TO_STRING_FUNC);
         } else if (rhsType == BTypes.LONG_TYPE && lhsType == BTypes.FLOAT_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.FLOAT_TYPE);
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.FLOAT_TYPE);
             newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_FLOAT_FUNC);
         } else if (rhsType == BTypes.LONG_TYPE && lhsType == BTypes.DOUBLE_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.DOUBLE_TYPE);
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.DOUBLE_TYPE);
             newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_DOUBLE_FUNC);
         } else if (rhsType == BTypes.LONG_TYPE && lhsType == BTypes.STRING_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.STRING_TYPE);
             newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_STRING_FUNC);
         } else if (rhsType == BTypes.FLOAT_TYPE && lhsType == BTypes.DOUBLE_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.DOUBLE_TYPE);
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.DOUBLE_TYPE);
             newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_DOUBLE_FUNC);
         } else if (rhsType == BTypes.FLOAT_TYPE && lhsType == BTypes.STRING_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.STRING_TYPE);
             newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_STRING_FUNC);
         } else if (rhsType == BTypes.DOUBLE_TYPE && lhsType == BTypes.STRING_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr, BTypes.STRING_TYPE);
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.STRING_TYPE);
             newExpr.setEvalFunc(NativeCastConvertor.DOUBLE_TO_STRING_FUNC);
         }
 
-        if (newExpr != null) {
-            newExpr.setLocation(rhsExpr.getLocation());
-        }
         return newExpr;
     }
 

@@ -45,17 +45,17 @@ public class Service implements CompilationUnit, SymbolScope {
 
     // TODO Refactor
     private SymbolName symbolName;
-    private Position serviceLocation;
+    private NodeLocation location;
     private SymbolName name;
     private Annotation[] annotations;
     private ConnectorDcl[] connectorDcls;
     private VariableDcl[] variableDcls;
     private Resource[] resources;
 
-    public Service(SymbolName serviceName, Position serviceLocation, Annotation[] annotations,
+    public Service(NodeLocation location, SymbolName serviceName, Annotation[] annotations,
                    ConnectorDcl[] connectorDcls, VariableDcl[] variableDcls, Resource[] resources) {
+        this.location = location;
         this.name = serviceName;
-        this.serviceLocation = serviceLocation;
         this.annotations = annotations;
         this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
@@ -125,15 +125,10 @@ public class Service implements CompilationUnit, SymbolScope {
         visitor.visit(this);
     }
 
-    /**
-     * Get the location of this service in the ballerina source file.
-     *
-     * @return Location of this service in the ballerina source file.
-     */
-    public Position getServiceLocation() {
-        return serviceLocation;
+    @Override
+    public NodeLocation getNodeLocation() {
+        return location;
     }
-
 
     // Methods in the SymbolScope interface
 

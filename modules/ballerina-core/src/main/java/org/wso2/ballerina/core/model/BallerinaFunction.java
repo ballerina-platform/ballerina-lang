@@ -39,11 +39,9 @@ import org.wso2.ballerina.core.model.symbols.SymbolScope;
  */
 public class BallerinaFunction implements Function, SymbolScope, CompilationUnit {
     private SymbolScope enclosingScope;
-
-    // TODO: Rename this to BFunction after M1.
+    private NodeLocation location;
     private SymbolName symbolName;
     private String functionName;
-    private Position functionLocation;
 
     private Annotation[] annotations;
     private Parameter[] parameters;
@@ -56,32 +54,8 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     private boolean publicFunc;
     private int stackFrameSize;
 
-    public BallerinaFunction(SymbolName name,
-                             Position position,
-                             Boolean isPublic,
-                             Annotation[] annotations,
-                             Parameter[] parameters,
-                             Parameter[] returnParams,
-                             ConnectorDcl[] connectorDcls,
-                             VariableDcl[] variableDcls,
-                             Worker[] workers,
-                             BlockStmt functionBody) {
-
-        this.symbolName = name;
-        this.functionName = symbolName.getName();
-        this.functionLocation = position;
-        this.publicFunc = isPublic;
-        this.annotations = annotations;
-        this.parameters = parameters;
-        this.returnParams = returnParams;
-        this.connectorDcls = connectorDcls;
-        this.variableDcls = variableDcls;
-        this.workers = workers;
-        this.functionBody = functionBody;
-    }
-
-    public BallerinaFunction(SymbolName name,
-                             Position position,
+    public BallerinaFunction(NodeLocation location,
+                             SymbolName name,
                              Boolean isPublic,
                              Annotation[] annotations,
                              Parameter[] parameters,
@@ -89,9 +63,9 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
                              Worker[] workers,
                              BlockStmt functionBody) {
 
+        this.location = location;
         this.symbolName = name;
         this.functionName = symbolName.getName();
-        this.functionLocation = position;
         this.publicFunc = isPublic;
         this.annotations = annotations;
         this.parameters = parameters;
@@ -221,13 +195,11 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
         visitor.visit(this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public Position getLocation() {
-        return functionLocation;
+    public NodeLocation getNodeLocation() {
+        return location;
     }
+
 
     // Methods in the SymbolScope interface
 
