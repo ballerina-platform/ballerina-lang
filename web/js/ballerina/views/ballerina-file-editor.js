@@ -249,17 +249,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._package = this._environment.getCurrentPackage();
         };
 
-        BallerinaFileEditor.prototype.importPackage = function(packageName){
-            if (!_.isEmpty(packageName)) {
-                log.debug("Adding new import");
-                var package = this._environment.searchPackage(packageName, []);
-                if (_.isUndefined(package)) {
-                    log.error("Unable to find the package.");
-                    return;
-                }
-            }
-        };
-
         /**
          * Rendering the view for each canvas in {@link BallerinaFileEditor#_canvasList}.
          * @param parent - The parent container.
@@ -273,15 +262,14 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var symbolTableGenVisitor = new SymbolTableGenVisitor(this._package);
             this._model.accept(symbolTableGenVisitor);
             var package = symbolTableGenVisitor.getPackage();
-            this.toolPalette._toolGroups.imports.push(package);
+            this.toolPalette._imports.push(package);
 
             //adding default packages TODO : this needs to be rendered by referring to imports in the model
             var httpPackage = BallerinaEnvironment.searchPackage("ballerina.net.http");
-            this.toolPalette._toolGroups.imports.push(httpPackage[0]);
+            this.toolPalette._imports.push(httpPackage[0]);
 
             // render tool palette
             this.toolPalette.render();
-            this.toolPalette.addImport(this._package);
 
             // Creating the constants view.
             this._createConstantDefinitionsView(this._$canvasContainer);
