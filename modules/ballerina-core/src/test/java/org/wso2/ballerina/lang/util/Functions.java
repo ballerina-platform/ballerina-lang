@@ -112,7 +112,7 @@ public class Functions {
         // 6) Create the control stack and the stack frame to invoke the functions
         SymbolName functionSymbolName = function.getSymbolName();
         CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
-                functionSymbolName.getPkgName(), function.getNodeLocation());
+                functionSymbolName.getPkgPath(), function.getNodeLocation());
 
         StackFrame currentStackFrame = new StackFrame(functionArgs, new BValue[0], functionInfo);
         bContext.getControlStack().pushFrame(currentStackFrame);

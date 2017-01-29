@@ -37,7 +37,7 @@ import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.CallableUnit;
 import org.wso2.ballerina.core.model.CompilationUnit;
 import org.wso2.ballerina.core.model.ConnectorDcl;
-import org.wso2.ballerina.core.model.Const;
+import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeLocation;
@@ -46,12 +46,12 @@ import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.Struct;
+import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.TypeConvertor;
-import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
@@ -148,8 +148,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         Arrays.asList(bFile.getFunctions()).forEach(this::addFuncSymbol);
 
         // Add struct symbols to symbol table
-        for (Struct struct : bFile.getStructs()) {
-            addStructSymbol(struct);
+        for (StructDef structDef : bFile.getStructDefs()) {
+            addStructSymbol(structDef);
         }
 
         bFile.getConnectorList().forEach(connector -> {
@@ -213,7 +213,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(Const constant) {
+    public void visit(ConstDef constant) {
         staticMemAddrOffset++;
         SymbolName symName = constant.getName();
 
@@ -251,9 +251,9 @@ public class SemanticAnalyzer implements NodeVisitor {
             visit(connectorDcl);
         }
 
-        for (VariableDcl variableDcl : service.getVariableDcls()) {
+        for (VariableDef variableDef : service.getVariableDefs()) {
             staticMemAddrOffset++;
-            visit(variableDcl);
+            visit(variableDef);
         }
 
         // Visit the set of resources in a service
@@ -280,9 +280,9 @@ public class SemanticAnalyzer implements NodeVisitor {
             visit(connectorDcl);
         }
 
-        for (VariableDcl variableDcl : connector.getVariableDcls()) {
+        for (VariableDef variableDef : connector.getVariableDefs()) {
             connectorMemAddrOffset++;
-            visit(variableDcl);
+            visit(variableDef);
         }
 
         for (BallerinaAction action : connector.getActions()) {
@@ -321,9 +321,9 @@ public class SemanticAnalyzer implements NodeVisitor {
             visit(connectorDcl);
         }
 
-        for (VariableDcl variableDcl : resource.getVariableDcls()) {
+        for (VariableDef variableDef : resource.getVariableDefs()) {
             stackFrameOffset++;
-            visit(variableDcl);
+            visit(variableDef);
         }
 
         BlockStmt blockStmt = resource.getResourceBody();
@@ -358,9 +358,9 @@ public class SemanticAnalyzer implements NodeVisitor {
             visit(connectorDcl);
         }
 
-        for (VariableDcl variableDcl : function.getVariableDcls()) {
+        for (VariableDef variableDef : function.getVariableDefs()) {
             stackFrameOffset++;
-            visit(variableDcl);
+            visit(variableDef);
         }
 
         for (Parameter parameter : function.getReturnParameters()) {
@@ -408,9 +408,9 @@ public class SemanticAnalyzer implements NodeVisitor {
             visit(parameter);
         }
 
-        for (VariableDcl variableDcl : typeConvertor.getVariableDcls()) {
+        for (VariableDef variableDef : typeConvertor.getVariableDefs()) {
             stackFrameOffset++;
-            visit(variableDcl);
+            visit(variableDef);
         }
 
         for (Parameter parameter : typeConvertor.getReturnParameters()) {
@@ -463,9 +463,9 @@ public class SemanticAnalyzer implements NodeVisitor {
             visit(connectorDcl);
         }
 
-        for (VariableDcl variableDcl : action.getVariableDcls()) {
+        for (VariableDef variableDef : action.getVariableDefs()) {
             stackFrameOffset++;
-            visit(variableDcl);
+            visit(variableDef);
         }
 
         for (Parameter parameter : action.getReturnParameters()) {
@@ -539,14 +539,14 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(VariableDcl variableDcl) {
-        BType type = variableDcl.getType();
-        validateType(type, variableDcl.getNodeLocation());
+    public void visit(VariableDef variableDef) {
+        BType type = variableDef.getType();
+        validateType(type, variableDef.getNodeLocation());
 
-        SymbolName symName = variableDcl.getName();
+        SymbolName symName = variableDef.getName();
         Symbol symbol = symbolTable.lookup(symName);
         if (symbol != null && isSymbolInCurrentScope(symbol)) {
-            throw new SemanticException(getNodeLocationStr(variableDcl.getNodeLocation()) + "duplicate variable '" +
+            throw new SemanticException(getNodeLocationStr(variableDef.getNodeLocation()) + "duplicate variable '" +
                     symName.getName() + "'");
         }
 
@@ -1601,7 +1601,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymbolName symbolName =
                 LangModelUtils.getActionSymName(actionSymbolName.getName(),
                         actionSymbolName.getConnectorName(),
-                        actionSymbolName.getPkgName(), paramTypes);
+                        actionSymbolName.getPkgPath(), paramTypes);
         Symbol symbol = new Symbol(action);
 
         if (symbolTable.lookup(symbolName) != null) {
@@ -1681,7 +1681,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // First check whether there is a packaged name attached to the function.
         String pkgPath = null;
-        String pkgName = symbolName.getPkgName();
+        String pkgName = symbolName.getPkgPath();
 
         if (pkgName != null) {
             // A package name is specified. Check whether it is already listed as an imported package.
@@ -1812,7 +1812,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         SymbolName funcName = funcIExpr.getCallableUnitName();
         String pkgPath = getPackagePath(funcName);
-        funcName.setPkgName(pkgPath);
+        funcName.setPkgPath(pkgPath);
 
 
         Expression[] exprs = funcIExpr.getArgExprs();
@@ -1832,9 +1832,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Package name null means the function is defined in the same bal file. 
         // Hence set the package name of the bal file as the function's package name.
         // TODO: Do this in a better way
-        if (funcName.getPkgName() == null) {
+        if (funcName.getPkgPath() == null) {
             String fullPackageName = getPackagePath(new SymbolName(funcName.getName(), currentPkg));
-            funcName.setPkgName(fullPackageName);
+            funcName.setPkgPath(fullPackageName);
         }
 
         // Link
@@ -1858,7 +1858,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         String pkgPath = getPackagePath(actionName);
 
         // Set the fully qualified package name
-        actionName.setPkgName(pkgPath);
+        actionName.setPkgPath(pkgPath);
 
         Expression[] exprs = actionIExpr.getArgExprs();
         BType[] paramTypes = new BType[exprs.length];
@@ -1879,9 +1879,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Package name null means the action is defined in the same bal file. 
         // Hence set the package name of the bal file as the action's package name.
         // TODO: Do this in a better way
-        if (actionName.getPkgName() == null) {
+        if (actionName.getPkgPath() == null) {
             String fullPackageName = getPackagePath(new SymbolName(actionName.getName(), currentPkg));
-            actionName.setPkgName(fullPackageName);
+            actionName.setPkgPath(fullPackageName);
         }
 
         // Link
@@ -1905,11 +1905,11 @@ public class SemanticAnalyzer implements NodeVisitor {
      * Visit and semantically analyze a ballerina Struct definition.
      */
     @Override
-    public void visit(Struct struct) {
-        String structName = struct.getName();
-        String structStructPackage = struct.getPackageName();
+    public void visit(StructDef structDef) {
+        String structName = structDef.getName();
+        String structStructPackage = structDef.getPackageName();
 
-        for (VariableDcl field : struct.getFields()) {
+        for (VariableDef field : structDef.getFields()) {
             structMemAddrOffset++;
             BType type = field.getType();
             validateType(type, field.getNodeLocation());
@@ -1926,22 +1926,22 @@ public class SemanticAnalyzer implements NodeVisitor {
             symbolTable.insert(fieldSym, symbol);
         }
 
-        struct.setStructMemorySize(structMemAddrOffset + 1);
+        structDef.setStructMemorySize(structMemAddrOffset + 1);
         structMemAddrOffset = -1;
     }
 
     /**
      * Add the struct to the symbol table.
      *
-     * @param struct Ballerina struct
+     * @param structDef Ballerina struct
      */
-    private void addStructSymbol(Struct struct) {
-        if (symbolTable.lookup(struct.getSymbolName()) != null) {
-            throw new SemanticException(getNodeLocationStr(struct.getNodeLocation()) +
-                    "duplicate struct '" + struct.getName() + "'");
+    private void addStructSymbol(StructDef structDef) {
+        if (symbolTable.lookup(structDef.getSymbolName()) != null) {
+            throw new SemanticException(getNodeLocationStr(structDef.getNodeLocation()) +
+                    "duplicate struct '" + structDef.getName() + "'");
         }
-        Symbol symbol = new Symbol(struct);
-        symbolTable.insert(struct.getSymbolName(), symbol);
+        Symbol symbol = new Symbol(structDef);
+        symbolTable.insert(structDef.getSymbolName(), symbol);
     }
 
     /**
@@ -1962,7 +1962,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             throw new SemanticException(getNodeLocationStr(structDcl.getNodeLocation()) + "struct '" + structName +
                     "' not found.");
         }
-        structDcl.setStruct(structSymbol.getStruct());
+        structDcl.setStructDef(structSymbol.getStructDef());
     }
 
     /**

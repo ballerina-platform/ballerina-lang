@@ -76,7 +76,7 @@ public interface CallableUnit {
      *
      * @return an array of variable declarations
      */
-    VariableDcl[] getVariableDcls();
+    VariableDef[] getVariableDefs();
 
     /**
      * Returns an array of return parameters (values) of this callable unit.

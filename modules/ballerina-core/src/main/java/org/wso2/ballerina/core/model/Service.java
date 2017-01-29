@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.model;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.symbols.SymbolScope;
 
 /**
@@ -49,16 +50,16 @@ public class Service implements CompilationUnit, SymbolScope {
     private SymbolName name;
     private Annotation[] annotations;
     private ConnectorDcl[] connectorDcls;
-    private VariableDcl[] variableDcls;
+    private VariableDef[] variableDefs;
     private Resource[] resources;
 
     public Service(NodeLocation location, SymbolName serviceName, Annotation[] annotations,
-                   ConnectorDcl[] connectorDcls, VariableDcl[] variableDcls, Resource[] resources) {
+                   ConnectorDcl[] connectorDcls, VariableDef[] variableDefs, Resource[] resources) {
         this.location = location;
         this.name = serviceName;
         this.annotations = annotations;
         this.connectorDcls = connectorDcls;
-        this.variableDcls = variableDcls;
+        this.variableDefs = variableDefs;
         this.resources = resources;
     }
 
@@ -86,8 +87,8 @@ public class Service implements CompilationUnit, SymbolScope {
         return connectorDcls;
     }
 
-    public VariableDcl[] getVariableDcls() {
-        return variableDcls;
+    public VariableDef[] getVariableDefs() {
+        return variableDefs;
     }
 
     public void setAnnotations(Annotation[] annotations) {
@@ -98,8 +99,8 @@ public class Service implements CompilationUnit, SymbolScope {
         this.connectorDcls = connectorDcls;
     }
 
-    public void setVariableDcls(VariableDcl[] variableDcls) {
-        this.variableDcls = variableDcls;
+    public void setVariableDefs(VariableDef[] variableDefs) {
+        this.variableDefs = variableDefs;
     }
 
     /**
@@ -143,12 +144,13 @@ public class Service implements CompilationUnit, SymbolScope {
     }
 
     @Override
-    public void define(Symbol sym) {
+    public void define(SymbolName name, BLangSymbol symbol) {
 
     }
 
     @Override
-    public Symbol resolve(String name) {
+    public Symbol resolve(SymbolName name) {
         return null;
     }
+
 }

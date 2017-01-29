@@ -19,7 +19,10 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.symbols.SymbolScope;
+
+import java.util.Map;
 
 /**
  * A {@code BallerinaFunction} is an operation that is executed by a {@code Worker}.
@@ -38,7 +41,6 @@ import org.wso2.ballerina.core.model.symbols.SymbolScope;
  * @since 0.8.0
  */
 public class BallerinaFunction implements Function, SymbolScope, CompilationUnit {
-    private SymbolScope enclosingScope;
     private NodeLocation location;
     private SymbolName symbolName;
     private String functionName;
@@ -46,13 +48,17 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     private Annotation[] annotations;
     private Parameter[] parameters;
     private ConnectorDcl[] connectorDcls;
-    private VariableDcl[] variableDcls;
+    private VariableDef[] variableDefs;
     private Worker[] workers;
     private Parameter[] returnParams;
     private BlockStmt functionBody;
 
     private boolean publicFunc;
     private int stackFrameSize;
+
+    // Scope related variables
+    private SymbolScope enclosingScope;
+    private Map<SymbolName, BLangSymbol> symbolMap;
 
     public BallerinaFunction(NodeLocation location,
                              SymbolName name,
@@ -61,7 +67,9 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
                              Parameter[] parameters,
                              Parameter[] returnParams,
                              Worker[] workers,
-                             BlockStmt functionBody) {
+                             BlockStmt functionBody,
+                             SymbolScope enclosingScope,
+                             Map<SymbolName, BLangSymbol> symbolMap) {
 
         this.location = location;
         this.symbolName = name;
@@ -72,6 +80,9 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
         this.returnParams = returnParams;
         this.workers = workers;
         this.functionBody = functionBody;
+
+        this.enclosingScope = enclosingScope;
+        this.symbolMap = symbolMap;
     }
 
     /**
@@ -92,7 +103,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
      */
     @Override
     public String getPackageName() {
-        return symbolName.getPkgName();
+        return symbolName.getPkgPath();
     }
 
     /**
@@ -143,8 +154,8 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
      *
      * @return list of all BallerinaFunction scoped variableDcls
      */
-    public VariableDcl[] getVariableDcls() {
-        return variableDcls;
+    public VariableDef[] getVariableDefs() {
+        return variableDefs;
     }
 
     /**
@@ -214,12 +225,12 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     }
 
     @Override
-    public void define(Symbol sym) {
+    public void define(SymbolName name, BLangSymbol symbol) {
 
     }
 
     @Override
-    public Symbol resolve(String name) {
+    public Symbol resolve(SymbolName name) {
         return null;
     }
 }

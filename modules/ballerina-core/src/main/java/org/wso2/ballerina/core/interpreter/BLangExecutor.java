@@ -29,11 +29,11 @@ import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
-import org.wso2.ballerina.core.model.Struct;
+import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.TypeConvertor;
-import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
@@ -238,8 +238,8 @@ public class BLangExecutor implements NodeExecutor {
         }
 
         // Create default values for all declared local variables
-        for (VariableDcl variableDcl : function.getVariableDcls()) {
-            localVals[valueCounter] = variableDcl.getType().getDefaultValue();
+        for (VariableDef variableDef : function.getVariableDefs()) {
+            localVals[valueCounter] = variableDef.getType().getDefaultValue();
             valueCounter++;
         }
 
@@ -261,7 +261,7 @@ public class BLangExecutor implements NodeExecutor {
         // return values and function invocation location;
         SymbolName functionSymbolName = funcIExpr.getCallableUnitName();
         CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
-                functionSymbolName.getPkgName(), funcIExpr.getNodeLocation());
+                functionSymbolName.getPkgPath(), funcIExpr.getNodeLocation());
 
         StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
         controlStack.pushFrame(stackFrame);
@@ -298,8 +298,8 @@ public class BLangExecutor implements NodeExecutor {
         }
 
         // Create default values for all declared local variables
-        for (VariableDcl variableDcl : action.getVariableDcls()) {
-            localVals[valueCounter] = variableDcl.getType().getDefaultValue();
+        for (VariableDef variableDef : action.getVariableDefs()) {
+            localVals[valueCounter] = variableDef.getType().getDefaultValue();
             valueCounter++;
         }
 
@@ -320,7 +320,7 @@ public class BLangExecutor implements NodeExecutor {
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression values and
         // return values;
         SymbolName actionSymbolName = actionIExpr.getCallableUnitName();
-        CallableUnitInfo actionInfo = new CallableUnitInfo(actionSymbolName.getName(), actionSymbolName.getPkgName(),
+        CallableUnitInfo actionInfo = new CallableUnitInfo(actionSymbolName.getName(), actionSymbolName.getPkgPath(),
                 actionIExpr.getNodeLocation());
         StackFrame stackFrame = new StackFrame(localVals, returnVals, actionInfo);
         controlStack.pushFrame(stackFrame);
@@ -359,9 +359,9 @@ public class BLangExecutor implements NodeExecutor {
         valueCounter = populateConnectorDclValues(resource.getConnectorDcls(), valueParams, valueCounter);
 
         // Create default values for all declared local variables
-        VariableDcl[] variableDcls = resource.getVariableDcls();
-        for (VariableDcl variableDcl : variableDcls) {
-            valueParams[valueCounter] = variableDcl.getType().getDefaultValue();
+        VariableDef[] variableDefs = resource.getVariableDefs();
+        for (VariableDef variableDef : variableDefs) {
+            valueParams[valueCounter] = variableDef.getType().getDefaultValue();
             valueCounter++;
         }
 
@@ -369,7 +369,7 @@ public class BLangExecutor implements NodeExecutor {
 
         SymbolName resourceSymbolName = resource.getSymbolName();
         CallableUnitInfo resourceInfo = new CallableUnitInfo(resourceSymbolName.getName(),
-                resourceSymbolName.getPkgName(), resource.getNodeLocation());
+                resourceSymbolName.getPkgPath(), resource.getNodeLocation());
 
         StackFrame stackFrame = new StackFrame(valueParams, ret, resourceInfo);
         controlStack.pushFrame(stackFrame);
@@ -503,8 +503,8 @@ public class BLangExecutor implements NodeExecutor {
             int valueCounter = populateArgumentValues(typeCastExpression.getArgExprs(), localVals);
 
             // Create default values for all declared local variables
-            for (VariableDcl variableDcl : typeConvertor.getVariableDcls()) {
-                localVals[valueCounter] = variableDcl.getType().getDefaultValue();
+            for (VariableDef variableDef : typeConvertor.getVariableDefs()) {
+                localVals[valueCounter] = variableDef.getType().getDefaultValue();
                 valueCounter++;
             }
 
@@ -526,7 +526,7 @@ public class BLangExecutor implements NodeExecutor {
             // return values and function invocation location;
             SymbolName functionSymbolName = typeCastExpression.getCallableUnitName();
             CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
-                    functionSymbolName.getPkgName(), typeCastExpression.getNodeLocation());
+                    functionSymbolName.getPkgPath(), typeCastExpression.getNodeLocation());
 
             StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
             controlStack.pushFrame(stackFrame);
@@ -646,8 +646,8 @@ public class BLangExecutor implements NodeExecutor {
                 // Populate all connector declarations
                 offset = populateConnectorDclValues(ballerinaConnector.getConnectorDcls(), connectorMemBlock, offset);
 
-                for (VariableDcl variableDcl : ballerinaConnector.getVariableDcls()) {
-                    connectorMemBlock[offset] = variableDcl.getType().getDefaultValue();
+                for (VariableDef variableDef : ballerinaConnector.getVariableDefs()) {
+                    connectorMemBlock[offset] = variableDef.getType().getDefaultValue();
                     offset++;
                 }
             }
@@ -714,16 +714,16 @@ public class BLangExecutor implements NodeExecutor {
         StructDcl structDcl = structInitExpr.getStructDcl();
         BValue[] structMemBlock;
         int offset = 0;
-        Struct struct = structDcl.getStruct();
-        structMemBlock = new BValue[struct.getStructMemorySize()];
+        StructDef structDef = structDcl.getStructDef();
+        structMemBlock = new BValue[structDef.getStructMemorySize()];
 
         // create a memory block to hold field of the struct, and populate it with default values
-        VariableDcl[] fields = struct.getFields();
-        for (VariableDcl field : fields) {
+        VariableDef[] fields = structDef.getFields();
+        for (VariableDef field : fields) {
             structMemBlock[offset] = field.getType().getDefaultValue();
             offset++;
         }
-        return new BStruct(struct, structMemBlock);
+        return new BStruct(structDef, structMemBlock);
     }
 
     /**

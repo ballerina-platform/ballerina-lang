@@ -41,10 +41,10 @@ import java.util.List;
 public class Worker implements Node {
 
     private List<ConnectorDcl> connectorDcls;
-    private List<VariableDcl> variables;
+    private List<VariableDef> variables;
     private List<Statement> statements;
 
-    public Worker(NodeLocation location, List<VariableDcl> variables, List<Statement> statements) {
+    public Worker(NodeLocation location, List<VariableDef> variables, List<Statement> statements) {
         this.variables = variables;
         this.statements = statements;
     }
@@ -87,7 +87,7 @@ public class Worker implements Node {
      *
      * @return list of all Worker scoped variables
      */
-    public List<VariableDcl> getVariables() {
+    public List<VariableDef> getVariables() {
         return variables;
     }
 
@@ -96,7 +96,7 @@ public class Worker implements Node {
      *
      * @param variables list of variables
      */
-    public void setVariables(List<VariableDcl> variables) {
+    public void setVariables(List<VariableDef> variables) {
         this.variables = variables;
     }
 
@@ -105,9 +105,9 @@ public class Worker implements Node {
      *
      * @param variable variable to be added the Worker
      */
-    public void addVariable(VariableDcl variable) {
+    public void addVariable(VariableDef variable) {
         if (variables == null) {
-            variables = new ArrayList<VariableDcl>();
+            variables = new ArrayList<VariableDef>();
         }
         variables.add(variable);
     }

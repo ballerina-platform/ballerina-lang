@@ -19,6 +19,7 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.symbols.SymbolScope;
 
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     private Annotation[] annotations;
     private Parameter[] parameters;
     private ConnectorDcl[] connectorDcls;
-    private VariableDcl[] variableDcls;
+    private VariableDef[] variableDefs;
     private Worker[] workers;
     private BlockStmt resourceBody;
     private SymbolName resourceName;
@@ -179,8 +180,8 @@ public class Resource implements Node, SymbolScope, CallableUnit {
      *
      * @return returns the variable declarations
      */
-    public VariableDcl[] getVariableDcls() {
-        return variableDcls;
+    public VariableDef[] getVariableDefs() {
+        return variableDefs;
     }
 
     @Override
@@ -259,12 +260,12 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     }
 
     @Override
-    public void define(Symbol sym) {
+    public void define(SymbolName name, BLangSymbol symbol) {
 
     }
 
     @Override
-    public Symbol resolve(String name) {
+    public Symbol resolve(SymbolName name) {
         return null;
     }
 }

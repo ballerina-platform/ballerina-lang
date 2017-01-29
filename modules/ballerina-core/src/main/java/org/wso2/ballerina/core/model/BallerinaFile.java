@@ -51,8 +51,8 @@ public class BallerinaFile implements Node {
     private Function[] functions;
     private TypeConvertor[] typeConvertors;
     private Function mainFunction;
-    private Const[] consts;
-    private Struct[] structs;
+    private ConstDef[] consts;
+    private StructDef[] structDefs;
 
     private int sizeOfStaticMem;
 
@@ -66,8 +66,8 @@ public class BallerinaFile implements Node {
             List<BallerinaConnector> connectorList,
             Function[] functions,
             Function mainFunction,
-            Const[] consts,
-            Struct[] structs,
+            ConstDef[] consts,
+            StructDef[] structDefs,
             TypeConvertor[] typeConvertors) {
 
         this.packageName = packageName;
@@ -78,7 +78,7 @@ public class BallerinaFile implements Node {
         this.functions = functions;
         this.mainFunction = mainFunction;
         this.consts = consts;
-        this.structs = structs;
+        this.structDefs = structDefs;
         this.typeConvertors = typeConvertors;
 
         packageScope = new SymScope(SymScope.Name.PACKAGE);
@@ -115,7 +115,7 @@ public class BallerinaFile implements Node {
         return compilationUnits;
     }
 
-    public Const[] getConstants() {
+    public ConstDef[] getConstants() {
         return consts;
     }
 
@@ -167,8 +167,8 @@ public class BallerinaFile implements Node {
         return this.mainFunction;
     }
 
-    public Struct[] getStructs() {
-        return this.structs;
+    public StructDef[] getStructDefs() {
+        return this.structDefs;
     }
 
     public SymScope getPackageScope() {
@@ -208,14 +208,14 @@ public class BallerinaFile implements Node {
         private List<TypeConvertor> typeConvertorList = new ArrayList<>();
         private Function mainFunction;
 
-        private List<Const> constList = new ArrayList<>();
+        private List<ConstDef> constList = new ArrayList<>();
 
-        private List<Struct> structList = new ArrayList<>();
+        private List<StructDef> structDefList = new ArrayList<>();
 
         public BFileBuilder() {
         }
 
-        public void setPkgName(String packageName) {
+        public void setPackagePath(String packageName) {
             this.packageName = packageName;
         }
 
@@ -247,7 +247,7 @@ public class BallerinaFile implements Node {
             this.importPkgList.add(importPkg);
         }
 
-        public void addConst(Const constant) {
+        public void addConst(ConstDef constant) {
             this.compilationUnitList.add((constant));
             this.constList.add(constant);
         }
@@ -260,9 +260,9 @@ public class BallerinaFile implements Node {
         /**
          * Add a ballerina user defined Struct to the ballerina file
          */
-        public void addStruct(Struct struct) {
-            this.compilationUnitList.add(struct);
-            this.structList.add(struct);
+        public void addStruct(StructDef structDef) {
+            this.compilationUnitList.add(structDef);
+            this.structDefList.add(structDef);
         }
 
         public BallerinaFile build() {
@@ -278,8 +278,8 @@ public class BallerinaFile implements Node {
                     connectorList,
                     functionList.toArray(new Function[functionList.size()]),
                     mainFunction,
-                    constList.toArray(new Const[constList.size()]),
-                    structList.toArray(new Struct[structList.size()]),
+                    constList.toArray(new ConstDef[constList.size()]),
+                    structDefList.toArray(new StructDef[structDefList.size()]),
                     typeConvertorList.toArray(new TypeConvertor[typeConvertorList.size()])
             );
         }

@@ -18,21 +18,43 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.expressions.Expression;
+import org.wso2.ballerina.core.model.symbols.VariableRefSymbol;
 import org.wso2.ballerina.core.model.types.BType;
+import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code Const} represents a Constant in Ballerina.
+ * {@code ConstDef} represents a Constant in Ballerina.
  *
  * @since 0.8.0
  */
-public class Const implements CompilationUnit {
+public class ConstDef extends VariableDef implements CompilationUnit {
 
     private BType type;
     private SymbolName symbolName;
     private Expression rhsExpr;
     private BValue value;
     protected NodeLocation location;
+
+    private boolean publicConst;
+
+    /**
+     * @param name        Type of the constant
+     * @param typeName    Identifier of the constant
+     * @param rhsExpr     Rhs expression
+     * @param publicConst if true, then this constant is visible to other packages
+     * @param varRefSymbol {@code VariableRefSymbol} of this definition
+     */
+    public ConstDef(NodeLocation location,
+                    String name,
+                    SimpleTypeName typeName,
+                    Expression rhsExpr,
+                    boolean publicConst,
+                    VariableRefSymbol varRefSymbol) {
+        super(location, name, typeName, varRefSymbol);
+        this.rhsExpr = rhsExpr;
+        this.publicConst = publicConst;
+    }
 
     /**
      * Constructing a Ballerina Constant Node.
@@ -41,7 +63,8 @@ public class Const implements CompilationUnit {
      * @param symbolName Identifier of the constant
      * @param value      bValueRef of the constant
      */
-    public Const(BType type, SymbolName symbolName, BValue value) {
+    public ConstDef(BType type, SymbolName symbolName, BValue value) {
+        super(null, "", null, null);
         this.type = type;
         this.symbolName = symbolName;
         this.value = value;
@@ -52,7 +75,8 @@ public class Const implements CompilationUnit {
      * @param symbolName Identifier of the constant
      * @param rhsExpr    Rhs expression
      */
-    public Const(NodeLocation location, BType type, SymbolName symbolName, Expression rhsExpr) {
+    public ConstDef(NodeLocation location, BType type, SymbolName symbolName, Expression rhsExpr) {
+        super(null, "", null, null);
         this.location = location;
         this.type = type;
         this.symbolName = symbolName;
@@ -81,6 +105,10 @@ public class Const implements CompilationUnit {
         return rhsExpr;
     }
 
+    public boolean isPublic() {
+        return publicConst;
+    }
+
     /**
      * Get the bValue of the constant.
      *
@@ -102,37 +130,5 @@ public class Const implements CompilationUnit {
     @Override
     public NodeLocation getNodeLocation() {
         return location;
-    }
-
-    /**
-     * This class is builds a {@code Constant} node from parser events.
-     *
-     * @since 0.8.0
-     */
-    public static class ConstBuilder {
-        private NodeLocation location;
-        private BType type;
-        private SymbolName symbolName;
-        private Expression valueExpr;
-
-        public void setNodeLocation(NodeLocation location) {
-            this.location = location;
-        }
-
-        public void setType(BType type) {
-            this.type = type;
-        }
-
-        public void setSymbolName(SymbolName symbolName) {
-            this.symbolName = symbolName;
-        }
-
-        public void setValueExpr(Expression valueExpr) {
-            this.valueExpr = valueExpr;
-        }
-
-        public Const build() {
-            return new Const(location, type, symbolName, valueExpr);
-        }
     }
 }

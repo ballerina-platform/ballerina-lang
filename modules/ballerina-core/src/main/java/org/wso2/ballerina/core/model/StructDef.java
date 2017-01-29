@@ -18,23 +18,34 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+import org.wso2.ballerina.core.model.symbols.SymbolCategory;
 import org.wso2.ballerina.core.model.symbols.SymbolScope;
+import org.wso2.ballerina.core.model.types.BType;
+import org.wso2.ballerina.core.model.values.BStruct;
+import org.wso2.ballerina.core.model.values.BValue;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Ballerina Struct represents a user defined type in ballerina.
+ * {@code Struct} represents a user-defined type in Ballerina.
  *
  * @since 0.8.0
  */
-public class Struct implements CompilationUnit, SymbolScope {
-
-    private SymbolName symbolName;
+public class StructDef extends BType implements CompilationUnit, SymbolScope, BLangSymbol {
     private NodeLocation location;
+    private String name;
     private boolean isPublic;
     private int structMemorySize;
-    private VariableDcl[] fields;
+    private VariableDef[] fields;
+
+    private SymbolCategory symbolCategory = SymbolCategory.STRUCT;
+    private SymbolName symbolName;
+    private SymbolScope enclosingScope;
+    private Map<SymbolName, BLangSymbol> symbolMap;
 
     /**
      * Create a ballerina struct.
@@ -43,15 +54,21 @@ public class Struct implements CompilationUnit, SymbolScope {
      * @param location Boolean indicating whether the struct is public
      * @param fields   Fields in the struct.
      */
-    public Struct(NodeLocation location,
-                  SymbolName name,
-                  VariableDcl[] fields,
-                  boolean isPublic) {
+    public StructDef(NodeLocation location,
+                     String name,
+                     VariableDef[] fields,
+                     boolean isPublic,
+                     SymbolScope enclosingScope,
+                     Map<SymbolName, BLangSymbol> symbolMap) {
+        super(name, BStruct.class);
 
         this.location = location;
-        this.symbolName = name;
+        this.name = name;
         this.fields = fields;
         this.isPublic = isPublic;
+
+        this.enclosingScope = enclosingScope;
+        this.symbolMap = symbolMap;
     }
 
     /**
@@ -60,7 +77,22 @@ public class Struct implements CompilationUnit, SymbolScope {
      * @return Name of this struct
      */
     public String getName() {
-        return symbolName.getName();
+        return name;
+    }
+
+    @Override
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
+    @Override
+    public SymbolCategory getSymbolCategory() {
+        return symbolCategory;
+    }
+
+    @Override
+    public SymbolScope getSymbolScope() {
+        return this;
     }
 
     /**
@@ -69,16 +101,7 @@ public class Struct implements CompilationUnit, SymbolScope {
      * @return Package name of this struct
      */
     public String getPackageName() {
-        return symbolName.getPkgName();
-    }
-
-    /**
-     * Get the function Identifier
-     *
-     * @return function identifier
-     */
-    public SymbolName getSymbolName() {
-        return symbolName;
+        return symbolName.getPkgPath();
     }
 
     /**
@@ -91,7 +114,7 @@ public class Struct implements CompilationUnit, SymbolScope {
     }
 
     /**
-     * Check whether struct is public, which means function is visible outside the package
+     * Check whether Struct is public, which means function is visible outside the package
      *
      * @return Flag indicating whether the struct is public
      */
@@ -124,7 +147,7 @@ public class Struct implements CompilationUnit, SymbolScope {
      *
      * @return Variable fields in the struct
      */
-    public VariableDcl[] getFields() {
+    public VariableDef[] getFields() {
         return fields;
     }
 
@@ -137,17 +160,23 @@ public class Struct implements CompilationUnit, SymbolScope {
 
     @Override
     public SymbolScope getEnclosingScope() {
+        return enclosingScope;
+    }
+
+    @Override
+    public void define(SymbolName name, BLangSymbol symbol) {
+        symbolMap.put(name, symbol);
+    }
+
+    @Override
+    public Symbol resolve(SymbolName name) {
         return null;
     }
 
     @Override
-    public void define(Symbol sym) {
-
-    }
-
-    @Override
-    public Symbol resolve(String name) {
-        return null;
+    @SuppressWarnings("unchecked")
+    public <V extends BValue> V getDefaultValue() {
+        return (V) new BStruct();
     }
 
     /**
@@ -155,19 +184,26 @@ public class Struct implements CompilationUnit, SymbolScope {
      *
      * @since 0.8.0
      */
-    public static class StructBuilder {
-        private SymbolName structName;
-        private List<VariableDcl> fields = new ArrayList<VariableDcl>();
+    public static class StructBuilder implements SymbolScope {
         private NodeLocation location;
+        private String name;
+        private List<VariableDef> fields = new ArrayList<>();
         private boolean isPublic;
+
+        private SymbolScope enclosingScope;
+        private Map<SymbolName, BLangSymbol> symbolMap = new HashMap<>();
+
+        public StructBuilder(SymbolScope enclosingScope) {
+            this.enclosingScope = enclosingScope;
+        }
 
         /**
          * Set the symbol name of this struct.
          *
-         * @param structName Symbol name of this struct
+         * @param name Symbol name of this struct
          */
-        public void setStructName(SymbolName structName) {
-            this.structName = structName;
+        public void setName(String name) {
+            this.name = name;
         }
 
         /**
@@ -189,22 +225,47 @@ public class Struct implements CompilationUnit, SymbolScope {
         }
 
         /**
-         * Build the struct.
-         *
-         * @return Struct
-         */
-        public Struct build() {
-            return new Struct(location, structName, fields.toArray(new VariableDcl[0]),
-                    isPublic);
-        }
-
-        /**
          * Add a field to the struct.
          *
          * @param field Field in the struct
          */
-        public void addField(VariableDcl field) {
+        public void addField(VariableDef field) {
             fields.add(field);
+        }
+
+        @Override
+        public String getScopeName() {
+            return null;
+        }
+
+        @Override
+        public SymbolScope getEnclosingScope() {
+            return enclosingScope;
+        }
+
+        @Override
+        public void define(SymbolName name, BLangSymbol symbol) {
+            symbolMap.put(name, symbol);
+        }
+
+        @Override
+        public Symbol resolve(SymbolName name) {
+            return null;
+        }
+
+        /**
+         * Build the struct.
+         *
+         * @return Struct
+         */
+        public StructDef build() {
+            return new StructDef(
+                    location,
+                    name,
+                    fields.toArray(new VariableDef[0]),
+                    isPublic,
+                    enclosingScope,
+                    symbolMap);
         }
     }
 }

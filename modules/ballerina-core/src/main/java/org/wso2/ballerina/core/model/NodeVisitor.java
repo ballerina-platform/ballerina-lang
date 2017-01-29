@@ -71,7 +71,7 @@ public interface NodeVisitor {
 
     void visit(ImportPackage importPkg);
 
-    void visit(Const constant);
+    void visit(ConstDef constant);
 
     void visit(Service service);
 
@@ -93,9 +93,9 @@ public interface NodeVisitor {
 
     void visit(ConnectorDcl connectorDcl);
 
-    void visit(VariableDcl variableDcl);
+    void visit(VariableDef variableDef);
     
-    void visit(Struct struct);
+    void visit(StructDef structDef);
 
     void visit(StructDcl structDcl);
 

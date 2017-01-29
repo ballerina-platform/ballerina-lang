@@ -29,7 +29,7 @@ public class StructDcl implements Node {
     SymbolName structName;
 
     /* Reference to the struct instance which is referred by the declaration */
-    Struct struct;
+    StructDef structDef;
 
     protected NodeLocation location;
 
@@ -59,10 +59,10 @@ public class StructDcl implements Node {
     /**
      * Set the reference to the struct instance which is referred by the declaration
      *
-     * @param struct reference to the struct instance
+     * @param structDef reference to the struct instance
      */
-    public void setStruct(Struct struct) {
-        this.struct = struct;
+    public void setStructDef(StructDef structDef) {
+        this.structDef = structDef;
     }
 
     /**
@@ -70,8 +70,8 @@ public class StructDcl implements Node {
      *
      * @return reference to the struct instance
      */
-    public Struct getStruct() {
-        return struct;
+    public StructDef getStructDef() {
+        return structDef;
     }
 
     @Override

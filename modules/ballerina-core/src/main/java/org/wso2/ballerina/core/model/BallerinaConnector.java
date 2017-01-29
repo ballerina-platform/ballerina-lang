@@ -18,6 +18,7 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.symbols.SymbolScope;
 
 /**
@@ -41,7 +42,7 @@ public class BallerinaConnector implements Connector, SymbolScope, CompilationUn
     private Annotation[] annotations;
     private Parameter[] parameters;
     private ConnectorDcl[] connectorDcls;
-    private VariableDcl[] variableDcls;
+    private VariableDef[] variableDefs;
     private BallerinaAction[] actions;
     private NodeLocation location;
 
@@ -52,14 +53,14 @@ public class BallerinaConnector implements Connector, SymbolScope, CompilationUn
                               Annotation[] annotations,
                               Parameter[] parameters,
                               ConnectorDcl[] connectorDcls,
-                              VariableDcl[] variableDcls,
+                              VariableDef[] variableDefs,
                               BallerinaAction[] actions) {
         this.location = location;
         this.name = serviceName;
         this.parameters = parameters;
         this.annotations = annotations;
         this.connectorDcls = connectorDcls;
-        this.variableDcls = variableDcls;
+        this.variableDefs = variableDefs;
         this.actions = actions;
 
         // Set the connector name for all the actions
@@ -83,7 +84,7 @@ public class BallerinaConnector implements Connector, SymbolScope, CompilationUn
      * @return package qualified name
      */
     public String getPackageQualifiedName() {
-        return name.getPkgName() + ":" + name.getName();
+        return name.getPkgPath() + ":" + name.getName();
     }
 
     /**
@@ -123,8 +124,8 @@ public class BallerinaConnector implements Connector, SymbolScope, CompilationUn
      *
      * @return list of all Connector scoped variables
      */
-    public VariableDcl[] getVariableDcls() {
-        return variableDcls;
+    public VariableDef[] getVariableDefs() {
+        return variableDefs;
     }
 
     /**
@@ -167,12 +168,12 @@ public class BallerinaConnector implements Connector, SymbolScope, CompilationUn
     }
 
     @Override
-    public void define(Symbol sym) {
+    public void define(SymbolName name, BLangSymbol symbol) {
 
     }
 
     @Override
-    public Symbol resolve(String name) {
+    public Symbol resolve(SymbolName name) {
         return null;
     }
 }

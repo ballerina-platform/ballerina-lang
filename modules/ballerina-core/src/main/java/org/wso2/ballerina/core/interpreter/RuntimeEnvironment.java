@@ -21,9 +21,9 @@ import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
-import org.wso2.ballerina.core.model.Const;
+import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
@@ -51,7 +51,7 @@ public class RuntimeEnvironment {
         StaticMemory staticMemory = new StaticMemory(bFile.getSizeOfStaticMem());
 
         int staticMemOffset = 0;
-        for (Const constant : bFile.getConstants()) {
+        for (ConstDef constant : bFile.getConstants()) {
             staticMemory.setValue(staticMemOffset, constant.getValue());
             staticMemOffset++;
         }
@@ -70,8 +70,8 @@ public class RuntimeEnvironment {
     }
 
     private static int initVariableDcls(StaticMemory staticMemory, int staticMemOffset, Service service) {
-        for (VariableDcl variableDcl : service.getVariableDcls()) {
-            staticMemory.setValue(staticMemOffset, variableDcl.getType().getDefaultValue());
+        for (VariableDef variableDef : service.getVariableDefs()) {
+            staticMemory.setValue(staticMemOffset, variableDef.getType().getDefaultValue());
             staticMemOffset++;
         }
         return staticMemOffset;
@@ -94,7 +94,7 @@ public class RuntimeEnvironment {
         } else {
             BallerinaConnector ballerinaConnector = (BallerinaConnector) connector;
             // sum of, number of arguments, number of declared variables and declared connectors
-            bValueRefs = new BValue[argExprs.length + ballerinaConnector.getVariableDcls().length + ballerinaConnector
+            bValueRefs = new BValue[argExprs.length + ballerinaConnector.getVariableDefs().length + ballerinaConnector
                     .getConnectorDcls().length];
 
             offset = populateConnectorArgs(staticMemory, argExprs, bValueRefs, offset);
@@ -105,8 +105,8 @@ public class RuntimeEnvironment {
                 offset++;
             }
 
-            for (VariableDcl variableDcl : ballerinaConnector.getVariableDcls()) {
-                bValueRefs[offset] = variableDcl.getType().getDefaultValue();
+            for (VariableDef variableDef : ballerinaConnector.getVariableDefs()) {
+                bValueRefs[offset] = variableDef.getType().getDefaultValue();
                 offset++;
             }
         }

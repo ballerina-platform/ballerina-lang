@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.symbols.SymbolScope;
 
 /**
@@ -30,7 +31,7 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
 
     private Annotation[] annotations;
     private Parameter[] parameters;
-    private VariableDcl[] variableDcls;
+    private VariableDef[] variableDefs;
     private Parameter[] returnParams;
     private BlockStmt typeConverterBody;
 
@@ -69,7 +70,7 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
      */
     @Override
     public String getPackageName() {
-        return symbolName.getPkgName();
+        return symbolName.getPkgPath();
     }
 
     /**
@@ -109,8 +110,8 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
      *
      * @return list of all BallerinaTypeConvertor scoped variableDcls
      */
-    public VariableDcl[] getVariableDcls() {
-        return variableDcls;
+    public VariableDef[] getVariableDefs() {
+        return variableDefs;
     }
 
     public Parameter[] getReturnParameters() {
@@ -175,12 +176,12 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
     }
 
     @Override
-    public void define(Symbol sym) {
+    public void define(SymbolName name, BLangSymbol symbol) {
 
     }
 
     @Override
-    public Symbol resolve(String name) {
+    public Symbol resolve(SymbolName name) {
         return null;
     }
 }

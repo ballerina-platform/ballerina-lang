@@ -60,7 +60,7 @@ public class BalProgramExecutor {
                                Context balContext) {
         SymbolName symbolName = service.getSymbolName();
         balContext.setServiceInfo(
-                new CallableUnitInfo(symbolName.getName(), symbolName.getPkgName(), service.getNodeLocation()));
+                new CallableUnitInfo(symbolName.getName(), symbolName.getPkgPath(), service.getNodeLocation()));
 
         balContext.setBalCallback(new DefaultBalCallback(callback));
 
@@ -126,7 +126,7 @@ public class BalProgramExecutor {
 
                 SymbolName functionSymbolName = funcIExpr.getCallableUnitName();
                 CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
-                        functionSymbolName.getPkgName(), mainFuncLocation);
+                        functionSymbolName.getPkgPath(), mainFuncLocation);
 
                 StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], functionInfo);
                 bContext.getControlStack().pushFrame(currentStackFrame);

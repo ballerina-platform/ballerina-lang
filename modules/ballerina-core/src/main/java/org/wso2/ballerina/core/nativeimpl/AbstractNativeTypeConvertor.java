@@ -22,12 +22,12 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.Const;
+import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.TypeConvertor;
-import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
@@ -57,7 +57,7 @@ public abstract class AbstractNativeTypeConvertor implements NativeConstruct, Ty
     private List<Parameter> parameters;
     private List<Parameter> returnParams;
     private boolean isPublicTypeConverter;
-    private List<Const> constants;
+    private List<ConstDef> constants;
     private int stackFrameSize;
 
     public AbstractNativeTypeConvertor() {
@@ -166,8 +166,8 @@ public abstract class AbstractNativeTypeConvertor implements NativeConstruct, Ty
      *
      * @return list of all BallerinaTypeConvertor scoped variableDcls
      */
-    public VariableDcl[] getVariableDcls() {
-        return new VariableDcl[0];
+    public VariableDef[] getVariableDefs() {
+        return new VariableDef[0];
     }
 
     public Parameter[] getReturnParameters() {
@@ -220,8 +220,8 @@ public abstract class AbstractNativeTypeConvertor implements NativeConstruct, Ty
     }
 
 
-    public Const[] getTypeConverterConstats() {
-        return constants.toArray(new Const[constants.size()]);
+    public ConstDef[] getTypeConverterConstats() {
+        return constants.toArray(new ConstDef[constants.size()]);
     }
 
     @Override
