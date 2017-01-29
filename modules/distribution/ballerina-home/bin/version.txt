@@ -1,1 +1,1 @@
-WSO2 Ballerina v${project.version}
+Ballerina version: ${project.version}
