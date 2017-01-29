@@ -41,6 +41,19 @@ public class BLangAntlr4Listener implements BallerinaListener {
     private BLangModelBuilder modelBuilder;
     private static final String PUBLIC = "public";
 
+    private String currentPkgName;
+
+    // Types related attributes
+    private String typeName;
+//    private String schemaID;
+
+    private boolean isSimpleType;
+//    private boolean isSchemaIDType;
+//    private boolean isFullSchemaType;
+//    private boolean isSchemaURLType;
+
+    private boolean isArrayType;
+
     public BLangAntlr4Listener(BLangModelBuilder modelBuilder) {
         this.modelBuilder = modelBuilder;
     }
@@ -59,9 +72,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitPackageDeclaration(BallerinaParser.PackageDeclarationContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.createPackageDcl();
+        if (ctx.exception != null) {
+            return;
         }
+
+        modelBuilder.addPackageDcl(ctx.packageName().getText());
     }
 
     @Override
@@ -70,10 +85,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitImportDeclaration(BallerinaParser.ImportDeclarationContext ctx) {
-        if (ctx.exception == null) {
-            String pkgName = (ctx.Identifier() != null) ? ctx.Identifier().getText() : null;
-            modelBuilder.addImportPackage(pkgName, getCurrentLocation(ctx));
+        if (ctx.exception != null) {
+            return;
         }
+
+        String pkgPath = ctx.packageName().getText();
+        String asPkgName = (ctx.Identifier() != null) ? ctx.Identifier().getText() : null;
+        modelBuilder.addImportPackage(getCurrentLocation(ctx), pkgPath, asPkgName);
     }
 
     @Override
@@ -131,7 +149,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 int lineNo = identifier.getSymbol().getLine();
                 NodeLocation resourceLocation = new NodeLocation(fileName, lineNo);
 
-                modelBuilder.createResource(identifier.getText(), resourceLocation);
+                modelBuilder.createResource(resourceLocation, identifier.getText());
             }
         }
     }
@@ -163,7 +181,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                         int lineNo = identifier.getSymbol().getLine();
                         NodeLocation functionLocation = new NodeLocation(fileName, lineNo);
 
-                        modelBuilder.createFunction(identifier.getText(), isPublic, functionLocation);
+                        modelBuilder.createFunction(functionLocation, identifier.getText(), isPublic);
                     }
                 }
             }
@@ -233,7 +251,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 int lineNo = identifier.getSymbol().getLine();
                 NodeLocation actionLocation = new NodeLocation(fileName, lineNo);
 
-                modelBuilder.createAction(identifier.getText(), actionLocation);
+                modelBuilder.createAction(actionLocation, identifier.getText());
             }
         }
     }
@@ -241,21 +259,23 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void enterStructDefinition(BallerinaParser.StructDefinitionContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startStruct();
+            modelBuilder.startStructDef();
         }
     }
 
     @Override
     public void exitStructDefinition(BallerinaParser.StructDefinitionContext ctx) {
-        if (ctx.exception == null) {
-            boolean isPublic = false;
-            // TODO: get the child in the (anotation.length) instead of 0, once the annotation support is added.
-            String tokenStr = ctx.getChild(0).getText();
-            if (PUBLIC.equals(tokenStr)) {
-                isPublic = true;
-            }
-            modelBuilder.createStructDefinition(ctx.Identifier().getText(), isPublic, getCurrentLocation(ctx));
+        if (ctx.exception != null) {
+            return;
         }
+
+        boolean isPublic = false;
+        // TODO: get the child in the (anotation.length) instead of 0, once the annotation support is added.
+        String tokenStr = ctx.getChild(0).getText();
+        if (PUBLIC.equals(tokenStr)) {
+            isPublic = true;
+        }
+        modelBuilder.createStructDef(getCurrentLocation(ctx), ctx.Identifier().getText(), isPublic);
     }
 
     @Override
@@ -267,12 +287,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-        
+
         List<TerminalNode> fieldList = ctx.Identifier();
         // Each field is added separately rather than sending the whole list at once, coz
         // in future, fields will have annotations, and there will be a new event for each field.
         for (TerminalNode node : fieldList) {
-            modelBuilder.createStructField(node.getText(), getCurrentLocation(node));
+            modelBuilder.createStructField(getCurrentLocation(node), node.getText());
         }
     }
 
@@ -297,7 +317,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 NodeLocation functionLocation = new NodeLocation(fileName, lineNo);
                 String typeConverterName = "_" + ctx.typeConvertorInput().typeConvertorType().getText() + "->" + "_" +
                         ctx.typeConvertorType().getText();
-                modelBuilder.createTypeConverter(typeConverterName, isPublic, functionLocation);
+                modelBuilder.createTypeConverter(functionLocation, typeConverterName, isPublic);
             }
         }
     }
@@ -347,10 +367,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
+
         createBasicLiteral(ctx.literalValue());
-        if (ctx.Identifier() != null) {
-            modelBuilder.createConstant(ctx.Identifier().getText(), getCurrentLocation(ctx));
-        }
+        modelBuilder.createConstantDef(getCurrentLocation(ctx), ctx.Identifier().getText());
     }
 
     @Override
@@ -416,6 +435,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitQualifiedTypeName(BallerinaParser.QualifiedTypeNameContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        currentPkgName = ctx.packageName().getText();
     }
 
     @Override
@@ -441,9 +465,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitSimpleType(BallerinaParser.SimpleTypeContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.createType(ctx.getText(), getCurrentLocation(ctx));
+        if (ctx.exception != null) {
+            return;
         }
+
+        typeName = ctx.getText();
+        isSimpleType = true;
     }
 
     @Override
@@ -452,9 +479,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitSimpleTypeArray(BallerinaParser.SimpleTypeArrayContext ctx) {
-        if (ctx.exception == null && ctx.Identifier() != null) {
-            modelBuilder.createArrayType(ctx.Identifier().getText(), getCurrentLocation(ctx));
+        if (ctx.exception != null) {
+            return;
         }
+
+        typeName = ctx.Identifier().getText();
+        isSimpleType = true;
+        isArrayType = true;
     }
 
     @Override
@@ -543,6 +574,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitTypeName(BallerinaParser.TypeNameContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        if (isSimpleType) {
+            modelBuilder.addSimpleTypeName(typeName, currentPkgName, isArrayType);
+            typeName = null;
+            currentPkgName = null;
+            isArrayType = false;
+        }
     }
 
     @Override
@@ -570,9 +611,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitPackageName(BallerinaParser.PackageNameContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.createPackageName(ctx.getText());
-        }
     }
 
     @Override
@@ -995,7 +1033,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitCallableUnitName(BallerinaParser.CallableUnitNameContext ctx) {
         if (ctx.exception == null) {
-                modelBuilder.createSymbolName(ctx.Identifier().getText());
+            modelBuilder.createSymbolName(ctx.Identifier().getText());
         }
     }
 
@@ -1374,7 +1412,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         int lineNo = ctx.getStart().getLine();
         return new NodeLocation(fileName, lineNo);
     }
-    
+
     private NodeLocation getCurrentLocation(TerminalNode node) {
         String fileName = node.getSymbol().getInputStream().getSourceName();
         int lineNo = node.getSymbol().getLine();

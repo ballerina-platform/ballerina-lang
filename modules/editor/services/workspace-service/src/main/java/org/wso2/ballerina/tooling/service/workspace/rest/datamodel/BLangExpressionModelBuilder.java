@@ -32,13 +32,13 @@ import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
-import org.wso2.ballerina.core.model.Const;
+import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
@@ -163,11 +163,11 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(VariableDcl variableDcl) {
+    public void visit(VariableDef variableDef) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
-        buffer.append(variableDcl.getType().toString()).append(SPACE_CHAR)
-                .append(variableDcl.getName().getName()).append(";");
+        buffer.append(variableDef.getType().toString()).append(SPACE_CHAR)
+                .append(variableDef.getName().getName()).append(";");
     }
 
     @Override
@@ -290,8 +290,8 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     public void visit(FunctionInvocationExpr funcIExpr) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
-        if(funcIExpr.getCallableUnitName().getPkgName() != null){
-            buffer.append(funcIExpr.getCallableUnitName().getPkgName()).append(":");
+        if(funcIExpr.getCallableUnitName().getPkgPath() != null){
+            buffer.append(funcIExpr.getCallableUnitName().getPkgPath()).append(":");
         }
         boolean isFirstItr = true;
         buffer.append(funcIExpr.getCallableUnitName().getName()).append("( ");
@@ -313,8 +313,8 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
         boolean isFirstItr = true;
-        if(actionIExpr.getCallableUnitName().getPkgName() != null){
-            buffer.append(actionIExpr.getCallableUnitName().getPkgName()).append(":");
+        if(actionIExpr.getCallableUnitName().getPkgPath() != null){
+            buffer.append(actionIExpr.getCallableUnitName().getPkgPath()).append(":");
         }
         buffer.append(actionIExpr.getCallableUnitName().getConnectorName())
                 .append(".").append(actionIExpr.getCallableUnitName().getName()).append("( ");
@@ -588,7 +588,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(Const constant) {
+    public void visit(ConstDef constant) {
         //TODO
     }
 
@@ -603,7 +603,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(Struct struct) {
+    public void visit(StructDef structDef) {
         //TODO
     }
     @Override

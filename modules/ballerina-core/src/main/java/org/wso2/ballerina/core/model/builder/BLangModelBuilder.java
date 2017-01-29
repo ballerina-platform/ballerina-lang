@@ -27,17 +27,17 @@ import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
-import org.wso2.ballerina.core.model.Const;
+import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.Struct;
+import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
@@ -77,9 +77,11 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.symbols.SymbolScope;
+import org.wso2.ballerina.core.model.symbols.VariableRefSymbol;
 import org.wso2.ballerina.core.model.types.BStructType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
+import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -97,14 +99,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * {@code BLangModelBuilder} provides an high-level API to create Ballerina language object model.
+ * {@code BLangModelBuilder} provides an high-level API to create Ballerina language object model(AST).
+ * <p>
+ * Here we define constants, Structs, services symbols. Other symbols will be defined in the next phase
  *
  * @since 0.8.0
  */
 public class BLangModelBuilder {
     private static final Logger log = LoggerFactory.getLogger(BLangModelBuilder.class);
 
-    private String pkgName;
+    private String currentPackagePath;
     private BallerinaFile.BFileBuilder bFileBuilder = new BallerinaFile.BFileBuilder();
 
     private SymbolScope currentScope;
@@ -116,14 +120,17 @@ public class BLangModelBuilder {
     private CallableUnitBuilder currentCUBuilder;
 
     // Builds user defined structs.
-    private Struct.StructBuilder structBuilder;
+    private StructDef.StructBuilder currentStructBuilder;
 
     private Stack<Annotation.AnnotationBuilder> annotationBuilderStack = new Stack<>();
     private Stack<BlockStmt.BlockStmtBuilder> blockStmtBuilderStack = new Stack<>();
     private Stack<IfElseStmt.IfElseStmtBuilder> ifElseStmtBuilderStack = new Stack<>();
+    private Queue<SimpleTypeName> typeNameQueue = new LinkedList<>();
+
     private Queue<BType> typeQueue = new LinkedList<>();
-    private Stack<String> pkgNameStack = new Stack<>();
+    private Stack<String> pkgPathStack = new Stack<>();
     private Stack<SymbolName> symbolNameStack = new Stack<>();
+
     private Stack<Expression> exprStack = new Stack<>();
     private Stack<KeyValueExpression> keyValueStack = new Stack<>();
 
@@ -143,46 +150,134 @@ public class BLangModelBuilder {
         return bFileBuilder.build();
     }
 
+
+    // Packages and import packages
+
+    public void addPackageDcl(String pkgPath) {
+        // TODO Validate whether this file is in the correct package
+        // TODO example this is in com/greet/hello directory, but package Path is come.greet.bye. This is wrong
+        currentPackagePath = pkgPath;
+        bFileBuilder.setPackagePath(currentPackagePath);
+    }
+
+    public void addImportPackage(NodeLocation location, String pkgPath, String asPkgName) {
+        // TODO Perform checks: duplicate import package paths and names;
+        // TODO Unused import packages - we don't do it here, but added as a reminder
+        if (asPkgName != null) {
+            bFileBuilder.addImportPackage(new ImportPackage(location, pkgPath, asPkgName));
+        } else {
+            bFileBuilder.addImportPackage(new ImportPackage(location, pkgPath));
+        }
+    }
+
+
+    // Add types. SimpleTypes, Types with full scheme, schema URL or schema ID
+
+    public void addSimpleTypeName(String name, String pkgName, boolean isArrayType) {
+        // TODO Check whether this is an imported package name;
+        SimpleTypeName typeName = new SimpleTypeName(name, pkgName);
+        typeName.setArrayType(isArrayType);
+        typeNameQueue.add(typeName);
+    }
+
+
+    // Add constant definitions;
+
+    public void createConstantDef(NodeLocation location, String name) {
+        SymbolName symbolName = new SymbolName(name, currentPackagePath);
+        VariableRefSymbol varRefSymbol = new VariableRefSymbol(symbolName, currentScope);
+
+        SimpleTypeName typeName = typeNameQueue.remove();
+        ConstDef constantDef = new ConstDef(location, name, typeName, exprStack.pop(), false, varRefSymbol);
+
+        // Add definition to the symbol
+        varRefSymbol.setVariableDef(constantDef);
+
+        // Define the variableRef symbol in the current scope
+        currentScope.define(symbolName, varRefSymbol);
+
+        // Add constant definition to current file;
+        bFileBuilder.addConst(constantDef);
+    }
+
+
+    // Add Struct definition
+
+    /**
+     * Start a struct builder.
+     */
+    public void startStructDef() {
+        currentStructBuilder = new StructDef.StructBuilder(currentScope);
+        currentScope = currentStructBuilder;
+    }
+
+    /**
+     * Add an field of the {@link StructDef}.
+     *
+     * @param location  Location of the field in the source file
+     * @param fieldName Name of the field in the {@link StructDef}
+     */
+    public void createStructField(NodeLocation location, String fieldName) {
+        SymbolName symbolName = new SymbolName(fieldName, currentPackagePath);
+        VariableRefSymbol varRefSymbol = new VariableRefSymbol(symbolName, currentScope);
+
+        SimpleTypeName typeName = typeNameQueue.remove();
+        VariableDef variableDef = new VariableDef(location, fieldName, typeName, varRefSymbol);
+
+        // Add definition to the symbol
+        varRefSymbol.setVariableDef(variableDef);
+
+        // Define the variableRef symbol in the current scope
+        currentScope.define(symbolName, varRefSymbol);
+
+        // Add Struct field to current Struct;
+        currentStructBuilder.addField(variableDef);
+    }
+
+    /**
+     * Creates a {@link StructDef}.
+     *
+     * @param location Location of this {@link StructDef} in the source file
+     * @param name     Name of the {@link StructDef}
+     * @param isPublic Flag indicating whether the {@link StructDef} is public
+     */
+    public void createStructDef(NodeLocation location, String name, boolean isPublic) {
+        currentStructBuilder.setNodeLocation(location);
+        currentStructBuilder.setName(name);
+        currentStructBuilder.setPublic(isPublic);
+        StructDef structDef = currentStructBuilder.build();
+
+        // Close Struct scope
+        currentScope = currentStructBuilder.getEnclosingScope();
+        currentStructBuilder = null;
+
+        // Define StructDef Symbol in the package scope..
+        SymbolName symbolName = new SymbolName(name, currentPackagePath);
+        currentScope.define(symbolName, structDef);
+        bFileBuilder.addStruct(structDef);
+    }
+
+
     // Identifiers
 
     public void createSymbolName(String name) {
-        if (pkgNameStack.isEmpty()) {
+        if (pkgPathStack.isEmpty()) {
             symbolNameStack.push(new SymbolName(name));
         } else {
-            symbolNameStack.push(new SymbolName(name, pkgNameStack.pop()));
+            symbolNameStack.push(new SymbolName(name, pkgPathStack.pop()));
         }
     }
 
     public void createSymbolName(String connectorName, String actionName) {
         SymbolName symbolName;
-        if (pkgNameStack.isEmpty()) {
+        if (pkgPathStack.isEmpty()) {
             symbolName = new SymbolName(actionName);
         } else {
-            symbolName = new SymbolName(actionName, pkgNameStack.pop());
+            symbolName = new SymbolName(actionName, pkgPathStack.pop());
         }
 
         symbolName.setConnectorName(connectorName);
         symbolNameStack.push(symbolName);
-    }
-
-    // Packages and import packages
-
-    public void createPackageName(String pkgName) {
-        pkgNameStack.push(pkgName);
-    }
-
-    public void createPackageDcl() {
-        pkgName = getPkgName();
-        bFileBuilder.setPkgName(pkgName);
-    }
-
-    public void addImportPackage(String pkgName, NodeLocation location) {
-        String pkgPath = getPkgName();
-        if (pkgName != null) {
-            bFileBuilder.addImportPackage(new ImportPackage(location, pkgPath, pkgName));
-        } else {
-            bFileBuilder.addImportPackage(new ImportPackage(location, pkgPath));
-        }
     }
 
     // Annotations
@@ -242,7 +337,8 @@ public class BLangModelBuilder {
         annotationList.add(annotation);
     }
 
-    // Function parameters and types
+
+    // Function parameters
 
     /**
      * Create a function parameter and a corresponding variable reference expression.
@@ -263,19 +359,6 @@ public class BLangModelBuilder {
         } else {
             currentCUGroupBuilder.addParameter(param);
         }
-    }
-
-    public void createType(String typeName, NodeLocation location) {
-        BType type = BTypes.getType(typeName);
-        if (type == null) {
-            type = new BStructType(typeName);
-        }
-        typeQueue.add(type);
-    }
-
-    public void createArrayType(String typeName, NodeLocation location) {
-        BType type = BTypes.getArrayType(typeName);
-        typeQueue.add(type);
     }
 
     public void registerConnectorType(String typeName) {
@@ -299,35 +382,22 @@ public class BLangModelBuilder {
         currentCUBuilder.addReturnParameter(param);
     }
 
-    // Variable declarations, reference expressions
 
-    public void createConstant(String constName, NodeLocation location) {
-        SymbolName symbolName = new SymbolName(constName);
-        BType type = typeQueue.remove();
-
-        Const.ConstBuilder builder = new Const.ConstBuilder();
-        builder.setNodeLocation(location);
-        builder.setType(type);
-        builder.setSymbolName(symbolName);
-        builder.setValueExpr(exprStack.pop());
-
-        Const constant = builder.build();
-        bFileBuilder.addConst(constant);
-    }
+    // Constants, Variable definitions, reference expressions
 
     public void createVariableDcl(String varName, NodeLocation location) {
         // Create a variable declaration
         SymbolName localVarId = new SymbolName(varName);
         BType localVarType = typeQueue.remove();
 
-        VariableDcl variableDcl = new VariableDcl(location, localVarType, localVarId);
+        VariableDef variableDef = new VariableDef(location, localVarType, localVarId);
 
         // Add this variable declaration to the current callable unit or callable unit group
         if (currentCUBuilder != null) {
             // This connector declaration should added to the relevant function/action or resource
 //            currentCUBuilder.addVariableDcl(variableDcl);
         } else {
-            currentCUGroupBuilder.addVariableDcl(variableDcl);
+            currentCUGroupBuilder.addVariableDcl(variableDef);
         }
 
     }
@@ -577,6 +647,7 @@ public class BLangModelBuilder {
 
     }
 
+
     // Functions, Actions and Resources
 
     public void startCallableUnitBody() {
@@ -591,12 +662,13 @@ public class BLangModelBuilder {
     }
 
     public void startCallableUnit() {
-        currentCUBuilder = new CallableUnitBuilder();
+        currentCUBuilder = new CallableUnitBuilder(currentScope);
+        currentScope = currentCUBuilder;
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void createFunction(String name, boolean isPublic, NodeLocation location) {
-        currentCUBuilder.setName(new SymbolName(name, pkgName));
+    public void createFunction(NodeLocation location, String name, boolean isPublic) {
+        currentCUBuilder.setName(new SymbolName(name, currentPackagePath));
         currentCUBuilder.setPublic(isPublic);
         currentCUBuilder.setNodeLocation(location);
 
@@ -610,8 +682,8 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
-    public void createTypeConverter(String name, boolean isPublic, NodeLocation location) {
-        currentCUBuilder.setName(new SymbolName(name, pkgName));
+    public void createTypeConverter(NodeLocation location, String name, boolean isPublic) {
+        currentCUBuilder.setName(new SymbolName(name, currentPackagePath));
         currentCUBuilder.setPublic(isPublic);
         currentCUBuilder.setNodeLocation(location);
         BTypeConvertor typeConvertor = currentCUBuilder.buildTypeConverter();
@@ -619,8 +691,8 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
-    public void createResource(String name, NodeLocation location) {
-        currentCUBuilder.setName(new SymbolName(name, pkgName));
+    public void createResource(NodeLocation location, String name) {
+        currentCUBuilder.setName(new SymbolName(name, currentPackagePath));
         currentCUBuilder.setNodeLocation(location);
 
         List<Annotation> annotationList = annotationListStack.pop();
@@ -633,8 +705,8 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
-    public void createAction(String name, NodeLocation location) {
-        currentCUBuilder.setName(new SymbolName(name, pkgName));
+    public void createAction(NodeLocation location, String name) {
+        currentCUBuilder.setName(new SymbolName(name, currentPackagePath));
         currentCUBuilder.setNodeLocation(location);
 
         List<Annotation> annotationList = annotationListStack.pop();
@@ -647,6 +719,7 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
+
     // Services and Connectors
 
     public void startCallableUnitGroup() {
@@ -655,7 +728,7 @@ public class BLangModelBuilder {
     }
 
     public void createService(String name, NodeLocation location) {
-        currentCUGroupBuilder.setName(new SymbolName(name, pkgName));
+        currentCUGroupBuilder.setName(new SymbolName(name, currentPackagePath));
         currentCUGroupBuilder.setNodeLocation(location);
 
         List<Annotation> annotationList = annotationListStack.pop();
@@ -669,7 +742,7 @@ public class BLangModelBuilder {
     }
 
     public void createConnector(String name, NodeLocation location) {
-        currentCUGroupBuilder.setName(new SymbolName(name, pkgName));
+        currentCUGroupBuilder.setName(new SymbolName(name, currentPackagePath));
         currentCUGroupBuilder.setNodeLocation(location);
 
         List<Annotation> annotationList = annotationListStack.pop();
@@ -892,14 +965,6 @@ public class BLangModelBuilder {
         }
     }
 
-    private String getPkgName() {
-        if (pkgNameStack.isEmpty()) {
-            throw new IllegalStateException("Package name stack is empty");
-        }
-
-        return pkgNameStack.pop();
-    }
-
     /**
      * return value within double quotes.
      *
@@ -916,55 +981,7 @@ public class BLangModelBuilder {
     }
 
     /**
-     * Start a struct builder.
-     */
-    public void startStruct() {
-        structBuilder = new Struct.StructBuilder();
-    }
-
-    /**
-     * Creates a {@link Struct}.
-     *
-     * @param name     Name of the {@link Struct}
-     * @param isPublic Flag indicating whether the {@link Struct} is public
-     * @param location Location of this {@link Struct} in the source file
-     */
-    public void createStructDefinition(String name, boolean isPublic, NodeLocation location) {
-        structBuilder.setStructName(new SymbolName(name, pkgName));
-        structBuilder.setNodeLocation(location);
-        structBuilder.setPublic(isPublic);
-        Struct struct = structBuilder.build();
-        bFileBuilder.addStruct(struct);
-        structBuilder = null;
-        registerStructType(name);
-    }
-
-    /**
-     * Add an field of the {@link Struct}.
-     *
-     * @param fieldName Name of the field in the {@link Struct}
-     * @param location  Location of the field in the source file
-     */
-    public void createStructField(String fieldName, NodeLocation location) {
-        // Create a struct field declaration
-        SymbolName localVarId = new SymbolName(fieldName);
-        BType localVarType = typeQueue.remove();
-
-        VariableDcl variableDcl = new VariableDcl(location, localVarType, localVarId);
-        structBuilder.addField(variableDcl);
-    }
-
-    /**
-     * Register the user defined struct type as a data type
-     *
-     * @param typeName Name of the Struct
-     */
-    private void registerStructType(String typeName) {
-        BTypes.addStructType(typeName);
-    }
-
-    /**
-     * Create a struct initializing expression
+     * Create a Struct initializing expression
      *
      * @param location   Location of the initialization in the source bal file
      * @param structName Name of the struct type

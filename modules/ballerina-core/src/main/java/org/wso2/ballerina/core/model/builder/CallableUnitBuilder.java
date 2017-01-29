@@ -24,12 +24,17 @@ import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+import org.wso2.ballerina.core.model.symbols.SymbolScope;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@code CallableUnitBuilder} is a builder class responsible for building Functions, Actions and Resources
@@ -38,7 +43,7 @@ import java.util.List;
  *
  * @since 0.8.0
  */
-class CallableUnitBuilder {
+class CallableUnitBuilder implements SymbolScope {
     private NodeLocation location;
     private SymbolName name;
     private List<Annotation> annotationList = new ArrayList<>();
@@ -47,6 +52,17 @@ class CallableUnitBuilder {
     private List<Parameter> returnParamList = new ArrayList<>();
     private List<Worker> workerList = new ArrayList<>();
     private BlockStmt body;
+
+    private SymbolScope enclosingScope;
+    private Map<SymbolName, BLangSymbol> symbolMap = new HashMap<>();
+
+    public CallableUnitBuilder(SymbolScope enclosingScope) {
+        this.enclosingScope = enclosingScope;
+    }
+
+    public void setNodeLocation(NodeLocation location) {
+        this.location = location;
+    }
 
     void setName(SymbolName name) {
         this.name = name;
@@ -76,33 +92,64 @@ class CallableUnitBuilder {
         this.body = body;
     }
 
-    public void setNodeLocation(NodeLocation location) {
-        this.location = location;
+    @Override
+    public String getScopeName() {
+        return null;
+    }
+
+    @Override
+    public SymbolScope getEnclosingScope() {
+        return this.enclosingScope;
+    }
+
+    @Override
+    public void define(SymbolName name, BLangSymbol symbol) {
+        symbolMap.put(name, symbol);
+    }
+
+    @Override
+    public Symbol resolve(SymbolName name) {
+        return null;
     }
 
     BallerinaFunction buildFunction() {
-        return new BallerinaFunction(location, name, publicFunc,
+        return new BallerinaFunction(
+                location,
+                name,
+                publicFunc,
+                annotationList.toArray(new Annotation[annotationList.size()]),
+                parameterList.toArray(new Parameter[parameterList.size()]),
+                returnParamList.toArray(new Parameter[returnParamList.size()]),
+                workerList.toArray(new Worker[workerList.size()]),
+                body,
+                enclosingScope,
+                symbolMap);
+    }
+
+    Resource buildResource() {
+        return new Resource(
+                location,
+                name,
+                annotationList.toArray(new Annotation[annotationList.size()]),
+                parameterList.toArray(new Parameter[parameterList.size()]),
+                workerList.toArray(new Worker[workerList.size()]), body);
+    }
+
+    BallerinaAction buildAction() {
+        return new BallerinaAction(
+                location,
+                name,
                 annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
                 returnParamList.toArray(new Parameter[returnParamList.size()]),
                 workerList.toArray(new Worker[workerList.size()]), body);
     }
 
-    Resource buildResource() {
-        return new Resource(location, name, annotationList.toArray(new Annotation[annotationList.size()]),
-                parameterList.toArray(new Parameter[parameterList.size()]),
-                workerList.toArray(new Worker[workerList.size()]), body);
-    }
-
-    BallerinaAction buildAction() {
-        return new BallerinaAction(location, name, annotationList.toArray(new Annotation[annotationList.size()]),
-                parameterList.toArray(new Parameter[parameterList.size()]),
-                returnParamList.toArray(new Parameter[returnParamList.size()]),
-                workerList.toArray(new Worker[workerList.size()]), body);
-    }
-
     BTypeConvertor buildTypeConverter() {
-        return new BTypeConvertor(location, name, publicFunc,
+        return new BTypeConvertor(
+                location,
+                name,
+                publicFunc,
                 annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
                 returnParamList.toArray(new Parameter[returnParamList.size()]), body);

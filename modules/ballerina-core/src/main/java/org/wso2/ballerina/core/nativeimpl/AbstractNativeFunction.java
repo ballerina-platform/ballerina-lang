@@ -23,12 +23,12 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.Const;
+import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
@@ -58,7 +58,7 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
     private List<Parameter> parameters;
     private List<Parameter> returnParams;
     private boolean isPublicFunction;
-    private List<Const> constants;
+    private List<ConstDef> constants;
     private int stackFrameSize;
     private NodeLocation location;
 
@@ -169,8 +169,8 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
      *
      * @return list of all BallerinaFunction scoped variableDcls
      */
-    public VariableDcl[] getVariableDcls() {
-        return new VariableDcl[0];
+    public VariableDef[] getVariableDefs() {
+        return new VariableDef[0];
     }
 
     public Parameter[] getReturnParameters() {
@@ -223,8 +223,8 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
     }
 
 
-    public Const[] getFunctionConstats() {
-        return constants.toArray(new Const[constants.size()]);
+    public ConstDef[] getFunctionConstats() {
+        return constants.toArray(new ConstDef[constants.size()]);
     }
 
     @Override

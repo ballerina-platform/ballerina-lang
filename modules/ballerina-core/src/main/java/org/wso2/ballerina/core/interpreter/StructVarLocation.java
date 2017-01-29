@@ -20,11 +20,12 @@ package org.wso2.ballerina.core.interpreter;
 import org.wso2.ballerina.core.model.Node;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
  * {@code StructVarLocation} represents a location where a variable declared in a
- * {@link org.wso2.ballerina.core.model.Struct} is stored at runtime
+ * {@link StructDef} is stored at runtime
  *
  * @since 0.8.0
  */

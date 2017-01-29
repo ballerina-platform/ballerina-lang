@@ -33,13 +33,13 @@ import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
-import org.wso2.ballerina.core.model.Const;
+import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
@@ -197,9 +197,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 connectDcl.accept(this);
             }
         }
-        if (service.getVariableDcls() != null) {
-            for (VariableDcl variableDcl : service.getVariableDcls()) {
-                variableDcl.accept(this);
+        if (service.getVariableDefs() != null) {
+            for (VariableDef variableDef : service.getVariableDefs()) {
+                variableDef.accept(this);
             }
         }
         serviceObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
@@ -232,9 +232,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 connectDcl.accept(this);
             }
         }
-        if (connector.getVariableDcls() != null) {
-            for (VariableDcl variableDcl : connector.getVariableDcls()) {
-                variableDcl.accept(this);
+        if (connector.getVariableDefs() != null) {
+            for (VariableDef variableDef : connector.getVariableDefs()) {
+                variableDef.accept(this);
             }
         }
         if (connector.getActions() != null) {
@@ -279,9 +279,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 connectDcl.accept(this);
             }
         }
-        if (resource.getVariableDcls() != null) {
-            for (VariableDcl variableDcl : resource.getVariableDcls()) {
-                variableDcl.accept(BLangJSONModelBuilder.this);
+        if (resource.getVariableDefs() != null) {
+            for (VariableDef variableDef : resource.getVariableDefs()) {
+                variableDef.accept(BLangJSONModelBuilder.this);
             }
         }
         if(resource.getResourceBody() != null) {
@@ -307,9 +307,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         }
         jsonFunc.add(BLangJSONModelConstants.ANNOTATION_DEFINITIONS, this.tempJsonArrayRef.peek());
         this.tempJsonArrayRef.pop();
-        if (function.getVariableDcls() != null) {
-            for (VariableDcl variableDcl : function.getVariableDcls()) {
-                variableDcl.accept(BLangJSONModelBuilder.this);
+        if (function.getVariableDefs() != null) {
+            for (VariableDef variableDef : function.getVariableDefs()) {
+                variableDef.accept(BLangJSONModelBuilder.this);
             }
         }
         if (function.getParameters() != null) {
@@ -368,9 +368,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 parameter.accept(this);
             }
         }
-        if (action.getVariableDcls() != null) {
-            for (VariableDcl variableDcl : action.getVariableDcls()) {
-                variableDcl.accept(this);
+        if (action.getVariableDefs() != null) {
+            for (VariableDef variableDef : action.getVariableDefs()) {
+                variableDef.accept(this);
             }
         }
         if (action.getConnectorDcls() != null) {
@@ -413,8 +413,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             }
         }
         if (worker.getVariables() != null) {
-            for (VariableDcl variableDcl : worker.getVariables()) {
-                variableDcl.accept(this);
+            for (VariableDef variableDef : worker.getVariables()) {
+                variableDef.accept(this);
             }
         }
         if (worker.getStatements() != null) {
@@ -481,7 +481,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         connectObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
                 BLangJSONModelConstants.CONNECTOR_DECLARATION);
         connectObj.addProperty(BLangJSONModelConstants.CONNECTOR_DCL_NAME, connectorDcl.getConnectorName().getName());
-        connectObj.addProperty(BLangJSONModelConstants.CONNECTOR_DCL_PKG_NAME, connectorDcl.getConnectorName().getPkgName());
+        connectObj.addProperty(BLangJSONModelConstants.CONNECTOR_DCL_PKG_NAME, connectorDcl.getConnectorName().getPkgPath());
         connectObj.addProperty(BLangJSONModelConstants.CONNECTOR_DCL_VARIABLE, connectorDcl.getVarName().getName());
         this.tempJsonArrayRef.push(new JsonArray());
         if (connectorDcl.getArgExprs() != null) {
@@ -495,12 +495,12 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(VariableDcl variableDcl) {
+    public void visit(VariableDef variableDef) {
         JsonObject variableDclObj = new JsonObject();
         variableDclObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
                 BLangJSONModelConstants.VARIABLE_DECLARATION);
-        variableDclObj.addProperty(BLangJSONModelConstants.VARIABLE_NAME, variableDcl.getName().getName());
-        variableDclObj.addProperty(BLangJSONModelConstants.VARIABLE_TYPE, variableDcl.getType().toString());
+        variableDclObj.addProperty(BLangJSONModelConstants.VARIABLE_NAME, variableDef.getName().getName());
+        variableDclObj.addProperty(BLangJSONModelConstants.VARIABLE_TYPE, variableDef.getType().toString());
         tempJsonArrayRef.peek().add(variableDclObj);
     }
 
@@ -683,7 +683,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         actionInvcObj.addProperty(BLangJSONModelConstants.ACTION_NAME,
                 actionIExpr.getCallableUnitName().getName());
         actionInvcObj.addProperty(BLangJSONModelConstants.ACTION_PKG_NAME,
-                actionIExpr.getCallableUnitName().getPkgName());
+                actionIExpr.getCallableUnitName().getPkgPath());
         actionInvcObj.addProperty(BLangJSONModelConstants.ACTION_CONNECTOR_NAME,
                 actionIExpr.getCallableUnitName().getConnectorName());
         tempJsonArrayRef.push(new JsonArray());
@@ -967,7 +967,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(Const constant) {
+    public void visit(ConstDef constant) {
         JsonObject constantDefinitionDefine = new JsonObject();
         constantDefinitionDefine.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
                 BLangJSONModelConstants.CONSTANT_DEFINITION);
@@ -1016,7 +1016,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(Struct struct) {
+    public void visit(StructDef structDef) {
         // TODO
     }
 

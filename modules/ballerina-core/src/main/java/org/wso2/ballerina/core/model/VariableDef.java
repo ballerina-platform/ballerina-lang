@@ -18,39 +18,50 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.model.symbols.VariableRefSymbol;
 import org.wso2.ballerina.core.model.types.BType;
+import org.wso2.ballerina.core.model.types.SimpleTypeName;
 
 /**
- * {@code Variable} represent a Variable declaration.
- * <p>
+ * {@code VariableDef} represent a Variable definition.
  * <p>
  * Ballerina has variables of various types. The type system includes built-in primitives,
  * a collection of built-in structured types and array and record type constructors.
  *
  * @since 0.8.0
  */
-public class VariableDcl implements Node {
+public class VariableDef implements Node {
+    protected NodeLocation location;
+    protected String name;
+    protected SimpleTypeName typeName;
+    protected VariableRefSymbol varRefSymbol;
+
     private BType type;
     private SymbolName symbolName;
-    protected NodeLocation location;
 
-    public VariableDcl(NodeLocation location, BType type, SymbolName symbolName) {
+    public VariableDef(NodeLocation location, String name, SimpleTypeName typeName, VariableRefSymbol varRefSymbol) {
+        this.location = location;
+        this.name = name;
+        this.typeName = typeName;
+        this.varRefSymbol = varRefSymbol;
+    }
+
+    public VariableDef(NodeLocation location, BType type, SymbolName symbolName) {
         this.location = location;
         this.type = type;
         this.symbolName = symbolName;
     }
 
-    public BType getType() {
-        return type;
-    }
-
-    /**
-     * Get the identifier of the variable declaration.
-     *
-     * @return identifier of the variable declaration
-     */
     public SymbolName getName() {
         return symbolName;
+    }
+
+    public SimpleTypeName getTypeName() {
+        return typeName;
+    }
+
+    public BType getType() {
+        return type;
     }
 
     @Override
