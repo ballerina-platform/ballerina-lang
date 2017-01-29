@@ -115,6 +115,15 @@
         </fileSet>
     </fileSets>
 
+    <files>
+        <file>
+            <source>ballerina-home/bin/version.txt</source>
+            <outputDirectory>bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+    </files>
+
     <dependencySets>
         <dependencySet>
             <outputDirectory>bre/lib</outputDirectory>
