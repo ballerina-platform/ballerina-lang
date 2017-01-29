@@ -13,8 +13,11 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Syntax highlighting support.</li>
-        <li>Code formatting support.</li>
+        <li>Syntax highlighting.</li>
+        <li>Code formatting.</li>
+        <li>Support to create new Ballerina Projects.</li>
+        <li>Support to add Ballerina SDKs.</li>
+        <li>Support to run Ballerina applications, services.</li>
       </ul>
     ]]>
     </change-notes>
@@ -64,6 +67,12 @@
 
         <!-- module -->
         <moduleType id="BALLERINA_MODULE" implementationClass="org.ballerinalang.plugins.idea.BallerinaModuleType"/>
+
+        <!--run configurations-->
+        <configurationType
+                implementation="org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfigurationType"/>
+        <configurationType
+                implementation="org.ballerinalang.plugins.idea.run.configuration.service.BallerinaServiceRunConfigurationType"/>
 
     </extensions>
 

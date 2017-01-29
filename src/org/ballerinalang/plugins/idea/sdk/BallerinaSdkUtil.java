@@ -17,6 +17,9 @@
 package org.ballerinalang.plugins.idea.sdk;
 
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.io.FileUtil;
@@ -140,5 +143,22 @@ public class BallerinaSdkUtil {
     @NotNull
     private static String getSrcLocation(@NotNull String version) {
         return "libsrc/ballerina";
+    }
+
+    public static String getSdkHome(Project project) {
+        Sdk sdk = ProjectRootManager.getInstance(project).getProjectSdk();
+        if (sdk != null) {
+            return sdk.getHomePath();
+        } else {
+            return "";
+        }
+    }
+
+    public static String getBallerinaExecutablePath(Project project) {
+        String sdkHome = getSdkHome(project);
+        if (!sdkHome.isEmpty()) {
+            return sdkHome + File.separator + "bin/ballerina";
+        }
+        return "";
     }
 }
