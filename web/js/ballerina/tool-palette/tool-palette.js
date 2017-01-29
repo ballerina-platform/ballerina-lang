@@ -16,10 +16,9 @@
  * under the License.
  */
 define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-group',
-        './drag-drop-manager', './../ast/ballerina-ast-factory','./initial-definitions',
-        './../search/search', './../search/import-search-adapter', 'mousetrap', 'mcustom_scroller', './../env/package'],
+        './drag-drop-manager', './../search/search', './../search/import-search-adapter', 'mousetrap', 'mcustom_scroller'],
     function (require, log, $, Backbone, ToolGroupView, ToolGroup,
-              DragDropManager, BallerinaASTFactory, initialTools, Search, ImportSearchAdapter, Mousetrap, mcustomScroller, Package) {
+              DragDropManager, Search, ImportSearchAdapter, Mousetrap, mcustomScroller) {
 
 
     var ToolPalette = Backbone.View.extend({
@@ -27,6 +26,11 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             var errMsg;
             if (!_.has(options, 'container')) {
                 errMsg = 'unable to find configuration for container';
+                log.error(errMsg);
+                throw errMsg;
+            }
+            if (!_.has(options, 'itemProvider')) {
+                errMsg = 'unable to find tool palette item provider';
                 log.error(errMsg);
                 throw errMsg;
             }
@@ -40,9 +44,10 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             this._$parent_el = container;
             this._options = options;
             this.ballerinaFileEditor = options.ballerinaFileEditor;
-            this._toolGroups = _.slice(initialTools);
             this._imports = [];
             this.dragDropManager = new DragDropManager();
+            this._itemProvider = _.get(options, 'itemProvider');
+            this._itemProvider.setToolPalette(this);
 
             this.search = Search(new ImportSearchAdapter());
             this.search.on('select', _.bindKey(this, 'addImport'));
@@ -73,7 +78,8 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             this._$parent_el.append(toolPaletteDiv);
             this.$el = toolPaletteDiv;
 
-            _.forEach(this._toolGroups, function (group) {
+            // Drawing initial set of tool groups
+            _.forEach(this._itemProvider.getInitialToolGroups(), function (group) {
                 var toolOrder = group.get('toolOrder');
                 if(toolOrder === "horizontal"){
                     self.addHorizontallyFormattedToolGroup({group: group});
@@ -90,11 +96,9 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
                                 '</div>');
             this.$el.append(importForm);
 
-            this._imports.forEach(function (package){
-                if(package instanceof Package){
-                    var group = self.getToolGroup(package);
-                    self.addVerticallyFormattedToolGroup({group: group});
-                }
+            // Drawing tool groups that are added on the fly
+            this._itemProvider.getDynamicToolGroups().forEach(function (group) {
+                self.addVerticallyFormattedToolGroup({group: group});
             });
 
             $(this._$parent_el).mCustomScrollbar({
@@ -113,15 +117,6 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
         },
 
         /**
-         * Dynamically loads avaiable tools from a package
-         *
-         * @param packageModel {Package}
-         */
-        loadToolsFromPackage: function(packageModel){
-
-        },
-
-        /**
          * Adds a new tool to a particular tool group
          * @param groupID {String} ID of the tool group to which the tool should be added.
          * @param toolDef {Object} Tool definition
@@ -134,7 +129,7 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
          */
         addNewToolToGroup: function(groupID, toolDef){
            var error,
-               toolGroup = _.find(this._toolGroups, function(group){
+               toolGroup = _.find(this._itemProvider.getToolGroups(), function(group){
                return _.isEqual(group.get('toolGroupID'), groupID);
            });
            if(_.isNil(toolGroup)){
@@ -148,51 +143,19 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
         },
 
         /**
-         * Create and return a ToolGroup object for a given package
-         * @param package {Package} Package Object.
+         * Adding given package
+         * @param {Object} package - package to add
          */
-        getToolGroup: function(package){
-            var definitions = [];
-            _.each(package.getConnectors(), function (connector) {
-                var packageName = _.last(_.split(package.getName(), '.'));
-                connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration
-                connector.meta = {
-                    connectorName: connector.getName(),
-                    connectorPackageName: packageName
-                };
-                //TODO : use a generic icon
-                connector.icon = "images/tool-icons/http.svg";
-                connector.title = connector.getTitle();
-                definitions.push(connector);
-                _.each(connector.getActions(), function (action, index, collection) {
-                    /* We need to add a special class to actions to indent them in tool palette. */
-                    action.classNames = "tool-connector-action";
-                    if ((index + 1 ) == collection.length) {
-                        action.classNames = "tool-connector-action tool-connector-last-action";
-                    }
-                    action.meta = {
-                        action: action.getAction(),
-                        actionConnectorName : connector.getName(),
-                        actionPackageName : packageName
-                    };
-                    action.icon = "images/tool-icons/http.svg";
-                    action.title = action.getTitle();
-                    action.nodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression
-                    definitions.push(action);
-                });
-            });
-
-            this._imports.push(package);
-            var group = new ToolGroup({
-                toolGroupName: package.getName(),
-                toolGroupID: package.getName() + "-tool-group",
-                toolOrder: "vertical",
-                toolDefinitions: definitions
-            });
-
-            return group;
+        //TODO: this method needs to be removed from tool palette class
+        addImport: function (package) {
+            this._itemProvider.addImportToolGroup(package);
         },
 
+        /**
+         * Adds a vertically formatted tool group view to this tool palette
+         * @param {Object} args - data to draw the tool group
+         * @param {Object} args.model - tool group model
+         */
         addVerticallyFormattedToolGroup: function (args) {
             var toolGroupOptions = _.clone(_.get(this._options, 'toolGroup'));
             _.set(toolGroupOptions, 'toolPalette', this);
@@ -202,7 +165,12 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             this.$el.addClass('non-user-selectable');
         },
 
-        addHorizontallyFormattedToolGroup : function (args) {
+        /**
+         * Adds a horizontally formatted tool group view to this tool palette
+         * @param {Object} args - data to draw the tool group
+         * @param {Object} args.model - tool group model
+         */
+        addHorizontallyFormattedToolGroup: function (args) {
             var toolGroupOptions = _.clone(_.get(this._options, 'toolGroup'));
             _.set(toolGroupOptions, 'toolPalette', this);
             _.set(toolGroupOptions, 'model', args.group);
@@ -221,6 +189,14 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
 
         show: function () {
             this._$parent_el.show();
+        },
+
+        /**
+         * Returns the item provider associated with this tool palette
+         * @returns {ToolPaletteItemProvider}
+         */
+        getItemProvider: function () {
+            return this._itemProvider;
         }
     });
 

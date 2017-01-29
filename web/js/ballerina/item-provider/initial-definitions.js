@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group', './../ast/defaults-added-ballerina-ast-factory'],
+define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/tool-group', './../ast/defaults-added-ballerina-ast-factory'],
     function (log, $, BallerinaASTFactory, ToolGroup, DefaultsAddedBallerinaASTFactory) {
 
         var ToolPalette = [];
