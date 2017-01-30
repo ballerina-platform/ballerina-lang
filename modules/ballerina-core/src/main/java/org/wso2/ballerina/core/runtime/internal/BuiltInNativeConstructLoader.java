@@ -29,6 +29,11 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.SQLConnector;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client.Call;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client.Select;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client.Update;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client.UpdateWithGeneratedKeys;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Delete;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Execute;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Get;
@@ -421,6 +426,13 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new ToXML());
         registerFunction(scope, new GetByIndex());
         registerFunction(scope, new GetByName());
+
+        // SQL Connector
+        registerConnector(scope, new SQLConnector());
+        registerAction(scope, new Call());
+        registerAction(scope, new Select());
+        registerAction(scope, new Update());
+        registerAction(scope, new UpdateWithGeneratedKeys());
 
         registerConnector(scope, new HTTPConnector());
 

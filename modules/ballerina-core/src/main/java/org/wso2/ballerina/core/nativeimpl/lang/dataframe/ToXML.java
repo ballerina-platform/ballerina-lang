@@ -29,11 +29,11 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
  * Native function to get the XML representation of the dataframe.
- * ballerina.lang.dataframe:toXML(dataframe)
+ * ballerina.lang.dataframe:toXml(dataframe)
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.dataframe",
-        functionName = "toJson",
+        functionName = "toXml",
         args = {@Argument(name = "dataframe", type = TypeEnum.DATAFRAME)},
         returnType = {@ReturnType(type = TypeEnum.XML)},
         isPublic = true

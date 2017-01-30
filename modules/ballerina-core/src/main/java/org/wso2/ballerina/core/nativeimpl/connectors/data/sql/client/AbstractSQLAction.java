@@ -41,7 +41,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * @code AbstractSQLAction} is the base class for all SQL Connector Action
+ * {@code AbstractSQLAction} is the base class for all SQL Connector Action
  */
 public abstract class AbstractSQLAction extends AbstractNativeAction {
 
@@ -63,11 +63,11 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             rs = stmt.executeQuery();
 
             BDataframe dataframe = new BDataframe(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
-                    getColumnDefinitons(rs));
+                    getColumnDefinitions(rs));
             context.getControlStack().setReturnValue(0, dataframe);
         } catch (SQLException e) {
             closeResources(rs, stmt, conn);
-            throw new BallerinaException("Error in executing Query." + e.getMessage());
+            throw new BallerinaException("Error in executing Query." + e.getMessage(), e);
         }
     }
 
@@ -101,10 +101,10 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                     context.getControlStack().setReturnValue(1, new BInteger(generatedID)); //TODO:Check Array of keys
                 }
             }
-            closeResources(rs, stmt, conn);
         } catch (SQLException e) {
+            throw new BallerinaException("Error in executing Update." + e.getMessage(), e);
+        } finally {
             closeResources(rs, stmt, conn);
-            throw new BallerinaException("Error in executing Update." + e.getMessage());
         }
     }
 
@@ -125,16 +125,16 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             if (hasResult) {
                 rs = stmt.getResultSet(); //TODO:How to return next result sets
                 BDataframe dataframe = new BDataframe(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
-                        getColumnDefinitons(rs));
+                        getColumnDefinitions(rs));
                 context.getControlStack().setReturnValue(0, dataframe);
             }
         } catch (SQLException e) {
             closeResources(rs, stmt, conn);
-            throw new BallerinaException("Error in executing Query." + e.getMessage());
+            throw new BallerinaException("Error in executing Query." + e.getMessage(), e);
         }
     }
 
-    private ArrayList<BDataframe.ColumnDefinition> getColumnDefinitons(ResultSet rs) throws SQLException {
+    private ArrayList<BDataframe.ColumnDefinition> getColumnDefinitions(ResultSet rs) throws SQLException {
         ArrayList<BDataframe.ColumnDefinition> columnDefs = new ArrayList<BDataframe.ColumnDefinition>();
         ResultSetMetaData rsMetaData = rs.getMetaData();
         int cols = rsMetaData.getColumnCount();
@@ -196,21 +196,21 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 rs.close();
             }
         } catch (SQLException ex) {
-            logger.error("SQL Error in Closing Result Set:", ex.getMessage());
+            /* Do nothing here. */
         }
         try {
             if (stmt != null) {
                 stmt.close();
             }
         } catch (SQLException ex) {
-            logger.error("SQL Error in Closing Statement:", ex.getMessage());
+            /* Do nothing here. */
         }
         try {
             if (conn != null) {
                 conn.close();
             }
         } catch (SQLException ex) {
-            logger.error("SQL Error in Closing Connection:", ex.getMessage());
+            /* Do nothing here. */
         }
     }
 }

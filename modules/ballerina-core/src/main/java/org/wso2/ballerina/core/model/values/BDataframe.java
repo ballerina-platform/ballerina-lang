@@ -211,6 +211,7 @@ public class BDataframe implements BRefType<Object> {
             }
             jsonArray.add(jsonObj);
         }
+        this.close();
         return new BJSON(jsonArray);
     }
         
@@ -343,6 +344,7 @@ public class BDataframe implements BRefType<Object> {
             }
             root.addChild(resultElement);
         }
+        this.close();
         return new BXML(root);
     }
     

@@ -28,11 +28,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.UpdateOptions;
-
 import org.bson.Document;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.ServiceFactory;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.types.TypeEnum;
@@ -65,7 +61,7 @@ import java.util.List;
         name = "ballerina.data.connectors.mongodb",
         immediate = true,
         service = AbstractNativeConnector.class)
-public class MongoDBConnector extends AbstractNativeConnector implements ServiceFactory {
+public class MongoDBConnector extends AbstractNativeConnector {
 
     private static final String PACKAGE_NAME = "ballerina.data.sql";
 
@@ -166,15 +162,6 @@ public class MongoDBConnector extends AbstractNativeConnector implements Service
     @Override
     public String getPackageName() {
         return PACKAGE_NAME;
-    }
-
-    @Override
-    public Object getService(Bundle bundle, ServiceRegistration serviceRegistration) {
-        return new MongoDBConnector();
-    }
-
-    @Override
-    public void ungetService(Bundle bundle, ServiceRegistration serviceRegistration, Object obj) {
     }
 
     @Override
