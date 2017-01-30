@@ -22,9 +22,10 @@ import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+import org.wso2.ballerina.core.model.symbols.SymbolScope;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.NativeConstruct;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector;
 
 import java.util.ArrayList;
@@ -32,16 +33,21 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Represents Native Ballerina Connector.
+ * {@code AbstractNativeConnector} represents a Native Ballerina Connector.
+ *
+ * @since 0.8.0
  */
-public abstract class AbstractNativeConnector implements Connector, NativeConstruct {
-
+public abstract class AbstractNativeConnector implements Connector, BLangSymbol {
     private static final Logger log = LoggerFactory.getLogger(AbstractNativeConnector.class);
-    private SymbolName symbolName;
-    private String packageName;
-    private String connectorName;
-    private List<Parameter> parameters;
     private NodeLocation location;
+
+    // BLangSymbol related attributes
+    protected String name;
+    protected String pkgPath;
+    protected boolean isPublic = true;
+    protected SymbolName symbolName;
+
+    private List<Parameter> parameters;
 
     public AbstractNativeConnector() {
         parameters = new ArrayList<>();
@@ -53,9 +59,9 @@ public abstract class AbstractNativeConnector implements Connector, NativeConstr
      */
     private void buildModel() {
         BallerinaConnector connector = this.getClass().getAnnotation(BallerinaConnector.class);
-        packageName = connector.packageName();
-        connectorName = connector.connectorName();
-        String symName = packageName + ":" + connectorName;
+        pkgPath = connector.packageName();
+        name = connector.connectorName();
+        String symName = pkgPath + ":" + name;
         symbolName = new SymbolName(symName);
         Arrays.stream(connector.args()).
                 forEach(argument -> {
@@ -65,16 +71,12 @@ public abstract class AbstractNativeConnector implements Connector, NativeConstr
                     } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
                         log.error("Internal Error..! Error while processing Parameters for Native ballerina" +
-                                " Connector {}:{}.", packageName, connectorName, e);
+                                " Connector {}:{}.", pkgPath, name, e);
                     }
                 });
     }
 
     public abstract boolean init(BValue[] bValueRefs);
-
-    public SymbolName getSymbolName() {
-        return symbolName;
-    }
 
     @Override
     public Parameter[] getParameters() {
@@ -89,4 +91,37 @@ public abstract class AbstractNativeConnector implements Connector, NativeConstr
      * @return an instance
      */
     public abstract AbstractNativeConnector  getInstance();
+
+
+    // Methods in BLangSymbol interface
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    @Override
+    public boolean isNative() {
+        return true;
+    }
+
+    @Override
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
+    @Override
+    public SymbolScope getSymbolScope() {
+        return null;
+    }
 }

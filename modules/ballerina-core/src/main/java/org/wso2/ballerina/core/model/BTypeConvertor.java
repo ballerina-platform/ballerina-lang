@@ -21,65 +21,58 @@ import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.symbols.SymbolScope;
 
+import java.util.Map;
+
 /**
- * Class to represent TypeConvertor written in ballerina
+ * {@code BTypeConvertor} represents a  TypeConvertor in ballerina.
+ *
+ * @since 0.8.0
  */
 public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUnit {
     private NodeLocation location;
-    private SymbolName symbolName;
-    private String typeConverterName;
+
+    // BLangSymbol related attributes
+    protected String name;
+    protected String pkgPath;
+    protected boolean isPublic;
+    protected SymbolName symbolName;
 
     private Annotation[] annotations;
     private Parameter[] parameters;
-    private VariableDef[] variableDefs;
     private Parameter[] returnParams;
+    private VariableDef[] variableDefs;
     private BlockStmt typeConverterBody;
-
-    private boolean publicFunc;
     private int stackFrameSize;
 
+    // Scope related variables
+    private SymbolScope enclosingScope;
+    private Map<SymbolName, BLangSymbol> symbolMap;
+
     public BTypeConvertor(NodeLocation location,
-                          SymbolName name,
+                          String name,
+                          String pkgPath,
                           Boolean isPublic,
+                          SymbolName symbolName,
                           Annotation[] annotations,
                           Parameter[] parameters,
                           Parameter[] returnParams,
-                          BlockStmt typeConverterBody) {
+                          BlockStmt typeConverterBody,
+                          SymbolScope enclosingScope,
+                          Map<SymbolName, BLangSymbol> symbolMap) {
 
         this.location = location;
-        this.symbolName = name;
-        this.typeConverterName = symbolName.getName();
-        this.publicFunc = isPublic;
+        this.name = name;
+        this.pkgPath = pkgPath;
+        this.isPublic = isPublic;
+        this.symbolName = symbolName;
+
         this.annotations = annotations;
         this.parameters = parameters;
         this.returnParams = returnParams;
         this.typeConverterBody = typeConverterBody;
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return symbolName.getName();
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getPackageName() {
-        return symbolName.getPkgPath();
-    }
-
-    /**
-     * Get the typeConvertor Identifier
-     *
-     * @return typeConvertor identifier
-     */
-    public SymbolName getSymbolName() {
-        return symbolName;
+        this.enclosingScope = enclosingScope;
+        this.symbolMap = symbolMap;
     }
 
     @Override
@@ -123,26 +116,9 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
         return null;
     }
 
-    /**
-     * Check whether typeConvertor is public, which means typeConvertor is visible outside the package
-     *
-     * @return whether typeConvertor is public
-     */
-    public boolean isPublic() {
-        return publicFunc;
-    }
-
-    /**
-     * Mark typeConvertor as public
-     */
-    public void makePublic() {
-        publicFunc = true;
-    }
-
     public int getStackFrameSize() {
         return stackFrameSize;
     }
-
 
     public void setStackFrameSize(int stackFrameSize) {
         this.stackFrameSize = stackFrameSize;
@@ -152,6 +128,9 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
     public BlockStmt getCallableUnitBody() {
         return this.typeConverterBody;
     }
+
+
+    // Methods in Node interface
 
     @Override
     public void accept(NodeVisitor visitor) {
@@ -163,16 +142,50 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
         return location;
     }
 
+
+    // Methods in BLangSymbol interface
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    @Override
+    public boolean isNative() {
+        return false;
+    }
+
+    @Override
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
+    @Override
+    public SymbolScope getSymbolScope() {
+        return this;
+    }
+
+
+    // Methods in the SymbolScope interface
+
     @Override
     public String getScopeName() {
         return null;
     }
 
-    // Methods in the SymbolScope interface
-
     @Override
     public SymbolScope getEnclosingScope() {
-        return null;
+        return enclosingScope;
     }
 
     @Override

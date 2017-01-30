@@ -386,7 +386,7 @@ public class BuiltInNativeConstructLoader {
         }
 
         SymbolName symbolName =
-                LangModelUtils.getSymNameWithParams(function.getPackageName() + ":" +
+                LangModelUtils.getSymNameWithParams(function.getPackagePath() + ":" +
                         functionNameAnnotation.functionName(), function.getParameters());
         Symbol symbol = new Symbol(function);
         symScope.insert(symbolName, symbol);
@@ -443,7 +443,7 @@ public class BuiltInNativeConstructLoader {
         }
 
         SymbolName symbolName =
-                LangModelUtils.getTypeConverterSymName(typeConvertor.getPackageName(), typeConvertor.getParameters(),
+                LangModelUtils.getTypeConverterSymName(typeConvertor.getPackagePath(), typeConvertor.getParameters(),
                         typeConvertor.getReturnParameters());
         Symbol symbol = new Symbol(typeConvertor);
         symScope.insert(symbolName, symbol);

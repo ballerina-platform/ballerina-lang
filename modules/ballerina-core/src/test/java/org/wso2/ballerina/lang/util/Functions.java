@@ -206,7 +206,7 @@ public class Functions {
 
     private static Function getFunction(Function[] functions, String funcName) {
         for (Function function : functions) {
-            if (function.getFunctionName().equals(funcName)) {
+            if (function.getName().equals(funcName)) {
                 return function;
             }
         }

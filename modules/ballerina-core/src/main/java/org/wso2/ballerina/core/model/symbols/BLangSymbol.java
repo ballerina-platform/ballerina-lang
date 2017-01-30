@@ -26,9 +26,15 @@ import org.wso2.ballerina.core.model.SymbolName;
  */
 public interface BLangSymbol {
 
-    SymbolName getSymbolName();
+    String getName();
 
-    SymbolCategory getSymbolCategory();
+    String getPackagePath();
+
+    boolean isPublic();
+
+    boolean isNative();
+
+    SymbolName getSymbolName();
 
     SymbolScope getSymbolScope();
 }

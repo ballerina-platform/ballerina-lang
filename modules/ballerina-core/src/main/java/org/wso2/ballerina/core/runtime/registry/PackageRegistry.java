@@ -62,7 +62,7 @@ public class PackageRegistry {
      */
     public void registerNativeFunction(AbstractNativeFunction function) {
         Package aPackage = packages
-                .computeIfAbsent(function.getPackageName(), k -> new Package(function.getPackageName()));
+                .computeIfAbsent(function.getPackagePath(), k -> new Package(function.getPackagePath()));
 
         if (function.isPublic()) {
             aPackage.getPublicFunctions().put(function.getName(), function);
@@ -84,7 +84,7 @@ public class PackageRegistry {
      */
     public void registerNativeAction(AbstractNativeAction action) {
         Package aPackage = packages
-                .computeIfAbsent(action.getPackageName(), k -> new Package(action.getPackageName()));
+                .computeIfAbsent(action.getPackagePath(), k -> new Package(action.getPackagePath()));
         aPackage.getActions().put(action.getName(), action);
 
         String actionName = action.getSymbolName().getName();
@@ -101,7 +101,7 @@ public class PackageRegistry {
      * @param function AbstractNativeFunction instance.
      */
     public void unregisterNativeFunctions(AbstractNativeFunction function) {
-        Package aPackage = packages.get(function.getPackageName());
+        Package aPackage = packages.get(function.getPackagePath());
         if (aPackage == null) {
             // Nothing to do.
             return;
@@ -119,7 +119,7 @@ public class PackageRegistry {
      * @param action AbstractNativeAction instance.
      */
     public void unregisterNativeActions(AbstractNativeAction action) {
-        Package aPackage = packages.get(action.getPackageName());
+        Package aPackage = packages.get(action.getPackagePath());
         if (aPackage == null) {
             // Nothing to do.
             return;

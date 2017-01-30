@@ -58,9 +58,4 @@ public class HTTPConnector extends AbstractNativeConnector {
     public String getServiceUri() {
         return serviceUri;
     }
-
-    @Override
-    public String getPackageName() {
-        return "ballerina.net.http";
-    }
 }

@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * {@code CallableUnitBuilder} is a builder class responsible for building Functions, Actions and Resources
+ * {@code CallableUnitBuilder} is responsible for building Functions, Actions and Resources from parser events.
  * <p/>
  * A CallableUnit represents a Function, an Action or a Resource.
  *
@@ -45,18 +45,24 @@ import java.util.Map;
  */
 class CallableUnitBuilder implements SymbolScope {
     private NodeLocation location;
-    private SymbolName name;
+
+    // BLangSymbol related attributes
+    protected String name;
+    protected String pkgPath;
+    protected boolean isPublic;
+    protected SymbolName symbolName;
+
     private List<Annotation> annotationList = new ArrayList<>();
-    private boolean publicFunc;
     private List<Parameter> parameterList = new ArrayList<>();
     private List<Parameter> returnParamList = new ArrayList<>();
     private List<Worker> workerList = new ArrayList<>();
     private BlockStmt body;
 
+    // Scope related variables
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap = new HashMap<>();
 
-    public CallableUnitBuilder(SymbolScope enclosingScope) {
+    CallableUnitBuilder(SymbolScope enclosingScope) {
         this.enclosingScope = enclosingScope;
     }
 
@@ -64,16 +70,24 @@ class CallableUnitBuilder implements SymbolScope {
         this.location = location;
     }
 
-    void setName(SymbolName name) {
+    void setName(String name) {
         this.name = name;
+    }
+
+    public void setPkgPath(String pkgPath) {
+        this.pkgPath = pkgPath;
+    }
+
+    void setPublic(boolean isPublic) {
+        this.isPublic = isPublic;
+    }
+
+    public void setSymbolName(SymbolName symbolName) {
+        this.symbolName = symbolName;
     }
 
     void addAnnotation(Annotation annotation) {
         this.annotationList.add(annotation);
-    }
-
-    void setPublic(boolean isPublic) {
-        this.publicFunc = isPublic;
     }
 
     void addParameter(Parameter param) {
@@ -116,7 +130,9 @@ class CallableUnitBuilder implements SymbolScope {
         return new BallerinaFunction(
                 location,
                 name,
-                publicFunc,
+                pkgPath,
+                isPublic,
+                symbolName,
                 annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
                 returnParamList.toArray(new Parameter[returnParamList.size()]),
@@ -130,28 +146,44 @@ class CallableUnitBuilder implements SymbolScope {
         return new Resource(
                 location,
                 name,
+                pkgPath,
+                symbolName,
                 annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
-                workerList.toArray(new Worker[workerList.size()]), body);
+                workerList.toArray(new Worker[workerList.size()]),
+                body,
+                enclosingScope,
+                symbolMap);
     }
 
     BallerinaAction buildAction() {
         return new BallerinaAction(
                 location,
                 name,
+                pkgPath,
+                isPublic,
+                symbolName,
                 annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
                 returnParamList.toArray(new Parameter[returnParamList.size()]),
-                workerList.toArray(new Worker[workerList.size()]), body);
+                workerList.toArray(new Worker[workerList.size()]),
+                body,
+                enclosingScope,
+                symbolMap);
     }
 
     BTypeConvertor buildTypeConverter() {
         return new BTypeConvertor(
                 location,
                 name,
-                publicFunc,
+                pkgPath,
+                isPublic,
+                symbolName,
                 annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
-                returnParamList.toArray(new Parameter[returnParamList.size()]), body);
+                returnParamList.toArray(new Parameter[returnParamList.size()]),
+                body,
+                enclosingScope,
+                symbolMap);
     }
 }

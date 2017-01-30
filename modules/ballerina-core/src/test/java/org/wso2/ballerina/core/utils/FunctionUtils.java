@@ -41,7 +41,7 @@ public class FunctionUtils {
      * @param function Function instance.
      */
     public static void addNativeFunction(SymScope symScope, AbstractNativeFunction function) {
-        SymbolName symbolName = LangModelUtils.getSymNameWithParams(function.getPackageName() + ":" +
+        SymbolName symbolName = LangModelUtils.getSymNameWithParams(function.getPackagePath() + ":" +
                 function.getClass().getAnnotation(BallerinaFunction.class).functionName(), function.getParameters());
         Symbol symbol = new Symbol(function);
         symScope.insert(symbolName, symbol);

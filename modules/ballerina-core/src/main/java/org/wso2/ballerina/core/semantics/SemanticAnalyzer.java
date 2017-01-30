@@ -215,7 +215,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(ConstDef constant) {
         staticMemAddrOffset++;
-        SymbolName symName = constant.getName();
+        SymbolName symName = constant.getSymbolName();
 
         Symbol symbol = symbolTable.lookup(symName);
         if (symbol != null && isSymbolInCurrentScope(symbol)) {
@@ -543,7 +543,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         BType type = variableDef.getType();
         validateType(type, variableDef.getNodeLocation());
 
-        SymbolName symName = variableDef.getName();
+        SymbolName symName = variableDef.getSymbolName();
         Symbol symbol = symbolTable.lookup(symName);
         if (symbol != null && isSymbolInCurrentScope(symbol)) {
             throw new SemanticException(getNodeLocationStr(variableDef.getNodeLocation()) + "duplicate variable '" +
@@ -889,7 +889,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                     if (funcIExpr.getTypes().length > 1) {
                         throw new SemanticException(returnStmt.getNodeLocation().getFileName() + ":" +
                                 returnStmt.getNodeLocation().getLineNumber() +
-                                ": multiple-value " + funcIExpr.getCallableUnit().getFunctionName() +
+                                ": multiple-value " + funcIExpr.getCallableUnit().getName() +
                                 "() in single-value context");
                     }
                 }
@@ -1571,7 +1571,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (symbolTable.lookup(symbolName) != null) {
             throw new SemanticException(function.getNodeLocation().getFileName() + ":" +
                     function.getNodeLocation().getLineNumber() +
-                    ": duplicate function '" + function.getFunctionName() + "'");
+                    ": duplicate function '" + function.getName() + "'");
         }
 
         Symbol symbol = new Symbol(function);
@@ -1579,7 +1579,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private void addTypeConverterSymbol(TypeConvertor typeConvertor) {
-        SymbolName symbolName = LangModelUtils.getTypeConverterSymName(typeConvertor.getPackageName(),
+        SymbolName symbolName = LangModelUtils.getTypeConverterSymName(typeConvertor.getPackagePath(),
                 typeConvertor.getParameters(),
                 typeConvertor.getReturnParameters());
         typeConvertor.setSymbolName(symbolName);
@@ -1615,13 +1615,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     private void addConnectorSymbol(BallerinaConnector connector) {
         Symbol symbol = new Symbol(connector);
 
-        SymbolName symbolName = new SymbolName(connector.getPackageQualifiedName());
+        SymbolName symbolName = connector.getSymbolName();
         if (symbolTable.lookup(symbolName) != null) {
             throw new SemanticException("Duplicate connector definition: " + symbolName + " in "
                     + connector.getNodeLocation().getFileName() + ":" + connector.getNodeLocation().getLineNumber());
         }
 
-        symbolTable.insert(new SymbolName(connector.getPackageQualifiedName()), symbol);
+        symbolTable.insert(connector.getSymbolName(), symbol);
     }
 
     private BType verifyBinaryArithmeticExprType(BinaryArithmeticExpression binaryArithmeticExpr) {
@@ -1907,14 +1907,14 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(StructDef structDef) {
         String structName = structDef.getName();
-        String structStructPackage = structDef.getPackageName();
+        String structStructPackage = structDef.getPackagePath();
 
         for (VariableDef field : structDef.getFields()) {
             structMemAddrOffset++;
             BType type = field.getType();
             validateType(type, field.getNodeLocation());
 
-            SymbolName fieldSym = LangModelUtils.getStructFieldSymName(field.getName().getName(),
+            SymbolName fieldSym = LangModelUtils.getStructFieldSymName(field.getName(),
                     structName, structStructPackage);
             Symbol symbol = symbolTable.lookup(fieldSym);
             if (symbol != null && isSymbolInCurrentScope(symbol)) {

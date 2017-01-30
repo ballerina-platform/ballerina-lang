@@ -167,7 +167,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
         buffer.append(variableDef.getType().toString()).append(SPACE_CHAR)
-                .append(variableDef.getName().getName()).append(";");
+                .append(variableDef.getName()).append(";");
     }
 
     @Override
