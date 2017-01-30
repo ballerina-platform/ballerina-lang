@@ -149,7 +149,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 int lineNo = identifier.getSymbol().getLine();
                 NodeLocation resourceLocation = new NodeLocation(fileName, lineNo);
 
-                modelBuilder.createResource(resourceLocation, identifier.getText());
+                modelBuilder.addResource(resourceLocation, identifier.getText());
             }
         }
     }
@@ -181,7 +181,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                         int lineNo = identifier.getSymbol().getLine();
                         NodeLocation functionLocation = new NodeLocation(fileName, lineNo);
 
-                        modelBuilder.createFunction(functionLocation, identifier.getText(), isPublic);
+                        modelBuilder.addFunction(functionLocation, identifier.getText(), isPublic);
                     }
                 }
             }
@@ -251,7 +251,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 int lineNo = identifier.getSymbol().getLine();
                 NodeLocation actionLocation = new NodeLocation(fileName, lineNo);
 
-                modelBuilder.createAction(actionLocation, identifier.getText());
+                modelBuilder.addAction(actionLocation, identifier.getText());
             }
         }
     }
@@ -317,7 +317,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 NodeLocation functionLocation = new NodeLocation(fileName, lineNo);
                 String typeConverterName = "_" + ctx.typeConvertorInput().typeConvertorType().getText() + "->" + "_" +
                         ctx.typeConvertorType().getText();
-                modelBuilder.createTypeConverter(functionLocation, typeConverterName, isPublic);
+                modelBuilder.addTypeConverter(functionLocation, typeConverterName, isPublic);
             }
         }
     }
@@ -753,7 +753,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitIfElseStatement(BallerinaParser.IfElseStatementContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.endIfElseStmt();
+            modelBuilder.addIfElseStmt();
         }
     }
 
@@ -767,7 +767,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitElseIfClause(BallerinaParser.ElseIfClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.endElseIfClause();
+            modelBuilder.addElseIfClause();
         }
     }
 
@@ -781,7 +781,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitElseClause(BallerinaParser.ElseClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.endElseClause();
+            modelBuilder.addElseClause();
         }
     }
 
@@ -803,7 +803,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitWhileStatement(BallerinaParser.WhileStatementContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.endWhileStmt(getCurrentLocation(ctx));
+            modelBuilder.addWhileStmt(getCurrentLocation(ctx));
         }
     }
 
