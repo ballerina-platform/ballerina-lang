@@ -218,8 +218,9 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
 
             // Creating arguments icon.
             var panelArgumentsIcon = $("<i/>", {
-                class: "fw fw-import pull-right right-icon-clickable hoverable"
-            }).appendTo(operationsPane);
+                class: "fw fw-import pull-right right-icon-clickable hoverable",
+                title: "Arguments"
+            }).appendTo(operationsPane).tooltip();
 
             $(panelArgumentsIcon).click(function (event) {
                 event.stopPropagation();
