@@ -473,7 +473,7 @@ public class BLangExecutor implements NodeExecutor {
     public BValue visit(BacktickExpr backtickExpr) {
         // Evaluate the variable references before creating objects
         String evaluatedString = evaluteBacktickString(backtickExpr);
-        if (backtickExpr.getType() == BTypes.JSON_TYPE) {
+        if (backtickExpr.getType().equals(BTypes.JSON_TYPE)) {
             return new BJSON(evaluatedString);
 
         } else {
@@ -670,7 +670,7 @@ public class BLangExecutor implements NodeExecutor {
 
     private void assignValueToArrayMapAccessExpr(BValue rValue, ArrayMapAccessExpr lExpr) {
         ArrayMapAccessExpr accessExpr = lExpr;
-        if (!(accessExpr.getType() == BTypes.MAP_TYPE)) {
+        if (!(accessExpr.getType().equals(BTypes.MAP_TYPE))) {
             BArray arrayVal = (BArray) accessExpr.getRExpr().execute(this);
             BInteger indexVal = (BInteger) accessExpr.getIndexExpr().execute(this);
             arrayVal.add(indexVal.intValue(), rValue);
@@ -845,7 +845,7 @@ public class BLangExecutor implements NodeExecutor {
         BValue arrayMapValue = lExprValue.getValue(memoryLocation);
         
         // Set the value to array/map's index location
-        if (fieldExpr.getRefVarType() == BTypes.MAP_TYPE) {
+        if (fieldExpr.getRefVarType().equals(BTypes.MAP_TYPE)) {
             ((BMap) arrayMapValue).put(indexValue, rValue);
         } else {
             ((BArray) arrayMapValue).add(((BInteger) indexValue).intValue(), rValue);
@@ -920,7 +920,7 @@ public class BLangExecutor implements NodeExecutor {
         BValue indexValue = indexExpr.execute(this);
         
         // Get the value from array/map's index location
-        if (fieldExpr.getRefVarType() == BTypes.MAP_TYPE) {
+        if (fieldExpr.getRefVarType().equals(BTypes.MAP_TYPE)) {
             return ((BMap) currentVal).get(indexValue);
         } else {
             return ((BArray) currentVal).get(((BInteger) indexValue).intValue());

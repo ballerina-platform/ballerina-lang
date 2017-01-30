@@ -251,8 +251,8 @@ public class BallerinaFile implements Node {
             if (function.getName().equals(MAIN_FUNCTION_NAME)) {
 
                 Parameter[] parameters = function.getParameters();
-                if (parameters.length == 1 && parameters[0].getType() == BTypes.getArrayType(BTypes.
-                        STRING_TYPE.toString())) {
+                if (parameters.length == 1 && parameters[0].getType().equals(BTypes.getArrayType(BTypes.
+                        STRING_TYPE.toString()))) {
                     mainFunction = function;
                 }
             }

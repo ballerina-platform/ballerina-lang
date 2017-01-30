@@ -219,7 +219,7 @@ public class BLangModelBuilder {
             Expression expr = exprStack.pop();
 
             // Assuming the annotation value is a string literal
-            if (expr instanceof BasicLiteral && expr.getType() == BTypes.STRING_TYPE) {
+            if (expr instanceof BasicLiteral && expr.getType().equals(BTypes.STRING_TYPE)) {
                 String value = ((BasicLiteral) expr).getBValue().stringValue();
                 annotationBuilder.setValue(value);
             } else {
