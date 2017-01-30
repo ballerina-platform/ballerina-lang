@@ -15,17 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view',  './function-definition-view',
+define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view', './function-definition-view',
         './../ast/ballerina-ast-root', './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view',
-        './../visitors/source-gen/ballerina-ast-root-visitor', './../tool-palette/tool-palette', './../undo-manager/undo-manager',
-        './backend', './../ast/ballerina-ast-deserializer', './connector-definition-view', './struct-definition-view',
-        './../env/package', './../env/package-scoped-environment', './../env/environment', './constant-definitions-pane-view',
-        './type-converter-definition-view'],
+        './../visitors/source-gen/ballerina-ast-root-visitor', './../visitors/symbol-table/ballerina-ast-root-visitor',
+        './../tool-palette/tool-palette', './../undo-manager/undo-manager', './backend', './../ast/ballerina-ast-deserializer',
+        './connector-definition-view', './struct-definition-view', './../env/package', './../env/package-scoped-environment',
+        './../env/environment', './constant-definitions-pane-view', './type-converter-definition-view'],
     function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory,
-              PackageDefinition, SourceView, SourceGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer,
-              ConnectorDefinitionView, StructDefinitionView, Package, PackageScopedEnvironment,
-              BallerinaEnvironment, ConstantsDefinitionsPaneView,TypeConverterDefinitionView) {
-        
+              PackageDefinition, SourceView, SourceGenVisitor, SymbolTableGenVisitor, ToolPalette, UndoManager,
+              Backend, BallerinaASTDeserializer, ConnectorDefinitionView, StructDefinitionView, Package, PackageScopedEnvironment,
+              BallerinaEnvironment, ConstantsDefinitionsPaneView, TypeConverterDefinitionView) {
+
         /**
          * The view to represent a ballerina file editor which is an AST visitor.
          * @param {Object} args - Arguments for creating the view.
