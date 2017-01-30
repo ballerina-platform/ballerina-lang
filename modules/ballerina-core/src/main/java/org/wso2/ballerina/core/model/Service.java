@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.symbols.SymbolScope;
 
+import java.util.Map;
+
 /**
  * A {@code Service} is an HTTP web service described by a Swagger.
  * A Service is the discrete unit of functionality that can be remotely accessed.
@@ -40,43 +42,47 @@ import org.wso2.ballerina.core.model.symbols.SymbolScope;
  * @since 0.8.0
  */
 @SuppressWarnings("unused")
-public class Service implements CompilationUnit, SymbolScope {
-
+public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
     private static final Logger logger = LoggerFactory.getLogger(Service.class);
 
-    // TODO Refactor
-    private SymbolName symbolName;
     private NodeLocation location;
-    private SymbolName name;
+
+    // BLangSymbol related attributes
+    protected String name;
+    protected String pkgPath;
+    protected SymbolName symbolName;
+
     private Annotation[] annotations;
     private ConnectorDcl[] connectorDcls;
     private VariableDef[] variableDefs;
     private Resource[] resources;
 
-    public Service(NodeLocation location, SymbolName serviceName, Annotation[] annotations,
-                   ConnectorDcl[] connectorDcls, VariableDef[] variableDefs, Resource[] resources) {
+    // Scope related variables
+    private SymbolScope enclosingScope;
+    private Map<SymbolName, BLangSymbol> symbolMap;
+
+    public Service(NodeLocation location,
+                   String name,
+                   String pkgPath,
+                   SymbolName symbolName,
+                   Annotation[] annotations,
+                   ConnectorDcl[] connectorDcls,
+                   VariableDef[] variableDefs,
+                   Resource[] resources,
+                   SymbolScope enclosingScope,
+                   Map<SymbolName, BLangSymbol> symbolMap) {
+
         this.location = location;
-        this.name = serviceName;
+        this.name = name;
+        this.pkgPath = pkgPath;
+        this.symbolName = symbolName;
         this.annotations = annotations;
         this.connectorDcls = connectorDcls;
         this.variableDefs = variableDefs;
         this.resources = resources;
-    }
 
-    /**
-     * @param symbolName Service Identifier
-     */
-    public Service(SymbolName symbolName) {
-        this.name = symbolName;
-    }
-
-    /**
-     * Get the {@code Identifier} of the Service.
-     *
-     * @return Service Identifier
-     */
-    public SymbolName getSymbolName() {
-        return name;
+        this.enclosingScope = enclosingScope;
+        this.symbolMap = symbolMap;
     }
 
     public Annotation[] getAnnotations() {
@@ -121,6 +127,9 @@ public class Service implements CompilationUnit, SymbolScope {
         this.resources = resources;
     }
 
+
+    // Methods in Node interface
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -131,6 +140,40 @@ public class Service implements CompilationUnit, SymbolScope {
         return location;
     }
 
+
+    // Methods in BLangSymbol interface
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return false;
+    }
+
+    @Override
+    public boolean isNative() {
+        return false;
+    }
+
+    @Override
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
+    @Override
+    public SymbolScope getSymbolScope() {
+        return this;
+    }
+
+
     // Methods in the SymbolScope interface
 
     @Override
@@ -140,12 +183,12 @@ public class Service implements CompilationUnit, SymbolScope {
 
     @Override
     public SymbolScope getEnclosingScope() {
-        return null;
+        return enclosingScope;
     }
 
     @Override
     public void define(SymbolName name, BLangSymbol symbol) {
-
+        symbolMap.put(name, symbol);
     }
 
     @Override

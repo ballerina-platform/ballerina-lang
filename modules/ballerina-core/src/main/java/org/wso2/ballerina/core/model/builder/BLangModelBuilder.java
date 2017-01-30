@@ -77,7 +77,6 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.symbols.SymbolScope;
-import org.wso2.ballerina.core.model.symbols.VariableRefSymbol;
 import org.wso2.ballerina.core.model.types.BStructType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
@@ -185,16 +184,14 @@ public class BLangModelBuilder {
 
     public void addConstantDef(NodeLocation location, String name) {
         SymbolName symbolName = new SymbolName(name, currentPackagePath);
-        VariableRefSymbol varRefSymbol = new VariableRefSymbol(symbolName, currentScope);
 
         SimpleTypeName typeName = typeNameQueue.remove();
-        ConstDef constantDef = new ConstDef(location, name, typeName, exprStack.pop(), false, varRefSymbol);
-
-        // Add definition to the symbol
-        varRefSymbol.setVariableDef(constantDef);
+        // TODO Finalize on public/private constants
+        ConstDef constantDef = new ConstDef(location, name, typeName, currentPackagePath,
+                false, symbolName, currentScope, exprStack.pop());
 
         // Define the variableRef symbol in the current scope
-        currentScope.define(symbolName, varRefSymbol);
+        currentScope.define(symbolName, constantDef);
 
         // Add constant definition to current file;
         bFileBuilder.addConst(constantDef);
@@ -219,16 +216,12 @@ public class BLangModelBuilder {
      */
     public void addStructField(NodeLocation location, String fieldName) {
         SymbolName symbolName = new SymbolName(fieldName, currentPackagePath);
-        VariableRefSymbol varRefSymbol = new VariableRefSymbol(symbolName, currentScope);
 
         SimpleTypeName typeName = typeNameQueue.remove();
-        VariableDef variableDef = new VariableDef(location, fieldName, typeName, varRefSymbol);
-
-        // Add definition to the symbol
-        varRefSymbol.setVariableDef(variableDef);
+        VariableDef variableDef = new VariableDef(location, fieldName, typeName, symbolName, currentScope);
 
         // Define the variableRef symbol in the current scope
-        currentScope.define(symbolName, varRefSymbol);
+        currentScope.define(symbolName, variableDef);
 
         // Add Struct field to current Struct;
         currentStructBuilder.addField(variableDef);
@@ -244,6 +237,7 @@ public class BLangModelBuilder {
     public void addStructDef(NodeLocation location, String name, boolean isPublic) {
         currentStructBuilder.setNodeLocation(location);
         currentStructBuilder.setName(name);
+        currentStructBuilder.setPackagePath(currentPackagePath);
         currentStructBuilder.setPublic(isPublic);
         StructDef structDef = currentStructBuilder.build();
 
@@ -668,54 +662,71 @@ public class BLangModelBuilder {
     }
 
     public void createFunction(NodeLocation location, String name, boolean isPublic) {
-        currentCUBuilder.setName(new SymbolName(name, currentPackagePath));
-        currentCUBuilder.setPublic(isPublic);
         currentCUBuilder.setNodeLocation(location);
+        currentCUBuilder.setName(name);
+        currentCUBuilder.setPkgPath(currentPackagePath);
+        currentCUBuilder.setPublic(isPublic);
 
         List<Annotation> annotationList = annotationListStack.pop();
-        // TODO Improve this implementation
         annotationList.forEach(currentCUBuilder::addAnnotation);
 
         BallerinaFunction function = currentCUBuilder.buildFunction();
         bFileBuilder.addFunction(function);
 
+        // Define function is delayed due to missing type info of Parameters.
+
+        currentScope = currentCUBuilder.getEnclosingScope();
         currentCUBuilder = null;
     }
 
     public void createTypeConverter(NodeLocation location, String name, boolean isPublic) {
-        currentCUBuilder.setName(new SymbolName(name, currentPackagePath));
-        currentCUBuilder.setPublic(isPublic);
         currentCUBuilder.setNodeLocation(location);
+        currentCUBuilder.setName(name);
+        currentCUBuilder.setPkgPath(currentPackagePath);
+        currentCUBuilder.setPublic(isPublic);
+
         BTypeConvertor typeConvertor = currentCUBuilder.buildTypeConverter();
         bFileBuilder.addTypeConverter(typeConvertor);
+
+        // Define type converter is delayed due to missing type info of Parameters.
+
+        currentScope = currentCUBuilder.getEnclosingScope();
         currentCUBuilder = null;
     }
 
     public void createResource(NodeLocation location, String name) {
-        currentCUBuilder.setName(new SymbolName(name, currentPackagePath));
         currentCUBuilder.setNodeLocation(location);
+        currentCUBuilder.setName(name);
+        currentCUBuilder.setPkgPath(currentPackagePath);
+        // TODO Figure out whether we need to support public type convertors
+//        currentCUBuilder.setPublic(isPublic);
 
         List<Annotation> annotationList = annotationListStack.pop();
-        // TODO Improve this implementation
         annotationList.forEach(currentCUBuilder::addAnnotation);
 
         Resource resource = currentCUBuilder.buildResource();
         currentCUGroupBuilder.addResource(resource);
 
+        // Define resource is delayed due to missing type info of Parameters.
+
+        currentScope = currentCUBuilder.getEnclosingScope();
         currentCUBuilder = null;
     }
 
     public void createAction(NodeLocation location, String name) {
-        currentCUBuilder.setName(new SymbolName(name, currentPackagePath));
         currentCUBuilder.setNodeLocation(location);
+        currentCUBuilder.setName(name);
+        currentCUBuilder.setPkgPath(currentPackagePath);
 
         List<Annotation> annotationList = annotationListStack.pop();
-        // TODO Improve this implementation
         annotationList.forEach(currentCUBuilder::addAnnotation);
 
         BallerinaAction action = currentCUBuilder.buildAction();
         currentCUGroupBuilder.addAction(action);
 
+        // Define action is delayed due to missing type info of Parameters.
+
+        currentScope = currentCUBuilder.getEnclosingScope();
         currentCUBuilder = null;
     }
 
@@ -723,13 +734,15 @@ public class BLangModelBuilder {
     // Services and Connectors
 
     public void startCallableUnitGroup() {
-        currentCUGroupBuilder = new CallableUnitGroupBuilder();
+        currentCUGroupBuilder = new CallableUnitGroupBuilder(currentScope);
+        currentScope = currentCUGroupBuilder;
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void createService(String name, NodeLocation location) {
-        currentCUGroupBuilder.setName(new SymbolName(name, currentPackagePath));
+    public void createService(NodeLocation location, String name) {
         currentCUGroupBuilder.setNodeLocation(location);
+        currentCUGroupBuilder.setName(name);
+        currentCUGroupBuilder.setPkgPath(currentPackagePath);
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -741,9 +754,10 @@ public class BLangModelBuilder {
         currentCUGroupBuilder = null;
     }
 
-    public void createConnector(String name, NodeLocation location) {
-        currentCUGroupBuilder.setName(new SymbolName(name, currentPackagePath));
+    public void createConnector(NodeLocation location, String name) {
         currentCUGroupBuilder.setNodeLocation(location);
+        currentCUGroupBuilder.setName(name);
+        currentCUGroupBuilder.setPkgPath(currentPackagePath);
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation

@@ -38,6 +38,7 @@ import java.util.Map;
 public class StructDef extends BType implements CompilationUnit, SymbolScope, BLangSymbol {
     private NodeLocation location;
     private String name;
+    private String pkgPath;
     private boolean isPublic;
     private int structMemorySize;
     private VariableDef[] fields;
@@ -56,6 +57,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, BL
      */
     public StructDef(NodeLocation location,
                      String name,
+                     String pkgPath,
                      VariableDef[] fields,
                      boolean isPublic,
                      SymbolScope enclosingScope,
@@ -64,11 +66,17 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, BL
 
         this.location = location;
         this.name = name;
+        this.pkgPath = pkgPath;
         this.fields = fields;
         this.isPublic = isPublic;
 
         this.enclosingScope = enclosingScope;
         this.symbolMap = symbolMap;
+    }
+
+    @Override
+    public NodeLocation getNodeLocation() {
+        return location;
     }
 
     /**
@@ -80,28 +88,13 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, BL
         return name;
     }
 
-    @Override
-    public SymbolName getSymbolName() {
-        return symbolName;
-    }
-
-    @Override
-    public SymbolCategory getSymbolCategory() {
-        return symbolCategory;
-    }
-
-    @Override
-    public SymbolScope getSymbolScope() {
-        return this;
-    }
-
     /**
      * Get the package name of this struct.
      *
      * @return Package name of this struct
      */
-    public String getPackageName() {
-        return symbolName.getPkgPath();
+    public String getPackagePath() {
+        return pkgPath;
     }
 
     /**
@@ -122,6 +115,20 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, BL
         return isPublic;
     }
 
+    @Override
+    public boolean isNative() {
+        return false;
+    }
+
+    /**
+     * Get variable fields in the struct.
+     *
+     * @return Variable fields in the struct
+     */
+    public VariableDef[] getFields() {
+        return fields;
+    }
+
     public int getStructMemorySize() {
         return structMemorySize;
     }
@@ -136,20 +143,19 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, BL
         visitor.visit(this);
     }
 
+
+    // Methods in BLangSymbol interface
+
     @Override
-    public NodeLocation getNodeLocation() {
-        return location;
+    public SymbolName getSymbolName() {
+        return symbolName;
     }
 
-
-    /**
-     * Get variable fields in the struct.
-     *
-     * @return Variable fields in the struct
-     */
-    public VariableDef[] getFields() {
-        return fields;
+    @Override
+    public SymbolScope getSymbolScope() {
+        return this;
     }
+
 
     // Methods in the SymbolScope interface
 
@@ -187,6 +193,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, BL
     public static class StructBuilder implements SymbolScope {
         private NodeLocation location;
         private String name;
+        private String pkgPath;
         private List<VariableDef> fields = new ArrayList<>();
         private boolean isPublic;
 
@@ -204,6 +211,10 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, BL
          */
         public void setName(String name) {
             this.name = name;
+        }
+
+        public void setPackagePath(String pkgPath) {
+            this.pkgPath = pkgPath;
         }
 
         /**
@@ -262,6 +273,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, BL
             return new StructDef(
                     location,
                     name,
+                    pkgPath,
                     fields.toArray(new VariableDef[0]),
                     isPublic,
                     enclosingScope,

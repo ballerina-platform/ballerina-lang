@@ -212,7 +212,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject jsonConnectObj = new JsonObject();
         jsonConnectObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
                 BLangJSONModelConstants.CONNECTOR_DEFINITION);
-        jsonConnectObj.addProperty(BLangJSONModelConstants.CONNECTOR_NAME, connector.getConnectorName().getName());
+        jsonConnectObj.addProperty(BLangJSONModelConstants.CONNECTOR_NAME, connector.getSymbolName().getName());
         tempJsonArrayRef.push(new JsonArray());
         tempJsonArrayRef.push(new JsonArray());
         if (connector.getAnnotations() != null) {
@@ -296,7 +296,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(BallerinaFunction function) {
         JsonObject jsonFunc = new JsonObject();
         jsonFunc.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.FUNCTION_DEFINITION);
-        jsonFunc.addProperty(BLangJSONModelConstants.FUNCTIONS_NAME, function.getFunctionName());
+        jsonFunc.addProperty(BLangJSONModelConstants.FUNCTIONS_NAME, function.getName());
         jsonFunc.addProperty(BLangJSONModelConstants.IS_PUBLIC_FUNCTION, function.isPublic());
         this.tempJsonArrayRef.push(new JsonArray());
         this.tempJsonArrayRef.push(new JsonArray());
@@ -499,7 +499,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject variableDclObj = new JsonObject();
         variableDclObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
                 BLangJSONModelConstants.VARIABLE_DECLARATION);
-        variableDclObj.addProperty(BLangJSONModelConstants.VARIABLE_NAME, variableDef.getName().getName());
+        variableDclObj.addProperty(BLangJSONModelConstants.VARIABLE_NAME, variableDef.getName());
         variableDclObj.addProperty(BLangJSONModelConstants.VARIABLE_TYPE, variableDef.getType().toString());
         tempJsonArrayRef.peek().add(variableDclObj);
     }

@@ -42,8 +42,12 @@ import java.util.Map;
  */
 public class BallerinaFunction implements Function, SymbolScope, CompilationUnit {
     private NodeLocation location;
-    private SymbolName symbolName;
-    private String functionName;
+
+    // BLangSymbol related attributes
+    protected String name;
+    protected String pkgPath;
+    protected boolean isPublic;
+    protected SymbolName symbolName;
 
     private Annotation[] annotations;
     private Parameter[] parameters;
@@ -52,8 +56,6 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     private Worker[] workers;
     private Parameter[] returnParams;
     private BlockStmt functionBody;
-
-    private boolean publicFunc;
     private int stackFrameSize;
 
     // Scope related variables
@@ -61,8 +63,10 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     private Map<SymbolName, BLangSymbol> symbolMap;
 
     public BallerinaFunction(NodeLocation location,
-                             SymbolName name,
+                             String name,
+                             String pkgPath,
                              Boolean isPublic,
+                             SymbolName symbolName,
                              Annotation[] annotations,
                              Parameter[] parameters,
                              Parameter[] returnParams,
@@ -72,9 +76,11 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
                              Map<SymbolName, BLangSymbol> symbolMap) {
 
         this.location = location;
-        this.symbolName = name;
-        this.functionName = symbolName.getName();
-        this.publicFunc = isPublic;
+        this.name = name;
+        this.pkgPath = pkgPath;
+        this.isPublic = isPublic;
+        this.symbolName = symbolName;
+
         this.annotations = annotations;
         this.parameters = parameters;
         this.returnParams = returnParams;
@@ -85,77 +91,12 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
         this.symbolMap = symbolMap;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return symbolName.getName();
+    public int getStackFrameSize() {
+        return stackFrameSize;
     }
 
-    @Override
-    public String getFunctionName() {
-        return this.functionName;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getPackageName() {
-        return symbolName.getPkgPath();
-    }
-
-    /**
-     * Get the function Identifier.
-     *
-     * @return function identifier
-     */
-    public SymbolName getSymbolName() {
-        return symbolName;
-    }
-
-    @Override
-    public void setSymbolName(SymbolName symbolName) {
-        this.symbolName = symbolName;
-    }
-
-    /**
-     * Get all the Annotations associated with a BallerinaFunction.
-     *
-     * @return list of Annotations
-     */
-    public Annotation[] getAnnotations() {
-        return annotations;
-    }
-
-    /**
-     * Get list of Arguments associated with the function definition.
-     *
-     * @return list of Arguments
-     */
-    public Parameter[] getParameters() {
-        return parameters;
-    }
-
-
-    /**
-     * Get all Connections declared within the BallerinaFunction scope.
-     *
-     * @return list of all the Connections belongs to a BallerinaFunction
-     */
-    public ConnectorDcl[] getConnectorDcls() {
-        return connectorDcls;
-    }
-
-
-    /**
-     * Get all the variableDcls declared in the scope of BallerinaFunction.
-     *
-     * @return list of all BallerinaFunction scoped variableDcls
-     */
-    public VariableDef[] getVariableDefs() {
-        return variableDefs;
+    public void setStackFrameSize(int stackFrameSize) {
+        this.stackFrameSize = stackFrameSize;
     }
 
     /**
@@ -167,39 +108,65 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
         return workers;
     }
 
-    public Parameter[] getReturnParameters() {
-        return returnParams;
-    }
-
     /**
-     * Check whether function is public, which means function is visible outside the package.
+     * Get all Connections declared within the BallerinaFunction scope.
      *
-     * @return whether function is public
+     * @return list of all the Connections belongs to a BallerinaFunction
      */
-    public boolean isPublic() {
-        return publicFunc;
+    public ConnectorDcl[] getConnectorDcls() {
+        return connectorDcls;
+    }
+
+
+    // Methods in CallableUnit interface
+
+    @Override
+    public void setSymbolName(SymbolName symbolName) {
+        this.symbolName = symbolName;
     }
 
     /**
-     * Mark function as public.
+     * Get all the Annotations associated with a BallerinaFunction.
+     *
+     * @return list of Annotations
      */
-    public void makePublic() {
-        publicFunc = true;
+    @Override
+    public Annotation[] getAnnotations() {
+        return this.annotations;
     }
 
-    public int getStackFrameSize() {
-        return stackFrameSize;
+    /**
+     * Get list of Arguments associated with the function definition.
+     *
+     * @return list of Arguments
+     */
+    @Override
+    public Parameter[] getParameters() {
+        return this.parameters;
     }
 
-
-    public void setStackFrameSize(int stackFrameSize) {
-        this.stackFrameSize = stackFrameSize;
+    /**
+     * Get all the variableDcls declared in the scope of BallerinaFunction.
+     *
+     * @return list of all BallerinaFunction scoped variableDcls
+     */
+    @Override
+    public VariableDef[] getVariableDefs() {
+        return this.variableDefs;
     }
 
     @Override
     public BlockStmt getCallableUnitBody() {
         return this.functionBody;
     }
+
+    @Override
+    public Parameter[] getReturnParameters() {
+        return this.returnParams;
+    }
+
+
+    // Methods in Node interface
 
     @Override
     public void accept(NodeVisitor visitor) {
@@ -209,6 +176,39 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     @Override
     public NodeLocation getNodeLocation() {
         return location;
+    }
+
+
+    // Methods in BLangSymbol interface
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    @Override
+    public boolean isNative() {
+        return false;
+    }
+
+    @Override
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
+    @Override
+    public SymbolScope getSymbolScope() {
+        return this;
     }
 
 
@@ -226,7 +226,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
 
     @Override
     public void define(SymbolName name, BLangSymbol symbol) {
-
+        symbolMap.put(name, symbol);
     }
 
     @Override

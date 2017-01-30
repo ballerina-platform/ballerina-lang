@@ -24,11 +24,14 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.NodeLocation;
+import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.TypeConvertor;
 import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+import org.wso2.ballerina.core.model.symbols.SymbolScope;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.types.TypeEnum;
@@ -46,17 +49,20 @@ import java.util.List;
 /**
  * {@code {@link AbstractNativeTypeConvertor }} represents a Abstract implementation of Native Ballerina TypeConvertor.
  */
-public abstract class AbstractNativeTypeConvertor implements NativeConstruct, TypeConvertor {
-
+public abstract class AbstractNativeTypeConvertor implements TypeConvertor, BLangSymbol {
     /* Void RETURN */
     public static final BValue[] VOID_RETURN = new BValue[0];
     private static final Logger log = LoggerFactory.getLogger(AbstractNativeTypeConvertor.class);
-    private String packageName, typeConverterName;
-    private SymbolName symbolName;
+
+    // BLangSymbol related attributes
+    protected String name;
+    protected String pkgPath;
+    protected boolean isPublic = true;
+    protected SymbolName symbolName;
+
     private List<Annotation> annotations;
     private List<Parameter> parameters;
     private List<Parameter> returnParams;
-    private boolean isPublicTypeConverter;
     private List<ConstDef> constants;
     private int stackFrameSize;
 
@@ -73,13 +79,13 @@ public abstract class AbstractNativeTypeConvertor implements NativeConstruct, Ty
      */
     private void buildModel() {
         BallerinaTypeConvertor typeConvertor = this.getClass().getAnnotation(BallerinaTypeConvertor.class);
-        packageName = typeConvertor.packageName();
-        typeConverterName = typeConvertor.typeConverterName();
+        pkgPath = typeConvertor.packageName();
+        name = typeConvertor.typeConverterName();
 
         Argument[] methodParams = typeConvertor.args();
         stackFrameSize = methodParams.length;
-        symbolName = new SymbolName(packageName + ":" + typeConverterName);
-        isPublicTypeConverter = typeConvertor.isPublic();
+        symbolName = new SymbolName(pkgPath + ":" + name);
+        isPublic = typeConvertor.isPublic();
         Arrays.stream(methodParams).
                 forEach(argument -> {
                     try {
@@ -94,7 +100,7 @@ public abstract class AbstractNativeTypeConvertor implements NativeConstruct, Ty
                     } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
                         log.error("Internal Error..! Error while processing Parameters for Native ballerina" +
-                                " typeConvertor {}:{}.", packageName, typeConverterName, e);
+                                " typeConvertor {}:{}.", pkgPath, name, e);
                     }
                 });
         Arrays.stream(typeConvertor.returnType()).forEach(
@@ -110,7 +116,7 @@ public abstract class AbstractNativeTypeConvertor implements NativeConstruct, Ty
                     } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
                         log.error("Internal Error..! Error while processing ReturnTypes for Native ballerina " +
-                                "typeConvertor {}:{}.", packageName, typeConverterName, e);
+                                "typeConvertor {}:{}.", pkgPath, name, e);
                     }
                 });
 
@@ -120,30 +126,17 @@ public abstract class AbstractNativeTypeConvertor implements NativeConstruct, Ty
                         constants.add(Utils.getConst(constant));
                     } catch (MalformedEntryException e) {
                         log.error("Internal Error..! Error while processing pre defined const {} for Native " +
-                                "ballerina typeConvertor {}:{}.", constant.identifier(), packageName,
-                                typeConverterName, e);
+                                "ballerina typeConvertor {}:{}.", constant.identifier(), pkgPath,
+                                name, e);
                     }
                 }
         );
         // TODO: Handle Ballerina Annotations.
     }
 
-    public String getPackageName() {
-        return packageName;
-    }
-
-    @Override
-    public String getName() {
-        return symbolName.getName();
-    }
-
     @Override
     public String getTypeConverterName() {
         return symbolName.getName();
-    }
-
-    public SymbolName getSymbolName() {
-        return symbolName;
     }
 
     @Override
@@ -188,11 +181,6 @@ public abstract class AbstractNativeTypeConvertor implements NativeConstruct, Ty
         throw new ArgumentOutOfRangeException(index);
     }
 
-    @Override
-    public boolean isPublic() {
-        return isPublicTypeConverter;
-    }
-
     /**
      * Where Native TypeConvertor logic is implemented.
      *
@@ -234,15 +222,52 @@ public abstract class AbstractNativeTypeConvertor implements NativeConstruct, Ty
         this.stackFrameSize = stackFrameSize;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public BlockStmt getCallableUnitBody() {
+        return null;
+    }
+
+
+    // Methods in Node interface
+
+    @Override
+    public void accept(NodeVisitor visitor) {
+    }
+
     public NodeLocation getNodeLocation() {
         return null;
     }
 
+
+    // Methods in BLangSymbol interface
+
     @Override
-    public BlockStmt getCallableUnitBody() {
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    @Override
+    public boolean isNative() {
+        return true;
+    }
+
+    @Override
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
+    @Override
+    public SymbolScope getSymbolScope() {
         return null;
     }
 }

@@ -22,6 +22,8 @@ import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.symbols.SymbolScope;
 
+import java.util.Map;
+
 /**
  * An {@code Action} is a operation (function) that can be executed against a connector.
  * <p/>
@@ -38,8 +40,14 @@ import org.wso2.ballerina.core.model.symbols.SymbolScope;
  * @since 0.8.0
  */
 public class BallerinaAction implements Action, SymbolScope, Node {
+    private NodeLocation location;
 
-    private SymbolName name;
+    // BLangSymbol related attributes
+    protected String name;
+    protected String pkgPath;
+    protected boolean isPublic;
+    protected SymbolName symbolName;
+
     private Annotation[] annotations;
     private Parameter[] parameters;
     private ConnectorDcl[] connectorDcls;
@@ -47,35 +55,38 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     private Worker[] workers;
     private Parameter[] returnParams;
     private BlockStmt actionBody;
-    private NodeLocation location;
-
     private int stackFrameSize;
 
+    // Scope related variables
+    private SymbolScope enclosingScope;
+    private Map<SymbolName, BLangSymbol> symbolMap;
+
     public BallerinaAction(NodeLocation location,
-                           SymbolName name,
+                           String name,
+                           String pkgPath,
+                           Boolean isPublic,
+                           SymbolName symbolName,
                            Annotation[] annotations,
                            Parameter[] parameters,
                            Parameter[] returnParams,
                            Worker[] workers,
-                           BlockStmt actionBody) {
+                           BlockStmt actionBody,
+                           SymbolScope enclosingScope,
+                           Map<SymbolName, BLangSymbol> symbolMap) {
 
         this.location = location;
         this.name = name;
+        this.pkgPath = pkgPath;
+        this.isPublic = isPublic;
+        this.symbolName = symbolName;
         this.annotations = annotations;
         this.parameters = parameters;
         this.returnParams = returnParams;
         this.workers = workers;
         this.actionBody = actionBody;
-    }
 
-    @Override
-    public String getName() {
-        return name.getName();
-    }
-
-    @Override
-    public String getPackageName() {
-        return null;
+        this.enclosingScope = enclosingScope;
+        this.symbolMap = symbolMap;
     }
 
     @Override
@@ -89,13 +100,8 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     }
 
     @Override
-    public SymbolName getSymbolName() {
-        return name;
-    }
-
-    @Override
     public void setSymbolName(SymbolName symbolName) {
-        name = symbolName;
+        this.symbolName = symbolName;
     }
 
     @Override
@@ -122,19 +128,55 @@ public class BallerinaAction implements Action, SymbolScope, Node {
         return variableDefs;
     }
 
+    public ConnectorDcl[] getConnectorDcls() {
+        return connectorDcls;
+    }
+
+
+    // Methods in Node interface
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    public ConnectorDcl[] getConnectorDcls() {
-        return connectorDcls;
     }
 
     @Override
     public NodeLocation getNodeLocation() {
         return location;
     }
+
+    // Methods in BLangSymbol interface
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    @Override
+    public boolean isNative() {
+        return false;
+    }
+
+    @Override
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
+    @Override
+    public SymbolScope getSymbolScope() {
+        return this;
+    }
+
 
     // Methods in the SymbolScope interface
 
@@ -145,12 +187,12 @@ public class BallerinaAction implements Action, SymbolScope, Node {
 
     @Override
     public SymbolScope getEnclosingScope() {
-        return null;
+        return enclosingScope;
     }
 
     @Override
     public void define(SymbolName name, BLangSymbol symbol) {
-
+        symbolMap.put(name, symbol);
     }
 
     @Override

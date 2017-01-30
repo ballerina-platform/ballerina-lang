@@ -111,7 +111,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 int lineNo = identifier.getSymbol().getLine();
                 NodeLocation serviceLocation = new NodeLocation(fileName, lineNo);
 
-                modelBuilder.createService(identifier.getText(), serviceLocation);
+                modelBuilder.createService(serviceLocation, identifier.getText());
             }
         }
     }
@@ -218,7 +218,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 int lineNo = identifier.getSymbol().getLine();
                 NodeLocation connectorLocation = new NodeLocation(fileName, lineNo);
 
-                modelBuilder.createConnector(identifier.getText(), connectorLocation);
+                modelBuilder.createConnector(connectorLocation, identifier.getText());
             }
         }
     }

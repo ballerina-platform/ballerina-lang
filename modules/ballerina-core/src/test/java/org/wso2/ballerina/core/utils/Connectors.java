@@ -45,7 +45,7 @@ public class Connectors {
     public static void addNativeConnector(SymScope symScope, AbstractNativeConnector connector) {
         SymbolName symbolName = LangModelUtils.getConnectorSymName(
                 connector.getClass().getAnnotation(BallerinaConnector.class).connectorName(),
-                connector.getPackageName());
+                connector.getPackagePath());
         Symbol symbol = new Symbol(connector);
         symScope.insert(symbolName, symbol);
     }

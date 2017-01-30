@@ -18,7 +18,7 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.expressions.Expression;
-import org.wso2.ballerina.core.model.symbols.VariableRefSymbol;
+import org.wso2.ballerina.core.model.symbols.SymbolScope;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -29,91 +29,49 @@ import org.wso2.ballerina.core.model.values.BValue;
  * @since 0.8.0
  */
 public class ConstDef extends VariableDef implements CompilationUnit {
-
+    protected NodeLocation location;
     private BType type;
-    private SymbolName symbolName;
     private Expression rhsExpr;
     private BValue value;
-    protected NodeLocation location;
 
-    private boolean publicConst;
-
-    /**
-     * @param name        Type of the constant
-     * @param typeName    Identifier of the constant
-     * @param rhsExpr     Rhs expression
-     * @param publicConst if true, then this constant is visible to other packages
-     * @param varRefSymbol {@code VariableRefSymbol} of this definition
-     */
     public ConstDef(NodeLocation location,
                     String name,
                     SimpleTypeName typeName,
-                    Expression rhsExpr,
-                    boolean publicConst,
-                    VariableRefSymbol varRefSymbol) {
-        super(location, name, typeName, varRefSymbol);
+                    String pkgPath,
+                    boolean isPublic,
+                    SymbolName symbolName,
+                    SymbolScope symbolScope,
+                    Expression rhsExpr) {
+
+        super(location, name, typeName, symbolName, symbolScope);
+        this.pkgPath = pkgPath;
+        this.isPublic = isPublic;
         this.rhsExpr = rhsExpr;
-        this.publicConst = publicConst;
     }
 
-    /**
-     * Constructing a Ballerina Constant Node.
-     *
-     * @param type       Type of the constant
-     * @param symbolName Identifier of the constant
-     * @param value      bValueRef of the constant
-     */
     public ConstDef(BType type, SymbolName symbolName, BValue value) {
-        super(null, "", null, null);
+        super(null, "", null, null, null);
         this.type = type;
         this.symbolName = symbolName;
         this.value = value;
     }
 
-    /**
-     * @param type       Type of the constant
-     * @param symbolName Identifier of the constant
-     * @param rhsExpr    Rhs expression
-     */
     public ConstDef(NodeLocation location, BType type, SymbolName symbolName, Expression rhsExpr) {
-        super(null, "", null, null);
+        super(null, "", null, null, null);
         this.location = location;
         this.type = type;
         this.symbolName = symbolName;
         this.rhsExpr = rhsExpr;
     }
 
-    /**
-     * Get the type of the constant.
-     *
-     * @return type of the constant
-     */
     public BType getType() {
         return type;
-    }
-
-    /**
-     * Get the identifier of the constant declaration.
-     *
-     * @return identifier of the constant declaration
-     */
-    public SymbolName getName() {
-        return symbolName;
     }
 
     public Expression getRhsExpr() {
         return rhsExpr;
     }
 
-    public boolean isPublic() {
-        return publicConst;
-    }
-
-    /**
-     * Get the bValue of the constant.
-     *
-     * @return bValue of the constant
-     */
     public BValue getValue() {
         return value;
     }
@@ -121,6 +79,9 @@ public class ConstDef extends VariableDef implements CompilationUnit {
     public void setValue(BValue value) {
         this.value = value;
     }
+
+
+    // Methods in Node interface
 
     @Override
     public void accept(NodeVisitor visitor) {

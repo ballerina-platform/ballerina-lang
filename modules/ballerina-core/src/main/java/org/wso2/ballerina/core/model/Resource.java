@@ -23,7 +23,6 @@ import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.symbols.SymbolScope;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,36 +44,52 @@ import java.util.Map;
  * @since 0.8.0
  */
 public class Resource implements Node, SymbolScope, CallableUnit {
-    // TODO Refactor
-    private Map<String, Annotation> annotationMap = new HashMap<>();
-    private List<Worker> workerList = new ArrayList<>();
-    private String name;
-    private int stackFrameSize;
+    private NodeLocation location;
 
+    // BLangSymbol related attributes
+    protected String name;
+    protected String pkgPath;
+    protected boolean isPublic;
+    protected SymbolName symbolName;
+
+    // TODO Refactor
+    private List<Worker> workerList = new ArrayList<>();
+    private int stackFrameSize;
     private Annotation[] annotations;
     private Parameter[] parameters;
     private ConnectorDcl[] connectorDcls;
     private VariableDef[] variableDefs;
     private Worker[] workers;
     private BlockStmt resourceBody;
-    private SymbolName resourceName;
-    private NodeLocation location;
 
     private Application application;
 
+    // Scope related variables
+    private SymbolScope enclosingScope;
+    private Map<SymbolName, BLangSymbol> symbolMap;
+
     public Resource(NodeLocation location,
-                    SymbolName name,
+                    String name,
+                    String pkgPath,
+                    SymbolName symbolName,
                     Annotation[] annotations,
                     Parameter[] parameters,
                     Worker[] workers,
-                    BlockStmt functionBody) {
+                    BlockStmt functionBody,
+                    SymbolScope enclosingScope,
+                    Map<SymbolName, BLangSymbol> symbolMap) {
 
         this.location = location;
-        this.resourceName = name;
+        this.name = name;
+        this.pkgPath = pkgPath;
+        this.symbolName = symbolName;
         this.annotations = annotations;
         this.parameters = parameters;
         this.workers = workers;
         this.resourceBody = functionBody;
+
+        this.enclosingScope = enclosingScope;
+        this.symbolMap = symbolMap;
     }
 
     /**
@@ -97,37 +112,10 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     /**
      * Get all the Annotations associated with a Resource.
      *
-     * @return map of Annotations
-     */
-    public Map<String, Annotation> getAnnotationMap() {
-        return annotationMap;
-    }
-
-    /**
-     * Get all the Annotations associated with a Resource.
-     *
      * @return list of Annotations
      */
     public Annotation[] getResourceAnnotations() {
         return annotations;
-    }
-
-    /**
-     * Set Annotations.
-     *
-     * @param annotations map of Annotations
-     */
-    public void setAnnotations(Map<String, Annotation> annotations) {
-        this.annotationMap = annotations;
-    }
-
-    /**
-     * Add an {@code Annotation} to the Resource.
-     *
-     * @param annotation Annotation to be added
-     */
-    public void addAnnotation(Annotation annotation) {
-        annotationMap.put(annotation.getName(), annotation);
     }
 
     /**
@@ -149,15 +137,6 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     }
 
     /**
-     * Assign Workers to the Resource.
-     *
-     * @param workers list of all the Workers
-     */
-    public void setWorkers(List<Worker> workers) {
-        this.workerList = workers;
-    }
-
-    /**
      * Add a {@code Worker} to the Resource.
      *
      * @param worker Worker to be added to the Resource
@@ -175,59 +154,12 @@ public class Resource implements Node, SymbolScope, CallableUnit {
         return resourceBody;
     }
 
-    /**
-     * Get variable declarations.
-     *
-     * @return returns the variable declarations
-     */
-    public VariableDef[] getVariableDefs() {
-        return variableDefs;
-    }
-
-    @Override
-    public Parameter[] getReturnParameters() {
-        return new Parameter[0];
-    }
-
-    public String getName() {
-        return getSymbolName().getName();
-    }
-
-    public SymbolName getSymbolName() {
-        return this.resourceName;
-    }
-
-    @Override
-    public void setSymbolName(SymbolName symbolName) {
-        this.resourceName = symbolName;
-    }
-
-    @Override
-    public String getPackageName() {
-        return null;
-    }
-
-    @Override
-    public Annotation[] getAnnotations() {
-        return new Annotation[0];
-    }
-
     public int getStackFrameSize() {
         return stackFrameSize;
     }
 
     public void setStackFrameSize(int stackFrameSize) {
         this.stackFrameSize = stackFrameSize;
-    }
-
-    @Override
-    public BlockStmt getCallableUnitBody() {
-        return resourceBody;
-    }
-
-    @Override
-    public NodeLocation getNodeLocation() {
-        return location;
     }
 
     public Application getApplication() {
@@ -238,14 +170,100 @@ public class Resource implements Node, SymbolScope, CallableUnit {
         this.application = application;
     }
 
+
+    // Methods in CallableUnit interface
+
+    @Override
+    public void setSymbolName(SymbolName symbolName) {
+        this.symbolName = symbolName;
+    }
+
+    /**
+     * Get all the Annotations associated with a BallerinaFunction.
+     *
+     * @return list of Annotations
+     */
+    @Override
+    public Annotation[] getAnnotations() {
+        return this.annotations;
+    }
+
+    /**
+     * Get list of Arguments associated with the function definition.
+     *
+     * @return list of Arguments
+     */
+    @Override
+    public Parameter[] getParameters() {
+        return this.parameters;
+    }
+
+    /**
+     * Get all the variableDcls declared in the scope of BallerinaFunction.
+     *
+     * @return list of all BallerinaFunction scoped variableDcls
+     */
+    @Override
+    public VariableDef[] getVariableDefs() {
+        return this.variableDefs;
+    }
+
+    @Override
+    public BlockStmt getCallableUnitBody() {
+        return this.resourceBody;
+    }
+
+    @Override
+    public Parameter[] getReturnParameters() {
+        return new Parameter[0];
+    }
+
+
+    // Methods in Node interface
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
-    public Parameter[] getParameters() {
-        return parameters;
+    @Override
+    public NodeLocation getNodeLocation() {
+        return location;
     }
+
+
+    // Methods in BLangSymbol interface
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return false;
+    }
+
+    @Override
+    public boolean isNative() {
+        return false;
+    }
+
+    @Override
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
+    @Override
+    public SymbolScope getSymbolScope() {
+        return this;
+    }
+
 
     // Methods in the SymbolScope interface
 
@@ -256,12 +274,12 @@ public class Resource implements Node, SymbolScope, CallableUnit {
 
     @Override
     public SymbolScope getEnclosingScope() {
-        return null;
+        return enclosingScope;
     }
 
     @Override
     public void define(SymbolName name, BLangSymbol symbol) {
-
+        symbolMap.put(name, symbol);
     }
 
     @Override

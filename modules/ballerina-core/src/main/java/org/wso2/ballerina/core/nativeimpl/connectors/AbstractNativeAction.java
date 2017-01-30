@@ -23,15 +23,16 @@ import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.NodeLocation;
+import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.symbols.SymbolScope;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.NativeConstruct;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Utils;
 import org.wso2.ballerina.core.nativeimpl.exceptions.ArgumentOutOfRangeException;
@@ -44,18 +45,23 @@ import java.util.List;
 /**
  * Represents Native Ballerina Action.
  */
-public abstract class AbstractNativeAction implements Action, NativeConstruct {
-
+public abstract class AbstractNativeAction implements Action {
     public static final BValue[] VOID_RETURN = new BValue[0];
     private static final Logger log = LoggerFactory.getLogger(AbstractNativeAction.class);
-    private String packageName, actionName;
-    private SymbolName symbolName;
+
+    private NodeLocation location;
+
+    // BLangSymbol related attributes
+    protected String name;
+    protected String pkgPath;
+    protected boolean isPublic = true;
+    protected SymbolName symbolName;
+
     private List<Annotation> annotations;
     private List<Parameter> parameters;
     private List<Parameter> returnParams;
     private List<ConstDef> constants;
     private int stackFrameSize;
-    private NodeLocation location;
 
     public AbstractNativeAction() {
         parameters = new ArrayList<>();
@@ -71,10 +77,10 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
      */
     private void buildModel() {
         BallerinaAction action = this.getClass().getAnnotation(BallerinaAction.class);
-        packageName = action.packageName();
-        actionName = action.actionName();
+        pkgPath = action.packageName();
+        name = action.actionName();
         String connectorName = action.connectorName();
-        String symName = packageName + ":" + connectorName + "." + actionName;
+        String symName = pkgPath + ":" + connectorName + "." + name;
         symbolName = new SymbolName(symName);
         stackFrameSize = action.args().length;
         Arrays.stream(action.args()).
@@ -90,7 +96,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
                     } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
                         log.error("Internal Error..! Error while processing Parameters for Native ballerina" +
-                                " action {}:{}.", packageName, actionName, e);
+                                " action {}:{}.", pkgPath, name, e);
                     }
                 });
         Arrays.stream(action.returnType()).forEach(returnType -> {
@@ -99,7 +105,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
             } catch (BallerinaException e) {
                 // TODO: Fix this when TypeC.getType method is improved.
                 log.error("Internal Error..! Error while processing ReturnTypes for Native ballerina" +
-                        " action {}:{}.", packageName, actionName, e);
+                        " action {}:{}.", pkgPath, name, e);
             }
         });
         Arrays.stream(action.consts()).forEach(constant -> {
@@ -107,55 +113,10 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
                 constants.add(Utils.getConst(constant));
             } catch (MalformedEntryException e) {
                 log.error("Internal Error..! Error while processing pre defined const {} for Native ballerina" +
-                        " action {}:{}.", constant.identifier(), packageName, actionName, e);
+                        " action {}:{}.", constant.identifier(), pkgPath, name, e);
             }
         });
         // TODO: Handle Ballerina Annotations.
-    }
-
-    public String getPackageName() {
-        return packageName;
-    }
-
-    @Override
-    public String getName() {
-        return symbolName.getName();
-    }
-
-    public SymbolName getSymbolName() {
-        return symbolName;
-    }
-
-    @Override
-    public void setSymbolName(SymbolName symbolName) {
-        this.symbolName = symbolName;
-    }
-
-    @Override
-    public Annotation[] getAnnotations() {
-        return annotations.toArray(new Annotation[annotations.size()]);
-    }
-
-    @Override
-    public Parameter[] getParameters() {
-        return parameters.toArray(new Parameter[parameters.size()]);
-    }
-
-    public VariableDef[] getVariableDefs() {
-        return new VariableDef[0];
-    }
-
-    @Override
-    public Parameter[] getReturnParameters() {
-        return returnParams.toArray(new Parameter[returnParams.size()]);
-    }
-
-    public int getStackFrameSize() {
-        return stackFrameSize;
-    }
-
-    public void setStackFrameSize(int stackFrameSize) {
-        this.stackFrameSize = stackFrameSize;
     }
 
     /**
@@ -174,23 +135,105 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
 
     public abstract BValue execute(Context context);
 
-//    @Override
-//    public void interpret(Context ctx) {
-//        execute(ctx);
 
-    // TODO : Support for multiple return values and to be change after  support statement callback chaning
+    // Methods in CallableUnit interface
 
-//    }
+    @Override
+    public void setSymbolName(SymbolName symbolName) {
+        this.symbolName = symbolName;
+    }
 
     /**
-     * {@inheritDoc}
+     * Get all the Annotations associated with a BallerinaFunction.
+     *
+     * @return list of Annotations
      */
-    public NodeLocation getNodeLocation() {
-        return location;
+    @Override
+    public Annotation[] getAnnotations() {
+        return annotations.toArray(new Annotation[annotations.size()]);
+    }
+
+    /**
+     * Get list of Arguments associated with the function definition.
+     *
+     * @return list of Arguments
+     */
+    @Override
+    public Parameter[] getParameters() {
+        return parameters.toArray(new Parameter[parameters.size()]);
+    }
+
+    /**
+     * Get all the variableDcls declared in the scope of BallerinaFunction.
+     *
+     * @return list of all BallerinaFunction scoped variableDcls
+     */
+    @Override
+    public VariableDef[] getVariableDefs() {
+        return new VariableDef[0];
     }
 
     @Override
     public BlockStmt getCallableUnitBody() {
+        return null;
+    }
+
+    @Override
+    public Parameter[] getReturnParameters() {
+        return returnParams.toArray(new Parameter[returnParams.size()]);
+    }
+
+    @Override
+    public int getStackFrameSize() {
+        return stackFrameSize;
+    }
+
+    @Override
+    public void setStackFrameSize(int stackFrameSize) {
+        this.stackFrameSize = stackFrameSize;
+    }
+
+
+    // Methods in Node interface
+
+    @Override
+    public void accept(NodeVisitor visitor) {
+    }
+
+    @Override
+    public NodeLocation getNodeLocation() {
+        return location;
+    }
+
+    // Methods in BLangSymbol interface
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return true;
+    }
+
+    @Override
+    public boolean isNative() {
+        return true;
+    }
+
+    @Override
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
+    @Override
+    public SymbolScope getSymbolScope() {
         return null;
     }
 }

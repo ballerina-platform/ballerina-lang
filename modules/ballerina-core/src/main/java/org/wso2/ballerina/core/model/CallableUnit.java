@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 
 /**
  * {@code CallableUnit} represents Functions, Action or Resources.
@@ -27,21 +28,7 @@ import org.wso2.ballerina.core.model.statements.BlockStmt;
  * @see Resource
  * @since 0.8.0
  */
-public interface CallableUnit {
-
-    /**
-     * Returns the name of the callable unit.
-     *
-     * @return the name
-     */
-    String getName();
-
-    /**
-     * Returns the symbol name of the callable unit.
-     *
-     * @return the symbol name
-     */
-    SymbolName getSymbolName();
+public interface CallableUnit extends BLangSymbol, Node {
 
     /**
      * Replaces the symbol name of this callable unit with the specified symbol name.
@@ -49,13 +36,6 @@ public interface CallableUnit {
      * @param symbolName name of the symbol.
      */
     void setSymbolName(SymbolName symbolName);
-
-    /**
-     * Returns the package name of this callable unit.
-     *
-     * @return the package name
-     */
-    String getPackageName();
 
     /**
      * Returns an array of annotations attached this callable unit.
@@ -105,12 +85,4 @@ public interface CallableUnit {
      * @return body of the callable unit
      */
     BlockStmt getCallableUnitBody();
-
-    /**
-     * Get the location of this function in the ballerina source file.
-     * Returns the ballerina file and line number of the function.
-     *
-     * @return location of this function in the ballerina source file
-     */
-    NodeLocation getNodeLocation();
 }

@@ -18,7 +18,8 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.model.symbols.VariableRefSymbol;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+import org.wso2.ballerina.core.model.symbols.SymbolScope;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
 
@@ -30,30 +31,35 @@ import org.wso2.ballerina.core.model.types.SimpleTypeName;
  *
  * @since 0.8.0
  */
-public class VariableDef implements Node {
+public class VariableDef implements BLangSymbol, Node {
     protected NodeLocation location;
-    protected String name;
     protected SimpleTypeName typeName;
-    protected VariableRefSymbol varRefSymbol;
-
     private BType type;
-    private SymbolName symbolName;
 
-    public VariableDef(NodeLocation location, String name, SimpleTypeName typeName, VariableRefSymbol varRefSymbol) {
+    // BLangSymbol related attributes
+    protected String name;
+    protected String pkgPath;
+    protected boolean isPublic = false;
+    protected boolean isNative = false;
+    protected SymbolName symbolName;
+    protected SymbolScope symbolScope;
+
+    public VariableDef(NodeLocation location,
+                       String name,
+                       SimpleTypeName typeName,
+                       SymbolName symbolName,
+                       SymbolScope symbolScope) {
         this.location = location;
         this.name = name;
+        this.symbolName = symbolName;
         this.typeName = typeName;
-        this.varRefSymbol = varRefSymbol;
+        this.symbolScope = symbolScope;
     }
 
     public VariableDef(NodeLocation location, BType type, SymbolName symbolName) {
         this.location = location;
         this.type = type;
         this.symbolName = symbolName;
-    }
-
-    public SymbolName getName() {
-        return symbolName;
     }
 
     public SimpleTypeName getTypeName() {
@@ -63,6 +69,42 @@ public class VariableDef implements Node {
     public BType getType() {
         return type;
     }
+
+
+    // Methods in BLangSymbol interface
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    @Override
+    public boolean isNative() {
+        return isNative;
+    }
+
+    @Override
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
+    @Override
+    public SymbolScope getSymbolScope() {
+        return symbolScope;
+    }
+
+
+    // Methods in Node interface
 
     @Override
     public void accept(NodeVisitor visitor) {
