@@ -1,0 +1,118 @@
+swagger: '2.0'
+info:
+  version: "0.11.0"
+  title: "Ballerina Swagger convert API"
+  description: |
+    This specifies a **RESTful API** for WSO2 **API Manager** - Publisher.
+    Please see [full swagger definition](https://raw.githubusercontent.com/wso2/carbon-apimgt/v6.0.4/components/apimgt/org.wso2.carbon.apimgt.rest.api.publisher/src/main/resources/publisher-api.yaml) of the API which is written using [swagger 2.0](http://swagger.io/) specification.
+  contact:
+    name: "WSO2"
+    url: "http://wso2.com/"
+    email: "architecture@wso2.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+
+######################################################
+# The fixed parts of the URLs of the API
+######################################################
+
+# The schemes supported by the API
+schemes:
+  - https
+
+# The domain of the API.
+# This is configured by the customer during deployment.
+# The given host is just an example.
+host: apis.wso2.com
+
+# The base path of the API.
+# Will be prefixed to all paths.
+basePath: /balerina/editor/swagger/v0.11
+
+# The following media types can be passed as input in message bodies of the API.
+# The actual media type must be specified in the Content-Type header field of the request.
+# The default is json, i.e. the Content-Type header is not needed to
+# be set, but supporting it serves extensibility.
+consumes:
+  - application/json
+
+# The following media types may be passed as output in message bodies of the API.
+# The media type(s) consumable by the requestor is specified in the Accept header field
+# of the corresponding request.
+# The actual media type returned will be specfied in the Content-Type header field
+# of the of the response.
+# The default of the Accept header is json, i.e. there is not needed to
+# set the value, but supporting it serves extensibility.
+produces:
+  - application/json
+
+######################################################
+# The "API Collection" resource APIs
+######################################################
+paths:
+
+  /services/convert-service:
+
+#-----------------------------------------------------
+# Create a new API based on an already existing one
+#-----------------------------------------------------
+    post:
+      summary: Convert swagger to ballerina service definitions
+      description: |
+        This operation can be used to convert service definitions between ballerina and swagger
+      parameters:
+        - name: expectedType
+          description: Type to be convert
+          type: string
+          in: query
+          required: true
+        - in: body
+          name: service definition
+          description: |
+            Service definition to be convert
+          required: true
+          schema:
+            $ref: '#/definitions/Service'
+      tags:
+        - swagger
+      responses:
+        200:
+          description: |
+           Created.
+            Successful response with the newly created API as entity in the body. Location header contains URL of newly created API.
+          headers:
+            Location:
+              description: |
+                The URL of the newly created API.
+              type: string
+
+######################################################
+# The "Change Lifecycle" Processing Function resource API
+######################################################
+
+definitions:
+#-----------------------------------------------------
+# The API resource
+#-----------------------------------------------------
+  Service:
+    title: Service object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        example: CalculatorService
+      description:
+        type: string
+        example: A calculator service that supports basic operations
+      swaggerDefinition:
+        description: |
+          Swagger definition of the API which contains details about URI templates and scopes
+        type: string
+        example: "{\"paths\":{\"/substract\":{\"get\":{\"x-auth-type\":\"Application & Application User\",\"x-throttling-tier\":\"Unlimited\",\"parameters\":[{\"name\":\"x\",\"required\":true,\"type\":\"string\",\"in\":\"query\"},{\"name\":\"y\",\"required\":true,\"type\":\"string\",\"in\":\"query\"}],\"responses\":{\"200\":{}}}},\"/add\":{\"get\":{\"x-auth-type\":\"Application & Application User\",\"x-throttling-tier\":\"Unlimited\",\"parameters\":[{\"name\":\"x\",\"required\":true,\"type\":\"string\",\"in\":\"query\"},{\"name\":\"y\",\"required\":true,\"type\":\"string\",\"in\":\"query\"}],\"responses\":{\"200\":{}}}}},\"swagger\":\"2.0\",\"info\":{\"title\":\"CalculatorAPI\",\"version\":\"1.0.0\"}}"
+      ballerinaDefinition:
+        description: |
+          Ballerina definition of the API which contains details about URI templates and scopes
+        type: string
+        example: "import ballerina.net.http;@BasePath(\"/echo\") service echo {@POST resource echo(message m) {http:convertToResponse(m );reply m;}}"
