@@ -106,7 +106,8 @@ button.close {
     padding-right: 17px;
     padding-left: 5px;
     border-right: 1px;
-    background: #555
+    background: #555;
+    border-left: 3px solid #444444;
 }
 
 #tabs-container > div.tab-headers.tab-headers-bar > ul > li.active {
