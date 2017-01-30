@@ -71,7 +71,7 @@ public class PackageRegistry {
         }
 
         String funcName = function.getName();
-        SymbolName symbolName = LangModelUtils.getSymNameWithParams(funcName, function.getParameters());
+        SymbolName symbolName = LangModelUtils.getSymNameWithParams(funcName, function.getParameterDefs());
         Symbol symbol = new Symbol(function);
 
         GlobalScopeHolder.getInstance().insert(symbolName, symbol);
@@ -88,7 +88,7 @@ public class PackageRegistry {
         aPackage.getActions().put(action.getName(), action);
 
         String actionName = action.getSymbolName().getName();
-        SymbolName symbolName = LangModelUtils.getSymNameWithParams(actionName, action.getParameters());
+        SymbolName symbolName = LangModelUtils.getSymNameWithParams(actionName, action.getParameterDefs());
         Symbol symbol = new Symbol(action);
 
         GlobalScopeHolder.getInstance().insert(symbolName, symbol);

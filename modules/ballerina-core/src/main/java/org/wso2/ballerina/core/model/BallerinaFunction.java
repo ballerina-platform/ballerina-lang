@@ -50,11 +50,11 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     protected SymbolName symbolName;
 
     private Annotation[] annotations;
-    private Parameter[] parameters;
+    private ParameterDef[] parameterDefs;
     private ConnectorDcl[] connectorDcls;
     private VariableDef[] variableDefs;
     private Worker[] workers;
-    private Parameter[] returnParams;
+    private ParameterDef[] returnParams;
     private BlockStmt functionBody;
     private int stackFrameSize;
 
@@ -68,8 +68,8 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
                              Boolean isPublic,
                              SymbolName symbolName,
                              Annotation[] annotations,
-                             Parameter[] parameters,
-                             Parameter[] returnParams,
+                             ParameterDef[] parameterDefs,
+                             ParameterDef[] returnParams,
                              Worker[] workers,
                              BlockStmt functionBody,
                              SymbolScope enclosingScope,
@@ -82,7 +82,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
         this.symbolName = symbolName;
 
         this.annotations = annotations;
-        this.parameters = parameters;
+        this.parameterDefs = parameterDefs;
         this.returnParams = returnParams;
         this.workers = workers;
         this.functionBody = functionBody;
@@ -140,9 +140,8 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
      *
      * @return list of Arguments
      */
-    @Override
-    public Parameter[] getParameters() {
-        return this.parameters;
+    public ParameterDef[] getParameterDefs() {
+        return this.parameterDefs;
     }
 
     /**
@@ -161,7 +160,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     }
 
     @Override
-    public Parameter[] getReturnParameters() {
+    public ParameterDef[] getReturnParameters() {
         return this.returnParams;
     }
 

@@ -25,7 +25,7 @@ import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.TypeConvertor;
 import org.wso2.ballerina.core.model.VariableDef;
@@ -61,13 +61,13 @@ public abstract class AbstractNativeTypeConvertor implements TypeConvertor, BLan
     protected SymbolName symbolName;
 
     private List<Annotation> annotations;
-    private List<Parameter> parameters;
-    private List<Parameter> returnParams;
+    private List<ParameterDef> parameterDefs;
+    private List<ParameterDef> returnParams;
     private List<ConstDef> constants;
     private int stackFrameSize;
 
     public AbstractNativeTypeConvertor() {
-        parameters = new ArrayList<>();
+        parameterDefs = new ArrayList<>();
         returnParams = new ArrayList<>();
         annotations = new ArrayList<>();
         constants = new ArrayList<>();
@@ -96,7 +96,7 @@ public abstract class AbstractNativeTypeConvertor implements TypeConvertor, BLan
                         } else {
                             bType = BTypes.getArrayType(argument.elementType().getName());
                         }
-                        parameters.add(new Parameter(bType, new SymbolName(argument.name())));
+                        parameterDefs.add(new ParameterDef(bType, new SymbolName(argument.name())));
                     } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
                         log.error("Internal Error..! Error while processing Parameters for Native ballerina" +
@@ -112,7 +112,7 @@ public abstract class AbstractNativeTypeConvertor implements TypeConvertor, BLan
                         } else {
                             type = BTypes.getArrayType(returnType.elementType().getName());
                         }
-                        returnParams.add(new Parameter(type, null));
+                        returnParams.add(new ParameterDef(type, null));
                     } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
                         log.error("Internal Error..! Error while processing ReturnTypes for Native ballerina " +
@@ -149,9 +149,8 @@ public abstract class AbstractNativeTypeConvertor implements TypeConvertor, BLan
         return annotations.toArray(new Annotation[annotations.size()]);
     }
 
-    @Override
-    public Parameter[] getParameters() {
-        return parameters.toArray(new Parameter[parameters.size()]);
+    public ParameterDef[] getParameterDefs() {
+        return parameterDefs.toArray(new ParameterDef[parameterDefs.size()]);
     }
 
     /**
@@ -163,8 +162,8 @@ public abstract class AbstractNativeTypeConvertor implements TypeConvertor, BLan
         return new VariableDef[0];
     }
 
-    public Parameter[] getReturnParameters() {
-        return returnParams.toArray(new Parameter[returnParams.size()]);
+    public ParameterDef[] getReturnParameters() {
+        return returnParams.toArray(new ParameterDef[returnParams.size()]);
     }
 
     /**
@@ -175,7 +174,7 @@ public abstract class AbstractNativeTypeConvertor implements TypeConvertor, BLan
      * @return BValue;
      */
     public BValue getArgument(Context context, int index) {
-        if (index > -1 && index < parameters.size()) {
+        if (index > -1 && index < parameterDefs.size()) {
             return context.getControlStack().getCurrentFrame().values[index];
         }
         throw new ArgumentOutOfRangeException(index);

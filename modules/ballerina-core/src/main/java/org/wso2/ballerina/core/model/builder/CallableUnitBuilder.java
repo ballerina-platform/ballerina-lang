@@ -22,7 +22,7 @@ import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.NodeLocation;
-import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -53,8 +53,8 @@ class CallableUnitBuilder implements SymbolScope {
     protected SymbolName symbolName;
 
     private List<Annotation> annotationList = new ArrayList<>();
-    private List<Parameter> parameterList = new ArrayList<>();
-    private List<Parameter> returnParamList = new ArrayList<>();
+    private List<ParameterDef> parameterDefList = new ArrayList<>();
+    private List<ParameterDef> returnParamList = new ArrayList<>();
     private List<Worker> workerList = new ArrayList<>();
     private BlockStmt body;
 
@@ -90,11 +90,11 @@ class CallableUnitBuilder implements SymbolScope {
         this.annotationList.add(annotation);
     }
 
-    void addParameter(Parameter param) {
-        this.parameterList.add(param);
+    void addParameter(ParameterDef param) {
+        this.parameterDefList.add(param);
     }
 
-    void addReturnParameter(Parameter param) {
+    void addReturnParameter(ParameterDef param) {
         this.returnParamList.add(param);
     }
 
@@ -134,8 +134,8 @@ class CallableUnitBuilder implements SymbolScope {
                 isPublic,
                 symbolName,
                 annotationList.toArray(new Annotation[annotationList.size()]),
-                parameterList.toArray(new Parameter[parameterList.size()]),
-                returnParamList.toArray(new Parameter[returnParamList.size()]),
+                parameterDefList.toArray(new ParameterDef[parameterDefList.size()]),
+                returnParamList.toArray(new ParameterDef[returnParamList.size()]),
                 workerList.toArray(new Worker[workerList.size()]),
                 body,
                 enclosingScope,
@@ -149,7 +149,7 @@ class CallableUnitBuilder implements SymbolScope {
                 pkgPath,
                 symbolName,
                 annotationList.toArray(new Annotation[annotationList.size()]),
-                parameterList.toArray(new Parameter[parameterList.size()]),
+                parameterDefList.toArray(new ParameterDef[parameterDefList.size()]),
                 workerList.toArray(new Worker[workerList.size()]),
                 body,
                 enclosingScope,
@@ -164,8 +164,8 @@ class CallableUnitBuilder implements SymbolScope {
                 isPublic,
                 symbolName,
                 annotationList.toArray(new Annotation[annotationList.size()]),
-                parameterList.toArray(new Parameter[parameterList.size()]),
-                returnParamList.toArray(new Parameter[returnParamList.size()]),
+                parameterDefList.toArray(new ParameterDef[parameterDefList.size()]),
+                returnParamList.toArray(new ParameterDef[returnParamList.size()]),
                 workerList.toArray(new Worker[workerList.size()]),
                 body,
                 enclosingScope,
@@ -180,8 +180,8 @@ class CallableUnitBuilder implements SymbolScope {
                 isPublic,
                 symbolName,
                 annotationList.toArray(new Annotation[annotationList.size()]),
-                parameterList.toArray(new Parameter[parameterList.size()]),
-                returnParamList.toArray(new Parameter[returnParamList.size()]),
+                parameterDefList.toArray(new ParameterDef[parameterDefList.size()]),
+                returnParamList.toArray(new ParameterDef[returnParamList.size()]),
                 body,
                 enclosingScope,
                 symbolMap);

@@ -49,11 +49,11 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     protected SymbolName symbolName;
 
     private Annotation[] annotations;
-    private Parameter[] parameters;
+    private ParameterDef[] parameterDefs;
     private ConnectorDcl[] connectorDcls;
     private VariableDef[] variableDefs;
     private Worker[] workers;
-    private Parameter[] returnParams;
+    private ParameterDef[] returnParams;
     private BlockStmt actionBody;
     private int stackFrameSize;
 
@@ -67,8 +67,8 @@ public class BallerinaAction implements Action, SymbolScope, Node {
                            Boolean isPublic,
                            SymbolName symbolName,
                            Annotation[] annotations,
-                           Parameter[] parameters,
-                           Parameter[] returnParams,
+                           ParameterDef[] parameterDefs,
+                           ParameterDef[] returnParams,
                            Worker[] workers,
                            BlockStmt actionBody,
                            SymbolScope enclosingScope,
@@ -80,7 +80,7 @@ public class BallerinaAction implements Action, SymbolScope, Node {
         this.isPublic = isPublic;
         this.symbolName = symbolName;
         this.annotations = annotations;
-        this.parameters = parameters;
+        this.parameterDefs = parameterDefs;
         this.returnParams = returnParams;
         this.workers = workers;
         this.actionBody = actionBody;
@@ -94,9 +94,8 @@ public class BallerinaAction implements Action, SymbolScope, Node {
         return annotations;
     }
 
-    @Override
-    public Parameter[] getParameters() {
-        return parameters;
+    public ParameterDef[] getParameterDefs() {
+        return parameterDefs;
     }
 
     @Override
@@ -105,7 +104,7 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     }
 
     @Override
-    public Parameter[] getReturnParameters() {
+    public ParameterDef[] getReturnParameters() {
         return returnParams;
     }
 

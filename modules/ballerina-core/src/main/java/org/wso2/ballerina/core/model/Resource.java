@@ -56,7 +56,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     private List<Worker> workerList = new ArrayList<>();
     private int stackFrameSize;
     private Annotation[] annotations;
-    private Parameter[] parameters;
+    private ParameterDef[] parameterDefs;
     private ConnectorDcl[] connectorDcls;
     private VariableDef[] variableDefs;
     private Worker[] workers;
@@ -73,7 +73,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
                     String pkgPath,
                     SymbolName symbolName,
                     Annotation[] annotations,
-                    Parameter[] parameters,
+                    ParameterDef[] parameterDefs,
                     Worker[] workers,
                     BlockStmt functionBody,
                     SymbolScope enclosingScope,
@@ -84,7 +84,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
         this.pkgPath = pkgPath;
         this.symbolName = symbolName;
         this.annotations = annotations;
-        this.parameters = parameters;
+        this.parameterDefs = parameterDefs;
         this.workers = workers;
         this.resourceBody = functionBody;
 
@@ -193,9 +193,8 @@ public class Resource implements Node, SymbolScope, CallableUnit {
      *
      * @return list of Arguments
      */
-    @Override
-    public Parameter[] getParameters() {
-        return this.parameters;
+    public ParameterDef[] getParameterDefs() {
+        return this.parameterDefs;
     }
 
     /**
@@ -214,8 +213,8 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     }
 
     @Override
-    public Parameter[] getReturnParameters() {
-        return new Parameter[0];
+    public ParameterDef[] getReturnParameters() {
+        return new ParameterDef[0];
     }
 
 

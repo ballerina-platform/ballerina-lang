@@ -387,7 +387,7 @@ public class BuiltInNativeConstructLoader {
 
         SymbolName symbolName =
                 LangModelUtils.getSymNameWithParams(function.getPackagePath() + ":" +
-                        functionNameAnnotation.functionName(), function.getParameters());
+                        functionNameAnnotation.functionName(), function.getParameterDefs());
         Symbol symbol = new Symbol(function);
         symScope.insert(symbolName, symbol);
     }
@@ -399,7 +399,7 @@ public class BuiltInNativeConstructLoader {
      */
     public static void registerAction(SymScope symScope, AbstractNativeAction action) {
         String actionName = action.getSymbolName().getName();
-        SymbolName symbolName = LangModelUtils.getSymNameWithParams(actionName, action.getParameters());
+        SymbolName symbolName = LangModelUtils.getSymNameWithParams(actionName, action.getParameterDefs());
         Symbol symbol = new Symbol(action);
 
         symScope.insert(symbolName, symbol);
@@ -443,7 +443,7 @@ public class BuiltInNativeConstructLoader {
         }
 
         SymbolName symbolName =
-                LangModelUtils.getTypeConverterSymName(typeConvertor.getPackagePath(), typeConvertor.getParameters(),
+                LangModelUtils.getTypeConverterSymName(typeConvertor.getPackagePath(), typeConvertor.getParameterDefs(),
                         typeConvertor.getReturnParameters());
         Symbol symbol = new Symbol(typeConvertor);
         symScope.insert(symbolName, symbol);

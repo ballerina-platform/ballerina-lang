@@ -38,8 +38,8 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
     protected SymbolName symbolName;
 
     private Annotation[] annotations;
-    private Parameter[] parameters;
-    private Parameter[] returnParams;
+    private ParameterDef[] parameterDefs;
+    private ParameterDef[] returnParams;
     private VariableDef[] variableDefs;
     private BlockStmt typeConverterBody;
     private int stackFrameSize;
@@ -54,8 +54,8 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
                           Boolean isPublic,
                           SymbolName symbolName,
                           Annotation[] annotations,
-                          Parameter[] parameters,
-                          Parameter[] returnParams,
+                          ParameterDef[] parameterDefs,
+                          ParameterDef[] returnParams,
                           BlockStmt typeConverterBody,
                           SymbolScope enclosingScope,
                           Map<SymbolName, BLangSymbol> symbolMap) {
@@ -67,7 +67,7 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
         this.symbolName = symbolName;
 
         this.annotations = annotations;
-        this.parameters = parameters;
+        this.parameterDefs = parameterDefs;
         this.returnParams = returnParams;
         this.typeConverterBody = typeConverterBody;
 
@@ -94,8 +94,8 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
      *
      * @return list of Arguments
      */
-    public Parameter[] getParameters() {
-        return parameters;
+    public ParameterDef[] getParameterDefs() {
+        return parameterDefs;
     }
 
     /**
@@ -107,7 +107,7 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
         return variableDefs;
     }
 
-    public Parameter[] getReturnParameters() {
+    public ParameterDef[] getReturnParameters() {
         return returnParams;
     }
 

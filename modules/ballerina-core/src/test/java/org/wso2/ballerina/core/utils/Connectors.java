@@ -59,7 +59,7 @@ public class Connectors {
     public static void addAction(SymScope symScope, AbstractNativeAction action) {
         BallerinaAction annotations = (BallerinaAction) action.getClass().getAnnotation(BallerinaAction.class);
         SymbolName symbolName = LangModelUtils.getActionSymName(annotations.actionName(), annotations.connectorName(),
-                annotations.packageName(), LangModelUtils.getTypesOfParams(action.getParameters()));
+                annotations.packageName(), LangModelUtils.getTypesOfParams(action.getParameterDefs()));
         Symbol symbol = new Symbol(action);
         symScope.insert(symbolName, symbol);
     }

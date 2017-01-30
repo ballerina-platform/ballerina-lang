@@ -22,7 +22,7 @@ import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.NodeLocation;
-import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.Symbol;
@@ -53,7 +53,7 @@ class CallableUnitGroupBuilder implements SymbolScope {
     protected SymbolName symbolName;
 
     private List<Annotation> annotationList = new ArrayList<>();
-    private List<Parameter> parameterList = new ArrayList<>();
+    private List<ParameterDef> parameterDefList = new ArrayList<>();
     private List<ConnectorDcl> connectorDclList = new ArrayList<>();
     private List<VariableDef> variableDefList = new ArrayList<>();
     private List<Resource> resourceList = new ArrayList<>();
@@ -92,8 +92,8 @@ class CallableUnitGroupBuilder implements SymbolScope {
         this.annotationList.add(annotation);
     }
 
-    void addParameter(Parameter param) {
-        this.parameterList.add(param);
+    void addParameter(ParameterDef param) {
+        this.parameterDefList.add(param);
     }
 
     void addConnectorDcl(ConnectorDcl connectorDcl) {
@@ -154,7 +154,7 @@ class CallableUnitGroupBuilder implements SymbolScope {
                 isPublic,
                 symbolName,
                 annotationList.toArray(new Annotation[annotationList.size()]),
-                parameterList.toArray(new Parameter[parameterList.size()]),
+                parameterDefList.toArray(new ParameterDef[parameterDefList.size()]),
                 connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
                 variableDefList.toArray(new VariableDef[variableDefList.size()]),
                 actionList.toArray(new BallerinaAction[actionList.size()]),

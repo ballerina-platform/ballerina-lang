@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.NodeLocation;
-import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.symbols.SymbolScope;
@@ -47,10 +47,10 @@ public abstract class AbstractNativeConnector implements Connector, BLangSymbol 
     protected boolean isPublic = true;
     protected SymbolName symbolName;
 
-    private List<Parameter> parameters;
+    private List<ParameterDef> parameterDefs;
 
     public AbstractNativeConnector() {
-        parameters = new ArrayList<>();
+        parameterDefs = new ArrayList<>();
         buildModel();
     }
 
@@ -66,7 +66,7 @@ public abstract class AbstractNativeConnector implements Connector, BLangSymbol 
         Arrays.stream(connector.args()).
                 forEach(argument -> {
                     try {
-                        parameters.add(new Parameter(BTypes.getType(argument.type().getName()),
+                        parameterDefs.add(new ParameterDef(BTypes.getType(argument.type().getName()),
                                 new SymbolName(argument.name())));
                     } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
@@ -78,9 +78,8 @@ public abstract class AbstractNativeConnector implements Connector, BLangSymbol 
 
     public abstract boolean init(BValue[] bValueRefs);
 
-    @Override
-    public Parameter[] getParameters() {
-        return parameters.toArray(new Parameter[parameters.size()]);
+    public ParameterDef[] getParameterDefs() {
+        return parameterDefs.toArray(new ParameterDef[parameterDefs.size()]);
     }
 
 

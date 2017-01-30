@@ -34,7 +34,7 @@ import org.wso2.ballerina.core.model.types.SimpleTypeName;
 public class VariableDef implements BLangSymbol, Node {
     protected NodeLocation location;
     protected SimpleTypeName typeName;
-    private BType type;
+    protected BType type;
 
     // BLangSymbol related attributes
     protected String name;

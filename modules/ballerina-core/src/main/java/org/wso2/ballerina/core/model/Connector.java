@@ -26,5 +26,5 @@ public interface Connector {
      *
      * @return list of Arguments
      */
-    Parameter[] getParameters();
+    ParameterDef[] getParameterDefs();
 }
