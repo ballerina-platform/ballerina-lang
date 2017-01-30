@@ -2,6 +2,7 @@ package org.wso2.ballerina.tooling.service.workspace.swagger.impl;
 
 import com.google.gson.JsonObject;
 import io.swagger.annotations.ApiParam;
+import io.swagger.models.Swagger;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -48,9 +49,7 @@ public class ServicesApiServiceImpl {
     )
             throws NotFoundException {
         try {
-            InputStream stream = new ByteArrayInputStream(serviceDefinition.getBallerinaDefinition().
-                    getBytes(StandardCharsets.UTF_8));
-            String response = parseSwaggerDataModel(stream);
+            String response = parseSwaggerDataModel(serviceDefinition.getSwaggerDefinition()).getSwagger();
             serviceDefinition.setSwaggerDefinition(response);
             return serviceDefinition;
             //return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, response)).build();
@@ -73,14 +72,17 @@ public class ServicesApiServiceImpl {
         return null;
     }
 
+
     /**
      *
-     * @param stream stream to be processed as ballerina service definition
-     * @return String swagger data model generated from ballerina definition
+     * @param ballerinaDefinition String ballerina config to be processed as ballerina service definition
+     * @return swagger data model generated from ballerina definition
      * @throws IOException when input process error occur.
      */
-    private String parseSwaggerDataModel(InputStream stream) throws IOException {
+    private Swagger parseSwaggerDataModel(String ballerinaDefinition) throws IOException {
         //TODO improve code to avoid additional object creation.
+        InputStream stream = new ByteArrayInputStream(ballerinaDefinition.
+                getBytes(StandardCharsets.UTF_8));
         ANTLRInputStream antlrInputStream = new ANTLRInputStream(stream);
         BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
         CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
@@ -91,15 +93,24 @@ public class ServicesApiServiceImpl {
         ballerinaParser.compilationUnit();
         BallerinaFile bFile = modelBuilder.build();
         List<org.wso2.ballerina.core.model.Service> services = bFile.getServices();
-        String swaggerDefinition = "";
+        Swagger swaggerDefinition = new Swagger();
         if (services.size() > 0) {
             //TODO this need to improve iterate through multiple services and generate single swagger file.
-            SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper(services.get(0));
+            SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper();
             //TODO mapper type need to set according to expected type.
             //swaggerServiceMapper.setObjectMapper(io.swagger.util.Yaml.mapper());
-            swaggerDefinition = swaggerServiceMapper.generateSwaggerString();
+            swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger(services.get(0));
         }
         return swaggerDefinition;
+    }
+
+    private String parseBallerinaDataModel(String swaggerDefinition, String ballerinaDefinition) throws IOException {
+        Swagger swagger = parseSwaggerDataModel(swaggerDefinition);
+        //TODO parse ballerina string and process it as ballerina service object and pass it to convertor.
+        //TODO improve code to avoid additional object creation.
+        SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper();
+        swaggerServiceMapper.convertSwaggerToService(swagger, null);
+        return swagger.getSwagger();
     }
 
 }

@@ -7,7 +7,8 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * Service
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen", date = "2017-01-27T14:09:52.367Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
+        date = "2017-01-27T14:09:52.367Z")
 public class Service   {
   @JsonProperty("name")
   private String name = null;
@@ -66,7 +67,22 @@ public class Service   {
    * Swagger definition of the API which contains details about URI templates and scopes 
    * @return swaggerDefinition
   **/
-  @ApiModelProperty(example = "{&quot;paths&quot;:{&quot;/substract&quot;:{&quot;get&quot;:{&quot;x-auth-type&quot;:&quot;Application &amp; Application User&quot;,&quot;x-throttling-tier&quot;:&quot;Unlimited&quot;,&quot;parameters&quot;:[{&quot;name&quot;:&quot;x&quot;,&quot;required&quot;:true,&quot;type&quot;:&quot;string&quot;,&quot;in&quot;:&quot;query&quot;},{&quot;name&quot;:&quot;y&quot;,&quot;required&quot;:true,&quot;type&quot;:&quot;string&quot;,&quot;in&quot;:&quot;query&quot;}],&quot;responses&quot;:{&quot;200&quot;:{}}}},&quot;/add&quot;:{&quot;get&quot;:{&quot;x-auth-type&quot;:&quot;Application &amp; Application User&quot;,&quot;x-throttling-tier&quot;:&quot;Unlimited&quot;,&quot;parameters&quot;:[{&quot;name&quot;:&quot;x&quot;,&quot;required&quot;:true,&quot;type&quot;:&quot;string&quot;,&quot;in&quot;:&quot;query&quot;},{&quot;name&quot;:&quot;y&quot;,&quot;required&quot;:true,&quot;type&quot;:&quot;string&quot;,&quot;in&quot;:&quot;query&quot;}],&quot;responses&quot;:{&quot;200&quot;:{}}}}},&quot;swagger&quot;:&quot;2.0&quot;,&quot;info&quot;:{&quot;title&quot;:&quot;CalculatorAPI&quot;,&quot;version&quot;:&quot;1.0.0&quot;}}", value = "Swagger definition of the API which contains details about URI templates and scopes ")
+  @ApiModelProperty(example = "{&quot;paths&quot;:{&quot;/substract&quot;" +
+          ":{&quot;get&quot;:{&quot;x-auth-type&quot;:&quot;Application &amp; " +
+          "Application User&quot;,&quot;x-throttling-tier&quot;:&quot;Unlimited&quot;" +
+          ",&quot;parameters&quot;:[{&quot;name&quot;:&quot;x&quot;,&quot;required&quot;:" +
+          "true,&quot;type&quot;:&quot;string&quot;,&quot;in&quot;:&quot;query&quot;},{&quot;" +
+          "name&quot;:&quot;y&quot;,&quot;required&quot;:true,&quot;type&quot;:&quot;string&quot;" +
+          ",&quot;in&quot;:&quot;query&quot;}],&quot;responses&quot;:{&quot;200&quot;:{}}}},&quot;" +
+          "/add&quot;:{&quot;get&quot;:{&quot;x-auth-type&quot;:&quot;Application &amp; " +
+          "Application User&quot;,&quot;x-throttling-tier&quot;:&quot;Unlimited&quot;" +
+          ",&quot;parameters&quot;:[{&quot;name&quot;:&quot;x&quot;,&quot;required&quot;" +
+          ":true,&quot;type&quot;:&quot;string&quot;,&quot;in&quot;:&quot;query&quot;}" +
+          ",{&quot;name&quot;:&quot;y&quot;,&quot;required&quot;:true,&quot;type&quot;" +
+          ":&quot;string&quot;,&quot;in&quot;:&quot;query&quot;}],&quot;responses&quot;" +
+          ":{&quot;200&quot;:{}}}}},&quot;swagger&quot;:&quot;2.0&quot;,&quot;info&quot;" +
+          ":{&quot;title&quot;:&quot;CalculatorAPI&quot;,&quot;version&quot;:&quot;1.0.0&quot;}}",
+          value = "Swagger definition of the API which contains details about URI templates and scopes ")
   public String getSwaggerDefinition() {
     return swaggerDefinition;
   }
@@ -84,7 +100,9 @@ public class Service   {
    * Ballerina definition of the API which contains details about URI templates and scopes 
    * @return ballerinaDefinition
   **/
-  @ApiModelProperty(example = "import ballerina.net.http;@BasePath(&quot;/echo&quot;) service echo {@POST resource echo(message m) {http:convertToResponse(m );reply m;}}", value = "Ballerina definition of the API which contains details about URI templates and scopes ")
+  @ApiModelProperty(example = "import ballerina.net.http;@BasePath(&quot;/echo&quot;) service echo " +
+          "{@POST resource echo(message m) {http:convertToResponse(m );reply m;}}",
+          value = "Ballerina definition of the API which contains details about URI templates and scopes ")
   public String getBallerinaDefinition() {
     return ballerinaDefinition;
   }

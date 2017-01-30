@@ -59,10 +59,10 @@ public class SwaggerServiceMapperTest {
         Swagger swaggerDefinition = new Swagger();
         if (services.size() > 0) {
             //TODO this need to improve iterate through multiple services and generate single swagger file.
-            SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper(services.get(0));
+            SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper();
             //TODO mapper type need to set according to expected type.
             //swaggerServiceMapper.setObjectMapper(io.swagger.util.Yaml.mapper());
-            swaggerDefinition = swaggerServiceMapper.getSwagger();
+            swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger(services.get(0));
         }
         //TODO add complete logic to test all attributes present in swagger object
         Assert.assertEquals(swaggerDefinition.getBasePath().toString(), "/echo");
