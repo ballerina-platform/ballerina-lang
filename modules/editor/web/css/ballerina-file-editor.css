@@ -25,6 +25,7 @@
 
 .container-outer-div {
     border-radius: 0;
+    float: left;
 }
 
 .outer-box{
