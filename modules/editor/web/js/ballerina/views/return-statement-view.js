@@ -85,7 +85,8 @@ define(['lodash', 'log', './../ast/return-statement', './ballerina-statement-vie
          * Rendering the view of the return statement.
          * @returns {Object} - The svg group which the return statement view resides in.
          */
-        ReturnStatementView.prototype.render = function () {
+        ReturnStatementView.prototype.render = function (diagramRenderingContext) {
+            this.setDiagramRenderingContext(diagramRenderingContext);
             var returnStatementGroup = D3Utils.group(d3.select(this._container));
             returnStatementGroup.attr("id","_" +this._model.id);//added attribute 'id' starting with '_' to be compatible with HTML4
             var width = this.getBoundingBox().w();

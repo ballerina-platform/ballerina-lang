@@ -389,10 +389,10 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this._managedStatements.splice(childStatementIndex, 1);
     };
 
-        /**
-         * Remove the inner drop zone
-         * @param {ASTNode} child - child node
-         */
+    /**
+     * Remove the inner drop zone
+     * @param {ASTNode} child - child node
+     */
     StatementContainerView.prototype.removeInnerDropZone = function (child) {
         var childStatementIndex = _.findIndex(this._managedStatements, function(childStatement) {
             return childStatement.id === child.id;
