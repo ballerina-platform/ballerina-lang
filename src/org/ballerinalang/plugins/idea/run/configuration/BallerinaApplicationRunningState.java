@@ -34,11 +34,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class BallerinaApplicationRunningState extends BallerinaRunningState {
 
-    private Project project;
-
-    public BallerinaApplicationRunningState(Project project, ExecutionEnvironment environment) {
-        super(environment);
-        this.project = project;
+    public BallerinaApplicationRunningState(Project project, String params, ExecutionEnvironment environment) {
+        super(project, params, environment);
     }
 
     @Override
@@ -50,13 +47,15 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState {
     @Override
     protected ProcessHandler startProcess() throws ExecutionException {
         GeneralCommandLine commandLine = new GeneralCommandLine();
-        commandLine.setExePath(ObjectUtils.notNull(BallerinaSdkUtil.getBallerinaExecutablePath(project)));
+        commandLine.setExePath(ObjectUtils.notNull(BallerinaSdkUtil.getBallerinaExecutablePath(getProject())));
         commandLine.addParameter(getCommand());
 
-        Editor selectedTextEditor = FileEditorManager.getInstance(project).getSelectedTextEditor();
+        Editor selectedTextEditor = FileEditorManager.getInstance(getProject()).getSelectedTextEditor();
         VirtualFile file = FileDocumentManager.getInstance().getFile(selectedTextEditor.getDocument());
         commandLine.addParameter(file.getPath());
         commandLine.withCharset(CharsetToolkit.UTF8_CHARSET);
+
+        commandLine.addParameter(getParams());
 
         KillableColoredProcessHandler handler = new KillableColoredProcessHandler(commandLine, true);
         ProcessTerminatedListener.attach(handler);

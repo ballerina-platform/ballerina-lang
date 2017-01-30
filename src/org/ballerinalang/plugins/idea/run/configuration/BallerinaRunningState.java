@@ -18,12 +18,26 @@ package org.ballerinalang.plugins.idea.run.configuration;
 
 import com.intellij.execution.configurations.CommandLineState;
 import com.intellij.execution.runners.ExecutionEnvironment;
+import com.intellij.openapi.project.Project;
 
 public abstract class BallerinaRunningState extends CommandLineState {
 
-    protected BallerinaRunningState(ExecutionEnvironment environment) {
+    private Project project;
+    private String params;
+
+    protected BallerinaRunningState(Project project, String params, ExecutionEnvironment environment) {
         super(environment);
+        this.project = project;
+        this.params = params;
     }
 
     public abstract String getCommand();
+
+    public Project getProject() {
+        return project;
+    }
+
+    public String getParams() {
+        return params;
+    }
 }

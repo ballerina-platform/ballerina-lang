@@ -35,11 +35,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class BallerinaServiceRunConfiguration extends BallerinaRunConfigurationBase {
 
-    private Project project;
-
     public BallerinaServiceRunConfiguration(Project project, ConfigurationFactory factory, String name) {
         super(project, factory, name);
-        this.project = project;
     }
 
     @NotNull
@@ -50,7 +47,7 @@ public class BallerinaServiceRunConfiguration extends BallerinaRunConfigurationB
 
     @Override
     public void checkConfiguration() throws RuntimeConfigurationException {
-        String ballerinaExecutablePath = BallerinaSdkUtil.getBallerinaExecutablePath(project);
+        String ballerinaExecutablePath = BallerinaSdkUtil.getBallerinaExecutablePath(getProject());
         if (ballerinaExecutablePath.isEmpty()) {
             throw new RuntimeConfigurationError("Cannot find Ballerina executable. Please check Ballerina SDK path.");
         }
@@ -60,6 +57,6 @@ public class BallerinaServiceRunConfiguration extends BallerinaRunConfigurationB
     @Override
     public RunProfileState getState(@NotNull Executor executor, @NotNull ExecutionEnvironment executionEnvironment)
             throws ExecutionException {
-        return new BallerinaServiceRunningState(getProject(), executionEnvironment);
+        return new BallerinaServiceRunningState(getProject(), getParams(), executionEnvironment);
     }
 }

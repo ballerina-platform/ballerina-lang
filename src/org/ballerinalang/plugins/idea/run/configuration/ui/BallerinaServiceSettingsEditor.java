@@ -20,26 +20,26 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.ui.LabeledComponent;
 import com.intellij.ui.RawCommandLineEditor;
-import org.ballerinalang.plugins.idea.run.configuration.service.BallerinaServiceRunConfiguration;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunConfigurationBase;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-public class BallerinaServiceSettingsEditor extends SettingsEditor<BallerinaServiceRunConfiguration> {
+public class BallerinaServiceSettingsEditor extends SettingsEditor<BallerinaRunConfigurationBase> {
 
     private JPanel myPanel;
-    private LabeledComponent<RawCommandLineEditor> programArguments;
+    private LabeledComponent<RawCommandLineEditor> params;
 
     @Override
-    protected void resetEditorFrom(@NotNull BallerinaServiceRunConfiguration ballerinaServiceRunConfiguration) {
-
+    protected void resetEditorFrom(@NotNull BallerinaRunConfigurationBase ballerinaRunConfigurationBase) {
+        params.getComponent().setText(ballerinaRunConfigurationBase.getParams());
     }
 
     @Override
-    protected void applyEditorTo(@NotNull BallerinaServiceRunConfiguration ballerinaServiceRunConfiguration)
+    protected void applyEditorTo(@NotNull BallerinaRunConfigurationBase ballerinaRunConfigurationBase)
             throws ConfigurationException {
-
+        ballerinaRunConfigurationBase.setParams(params.getComponent().getText());
     }
 
     @NotNull
@@ -49,7 +49,7 @@ public class BallerinaServiceSettingsEditor extends SettingsEditor<BallerinaServ
     }
 
     private void createUIComponents() {
-        programArguments = new LabeledComponent<RawCommandLineEditor>();
-        programArguments.setComponent(new RawCommandLineEditor());
+        params = new LabeledComponent<RawCommandLineEditor>();
+        params.setComponent(new RawCommandLineEditor());
     }
 }
