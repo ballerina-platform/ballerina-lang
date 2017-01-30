@@ -711,7 +711,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        String varName = ctx.Identifier().getText();
+        boolean exprAvailable = ctx.expression() != null;
+        modelBuilder.addVariableDefinitionStmt(getCurrentLocation(ctx), varName, exprAvailable);
     }
 
     @Override

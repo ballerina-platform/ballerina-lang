@@ -75,6 +75,7 @@ import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.symbols.SymbolScope;
 import org.wso2.ballerina.core.model.types.BStructType;
@@ -273,6 +274,7 @@ public class BLangModelBuilder {
         symbolNameStack.push(symbolName);
     }
 
+
     // Annotations
 
     public void createInstanceCreaterExpr(String typeName, boolean exprListAvailable, NodeLocation location) {
@@ -383,18 +385,18 @@ public class BLangModelBuilder {
 
     public void createVariableDcl(String varName, NodeLocation location) {
         // Create a variable declaration
-        SymbolName localVarId = new SymbolName(varName);
-        BType localVarType = typeQueue.remove();
+//        SymbolName localVarId = new SymbolName(varName);
+//        BType localVarType = typeQueue.remove();
 
-        VariableDef variableDef = new VariableDef(location, localVarType, localVarId);
+//        VariableDef variableDef = new VariableDef(location, localVarType, localVarId);
 
         // Add this variable declaration to the current callable unit or callable unit group
-        if (currentCUBuilder != null) {
+//        if (currentCUBuilder != null) {
             // This connector declaration should added to the relevant function/action or resource
 //            currentCUBuilder.addVariableDcl(variableDcl);
-        } else {
-            currentCUGroupBuilder.addVariableDcl(variableDef);
-        }
+//        } else {
+//            currentCUGroupBuilder.addVariableDcl(variableDef);
+//        }
 
     }
 
@@ -466,6 +468,7 @@ public class BLangModelBuilder {
         ArrayMapAccessExpr accessExpr = builder.build();
         exprStack.push(accessExpr);
     }
+
 
     // Expressions
 
@@ -774,6 +777,18 @@ public class BLangModelBuilder {
     }
 
     // Statements
+
+    public void addVariableDefinitionStmt(NodeLocation location, String varName, boolean exprAvailable) {
+        SimpleTypeName typeName = typeNameQueue.remove();
+        SymbolName symbolName = new SymbolName(varName);
+
+        VariableDef variableDef = new VariableDef(location, varName, typeName, symbolName, currentScope);
+        currentScope.define(symbolName, variableDef);
+
+        Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
+        VariableDefStmt variableDefStmt = new VariableDefStmt(location, variableDef, rhsExpr);
+        addToBlockStmt(variableDefStmt);
+    }
 
     public void createAssignmentStmt(NodeLocation location) {
         Expression rExpr = exprStack.pop();
