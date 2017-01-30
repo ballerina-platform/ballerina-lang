@@ -19,7 +19,9 @@ package org.wso2.ballerina.core.model.values;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
+import org.apache.axiom.om.OMAbstractFactory;
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMFactory;
 import org.wso2.ballerina.core.model.DataIterator;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 
@@ -209,6 +211,7 @@ public class BDataframe implements BRefType<Object> {
             }
             jsonArray.add(jsonObj);
         }
+        this.close();
         return new BJSON(jsonArray);
     }
         
@@ -306,6 +309,43 @@ public class BDataframe implements BRefType<Object> {
             return elementType;
         }
         
+    }
+
+    public BXML toXML() {
+        OMFactory factory = OMAbstractFactory.getOMFactory();
+        OMElement root = factory.createOMElement("results", null);
+        while (this.next()) {
+            OMElement resultElement = factory.createOMElement("result", null);
+            for (ColumnDefinition col : this.columnDefs) {
+                String value = null;
+                switch (col.getType()) {
+                case BOOLEAN:
+                    value = String.valueOf(this.getBoolean(col.getName()));
+                    break;
+                case STRING:
+                    value = this.getString(col.getName());
+                    break;
+                case INT:
+                    value = String.valueOf(this.getInt(col.getName()));
+                    break;
+                case LONG:
+                    value = String.valueOf(this.getLong(col.getName()));
+                    break;
+                case FLOAT:
+                    value = String.valueOf(this.getFloat(col.getName()));
+                    break;
+                case DOUBLE:
+                    value = String.valueOf(this.getDouble(col.getName()));
+                    break;
+                }
+                OMElement element = factory.createOMElement(col.getName(), null);
+                element.addChild(factory.createOMText(value));
+                resultElement.addChild(element);
+            }
+            root.addChild(resultElement);
+        }
+        this.close();
+        return new BXML(root);
     }
     
 }

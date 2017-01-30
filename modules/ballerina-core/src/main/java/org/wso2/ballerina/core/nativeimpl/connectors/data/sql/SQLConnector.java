@@ -19,9 +19,6 @@
 package org.wso2.ballerina.core.nativeimpl.connectors.data.sql;
 
 import com.zaxxer.hikari.HikariDataSource;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.ServiceFactory;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.types.TypeEnum;
@@ -49,7 +46,7 @@ import java.sql.SQLException;
         name = "ballerina.data.connectors.sql",
         immediate = true,
         service = AbstractNativeConnector.class)
-public class SQLConnector extends AbstractNativeConnector implements ServiceFactory {
+public class SQLConnector extends AbstractNativeConnector {
 
     public static final String CONNECTOR_NAME = "Connector";
 
@@ -74,15 +71,6 @@ public class SQLConnector extends AbstractNativeConnector implements ServiceFact
         return "ballerina.data.sql";
     }
 
-    @Override
-    public Object getService(Bundle bundle, ServiceRegistration serviceRegistration) {
-        return new SQLConnector();
-    }
-
-    @Override
-    public void ungetService(Bundle bundle, ServiceRegistration serviceRegistration, Object o) {
-    }
-
     public Connection getSQLConnection() {
         Connection conn = null;
         if (hikariDataSource != null) {
@@ -90,7 +78,7 @@ public class SQLConnector extends AbstractNativeConnector implements ServiceFact
                 conn = hikariDataSource.getConnection();
             } catch (SQLException e) {
                 throw new BallerinaException(
-                        "Error in creating Connection in " + SQLConnector.CONNECTOR_NAME + ". " + e.getMessage());
+                        "Error in creating Connection in " + SQLConnector.CONNECTOR_NAME + ". " + e.getMessage(), e);
             }
         }
         return conn;

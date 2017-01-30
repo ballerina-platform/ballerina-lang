@@ -24,10 +24,6 @@ import com.datastax.driver.core.DataType;
 import com.datastax.driver.core.QueryOptions;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Session;
-
-import org.osgi.framework.Bundle;
-import org.osgi.framework.ServiceFactory;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.types.TypeEnum;
@@ -59,7 +55,7 @@ import java.util.List;
         name = "ballerina.data.connectors.cassandra",
         immediate = true,
         service = AbstractNativeConnector.class)
-public class CassandraConnector extends AbstractNativeConnector implements ServiceFactory {
+public class CassandraConnector extends AbstractNativeConnector {
 
     private static final String PACKAGE_NAME = "ballerina.data.cassandra";
 
@@ -109,15 +105,6 @@ public class CassandraConnector extends AbstractNativeConnector implements Servi
     @Override
     public String getPackageName() {
         return PACKAGE_NAME;
-    }
-
-    @Override
-    public Object getService(Bundle bundle, ServiceRegistration serviceRegistration) {
-        return new CassandraConnector();
-    }
-
-    @Override
-    public void ungetService(Bundle bundle, ServiceRegistration serviceRegistration, Object obj) {
     }
 
     @Override

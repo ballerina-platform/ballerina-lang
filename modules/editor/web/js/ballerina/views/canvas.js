@@ -180,7 +180,11 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         $(svgContainer).mCustomScrollbar({
             theme: "dark",
             axis: "x",
-            scrollInertia: 0
+            scrollInertia: 0,
+            autoHideScrollbar: true,
+            mouseWheel: {
+                enable: false
+            }
         });
     };
 
