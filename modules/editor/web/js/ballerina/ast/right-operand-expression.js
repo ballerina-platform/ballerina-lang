@@ -87,8 +87,8 @@ define(['lodash', './statement'], function(_, Statement){
                     self.setRightOperandExpressionString(child.getExpression());
                 } else {
                     self.addChild(child);
+                    child.initFromJson(childNode);
                 }
-                child.initFromJson(childNode);
             }
         });
     };

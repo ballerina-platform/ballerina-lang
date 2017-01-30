@@ -16,9 +16,9 @@
  * under the License.
  */
 
-define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-client', 'nano_scroller'],
+define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-client', 'mcustom_scroller'],
 
-    function (log, $, Backbone, _, ExplorerItem, ServiceClient) {
+    function (log, $, Backbone, _, ExplorerItem, ServiceClient, mcustomScroller) {
 
     var WorkspaceExplorer = Backbone.View.extend({
 
@@ -175,6 +175,11 @@ define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-cli
                     self.createExplorerItem(folder);
                 })
             }
+
+            $(".sidebar-left").mCustomScrollbar({
+                theme: "minimal",
+                scrollInertia: 0
+            });
             return this;
         }
     });
