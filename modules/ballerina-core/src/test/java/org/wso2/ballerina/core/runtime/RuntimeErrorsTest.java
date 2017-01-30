@@ -21,6 +21,7 @@ package org.wso2.ballerina.core.runtime;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.EnvironmentInitializer;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.SymScope;
@@ -31,8 +32,11 @@ import org.wso2.ballerina.core.nativeimpl.lang.json.GetString;
 import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.runtime.registry.PackageRegistry;
+import org.wso2.ballerina.core.utils.MessageUtils;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.lang.util.Services;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
  * Runtime Errors test class for ballerina filers.
@@ -48,7 +52,8 @@ public class RuntimeErrorsTest {
         PackageRegistry.getInstance().registerNativeFunction(new GetString());
         PackageRegistry.getInstance().registerNativeConnector(new HTTPConnector());
         PackageRegistry.getInstance().registerNativeAction(new Get());
-        bFile = ParserUtils.parseBalFile("lang/runtime-errors.bal", symScope);
+        bFile = ParserUtils.parseBalFile("lang/errors/runtime-errors.bal", symScope);
+        EnvironmentInitializer.initialize("lang/errors/undeclared-package-errors.bal");
     }
 
     @Test
@@ -110,6 +115,37 @@ public class RuntimeErrorsTest {
             
             // Check the stack trace
             String stackTrace = ErrorHandlerUtils.getServiceStackTrace(bContext, ex);
+            Assert.assertEquals(stackTrace, expectedStackTrace);
+        }
+    }
+    
+    @Test(description = "Test error of a service in default package")
+    public void testDefaultPackageServiceError() {
+        Throwable ex = null;
+        String expectedStackTrace = "\t at getApple(undeclared-package-errors.bal:22)\n" +
+                                    "\t at getFruit2(undeclared-package-errors.bal:18)\n" +
+                                    "\t at getFruit1(undeclared-package-errors.bal:14)\n" +
+                                    "\t at testStackTrace(undeclared-package-errors.bal:6)\n" +
+                                    "\t at echo(undeclared-package-errors.bal:5)\n" +
+                                    "\t at echo(undeclared-package-errors.bal:2)\n";
+        try {
+            CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/test/error", "GET");
+            Services.invoke(cMsg);
+        } catch (BallerinaException e) {
+            ex = e;
+        } finally {
+            // Check exception type
+            Assert.assertTrue(ex instanceof BallerinaException, "Expected a " + BallerinaException.class.getName() +
+                    ", but found: " + ex + ".");
+            
+            // Check error message
+            String errorMsg = ex.getCause().getMessage();
+            Assert.assertEquals(errorMsg, "error in ballerina program: array index out of range: Index: 24, Size: 0",
+                    "Incorrect error message printed.");
+            
+            // Check the stack trace
+            String stackTrace = ErrorHandlerUtils.getServiceStackTrace(
+                    ((BallerinaException) ex.getCause()).getContext(), ex);
             Assert.assertEquals(stackTrace, expectedStackTrace);
         }
     }

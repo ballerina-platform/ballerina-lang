@@ -94,7 +94,8 @@ public class SymScope {
         FUNCTION("_function"),
         RESOURCE("_resource"),
         ACTION("_action"),
-        STRUCT("_struct");
+        STRUCT("_struct"),
+        TYPECONVERTOR("_typeconvertor");
 
         private String name;
 

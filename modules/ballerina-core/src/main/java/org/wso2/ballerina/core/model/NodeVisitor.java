@@ -46,6 +46,7 @@ import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
+import org.wso2.ballerina.core.model.expressions.TypeCastExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
@@ -79,6 +80,8 @@ public interface NodeVisitor {
     void visit(Resource resource);
 
     void visit(BallerinaFunction function);
+
+    void visit(BTypeConvertor typeConvertor);
 
     void visit(BallerinaAction action);
 
@@ -163,6 +166,8 @@ public interface NodeVisitor {
     void visit(BacktickExpr backtickExpr);
 
     void visit(VariableRefExpr variableRefExpr);
+
+    void visit(TypeCastExpression typeCastExpression);
 
     void visit(LocalVarLocation localVarLocation);
 
