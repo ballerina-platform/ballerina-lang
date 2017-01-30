@@ -62,6 +62,10 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                 ballerinaAstRoot1.addChild(packageDefinition);
                 ballerinaAstRoot1.setPackageDefinition(packageDefinition);
 
+                if(!_.isNil(this._fileOpenModal)){
+                    this._fileOpenModal.remove();
+                }
+
                 var fileOpen = $(
                     "<div class='modal fade' id='openConfigModal' tabindex='-1' role='dialog' aria-tydden='true'>" +
                     "<div class='modal-dialog file-dialog' role='document'>" +

@@ -26,6 +26,23 @@ import org.wso2.ballerina.core.interpreter.LocalVarLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
 import org.wso2.ballerina.core.model.*;
+import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BTypeConvertor;
+import org.wso2.ballerina.core.model.BallerinaAction;
+import org.wso2.ballerina.core.model.BallerinaConnector;
+import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BallerinaFunction;
+import org.wso2.ballerina.core.model.ConnectorDcl;
+import org.wso2.ballerina.core.model.Const;
+import org.wso2.ballerina.core.model.Function;
+import org.wso2.ballerina.core.model.ImportPackage;
+import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.PositionAwareNode;
+import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
@@ -49,10 +66,10 @@ import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
+import org.wso2.ballerina.core.model.expressions.TypeCastExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
-import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
@@ -106,9 +123,15 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 anImport.accept(this);
             }
         }
-
+        
         ArrayList<PositionAwareNode> rootElements = new ArrayList<>();
-
+    
+        if (bFile.getConstants() != null && bFile.getConstants().length > 0) {
+            for (Const constDefinition : bFile.getConstants()) {
+                rootElements.add(constDefinition);
+            }
+        }
+        
         if (bFile.getServices() != null) {
             Service[] services = new Service[bFile.getServices().size()];
             bFile.getServices().toArray(services);
@@ -327,6 +350,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
+    public void visit(BTypeConvertor typeConvertor) {
+
+    }
+
+    @Override
     public void visit(BallerinaAction action) {
         JsonObject jsonAction = new JsonObject();
         jsonAction.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.ACTION_DEFINITION);
@@ -355,13 +383,28 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 connectDcl.accept(this);
             }
         }
+
+        JsonObject returnTypeObj = new JsonObject();
+        returnTypeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_TYPE);
+        JsonArray returnTypeArray = new JsonArray();
+        if (action.getReturnParameters() != null) {
+            for (Parameter parameter : action.getReturnParameters()) {
+                JsonObject typeObj = new JsonObject();
+                typeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_ARGUMENT);
+                typeObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameter.getType().toString());
+                if (parameter.getName() != null) {
+                    typeObj.addProperty(BLangJSONModelConstants.PARAMETER_NAME, parameter.getName().toString());
+                }
+                returnTypeArray.add(typeObj);
+            }
+        }
+        returnTypeObj.add(BLangJSONModelConstants.CHILDREN, returnTypeArray);
+        tempJsonArrayRef.peek().add(returnTypeObj);
+
         action.getCallableUnitBody().accept(this);
         jsonAction.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(jsonAction);
-
-        JsonObject returnTypeObj = new JsonObject();
-        returnTypeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_TYPE);
     }
 
     @Override
@@ -850,6 +893,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
+    public void visit(TypeCastExpression typeCastExpression) {
+
+    }
+
+    @Override
     public void visit(ArrayInitExpr arrayInitExpr) {
         JsonObject arrayInitExprObj = new JsonObject();
         arrayInitExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
@@ -925,7 +973,16 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(Const constant) {
-        //TODO
+        JsonObject constantDefinitionDefine = new JsonObject();
+        constantDefinitionDefine.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
+                BLangJSONModelConstants.CONSTANT_DEFINITION);
+        constantDefinitionDefine.addProperty(BLangJSONModelConstants.CONSTANT_DEFINITION_BTYPE,
+                constant.getType().toString());
+        constantDefinitionDefine.addProperty(BLangJSONModelConstants.CONSTANT_DEFINITION_IDENTIFIER,
+                constant.getName().toString());
+        constantDefinitionDefine.addProperty(BLangJSONModelConstants.CONSTANT_DEFINITION_VALUE,
+                ((BasicLiteral)constant.getValueExpr()).getBValue().stringValue());
+        tempJsonArrayRef.peek().add(constantDefinitionDefine);
     }
 
     @Override

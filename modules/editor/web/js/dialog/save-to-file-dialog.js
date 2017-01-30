@@ -52,6 +52,10 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                 var app = this.app;
                 var notification_container = this.notification_container;
 
+                if(!_.isNil(this._fileSaveModal)){
+                    this._fileSaveModal.remove();
+                }
+
                 var fileSave = $(
                     "<div class='modal fade' id='saveConfigModal' tabindex='-1' role='dialog' aria-tydden='true'>" +
                     "<div class='modal-dialog file-dialog' role='document'>" +

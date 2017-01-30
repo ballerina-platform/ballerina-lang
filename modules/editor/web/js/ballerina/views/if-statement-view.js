@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './../ast/if-statement', 'd3utils', 'd3'],
-    function (require, _, $, log, BallerinaStatementView, IfStatement, D3Utils, d3) {
+define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './../ast/if-statement', 'd3utils', 'd3', 'ballerina/ast/ballerina-ast-factory'],
+    function (require, _, $, log, BallerinaStatementView, IfStatement, D3Utils, d3, BallerinaASTFactory) {
 
         /**
          * The view to represent a If statement which is an AST visitor.
@@ -35,6 +35,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             // Initialize the bounding box
             this.getBoundingBox().fromTopCenter(this.getTopCenter(),
                 _.get(this._viewOptions, 'width'),  _.get(this._viewOptions, 'height'));
+            this._statementContainer = undefined;
             this.init();
         };
 
@@ -42,7 +43,6 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
         IfStatementView.prototype.constructor = IfStatementView;
 
         IfStatementView.prototype.init = function () {
-            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
         };
 
         IfStatementView.prototype.canVisitIfStatement = function(){
@@ -154,6 +154,10 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             this.listenTo(this._statementContainer.getBoundingBox(), 'width-changed', function(dw){
                 this.getBoundingBox().w(this.getBoundingBox().w() + dw);
             });
+
+            this._statementContainer.getBoundingBox().on('bottom-edge-moved', function (dy) {
+                this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+            }, this);
             this._statementContainer.render(this._diagramRenderingContext);
         };
 
@@ -197,6 +201,24 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
 
         IfStatementView.prototype.getViewOptions = function () {
             return this._viewOptions;
+        };
+
+        /**
+         * Get the statement container
+         * @return {StatementContainer} - Statement container
+         */
+        IfStatementView.prototype.getStatementContainer = function () {
+            return this._statementContainer;
+        };
+
+        /**
+         * Override Child remove callback
+         * @param {ASTNode} child - removed child
+         */
+        IfStatementView.prototype.childRemovedCallback = function (child) {
+            if (BallerinaASTFactory.isStatement(child)) {
+                this.getStatementContainer().childStatementRemovedCallback(child);
+            }
         };
 
         return IfStatementView;

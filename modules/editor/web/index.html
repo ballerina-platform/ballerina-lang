@@ -1,4 +1,3 @@
-
 <!--Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.-->
 
 <!--WSO2 Inc. licenses this file to you under the Apache License,-->
@@ -15,8 +14,7 @@
 <!--specific language governing permissions and limitations-->
 <!--under the License.-->
 
-
-
+<!DOCTYPE html>
 <html lang="en" class=" webkit chrome mac js gr__localhost">
 <head>
     <meta charset="utf-8">
@@ -38,6 +36,7 @@
     <link href="css/notification.css" rel="stylesheet" type="text/css"/>
     <link href="css/fileDialog.css" rel="stylesheet" type="text/css"/>
     <link href="lib/nanoscroller_0.8.7/nanoscroller.css" rel="stylesheet" type="text/css"/>
+    <link href="lib/mCustomScrollbar_v3.1.5/css/jquery.mCustomScrollbar.css" rel="stylesheet" type="text/css"/>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -181,7 +180,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="package-btn btn-icon">
+                <div class="package-btn btn-icon" data-toggle="tooltip" title="Package and Imports">
                     <span class="fw-stack fw-lg">
                         <i class="fw fw-circle fw-stack-2x"></i>
                         <i class="fw fw-package fw-stack-1x fw-inverse"></i>
@@ -390,7 +389,8 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content clearfix">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">x</button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="fw fw-cancel  about-dialog-close"></i></button>
                 <h3 class="modal-title" id="errorModalLabel">Error</h3>
             </div>
             <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
@@ -409,7 +409,9 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content clearfix">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">x</button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="fw fw-cancel about-dialog-close"></i>
+                </button>
                 <h4 class="modal-title" >Search</h4>
             </div>
             <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
@@ -499,6 +501,7 @@
             ace: "lib/ace_v1.2.6",
             beautify: "lib/beautify/beautify",
             mousetrap: "lib/mousetrap_v1.6.0/mousetrap.min",
+            mcustom_scroller: "lib/mCustomScrollbar_v3.1.5/js/jquery.mCustomScrollbar.concat.min",
             ///////////////////////
             // custom modules ////
             //////////////////////

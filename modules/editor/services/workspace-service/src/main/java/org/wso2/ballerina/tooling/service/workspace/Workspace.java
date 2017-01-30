@@ -35,6 +35,8 @@ public interface Workspace {
 
       void create(String path, String type) throws IOException;
 
+      void delete(String path, String type) throws IOException;
+
       void write(String path, String content) throws IOException;
 
       void log(String logger, String timestamp, String level, String URL, String message, String layout) throws IOException;
