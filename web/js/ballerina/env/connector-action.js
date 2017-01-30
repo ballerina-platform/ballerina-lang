@@ -15,18 +15,60 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'event_channel'],
-    function(log, _, EventChannel ){
+define(['log', 'lodash'],
+    function (log, _) {
 
-    /**
-     * @class Package
-     * @augments EventChannel
-     * @param args {Object} - args.name: name of the package
-     * @constructor
-     */
-    var ConnectorAction = function(args){
-        this.name = _.get(args, 'name', []);
-    };
+        /**
+         * @class Package
+         * @augments EventChannel
+         * @param args {Object} - args.name: name of the package
+         * @constructor
+         */
+        var ConnectorAction = function (args) {
+            this.name = _.get(args, 'name', '');
+            this.action = _.get(args, 'action', '');
+            this._id = _.get(args, 'id', '');
+            this._title = _.get(args, 'title', '');
+        };
 
-    return ConnectorAction;
-});
+        ConnectorAction.prototype.setName = function (name) {
+            this.name = name;
+        };
+
+        ConnectorAction.prototype.getName = function () {
+            return this.name;
+        };
+
+        ConnectorAction.prototype.setId = function (id) {
+            this._id = id;
+        };
+
+        ConnectorAction.prototype.getId = function () {
+            return this._id;
+        };
+
+        ConnectorAction.prototype.setTitle = function (title) {
+            this._title = title;
+        };
+
+        ConnectorAction.prototype.getTitle = function () {
+            return this._title;
+        };
+
+        ConnectorAction.prototype.setAction = function (action) {
+            this.action = action;
+        };
+
+        ConnectorAction.prototype.getAction = function () {
+            return this.action;
+        };
+
+        ConnectorAction.prototype.initFromJson = function (jsonNode) {
+            this.setName(jsonNode.name);
+            this.setAction(jsonNode.meta.action);
+            this.setId(jsonNode.id);
+            this.setTitle(jsonNode.title);
+        };
+
+        return ConnectorAction;
+    });
