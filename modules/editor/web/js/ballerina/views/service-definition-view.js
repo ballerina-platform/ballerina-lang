@@ -192,8 +192,9 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
             // Creating annotation icon.
             var panelAnnotationIcon = $("<i/>", {
-                class: "fw fw-annotation pull-right right-icon-clickable hoverable"
-            }).appendTo(operationsPane);
+                class: "fw fw-annotation pull-right right-icon-clickable hoverable",
+                title: "Annotations"
+            }).appendTo(operationsPane).tooltip();
 
             // Stopping event propagation to the elements behind.
             panelAnnotationIcon.click(function (event) {
