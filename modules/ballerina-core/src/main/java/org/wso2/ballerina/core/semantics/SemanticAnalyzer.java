@@ -49,7 +49,6 @@ import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.TypeConvertor;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
@@ -127,6 +126,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     private int structMemAddrOffset = -1;
     private SymTable symbolTable;
     private String currentPkg;
+    private TypeLattice packageTypeLattice;
     private CallableUnit currentCallableUnit = null;
     // following pattern matches ${anyString} or ${anyString[int]} or ${anyString["anyString"]}
     private static final String patternString = "\\$\\{((\\w+)(\\[(\\d+|\\\"(\\w+)\\\")\\])?)\\}";
@@ -155,7 +155,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             addConnectorSymbol(connector);
             Arrays.asList(connector.getActions()).forEach(this::addActionSymbol);
         });
-        Arrays.asList(bFile.getTypeConvertors()).forEach(this::addTypeConverterSymbol);
+
+        packageTypeLattice = bFile.getTypeLattice();
     }
 
     @Override
@@ -187,8 +188,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             bFunction.accept(this);
         }
 
-        for (TypeConvertor tConverter : bFile.getTypeConvertors()) {
-            BTypeConvertor typeConvertor = (BTypeConvertor) tConverter;
+        for (TypeEdge typeEdge : bFile.getTypeLattice().getEdges()) {
+            BTypeConvertor typeConvertor = (BTypeConvertor) typeEdge.getTypeConvertor();
             typeConvertor.accept(this);
         }
 
@@ -1506,21 +1507,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         symbolTable.insert(symbolName, symbol);
     }
 
-    private void addTypeConverterSymbol(TypeConvertor typeConvertor) {
-        SymbolName symbolName = LangModelUtils.getTypeConverterSymName(typeConvertor.getPackageName(),
-                typeConvertor.getParameters(),
-                typeConvertor.getReturnParameters());
-        typeConvertor.setSymbolName(symbolName);
-
-        if (symbolTable.lookup(symbolName) != null) {
-            throw new SemanticException(typeConvertor.getLocation().getFileName() + ":" + typeConvertor.getLocation()
-                    .getLine() + ": duplicate typeConvertor '" + typeConvertor.getTypeConverterName() + "'");
-        }
-
-        Symbol symbol = new Symbol(typeConvertor);
-        symbolTable.insert(symbolName, symbol);
-    }
-
     private void addActionSymbol(BallerinaAction action) {
         SymbolName actionSymbolName = action.getSymbolName();
         BType[] paramTypes = LangModelUtils.getTypesOfParams(action.getParameters());
@@ -2002,18 +1988,24 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private void linkTypeConverter(TypeCastExpression typeCastExpression, BType sourceType, BType targetType) {
         TypeEdge newEdge = null;
-        newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, currentPkg);
+        // First check on this package
+        newEdge = packageTypeLattice.getEdgeFromTypes(sourceType, targetType, currentPkg);
         if (newEdge != null) {
             typeCastExpression.setCallableUnit(newEdge.getTypeConvertor());
         } else {
-            newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
+            newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, currentPkg);
             if (newEdge != null) {
                 typeCastExpression.setCallableUnit(newEdge.getTypeConvertor());
             } else {
-                throw new LinkerException(typeCastExpression.getLocation().getFileName() + ":" +
-                        typeCastExpression.getLocation().getLine() +
-                        ": type converter cannot be found for '" + sourceType
-                        + " to " + targetType + "'");
+                newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
+                if (newEdge != null) {
+                    typeCastExpression.setCallableUnit(newEdge.getTypeConvertor());
+                } else {
+                    throw new LinkerException(typeCastExpression.getLocation().getFileName() + ":" +
+                            typeCastExpression.getLocation().getLine() +
+                            ": type converter cannot be found for '" + sourceType
+                            + " to " + targetType + "'");
+                }
             }
         }
     }

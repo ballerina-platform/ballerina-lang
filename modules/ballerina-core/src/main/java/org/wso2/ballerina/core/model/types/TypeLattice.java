@@ -55,6 +55,7 @@ public class TypeLattice {
         return implicitCastLattice;
     }
 
+
     private static void initImplicitCastWithBuiltInTypes() {
 
         TypeVertex intV = new TypeVertex(new BIntegerType(TypeEnum.INT.getName()));
@@ -210,19 +211,6 @@ public class TypeLattice {
     }
 
     /**
-     * @param e The TypeEdge to look up
-     * @return true iff this Graph contains the TypeEdge e
-     */
-    public boolean containsEdge(TypeEdge e) {
-        if (e.getSource() == null || e.getTarget() == null) {
-            return false;
-        }
-
-        return this.edges.containsKey(e.hashCode());
-    }
-
-
-    /**
      * This method removes the specified TypeEdge from the Graph,
      * including as each vertex's incidence neighborhood.
      *
@@ -233,22 +221,6 @@ public class TypeLattice {
         e.getSource().removeNeighbor(e);
         e.getTarget().removeNeighbor(e);
         return this.edges.remove(e.hashCode());
-    }
-
-    /**
-     * @param vertex The TypeVertex to look up
-     * @return true iff this Graph contains vertex
-     */
-    public boolean containsVertex(TypeVertex vertex) {
-        return this.vertices.get(vertex.toString()) != null;
-    }
-
-    /**
-     * @param label The specified TypeVertex label
-     * @return TypeVertex The TypeVertex with the specified label
-     */
-    public TypeVertex getVertex(String label) {
-        return this.vertices.get(label);
     }
 
     /**
@@ -276,27 +248,6 @@ public class TypeLattice {
 
         this.vertices.put(vertex.toString(), vertex);
         return true;
-    }
-
-    /**
-     * @param label The label of the TypeVertex to remove
-     * @return TypeVertex The removed TypeVertex object
-     */
-    public TypeVertex removeVertex(String label) {
-        TypeVertex v = this.vertices.remove(label);
-
-        while (v.getNeighborCount() > 0) {
-            removeEdge(v.getNeighbor((0)));
-        }
-
-        return v;
-    }
-
-    /**
-     * @return Set<String> The unique labels of the Graph's TypeVertex objects
-     */
-    public Set<String> vertexKeys() {
-        return this.vertices.keySet();
     }
 
     /**

@@ -78,15 +78,6 @@ public class TypeVertex {
         return this.neighborhood.get(index);
     }
 
-
-    /**
-     * @param index The index of the edge to remove from this.neighborhood
-     * @return TypeEdge The removed TypeEdge
-     */
-    TypeEdge removeNeighbor(int index) {
-        return this.neighborhood.remove(index);
-    }
-
     /**
      * @param e The TypeEdge to remove from this.neighborhood
      */
@@ -148,14 +139,6 @@ public class TypeVertex {
         } else {
             return this.bType.equals(v.getType()) && this.packageName.equals(v.getPackageName());
         }
-    }
-
-    /**
-     * @return ArrayList<TypeEdge> A copy of this.neighborhood. Modifying the returned
-     * ArrayList will not affect the neighborhood of this Vertex
-     */
-    public ArrayList<TypeEdge> getNeighbors() {
-        return new ArrayList<TypeEdge>(this.neighborhood);
     }
 
     public String getPackageName() {
