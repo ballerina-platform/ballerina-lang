@@ -87,7 +87,8 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/reply-statement
          * Rendering the view for reply statement.
          * @returns {group} The svg group which contains the elements of the reply statement view.
          */
-        ReplyStatementView.prototype.render = function () {
+        ReplyStatementView.prototype.render = function (diagramRenderingContext) {
+            this.setDiagramRenderingContext(diagramRenderingContext);
             var width =  this._viewOptions.width;
             var height = this._viewOptions.height;
 
