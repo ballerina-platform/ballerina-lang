@@ -14,7 +14,6 @@
 <!--specific language governing permissions and limitations-->
 <!--under the License.-->
 
-<!DOCTYPE html>
 <html lang="en" class=" webkit chrome mac js gr__localhost">
 <head>
     <meta charset="utf-8">
@@ -366,7 +365,7 @@
 <!-- End: Set Service Parameters Modal -->
 
 <!--Start: About Modal-->
-<div class="modal fade" id="modalAbout" tabindex="-1" role="dialog" aria-labelledby="modalDemo">
+<div class="modal fade" id="modalAbout" tabindex="-1" role="dialog" aria-label="modalDemo">
     <div class="modal-dialog" role="document">
         <div class="modal-content clearfix">
             <div class="modal-header">
@@ -430,7 +429,7 @@
 <!--End: Search Modal-->
 
 <!--Start: Open Folder Modal-->
-<div class='modal fade' id='open-folder-modal' tabindex='-1' role='dialog' aria-tydden='true'>
+<div class='modal fade' id='open-folder-modal' tabindex='-1' role='dialog' aria-hidden='true'>
     <div class='modal-dialog file-dialog' role='document'>
         <div class='modal-content'>
             <div class='modal-header'>
@@ -462,7 +461,7 @@
                             <div class='folder-dialog-form-btn'>
                                 <button type='button' class='btn btn-file-dialog open-button'>open
                                 </button>
-                                <div class='divider'/>
+                                <div class='divider'></div>
                                 <button type='button' class='btn btn-file-dialog' data-dismiss='modal'>cancel</button>
                             </div>
                         </div>
@@ -496,7 +495,6 @@
             backbone: "lib/backbone_v1.3.3/backbone",
             svg_pan_zoom: "lib/svg-panNZoom/jquery.svg.pan.zoom",
             js_tree: "lib/js-tree-v3.3.2/jstree",
-            nano_scroller: "lib/nanoscroller_0.8.7/jquery.nanoscroller.min",
             theme_wso2: "lib/theme-wso2_1.0/js/theme-wso2",
             ace: "lib/ace_v1.2.6",
             beautify: "lib/beautify/beautify",
@@ -763,7 +761,7 @@
                     maxX: 800
                 },
                 cssClass: {
-                    container: 'workspace-explorer-container nano-content',
+                    container: 'workspace-explorer-container',
                     openFolderButton: 'btn  btn-default open-folder-button'
                 }
             },
