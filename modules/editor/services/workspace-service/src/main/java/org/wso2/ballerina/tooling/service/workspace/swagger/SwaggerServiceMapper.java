@@ -77,9 +77,9 @@ public class SwaggerServiceMapper {
      * Assumption made here was ballerina service will be always super set of swagger.
      * Swagger can have its annotations and those will be part of ballerina service without any data loss.
      *
-     * @param swagger
-     * @param service
-     * @return
+     * @param swagger @Swagger to be convert to @Service.
+     * @param service @Service object that need to update with swagger changes.
+     * @return Updated @Service object with swagger changes.
      */
     public Service convertSwaggerToService(Swagger swagger, Service service) {
         //We need to pass both swagger definition and service definition for this class
@@ -89,4 +89,8 @@ public class SwaggerServiceMapper {
         return service;
 
     }
+
+    /*public Service getServiceFromSwagger(Swagger swagger){
+
+    }*/
 }
