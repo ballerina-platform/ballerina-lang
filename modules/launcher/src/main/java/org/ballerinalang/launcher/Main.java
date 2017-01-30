@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ServiceLoader;
 
 /**
  * This class executes a Ballerina program.
@@ -68,6 +69,12 @@ public class Main {
             HelpCmd helpCmd = new HelpCmd();
             cmdParser.addCommand("help", helpCmd);
             helpCmd.setJCommander(cmdParser);
+
+            // loading additional commands via SPI
+            ServiceLoader<BLauncherCmd> bCmds = ServiceLoader.load(BLauncherCmd.class);
+            for (BLauncherCmd bCmd : bCmds) {
+                cmdParser.addCommand(bCmd.getName(), bCmd);
+            }
 
             cmdParser.setProgramName("ballerina");
             cmdParser.parse(args);
@@ -424,22 +431,6 @@ public class Main {
         void setJCommander(JCommander cmdParser) {
             this.cmdParser = cmdParser;
         }
-    }
-
-    /**
-     * {@code BLauncherCmd} represents a Ballerina command
-     *
-     * @see RunCmd
-     * @see ServiceCmd
-     * @since 0.8.0
-     */
-    interface BLauncherCmd {
-
-        void execute();
-
-        String getName();
-
-        void printUsage(StringBuilder out);
     }
 }
 
