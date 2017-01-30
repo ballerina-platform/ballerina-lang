@@ -644,14 +644,16 @@ public class BLangModelBuilder {
     // Functions, Actions and Resources
 
     public void startCallableUnitBody() {
-        blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder());
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(currentScope);
+        blockStmtBuilderStack.push(blockStmtBuilder);
+        currentScope = blockStmtBuilder;
     }
 
     public void endCallableUnitBody() {
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt blockStmt = blockStmtBuilder.build();
-
         currentCUBuilder.setBody(blockStmt);
+        currentScope = blockStmtBuilder.getEnclosingScope();
     }
 
     public void startCallableUnit() {
@@ -660,7 +662,7 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void createFunction(NodeLocation location, String name, boolean isPublic) {
+    public void addFunction(NodeLocation location, String name, boolean isPublic) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
         currentCUBuilder.setPkgPath(currentPackagePath);
@@ -678,7 +680,7 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
-    public void createTypeConverter(NodeLocation location, String name, boolean isPublic) {
+    public void addTypeConverter(NodeLocation location, String name, boolean isPublic) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
         currentCUBuilder.setPkgPath(currentPackagePath);
@@ -693,7 +695,7 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
-    public void createResource(NodeLocation location, String name) {
+    public void addResource(NodeLocation location, String name) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
         currentCUBuilder.setPkgPath(currentPackagePath);
@@ -712,7 +714,7 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
-    public void createAction(NodeLocation location, String name) {
+    public void addAction(NodeLocation location, String name) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
         currentCUBuilder.setPkgPath(currentPackagePath);
@@ -800,10 +802,12 @@ public class BLangModelBuilder {
     }
 
     public void startWhileStmt() {
-        blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder());
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(currentScope);
+        blockStmtBuilderStack.push(blockStmtBuilder);
+        currentScope = blockStmtBuilder;
     }
 
-    public void endWhileStmt(NodeLocation location) {
+    public void addWhileStmt(NodeLocation location) {
         // Create a while statement builder
         WhileStmt.WhileStmtBuilder whileStmtBuilder = new WhileStmt.WhileStmtBuilder();
         whileStmtBuilder.setNodeLocation(location);
@@ -812,7 +816,11 @@ public class BLangModelBuilder {
         whileStmtBuilder.setCondition(exprStack.pop());
 
         // Get the statement block at the top of the block statement stack and set as the while body.
-        whileStmtBuilder.setWhileBody(blockStmtBuilderStack.pop().build());
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+        whileStmtBuilder.setWhileBody(blockStmtBuilder.build());
+
+        // Close the current scope and open the enclosing scope
+        currentScope = blockStmtBuilder.getEnclosingScope();
 
         // Add the while statement to the statement block which is at the top of the stack.
         WhileStmt whileStmt = whileStmtBuilder.build();
@@ -824,37 +832,48 @@ public class BLangModelBuilder {
         ifElseStmtBuilder.setNodeLocation(location);
         ifElseStmtBuilderStack.push(ifElseStmtBuilder);
 
-        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder();
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(currentScope);
         blockStmtBuilder.setNodeLocation(location);
         blockStmtBuilderStack.push(blockStmtBuilder);
+
+        currentScope = blockStmtBuilder;
     }
 
     public void startElseIfClause(NodeLocation location) {
-        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder();
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(currentScope);
         blockStmtBuilder.setNodeLocation(location);
         blockStmtBuilderStack.push(blockStmtBuilder);
+
+        currentScope = blockStmtBuilder;
     }
 
-    public void endElseIfClause() {
+    public void addElseIfClause() {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.peek();
 
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt elseIfStmtBlock = blockStmtBuilder.build();
         ifElseStmtBuilder.addElseIfBlock(elseIfStmtBlock.getNodeLocation(), exprStack.pop(), elseIfStmtBlock);
+
+        currentScope = blockStmtBuilder.getEnclosingScope();
     }
 
     public void startElseClause() {
-        blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder());
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(currentScope);
+        blockStmtBuilderStack.push(blockStmtBuilder);
+
+        currentScope = blockStmtBuilder;
     }
 
-    public void endElseClause() {
+    public void addElseClause() {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt elseStmt = blockStmtBuilder.build();
         ifElseStmtBuilder.setElseBody(elseStmt);
+
+        currentScope = blockStmtBuilder.getEnclosingScope();
     }
 
-    public void endIfElseStmt() {
+    public void addIfElseStmt() {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.pop();
         ifElseStmtBuilder.setIfCondition(exprStack.pop());
 
@@ -863,6 +882,8 @@ public class BLangModelBuilder {
 
         IfElseStmt ifElseStmt = ifElseStmtBuilder.build();
         addToBlockStmt(ifElseStmt);
+
+        currentScope = blockStmtBuilder.getEnclosingScope();
     }
 
     public void createFunctionInvocationStmt(NodeLocation location) {
