@@ -230,8 +230,9 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
             // Creating arguments icon.
             var panelArgumentsIcon = $("<i/>", {
-                class: "fw fw-import pull-right right-icon-clickable hoverable"
-            }).appendTo(operationsPane);
+                class: "fw fw-import pull-right right-icon-clickable hoverable",
+                title: "Arguments"
+            }).appendTo(operationsPane).tooltip();
 
             // Stopping event propagation to the elements behind.
             panelArgumentsIcon.click(function (event) {
