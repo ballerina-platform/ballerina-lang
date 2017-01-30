@@ -68,7 +68,7 @@ structDefinition
     ;
 
 structDefinitionBody
-    :   '{' (Identifier ':' typeName ';')+ '}'
+    :   '{' (typeName Identifier ';')+ '}'
     ;
 
 typeConvertorDefinition
@@ -85,7 +85,7 @@ typeConvertorBody
     ;
 
 constantDefinition
-    :   'const' typeName Identifier '=' literalValue ';'
+    :   'public'? 'const' typeName Identifier '=' literalValue ';'
     ;
 
 // cannot have conector declaration, need to validate at semantic analyzing
