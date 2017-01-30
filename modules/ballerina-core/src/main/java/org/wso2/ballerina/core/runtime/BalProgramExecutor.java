@@ -29,7 +29,7 @@ import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.NodeLocation;
-import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -84,8 +84,8 @@ public class BalProgramExecutor {
             if (mainFunction != null) {
 
                 // TODO Refactor this logic ASAP
-                Parameter[] parameters = mainFunction.getParameters();
-                argsName = parameters[0].getName();
+                ParameterDef[] parameterDefs = mainFunction.getParameterDefs();
+                argsName = parameterDefs[0].getSymbolName();
 
 //                if (parameters.length == 1 && parameters[0].getType() == BTypes.getArrayType(BTypes.
 //                        STRING_TYPE.toString())) {

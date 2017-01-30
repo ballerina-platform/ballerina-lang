@@ -43,7 +43,7 @@ import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Operator;
-import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.StructDcl;
@@ -270,9 +270,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Then open the connector namespace
         openScope(SymScope.Name.CONNECTOR);
 
-        for (Parameter parameter : connector.getParameters()) {
+        for (ParameterDef parameterDef : connector.getParameterDefs()) {
             connectorMemAddrOffset++;
-            visit(parameter);
+            visit(parameterDef);
         }
 
         for (ConnectorDcl connectorDcl : connector.getConnectorDcls()) {
@@ -307,13 +307,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Check whether the return statement is missing. Ignore if the function does not return anything.
         //checkForMissingReplyStmt(resource);
 
-        for (Parameter parameter : resource.getParameters()) {
+        for (ParameterDef parameterDef : resource.getParameterDefs()) {
             stackFrameOffset++;
-            visit(parameter);
+            visit(parameterDef);
         }
 
-        for (Parameter parameter : resource.getReturnParameters()) {
-            validateType(parameter.getType(), parameter.getNodeLocation());
+        for (ParameterDef parameterDef : resource.getReturnParameters()) {
+            validateType(parameterDef.getType(), parameterDef.getNodeLocation());
         }
 
         for (ConnectorDcl connectorDcl : resource.getConnectorDcls()) {
@@ -348,9 +348,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         // TODO Define proper error message codes
         //checkForMissingReturnStmt(function, "missing return statement at end of function");
 
-        for (Parameter parameter : function.getParameters()) {
+        for (ParameterDef parameterDef : function.getParameterDefs()) {
             stackFrameOffset++;
-            visit(parameter);
+            visit(parameterDef);
         }
 
         for (ConnectorDcl connectorDcl : function.getConnectorDcls()) {
@@ -363,15 +363,15 @@ public class SemanticAnalyzer implements NodeVisitor {
             visit(variableDef);
         }
 
-        for (Parameter parameter : function.getReturnParameters()) {
+        for (ParameterDef parameterDef : function.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
-            if (parameter.getName() == null) {
+            if (parameterDef.getName() == null) {
                 break;
             }
 
             stackFrameOffset++;
-            visit(parameter);
+            visit(parameterDef);
         }
 
         BlockStmt blockStmt = function.getCallableUnitBody();
@@ -403,9 +403,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         // TODO Define proper error message codes
         //checkForMissingReturnStmt(function, "missing return statement at end of function");
 
-        for (Parameter parameter : typeConvertor.getParameters()) {
+        for (ParameterDef parameterDef : typeConvertor.getParameterDefs()) {
             stackFrameOffset++;
-            visit(parameter);
+            visit(parameterDef);
         }
 
         for (VariableDef variableDef : typeConvertor.getVariableDefs()) {
@@ -413,15 +413,15 @@ public class SemanticAnalyzer implements NodeVisitor {
             visit(variableDef);
         }
 
-        for (Parameter parameter : typeConvertor.getReturnParameters()) {
+        for (ParameterDef parameterDef : typeConvertor.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
-            if (parameter.getName() == null) {
+            if (parameterDef.getName() == null) {
                 break;
             }
 
             stackFrameOffset++;
-            visit(parameter);
+            visit(parameterDef);
         }
 
         BlockStmt blockStmt = typeConvertor.getCallableUnitBody();
@@ -453,9 +453,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         // TODO Define proper error message codes
         //checkForMissingReturnStmt(action, "missing return statement at end of action");
 
-        for (Parameter parameter : action.getParameters()) {
+        for (ParameterDef parameterDef : action.getParameterDefs()) {
             stackFrameOffset++;
-            visit(parameter);
+            visit(parameterDef);
         }
 
         for (ConnectorDcl connectorDcl : action.getConnectorDcls()) {
@@ -468,15 +468,15 @@ public class SemanticAnalyzer implements NodeVisitor {
             visit(variableDef);
         }
 
-        for (Parameter parameter : action.getReturnParameters()) {
+        for (ParameterDef parameterDef : action.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
-            if (parameter.getName() == null) {
+            if (parameterDef.getName() == null) {
                 break;
             }
 
             stackFrameOffset++;
-            visit(parameter);
+            visit(parameterDef);
         }
 
         BlockStmt blockStmt = action.getCallableUnitBody();
@@ -509,13 +509,14 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(Parameter parameter) {
-        SymbolName symName = parameter.getName();
+    public void visit(ParameterDef parameterDef) {
+        SymbolName symName = parameterDef.getSymbolName();
 
         Symbol symbol = symbolTable.lookup(symName);
         if (symbol != null && isSymbolInCurrentScope(symbol)) {
-            throw new SemanticException(parameter.getNodeLocation().getFileName() + ":" +
-                    parameter.getNodeLocation().getLineNumber() + ": duplicate parameter '" + symName.getName() + "'");
+            throw new SemanticException(parameterDef.getNodeLocation().getFileName() + ":" +
+                    parameterDef.getNodeLocation().getLineNumber() + ": duplicate parameter '" +
+                    symName.getName() + "'");
         }
 
         MemoryLocation location;
@@ -532,8 +533,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             throw new IllegalStateException("Parameter declaration is invalid");
         }
 
-        BType type = parameter.getType();
-        validateType(type, parameter.getNodeLocation());
+        BType type = parameterDef.getType();
+        validateType(type, parameterDef.getNodeLocation());
         symbol = new Symbol(type, currentScopeName(), location);
         symbolTable.insert(symName, symbol);
     }
@@ -797,7 +798,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression[] returnArgExprs = returnStmt.getExprs();
 
         // Return parameters of the current function or actions
-        Parameter[] returnParamsOfCU = currentCallableUnit.getReturnParameters();
+        ParameterDef[] returnParamsOfCU = currentCallableUnit.getReturnParameters();
 
         if (returnArgExprs.length == 0 && returnParamsOfCU.length == 0) {
             // Return stmt has no expressions and function/action does not return anything. Just return.
@@ -810,7 +811,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             Expression[] returnExprs = new Expression[returnParamsOfCU.length];
             for (int i = 0; i < returnParamsOfCU.length; i++) {
                 VariableRefExpr variableRefExpr = new VariableRefExpr(returnStmt.getNodeLocation(),
-                        returnParamsOfCU[i].getName());
+                        returnParamsOfCU[i].getSymbolName());
                 visit(variableRefExpr);
                 returnExprs[i] = variableRefExpr;
             }
@@ -931,7 +932,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         linkFunction(funcIExpr);
 
         //Find the return types of this function invocation expression.
-        Parameter[] returnParams = funcIExpr.getCallableUnit().getReturnParameters();
+        ParameterDef[] returnParams = funcIExpr.getCallableUnit().getReturnParameters();
         BType[] returnTypes = new BType[returnParams.length];
         for (int i = 0; i < returnParams.length; i++) {
             returnTypes[i] = returnParams[i].getType();
@@ -950,7 +951,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         linkAction(actionIExpr);
 
         //Find the return types of this function invocation expression.
-        Parameter[] returnParams = actionIExpr.getCallableUnit().getReturnParameters();
+        ParameterDef[] returnParams = actionIExpr.getCallableUnit().getReturnParameters();
         BType[] returnTypes = new BType[returnParams.length];
         for (int i = 0; i < returnParams.length; i++) {
             returnTypes[i] = returnParams[i].getType();
@@ -1565,7 +1566,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private void addFuncSymbol(Function function) {
-        SymbolName symbolName = LangModelUtils.getSymNameWithParams(function.getName(), function.getParameters());
+        SymbolName symbolName = LangModelUtils.getSymNameWithParams(function.getName(), function.getParameterDefs());
         function.setSymbolName(symbolName);
 
         if (symbolTable.lookup(symbolName) != null) {
@@ -1580,14 +1581,14 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private void addTypeConverterSymbol(TypeConvertor typeConvertor) {
         SymbolName symbolName = LangModelUtils.getTypeConverterSymName(typeConvertor.getPackagePath(),
-                typeConvertor.getParameters(),
+                typeConvertor.getParameterDefs(),
                 typeConvertor.getReturnParameters());
         typeConvertor.setSymbolName(symbolName);
 
         if (symbolTable.lookup(symbolName) != null) {
             throw new SemanticException(typeConvertor.getNodeLocation().getFileName() + ":" +
-                    typeConvertor.getNodeLocation()
-                    .getLineNumber() + ": duplicate typeConvertor '" + typeConvertor.getTypeConverterName() + "'");
+                    typeConvertor.getNodeLocation().getLineNumber() + ": duplicate typeConvertor '" +
+                    typeConvertor.getTypeConverterName() + "'");
         }
 
         Symbol symbol = new Symbol(typeConvertor);
@@ -1596,7 +1597,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private void addActionSymbol(BallerinaAction action) {
         SymbolName actionSymbolName = action.getSymbolName();
-        BType[] paramTypes = LangModelUtils.getTypesOfParams(action.getParameters());
+        BType[] paramTypes = LangModelUtils.getTypesOfParams(action.getParameterDefs());
 
         SymbolName symbolName =
                 LangModelUtils.getActionSymName(actionSymbolName.getName(),

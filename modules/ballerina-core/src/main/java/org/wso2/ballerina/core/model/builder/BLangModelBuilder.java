@@ -31,7 +31,7 @@ import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.Operator;
-import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.StructDcl;
@@ -341,17 +341,19 @@ public class BLangModelBuilder {
      *
      * @param paramName name of the function parameter
      */
-    public void createParam(String paramName, NodeLocation location) {
-        SymbolName paramNameId = new SymbolName(paramName);
-        BType paramType = typeQueue.remove();
-        Parameter param = new Parameter(location, paramType, paramNameId);
+    public void addParam(String paramName, NodeLocation location) {
+        SymbolName symbolName = new SymbolName(paramName);
+        SimpleTypeName typeName = typeNameQueue.remove();
+        ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
 
         if (currentCUBuilder != null) {
             // Add the parameter to callableUnitBuilder.
-            currentCUBuilder.addParameter(param);
+            currentCUBuilder.addParameter(paramDef);
         } else {
-            currentCUGroupBuilder.addParameter(param);
+            currentCUGroupBuilder.addParameter(paramDef);
         }
+
+        currentScope.define(symbolName, paramDef);
     }
 
     public void registerConnectorType(String typeName) {
@@ -360,19 +362,20 @@ public class BLangModelBuilder {
     }
 
     public void createReturnTypes(NodeLocation location) {
-        while (!typeQueue.isEmpty()) {
-            BType paramType = typeQueue.remove();
-            Parameter param = new Parameter(location, paramType, null);
-            currentCUBuilder.addReturnParameter(param);
+        while (!typeNameQueue.isEmpty()) {
+            SimpleTypeName typeName = typeNameQueue.remove();
+            ParameterDef paramDef = new ParameterDef(location, null, typeName, null, currentScope);
+            currentCUBuilder.addReturnParameter(paramDef);
         }
     }
 
     public void createNamedReturnParams(String paramName, NodeLocation location) {
-        SymbolName paramNameId = new SymbolName(paramName);
-        BType paramType = typeQueue.remove();
+        SymbolName symbolName = new SymbolName(paramName);
+        SimpleTypeName typeName = typeNameQueue.remove();
+        ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
+        currentCUBuilder.addReturnParameter(paramDef);
 
-        Parameter param = new Parameter(location, paramType, paramNameId);
-        currentCUBuilder.addReturnParameter(param);
+        currentScope.define(symbolName, paramDef);
     }
 
 

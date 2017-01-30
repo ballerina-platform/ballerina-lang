@@ -89,7 +89,7 @@ public interface NodeVisitor {
 
     void visit(Annotation annotation);
 
-    void visit(Parameter parameter);
+    void visit(ParameterDef parameterDef);
 
     void visit(ConnectorDcl connectorDcl);
 

@@ -27,7 +27,7 @@ import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeExecutor;
-import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.StructDef;
@@ -243,7 +243,7 @@ public class BLangExecutor implements NodeExecutor {
             valueCounter++;
         }
 
-        for (Parameter returnParam : function.getReturnParameters()) {
+        for (ParameterDef returnParam : function.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
             if (returnParam.getName() == null) {
@@ -303,7 +303,7 @@ public class BLangExecutor implements NodeExecutor {
             valueCounter++;
         }
 
-        for (Parameter returnParam : action.getReturnParameters()) {
+        for (ParameterDef returnParam : action.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
             if (returnParam.getName() == null) {
@@ -508,7 +508,7 @@ public class BLangExecutor implements NodeExecutor {
                 valueCounter++;
             }
 
-            for (Parameter returnParam : typeConvertor.getReturnParameters()) {
+            for (ParameterDef returnParam : typeConvertor.getReturnParameters()) {
                 // Check whether these are unnamed set of return types.
                 // If so break the loop. You can't have a mix of unnamed and named returns parameters.
                 if (returnParam.getName() == null) {

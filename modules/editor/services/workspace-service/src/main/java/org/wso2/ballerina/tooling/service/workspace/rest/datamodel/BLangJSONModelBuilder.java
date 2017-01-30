@@ -36,7 +36,7 @@ import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.VariableDef;
@@ -222,9 +222,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         }
         jsonConnectObj.add(BLangJSONModelConstants.ANNOTATION_DEFINITIONS, this.tempJsonArrayRef.peek());
         this.tempJsonArrayRef.pop();
-        if (connector.getParameters() != null) {
-            for (Parameter parameter : connector.getParameters()) {
-                parameter.accept(this);
+        if (connector.getParameterDefs() != null) {
+            for (ParameterDef parameterDef : connector.getParameterDefs()) {
+                parameterDef.accept(this);
             }
         }
         if (connector.getConnectorDcls() != null) {
@@ -261,9 +261,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         }
         resourceObj.add(BLangJSONModelConstants.ANNOTATION_DEFINITIONS, this.tempJsonArrayRef.peek());
         this.tempJsonArrayRef.pop();
-        if (resource.getParameters() != null) {
-            for (Parameter parameter : resource.getParameters()) {
-                parameter.accept(BLangJSONModelBuilder.this);
+        if (resource.getParameterDefs() != null) {
+            for (ParameterDef parameterDef : resource.getParameterDefs()) {
+                parameterDef.accept(BLangJSONModelBuilder.this);
             }
         }
         if (resource.getWorkers() != null) {
@@ -312,9 +312,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 variableDef.accept(BLangJSONModelBuilder.this);
             }
         }
-        if (function.getParameters() != null) {
-            for (Parameter parameter : function.getParameters()) {
-                parameter.accept(this);
+        if (function.getParameterDefs() != null) {
+            for (ParameterDef parameterDef : function.getParameterDefs()) {
+                parameterDef.accept(this);
             }
         }
         if (function.getConnectorDcls() != null) {
@@ -326,12 +326,12 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         returnTypeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_TYPE);
         JsonArray returnTypeArray = new JsonArray();
         if (function.getReturnParameters() != null) {
-            for (Parameter parameter : function.getReturnParameters()) {
+            for (ParameterDef parameterDef : function.getReturnParameters()) {
                 JsonObject typeObj = new JsonObject();
                 typeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_ARGUMENT);
-                typeObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameter.getType().toString());
-                if (parameter.getName() != null) {
-                    typeObj.addProperty(BLangJSONModelConstants.PARAMETER_NAME, parameter.getName().toString());
+                typeObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameterDef.getType().toString());
+                if (parameterDef.getName() != null) {
+                    typeObj.addProperty(BLangJSONModelConstants.PARAMETER_NAME, parameterDef.getName().toString());
                 }
                 returnTypeArray.add(typeObj);
             }
@@ -363,9 +363,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         }
         jsonAction.add(BLangJSONModelConstants.ANNOTATION_DEFINITIONS, this.tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
-        if (action.getParameters() != null) {
-            for (Parameter parameter : action.getParameters()) {
-                parameter.accept(this);
+        if (action.getParameterDefs() != null) {
+            for (ParameterDef parameterDef : action.getParameterDefs()) {
+                parameterDef.accept(this);
             }
         }
         if (action.getVariableDefs() != null) {
@@ -383,12 +383,12 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         returnTypeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_TYPE);
         JsonArray returnTypeArray = new JsonArray();
         if (action.getReturnParameters() != null) {
-            for (Parameter parameter : action.getReturnParameters()) {
+            for (ParameterDef parameterDef : action.getReturnParameters()) {
                 JsonObject typeObj = new JsonObject();
                 typeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_ARGUMENT);
-                typeObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameter.getType().toString());
-                if (parameter.getName() != null) {
-                    typeObj.addProperty(BLangJSONModelConstants.PARAMETER_NAME, parameter.getName().toString());
+                typeObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameterDef.getType().toString());
+                if (parameterDef.getName() != null) {
+                    typeObj.addProperty(BLangJSONModelConstants.PARAMETER_NAME, parameterDef.getName().toString());
                 }
                 returnTypeArray.add(typeObj);
             }
@@ -459,14 +459,14 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(Parameter parameter) {
+    public void visit(ParameterDef parameterDef) {
         JsonObject paramObj = new JsonObject();
         paramObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.PARAMETER_DEFINITION);
-        paramObj.addProperty(BLangJSONModelConstants.PARAMETER_NAME, parameter.getName().getName());
-        paramObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameter.getType().toString());
+        paramObj.addProperty(BLangJSONModelConstants.PARAMETER_NAME, parameterDef.getName());
+        paramObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameterDef.getType().toString());
         this.tempJsonArrayRef.push(new JsonArray());
-        if (parameter.getAnnotations() != null) {
-            for (Annotation annotation : parameter.getAnnotations()) {
+        if (parameterDef.getAnnotations() != null) {
+            for (Annotation annotation : parameterDef.getAnnotations()) {
                 annotation.accept(this);
             }
         }

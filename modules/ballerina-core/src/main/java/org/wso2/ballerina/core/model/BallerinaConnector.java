@@ -48,7 +48,7 @@ public class BallerinaConnector implements Connector, SymbolScope, BLangSymbol, 
     protected SymbolName symbolName;
 
     private Annotation[] annotations;
-    private Parameter[] parameters;
+    private ParameterDef[] parameterDefs;
     private ConnectorDcl[] connectorDcls;
     private VariableDef[] variableDefs;
     private BallerinaAction[] actions;
@@ -64,7 +64,7 @@ public class BallerinaConnector implements Connector, SymbolScope, BLangSymbol, 
                               Boolean isPublic,
                               SymbolName symbolName,
                               Annotation[] annotations,
-                              Parameter[] parameters,
+                              ParameterDef[] parameterDefs,
                               ConnectorDcl[] connectorDcls,
                               VariableDef[] variableDefs,
                               BallerinaAction[] actions,
@@ -77,7 +77,7 @@ public class BallerinaConnector implements Connector, SymbolScope, BLangSymbol, 
         this.isPublic = isPublic;
         this.symbolName = symbolName;
 
-        this.parameters = parameters;
+        this.parameterDefs = parameterDefs;
         this.annotations = annotations;
         this.connectorDcls = connectorDcls;
         this.variableDefs = variableDefs;
@@ -102,9 +102,8 @@ public class BallerinaConnector implements Connector, SymbolScope, BLangSymbol, 
         return annotations;
     }
 
-    @Override
-    public Parameter[] getParameters() {
-        return parameters;
+    public ParameterDef[] getParameterDefs() {
+        return parameterDefs;
     }
 
     /**

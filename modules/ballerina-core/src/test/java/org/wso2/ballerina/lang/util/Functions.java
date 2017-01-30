@@ -75,7 +75,7 @@ public class Functions {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }
 
-        if (function.getParameters().length != args.length) {
+        if (function.getParameterDefs().length != args.length) {
             throw new RuntimeException("Size of input argument array is not equal to size of function parameters");
         }
 

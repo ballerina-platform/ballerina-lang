@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.NodeLocation;
-import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
@@ -89,8 +89,8 @@ class BMainRunner {
             SymbolName argsName;
             BallerinaFunction mainFunction = (BallerinaFunction) balFile.getMainFunction();
             NodeLocation mainFuncLocation = mainFunction.getNodeLocation();
-            Parameter[] parameters = mainFunction.getParameters();
-            argsName = parameters[0].getName();
+            ParameterDef[] parameterDefs = mainFunction.getParameterDefs();
+            argsName = parameterDefs[0].getSymbolName();
 
             Expression[] exprs = new Expression[1];
             VariableRefExpr variableRefExpr = new VariableRefExpr(mainFuncLocation, argsName);

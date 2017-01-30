@@ -49,7 +49,7 @@ public interface CallableUnit extends BLangSymbol, Node {
      *
      * @return an array of parameters
      */
-    Parameter[] getParameters();
+    ParameterDef[] getParameterDefs();
 
     /**
      * Returns an array of variable declarations of this callable unit.
@@ -63,7 +63,7 @@ public interface CallableUnit extends BLangSymbol, Node {
      *
      * @return an array of return parameters
      */
-    Parameter[] getReturnParameters();
+    ParameterDef[] getReturnParameters();
 
     /**
      * Returns size of the stack frame which should be allocated for each invocations.

@@ -338,10 +338,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
      */
     @Override
     public void exitTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx) {
-        if (ctx.exception == null) {
-            // Create the input parameter for type convertor
-            modelBuilder.createParam(ctx.Identifier().getText(), getCurrentLocation(ctx));
+        if (ctx.exception != null) {
+            return;
         }
+
+        modelBuilder.addParam(ctx.Identifier().getText(), getCurrentLocation(ctx));
     }
 
     @Override
@@ -606,9 +607,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitParameter(BallerinaParser.ParameterContext ctx) {
-        if (ctx.exception == null && ctx.Identifier() != null) {
-            modelBuilder.createParam(ctx.Identifier().getText(), getCurrentLocation(ctx));
+        if (ctx.exception != null) {
+            return;
         }
+
+        modelBuilder.addParam(ctx.Identifier().getText(), getCurrentLocation(ctx));
     }
 
     @Override
