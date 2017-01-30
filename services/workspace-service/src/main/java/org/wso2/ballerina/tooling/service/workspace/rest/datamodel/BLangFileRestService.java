@@ -65,9 +65,9 @@ public class BLangFileRestService {
             String response = parseJsonDataModel(stream);
             return Response.ok(response, MediaType.APPLICATION_JSON).build();
         } catch (IOException ex) {
-            logger.error("IOException occured while generating JSON data model for ballerina file", ex);
+            logger.error("error: failed to generate JSON data model for ballerina file", ex.getMessage());
             JsonObject entity = new JsonObject();
-            entity.addProperty("Error", ex.toString());
+            entity.addProperty("Error", "Error Generating JSON Model");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(entity)
                     .header("Access-Control-Allow-Origin", '*')
                     .type(MediaType.APPLICATION_JSON).build();
@@ -83,17 +83,10 @@ public class BLangFileRestService {
             InputStream stream = new ByteArrayInputStream(content.getContent().getBytes(StandardCharsets.UTF_8));
             String response = parseJsonDataModel(stream);
             return Response.ok(response, MediaType.APPLICATION_JSON).header("Access-Control-Allow-Origin", '*').build();
-        } catch (IOException ex) {
-            logger.error("IOException occured while generating JSON data model for ballerina file", ex);
+        } catch (Throwable e) {
+            logger.error("error: failed to generate JSON data model for ballerina file", e.getMessage());
             JsonObject entity = new JsonObject();
-            entity.addProperty("Error", ex.toString());
-            return Response.status(Response.Status.BAD_REQUEST).entity(entity)
-                    .header("Access-Control-Allow-Origin", '*')
-                    .type(MediaType.APPLICATION_JSON).build();
-        } catch (Exception e) {
-            logger.error("Exception occured while generating JSON data model for ballerina file", e);
-            JsonObject entity = new JsonObject();
-            entity.addProperty("Error", e.toString());
+            entity.addProperty("Error", "Error Generating JSON Model");
             return Response.status(Response.Status.BAD_REQUEST).entity(entity)
                            .header("Access-Control-Allow-Origin", '*')
                            .type(MediaType.APPLICATION_JSON).build();
