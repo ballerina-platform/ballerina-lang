@@ -1362,5 +1362,5 @@ ul.list-group {
 }
 
 span.fw-stack.fw-lg{
-    z-index: 1000;
+    z-index: 10;
 }
