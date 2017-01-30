@@ -24,9 +24,7 @@ import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Delete;
@@ -60,12 +58,6 @@ import org.wso2.ballerina.core.nativeimpl.lang.array.StringArrayRangeCopy;
 import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayCopyOf;
 import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayLength;
 import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayRangeCopy;
-import org.wso2.ballerina.core.nativeimpl.lang.convertors.JSONToString;
-import org.wso2.ballerina.core.nativeimpl.lang.convertors.JSONToXML;
-import org.wso2.ballerina.core.nativeimpl.lang.convertors.StringToJSON;
-import org.wso2.ballerina.core.nativeimpl.lang.convertors.StringToXML;
-import org.wso2.ballerina.core.nativeimpl.lang.convertors.XMLToJSON;
-import org.wso2.ballerina.core.nativeimpl.lang.convertors.XMLToString;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddBooleanToArray;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddBooleanToObject;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddDoubleToArray;
@@ -191,7 +183,6 @@ public class BuiltInNativeConstructLoader {
 
     public static void loadConstructs() {
         loadNativeFunctions();
-        loadNativeTypeConverters();
     }
 
     /**
@@ -419,36 +410,4 @@ public class BuiltInNativeConstructLoader {
         symScope.insert(symbolName, symbol);
     }
 
-    private static void loadNativeTypeConverters() {
-        SymScope scope = GlobalScopeHolder.getInstance().getScope();
-
-        registerTypeConverter(scope, new JSONToXML());
-        registerTypeConverter(scope, new XMLToJSON());
-        registerTypeConverter(scope, new StringToJSON());
-        registerTypeConverter(scope, new StringToXML());
-        registerTypeConverter(scope, new XMLToString());
-        registerTypeConverter(scope, new JSONToString());
-
-    }
-
-    /**
-     * Add Native TypeConvertor instance to given SymScope.
-     *
-     * @param symScope SymScope instance.
-     * @param typeConvertor TypeConvertor instance.
-     */
-    private static void registerTypeConverter(SymScope symScope, AbstractNativeTypeConvertor typeConvertor) {
-        BallerinaTypeConvertor typeConverterNameAnnotation = typeConvertor.getClass()
-                .getAnnotation(BallerinaTypeConvertor.class);
-        if (typeConverterNameAnnotation == null) {
-            throw new BallerinaException("BallerinaTypeConvertor annotation not found");
-        }
-
-        SymbolName symbolName =
-                LangModelUtils.getTypeConverterSymName(typeConvertor.getPackageName(), typeConvertor.getParameters(),
-                        typeConvertor.getReturnParameters());
-        Symbol symbol = new Symbol(typeConvertor);
-        symScope.insert(symbolName, symbol);
-
-    }
 }

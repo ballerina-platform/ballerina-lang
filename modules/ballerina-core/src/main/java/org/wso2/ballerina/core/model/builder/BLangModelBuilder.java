@@ -79,6 +79,8 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.BStructType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
+import org.wso2.ballerina.core.model.types.TypeLattice;
+import org.wso2.ballerina.core.model.types.TypeVertex;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -612,13 +614,18 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
-    public void createTypeConverter(String name, boolean isPublic, Position sourceLocation, int position) {
+    public void createTypeConverter(String source, String target, boolean isPublic, Position sourceLocation,
+                                    int position) {
+        String name = "_" + source + "->" + "_" + target;
         currentCUBuilder.setName(new SymbolName(name, pkgName));
         currentCUBuilder.setPublic(isPublic);
         currentCUBuilder.setPosition(sourceLocation);
         BTypeConvertor typeConvertor = currentCUBuilder.buildTypeConverter();
         typeConvertor.setRelativePosition(position);
         bFileBuilder.addTypeConverter(typeConvertor);
+        TypeVertex sourceV = new TypeVertex(BTypes.getType(source), pkgName);
+        TypeVertex targetV = new TypeVertex(BTypes.getType(target), pkgName);
+        TypeLattice.getExplicitCastLattice().addEdge(sourceV, targetV, typeConvertor, pkgName);
         currentCUBuilder = null;
     }
 

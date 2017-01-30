@@ -17,7 +17,14 @@
  */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.TypeConvertor;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.JSONToString;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.JSONToXML;
 import org.wso2.ballerina.core.nativeimpl.lang.convertors.NativeCastConvertor;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.StringToJSON;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.StringToXML;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.XMLToJSON;
+import org.wso2.ballerina.core.nativeimpl.lang.convertors.XMLToString;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -86,7 +93,7 @@ public class TypeLattice {
         TypeVertex booleanV = new TypeVertex(new BBooleanType(TypeEnum.BOOLEAN.getName()));
         TypeVertex stringV = new TypeVertex(new BStringType(TypeEnum.STRING.getName()));
         TypeVertex xmlV = new TypeVertex(new BXMLType(TypeEnum.XML.getName()));
-        TypeVertex jsonV = (new TypeVertex(new BJSONType(TypeEnum.JSON.getName())));
+        TypeVertex jsonV = new TypeVertex(new BJSONType(TypeEnum.JSON.getName()));
 
         explicitCastLattice.addVertex(intV, false);
         explicitCastLattice.addVertex(longV, false);
@@ -130,8 +137,12 @@ public class TypeLattice {
         explicitCastLattice.addEdge(booleanV, stringV, NativeCastConvertor.BOOLEAN_TO_STRING_FUNC);
         explicitCastLattice.addEdge(booleanV, booleanV, NativeCastConvertor.BOOLEAN_TO_BOOLEAN_FUNC);
 
-        explicitCastLattice.addEdge(jsonV, stringV, NativeCastConvertor.JSON_TO_STRING_FUNC);
-        explicitCastLattice.addEdge(xmlV, stringV, NativeCastConvertor.XML_TO_STRING_FUNC);
+        explicitCastLattice.addEdge(jsonV, xmlV, new JSONToXML(), TypeConstants.NATIVE_PACKAGE);
+        explicitCastLattice.addEdge(xmlV, jsonV, new XMLToJSON(), TypeConstants.NATIVE_PACKAGE);
+        explicitCastLattice.addEdge(stringV, jsonV, new StringToJSON(), TypeConstants.NATIVE_PACKAGE);
+        explicitCastLattice.addEdge(stringV, xmlV, new StringToXML(), TypeConstants.NATIVE_PACKAGE);
+        explicitCastLattice.addEdge(xmlV, stringV, new XMLToString(), TypeConstants.NATIVE_PACKAGE);
+        explicitCastLattice.addEdge(jsonV, stringV, new JSONToString(), TypeConstants.NATIVE_PACKAGE);
     }
 
     /**
@@ -160,8 +171,41 @@ public class TypeLattice {
         return true;
     }
 
-    public TypeEdge getEdgeFromTypes(BType source, BType target) {
-        TypeEdge result = this.edges.get((source.toString() + target.toString()).hashCode());
+    /**
+     * Accepts two vertices and a weight, and adds the edge
+     * ({one, two}, weight) iff no TypeEdge relating one and two
+     * exists in the Graph.
+     *
+     * @param one           The first TypeVertex of the TypeEdge
+     * @param two           The second TypeVertex of the TypeEdge
+     * @param typeConvertor The weight of the TypeEdge
+     * @return true iff no TypeEdge already exists in the Graph
+     */
+    public boolean addEdge(TypeVertex one, TypeVertex two, TypeConvertor typeConvertor, String packageName) {
+
+        //ensures the TypeEdge is not in the Graph
+        TypeEdge e = new TypeEdge(one, two, typeConvertor, packageName);
+        if (this.edges.containsKey(e.hashCode())) {
+            return false;
+        } else if (one.containsNeighbor(e) || two.containsNeighbor(e)) {
+            return false;
+        }
+
+        this.edges.put(e.hashCode(), e);
+        one.addNeighbor(e);
+        two.addNeighbor(e);
+        return true;
+    }
+
+    public TypeEdge getEdgeFromTypes(BType source, BType target, String packageName) {
+        TypeEdge result;
+        // First check within the package
+        result = this.edges.get((source.toString() + target.toString() + packageName).hashCode());
+        if (result == null) {
+            // If not found, check in native type convertors
+            packageName = TypeConstants.NATIVE_PACKAGE;
+            result = this.edges.get((source.toString() + target.toString() + packageName).hashCode());
+        }
         return result;
     }
 
@@ -170,7 +214,7 @@ public class TypeLattice {
      * @return true iff this Graph contains the TypeEdge e
      */
     public boolean containsEdge(TypeEdge e) {
-        if (e.getSource() == null || e.getTarget() == null || e.getTypeConvertor() == null) {
+        if (e.getSource() == null || e.getTarget() == null) {
             return false;
         }
 
@@ -196,7 +240,7 @@ public class TypeLattice {
      * @return true iff this Graph contains vertex
      */
     public boolean containsVertex(TypeVertex vertex) {
-        return this.vertices.get(vertex.getType().toString()) != null;
+        return this.vertices.get(vertex.toString()) != null;
     }
 
     /**
@@ -218,7 +262,7 @@ public class TypeLattice {
      * @return true iff vertex was added to the Graph
      */
     public boolean addVertex(TypeVertex vertex, boolean overwriteExisting) {
-        TypeVertex current = this.vertices.get(vertex.getType().toString());
+        TypeVertex current = this.vertices.get(vertex.toString());
         if (current != null) {
             if (!overwriteExisting) {
                 return false;
@@ -230,7 +274,7 @@ public class TypeLattice {
         }
 
 
-        this.vertices.put(vertex.getType().toString(), vertex);
+        this.vertices.put(vertex.toString(), vertex);
         return true;
     }
 

@@ -17,19 +17,33 @@
  */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.TypeConvertor;
+
 import java.util.function.Function;
+
+import static org.wso2.ballerina.core.model.types.TypeConstants.NATIVE_PACKAGE;
 
 /**
  * One edge in the Type Lattice graph
  */
 public class TypeEdge {
     private TypeVertex source, target;
-    private Function typeConvertor;
+    private Function typeConvertorFunction;
+    private TypeConvertor typeConvertor;
+    private String packageName;
 
-    public TypeEdge(TypeVertex source, TypeVertex target, Function typeConvertor) {
+    public TypeEdge(TypeVertex source, TypeVertex target, Function typeConvertorFunction) {
+        this.source = source;
+        this.target = target;
+        this.typeConvertorFunction = typeConvertorFunction;
+        this.packageName = NATIVE_PACKAGE;
+    }
+
+    public TypeEdge(TypeVertex source, TypeVertex target, TypeConvertor typeConvertor, String packageName) {
         this.source = source;
         this.target = target;
         this.typeConvertor = typeConvertor;
+        this.packageName = packageName;
     }
 
     public TypeVertex getSource() {
@@ -48,11 +62,20 @@ public class TypeEdge {
         this.target = target;
     }
 
-    public Function getTypeConvertor() {
+    public Function getTypeConvertorFunction() {
+        return typeConvertorFunction;
+    }
+
+    public void setTypeConvertorFunction(Function typeConvertorFunction) {
+        this.typeConvertorFunction = typeConvertorFunction;
+    }
+
+
+    public TypeConvertor getTypeConvertor() {
         return typeConvertor;
     }
 
-    public void setTypeConvertor(Function typeConvertor) {
+    public void setTypeConvertor(TypeConvertor typeConvertor) {
         this.typeConvertor = typeConvertor;
     }
 
@@ -60,14 +83,14 @@ public class TypeEdge {
      * @return String A String representation of this Edge
      */
     public String toString() {
-        return "({" + source + ", " + target + "})";
+        return "({" + source.toString() + ", " + target.toString() + "}" + ": " + packageName + ")";
     }
 
     /**
      * @return int The hash code for this Edge
      */
     public int hashCode() {
-        return (source.getType().toString() + target.getType().toString()).hashCode();
+        return (source.toString() + target.toString() + packageName).hashCode();
     }
 
     /**
@@ -80,8 +103,22 @@ public class TypeEdge {
         }
 
         TypeEdge e = (TypeEdge) other;
+        if (typeConvertorFunction != null) {
+            return e.source.equals(this.source) && e.target.equals(this.target)
+                    && e.packageName.equals(this.packageName)
+                    && e.typeConvertorFunction.equals(this.typeConvertorFunction);
+        } else {
+            return e.source.equals(this.source) && e.target.equals(this.target)
+                    && e.packageName.equals(this.packageName)
+                    && e.typeConvertor.equals(this.typeConvertor);
+        }
+    }
 
-        return e.source.equals(this.source) && e.target.equals(this.target)
-                && e.typeConvertor.equals(this.typeConvertor);
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
     }
 }
