@@ -28,6 +28,7 @@ import org.wso2.ballerina.core.model.expressions.Expression;
  */
 public class AssignStmt extends AbstractStatement {
     private Expression[] lhsExprs;
+
     private Expression rhsExpr;
 
     public AssignStmt(Expression[] lhsExprs, Expression rhsExpr) {
@@ -51,5 +52,9 @@ public class AssignStmt extends AbstractStatement {
     @Override
     public void execute(NodeExecutor executor) {
         executor.visit(this);
+    }
+
+    public void setRhsExpr(Expression rhsExpr) {
+        this.rhsExpr = rhsExpr;
     }
 }

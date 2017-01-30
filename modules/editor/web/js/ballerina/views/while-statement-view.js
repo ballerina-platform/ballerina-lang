@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './../ast/while-statement', 'd3utils', 'd3'],
-    function (require, _, $, log, BallerinaStatementView, WhileStatement, D3Utils, d3) {
+define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './../ast/while-statement', 'd3utils', 'd3', 'ballerina/ast/ballerina-ast-factory'],
+    function (require, _, $, log, BallerinaStatementView, WhileStatement, D3Utils, d3, BallerinaASTFactory) {
 
         /**
          * The view to represent a If statement which is an AST visitor.
@@ -35,18 +35,40 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             // Initialize the bounding box
             this.getBoundingBox().fromTopCenter(this.getTopCenter(),
                 _.get(this._viewOptions, 'width'),  _.get(this._viewOptions, 'height'));
-            this.init();
+            this._statementContainer = undefined;
         };
 
         WhileStatementView.prototype = Object.create(BallerinaStatementView.prototype);
         WhileStatementView.prototype.constructor = WhileStatementView;
 
-        WhileStatementView.prototype.init = function () {
-            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
-        };
-
         WhileStatementView.prototype.canVisitWhileStatement = function(){
             return true;
+        };
+
+        /**
+         * Remove View callback
+         * @param {ASTNode} parent - parent node
+         * @param {ASTNode} child - child node
+         */
+        WhileStatementView.prototype.removeViewCallback = function (parent, child) {
+            this._statementContainer.getBoundingBox().off('bottom-edge-moved');
+            d3.select("#_" +this._model.id).remove();
+            this.getDiagramRenderingContext().getViewOfModel(parent).getStatementContainer().removeInnerDropZone(child);
+            this.unplugView(
+                {
+                    w: 0,
+                    h: 0
+                }, parent, child);
+        };
+
+        /**
+         * Override Child remove callback
+         * @param {ASTNode} child - removed child
+         */
+        BallerinaStatementView.prototype.childRemovedCallback = function (child) {
+            if (BallerinaASTFactory.isStatement(child)) {
+                this.getStatementContainer().childStatementRemovedCallback(child);
+            }
         };
 
         /**
@@ -170,6 +192,10 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             });
 
             this._statementContainer.render(this._diagramRenderingContext);
+
+            this._statementContainer.getBoundingBox().on('bottom-edge-moved', function (dy) {
+                this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+            }, this);
         };
 
         /**
@@ -212,6 +238,14 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
 
         WhileStatementView.prototype.getViewOptions = function () {
             return this._viewOptions;
+        };
+
+        /**
+         * Get the statement container
+         * @return {StatementContainer} - statement container
+         */
+        WhileStatementView.prototype.getStatementContainer = function () {
+            return this._statementContainer;
         };
 
         return WhileStatementView;

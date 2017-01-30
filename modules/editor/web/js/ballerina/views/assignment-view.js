@@ -77,22 +77,23 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
          * Renders the view for assignment statement.
          * @returns {group} - The SVG group which holds the elements of the assignment statement.
          */
-        AssignmentStatementView.prototype.render = function () {
-            var assignmentStatementGroup = D3Utils.group(d3.select(this._container));
-            assignmentStatementGroup.attr("id","_" +this._model.id);//added attribute 'id' starting with '_' to be compatible with HTML4
+        AssignmentStatementView.prototype.render = function (diagramRenderingContext) {
+            this.setDiagramRenderingContext(diagramRenderingContext);
+            this.setStatementGroup(D3Utils.group(d3.select(this._container)));
+            this.getStatementGroup().attr("id","_" +this._model.id);//added attribute 'id' starting with '_' to be compatible with HTML4
             var width = this.getBoundingBox().w();
             var height = this.getBoundingBox().h();
 
             var x = this.getBoundingBox().getLeft();
             var y = this.getBoundingBox().getTop();
 
-            var expressionRect = D3Utils.rect(x, y, width, height, 0, 0, assignmentStatementGroup).classed('statement-rect', true);
+            var expressionRect = D3Utils.rect(x, y, width, height, 0, 0, this.getStatementGroup()).classed('statement-rect', true);
             var assignmentText = this._model.getExpression();
             assignmentText = ((assignmentText.length) > 11 ? (assignmentText.substring(0,11) + '...') : assignmentText);
-            var expressionText = D3Utils.textElement(x + width/2, y + height/2, assignmentText, assignmentStatementGroup).classed('statement-text', true);
-            assignmentStatementGroup.expression_rect = expressionRect;
-            assignmentStatementGroup.expression_text = expressionText;
-            this.setStatementGroup(assignmentStatementGroup);
+            var expressionText = D3Utils.textElement(x + width/2, y + height/2, assignmentText, this.getStatementGroup()).classed('statement-text', true);
+            this.getStatementGroup().expression_rect = expressionRect;
+            this.getStatementGroup().expression_text = expressionText;
+            this.setStatementGroup(this.getStatementGroup());
             this.listenTo(this._model, 'update-property-text', this.updateStatementText);
             this._model.accept(this);
 
@@ -108,7 +109,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
             editableProperties.push(editableProperty);
             this._createPropertyPane({
                 model: this._model,
-                statementGroup:assignmentStatementGroup,
+                statementGroup:this.getStatementGroup(),
                 editableProperties: editableProperties
             });
 
