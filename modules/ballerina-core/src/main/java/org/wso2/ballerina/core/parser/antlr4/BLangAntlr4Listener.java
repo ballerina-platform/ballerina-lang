@@ -368,8 +368,14 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
+        boolean isPublic = false;
+        String tokenStr = ctx.getChild(0).getText();
+        if (PUBLIC.equals(tokenStr)) {
+            isPublic = true;
+        }
+
         createBasicLiteral(ctx.literalValue());
-        modelBuilder.addConstantDef(getCurrentLocation(ctx), ctx.Identifier().getText());
+        modelBuilder.addConstantDef(getCurrentLocation(ctx), ctx.Identifier().getText(), isPublic);
     }
 
     @Override

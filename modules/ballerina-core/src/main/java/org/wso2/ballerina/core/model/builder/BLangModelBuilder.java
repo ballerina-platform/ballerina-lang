@@ -182,13 +182,12 @@ public class BLangModelBuilder {
 
     // Add constant definitions;
 
-    public void addConstantDef(NodeLocation location, String name) {
+    public void addConstantDef(NodeLocation location, String name, boolean isPublic) {
         SymbolName symbolName = new SymbolName(name, currentPackagePath);
 
         SimpleTypeName typeName = typeNameQueue.remove();
-        // TODO Finalize on public/private constants
         ConstDef constantDef = new ConstDef(location, name, typeName, currentPackagePath,
-                false, symbolName, currentScope, exprStack.pop());
+                isPublic, symbolName, currentScope, exprStack.pop());
 
         // Define the variableRef symbol in the current scope
         currentScope.define(symbolName, constantDef);

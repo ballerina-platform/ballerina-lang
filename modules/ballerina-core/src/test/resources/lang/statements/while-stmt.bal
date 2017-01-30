@@ -1,9 +1,5 @@
-import com.greet.helloworld as sam;
-
 public function testWhileStmt(int x, int y) (int) {
     int z;
-
-
 
     while(x >= y) {
         y = y + 1;
