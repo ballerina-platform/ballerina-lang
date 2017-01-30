@@ -33,7 +33,7 @@ public class BallerinaRunUtil {
      * Get the file path of the currently opened file in the editor.
      *
      * @param project current project
-     * @return filepath or empty string if filepath cannot be found.
+     * @return filepath or empty string if filepath cannot be found
      */
     public static String getOpenFilePath(Project project) {
         Editor selectedTextEditor = getEditor(project);
