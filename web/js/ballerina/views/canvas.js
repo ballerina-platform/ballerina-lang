@@ -16,7 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor', './ballerina-view', './message-manager'], function(log, _, $, d3, D3Utils, AstVisitor, BallerinaView, MessageManager){
+define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor', './ballerina-view', './message-manager', 'mcustom_scroller'],
+    function(log, _, $, d3, D3Utils, AstVisitor, BallerinaView, MessageManager, mcustomScroller){
 
     var Canvas = function(args) {
         var mMArgs = {'canvas': this};
@@ -96,15 +97,17 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
 
         // Creating collapsable icon.
         var panelRightIcon = $("<i/>", {
-            class: _.get(options, 'cssClass.panel_right_icon')
-        }).appendTo(this._canvasOperationsWrapper);
+            class: _.get(options, 'cssClass.panel_right_icon'),
+            title:"Collapse pane"
+        }).appendTo(this._canvasOperationsWrapper).tooltip();
 
         $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(this._canvasOperationsWrapper);
 
         // Creating delete icon.
         var panelDeleteIcon = $("<i/>", {
-            class: _.get(options, 'cssClass.panel_delete_icon')
-        }).appendTo(this._canvasOperationsWrapper);
+            class: _.get(options, 'cssClass.panel_delete_icon'),
+            title:"Delete"
+        }).appendTo(this._canvasOperationsWrapper).tooltip();
 
         $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(this._canvasOperationsWrapper);
 
@@ -149,6 +152,8 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
                 // reset ui feed back on drop target change
                 self.toolPalette.dragDropManager.once("drop-target-changed", function(){
                     outerDiv.removeClass(dropActiveClass);
+                    $(svgContainer).height($(svgContainer).find("svg").attr("height"));
+                    $(svgContainer).mCustomScrollbar("update");
                 });
             }
             event.stopPropagation();
@@ -172,95 +177,11 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
             parent.removeChild(child);
         });
 
-        // Creating scroll panes.
-        var leftScroll = $("<div class='service-left-scroll'/>").appendTo(svgContainer);
-        var rightScroll = $("<div class='service-right-scroll'/>").appendTo(svgContainer);
-
-        var leftArrow = $("<i class='fw fw-left'></i>").appendTo(leftScroll);
-        var rightArrow = $("<i class='fw fw-right'></i>").appendTo(rightScroll);
-
-        // Setting heights of the scrolls.
-        $(leftScroll).height($(svgContainer).height());
-        $(rightScroll).height($(svgContainer).height());
-
-        // Positioning the arrows of the scrolls to the middle.
-        $(leftScroll).find("i").css("padding-top", ($(svgContainer).height() / 2) - (parseInt($(leftScroll).find("i").css("font-size"), 10) / 2) + "px");
-        $(rightScroll).find("i").css("padding-top", ($(svgContainer).height() / 2) - (parseInt($(rightScroll).find("i").css("font-size"), 10) / 2) + "px");
-
-        // Positioning scrolls when scrolling the container.
-        $(svgContainer).scroll(function () {
-            $(rightScroll).css("left", $(svgContainer).width() - $(rightScroll).width() + $(svgContainer).scrollLeft());
-            $(leftScroll).css("left", $(svgContainer).scrollLeft());
-            _showHideScrolls(svgContainer, svg, leftScroll, rightScroll);
+        $(svgContainer).mCustomScrollbar({
+            theme: "dark",
+            axis: "x",
+            scrollInertia: 0
         });
-
-        _showHideScrolls(svgContainer, svg, leftScroll, rightScroll);
-
-        // Binding scroll events.
-        $(rightScroll).click(function () {
-            $(svgContainer).animate({scrollLeft: $(svgContainer).scrollLeft() + $(svgContainer).width() / 2}, {
-                duration: 300,
-                complete: function() {
-                    $(rightScroll).css("left", $(svgContainer).width() - $(rightScroll).width() +
-                        $(svgContainer).scrollLeft());
-                    $(leftScroll).css("left", $(svgContainer).scrollLeft());
-                    _showHideScrolls(svgContainer, svg, leftScroll, rightScroll);
-                },
-                progress: function(animation, progress) {
-                    $(rightScroll).css("left", $(svgContainer).width() - $(rightScroll).width() +
-                        $(svgContainer).scrollLeft());
-                    $(leftScroll).css("left", $(svgContainer).scrollLeft());
-                }
-            });
-        });
-
-        // Binding scroll events.
-        $(leftScroll).click(function () {
-            $(svgContainer).animate({scrollLeft: $(svgContainer).scrollLeft() - $(svgContainer).width() / 2}, {
-                duration: 300,
-                complete: function() {
-                    $(rightScroll).css("left", $(svgContainer).width() - $(rightScroll).width() +
-                        $(svgContainer).scrollLeft());
-                    $(leftScroll).css("left", $(svgContainer).scrollLeft());
-                    _showHideScrolls(svgContainer, svg, leftScroll, rightScroll);
-                },
-                progress: function(animation, progress) {
-                    $(rightScroll).css("left", $(svgContainer).width() - $(rightScroll).width() +
-                        $(svgContainer).scrollLeft());
-                    $(leftScroll).css("left", $(svgContainer).scrollLeft());
-                }
-            });
-        });
-
-        /**
-         * Shows and hide the custom scrolls depending on the amount scrolled.
-         * @param {Element} container - The container of the SVG. i.e the parent of the SVG.
-         * @param {Element} svgElement - The SVG element.
-         * @param {Element} leftScroll - The DIV wrapper for the left scroll.
-         * @param {Element} rightScroll - The DIV wrapper for the right scroll.
-         */
-        function _showHideScrolls(container, svgElement, leftScroll, rightScroll) {
-            // Showing/Hiding scrolls.
-            if (parseInt($(container).width(), 10) >= parseInt($(svgElement).width(), 10)) {
-                // If the svg width is less than or equal to the container, then no need to show the arrows.
-                $(leftScroll).hide();
-                $(rightScroll).hide();
-            } else {
-                // If the svg width is greater than the width of the container...
-                if ($(container).scrollLeft() == 0) {
-                    // When scrollLeft is 0, means that it is already scrolled to the left corner.
-                    $(leftScroll).hide();
-                    $(rightScroll).show();
-                } else if (Math.abs(parseInt($(container).scrollLeft()) - (parseInt($(svgElement).width(), 10) - parseInt($(container).width(), 10))) < 5) {
-                    // When scrolled all the way to the right.
-                    $(leftScroll).show();
-                    $(rightScroll).hide();
-                } else {
-                    $(leftScroll).show();
-                    $(rightScroll).show();
-                }
-            }
-        }
     };
 
     /**
@@ -270,6 +191,22 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
     Canvas.prototype.setServiceContainerHeight = function (newHeight) {
         this._svg.attr('height', newHeight);
         this.getBoundingBox().h(newHeight);
+
+        // If service container's height is lesser than the height of the svg
+        // Increase the height of the service container and the inner div
+        if($(this._container).closest("svg").attr('height')) {
+            if ($(this._container).closest(".panel-body").height() < $(this._container).closest("svg").attr('height')) {
+                $(this._container).closest(".panel-body").height($(this._container).closest("svg").attr("height"));
+                $(this._container).closest(".panel-body").find("#" + $(this._container).closest(".panel-body").attr("id"))
+                    .height($(this._container).closest("svg").attr('height'));
+            }
+        }else{
+            if($(this._container).height() < $(this._container).find('svg').attr('height')) {
+                $(this._container).height($(this._container).find('svg').attr('height'));
+                $(this._container).find("#" + $(this._container).attr('id')).
+                    height($(this._container).find('svg').attr('height'));
+            }
+        }
     };
 
     /**

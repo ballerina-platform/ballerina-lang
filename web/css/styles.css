@@ -878,6 +878,162 @@ button.variable-list {
     opacity: 0.5;
 }
 
+/** Start of Constants view **/
+
+.constants-btn {
+    opacity: 0.4;
+}
+
+.constants-btn:hover {
+    opacity: 1;
+    cursor: pointer;
+}
+
+.constants-pane {
+    border: 1px solid #f0f0f0;
+    background-color: #fff;
+    margin: auto;
+    min-height: 29px;
+    padding: 3px 3px 0 16px;
+    top: -37px;
+    left: 19px;
+    position: relative;
+    float: left;
+}
+
+.constants-wrapper {
+    /*margin-right: 20px;*/
+    float: left;
+    width: 100%;
+}
+
+.constants-action-wrapper {
+    float: left;
+}
+
+.constant-add-icon-wrapper {
+    margin-left: 2px;
+    height: 20px;
+    position: static;
+    width: 19px;
+    font-size: 7px;
+    float: left;
+    margin-top: 2px;
+}
+
+.constant-add-action-wrapper {
+    display: none;
+    width: 500px;
+    background-color: #efefef;
+    height: 30px;
+    padding: 3px 8px;
+    margin-bottom: 4px;
+    margin-left: 5px;
+}
+
+.constant-add-action-wrapper input {
+    width: 163px;
+    margin-left: 4px;
+    height: 22px;
+    padding-left: 5px;
+}
+
+.constant-add-complete-action-wrapper {
+    height: 22px;
+    position: static;
+    float: right;
+}
+
+.constant-add-cancel-action-wrapper {
+    height: 22px;
+    position: static;
+    float: right;
+}
+
+.constant-wrapper {
+    float: left;
+    margin-left: 6px;
+    margin-bottom: 3px;
+}
+
+.constant-pane-collapser-wrapper {
+    font-size: 14px;
+    padding: 9px;
+    background-color: #efefef;
+    height: 27px;
+    width: 23px;
+    margin-left: 4px;
+    position: absolute;
+    right: -23px;
+    top: 0;
+}
+
+.constant-pane-collapser-wrapper:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+.constant-pane-collapser-wrapper:hover {
+    cursor: pointer;
+    opacity: 1;
+}
+
+.constant-pane-collapser-wrapper i {
+    font-size: 12px;
+    position: absolute;
+    vertical-align: top;
+    top: 8px;
+    right: 7px;
+    opacity: 0.5;
+}
+
+.constant-declaration-wrapper i {
+    padding: 10px 6px 8px;
+    font-size: 8px;
+    background-color: #fff;
+    color: #8e44ad;
+    border-left-width: 0;
+    float: left;
+    opacity: 0.5;
+}
+
+.constant-declaration-type {
+    background-color: #8e44ad;
+    float: left;
+    color: white;
+    padding: 4px 8px;
+}
+
+.constant-declaration-wrapper {
+    float: left;
+    margin-bottom: 13px;
+    margin-left: 5px;
+    border: 1px solid #8e44ad;
+}
+
+.constant-declaration-wrapper i:hover {
+    cursor: pointer;
+    color: #000;
+}
+
+.constant-declaration-field {
+    background-color: #FFF;
+    float: left;
+    padding: 4px 8px;
+}
+
+.constant-declaration-equals {
+    padding-left: 3px;
+    padding-right: 3px;
+    cursor: default;
+}
+
+.constant-definition-main-wrapper {
+    padding-bottom: 47px;
+}
+
+/** End of Constants view **/
+
 .hoverable {
     opacity: 0.4;
     cursor: pointer;
@@ -1047,11 +1203,11 @@ button.variable-list {
 }
 
 #modalSearch .modal-dialog {
-    width: 30%;
+    width: 60%;
 }
 
 #modalSearch input {
-    color:black !important;
+    color:black;
 }
 
 .modal-search-icon{
@@ -1062,19 +1218,20 @@ button.variable-list {
 }
 
 .search-results {
-    height: 50%;
     overflow: auto;
     background-color: #2C2C2C;
+    margin-top: 10px;
 }
 
 .search-results ul li{
-    background-color: #2C2C2C !important;
-    border: 1px solid #6f6f6f !important;
+    background-color: #2C2C2C ;
+    border: 0;
     cursor: pointer;
 }
 
 .search-results ul li:hover{
-    background-color: #6f6f6f !important;
+    background-color: #222;
+    color: #ff7916;
 }
 
 .service-title-text:hover {
@@ -1182,6 +1339,28 @@ a:hover {
 .modal-dialog.file-dialog {
     margin: 100px auto 0;
 }
+
+.delete-item-dialog .icon{
+    float: left;
+    margin-left: 25px;
+    margin-top: 5px;
+}
+.delete-item-dialog .text {
+    margin-left: 150px;
+}
 .tool-group-import-header > a.tool-group-header-title {
     color: #fff;
+}
+i.fw-lg.fw.fw-cancel.about-dialog-close {
+    font-size: 12px;
+}
+i.fw.fw-cancel.about-dialog-close {
+    font-size: 12px;
+}
+ul.list-group {
+    margin-bottom: 0;
+}
+
+span.fw-stack.fw-lg{
+    z-index: 10;
 }
