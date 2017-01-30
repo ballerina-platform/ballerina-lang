@@ -27,7 +27,7 @@ import com.intellij.execution.configurations.RuntimeConfigurationException;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
-import org.ballerinalang.plugins.idea.run.BallerinaServiceRunningState;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaServiceRunningState;
 import org.ballerinalang.plugins.idea.run.configuration.ui.BallerinaServiceSettingsEditor;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkUtil;
 import org.jetbrains.annotations.NotNull;

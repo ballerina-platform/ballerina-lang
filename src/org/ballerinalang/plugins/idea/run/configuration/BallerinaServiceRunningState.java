@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.run;
+package org.ballerinalang.plugins.idea.run.configuration;
 
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
@@ -32,18 +32,18 @@ import com.intellij.util.ObjectUtils;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkUtil;
 import org.jetbrains.annotations.NotNull;
 
-public class BallerinaApplicationRunningState extends BallerinaRunningState {
+public class BallerinaServiceRunningState extends BallerinaRunningState {
 
     private Project project;
 
-    public BallerinaApplicationRunningState(Project project, ExecutionEnvironment environment) {
+    public BallerinaServiceRunningState(Project project, ExecutionEnvironment environment) {
         super(environment);
         this.project = project;
     }
 
     @Override
     public String getCommand() {
-        return "run";
+        return "service";
     }
 
     @NotNull
@@ -56,8 +56,8 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState {
         Editor selectedTextEditor = FileEditorManager.getInstance(project).getSelectedTextEditor();
         VirtualFile file = FileDocumentManager.getInstance().getFile(selectedTextEditor.getDocument());
         commandLine.addParameter(file.getPath());
-        commandLine.withCharset(CharsetToolkit.UTF8_CHARSET);
 
+        commandLine.withCharset(CharsetToolkit.UTF8_CHARSET);
         KillableColoredProcessHandler handler = new KillableColoredProcessHandler(commandLine, true);
         ProcessTerminatedListener.attach(handler);
         return handler;

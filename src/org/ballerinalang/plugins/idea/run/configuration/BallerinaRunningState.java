@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.run;
+package org.ballerinalang.plugins.idea.run.configuration;
 
 import com.intellij.execution.configurations.CommandLineState;
 import com.intellij.execution.runners.ExecutionEnvironment;
