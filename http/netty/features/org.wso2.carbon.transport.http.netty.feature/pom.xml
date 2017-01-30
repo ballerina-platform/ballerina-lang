@@ -64,13 +64,11 @@
             <groupId>commons-pool.wso2</groupId>
             <artifactId>commons-pool</artifactId>
         </dependency>
-
         <dependency>
             <groupId>javax.websocket</groupId>
             <artifactId>javax.websocket-api</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <resources>
             <resource>
@@ -125,7 +123,6 @@
                                 </advice>
                             </adviceFileContents>
                             <bundles>
-
                                 <bundle>
                                     <symbolicName>io.netty.common</symbolicName>
                                     <version>${netty.version}</version>
@@ -172,6 +169,10 @@
                                 <bundle>
                                     <symbolicName>org.wso2.carbon.transport.http.netty</symbolicName>
                                     <version>${project.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>javax.websocket-api</symbolicName>
+                                    <version>${javax.websocket.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>

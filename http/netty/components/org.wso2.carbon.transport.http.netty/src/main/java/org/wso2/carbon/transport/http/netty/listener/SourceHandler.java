@@ -26,6 +26,7 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
@@ -97,12 +98,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
         if (msg instanceof FullHttpMessage) {
-
             FullHttpMessage fullHttpMessage = (FullHttpMessage) msg;
-            HttpHeaders headers = fullHttpMessage.headers();
-            log.info("Connection : " + headers.get("Connection") + "\n" + headers.get("Upgrade"));
-
-            publishToMessageProcessor(msg);
+            cMsg = (HTTPCarbonMessage) setupCarbonMessage(fullHttpMessage);
+            publishToMessageProcessor(cMsg);
             ByteBuf content = ((FullHttpMessage) msg).content();
             cMsg.addHttpContent(new DefaultLastHttpContent(content));
             cMsg.setEndOfMsgAdded(true);
@@ -115,11 +113,14 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             Checks whether the given connection is a WebSocketUpgrade and add necessary components to it.
              */
             HttpRequest httpRequest = (HttpRequest) msg;
+            cMsg = (HTTPCarbonMessage) setupCarbonMessage(httpRequest);
+
             HttpHeaders headers = httpRequest.headers();
-            String connection = headers.get("Connection");
-            if (connection != null) {
-                if (headers.get("Connection").equalsIgnoreCase("Upgrade")) {
-                    if (headers.get("Upgrade").equalsIgnoreCase("WebSocket")) {
+            String connection = headers.get(Constants.CONNECTION);
+            String upgrade = headers.get(Constants.UPGRADE);
+            if (connection != null && upgrade != null) {
+                if (headers.get(Constants.CONNECTION).equals(Constants.UPGRADE) &&
+                        headers.get(Constants.UPGRADE).equals(Constants.WEBSOCKET_PROTOCOL_NAME)) {
                         log.info("Upgrading the connection from Http to WebSocket for " +
                                          "channel : " + ctx.channel());
 
@@ -134,16 +135,25 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                                                                         this.listenerConfiguration,
                                                                         httpRequest.getUri()));
                             pipeline.remove(this);
+                            Session session = new WebSocketSessionImpl(ctx,
+                                                                       (Boolean) cMsg.getProperty
+                                                                               (Constants.IS_SECURED_CONNECTION),
+                                                                       httpRequest.getUri());
+                            cMsg.setProperty(Constants.WEBSOCKET_SESSION, session);
+                            cMsg.setProperty(Constants.CHANNEL_ID, generateWebSocketChannelID());
+                            cMsg.setProperty(Constants.CONNECTION, headers.get("Connection"));
+                            cMsg.setProperty(Constants.UPGRADE, headers.get("Upgrade"));
 
                         } catch (Exception e) {
+                            ctx.channel().close();
                             log.error(e.toString());
                         }
-                    }
+
                 }
 
             }
             //Publish message to CarbonMessageProcessor
-            publishToMessageProcessor(msg);
+            publishToMessageProcessor(cMsg);
         } else {
             if (cMsg != null) {
                 if (msg instanceof HttpContent) {
@@ -185,8 +195,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     //Carbon Message is published to registered message processor and Message Processor should return transport thread
     //immediately
-    private void publishToMessageProcessor(Object msg) throws URISyntaxException {
-        cMsg = (HTTPCarbonMessage) setupCarbonMessage(msg);
+    private void publishToMessageProcessor(CarbonMessage cMsg) throws URISyntaxException {
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
         }
@@ -258,7 +267,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    protected CarbonMessage setupCarbonMessage(Object msg) throws URISyntaxException {
+    protected CarbonMessage setupCarbonMessage(HttpMessage httpMessage) throws URISyntaxException {
         cMsg = new HTTPCarbonMessage();
         boolean isSecuredConnection = false;
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
@@ -267,7 +276,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
         cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
 
-        HttpRequest httpRequest = (HttpRequest) msg;
+        HttpRequest httpRequest = (HttpRequest) httpMessage;
 
         cMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
         cMsg.setProperty(Constants.SRC_HNDLR, this);
@@ -291,29 +300,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         cMsg.setProperty(Constants.CHANNEL_ID, ((SourceHandler) handler).getListenerConfiguration().getId());
         cMsg.setProperty(Constants.TO, httpRequest.getUri());
         cMsg.setHeaders(Util.getHeaders(httpRequest).getAll());
-        HttpHeaders headers = httpRequest.headers();
-
         //Added protocol name as a string
-        cMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_PROTOCOL);
-
-        /*
-        If the connection is a WebSocket upgrade add the needful headers to CarbonMessage
-         */
-        String connection = headers.get("Connection");
-        if (connection != null) {
-            if (headers.get("Connection").equalsIgnoreCase("Upgrade")) {
-                if (headers.get("Upgrade").equalsIgnoreCase("WebSocket")) {
-                    Session session = new WebSocketSessionImpl(ctx, isSecuredConnection, httpRequest.getUri());
-                    cMsg.setProperty(Constants.WEBSOCKET_SESSION, session);
-                    cMsg.setProperty(Constants.CHANNEL_ID, generateWebSocketChannelID());
-                    cMsg.setProperty(Constants.CONNECTION, headers.get("Connection"));
-                    cMsg.setProperty(Constants.UPGRADE, headers.get("Upgrade"));
-                }
-            }
-        }
-
         return cMsg;
     }
+
     /*
     Generate a ChannelId for WebSocket
      */

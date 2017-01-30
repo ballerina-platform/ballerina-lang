@@ -181,11 +181,14 @@ public final class Constants {
 
     public static final String LOCALHOST = "localhost";
 
-    public static final String CONNECTION = "CONNECTION";
-    public static final String UPGRADE = "UPGRADE";
+    public static final String CONNECTION = "Connection";
+    public static final String UPGRADE = "Upgrade";
 
     public static final String WEBSOCKET_SESSION = "WEBSOCKET_SESSION";
-    public static final String WEBSOCKET_PROTOCOL = "WEBSOCKET_PROTOCOL";
+    public static final String WEBSOCKET_PROTOCOL = "ws";
+    public static final String WEBSOCKET_PROTOCOL_NAME = "websocket";
+
+
     private Constants() {
     }
 }

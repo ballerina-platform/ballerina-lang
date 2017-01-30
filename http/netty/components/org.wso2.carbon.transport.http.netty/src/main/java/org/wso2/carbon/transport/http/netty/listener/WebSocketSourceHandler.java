@@ -22,6 +22,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.slf4j.Logger;
@@ -30,6 +31,7 @@ import org.wso2.carbon.messaging.BinaryCarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.CloseCarbonMessage;
+import org.wso2.carbon.messaging.PongCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
@@ -72,34 +74,39 @@ public class WebSocketSourceHandler extends SourceHandler {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws UnknownWebSocketFrameTypeException {
         cMsg = null;
-
-        if (msg instanceof WebSocketFrame) {
-
-            if (msg instanceof TextWebSocketFrame) {
-                TextWebSocketFrame textWebSocketFrame = (TextWebSocketFrame) msg;
-                String text = textWebSocketFrame.text();
-                cMsg = new TextCarbonMessage(text);
-
-            } else if (msg instanceof BinaryWebSocketFrame) {
-                BinaryWebSocketFrame binaryWebSocketFrame = (BinaryWebSocketFrame) msg;
-                boolean finalFragment = binaryWebSocketFrame.isFinalFragment();
-                ByteBuf byteBuf = binaryWebSocketFrame.content();
-                ByteBuffer byteBuffer = byteBuf.nioBuffer();
-                cMsg = new BinaryCarbonMessage(byteBuffer, finalFragment);
-
-            } else if (msg instanceof CloseWebSocketFrame) {
-                CloseWebSocketFrame closeWebSocketFrame = (CloseWebSocketFrame) msg;
-                String reasonText = closeWebSocketFrame.reasonText();
-                int statusCode = closeWebSocketFrame.statusCode();
-                cMsg = new CloseCarbonMessage(statusCode, reasonText);
-            }
-
-            setupBasicCarbonMessageProperties(ctx);
-            publishToMessageProcessor(cMsg);
-        } else {
+        //TODO : Ping
+        if (!(msg instanceof WebSocketFrame)) {
             LOGGER.error("Expecting WebSocketFrame. Unknown type.");
             throw new UnknownWebSocketFrameTypeException("Expecting WebSocketFrame. Unknown type.");
         }
+
+        if (msg instanceof TextWebSocketFrame) {
+            TextWebSocketFrame textWebSocketFrame = (TextWebSocketFrame) msg;
+            String text = textWebSocketFrame.text();
+            cMsg = new TextCarbonMessage(text);
+
+        } else if (msg instanceof BinaryWebSocketFrame) {
+            BinaryWebSocketFrame binaryWebSocketFrame = (BinaryWebSocketFrame) msg;
+            boolean finalFragment = binaryWebSocketFrame.isFinalFragment();
+            ByteBuf byteBuf = binaryWebSocketFrame.content();
+            ByteBuffer byteBuffer = byteBuf.nioBuffer();
+            cMsg = new BinaryCarbonMessage(byteBuffer, finalFragment);
+
+        } else if (msg instanceof CloseWebSocketFrame) {
+            CloseWebSocketFrame closeWebSocketFrame = (CloseWebSocketFrame) msg;
+            String reasonText = closeWebSocketFrame.reasonText();
+            int statusCode = closeWebSocketFrame.statusCode();
+            cMsg = new CloseCarbonMessage(statusCode, reasonText);
+        } else if (msg instanceof PongWebSocketFrame) {
+            PongWebSocketFrame pongWebSocketFrame = (PongWebSocketFrame) msg;
+            boolean finalFragment = pongWebSocketFrame.isFinalFragment();
+            ByteBuf byteBuf = pongWebSocketFrame.content();
+            ByteBuffer byteBuffer = byteBuf.nioBuffer();
+            cMsg = new PongCarbonMessage(byteBuffer, finalFragment);
+        }
+
+        setupBasicCarbonMessageProperties(ctx);
+        publishToMessageProcessor(cMsg);
     }
 
 
