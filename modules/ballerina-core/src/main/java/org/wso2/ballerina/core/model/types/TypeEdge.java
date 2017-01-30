@@ -66,11 +66,6 @@ public class TypeEdge {
         return typeConvertorFunction;
     }
 
-    public void setTypeConvertorFunction(Function typeConvertorFunction) {
-        this.typeConvertorFunction = typeConvertorFunction;
-    }
-
-
     public TypeConvertor getTypeConvertor() {
         return typeConvertor;
     }
