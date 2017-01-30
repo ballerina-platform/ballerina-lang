@@ -39,6 +39,7 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
             this.toolPalette = _.get(args, "toolPalette");
             this.messageManager =  _.get(args, "messageManager");
             this.diagramRenderingContext = _.get(args, "diagramRenderContext");
+            this.id = uuid();
         };
 
         BallerinaView.prototype = Object.create(ASTVisitor.prototype);
@@ -124,6 +125,29 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
                 container: self._container,
                 viewOptions: self._viewOptions
              });
+        };
+
+        /**
+         * Unplug the view from the current context
+         * @param {object} options
+         * @param {ASTNode} parent - parent node
+         * @param {ASTNode} child - child node
+         */
+        BallerinaView.prototype.unplugView = function (options, parent, child) {
+            // resize the bounding box in order to the other objects to resize
+            this.getBoundingBox().h(options.h).w(options.w);
+            parent.removeChild(child);
+        };
+
+        // Auto generated Id for service definitions (for accordion views)
+        var uuid =  function (){
+            function s4() {
+                return Math.floor((1 + Math.random()) * 0x10000)
+                    .toString(16)
+                    .substring(1);
+            }
+            return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+                s4() + '-' + s4() + s4() + s4();
         };
 
         return BallerinaView;
