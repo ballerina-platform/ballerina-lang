@@ -318,16 +318,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             this.setLifelineMargin(resourceDefinitionView.getBoundingBox().getRight());
             // If the lifeline margin is changed then accordingly the resource should move the bounding box
             this.getLifeLineMargin().on('moved', function (offset) {
-                var newWidth = resourceDefinitionView.getBoundingBox().w() + offset;
-                var minWidth = resourceDefinitionView.getContentMinWidth();
-                // resource bounding box should not shrink than min width
-                if (newWidth > minWidth) {
-                    resourceDefinitionView.getBoundingBox().w(newWidth);
-                } else {
-                    // reset lifeline margin position
-                    self.setLifelineMargin(minWidth + self._viewOptions.offsetTop);
-                    resourceDefinitionView.getBoundingBox().w(minWidth);
-                }
+                resourceDefinitionView.getBoundingBox().w(resourceDefinitionView.getBoundingBox().w() + offset);
             });
 
             //setting height of the service view
@@ -486,7 +477,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                         this.onLastResourceBottomEdgeMoved, this);
                 } else {
                     // If the last child has been removed we re-position the lifelineMargin to 0;
-                    this.getLifeLineMargin().setPosition(this.getLifeLineMargin().getPosition());
+                    this.getLifeLineMargin().setPosition(0);
                 }
 
                 childView.getBoundingBox().off('bottom-edge-moved');
