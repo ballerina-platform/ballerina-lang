@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group', './../ast/defaults-added-ballerina-ast-factory'],
+define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/tool-group', './../ast/defaults-added-ballerina-ast-factory'],
     function (log, $, BallerinaASTFactory, ToolGroup, DefaultsAddedBallerinaASTFactory) {
 
-        var ToolPalette = {};
+        var ToolPalette = [];
 
         var createResourceDefTool = {
             id: "resource",
@@ -97,12 +97,13 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group', './..
             createMainFunctionDefTool, createConnectorDefTool, createConnectorActionTool, createStructsDefTool,
             createTypeConverterDefTool];
 
-        ToolPalette.elements = new ToolGroup({
+        var elements = new ToolGroup({
             toolGroupName: "Elements",
             toolOrder: "horizontal",
             toolGroupID: "main-tool-group",
             toolDefinitions: mainToolDefArray
         });
+        ToolPalette.push(elements);
 
         var createIfStatementTool = {
             id: "if",
@@ -119,14 +120,6 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group', './..
             title: "While",
             nodeFactoryMethod: BallerinaASTFactory.createWhileStatement
         };
-
-        //var createTryCatchStatementTool = {
-        //    id: "TryCatch",
-        //    name: "TryCatch",
-        //    icon: "images/tool-icons/trycatch.svg",
-        //    title: "TryCatch",
-        //    nodeFactoryMethod: BallerinaASTFactory.createTryCatchStatement
-        //};
 
         var createAssignmentExpressionTool = {
             id: "Assignment",
@@ -164,21 +157,13 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group', './..
             createFunctionInvocationTool, createReturnStatementTool, createReplyStatementTool, createWhileStatementTool];
 
         // Create statements tool group
-        ToolPalette.statements = new ToolGroup({
+        var statements = new ToolGroup({
             toolGroupName: "Statements",
             toolGroupID: "statements-tool-group",
             toolOrder: "horizontal",
             toolDefinitions: statementToolDefArray
         });
-
-        ToolPalette.package = new ToolGroup({
-            toolGroupName: "Package",
-            toolGroupID: "package-tool-group",
-            toolOrder: "horizontal",
-            toolDefinitions: []
-        });
-
-        ToolPalette.imports = [];
+        ToolPalette.push(statements);
 
         return ToolPalette;
 });

@@ -48,7 +48,6 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
 
             // Initialize the bounding box
             this.getBoundingBox().fromTopCenter(this.getTopCenter(), 120, 0);
-            this.init();
 
         };
 
@@ -57,9 +56,6 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
 
         IfElseStatementView.prototype.canVisitIfElseStatement = function(){
             return true;
-        };
-
-        IfElseStatementView.prototype.init = function () {
         };
 
         /**
@@ -236,6 +232,24 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
 
         IfElseStatementView.prototype.getLastElseIf = function () {
             return this._elseIfViews[this._elseIfViews.length - 1];
+        };
+
+        /**
+         * Override Remove view callback for the if-else-statement
+         * @param {ASTNode} parent - parent node
+         * @param {ASTNode} child - child node
+         */
+        IfElseStatementView.prototype.removeViewCallback = function (parent, child) {
+            _.forEach(this.getChildrenViewsList(), function (childrenView) {
+                childrenView.stopListening();
+            });
+            d3.select("#_" +this._model.id).remove();
+            this.getDiagramRenderingContext().getViewOfModel(parent).getStatementContainer().removeInnerDropZone(child);
+            this.unplugView(
+                {
+                    w: 0,
+                    h: 0
+                }, parent, child);
         };
 
         return IfElseStatementView;
