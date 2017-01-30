@@ -155,7 +155,7 @@ public class Resource implements Node, CallableUnit {
     public ConnectorDcl[] getConnectorDcls() {
         return connectorDcls;
     }
-
+    
     /**
      * Get all the Workers associated with a Resource.
      *
