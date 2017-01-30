@@ -38,7 +38,7 @@ public class BinaryExpression extends UnaryExpression {
 
     protected Expression lExpr;
     protected BiFunction<BValueType, BValueType, BValueType> evalFuncNewNew;
-    
+
     public BinaryExpression(Expression lExpr, Operator op, Expression rExpr, Position location) {
         super(op, rExpr, location);
         this.lExpr = lExpr;
@@ -58,6 +58,10 @@ public class BinaryExpression extends UnaryExpression {
 
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this);
+    }
+
+    public void setRExpr(Expression rExpr) {
+        this.rExpr = rExpr;
     }
 
 }

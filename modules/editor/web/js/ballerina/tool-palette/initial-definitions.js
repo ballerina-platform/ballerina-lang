@@ -133,7 +133,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group', './..
             name: "Assignment",
             icon: "images/tool-icons/assign.svg",
             title: "Assignment",
-            nodeFactoryMethod: BallerinaASTFactory.createAssignment
+            nodeFactoryMethod: BallerinaASTFactory.createAggregatedAssignmentStatement
         };
 
         var createFunctionInvocationTool = {
@@ -179,53 +179,6 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group', './..
         });
 
         ToolPalette.imports = [];
-
-
-        var http_connector = {
-            name : "ballerina.net.http",
-            connectors:[{
-                id: 'http',
-                name: "HTTPConnector",
-                title: "HTTPConnector",
-                icon: "images/tool-icons/http-connector.svg",
-                actions:[{
-                    id: "get",
-                    name: "Get",
-                    icon: "images/tool-icons/http.svg",
-                    title: "GET",
-                    meta: {
-                        action: "get"
-                    },
-                },{
-                    id: "post",
-                    name: "Post",
-                    icon: "images/tool-icons/http.svg",
-                    title: "POST",
-                    meta: {
-                        action: "post"
-                    },
-                },{
-                    id: "put",
-                    name: "Put",
-                    icon: "images/tool-icons/http.svg",
-                    title: "PUT",
-                    meta: {
-                        action: "put"
-                    }
-                },{
-                    id: "delete",
-                    name: "Delete",
-                    icon: "images/tool-icons/http.svg",
-                    title: "DELETE",
-                    meta: {
-                        action: "delete"
-                    }
-                }]
-            }]
-        }
-
-        ToolPalette.imports.push(http_connector);
-        
 
         return ToolPalette;
 });

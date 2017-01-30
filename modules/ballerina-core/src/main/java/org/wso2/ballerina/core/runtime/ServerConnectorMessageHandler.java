@@ -122,7 +122,7 @@ public class ServerConnectorMessageHandler {
         }
 
         ((ServerConnectorErrorHandler) errorHandler)
-            .handleError(new BallerinaException(errorMsg, throwable.getCause()), cMsg, callback);
+            .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext), cMsg, callback);
     }
 
 }
