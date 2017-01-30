@@ -31,6 +31,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
+import org.ballerinalang.plugins.idea.sdk.BallerinaSdkType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,6 +62,10 @@ public class BallerinaProjectSdkSetupValidator implements ProjectSdkSetupValidat
                     return ProjectBundle.message("project.sdk.not.defined");
                 } else {
                     return ProjectBundle.message("module.sdk.not.defined");
+                }
+            } else {
+                if (sdk.getSdkType() != BallerinaSdkType.getInstance()) {
+                    return "Ballerina SDK not defined";
                 }
             }
         }
