@@ -21,6 +21,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.ballerinalang.plugins.idea.BallerinaFileType;
 
 public class BallerinaRunUtil {
 
@@ -34,15 +35,32 @@ public class BallerinaRunUtil {
      * @param project current project
      * @return filepath or empty string if filepath cannot be found.
      */
-    public static String getOpenedFilePath(Project project) {
-        Editor selectedTextEditor = FileEditorManager.getInstance(project).getSelectedTextEditor();
+    public static String getOpenFilePath(Project project) {
+        Editor selectedTextEditor = getEditor(project);
         if (selectedTextEditor == null) {
             return "";
         }
-        VirtualFile file = FileDocumentManager.getInstance().getFile(selectedTextEditor.getDocument());
+        VirtualFile file = getVirtualFile(selectedTextEditor);
         if (file == null) {
             return "";
         }
         return file.getPath();
+    }
+
+    public static boolean isBallerinaFileOpen(Project project) {
+        Editor editor = getEditor(project);
+        VirtualFile file = getVirtualFile(editor);
+        if (file.getFileType() == BallerinaFileType.INSTANCE) {
+            return true;
+        }
+        return false;
+    }
+
+    public static Editor getEditor(Project project) {
+        return FileEditorManager.getInstance(project).getSelectedTextEditor();
+    }
+
+    public static VirtualFile getVirtualFile(Editor editor) {
+        return FileDocumentManager.getInstance().getFile(editor.getDocument());
     }
 }

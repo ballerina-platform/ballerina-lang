@@ -27,6 +27,7 @@ import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
 import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunConfigurationBase;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunUtil;
 import org.ballerinalang.plugins.idea.run.configuration.BallerinaServiceRunningState;
 import org.ballerinalang.plugins.idea.run.configuration.ui.BallerinaServiceSettingsEditor;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkUtil;
@@ -50,6 +51,10 @@ public class BallerinaServiceRunConfiguration extends BallerinaRunConfigurationB
         String ballerinaExecutablePath = BallerinaSdkUtil.getBallerinaExecutablePath(getProject());
         if (ballerinaExecutablePath.isEmpty()) {
             throw new RuntimeConfigurationError("Cannot find Ballerina executable. Please check Ballerina SDK path.");
+        }
+        String openedFile = BallerinaRunUtil.getOpenFilePath(getProject());
+        if (openedFile.isEmpty()) {
+            throw new RuntimeConfigurationError("No Ballerina file is opened in the editor.");
         }
     }
 

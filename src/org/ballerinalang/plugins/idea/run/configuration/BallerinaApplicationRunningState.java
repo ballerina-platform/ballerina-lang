@@ -45,7 +45,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState {
         GeneralCommandLine commandLine = new GeneralCommandLine();
         commandLine.setExePath(ObjectUtils.notNull(BallerinaSdkUtil.getBallerinaExecutablePath(getProject())));
         commandLine.addParameter(getCommand());
-        commandLine.addParameter(BallerinaRunUtil.getOpenedFilePath(getProject()));
+        commandLine.addParameter(BallerinaRunUtil.getOpenFilePath(getProject()));
         commandLine.withCharset(CharsetToolkit.UTF8_CHARSET);
         // Add program arguments
         commandLine.addParameter(getParams());

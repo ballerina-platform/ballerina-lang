@@ -45,7 +45,7 @@ public class BallerinaServiceRunningState extends BallerinaRunningState {
         GeneralCommandLine commandLine = new GeneralCommandLine();
         commandLine.setExePath(ObjectUtils.notNull(BallerinaSdkUtil.getBallerinaExecutablePath(getProject())));
         commandLine.addParameter(getCommand());
-        commandLine.addParameter(BallerinaRunUtil.getOpenedFilePath(getProject()));
+        commandLine.addParameter(BallerinaRunUtil.getOpenFilePath(getProject()));
         commandLine.withCharset(CharsetToolkit.UTF8_CHARSET);
 
         KillableColoredProcessHandler handler = new KillableColoredProcessHandler(commandLine, true);

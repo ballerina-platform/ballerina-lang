@@ -13,6 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.ballerinalang.plugins.idea.run.configuration;
 
 import com.intellij.execution.configurations.ConfigurationFactory;
