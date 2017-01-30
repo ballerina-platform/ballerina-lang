@@ -668,14 +668,38 @@ public class SemanticAnalyzer implements NodeVisitor {
         // TODO Remove the MAP related logic when type casting is implemented
         if (!(lExpr.getType().equals(BTypes.MAP_TYPE)) && !(rExpr.getType().equals(BTypes.MAP_TYPE)) &&
                 (!lExpr.getType().equals(rExpr.getType()))) {
-            TypeCastExpression newExpr = checkWideningPossible(lExpr, rExpr, null);
-            if (newExpr != null) {
-                newExpr.accept(this);
-                assignStmt.setRhsExpr(newExpr);
+            if (rExpr instanceof ArrayInitExpr && lExpr.getType() instanceof BArrayType) {
+                Expression[] args = ((ArrayInitExpr) rExpr).getArgExprs();
+                Expression[] results = new Expression[args.length];
+                int count = 0;
+                for (Expression expression : args) {
+                    TypeCastExpression newExpr = checkWideningPossible(
+                            ((BArrayType) lExpr.getType()).getElementType(), expression, null);
+                    if (newExpr != null) {
+                        newExpr.accept(this);
+                        results[count++] = newExpr;
+                    } else {
+                        throw new SemanticException(lExpr.getLocation().getFileName() + ":"
+                                + lExpr.getLocation().getLine() + ": incompatible types: " + rExpr.getType() +
+                                " cannot be converted to " + lExpr.getType());
+                    }
+                }
+                ArrayInitExpr.ArrayInitExprBuilder builder = new ArrayInitExpr.ArrayInitExprBuilder();
+                builder.setArgList(Arrays.asList(results));
+                ArrayInitExpr newArrayInitExpr = builder.build();
+                newArrayInitExpr.accept(this);
+                assignStmt.setRhsExpr(newArrayInitExpr);
+
             } else {
-                throw new SemanticException(lExpr.getLocation().getFileName() + ":"
-                        + lExpr.getLocation().getLine() + ": incompatible types: " + rExpr.getType() +
-                        " cannot be converted to " + lExpr.getType());
+                TypeCastExpression newExpr = checkWideningPossible(lExpr.getType(), rExpr, null);
+                if (newExpr != null) {
+                    newExpr.accept(this);
+                    assignStmt.setRhsExpr(newExpr);
+                } else {
+                    throw new SemanticException(lExpr.getLocation().getFileName() + ":"
+                            + lExpr.getLocation().getLine() + ": incompatible types: " + rExpr.getType() +
+                            " cannot be converted to " + lExpr.getType());
+                }
             }
         }
     }
@@ -697,7 +721,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression expr = ifElseStmt.getCondition();
         expr.accept(this);
 
-        if (expr.getType() != BTypes.BOOLEAN_TYPE) {
+        if (!expr.getType().equals(BTypes.BOOLEAN_TYPE)) {
             throw new SemanticException("Incompatible types: expected a boolean expression in " +
                     expr.getLocation().getFileName() + ":" + expr.getLocation().getLine());
         }
@@ -709,7 +733,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             Expression elseIfCondition = elseIfBlock.getElseIfCondition();
             elseIfCondition.accept(this);
 
-            if (elseIfCondition.getType() != BTypes.BOOLEAN_TYPE) {
+            if (!elseIfCondition.getType().equals(BTypes.BOOLEAN_TYPE)) {
                 throw new SemanticException("Incompatible types: expected a boolean expression in " +
                         elseIfCondition.getLocation().getFileName() + ":" + elseIfCondition.getLocation().getLine());
             }
@@ -729,7 +753,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression expr = whileStmt.getCondition();
         expr.accept(this);
 
-        if (expr.getType() != BTypes.BOOLEAN_TYPE) {
+        if (!expr.getType().equals(BTypes.BOOLEAN_TYPE)) {
             throw new SemanticException("Incompatible types: expected a boolean expression in " +
                     whileStmt.getLocation().getFileName() + ":" + whileStmt.getLocation().getLine());
         }
@@ -956,16 +980,16 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(DivideExpr divideExpr) {
         BType arithmeticExprType = verifyBinaryArithmeticExprType(divideExpr);
 
-        if (arithmeticExprType == BTypes.INT_TYPE) {
+        if (arithmeticExprType.equals(BTypes.INT_TYPE)) {
             divideExpr.setEvalFunc(DivideExpr.DIV_INT_FUNC);
 
-        } else if (arithmeticExprType == BTypes.FLOAT_TYPE) {
+        } else if (arithmeticExprType.equals(BTypes.FLOAT_TYPE)) {
             divideExpr.setEvalFunc(DivideExpr.DIV_FLOAT_FUNC);
 
-        } else if (arithmeticExprType == BTypes.DOUBLE_TYPE) {
+        } else if (arithmeticExprType.equals(BTypes.DOUBLE_TYPE)) {
             divideExpr.setEvalFunc(DivideExpr.DIV_DOUBLE_FUNC);
 
-        } else if (arithmeticExprType == BTypes.LONG_TYPE) {
+        } else if (arithmeticExprType.equals(BTypes.LONG_TYPE)) {
             divideExpr.setEvalFunc(DivideExpr.DIV_LONG_FUNC);
 
         } else {
@@ -980,26 +1004,26 @@ public class SemanticAnalyzer implements NodeVisitor {
         unaryExpr.setType(unaryExpr.getRExpr().getType());
 
         if (Operator.SUB.equals(unaryExpr.getOperator())) {
-            if (unaryExpr.getType() == BTypes.INT_TYPE) {
+            if (unaryExpr.getType().equals(BTypes.INT_TYPE)) {
                 unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_INT_FUNC);
-            } else if (unaryExpr.getType() == BTypes.DOUBLE_TYPE) {
+            } else if (unaryExpr.getType().equals(BTypes.DOUBLE_TYPE)) {
                 unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_DOUBLE_FUNC);
-            } else if (unaryExpr.getType() == BTypes.LONG_TYPE) {
+            } else if (unaryExpr.getType().equals(BTypes.LONG_TYPE)) {
                 unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_LONG_FUNC);
-            } else if (unaryExpr.getType() == BTypes.FLOAT_TYPE) {
+            } else if (unaryExpr.getType().equals(BTypes.FLOAT_TYPE)) {
                 unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_FLOAT_FUNC);
             } else {
                 throw new SemanticException("Incompatible type in unary expression: " + unaryExpr.getType() + " in " +
                         unaryExpr.getLocation().getFileName() + ":" + unaryExpr.getLocation().getLine());
             }
         } else if (Operator.ADD.equals(unaryExpr.getOperator())) {
-            if (unaryExpr.getType() == BTypes.INT_TYPE) {
+            if (unaryExpr.getType().equals(BTypes.INT_TYPE)) {
                 unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_INT_FUNC);
-            } else if (unaryExpr.getType() == BTypes.DOUBLE_TYPE) {
+            } else if (unaryExpr.getType().equals(BTypes.DOUBLE_TYPE)) {
                 unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_DOUBLE_FUNC);
-            } else if (unaryExpr.getType() == BTypes.LONG_TYPE) {
+            } else if (unaryExpr.getType().equals(BTypes.LONG_TYPE)) {
                 unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_LONG_FUNC);
-            } else if (unaryExpr.getType() == BTypes.FLOAT_TYPE) {
+            } else if (unaryExpr.getType().equals(BTypes.FLOAT_TYPE)) {
                 unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_FLOAT_FUNC);
             } else {
                 throw new SemanticException("Incompatible type in unary expression: " + unaryExpr.getType() + " in " +
@@ -1007,7 +1031,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
         } else if (Operator.NOT.equals(unaryExpr.getOperator())) {
-            if (unaryExpr.getType() == BTypes.BOOLEAN_TYPE) {
+            if (unaryExpr.getType().equals(BTypes.BOOLEAN_TYPE)) {
                 unaryExpr.setEvalFunc(UnaryExpression.NOT_BOOLEAN_FUNC);
             } else {
                 throw new SemanticException("Incompatible type in unary expression: " + unaryExpr.getType() + " in " +
@@ -1027,19 +1051,19 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(AddExpression addExpr) {
         BType arithmeticExprType = verifyBinaryArithmeticExprType(addExpr);
 
-        if (arithmeticExprType == BTypes.INT_TYPE) {
+        if (arithmeticExprType.equals(BTypes.INT_TYPE)) {
             addExpr.setEvalFunc(AddExpression.ADD_INT_FUNC);
 
-        } else if (arithmeticExprType == BTypes.FLOAT_TYPE) {
+        } else if (arithmeticExprType.equals(BTypes.FLOAT_TYPE)) {
             addExpr.setEvalFunc(AddExpression.ADD_FLOAT_FUNC);
 
-        } else if (arithmeticExprType == BTypes.LONG_TYPE) {
+        } else if (arithmeticExprType.equals(BTypes.LONG_TYPE)) {
             addExpr.setEvalFunc(AddExpression.ADD_LONG_FUNC);
 
-        } else if (arithmeticExprType == BTypes.DOUBLE_TYPE) {
+        } else if (arithmeticExprType.equals(BTypes.DOUBLE_TYPE)) {
             addExpr.setEvalFunc(AddExpression.ADD_DOUBLE_FUNC);
 
-        } else if (arithmeticExprType == BTypes.STRING_TYPE) {
+        } else if (arithmeticExprType.equals(BTypes.STRING_TYPE)) {
             addExpr.setEvalFunc(AddExpression.ADD_STRING_FUNC);
 
         } else {
@@ -1052,16 +1076,16 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(MultExpression multExpr) {
         BType binaryExprType = verifyBinaryArithmeticExprType(multExpr);
 
-        if (binaryExprType == BTypes.INT_TYPE) {
+        if (binaryExprType.equals(BTypes.INT_TYPE)) {
             multExpr.setEvalFunc(MultExpression.MULT_INT_FUNC);
 
-        } else if (binaryExprType == BTypes.FLOAT_TYPE) {
+        } else if (binaryExprType.equals(BTypes.FLOAT_TYPE)) {
             multExpr.setEvalFunc(MultExpression.MULT_FLOAT_FUNC);
 
-        } else if (binaryExprType == BTypes.DOUBLE_TYPE) {
+        } else if (binaryExprType.equals(BTypes.DOUBLE_TYPE)) {
             multExpr.setEvalFunc(MultExpression.MULT_DOUBLE_FUNC);
 
-        } else if (binaryExprType == BTypes.LONG_TYPE) {
+        } else if (binaryExprType.equals(BTypes.LONG_TYPE)) {
             multExpr.setEvalFunc(MultExpression.MULT_LONG_FUNC);
 
         } else {
@@ -1074,16 +1098,16 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(SubtractExpression subtractExpr) {
         BType binaryExprType = verifyBinaryArithmeticExprType(subtractExpr);
 
-        if (binaryExprType == BTypes.INT_TYPE) {
+        if (binaryExprType.equals(BTypes.INT_TYPE)) {
             subtractExpr.setEvalFunc(SubtractExpression.SUB_INT_FUNC);
 
-        } else if (binaryExprType == BTypes.FLOAT_TYPE) {
+        } else if (binaryExprType.equals(BTypes.FLOAT_TYPE)) {
             subtractExpr.setEvalFunc(SubtractExpression.SUB_FLOAT_FUNC);
 
-        } else if (binaryExprType == BTypes.DOUBLE_TYPE) {
+        } else if (binaryExprType.equals(BTypes.DOUBLE_TYPE)) {
             subtractExpr.setEvalFunc(SubtractExpression.SUB_DOUBLE_FUNC);
 
-        } else if (binaryExprType == BTypes.LONG_TYPE) {
+        } else if (binaryExprType.equals(BTypes.LONG_TYPE)) {
             subtractExpr.setEvalFunc(SubtractExpression.SUB_LONG_FUNC);
 
         } else {
@@ -1108,16 +1132,16 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(EqualExpression expr) {
         BType compareExprType = verifyBinaryCompareExprType(expr);
 
-        if (compareExprType == BTypes.INT_TYPE) {
+        if (compareExprType.equals(BTypes.INT_TYPE)) {
             expr.setEvalFunc(EqualExpression.EQUAL_INT_FUNC);
 
-        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+        } else if (compareExprType.equals(BTypes.FLOAT_TYPE)) {
             expr.setEvalFunc(EqualExpression.EQUAL_FLOAT_FUNC);
 
-        } else if (compareExprType == BTypes.BOOLEAN_TYPE) {
+        } else if (compareExprType.equals(BTypes.BOOLEAN_TYPE)) {
             expr.setEvalFunc(EqualExpression.EQUAL_BOOLEAN_FUNC);
 
-        } else if (compareExprType == BTypes.STRING_TYPE) {
+        } else if (compareExprType.equals(BTypes.STRING_TYPE)) {
             expr.setEvalFunc(EqualExpression.EQUAL_STRING_FUNC);
 
         } else {
@@ -1130,16 +1154,16 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(NotEqualExpression notEqualExpr) {
         BType compareExprType = verifyBinaryCompareExprType(notEqualExpr);
 
-        if (compareExprType == BTypes.INT_TYPE) {
+        if (compareExprType.equals(BTypes.INT_TYPE)) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_INT_FUNC);
 
-        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+        } else if (compareExprType.equals(BTypes.FLOAT_TYPE)) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_FLOAT_FUNC);
 
-        } else if (compareExprType == BTypes.BOOLEAN_TYPE) {
+        } else if (compareExprType.equals(BTypes.BOOLEAN_TYPE)) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_BOOLEAN_FUNC);
 
-        } else if (compareExprType == BTypes.STRING_TYPE) {
+        } else if (compareExprType.equals(BTypes.STRING_TYPE)) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_STRING_FUNC);
 
         } else {
@@ -1152,10 +1176,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(GreaterEqualExpression greaterEqualExpr) {
         BType compareExprType = verifyBinaryCompareExprType(greaterEqualExpr);
 
-        if (compareExprType == BTypes.INT_TYPE) {
+        if (compareExprType.equals(BTypes.INT_TYPE)) {
             greaterEqualExpr.setEvalFunc(GreaterEqualExpression.GREATER_EQUAL_INT_FUNC);
 
-        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+        } else if (compareExprType.equals(BTypes.FLOAT_TYPE)) {
             greaterEqualExpr.setEvalFunc(GreaterEqualExpression.GREATER_EQUAL_FLOAT_FUNC);
 
         } else {
@@ -1169,10 +1193,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(GreaterThanExpression greaterThanExpr) {
         BType compareExprType = verifyBinaryCompareExprType(greaterThanExpr);
 
-        if (compareExprType == BTypes.INT_TYPE) {
+        if (compareExprType.equals(BTypes.INT_TYPE)) {
             greaterThanExpr.setEvalFunc(GreaterThanExpression.GREATER_THAN_INT_FUNC);
 
-        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+        } else if (compareExprType.equals(BTypes.FLOAT_TYPE)) {
             greaterThanExpr.setEvalFunc(GreaterThanExpression.GREATER_THAN_FLOAT_FUNC);
 
         } else {
@@ -1186,10 +1210,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(LessEqualExpression lessEqualExpr) {
         BType compareExprType = verifyBinaryCompareExprType(lessEqualExpr);
 
-        if (compareExprType == BTypes.INT_TYPE) {
+        if (compareExprType.equals(BTypes.INT_TYPE)) {
             lessEqualExpr.setEvalFunc(LessEqualExpression.LESS_EQUAL_INT_FUNC);
 
-        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+        } else if (compareExprType.equals(BTypes.FLOAT_TYPE)) {
             lessEqualExpr.setEvalFunc(LessEqualExpression.LESS_EQUAL_FLOAT_FUNC);
 
         } else {
@@ -1202,10 +1226,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(LessThanExpression lessThanExpr) {
         BType compareExprType = verifyBinaryCompareExprType(lessThanExpr);
 
-        if (compareExprType == BTypes.INT_TYPE) {
+        if (compareExprType.equals(BTypes.INT_TYPE)) {
             lessThanExpr.setEvalFunc(LessThanExpression.LESS_THAN_INT_FUNC);
 
-        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+        } else if (compareExprType.equals(BTypes.FLOAT_TYPE)) {
             lessThanExpr.setEvalFunc(LessThanExpression.LESS_THAN_FLOAT_FUNC);
 
         } else {
@@ -1238,7 +1262,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             // Check the type of the index expression
             Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
             indexExpr.accept(this);
-            if (indexExpr.getType() != BTypes.INT_TYPE) {
+            if (!indexExpr.getType().equals(BTypes.INT_TYPE)) {
                 throw new SemanticException("Array index should be of type int, not " + indexExpr.getType().toString() +
                         ". Array name: " + arrayMapVarRefExpr.getSymbolName().getName() + " in "
                         + indexExpr.getLocation().getFileName() + ":" + indexExpr.getLocation().getLine());
@@ -1250,7 +1274,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             // Check the type of the index expression
             Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
             indexExpr.accept(this);
-            if (indexExpr.getType() != BTypes.STRING_TYPE) {
+            if (!indexExpr.getType().equals(BTypes.STRING_TYPE)) {
                 throw new SemanticException("Map index should be of type string, not " + indexExpr.getType().toString()
                         + ". Map name: " + arrayMapVarRefExpr.getSymbolName().getName() + " in "
                         + indexExpr.getLocation().getFileName() + ":" + indexExpr.getLocation().getLine());
@@ -1546,7 +1570,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression lExpr = binaryExpr.getLExpr();
 
         if (!(lExpr.getType().equals(rExpr.getType()))) {
-            TypeCastExpression newExpr = checkWideningPossible(lExpr, rExpr, binaryExpr.getOperator());
+            TypeCastExpression newExpr = checkWideningPossible(lExpr.getType(), rExpr, binaryExpr.getOperator());
             if (newExpr != null) {
                 newExpr.accept(this);
                 binaryExpr.setRExpr(newExpr);
@@ -1566,7 +1590,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression rExpr = expr.getRExpr();
         Expression lExpr = expr.getLExpr();
 
-        if (lExpr.getType() == BTypes.BOOLEAN_TYPE && rExpr.getType() == BTypes.BOOLEAN_TYPE) {
+        if (lExpr.getType().equals(BTypes.BOOLEAN_TYPE) && rExpr.getType().equals(BTypes.BOOLEAN_TYPE)) {
             expr.setType(BTypes.BOOLEAN_TYPE);
         } else {
             throw new SemanticException("Incompatible types used for '&&' operator" + " in " +
@@ -2003,11 +2027,11 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     }
 
-    private TypeCastExpression checkWideningPossible(Expression lhsExpr, Expression rhsExpr, Operator op) {
+    private TypeCastExpression checkWideningPossible(BType lhsType, Expression rhsExpr, Operator op) {
         BType rhsType = rhsExpr.getType();
-        BType lhsType = lhsExpr.getType();
         TypeCastExpression newExpr = null;
         TypeEdge newEdge = null;
+
         if (((rhsType.equals(BTypes.STRING_TYPE) || lhsType.equals(BTypes.STRING_TYPE)) && op != null
                 && op.equals(Operator.ADD)) || (!(rhsType.equals(BTypes.STRING_TYPE)) &&
                 !(lhsType.equals(BTypes.STRING_TYPE)) && op != null) || op == null) {

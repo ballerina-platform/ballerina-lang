@@ -155,3 +155,15 @@ function jsontostring(json value)(string) {
     result = (string)value;
     return result;
 }
+
+function intarrtolongarr()(long[]) {
+    long[] numbers;
+    numbers = [999,95,889];
+    return numbers;
+}
+
+function floatarrtodoublearr()(double[]) {
+    double[] numbers;
+    numbers = [99.99,4.5,23.56];
+    return numbers;
+}
