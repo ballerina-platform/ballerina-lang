@@ -28,7 +28,7 @@ import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
 import org.ballerinalang.plugins.idea.run.BallerinaApplicationRunningState;
-import org.ballerinalang.plugins.idea.run.ui.BallerinaApplicationSettingsEditor;
+import org.ballerinalang.plugins.idea.run.configuration.ui.BallerinaApplicationSettingsEditor;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
