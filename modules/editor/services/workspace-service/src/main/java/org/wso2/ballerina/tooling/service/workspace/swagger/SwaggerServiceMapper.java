@@ -15,57 +15,26 @@ import org.wso2.ballerina.core.model.Service;
  * related functionality for performing conversions between swagger and ballerina.
  */
 public class SwaggerServiceMapper {
-     Swagger swagger;
-     ObjectMapper objectMapper;
+    ObjectMapper objectMapper;
 
-    /*public ObjectMapper getObjectMapper() {
+    public ObjectMapper getObjectMapper() {
         return objectMapper;
-    }*/
+    }
 
     public void setObjectMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
-
-    public Swagger getSwagger() {
-        return swagger;
-    }
-
-    public void setSwagger(Swagger swagger) {
-        this.swagger = swagger;
-    }
-
-
-    public SwaggerServiceMapper(Swagger swagger) {
-        this.setSwagger(swagger);
+    public SwaggerServiceMapper() {
         //Default object mapper is JSON mapper available in swagger utils.
         this.setObjectMapper(Json.mapper());
     }
 
-    public SwaggerServiceMapper(Service service) {
-        this.setSwagger(convertServiceToSwagger(service));
-        //Default object mapper is JSON mapper available in swagger utils.
-        this.setObjectMapper(Json.mapper());
-    }
-
-    /**
-     * Users can initiate swagger service mapper class by providing swagger definition
-     * and object mapper. Object mapper can be JSON or YAML and if need can plug different
-     * mappers.
-     *
-     * @param swagger @Swagger object to be used within mapper.
-     * @param mapper  @ObjectMapper to be used to object conversion.
-     */
-    public SwaggerServiceMapper(Swagger swagger, ObjectMapper mapper) {
-        this.setSwagger(swagger);
-        this.setObjectMapper(mapper);
-
-    }
 
     /**
      * @return @String representation of current service object.
      */
-    public String generateSwaggerString() {
+    public String generateSwaggerString(Swagger swagger) {
         try {
             String swaggerJson = objectMapper.writeValueAsString(swagger);
             System.out.print(swaggerJson);
@@ -81,9 +50,8 @@ public class SwaggerServiceMapper {
      * @param service ballerina @Service object to be map to swagger definition
      * @return @Swagger object which represent current service.
      */
-    private Swagger convertServiceToSwagger(Service service) {
+    public Swagger convertServiceToSwagger(Service service) {
         Swagger swagger = new Swagger();
-        //Create default info object.
         //TODO replace this with ballerina annotation for information object.
         Info info = new Info()
                 .version("1.0.0")
@@ -105,4 +73,20 @@ public class SwaggerServiceMapper {
         return swagger;
     }
 
+    /**
+     * Assumption made here was ballerina service will be always super set of swagger.
+     * Swagger can have its annotations and those will be part of ballerina service without any data loss.
+     *
+     * @param swagger
+     * @param service
+     * @return
+     */
+    public Service convertSwaggerToService(Swagger swagger, Service service) {
+        //We need to pass both swagger definition and service definition for this class
+        //as swagger do not have service implementation. When we return service we should be
+        //careful to add only new skeleton methods to service. Service resource body should preserve
+        //as it is while adding new resources.
+        return service;
+
+    }
 }

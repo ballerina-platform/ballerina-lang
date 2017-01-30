@@ -87,12 +87,18 @@ public class SwaggerResourceMapper {
         return map;
     }
 
-    /**
-     * This method will convert ballerina @Resource to ballerina @OperationAdaptor
-     *
-     * @param resource @Resource array to be convert.
-     * @return @OperationAdaptor of string and swagger path objects.
-     */
+
+    protected Resource[] convertOperationsToResources(Map<String, Path> pathMap) {
+        return null;
+
+    }
+
+        /**
+         * This method will convert ballerina @Resource to ballerina @OperationAdaptor
+         *
+         * @param resource @Resource array to be convert.
+         * @return @OperationAdaptor of string and swagger path objects.
+         */
     private OperationAdaptor convertResourceToOperation(Resource resource) {
         OperationAdaptor op = new OperationAdaptor();
         if (resource != null) {
