@@ -147,11 +147,10 @@ public class BallerinaSdkUtil {
 
     public static String getSdkHome(Project project) {
         Sdk sdk = ProjectRootManager.getInstance(project).getProjectSdk();
-        if (sdk != null) {
-            return sdk.getHomePath();
-        } else {
+        if (sdk == null || sdk.getSdkType() != BallerinaSdkType.getInstance()) {
             return "";
         }
+        return sdk.getHomePath();
     }
 
     public static String getBallerinaExecutablePath(Project project) {
