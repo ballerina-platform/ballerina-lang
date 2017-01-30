@@ -50,6 +50,24 @@ public class LangModelUtils {
         return new SymbolName(sBuilder.toString());
     }
 
+    public static SymbolName getTypeConverterSymName(String pkgName, Parameter[] parameters,
+                                                     Parameter[] returnParams) {
+        StringBuilder stringBuilder = new StringBuilder(pkgName + ":");
+        for (Parameter param : parameters) {
+            stringBuilder.append("_").append(param.getType());
+        }
+        stringBuilder.append("->");
+        for (Parameter param : returnParams) {
+            stringBuilder.append("_").append(param.getType());
+        }
+        return new SymbolName(stringBuilder.toString());
+    }
+
+    public static SymbolName getTypeConverterSymNameWithoutPackage(BType source,
+                                                     BType target) {
+        return new SymbolName("ballerina.lang.convertors:" + "_" + source + "->" + "_" + target);
+    }
+
     public static SymbolName getConnectorSymName(String identifier, String pkgPath) {
         String prefix;
         if (pkgPath == null) {
@@ -75,6 +93,26 @@ public class LangModelUtils {
             sBuilder.append("_").append(type);
         }
 
+        return new SymbolName(sBuilder.toString());
+    }
+    
+    /**
+     * Get the symbol name of a struct field.
+     * 
+     * @param fieldName         Local name of the field
+     * @param structName        Name os the struct to which this field belongs to
+     * @param pkgPath           Package name of the struct
+     * @return                  Symbol name of a struct field
+     */
+    public static SymbolName getStructFieldSymName(String fieldName, String structName, String pkgPath) {
+        String prefix;
+        if (pkgPath == null) {
+            prefix = structName + "." + fieldName;
+        } else {
+            prefix = pkgPath + ":" + structName + "." + fieldName;
+        }
+
+        StringBuilder sBuilder = new StringBuilder(prefix);
         return new SymbolName(sBuilder.toString());
     }
 
