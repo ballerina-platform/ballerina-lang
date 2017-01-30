@@ -14,31 +14,27 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.run.ui;
+package org.ballerinalang.plugins.idea.run.configuration.ui;
 
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
-import com.intellij.openapi.ui.ComponentWithBrowseButton;
-import com.intellij.openapi.ui.LabeledComponent;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfiguration;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunConfigurationBase;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-public class BallerinaApplicationSettingsEditor extends SettingsEditor<BallerinaApplicationRunConfiguration> {
+public class BallerinaServiceSettingsEditor extends SettingsEditor<BallerinaRunConfigurationBase> {
 
     private JPanel myPanel;
-    private LabeledComponent<ComponentWithBrowseButton> myMainClass;
 
     @Override
-    protected void resetEditorFrom(@NotNull BallerinaApplicationRunConfiguration ballerinaApplicationRunConfiguration) {
+    protected void resetEditorFrom(@NotNull BallerinaRunConfigurationBase ballerinaRunConfigurationBase) {
 
     }
 
     @Override
-    protected void applyEditorTo(@NotNull BallerinaApplicationRunConfiguration ballerinaApplicationRunConfiguration)
+    protected void applyEditorTo(@NotNull BallerinaRunConfigurationBase ballerinaRunConfigurationBase)
             throws ConfigurationException {
 
     }
@@ -50,7 +46,6 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
     }
 
     private void createUIComponents() {
-        myMainClass = new LabeledComponent<ComponentWithBrowseButton>();
-        myMainClass.setComponent(new TextFieldWithBrowseButton());
+
     }
 }

@@ -20,26 +20,23 @@ import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.configurations.RunConfiguration;
-import com.intellij.execution.configurations.RunConfigurationBase;
 import com.intellij.execution.configurations.RunProfileState;
 import com.intellij.execution.configurations.RuntimeConfigurationError;
 import com.intellij.execution.configurations.RuntimeConfigurationException;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
-import org.ballerinalang.plugins.idea.run.BallerinaServiceRunningState;
-import org.ballerinalang.plugins.idea.run.ui.BallerinaServiceSettingsEditor;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunConfigurationBase;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaServiceRunningState;
+import org.ballerinalang.plugins.idea.run.configuration.ui.BallerinaServiceSettingsEditor;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class BallerinaServiceRunConfiguration extends RunConfigurationBase {
-
-    private Project project;
+public class BallerinaServiceRunConfiguration extends BallerinaRunConfigurationBase {
 
     public BallerinaServiceRunConfiguration(Project project, ConfigurationFactory factory, String name) {
         super(project, factory, name);
-        this.project = project;
     }
 
     @NotNull
@@ -50,7 +47,7 @@ public class BallerinaServiceRunConfiguration extends RunConfigurationBase {
 
     @Override
     public void checkConfiguration() throws RuntimeConfigurationException {
-        String ballerinaExecutablePath = BallerinaSdkUtil.getBallerinaExecutablePath(project);
+        String ballerinaExecutablePath = BallerinaSdkUtil.getBallerinaExecutablePath(getProject());
         if (ballerinaExecutablePath.isEmpty()) {
             throw new RuntimeConfigurationError("Cannot find Ballerina executable. Please check Ballerina SDK path.");
         }
@@ -60,6 +57,6 @@ public class BallerinaServiceRunConfiguration extends RunConfigurationBase {
     @Override
     public RunProfileState getState(@NotNull Executor executor, @NotNull ExecutionEnvironment executionEnvironment)
             throws ExecutionException {
-        return new BallerinaServiceRunningState(getProject(), executionEnvironment);
+        return new BallerinaServiceRunningState(getProject(), getParams(), executionEnvironment);
     }
 }

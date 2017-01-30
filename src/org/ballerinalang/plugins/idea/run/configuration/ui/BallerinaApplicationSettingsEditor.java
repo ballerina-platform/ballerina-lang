@@ -14,32 +14,32 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.run.ui;
+package org.ballerinalang.plugins.idea.run.configuration.ui;
 
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
-import com.intellij.openapi.ui.ComponentWithBrowseButton;
 import com.intellij.openapi.ui.LabeledComponent;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import org.ballerinalang.plugins.idea.run.configuration.service.BallerinaServiceRunConfiguration;
+import com.intellij.ui.RawCommandLineEditor;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunConfigurationBase;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 
-public class BallerinaServiceSettingsEditor extends SettingsEditor<BallerinaServiceRunConfiguration> {
+public class BallerinaApplicationSettingsEditor extends SettingsEditor<BallerinaRunConfigurationBase> {
 
     private JPanel myPanel;
-    private LabeledComponent<ComponentWithBrowseButton> myMainClass;
+    private LabeledComponent<RawCommandLineEditor> params;
 
     @Override
-    protected void resetEditorFrom(@NotNull BallerinaServiceRunConfiguration ballerinaServiceRunConfiguration) {
-
+    protected void resetEditorFrom(@NotNull BallerinaRunConfigurationBase ballerinaRunConfigurationBase) {
+        params.getComponent().setText(ballerinaRunConfigurationBase.getParams());
     }
 
     @Override
-    protected void applyEditorTo(@NotNull BallerinaServiceRunConfiguration ballerinaServiceRunConfiguration)
+    protected void applyEditorTo(@NotNull BallerinaRunConfigurationBase ballerinaRunConfigurationBase)
             throws ConfigurationException {
-
+        ballerinaRunConfigurationBase.setParams(params.getComponent().getText());
     }
 
     @NotNull
@@ -49,7 +49,7 @@ public class BallerinaServiceSettingsEditor extends SettingsEditor<BallerinaServ
     }
 
     private void createUIComponents() {
-        myMainClass = new LabeledComponent<ComponentWithBrowseButton>();
-        myMainClass.setComponent(new TextFieldWithBrowseButton());
+        params = new LabeledComponent<RawCommandLineEditor>();
+        params.setComponent(new RawCommandLineEditor());
     }
 }
