@@ -109,7 +109,60 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          * Init the event listeners
          */
         ConnectorActionView.prototype.init = function(){
-            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
+            this.listenTo(this._model, 'child-removed', this.childRemovedCallback, this);
+            this.on('remove-view', this.removeViewCallback, this);
+        };
+
+        ConnectorActionView.prototype.removeViewCallback = function (parent, child) {
+            d3.select("#_" +this._model.id).remove();
+            $(this._nameDiv).remove();
+            $(this._variablePane).remove();
+            $(this._variableButton).remove();
+            this.unplugView(
+                {
+                    x: this._viewOptions.topLeft.x(),
+                    y: this._viewOptions.topLeft.y(),
+                    w: 0,
+                    h: 0
+                }, parent, child);
+        };
+
+        /**
+         * Child remove callback
+         * @param {ASTNode} child - removed child
+         */
+        ConnectorActionView.prototype.childRemovedCallback = function (child) {
+            var self = this;
+            if (BallerinaASTFactory.isStatement(child)) {
+                this.getStatementContainer().childStatementRemovedCallback(child);
+            } else if (BallerinaASTFactory.isConnectorDeclaration(child) || BallerinaASTFactory.isWorkerDeclaration(child)) {
+                var childViewIndex = _.findIndex(this._connectorViewList, function (view) {
+                    return view.getModel().id === child.id;
+                });
+
+                if (childViewIndex === 0) {
+                    // Deleted the first connector/worker in the list (Addresses both first element scenario and the only element scenario
+                    if (!_.isNil(this._connectorWorkerViewList[childViewIndex + 1])) {
+                        // Unregister the listening event of the second element on the first element
+                        this._connectorWorkerViewList[childViewIndex + 1].stopListening(this._connectorWorkerViewList[childViewIndex].getBoundingBox());
+                    }
+                } else if (childViewIndex === this._connectorWorkerViewList.length - 1) {
+                    // Deleted the last connector/worker when there are more than one worker/ connector
+                    this._connectorWorkerViewList[childViewIndex].stopListening(this._connectorWorkerViewList[childViewIndex - 1].getBoundingBox());
+                } else {
+                    // Deleted connector is in between two other connectors/ workers
+                    // Connector being deleted, stop listening to it's previous connector
+                    this._connectorWorkerViewList[childViewIndex].stopListening(this._connectorWorkerViewList[childViewIndex - 1].getBoundingBox());
+                    this._connectorWorkerViewList[childViewIndex + 1].stopListening(this._connectorWorkerViewList[childViewIndex].getBoundingBox());
+                    this._connectorWorkerViewList[childViewIndex + 1].listenTo(this._connectorWorkerViewList[childViewIndex - 1].getBoundingBox(), 'right-edge-moved', function (offset) {
+                        self.moveActionLevelConnector(this, offset);
+                    });
+                }
+                this._connectorWorkerViewList[childViewIndex] = null;
+                this._connectorWorkerViewList.splice(childViewIndex, 1);
+            }
+            // Remove the connector/ worker from the diagram rendering context
+            delete this.diagramRenderingContext.getViewModelMap()[child.id];
         };
 
         /**
@@ -433,12 +486,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // Add the connector action name editable html area
             var svgWrappingHtml = this.getChildContainer().node().ownerSVGElement.parentElement;
-            var nameDiv = $("<div></div>");
-            nameDiv.css('left', (parseInt(headingStart.x()) + 30) + "px");
-            nameDiv.css('top', parseInt(headingStart.y()) + "px");
-            nameDiv.css('width',"100px");
-            nameDiv.css('height',"25px");
-            nameDiv.addClass("name-container-div");
+            this._nameDiv = $("<div></div>");
+            this._nameDiv.css('left', (parseInt(headingStart.x()) + 30) + "px");
+            this._nameDiv.css('top', parseInt(headingStart.y()) + "px");
+            this._nameDiv.css('width',"100px");
+            this._nameDiv.css('height',"25px");
+            this._nameDiv.addClass("name-container-div");
             var nameSpan = $("<span></span>");
             nameSpan.text(self._model.getActionName());
             nameSpan.addClass("name-span");
@@ -446,8 +499,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             nameSpan.attr("spellcheck", "false");
             nameSpan.focus();
             nameSpan.blur();
-            nameDiv.append(nameSpan);
-            $(svgWrappingHtml).append(nameDiv);
+            this._nameDiv.append(nameSpan);
+            $(svgWrappingHtml).append(this._nameDiv);
             // Container for connector action body
             var contentGroup = D3utils.group(connectorActionGroup);
             contentGroup.attr('id', "contentGroup");
@@ -511,7 +564,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 log.debug("Clicked delete button");
                 var child = self._model;
                 var parent = child.parent;
-                parent.removeChild(child);
+                self.trigger("remove-view", parent, child);
             });
 
             this.getBoundingBox().on("height-changed", function(dh){
@@ -641,8 +694,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     " translate(" + offset.dx + ", " + offset.dy + ")");
 
                 // Reposition the connector action name container
-                var newDivPositionVertical = parseInt(nameDiv.css("top")) + offset.dy;
-                nameDiv.css("top", newDivPositionVertical + "px");
+                var newDivPositionVertical = parseInt(this._nameDiv.css("top")) + offset.dy;
+                this._nameDiv.css("top", newDivPositionVertical + "px");
 
                 // Reposition Variable button
                 var newVButtonPositionVertical = parseInt($(self._variableButton).css("top")) + offset.dy;
@@ -811,11 +864,18 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             _.set(connectorOpts, 'centerPoint', center);
             connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
-            this._connectorWorkerViewList.push(connectorDeclarationView);
 
             connectorDeclarationView._rootGroup.attr('id', '_' +connectorDeclarationView._model.id);
-
             connectorDeclarationView.render();
+
+            if (this._connectorWorkerViewList.length > 0) {
+                // There are already added action level connectors
+                // New action level connector listens to the current last action level connector
+                var lastConnector = _.last(this._connectorWorkerViewList);
+                connectorDeclarationView.listenTo(lastConnector.getBoundingBox(), 'right-edge-moved', function (offset) {
+                    self.moveActionLevelConnector(this, offset);
+                });
+            }
 
             // If the New Connector or the worker goes out of the action bounding box we expand the action BBox
             if (connectorDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
@@ -848,7 +908,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             });
 
             connectorDeclarationView.setParent(this);
-
+            this._connectorWorkerViewList.push(connectorDeclarationView);
             this.getBoundingBox().on("height-changed", function (dh) {
                 this.getBoundingBox().h(this.getBoundingBox().h() + dh);
             }, connectorDeclarationView);
@@ -952,6 +1012,23 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             } else {
                 return false;
             }
+        };
+
+        /**
+         * Return statement container
+         * @return {StatementContainerView}
+         */
+        ConnectorActionView.prototype.getStatementContainer = function () {
+            return this._statementContainer;
+        };
+
+        /**
+         * Move the action level connector
+         * @param {BallerinaView} connectorView - Connector View
+         * @param {number} offset - Move offset
+         */
+        ConnectorActionView.prototype.moveActionLevelConnector = function (connectorView, offset) {
+            connectorView.getBoundingBox().move(offset, 0);
         };
 
         return ConnectorActionView;
