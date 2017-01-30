@@ -31,6 +31,7 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
             this._totalHeightGap = 50;
             this._parentView = _.get(args, "parentView");
             this.messageManager =  _.get(args, "messageManager");
+            this._LifeLineCenterGap = 180;
             // At the moment we consider by default the connector is HTTP
             _.set(args, 'title',  _.get(args, 'model').getConnectorVariable() || "HTTP");
             _.set(args, 'cssClass.group',  _.get(args, 'cssClass.group', 'connector-life-line'));
@@ -54,6 +55,7 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
         ConnectorDeclarationView.prototype.constructor = ConnectorDeclaration;
 
         ConnectorDeclarationView.prototype.init = function () {
+            this.on('remove-view', this.removeViewCallback, this);
             this.listenTo(this._parentView, 'resourceHeightChangedEvent', this.resourceHeightChangedCallback);
         };
 
@@ -152,7 +154,8 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
 
             // adjust drop zone height change
             this.getBoundingBox().on('height-changed', function(offset){
-                self._middleRectangle.attr('height', parseFloat(self._middleRectangle.attr('height')) + offset);
+                var newH = parseFloat(self._middleRectangle.attr('height')) + offset;
+                self._middleRectangle.attr('height', newH > 0 ? newH : 0);
                 self.getBottomCenter().move(0, offset);
             });
             this.getBoundingBox().on('right-edge-moved', function(offset){
@@ -179,6 +182,18 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
             d3Element.attr("fill-opacity", 0.2);
             d3Element.attr("fill", '#008000');
             d3Element.attr("stroke-width", 0);
+        };
+
+        /**
+         * Unplug the view from the current context
+         * @param {object} options
+         * @param {ASTNode} parent - parent node
+         * @param {ASTNode} child - child node
+         */
+        ConnectorDeclarationView.prototype.unplugView = function (options, parent, child) {
+            // resize the bounding box in order to the other objects to resize
+            this.getBoundingBox().move(-this._LifeLineCenterGap);
+            parent.removeChild(child);
         };
 
         return ConnectorDeclarationView;

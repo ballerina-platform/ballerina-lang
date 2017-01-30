@@ -16,40 +16,56 @@
  * under the License.
  */
 define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor', './../../env/connector'],
-    function(_, log, EventChannel, AbstractSymbolTableGenVisitor, Connector) {
+    function (_, log, EventChannel, AbstractSymbolTableGenVisitor, Connector) {
 
-        var BallerinaASTRootVisitor = function(package) {
+        var BallerinaASTRootVisitor = function (package, model) {
             AbstractSymbolTableGenVisitor.call(this, package);
+            this._model = model;
+            this.init();
         };
 
         BallerinaASTRootVisitor.prototype = Object.create(AbstractSymbolTableGenVisitor.prototype);
         BallerinaASTRootVisitor.prototype.constructor = BallerinaASTRootVisitor;
 
-        BallerinaASTRootVisitor.prototype.canVisitBallerinaASTRoot = function(serviceDefinition){
+        /**
+         * init function
+         */
+        BallerinaASTRootVisitor.prototype.init = function () {
+            //Registering event listeners
+            this._model.on('child-added', function (child) {
+                this.visit(child);
+            }, this);
+        };
+
+        BallerinaASTRootVisitor.prototype.canVisitBallerinaASTRoot = function (serviceDefinition) {
             return true;
         };
 
-        BallerinaASTRootVisitor.prototype.beginVisitBallerinaASTRoot = function(serviceDefinition){
+        BallerinaASTRootVisitor.prototype.beginVisitBallerinaASTRoot = function (serviceDefinition) {
             log.debug('Begin Visit BallerinaASTRoot');
         };
 
-        BallerinaASTRootVisitor.prototype.visitBallerinaASTRoot = function(serviceDefinition){
+        BallerinaASTRootVisitor.prototype.visitBallerinaASTRoot = function (ballerinaASTRoot) {
             log.debug('Visit BallerinaASTRoot');
         };
 
-        BallerinaASTRootVisitor.prototype.endVisitBallerinaASTRoot = function(serviceDefinition){
+        BallerinaASTRootVisitor.prototype.endVisitBallerinaASTRoot = function (serviceDefinition) {
             log.debug('End Visit BallerinaASTRoot');
         };
 
-        BallerinaASTRootVisitor.prototype.visitFunctionDefinition = function(functionDefinition){
+        BallerinaASTRootVisitor.prototype.visitFunctionDefinition = function (functionDefinition) {
             this.getPackage().addFunctionDefinitions(functionDefinition);
         };
 
-        BallerinaASTRootVisitor.prototype.visitStructDefinition = function(structDefinition){
+        BallerinaASTRootVisitor.prototype.visitStructDefinition = function (structDefinition) {
             this.getPackage().addStructDefinitions(structDefinition);
         };
 
-        BallerinaASTRootVisitor.prototype.visitConnectorDefinition = function(connectorDefinition){
+        /**
+         * visit connector definition
+         * @param {Object} connectorDefinition - connector definition model
+         */
+        BallerinaASTRootVisitor.prototype.visitConnectorDefinition = function (connectorDefinition) {
             var connector = new Connector();
             connector.setName(connectorDefinition.getConnectorName());
             connector.setTitle(connectorDefinition.getConnectorName());
