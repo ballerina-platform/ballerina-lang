@@ -26,13 +26,24 @@ public class TypeVertex {
 
     private ArrayList<TypeEdge> neighborhood;
     private BType bType;
+    private String packageName;
+
+    /**
+     * @param bType The unique bType associated with this Vertex
+     * @param packageName Name of the package
+     */
+    public TypeVertex(BType bType, String packageName) {
+        this.bType = bType;
+        this.packageName = packageName;
+        this.neighborhood = new ArrayList<>();
+    }
 
     /**
      * @param bType The unique bType associated with this Vertex
      */
     public TypeVertex(BType bType) {
         this.bType = bType;
-        this.neighborhood = new ArrayList<TypeEdge>();
+        this.neighborhood = new ArrayList<>();
     }
 
 
@@ -104,14 +115,22 @@ public class TypeVertex {
      * @return String A String representation of this Vertex
      */
     public String toString() {
-        return "TypeVertex " + bType.toString();
+        if (packageName == null) {
+            return bType.toString();
+        } else {
+            return packageName + ":" + bType.toString();
+        }
     }
 
     /**
      * @return The hash code of this Vertex's bType
      */
     public int hashCode() {
-        return this.bType.hashCode();
+        if (packageName == null) {
+            return this.bType.toString().hashCode();
+        } else {
+            return (packageName + ":" + this.bType.toString()).hashCode();
+        }
     }
 
     /**
@@ -124,7 +143,11 @@ public class TypeVertex {
         }
 
         TypeVertex v = (TypeVertex) other;
-        return this.bType.equals(v.getType());
+        if (packageName == null) {
+            return this.bType.equals(v.getType());
+        } else {
+            return this.bType.equals(v.getType()) && this.packageName.equals(v.getPackageName());
+        }
     }
 
     /**
@@ -133,5 +156,13 @@ public class TypeVertex {
      */
     public ArrayList<TypeEdge> getNeighbors() {
         return new ArrayList<TypeEdge>(this.neighborhood);
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
     }
 }

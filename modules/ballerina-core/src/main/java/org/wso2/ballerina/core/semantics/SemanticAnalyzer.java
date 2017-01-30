@@ -1421,8 +1421,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (BTypes.isValueType(sourceType) &&
                 BTypes.isValueType(targetType)) {
             TypeEdge newEdge = null;
-            newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType);
-            typeCastExpression.setEvalFunc(newEdge.getTypeConvertor());
+            newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
+            typeCastExpression.setEvalFunc(newEdge.getTypeConvertorFunction());
         } else {
             linkTypeConverter(typeCastExpression, sourceType, targetType);
         }
@@ -2001,30 +2001,21 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private void linkTypeConverter(TypeCastExpression typeCastExpression, BType sourceType, BType targetType) {
-        // Check on the same package
-        SymbolName symbolName = new SymbolName(currentPkg + ":" + "_" + sourceType + "->" + "_" + targetType);
-        typeCastExpression.setTypeConverterName(symbolName);
-        Symbol symbol = symbolTable.lookup(symbolName);
-
-        if (symbol == null) {
-            // Check on the global scope for native type convertors
-            symbolName = LangModelUtils.getTypeConverterSymNameWithoutPackage
-                    (sourceType, targetType);
-            typeCastExpression.setTypeConverterName(symbolName);
-            symbol = symbolTable.lookup(symbolName);
-        }
-
-        if (symbol == null) {
+        TypeEdge newEdge = null;
+        newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, currentPkg);
+        if (newEdge != null) {
+            typeCastExpression.setCallableUnit(newEdge.getTypeConvertor());
+        } else {
+            newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
+            if (newEdge != null) {
+                typeCastExpression.setCallableUnit(newEdge.getTypeConvertor());
+            } else {
                 throw new LinkerException(typeCastExpression.getLocation().getFileName() + ":" +
                         typeCastExpression.getLocation().getLine() +
                         ": type converter cannot be found for '" + sourceType
-                        + "to " + targetType + "'");
+                        + " to " + targetType + "'");
+            }
         }
-
-        // Link
-        TypeConvertor typeConvertor = symbol.getTypeConvertor();
-        typeCastExpression.setCallableUnit(typeConvertor);
-
     }
 
     private TypeCastExpression checkWideningPossible(BType lhsType, Expression rhsExpr, Operator op) {
@@ -2035,12 +2026,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (((rhsType.equals(BTypes.STRING_TYPE) || lhsType.equals(BTypes.STRING_TYPE)) && op != null
                 && op.equals(Operator.ADD)) || (!(rhsType.equals(BTypes.STRING_TYPE)) &&
                 !(lhsType.equals(BTypes.STRING_TYPE)) && op != null) || op == null) {
-            newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rhsType, lhsType);
+            newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rhsType, lhsType, null);
         }
 
         if (newEdge != null) {
             newExpr = new TypeCastExpression(rhsExpr, lhsType);
-            newExpr.setEvalFunc(newEdge.getTypeConvertor());
+            newExpr.setEvalFunc(newEdge.getTypeConvertorFunction());
             newExpr.setLocation(rhsExpr.getLocation());
         }
         return newExpr;

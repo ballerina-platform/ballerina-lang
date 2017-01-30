@@ -524,9 +524,15 @@ public class BLangExecutor implements NodeExecutor {
 
             // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
             // return values and function invocation location;
-            SymbolName functionSymbolName = typeCastExpression.getCallableUnitName();
-            CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
-                    functionSymbolName.getPkgName(), typeCastExpression.getLocation());
+            CallableUnitInfo functionInfo;
+            SymbolName typeconvertorSymbolName = typeCastExpression.getCallableUnitName();
+            if (typeconvertorSymbolName != null) {
+                functionInfo = new CallableUnitInfo(typeconvertorSymbolName.getName(),
+                        typeconvertorSymbolName.getPkgName(), typeCastExpression.getLocation());
+            } else {
+                functionInfo = new CallableUnitInfo(typeConvertor.getTypeConverterName(),
+                        typeConvertor.getPackageName(), typeCastExpression.getLocation());
+            }
 
             StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
             controlStack.pushFrame(stackFrame);
