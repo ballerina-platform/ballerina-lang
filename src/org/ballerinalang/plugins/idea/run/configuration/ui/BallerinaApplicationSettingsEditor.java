@@ -18,9 +18,8 @@ package org.ballerinalang.plugins.idea.run.configuration.ui;
 
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
-import com.intellij.openapi.ui.ComponentWithBrowseButton;
 import com.intellij.openapi.ui.LabeledComponent;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.ui.RawCommandLineEditor;
 import org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfiguration;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +29,7 @@ import javax.swing.JPanel;
 public class BallerinaApplicationSettingsEditor extends SettingsEditor<BallerinaApplicationRunConfiguration> {
 
     private JPanel myPanel;
-    private LabeledComponent<ComponentWithBrowseButton> myMainClass;
+    private LabeledComponent<RawCommandLineEditor> programArguments;
 
     @Override
     protected void resetEditorFrom(@NotNull BallerinaApplicationRunConfiguration ballerinaApplicationRunConfiguration) {
@@ -50,7 +49,7 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
     }
 
     private void createUIComponents() {
-        myMainClass = new LabeledComponent<ComponentWithBrowseButton>();
-        myMainClass.setComponent(new TextFieldWithBrowseButton());
+        programArguments = new LabeledComponent<RawCommandLineEditor>();
+        programArguments.setComponent(new RawCommandLineEditor());
     }
 }
