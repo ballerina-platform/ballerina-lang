@@ -155,8 +155,8 @@ public class ChannelUtils {
         channel.write(httpRequest);
 
         if (carbonMessage instanceof HTTPCarbonMessage) {
+            HTTPCarbonMessage nettyCMsg = (HTTPCarbonMessage) carbonMessage;
             while (true) {
-                HTTPCarbonMessage nettyCMsg = (HTTPCarbonMessage) carbonMessage;
                 if (nettyCMsg.isEndOfMsgAdded() && nettyCMsg.isEmpty()) {
                     channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
                     break;

@@ -24,6 +24,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import org.wso2.carbon.kernel.utils.Utils;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.Headers;
@@ -125,17 +126,17 @@ public class Util {
         return outgoingRequest;
     }
 
-    public static SSLConfig getSSLConfigForListener(String certPass, String keyStorePass, String keyStoreFile,
-            String trustStoreFile, String trustStorePass, List<Parameter> parametersList) {
+    public static SSLConfig getSSLConfigForListener(String certPass, String keyStorePass, String keyStoreFilePath,
+            String trustStoreFilePath, String trustStorePass, List<Parameter> parametersList) {
         if (certPass == null) {
             certPass = keyStorePass;
         }
-        if (keyStoreFile == null || keyStorePass == null) {
-            throw new IllegalArgumentException("keyStoreFile or keyStorePass not defined for " + "HTTPS scheme");
+        if (keyStoreFilePath == null || keyStorePass == null) {
+            throw new IllegalArgumentException("keyStoreFile or keyStorePass not defined for HTTPS scheme");
         }
-        File keyStore = new File(keyStoreFile);
+        File keyStore = new File(Utils.substituteVariables(keyStoreFilePath));
         if (!keyStore.exists()) {
-            throw new IllegalArgumentException("KeyStore File " + keyStoreFile + " not found");
+            throw new IllegalArgumentException("KeyStore File " + keyStoreFilePath + " not found");
         }
         SSLConfig sslConfig = new SSLConfig(keyStore, keyStorePass).setCertPass(certPass);
         for (Parameter parameter : parametersList) {
@@ -160,10 +161,12 @@ public class Util {
                 sslConfig.setNeedClientAuth(Boolean.parseBoolean(parameter.getValue()));
             }
         }
-        if (trustStoreFile != null) {
-            File trustStore = new File(trustStoreFile);
+        if (trustStoreFilePath != null) {
+
+            File trustStore = new File(Utils.substituteVariables(trustStoreFilePath));
+
             if (!trustStore.exists()) {
-                throw new IllegalArgumentException("trustStore File " + trustStoreFile + " not found");
+                throw new IllegalArgumentException("trustStore File " + trustStoreFilePath + " not found");
             }
             if (trustStorePass == null) {
                 throw new IllegalArgumentException("trustStorePass is not defined for HTTPS scheme");
@@ -173,24 +176,25 @@ public class Util {
         return sslConfig;
     }
 
-    public static SSLConfig getSSLConfigForSender(String certPass, String keyStorePass, String keyStoreFile,
-            String trustStoreFile, String trustStorePass, List<Parameter> parametersList) {
+    public static SSLConfig getSSLConfigForSender(String certPass, String keyStorePass, String keyStoreFilePath,
+            String trustStoreFilePath, String trustStorePass, List<Parameter> parametersList) {
 
         if (certPass == null) {
             certPass = keyStorePass;
         }
-        if (trustStoreFile == null || trustStorePass == null) {
-            throw new IllegalArgumentException("TrusstoreFile or trustStorePass not defined for " + "HTTPS scheme");
+        if (trustStoreFilePath == null || trustStorePass == null) {
+            throw new IllegalArgumentException("TrusStoreFile or trustStorePass not defined for HTTPS scheme");
         }
         SSLConfig sslConfig = new SSLConfig(null, null).setCertPass(null);
-        if (keyStoreFile != null) {
-            File keyStore = new File(keyStoreFile);
+
+        if (keyStoreFilePath != null) {
+            File keyStore = new File(Utils.substituteVariables(keyStoreFilePath));
             if (!keyStore.exists()) {
-                throw new IllegalArgumentException("KeyStore File " + trustStoreFile + " not found");
+                throw new IllegalArgumentException("KeyStore File " + trustStoreFilePath + " not found");
             }
             sslConfig = new SSLConfig(keyStore, keyStorePass).setCertPass(certPass);
         }
-        File trustStore = new File(trustStoreFile);
+        File trustStore = new File(Utils.substituteVariables(trustStoreFilePath));
 
         sslConfig.setTrustStore(trustStore).setTrustStorePass(trustStorePass);
         sslConfig.setClientMode(true);

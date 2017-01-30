@@ -20,7 +20,7 @@
     <parent>
         <artifactId>org.wso2.carbon.transport.http.netty.parent</artifactId>
         <groupId>org.wso2.carbon.transport</groupId>
-        <version>3.0.4-SNAPSHOT</version>
+        <version>3.0.5-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
