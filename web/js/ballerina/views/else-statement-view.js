@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './../ast/else-statement', 'd3utils', 'd3', './point'],
-    function (require, _, $, log, BallerinaStatementView, ElseStatement, D3Utils, d3, Point) {
+define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './../ast/else-statement', 'd3utils', 'd3', './point', 'ballerina/ast/ballerina-ast-factory'],
+    function (require, _, $, log, BallerinaStatementView, ElseStatement, D3Utils, d3, Point, BallerinaASTFactory) {
 
         /**
          * The view to represent a Else statement which is an AST visitor.
@@ -157,6 +157,11 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
                     this.getBoundingBox().w(this.getBoundingBox().w() + dw);
                 }
             });
+
+            this._statementContainer.getBoundingBox().on('bottom-edge-moved', function (dy) {
+                this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+            }, this);
+
             this._statementContainer.render(this._diagramRenderingContext);
         };
 
@@ -192,6 +197,24 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
 
         ElseStatementView.prototype.getContainer = function () {
             return this._container;
+        };
+
+        /**
+         * Get the statement container
+         * @return {StatementContainer} - Statement container
+         */
+        ElseStatementView.prototype.getStatementContainer = function () {
+            return this._statementContainer;
+        };
+
+        /**
+         * Override Child remove callback
+         * @param {ASTNode} child - removed child
+         */
+        ElseStatementView.prototype.childRemovedCallback = function (child) {
+            if (BallerinaASTFactory.isStatement(child)) {
+                this.getStatementContainer().childStatementRemovedCallback(child);
+            }
         };
 
         return ElseStatementView;
