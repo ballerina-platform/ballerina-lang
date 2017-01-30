@@ -54,8 +54,6 @@ public class BallerinaServiceRunningState extends BallerinaRunningState {
         VirtualFile file = FileDocumentManager.getInstance().getFile(selectedTextEditor.getDocument());
         commandLine.addParameter(file.getPath());
 
-        commandLine.addParameter(getParams());
-
         commandLine.withCharset(CharsetToolkit.UTF8_CHARSET);
         KillableColoredProcessHandler handler = new KillableColoredProcessHandler(commandLine, true);
         ProcessTerminatedListener.attach(handler);
