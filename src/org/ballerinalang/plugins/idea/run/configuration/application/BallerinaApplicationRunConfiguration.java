@@ -56,6 +56,9 @@ public class BallerinaApplicationRunConfiguration extends BallerinaRunConfigurat
         if (openedFile.isEmpty()) {
             throw new RuntimeConfigurationError("No Ballerina file is opened in the editor.");
         }
+        if (!BallerinaRunUtil.isBallerinaFileOpen(getProject())) {
+            throw new RuntimeConfigurationError("Opened file in the editor is not a Ballerina file.");
+        }
     }
 
     @Nullable
