@@ -79,8 +79,7 @@ class BMainRunner {
         ServiceContextHolder.getInstance().addTransportSender(sender);
 
         execute(bFile, args);
-        // TODO Remove this ASAP. Without this, JVM hangs. Figure out why.
-        Runtime.getRuntime().exit(1);
+        Runtime.getRuntime().exit(0);
     }
 
     private static void execute(BallerinaFile balFile, List<String> args) {
