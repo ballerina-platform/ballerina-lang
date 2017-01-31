@@ -19,11 +19,11 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view',
         './../visitors/source-gen/ballerina-ast-root-visitor','./../visitors/symbol-table/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
         './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer', './connector-definition-view', './struct-definition-view',
-        './../env/package', './../env/package-scoped-environment', './../env/environment', './constant-definitions-pane-view', './../item-provider/tool-palette-item-provider','./type-converter-definition-view'],
+        './../env/package', './../env/package-scoped-environment', './../env/environment', './constant-definitions-pane-view', './../item-provider/tool-palette-item-provider','./type-mapper-definition-view'],
     function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory,
               PackageDefinition, SourceView, SourceGenVisitor, SymbolTableGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer,
               ConnectorDefinitionView, StructDefinitionView, Package, PackageScopedEnvironment, BallerinaEnvironment,
-              ConstantsDefinitionsPaneView, ToolPaletteItemProvider,TypeConverterDefinitionView) {
+              ConstantsDefinitionsPaneView, ToolPaletteItemProvider,TypeMapperDefinitionView) {
 
         /**
          * The view to represent a ballerina file editor which is an AST visitor.
@@ -67,7 +67,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         };
 
         BallerinaFileEditor.prototype.isInSourceView = function(){
-                    return this._isInSourceView;
+            return this._isInSourceView;
         };
 
         BallerinaFileEditor.prototype.setInSourceView = function(isInSourceView){
@@ -85,8 +85,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             if (!_.isNil(model) && model instanceof BallerinaASTRoot) {
                 this._model = model;
                 //Registering event listeners
+                this._model.on('child-removed', this.childViewRemovedCallback, this);
                 this._model.on('child-added', function(child){
-                     this.visit(child);
+                    this.visit(child);
                 }, this);
                 // make undo-manager capture all tree modifications after initial rendering
                 this._model.on('tree-modified', function(event){
@@ -208,16 +209,16 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             structDefinitionView.render(this.diagramRenderingContext);
         };
 
-        BallerinaFileEditor.prototype.visitTypeConverterDefinition = function (typeConverterDefinition) {
-            var typeConvertertDefinitionView = new TypeConverterDefinitionView({
+        BallerinaFileEditor.prototype.visitTypeMapperDefinition = function (typeMapperDefinition) {
+            var typeMapperDefinitionView = new TypeMapperDefinitionView({
                 viewOptions: this._viewOptions,
                 container: this._$canvasContainer,
-                model: typeConverterDefinition,
+                model: typeMapperDefinition,
                 parentView: this,
                 toolPalette: this.toolPalette
             });
-            this.diagramRenderingContext.getViewModelMap()[typeConverterDefinition.id] = TypeConverterDefinitionView;
-            typeConvertertDefinitionView.render(this.diagramRenderingContext);
+            this.diagramRenderingContext.getViewModelMap()[typeMapperDefinition.id] = TypeMapperDefinitionView;
+            typeMapperDefinitionView.render(this.diagramRenderingContext);
         };
 
         /**
@@ -355,46 +356,46 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             designViewBtn.hide();
             sourceViewContainer.hide();
             this.initDropTarget();
-    };
+        };
 
-    BallerinaFileEditor.prototype.initDropTarget = function() {
-        var self = this,
-            dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop');
+        BallerinaFileEditor.prototype.initDropTarget = function() {
+            var self = this,
+                dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop');
 
-        // on hover over canvas area
-        this._$canvasContainer
-            .mouseover(function(event){
+            // on hover over canvas area
+            this._$canvasContainer
+                .mouseover(function(event){
 
-            //if someone is dragging a tool from tool-palette
-            if(self.toolPalette.dragDropManager.isOnDrag()){
+                    //if someone is dragging a tool from tool-palette
+                    if(self.toolPalette.dragDropManager.isOnDrag()){
 
-                if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self)){
-                    return;
-                }
+                        if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self)){
+                            return;
+                        }
 
-                // register this as a drop target and validate possible types of nodes to drop - second arg is a call back to validate
-                // tool view will use this to provide feedback on impossible drop zones
-                self.toolPalette.dragDropManager.setActivatedDropTarget(self._model);
+                        // register this as a drop target and validate possible types of nodes to drop - second arg is a call back to validate
+                        // tool view will use this to provide feedback on impossible drop zones
+                        self.toolPalette.dragDropManager.setActivatedDropTarget(self._model);
 
-                // indicate drop area
-                self._$canvasContainer.addClass(dropActiveClass);
+                        // indicate drop area
+                        self._$canvasContainer.addClass(dropActiveClass);
 
-                // reset ui feed back on drop target change
-                self.toolPalette.dragDropManager.once("drop-target-changed", function(){
-                    self._$canvasContainer.removeClass(dropActiveClass);
-                });
-            }
-            event.stopPropagation();
-        }).mouseout(function(event){
-            // reset ui feed back on hover out
-            if(self.toolPalette.dragDropManager.isOnDrag()){
-                if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self._model)){
-                    self.toolPalette.dragDropManager.clearActivatedDropTarget();
-                }
-            }
-            event.stopPropagation();
-        })
-    };
+                        // reset ui feed back on drop target change
+                        self.toolPalette.dragDropManager.once("drop-target-changed", function(){
+                            self._$canvasContainer.removeClass(dropActiveClass);
+                        });
+                    }
+                    event.stopPropagation();
+                }).mouseout(function(event){
+                    // reset ui feed back on hover out
+                    if(self.toolPalette.dragDropManager.isOnDrag()){
+                        if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self._model)){
+                            self.toolPalette.dragDropManager.clearActivatedDropTarget();
+                        }
+                    }
+                    event.stopPropagation();
+                })
+        };
 
         /**
          * generate Ballerina source for this editor page
@@ -405,6 +406,19 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var sourceGenVisitor = new SourceGenVisitor();
             this._model.accept(sourceGenVisitor);
             return sourceGenVisitor.getGeneratedSource();
+        };
+
+        BallerinaFileEditor.prototype.childViewRemovedCallback = function (child) {
+            log.debug("[Eventing] Child element view removed. ");
+            //TODO: remove canvas container for each delete click
+            $(this._$canvasContainer)[0].remove();
+
+            var self = this;
+            self.reDraw({
+                model: self._model,
+                container: self._container,
+                viewOptions: self._viewOptions
+            });
         };
 
         /**
@@ -608,4 +622,3 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
         return BallerinaFileEditor;
     });
-

@@ -36,16 +36,10 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerin
             log.error("Container for Struct definition is undefined." + this._container);
             throw "Container for Struct definition is undefined." + this._container;
         }
-        this.init();
     };
 
     StructDefinitionView.prototype = Object.create(Canvas.prototype);
     StructDefinitionView.prototype.constructor = Canvas;
-
-    StructDefinitionView.prototype.init = function(){
-        //Registering event listeners
-        this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
-    };
 
     StructDefinitionView.prototype.canVisitStructDefinition = function (structDefinition) {
         return true;

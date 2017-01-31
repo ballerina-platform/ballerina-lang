@@ -24,55 +24,55 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
          * @param parent
          * @constructor
          */
-        var TypeConverterDefinitionVisitor = function (parent) {
+        var TypeMapperDefinitionVisitor = function (parent) {
             AbstractSourceGenVisitor.call(this, parent);
         };
 
-        TypeConverterDefinitionVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-        TypeConverterDefinitionVisitor.prototype.constructor = TypeConverterDefinitionVisitor;
+        TypeMapperDefinitionVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
+        TypeMapperDefinitionVisitor.prototype.constructor = TypeMapperDefinitionVisitor;
 
-        TypeConverterDefinitionVisitor.prototype.canVisitTypeConverterDefinition = function(typeConverterDefinition){
+        TypeMapperDefinitionVisitor.prototype.canVisitTypeMapperDefinition = function(typeMapperDefinition){
             return true;
         };
 
-        TypeConverterDefinitionVisitor.prototype.beginVisitTypeConverterDefinition = function(typeConverterDefinition){
+        TypeMapperDefinitionVisitor.prototype.beginVisitTypeMapperDefinition = function(typeMapperDefinition){
             /**
              * set the configuration start for the function definition language construct
              * If we need to add additional parameters which are dynamically added to the configuration start
              * that particular source generation has to be constructed here
              */
 
-            var constructedSourceSegment = 'typeconvertor ' + typeConverterDefinition.getTypeConverterName() + '(' +
-                typeConverterDefinition.getSourceAndIdentifier() + ')( ' + typeConverterDefinition.getReturnType() + '){';
+            var constructedSourceSegment = 'typemapper ' + typeMapperDefinition.getTypeMapperName() + '(' +
+                typeMapperDefinition.getSourceAndIdentifier() + ')( ' + typeMapperDefinition.getReturnType() + '){';
             this.appendSource(constructedSourceSegment);
             log.debug('Begin Visit TypeConverterDefinition');
         };
 
-        TypeConverterDefinitionVisitor.prototype.visitTypeConverterDefinition = function(typeConverterDefinition){
-            log.debug('Visit TypeConverterDefinition');
+        TypeMapperDefinitionVisitor.prototype.visitTypeMapperDefinition = function(typeMapperDefinition){
+            log.debug('Visit TypeMapperDefinition');
         };
 
-        TypeConverterDefinitionVisitor.prototype.endVisitTypeConverterDefinition = function(typeConverterDefinition){
+        TypeMapperDefinitionVisitor.prototype.endVisitTypeMapperDefinition = function(typeMapperDefinition){
             this.appendSource("} \n");
             this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit TypeConverterDefinition');
+            log.debug('End Visit TypeMapperDefinition');
         };
 
-        TypeConverterDefinitionVisitor.prototype.visitStatement = function (statement) {
+        TypeMapperDefinitionVisitor.prototype.visitStatement = function (statement) {
             var statementVisitorFactory = new StatementVisitorFactory();
             var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
             statement.accept(statementVisitor);
         };
 
-        TypeConverterDefinitionVisitor.prototype.visitVariableDeclaration = function(variableDeclaration){
+        TypeMapperDefinitionVisitor.prototype.visitVariableDeclaration = function(variableDeclaration){
             var variableDeclarationVisitor = new VariableDeclarationVisitor(this);
             variableDeclaration.accept(variableDeclarationVisitor);
         };
 
-        TypeConverterDefinitionVisitor.prototype.visitReturnStatement = function(returnStatement){
+        TypeMapperDefinitionVisitor.prototype.visitReturnStatement = function(returnStatement){
             var returnStatementVisitor = new ReturnStatementVisitor(this);
             returnStatement.accept(returnStatementVisitor);
         };
 
-        return TypeConverterDefinitionVisitor;
+        return TypeMapperDefinitionVisitor;
     });
