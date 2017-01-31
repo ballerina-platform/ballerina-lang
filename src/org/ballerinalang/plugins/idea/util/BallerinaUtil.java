@@ -17,6 +17,8 @@
 package org.ballerinalang.plugins.idea.util;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectUtil;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
@@ -29,10 +31,10 @@ import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageDeclaration;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -40,13 +42,42 @@ import java.util.List;
 public class BallerinaUtil {
 
     @NotNull
-    public static String suggestPackageForDirectory(@Nullable PsiDirectory directory) {
+    public static String suggestPackageNameForDirectory(@Nullable PsiDirectory directory) {
         // If the directory is not null, get the package name
         if (directory != null) {
-            return BallerinaPsiImplUtil.getLocalPackageName(directory.getVirtualFile());
+            VirtualFile virtualFile = directory.getVirtualFile();
+            Project project = ProjectUtil.guessProjectForContentFile(virtualFile);
+            if (project != null && project.getBasePath() != null) {
+                // Get the relative path of the file in the project
+                String trimmedPath = virtualFile.getPath().replace(project.getBasePath(), "");
+                // Remove the separator at the beginning of the string
+                trimmedPath = trimmedPath.replaceFirst(File.separator, "");
+                // Replace all other separators with . to get the package path
+                trimmedPath = trimmedPath.replaceAll(File.separator, ".");
+                // If the path is not empty, return the path
+                if (!trimmedPath.isEmpty()) {
+                    return trimmedPath;
+                }
+                // If the path is empty, return the project base directory name
+                return project.getBaseDir().getName().replaceAll(" ", "_");
+            }
+            // If the package name cannot be constructed, return empty string
+            return "";
         }
         // If the directory is null, return empty string
         return "";
+    }
+
+    public static String suggestPackageNameForFile(Project project, VirtualFile virtualFile) {
+        String relativePath = FileUtil.getRelativePath(project.getBasePath(), virtualFile.getPath(),
+                File.separatorChar);
+        int len = relativePath.length() - virtualFile.getName().length();
+
+        // Remove separator at the end if the file is not situated at the project root.
+        if (len > 0) {
+            len--;
+        }
+        return relativePath.substring(0, len).replaceAll(File.separator, ".");
     }
 
     public static List<String> findAllFullPackageDeclarations(Project project) {

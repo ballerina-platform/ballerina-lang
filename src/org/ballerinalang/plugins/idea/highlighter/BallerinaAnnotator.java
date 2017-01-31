@@ -19,18 +19,17 @@ package org.ballerinalang.plugins.idea.highlighter;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import org.ballerinalang.plugins.idea.psi.BallerinaFunctionName;
 import org.ballerinalang.plugins.idea.psi.BallerinaImportDeclaration;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageDeclaration;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageName;
+import org.ballerinalang.plugins.idea.quickfix.ChangePackageQuickFix;
 import org.ballerinalang.plugins.idea.quickfix.RemovePackageQuickFix;
 import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,27 +43,14 @@ public class BallerinaAnnotator implements Annotator {
 
         if (element instanceof BallerinaPackageDeclaration) {
             BallerinaPackageName packageName = ((BallerinaPackageDeclaration) element).getPackageName();
-
             if (packageName != null) {
-
-                String relativePath = FileUtil.getRelativePath(project.getBasePath(), virtualFile.getPath(),
-                        File.separatorChar);
-                int len = relativePath.length() - virtualFile.getName().length();
-
-                // Remove separator at the end if the file is not situated at the project root.
-                if (len > 0) {
-                    len--;
-                }
-                relativePath = relativePath.substring(0, len).replaceAll(File.separator, ".");
-
+                String relativePath = BallerinaUtil.suggestPackageNameForFile(project, virtualFile);
                 if (relativePath.isEmpty()) {
                     holder.createErrorAnnotation(packageName, "Incorrect package").registerFix(
                             new RemovePackageQuickFix());
-                    return;
-                }
-                if (!Objects.equals(relativePath, packageName.getText())) {
-                    holder.createErrorAnnotation(packageName, "Incorrect package");
-                    return;
+                } else if (!Objects.equals(relativePath, packageName.getText())) {
+                    holder.createErrorAnnotation(packageName, "Incorrect package").registerFix(
+                            new ChangePackageQuickFix(relativePath));
                 }
             }
         }
