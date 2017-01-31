@@ -27,14 +27,12 @@ define(['require', 'lodash','jquery','jsPlumb'], function(require, _,$,jsPlumb) 
         var strokeColor = "#414e66";
         var strokeWidth = 2;
         var pointColor = "#414e66";
-        var pointSize = 5;
-        var dashStyle = "3 3";
+        var pointSize = 1;
 
         jsPlumb.Defaults.Container = $("#" + this.placeHolderName);
         jsPlumb.Defaults.PaintStyle = {
             strokeStyle:strokeColor,
-            lineWidth:strokeWidth,
-            dashstyle: dashStyle
+            lineWidth:strokeWidth
         };
 
         jsPlumb.Defaults.EndpointStyle = {
@@ -42,15 +40,17 @@ define(['require', 'lodash','jquery','jsPlumb'], function(require, _,$,jsPlumb) 
             fillStyle:pointColor
         };
         jsPlumb.Defaults.Overlays = [
-            [ "Arrow", {
-                location:0.5,
-                id:"arrow",
-                length:14,
-                foldback:0.8
-            } ]
+            [ "Arrow",{location:1, width:12, length:12} ]
         ];
 
-        jsPlumb.importDefaults({Connector : [ "Bezier", { curviness:1 } ]});
+        jsPlumb.importDefaults({Connector : [ "Flowchart",
+            {
+                cornerRadius: 10,
+                stub:20,  alwaysRespectStubs: true
+            } ]});
+
+        var positionFunc = this.dagrePosition;
+
         jsPlumb.bind('dblclick', function (connection, e) {
             var PropertyConnection = {
                 sourceStruct : connection.source.id.split(this.idNameSeperator)[0],
@@ -62,7 +62,12 @@ define(['require', 'lodash','jquery','jsPlumb'], function(require, _,$,jsPlumb) 
             }
 
             jsPlumb.detach(connection);
+            positionFunc();
             onDisconnectCallback(PropertyConnection);
+        });
+
+        jsPlumb.bind('connection',function(info,ev){
+            positionFunc();
         });
 
 
@@ -73,6 +78,7 @@ define(['require', 'lodash','jquery','jsPlumb'], function(require, _,$,jsPlumb) 
     TypeMapper.prototype.removeStruct  = function (name){
         jsPlumb.detachEveryConnection();
         $("#" + name).remove();
+        this.dagrePosition();
     }
 
     TypeMapper.prototype.addConnection  = function (connection) {
@@ -80,6 +86,7 @@ define(['require', 'lodash','jquery','jsPlumb'], function(require, _,$,jsPlumb) 
             source:connection.sourceStruct + this.idNameSeperator + connection.sourceProperty + this.idNameSeperator + connection.sourceType,
             target:connection.targetStruct + this.idNameSeperator + connection.targetProperty + this.idNameSeperator + connection.targetType
         });
+        this.dagrePosition();
     }
 
     TypeMapper.prototype.getConnections  = function () {
@@ -105,6 +112,8 @@ define(['require', 'lodash','jquery','jsPlumb'], function(require, _,$,jsPlumb) 
         for (var i = 0; i < struct.properties.length; i++) {
             this.addSourceProperty($('#' + struct.name), struct.properties[i].name, struct.properties[i].type);
         };
+
+        this.dagrePosition();
     }
 
     TypeMapper.prototype.addTargetStruct  = function (struct, reference) {
@@ -114,6 +123,8 @@ define(['require', 'lodash','jquery','jsPlumb'], function(require, _,$,jsPlumb) 
         for (var i = 0; i < struct.properties.length; i++) {
             this.addTargetProperty($('#' +struct.name), struct.properties[i].name, struct.properties[i].type);
         };
+
+        this.dagrePosition();
     }
 
     TypeMapper.prototype.makeStruct  = function (struct, posX, posY, reference) {
@@ -129,10 +140,37 @@ define(['require', 'lodash','jquery','jsPlumb'], function(require, _,$,jsPlumb) 
         });
 
         $("#" + this.placeHolderName).append(newStruct);
-        jsPlumb.draggable(newStruct, {
-            containment: 'parent'
-        });
+        // jsPlumb.draggable(newStruct, {
+        //     containment: 'parent'
+        // });
     }
+
+    TypeMapper.prototype.makeFunction  = function (func, reference) {
+        this.references.push({ name : func.name, refObj : reference});
+        var newFunc = $('<div>').attr('id', func.name).addClass('struct');
+
+        var funcName = $('<div>').addClass('struct-name').text(func.name);
+        newFunc.append(funcName);
+
+        newFunc.css({
+            'top': 0,
+            'left': 0
+        });
+
+        $("#" + this.placeHolderName).append(newFunc);
+
+
+
+        for (var i = 0; i < func.parameters.length; i++) {
+            this.addTargetProperty($('#' +func.name), func.parameters[i].name, func.parameters[i].type);
+        };
+
+        this.addSourceProperty($('#' + func.name), "output", func.returnType);
+        this.dagrePosition();
+
+    }
+
+
 
     TypeMapper.prototype.makeProperty  = function (parentId, name, type) {
         var id = parentId.selector.replace("#","") + this.idNameSeperator + name + this.idNameSeperator  + type;
@@ -194,10 +232,42 @@ define(['require', 'lodash','jquery','jsPlumb'], function(require, _,$,jsPlumb) 
 
                     callback(connection);
                 }
-
                 return isValidTypes;
+            },
+
+            onDrop : function(params) {
+                this.dagrePosition();
             }
         });
+    }
+
+
+    TypeMapper.prototype.dagrePosition  = function(){
+        // construct dagre graph from JsPlumb graph
+        var g = new dagre.graphlib.Graph();
+        g.setGraph({ranksep:'100',rankdir: 'LR', edgesep:'50', ranker : 'tight-tree'});
+        g.setDefaultEdgeLabel(function() { return {}; });
+        var nodes = $(".struct");
+        for (var i = 0; i < nodes.length; i++) {
+            var n = nodes[i];
+
+            g.setNode(n.id, {width: 300, height: $("#" + n.id).height()});
+        }
+        var edges = jsPlumb.getAllConnections();
+        for (var i = 0; i < edges.length; i++) {
+            var c = edges[i];
+            g.setEdge(c.source.id.split("-")[0],c.target.id.split("-")[0]);
+        }
+
+        // calculate the layout (i.e. node positions)
+        dagre.layout(g);
+
+        // Applying the calculated layout
+        g.nodes().forEach(function(v) {
+            $("#" + v).css("left", g.node(v).x + "px");
+            $("#" + v).css("top", g.node(v).y + "px");
+        });
+        jsPlumb.repaintEverything();
     }
 
     return TypeMapper;
