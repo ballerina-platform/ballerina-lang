@@ -111,7 +111,7 @@ public class BLangJSONModelTest {
 
     public void registerNativeAction(AbstractNativeAction action) {
         Package aPackage = packages
-                .computeIfAbsent(action.getPackageName(), k -> new Package(action.getPackageName()));
+                .computeIfAbsent(action.getPackageName(), k -> new Package(action.getPackagePath()));
         aPackage.getActions().put(action.getName(), action);
 
         String actionName = action.getSymbolName().getName();
