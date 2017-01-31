@@ -301,8 +301,9 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
 
             // Creating return type icon.
             var panelReturnTypeIcon = $("<i/>", {
-                class: "fw fw-export pull-right right-icon-clickable hoverable"
-            }).appendTo(operationsPane);
+                class: "fw fw-export pull-right right-icon-clickable hoverable",
+                title: "Return types"
+            }).appendTo(operationsPane).tooltip();
 
             $(panelReturnTypeIcon).click(function (event) {
                 event.stopPropagation();
