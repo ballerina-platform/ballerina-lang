@@ -58,25 +58,10 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 log.error("Container for function definition is undefined." + this._container);
                 throw "Container for function definition is undefined." + this._container;
             }
-            this.init();
         };
 
         FunctionDefinitionView.prototype = Object.create(Canvas.prototype);
         FunctionDefinitionView.prototype.constructor = FunctionDefinitionView;
-
-        FunctionDefinitionView.prototype.removeViewCallback = function (parent, child) {
-            d3.select("#_" +this._model.id).remove();
-            $(this._nameDiv).remove();
-            $(this._variablePane).remove();
-            $(this._variableButton).remove();
-            this.unplugView(
-                {
-                    x: this._viewOptions.topLeft.x(),
-                    y: this._viewOptions.topLeft.y(),
-                    w: 0,
-                    h: 0
-                }, parent, child);
-        };
 
         /**
          * Child remove callback
@@ -382,11 +367,6 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                     $(rightScroll).show();
                 }
             }
-        };
-
-        FunctionDefinitionView.prototype.init = function(){
-            this._model.on('child-removed', this.childRemovedCallback, this);
-            this.on('remove-view', this.removeViewCallback, this);
         };
 
         /**

@@ -55,16 +55,10 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 log.error("Container for connector definition is undefined." + this._container);
                 throw "Container for connector definition is undefined." + this._container;
             }
-            this.init();
         };
 
         ConnectorDefinitionView.prototype = Object.create(Canvas.prototype);
         ConnectorDefinitionView.prototype.constructor = ConnectorDefinitionView;
-
-        ConnectorDefinitionView.prototype.init = function(){
-            //Registering event listeners
-            this._model.on('child-removed', this.childRemovedCallback, this);
-        };
 
         ConnectorDefinitionView.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof ConnectorDefinition) {
