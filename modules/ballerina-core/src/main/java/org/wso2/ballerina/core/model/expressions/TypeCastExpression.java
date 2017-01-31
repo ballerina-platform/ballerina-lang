@@ -30,9 +30,13 @@ import java.util.function.Function;
 
 /**
  * Class to hold the data related to type casting expression
+ *
+ * @since 0.8.0
  */
 public class TypeCastExpression extends AbstractExpression implements CallableUnitInvocationExpr<TypeConvertor> {
-
+    private String name;
+    private String pkgName;
+    private String pkgPath;
     private Expression sourceExpression;
     private BType targetType;
     private String packageName;
@@ -75,10 +79,6 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
         this.targetType = targetType;
     }
 
-    public String getPackageName() {
-        return packageName;
-    }
-
     public void setPackageName(String packageName) {
         this.packageName = packageName;
     }
@@ -101,14 +101,19 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
         return executor.visit(this);
     }
 
-    /**
-     * Returns the symbol name of this callable unit invocation expression
-     *
-     * @return the symbol name
-     */
     @Override
-    public SymbolName getCallableUnitName() {
-        return typeConverterName;
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackageName() {
+        return pkgName;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
     }
 
     /**

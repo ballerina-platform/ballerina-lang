@@ -44,6 +44,7 @@ import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
+import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -55,6 +56,8 @@ import org.wso2.ballerina.core.model.values.BValue;
 public interface NodeExecutor {
 
     void visit(BlockStmt blockStmt);
+
+    void visit(VariableDefStmt varDefStmt);
 
     void visit(AssignStmt assignStmt);
 

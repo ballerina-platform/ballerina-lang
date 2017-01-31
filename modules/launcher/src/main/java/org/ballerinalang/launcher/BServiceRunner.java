@@ -112,8 +112,8 @@ class BServiceRunner {
             Package aPackage = app.getPackage(fileName);
             if (aPackage == null) {
                 // check if package name is null
-                if (bFile.getPackageName() != null) {
-                    aPackage = new Package(bFile.getPackageName());
+                if (bFile.getPackagePath() != null) {
+                    aPackage = new Package(bFile.getPackagePath());
                 } else {
                     aPackage = new Package("default");
                 }

@@ -22,7 +22,9 @@ import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.types.BTypes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@code BallerinaFile} represent a content of a Ballerina source file.
@@ -39,10 +41,15 @@ import java.util.List;
 public class BallerinaFile implements Node {
 
     // Name of the main function
-    public static final String MAIN_FUNCTION_NAME = "main";
+    private static final String MAIN_FUNCTION_NAME = "main";
 
-    private String packageName = "main";
-    private ImportPackage[] importPackages;
+    private String pkgName = null;
+
+    // We need to keep a map of import packages.
+    // This is useful when analyzing import functions, actions and types.
+    private Map<String, ImportPackage> importPkgMap = new HashMap<>();
+
+    private ImportPackage[] importPkgs;
 
     private CompilationUnit[] compilationUnits;
 
@@ -59,8 +66,9 @@ public class BallerinaFile implements Node {
     private SymScope packageScope;
 
     private BallerinaFile(
-            String packageName,
-            ImportPackage[] importPackages,
+            String pkgName,
+            Map<String, ImportPackage> importPkgMap,
+            ImportPackage[] importPkgs,
             CompilationUnit[] compilationUnits,
             List<Service> serviceList,
             List<BallerinaConnector> connectorList,
@@ -70,8 +78,9 @@ public class BallerinaFile implements Node {
             StructDef[] structDefs,
             TypeConvertor[] typeConvertors) {
 
-        this.packageName = packageName;
-        this.importPackages = importPackages;
+        this.pkgName = pkgName;
+        this.importPkgMap = importPkgMap;
+        this.importPkgs = importPkgs;
         this.compilationUnits = compilationUnits;
         this.services = serviceList;
         this.connectorList = connectorList;
@@ -89,17 +98,8 @@ public class BallerinaFile implements Node {
      *
      * @return package name
      */
-    public String getPackageName() {
-        return packageName;
-    }
-
-    /**
-     * Set the package name which file belongs to.
-     *
-     * @param packageName name of the package
-     */
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
+    public String getPackagePath() {
+        return pkgName;
     }
 
     /**
@@ -107,8 +107,12 @@ public class BallerinaFile implements Node {
      *
      * @return list of imports
      */
+    public Map<String, ImportPackage> getImportPackageMap() {
+        return importPkgMap;
+    }
+
     public ImportPackage[] getImportPackages() {
-        return importPackages;
+        return importPkgs;
     }
 
     public CompilationUnit[] getCompilationUnits() {
@@ -194,12 +198,17 @@ public class BallerinaFile implements Node {
     }
 
     /**
-     * Builds a BFile which represents physical ballerina source file.
+     * Builds a BFile node which represents physical ballerina source file.
+     *
+     * @since 0.8.0
      */
     public static class BFileBuilder {
+        private String pkgName;
 
-        private String packageName;
-        private List<ImportPackage> importPkgList = new ArrayList<>();
+        // We need to keep a map of import packages.
+        // This is useful when analyzing import functions, actions and types.
+        private Map<String, ImportPackage> importPkgMap = new HashMap<>();
+        private List<ImportPackage> importPkgList  = new ArrayList<>();
 
         private List<CompilationUnit> compilationUnitList = new ArrayList<>();
         private List<Service> serviceList = new ArrayList<>();
@@ -215,8 +224,8 @@ public class BallerinaFile implements Node {
         public BFileBuilder() {
         }
 
-        public void setPackagePath(String packageName) {
-            this.packageName = packageName;
+        public void setPackagePath(String pkgName) {
+            this.pkgName = pkgName;
         }
 
         public void addFunction(BallerinaFunction function) {
@@ -247,6 +256,10 @@ public class BallerinaFile implements Node {
             this.importPkgList.add(importPkg);
         }
 
+        public void setImportPackageMap(Map<String, ImportPackage> importPkgMap) {
+            this.importPkgMap = importPkgMap;
+        }
+
         public void addConst(ConstDef constant) {
             this.compilationUnitList.add((constant));
             this.constList.add(constant);
@@ -266,12 +279,9 @@ public class BallerinaFile implements Node {
         }
 
         public BallerinaFile build() {
-            if (packageName != null) {
-                importPkgList.add(new ImportPackage(packageName)); // Import self
-            }
-
             return new BallerinaFile(
-                    packageName,
+                    pkgName,
+                    importPkgMap,
                     importPkgList.toArray(new ImportPackage[importPkgList.size()]),
                     compilationUnitList.toArray(new CompilationUnit[compilationUnitList.size()]),
                     serviceList,

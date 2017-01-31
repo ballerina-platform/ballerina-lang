@@ -80,11 +80,11 @@ public class BalProgramExecutor {
         Context bContext = new Context();
         try {
             SymbolName argsName;
-            BallerinaFunction mainFunction = (BallerinaFunction) balFile.getMainFunction();
-            if (mainFunction != null) {
+            BallerinaFunction mainFun = (BallerinaFunction) balFile.getMainFunction();
+            if (mainFun != null) {
 
                 // TODO Refactor this logic ASAP
-                ParameterDef[] parameterDefs = mainFunction.getParameterDefs();
+                ParameterDef[] parameterDefs = mainFun.getParameterDefs();
                 argsName = parameterDefs[0].getSymbolName();
 
 //                if (parameters.length == 1 && parameters[0].getType() == BTypes.getArrayType(BTypes.
@@ -93,7 +93,7 @@ public class BalProgramExecutor {
 //                    throw new BallerinaException("Main function does not comply with standard main function in" +
 //                            " ballerina");
 //                }
-                NodeLocation mainFuncLocation = mainFunction.getNodeLocation();
+                NodeLocation mainFuncLocation = mainFun.getNodeLocation();
 
                 // Read from command line arguments
                 String balArgs = System.getProperty(SYSTEM_PROP_BAL_ARGS);
@@ -120,11 +120,10 @@ public class BalProgramExecutor {
 
                 // 3) Create a function invocation expression
                 FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(mainFuncLocation,
-                        new SymbolName("main", balFile.getPackageName()), exprs);
-                funcIExpr.setOffset(1);
-                funcIExpr.setCallableUnit(mainFunction);
+                        mainFun.getName(), null, mainFun.getPackagePath(), exprs);
+                funcIExpr.setCallableUnit(mainFun);
 
-                SymbolName functionSymbolName = funcIExpr.getCallableUnitName();
+                SymbolName functionSymbolName = funcIExpr.getCallableUnit().getSymbolName();
                 CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
                         functionSymbolName.getPkgPath(), mainFuncLocation);
 

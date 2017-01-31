@@ -62,7 +62,7 @@ class BMainRunner {
         // Check whether there is a main function
         BallerinaFunction function = (BallerinaFunction) bFile.getMainFunction();
         if (function == null) {
-            String pkgString = (bFile.getPackageName() != null) ? "in package " + bFile.getPackageName() : "";
+            String pkgString = (bFile.getPackagePath() != null) ? "in package " + bFile.getPackagePath() : "";
             pkgString = (pkgString.equals("")) ? "in file '" + Utils.getFileName(sourceFilePath) + "'" : "";
             String errorMsg = "ballerina: main method not found " + pkgString + "";
             throw Utils.createLauncherException(errorMsg);
@@ -87,9 +87,9 @@ class BMainRunner {
         Context bContext = new Context();
         try {
             SymbolName argsName;
-            BallerinaFunction mainFunction = (BallerinaFunction) balFile.getMainFunction();
-            NodeLocation mainFuncLocation = mainFunction.getNodeLocation();
-            ParameterDef[] parameterDefs = mainFunction.getParameterDefs();
+            BallerinaFunction mainFun = (BallerinaFunction) balFile.getMainFunction();
+            NodeLocation mainFuncLocation = mainFun.getNodeLocation();
+            ParameterDef[] parameterDefs = mainFun.getParameterDefs();
             argsName = parameterDefs[0].getSymbolName();
 
             Expression[] exprs = new Expression[1];
@@ -108,13 +108,12 @@ class BMainRunner {
 
             // 3) Create a function invocation expression
             FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(mainFuncLocation,
-                    new SymbolName("main", balFile.getPackageName()), exprs);
+                    mainFun.getName(), null, mainFun.getPackagePath(), exprs);
             funcIExpr.setOffset(1);
-            funcIExpr.setCallableUnit(mainFunction);
+            funcIExpr.setCallableUnit(mainFun);
 
-            SymbolName functionSymbolName = funcIExpr.getCallableUnitName();
-            CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
-                    functionSymbolName.getPkgPath(), mainFuncLocation);
+            CallableUnitInfo functionInfo = new CallableUnitInfo(funcIExpr.getName(),
+                    funcIExpr.getPackagePath(), mainFuncLocation);
 
             StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], functionInfo);
             bContext.getControlStack().pushFrame(currentStackFrame);

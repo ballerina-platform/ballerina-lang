@@ -21,7 +21,6 @@ import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -31,21 +30,45 @@ import org.wso2.ballerina.core.model.values.BValue;
  * @since 0.8.0
  */
 public class ActionInvocationExpr extends AbstractExpression implements CallableUnitInvocationExpr<Action> {
-
-    private SymbolName actionName;
+    private String name;
+    private String pkgName;
+    private String pkgPath;
+    private String connectorName;
     private Expression[] exprs;
     private Action action;
     private BType[] types = new BType[0];
 
-    public ActionInvocationExpr(NodeLocation location, SymbolName actionName, Expression[] exprs) {
+    public ActionInvocationExpr(NodeLocation location,
+                                String name,
+                                String pkgName,
+                                String pkgPath,
+                                String connectorName,
+                                Expression[] exprs) {
         super(location);
-        this.actionName = actionName;
+        this.name = name;
+        this.pkgName = pkgName;
+        this.pkgPath = pkgPath;
+        this.connectorName = connectorName;
         this.exprs = exprs;
     }
 
+    public String getConnectorName() {
+        return connectorName;
+    }
+
     @Override
-    public SymbolName getCallableUnitName() {
-        return actionName;
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackageName() {
+        return pkgName;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
     }
 
     @Override

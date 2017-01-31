@@ -18,7 +18,6 @@
 package org.wso2.ballerina.core.model.builder;
 
 import org.wso2.ballerina.core.model.NodeLocation;
-import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
@@ -33,23 +32,30 @@ import java.util.List;
  */
 class CallableUnitInvocationExprBuilder {
     private NodeLocation location;
-    private SymbolName name;
+    private String name;
+    private String pkgName;
+    private String pkgPath;
+    private String connectorName;
     private List<Expression> expressionList = new ArrayList<>();
 
     void setNodeLocation(NodeLocation location) {
         this.location = location;
     }
 
-    SymbolName getName() {
-        return name;
-    }
-
-    void setName(SymbolName name) {
+    void setName(String name) {
         this.name = name;
     }
 
-    List<Expression> getExpressionList() {
-        return expressionList;
+    public void setPkgName(String pkgName) {
+        this.pkgName = pkgName;
+    }
+
+    public void setPkgPath(String pkgPath) {
+        this.pkgPath = pkgPath;
+    }
+
+    public void setConnectorName(String connectorName) {
+        this.connectorName = connectorName;
     }
 
     void setExpressionList(List<Expression> expressionList) {
@@ -60,6 +66,8 @@ class CallableUnitInvocationExprBuilder {
         return new FunctionInvocationExpr(
                 location,
                 name,
+                pkgName,
+                pkgPath,
                 expressionList.toArray(new Expression[expressionList.size()]));
     }
 
@@ -67,6 +75,9 @@ class CallableUnitInvocationExprBuilder {
         return new ActionInvocationExpr(
                 location,
                 name,
+                pkgName,
+                pkgPath,
+                connectorName,
                 expressionList.toArray(new Expression[expressionList.size()]));
     }
 }

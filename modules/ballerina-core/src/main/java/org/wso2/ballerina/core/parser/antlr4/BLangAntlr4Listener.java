@@ -586,7 +586,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         if (isSimpleType) {
-            modelBuilder.addSimpleTypeName(typeName, currentPkgName, isArrayType);
+            modelBuilder.addSimpleTypeName(getCurrentLocation(ctx), typeName, currentPkgName, isArrayType);
             typeName = null;
             currentPkgName = null;
             isArrayType = false;
@@ -942,9 +942,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.createActionInvocationStmt(getCurrentLocation(ctx));
+        if (ctx.exception != null) {
+            return;
         }
+
+        modelBuilder.createActionInvocationStmt(getCurrentLocation(ctx), ctx.actionInvocation().Identifier().getText());
     }
 
     @Override
@@ -1017,9 +1019,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitFunctionInvocationStatement(BallerinaParser.FunctionInvocationStatementContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.createFunctionInvocationStmt(getCurrentLocation(ctx));
+        if (ctx.exception != null) {
+            return;
         }
+
+        modelBuilder.createFunctionInvocationStmt(getCurrentLocation(ctx));
     }
 
     @Override
@@ -1047,9 +1051,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitCallableUnitName(BallerinaParser.CallableUnitNameContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.createSymbolName(ctx.Identifier().getText());
+        if (ctx.exception != null) {
+            return;
         }
+
+        modelBuilder.addCallableUnitName(ctx.packageName().getText(), ctx.Identifier().getText());
     }
 
     @Override
@@ -1109,9 +1115,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitFunctionInvocationExpression(BallerinaParser.FunctionInvocationExpressionContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.createFunctionInvocationExpr(getCurrentLocation(ctx));
+        if (ctx.exception != null) {
+            return;
         }
+
+        modelBuilder.addFunctionInvocationExpr(getCurrentLocation(ctx));
     }
 
     @Override
@@ -1175,9 +1183,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitActionInvocationExpression(BallerinaParser.ActionInvocationExpressionContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.createActionInvocationExpr(getCurrentLocation(ctx));
+        if (ctx.exception != null) {
+            return;
         }
+
+        modelBuilder.addActionInvocationExpr(getCurrentLocation(ctx), ctx.actionInvocation().Identifier().getText());
     }
 
     @Override

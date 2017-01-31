@@ -25,8 +25,8 @@ package org.wso2.ballerina.core.model.types;
 public class SchemaIDTypeName extends SimpleTypeName {
     private String schemaID;
 
-    public SchemaIDTypeName(String name, String packagePath, String schemaID) {
-        super(name, packagePath);
+    public SchemaIDTypeName(String name, String pkgName, String pkgPath, String schemaID) {
+        super(name, pkgName, pkgPath);
         this.schemaID = schemaID;
     }
 
