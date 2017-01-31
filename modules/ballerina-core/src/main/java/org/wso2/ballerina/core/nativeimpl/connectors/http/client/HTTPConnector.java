@@ -15,15 +15,22 @@
  */
 package org.wso2.ballerina.core.nativeimpl.connectors.http.client;
 
-import org.osgi.framework.Bundle;
-import org.osgi.framework.ServiceFactory;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.TransportConfigProvider;
+import org.wso2.ballerina.core.runtime.MessageProcessor;
+import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
+import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
+import org.wso2.carbon.transport.http.netty.config.TransportProperty;
+import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
+import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.sender.HTTPSender;
+
+import java.util.Set;
 
 /**
  * Native HTTP Connector.
@@ -38,11 +45,25 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
         name = "ballerina.net.connectors.http",
         immediate = true,
         service = AbstractNativeConnector.class)
-public class HTTPConnector extends AbstractNativeConnector implements ServiceFactory {
+public class HTTPConnector extends AbstractNativeConnector {
 
     public static final String CONNECTOR_NAME = "HTTPConnector";
 
     private String serviceUri;
+
+    static {
+        //TODO: Move this to a lazy loading transport initializer once new native construct loader is available
+
+        TransportsConfiguration trpConfig = TransportConfigProvider.getConfiguration();
+        Set<SenderConfiguration> senderConfigurations = trpConfig.getSenderConfigurations();
+        Set<TransportProperty> transportProperties = trpConfig.getTransportProperties();
+
+        HTTPSender sender = new HTTPSender(senderConfigurations, transportProperties);
+        ServiceContextHolder.getInstance().addTransportSender(sender);
+
+        HTTPTransportContextHolder nettyTransportContextHolder = HTTPTransportContextHolder.getInstance();
+        nettyTransportContextHolder.setMessageProcessor(new MessageProcessor());
+    }
 
     @Override
     public boolean init(BValue[] bValueRefs) {
@@ -66,14 +87,4 @@ public class HTTPConnector extends AbstractNativeConnector implements ServiceFac
     public String getPackageName() {
         return "ballerina.net.http";
     }
-
-    @Override
-    public Object getService(Bundle bundle, ServiceRegistration serviceRegistration) {
-        return new HTTPConnector();
-    }
-
-    @Override
-    public void ungetService(Bundle bundle, ServiceRegistration serviceRegistration, Object o) {
-    }
-
 }

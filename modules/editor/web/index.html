@@ -1,32 +1,34 @@
+<!DOCTYPE html>
 
-<!--Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.-->
+<!--
+~   Copyright (c) 2016, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+~
+~   Licensed under the Apache License, Version 2.0 (the "License");
+~   you may not use this file except in compliance with the License.
+~   You may obtain a copy of the License at
+~
+~        http://www.apache.org/licenses/LICENSE-2.0
+~
+~   Unless required by applicable law or agreed to in writing, software
+~   distributed under the License is distributed on an "AS IS" BASIS,
+~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~   See the License for the specific language governing permissions and
+~   limitations under the License.
+-->
 
-<!--WSO2 Inc. licenses this file to you under the Apache License,-->
-<!--Version 2.0 (the "License"); you may not use this file except-->
-<!--in compliance with the License.-->
-<!--You may obtain a copy of the License at-->
-
-<!--http://www.apache.org/licenses/LICENSE-2.0-->
-
-<!--Unless required by applicable law or agreed to in writing,-->
-<!--software distributed under the License is distributed on an-->
-<!--"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY-->
-<!--KIND, either express or implied. See the License for the-->
-<!--specific language governing permissions and limitations-->
-<!--under the License.-->
-
-
-
-<html lang="en" class=" webkit chrome mac js gr__localhost">
+<html lang="en" class="webkit chrome mac js gr__localhost">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>Ballerina Editor</title>
 
     <!-- Favion -->
     <link href="images/favicon.png" rel="icon" type="image/png" sizes="16x16" />
 
     <script src="lib/css-browser-selector_0.4.0/css_browser_selector.js"></script>
+    
     <link href="lib/font-wso2-1.2.1/css/font-wso2.min.css" rel="stylesheet" type="text/css"/>
     <link href="lib/theme-wso2-2.0.0/css/theme-wso2.css" rel="stylesheet" type="text/css"/>
     <link href="lib/jquery-ui_v1.12.1/jquery-ui.css" rel="stylesheet" type="text/css"/>
@@ -38,22 +40,23 @@
     <link href="css/notification.css" rel="stylesheet" type="text/css"/>
     <link href="css/fileDialog.css" rel="stylesheet" type="text/css"/>
     <link href="lib/nanoscroller_0.8.7/nanoscroller.css" rel="stylesheet" type="text/css"/>
+    <link href="lib/mCustomScrollbar_v3.1.5/css/jquery.mCustomScrollbar.css" rel="stylesheet" type="text/css"/>
+    <link href="lib/context-menu_v2.4.2/jquery.contextMenu.min.css" rel="stylesheet" type="text/css"/>
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-    <script src="lib/html5shiv_3.7.2/html5shiv.min.js"></script>
-    <script src="lib/respond_1.4.2/respond.min.js"></script>
-    <![endif]-->
     <link rel="stylesheet" type="text/css" href="css/sequence_diagram/sequenced-styles.css"/>
     <link rel="stylesheet" type="text/css" href="css/ballerina-file-editor.css"/>
     <link rel="stylesheet" type="text/css" href="css/menu-bar.css"/>
     <link rel="stylesheet" type="text/css" href="css/tool-palette.css"/>
     <link rel="stylesheet" type="text/css" href="css/workspace-explorer.css"/>
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
-    <title>Ballerina Editor</title>
-</head>
 
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="lib/html5shiv_3.7.2/html5shiv.min.js"></script>
+    <script src="lib/respond_1.4.2/respond.min.js"></script>
+    <![endif]--> 
+</head>
 <body class="sticky-footer">
 
 <!-- Start: header -->
@@ -181,7 +184,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="package-btn btn-icon">
+                <div class="package-btn btn-icon" data-toggle="tooltip" title="Package and Imports">
                     <span class="fw-stack fw-lg">
                         <i class="fw fw-circle fw-stack-2x"></i>
                         <i class="fw fw-package fw-stack-1x fw-inverse"></i>
@@ -191,7 +194,7 @@
             <!-- End: TopRight Controls Container  -->
             <!-- Start: BottomRight Controls Container -->
             <div class="bottom-right-controls-container">
-                <div class="view-source-btn btn-icon">
+                <div class="view-source-btn btn-icon" data-toggle="tooltip" title="Source View">
                     <i class="fw fw-lg fw-code fw-inverse fw-helper fw-helper-circle"></i>
                 </div>
             </div>
@@ -202,7 +205,7 @@
         <div class="source-view-container" id="source-container-id">
             <!-- Start: BottomRight Controls Container -->
             <div class="bottom-right-controls-container">
-                <div class="view-design-btn btn-icon">
+                <div class="view-design-btn btn-icon" data-toggle="tooltip" title="Design view">
                     <i class="fw fw-lg fw-design-view fw-helper"></i>
                 </div>
             </div>
@@ -367,7 +370,7 @@
 <!-- End: Set Service Parameters Modal -->
 
 <!--Start: About Modal-->
-<div class="modal fade" id="modalAbout" tabindex="-1" role="dialog" aria-labelledby="modalDemo">
+<div class="modal fade" id="modalAbout" tabindex="-1" role="dialog" aria-label="modalDemo">
     <div class="modal-dialog" role="document">
         <div class="modal-content clearfix">
             <div class="modal-header">
@@ -390,7 +393,8 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content clearfix">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">x</button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="fw fw-cancel  about-dialog-close"></i></button>
                 <h3 class="modal-title" id="errorModalLabel">Error</h3>
             </div>
             <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
@@ -409,7 +413,9 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content clearfix">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">x</button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="fw fw-cancel about-dialog-close"></i>
+                </button>
                 <h4 class="modal-title" >Search</h4>
             </div>
             <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
@@ -428,7 +434,7 @@
 <!--End: Search Modal-->
 
 <!--Start: Open Folder Modal-->
-<div class='modal fade' id='open-folder-modal' tabindex='-1' role='dialog' aria-tydden='true'>
+<div class='modal fade' id='open-folder-modal' tabindex='-1' role='dialog' aria-hidden='true'>
     <div class='modal-dialog file-dialog' role='document'>
         <div class='modal-content'>
             <div class='modal-header'>
@@ -460,7 +466,7 @@
                             <div class='folder-dialog-form-btn'>
                                 <button type='button' class='btn btn-file-dialog open-button'>open
                                 </button>
-                                <div class='divider'/>
+                                <div class='divider'></div>
                                 <button type='button' class='btn btn-file-dialog' data-dismiss='modal'>cancel</button>
                             </div>
                         </div>
@@ -494,11 +500,12 @@
             backbone: "lib/backbone_v1.3.3/backbone",
             svg_pan_zoom: "lib/svg-panNZoom/jquery.svg.pan.zoom",
             js_tree: "lib/js-tree-v3.3.2/jstree",
-            nano_scroller: "lib/nanoscroller_0.8.7/jquery.nanoscroller.min",
             theme_wso2: "lib/theme-wso2_1.0/js/theme-wso2",
             ace: "lib/ace_v1.2.6",
             beautify: "lib/beautify/beautify",
             mousetrap: "lib/mousetrap_v1.6.0/mousetrap.min",
+            mcustom_scroller: "lib/mCustomScrollbar_v3.1.5/js/jquery.mCustomScrollbar.concat.min",
+            jquery_context_menu: "lib/context-menu_v2.4.2/jquery.contextMenu.min",
             ///////////////////////
             // custom modules ////
             //////////////////////
@@ -512,6 +519,7 @@
             processors: "js/processors/module",
             file_browser: "js/file-browser/file-browser",
             menu_bar: "js/menu-bar/menu-bar",
+            context_menu: "js/context-menu/context-menu",
             tool_bar: "js/tool-bar/tool-bar",
             alerts: "js/utils/alerts",
             breadcrumbs: "js/breadcrumbs/breadcrumbs",
@@ -760,7 +768,7 @@
                     maxX: 800
                 },
                 cssClass: {
-                    container: 'workspace-explorer-container nano-content',
+                    container: 'workspace-explorer-container',
                     openFolderButton: 'btn  btn-default open-folder-button'
                 }
             },
@@ -788,5 +796,4 @@
 
 </script>
 </body>
-
 </html>

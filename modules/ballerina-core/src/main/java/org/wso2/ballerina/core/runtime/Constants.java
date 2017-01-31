@@ -48,6 +48,9 @@ public class Constants {
     // Name of the map that holds Resource arguments which are populated from server connector.
     public static final String RESOURCE_ARGS = "RESOURCE_ARGS";
 
+    // Ballerina version system property name
+    public static final String BALLERINA_VERSION = "ballerina.version";
+
 
     /**
      * Runtime modes of Ballerina engine.

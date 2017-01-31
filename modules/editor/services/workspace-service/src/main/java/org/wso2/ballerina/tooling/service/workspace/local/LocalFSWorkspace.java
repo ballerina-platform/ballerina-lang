@@ -22,11 +22,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.tooling.service.workspace.Workspace;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.util.Comparator;
 import java.util.Iterator;
 
 /**
@@ -87,6 +86,19 @@ public class LocalFSWorkspace implements Workspace {
     public void write(String path, String content) throws IOException {
         Path ioPath = Paths.get(path);
         Files.write(ioPath, content.getBytes());
+    }
+
+    @Override
+    public void delete(String path, String type) throws IOException {
+        Path ioPath = Paths.get(path);
+        if (FOLDER_TYPE.equals(type)) {
+            Files.walk(ioPath, FileVisitOption.FOLLOW_LINKS)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        } else {
+            Files.delete(ioPath);
+        }
     }
 
     @Override
