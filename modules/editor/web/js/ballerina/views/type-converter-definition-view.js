@@ -67,36 +67,30 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         var self = this;
         this._assignedModel = this;
 
+        console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        var predefinedStructs = diagramRenderingContext.getPackagedScopedEnvironment().findPackage("Current Package").getStructDefinitions();
+        console.log(predefinedStructs);
+
         var selectorContainer = $('<div class="selector"><div class="source-view"><span>Source :</span><select id="sourceStructs">' +
-            '</select></div><div class="target-view"><span>Target :</span><select id="targetStructs"></select></div></div>');
+            '<option value="-1">--Select--</option></select></div><div class="target-view"><span>Target :</span><select id="targetStructs"><option value="-1">--Select--</option></select></div></div>');
         var dataMapperContainer = $('<div id="data-mapper-container"></div>');
 
         currentContainer.find('svg').parent().append(selectorContainer);
         currentContainer.find('svg').parent().append(dataMapperContainer);
         currentContainer.find('svg').remove();
 
-        this.loadSchemas(currentContainer,"#sourceStructs");
-        this.loadSchemas(currentContainer,"#targetStructs");
+        this.loadSchemasToComboBox(currentContainer,"#sourceStructs",predefinedStructs);
+        this.loadSchemasToComboBox(currentContainer,"#targetStructs",predefinedStructs);
 
         $(currentContainer).find("#sourceStructs").change(function() {
 
-            var employee = BallerinaASTFactory.createStructDefinition();
-            employee.setStructName("Employee");
-            var v1 = BallerinaASTFactory.createVariableDeclaration();
-            v1.setType("string");
-            v1.setIdentifier("empName");
-            var v2 = BallerinaASTFactory.createVariableDeclaration();
-            v2.setType("string");
-            v2.setIdentifier("empSurName");
-
-            employee.addChild(v1);
-            employee.addChild(v2);
+            var selectedArrayIndex = $( "#sourceStructs option:selected" ).val();
+            var schema = predefinedStructs[selectedArrayIndex];
 
             var leftTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
-            //todo set person value dynamically
-            leftTypeStructDef.setTypeStructName("Person");
+            leftTypeStructDef.setTypeStructName(schema.getStructName());
             leftTypeStructDef.setIdentifier("p");
-            leftTypeStructDef.setSchema(employee);
+            leftTypeStructDef.setSchema(schema);
             leftTypeStructDef.setCategory("SOURCE");
             //leftTypeStructDef.setDataMapperInstance(self._typeMapper);
             leftTypeStructDef.setOnConnectInstance(self.onAttributesConnect);
@@ -113,22 +107,13 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
 
         $(currentContainer).find("#targetStructs").change(function() {
 
-            var person = BallerinaASTFactory.createStructDefinition();
-            person.setStructName("Person");
-            var v1 = BallerinaASTFactory.createVariableDeclaration();
-            v1.setType("string");
-            v1.setIdentifier("name");
-            var v2 = BallerinaASTFactory.createVariableDeclaration();
-            v2.setType("string");
-            v2.setIdentifier("surname");
-
-            person.addChild(v1);
-            person.addChild(v2);
+            var selectedArrayIndex = $( "#targetStructs option:selected" ).val();
+            var schema = predefinedStructs[selectedArrayIndex];
 
             var rightTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
-            rightTypeStructDef.setTypeStructName("Employee");
+            rightTypeStructDef.setTypeStructName(schema.getStructName());
             rightTypeStructDef.setIdentifier("e");
-            rightTypeStructDef.setSchema(person);
+            rightTypeStructDef.setSchema(schema);
             rightTypeStructDef.setCategory("TARGET");
             //rightTypeStructDef.setDataMapperInstance(self._typeMapper);
             rightTypeStructDef.setOnConnectInstance(self.onAttributesConnect);
@@ -137,8 +122,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
 
 
             var newVariableDeclaration = BallerinaASTFactory.createVariableDeclaration();
-            // Pushing new variable declaration//todo setType
-            newVariableDeclaration.setType("Employee");
+            newVariableDeclaration.setType(schema.getStructName());
             newVariableDeclaration.setIdentifier("e");
             self._model.addChild(newVariableDeclaration);
 
@@ -176,12 +160,12 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         return this._rootGroup;
     };
 
-    TypeConverterDefinitionView.prototype.loadSchemas = function (parentId,selectId) {
+    TypeConverterDefinitionView.prototype.loadSchemasToComboBox = function (parentId,selectId,schemaArray) {
 
         var types = ['-select-','employee','student','person'];
 
-        for (var i = 0; i < types.length; i++) {
-            $(parentId).find(selectId).append('<option value="'+i+'">'+types[i]+'</option>');
+        for (var i = 0; i < schemaArray.length; i++) {
+            $(parentId).find(selectId).append('<option value="'+i+'">'+schemaArray[i].getStructName()+'</option>');
 
         };
 

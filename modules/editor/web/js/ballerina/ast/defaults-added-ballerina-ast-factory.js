@@ -48,6 +48,7 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
         return resourceDef;
     };
 
+    //todo make this as normal NOT a composit one
     /**
      * creates TypeConverterDefinition
      * @param args
