@@ -26,13 +26,18 @@ public interface BallerinaFunctionDefinition extends PsiElement {
   @NotNull
   List<BallerinaAnnotation> getAnnotationList();
 
-  @NotNull
+  @Nullable
   BallerinaFunctionBody getFunctionBody();
+
+  @Nullable
+  BallerinaNativeFunctionDefinition getNativeFunctionDefinition();
 
   @Nullable
   BallerinaParameterList getParameterList();
 
   @Nullable
   BallerinaReturnParameters getReturnParameters();
+
+  String getFunctionName();
 
 }

@@ -49,9 +49,15 @@ public class BallerinaFunctionDefinitionImpl extends ASTWrapperPsiElement implem
   }
 
   @Override
-  @NotNull
+  @Nullable
   public BallerinaFunctionBody getFunctionBody() {
-    return findNotNullChildByClass(BallerinaFunctionBody.class);
+    return findChildByClass(BallerinaFunctionBody.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaNativeFunctionDefinition getNativeFunctionDefinition() {
+    return findChildByClass(BallerinaNativeFunctionDefinition.class);
   }
 
   @Override
@@ -64,6 +70,10 @@ public class BallerinaFunctionDefinitionImpl extends ASTWrapperPsiElement implem
   @Nullable
   public BallerinaReturnParameters getReturnParameters() {
     return findChildByClass(BallerinaReturnParameters.class);
+  }
+
+  public String getFunctionName() {
+    return BallerinaPsiImplUtil.getFunctionName(this);
   }
 
 }

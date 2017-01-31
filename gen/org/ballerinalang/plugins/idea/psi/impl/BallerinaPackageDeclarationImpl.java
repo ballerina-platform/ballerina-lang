@@ -43,9 +43,13 @@ public class BallerinaPackageDeclarationImpl extends ASTWrapperPsiElement implem
   }
 
   @Override
-  @NotNull
+  @Nullable
   public BallerinaPackageName getPackageName() {
-    return findNotNullChildByClass(BallerinaPackageName.class);
+    return findChildByClass(BallerinaPackageName.class);
+  }
+
+  public String getRealPackageName() {
+    return BallerinaPsiImplUtil.getRealPackageName(this);
   }
 
 }

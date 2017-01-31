@@ -23,7 +23,7 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaImportDeclaration extends PsiElement {
 
-  @NotNull
+  @Nullable
   BallerinaPackageName getPackageName();
 
   @Nullable

@@ -14,6 +14,8 @@
   elementTypeClass="org.ballerinalang.plugins.idea.psi.BallerinaElementType"
   tokenTypeClass="org.ballerinalang.plugins.idea.psi.BallerinaTokenType"
 
+  psiImplUtilClass="org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil"
+
   tokens=[
 
       // §3.9 Ballerina keywords
@@ -133,13 +135,31 @@ compilationUnit
     )+
 
 packageDeclaration
-    ::=   'package' packageName ';'
+    ::=   'package' packageName ';'{
+        pin=1
+        recoverWhile=recover_package_import
+        methods=[getRealPackageName]
+    }
 
 importDeclaration
-    ::=   'import' packageName ('as' Identifier)? ';'
+    ::=   'import' packageName ('as' Identifier)? ';'{
+        pin=1
+        recoverWhile= recover_package_import
+    }
+
+private recover_package_import::= !(   importDeclaration
+                                  |   serviceDefinition
+                                  |   functionDefinition
+                                  |   connectorDefinition
+                                  |   structDefinition
+                                  |   typeConvertorDefinition
+                                  |   constantDefinition
+                                  )
 
 serviceDefinition
-    ::=   annotation* 'service' Identifier '{' serviceBody '}'
+    ::= annotation* 'service' Identifier '{' serviceBody '}'{
+        pin=2
+    }
 
 serviceBody
     ::=   serviceBodyDeclaration
@@ -152,6 +172,12 @@ resourceDefinition
 
 functionDefinition
     ::=   annotation* 'public'? 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? '{' functionBody '}'
+    |   nativeFunctionDefinition {
+        methods=[getFunctionName]
+    }
+
+nativeFunctionDefinition
+    ::=   annotation* 'native' 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? ';'
 
 functionBody
     ::=  connectorDeclaration* variableDeclaration* workerDeclaration* statement+

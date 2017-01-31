@@ -159,6 +159,9 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     else if (t == NAMED_PARAMETER_LIST) {
       r = namedParameterList(b, 0);
     }
+    else if (t == NATIVE_FUNCTION_DEFINITION) {
+      r = nativeFunctionDefinition(b, 0);
+    }
     else if (t == PACKAGE_DECLARATION) {
       r = packageDeclaration(b, 0);
     }
@@ -1369,67 +1372,79 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
 
   /* ********************************************************** */
   // annotation* 'public'? 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? '{' functionBody '}'
+  //     |   nativeFunctionDefinition
   public static boolean functionDefinition(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "functionDefinition")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, FUNCTION_DEFINITION, "<function definition>");
     r = functionDefinition_0(b, l + 1);
-    r = r && functionDefinition_1(b, l + 1);
-    r = r && consumeTokens(b, 0, FUNCTION, IDENTIFIER, LPAREN);
-    r = r && functionDefinition_5(b, l + 1);
-    r = r && consumeToken(b, RPAREN);
-    r = r && functionDefinition_7(b, l + 1);
-    r = r && functionDefinition_8(b, l + 1);
-    r = r && consumeToken(b, LBRACE);
-    r = r && functionBody(b, l + 1);
-    r = r && consumeToken(b, RBRACE);
+    if (!r) r = nativeFunctionDefinition(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
 
-  // annotation*
+  // annotation* 'public'? 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? '{' functionBody '}'
   private static boolean functionDefinition_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "functionDefinition_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = functionDefinition_0_0(b, l + 1);
+    r = r && functionDefinition_0_1(b, l + 1);
+    r = r && consumeTokens(b, 0, FUNCTION, IDENTIFIER, LPAREN);
+    r = r && functionDefinition_0_5(b, l + 1);
+    r = r && consumeToken(b, RPAREN);
+    r = r && functionDefinition_0_7(b, l + 1);
+    r = r && functionDefinition_0_8(b, l + 1);
+    r = r && consumeToken(b, LBRACE);
+    r = r && functionBody(b, l + 1);
+    r = r && consumeToken(b, RBRACE);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // annotation*
+  private static boolean functionDefinition_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "functionDefinition_0_0")) return false;
     int c = current_position_(b);
     while (true) {
       if (!annotation(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "functionDefinition_0", c)) break;
+      if (!empty_element_parsed_guard_(b, "functionDefinition_0_0", c)) break;
       c = current_position_(b);
     }
     return true;
   }
 
   // 'public'?
-  private static boolean functionDefinition_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "functionDefinition_1")) return false;
+  private static boolean functionDefinition_0_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "functionDefinition_0_1")) return false;
     consumeToken(b, PUBLIC);
     return true;
   }
 
   // parameterList?
-  private static boolean functionDefinition_5(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "functionDefinition_5")) return false;
+  private static boolean functionDefinition_0_5(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "functionDefinition_0_5")) return false;
     parameterList(b, l + 1);
     return true;
   }
 
   // returnParameters?
-  private static boolean functionDefinition_7(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "functionDefinition_7")) return false;
+  private static boolean functionDefinition_0_7(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "functionDefinition_0_7")) return false;
     returnParameters(b, l + 1);
     return true;
   }
 
   // ('throws' Identifier)?
-  private static boolean functionDefinition_8(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "functionDefinition_8")) return false;
-    functionDefinition_8_0(b, l + 1);
+  private static boolean functionDefinition_0_8(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "functionDefinition_0_8")) return false;
+    functionDefinition_0_8_0(b, l + 1);
     return true;
   }
 
   // 'throws' Identifier
-  private static boolean functionDefinition_8_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "functionDefinition_8_0")) return false;
+  private static boolean functionDefinition_0_8_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "functionDefinition_0_8_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeTokens(b, 0, THROWS, IDENTIFIER);
@@ -1560,15 +1575,15 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // 'import' packageName ('as' Identifier)? ';'
   public static boolean importDeclaration(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "importDeclaration")) return false;
-    if (!nextTokenIs(b, IMPORT)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, IMPORT_DECLARATION, "<import declaration>");
     r = consumeToken(b, IMPORT);
-    r = r && packageName(b, l + 1);
-    r = r && importDeclaration_2(b, l + 1);
-    r = r && consumeToken(b, SEMI);
-    exit_section_(b, m, IMPORT_DECLARATION, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, packageName(b, l + 1));
+    r = p && report_error_(b, importDeclaration_2(b, l + 1)) && r;
+    r = p && consumeToken(b, SEMI) && r;
+    exit_section_(b, l, m, r, p, recover_package_import_parser_);
+    return r || p;
   }
 
   // ('as' Identifier)?
@@ -1890,17 +1905,78 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // annotation* 'native' 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? ';'
+  public static boolean nativeFunctionDefinition(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "nativeFunctionDefinition")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, NATIVE_FUNCTION_DEFINITION, "<native function definition>");
+    r = nativeFunctionDefinition_0(b, l + 1);
+    r = r && consumeToken(b, "native");
+    r = r && consumeTokens(b, 0, FUNCTION, IDENTIFIER, LPAREN);
+    r = r && nativeFunctionDefinition_5(b, l + 1);
+    r = r && consumeToken(b, RPAREN);
+    r = r && nativeFunctionDefinition_7(b, l + 1);
+    r = r && nativeFunctionDefinition_8(b, l + 1);
+    r = r && consumeToken(b, SEMI);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // annotation*
+  private static boolean nativeFunctionDefinition_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "nativeFunctionDefinition_0")) return false;
+    int c = current_position_(b);
+    while (true) {
+      if (!annotation(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "nativeFunctionDefinition_0", c)) break;
+      c = current_position_(b);
+    }
+    return true;
+  }
+
+  // parameterList?
+  private static boolean nativeFunctionDefinition_5(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "nativeFunctionDefinition_5")) return false;
+    parameterList(b, l + 1);
+    return true;
+  }
+
+  // returnParameters?
+  private static boolean nativeFunctionDefinition_7(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "nativeFunctionDefinition_7")) return false;
+    returnParameters(b, l + 1);
+    return true;
+  }
+
+  // ('throws' Identifier)?
+  private static boolean nativeFunctionDefinition_8(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "nativeFunctionDefinition_8")) return false;
+    nativeFunctionDefinition_8_0(b, l + 1);
+    return true;
+  }
+
+  // 'throws' Identifier
+  private static boolean nativeFunctionDefinition_8_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "nativeFunctionDefinition_8_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeTokens(b, 0, THROWS, IDENTIFIER);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
   // 'package' packageName ';'
   public static boolean packageDeclaration(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "packageDeclaration")) return false;
-    if (!nextTokenIs(b, PACKAGE)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, PACKAGE_DECLARATION, "<package declaration>");
     r = consumeToken(b, PACKAGE);
-    r = r && packageName(b, l + 1);
-    r = r && consumeToken(b, SEMI);
-    exit_section_(b, m, PACKAGE_DECLARATION, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, packageName(b, l + 1));
+    r = p && consumeToken(b, SEMI) && r;
+    exit_section_(b, l, m, r, p, recover_package_import_parser_);
+    return r || p;
   }
 
   /* ********************************************************** */
@@ -2024,6 +2100,46 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     r = r && consumeToken(b, COLON);
     r = r && unqualifiedTypeName(b, l + 1);
     exit_section_(b, m, QUALIFIED_TYPE_NAME, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // !(   importDeclaration
+  //                                   |   serviceDefinition
+  //                                   |   functionDefinition
+  //                                   |   connectorDefinition
+  //                                   |   structDefinition
+  //                                   |   typeConvertorDefinition
+  //                                   |   constantDefinition
+  //                                   )
+  static boolean recover_package_import(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "recover_package_import")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NOT_);
+    r = !recover_package_import_0(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // importDeclaration
+  //                                   |   serviceDefinition
+  //                                   |   functionDefinition
+  //                                   |   connectorDefinition
+  //                                   |   structDefinition
+  //                                   |   typeConvertorDefinition
+  //                                   |   constantDefinition
+  private static boolean recover_package_import_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "recover_package_import_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = importDeclaration(b, l + 1);
+    if (!r) r = serviceDefinition(b, l + 1);
+    if (!r) r = functionDefinition(b, l + 1);
+    if (!r) r = connectorDefinition(b, l + 1);
+    if (!r) r = structDefinition(b, l + 1);
+    if (!r) r = typeConvertorDefinition(b, l + 1);
+    if (!r) r = constantDefinition(b, l + 1);
+    exit_section_(b, m, null, r);
     return r;
   }
 
@@ -2221,14 +2337,15 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   public static boolean serviceDefinition(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "serviceDefinition")) return false;
     if (!nextTokenIs(b, "<service definition>", AT, SERVICE)) return false;
-    boolean r;
+    boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, SERVICE_DEFINITION, "<service definition>");
     r = serviceDefinition_0(b, l + 1);
-    r = r && consumeTokens(b, 0, SERVICE, IDENTIFIER, LBRACE);
-    r = r && serviceBody(b, l + 1);
-    r = r && consumeToken(b, RBRACE);
-    exit_section_(b, l, m, r, false, null);
-    return r;
+    r = r && consumeTokens(b, 1, SERVICE, IDENTIFIER, LBRACE);
+    p = r; // pin = 2
+    r = r && report_error_(b, serviceBody(b, l + 1));
+    r = p && consumeToken(b, RBRACE) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // annotation*
@@ -2934,4 +3051,9 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r;
   }
 
+  final static Parser recover_package_import_parser_ = new Parser() {
+    public boolean parse(PsiBuilder b, int l) {
+      return recover_package_import(b, l + 1);
+    }
+  };
 }

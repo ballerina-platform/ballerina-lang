@@ -63,6 +63,7 @@ public interface BallerinaTypes {
   IElementType MAP_INIT_KEY_VALUE_LIST = new BallerinaElementType("MAP_INIT_KEY_VALUE_LIST");
   IElementType NAMED_PARAMETER = new BallerinaElementType("NAMED_PARAMETER");
   IElementType NAMED_PARAMETER_LIST = new BallerinaElementType("NAMED_PARAMETER_LIST");
+  IElementType NATIVE_FUNCTION_DEFINITION = new BallerinaElementType("NATIVE_FUNCTION_DEFINITION");
   IElementType NULL_LITERAL = new BallerinaElementType("NULL_LITERAL");
   IElementType PACKAGE_DECLARATION = new BallerinaElementType("PACKAGE_DECLARATION");
   IElementType PACKAGE_NAME = new BallerinaElementType("PACKAGE_NAME");
@@ -308,6 +309,9 @@ public interface BallerinaTypes {
       }
       else if (type == NAMED_PARAMETER_LIST) {
         return new BallerinaNamedParameterListImpl(node);
+      }
+      else if (type == NATIVE_FUNCTION_DEFINITION) {
+        return new BallerinaNativeFunctionDefinitionImpl(node);
       }
       else if (type == NULL_LITERAL) {
         return new BallerinaNullLiteralImpl(node);

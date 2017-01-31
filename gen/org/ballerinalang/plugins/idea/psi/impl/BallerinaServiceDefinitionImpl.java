@@ -49,15 +49,15 @@ public class BallerinaServiceDefinitionImpl extends ASTWrapperPsiElement impleme
   }
 
   @Override
-  @NotNull
+  @Nullable
   public BallerinaServiceBody getServiceBody() {
-    return findNotNullChildByClass(BallerinaServiceBody.class);
+    return findChildByClass(BallerinaServiceBody.class);
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getIdentifier() {
-    return findNotNullChildByType(IDENTIFIER);
+    return findChildByType(IDENTIFIER);
   }
 
 }

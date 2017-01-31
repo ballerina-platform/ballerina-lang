@@ -183,6 +183,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitNativeFunctionDefinition(@NotNull BallerinaNativeFunctionDefinition o) {
+    visitPsiElement(o);
+  }
+
   public void visitPackageDeclaration(@NotNull BallerinaPackageDeclaration o) {
     visitPsiElement(o);
   }
