@@ -40,6 +40,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.SQLConnector;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client.Call;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client.Select;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client.Update;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client.UpdateWithGeneratedKeyColumns;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client.UpdateWithGeneratedKeys;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Delete;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Execute;
@@ -442,6 +443,7 @@ public class BuiltInNativeConstructLoader {
         registerAction(scope, new Select());
         registerAction(scope, new Update());
         registerAction(scope, new UpdateWithGeneratedKeys());
+        registerAction(scope, new UpdateWithGeneratedKeyColumns());
         
         // Mongo
         registerConnector(scope, new MongoDBConnector());
