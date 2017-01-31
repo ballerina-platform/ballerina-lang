@@ -58,6 +58,16 @@
            <artifactId>velocity</artifactId>
            <version>1.7</version>
        </dependency>
+       <dependency>
+            <groupId>org.wso2.ballerina</groupId>
+            <artifactId>ballerina-launcher</artifactId>
+            <version>${ballerina.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.beust</groupId>
+            <artifactId>jcommander</artifactId>
+            <version>1.60</version>
+        </dependency>
     </dependencies>
 
     <build>
