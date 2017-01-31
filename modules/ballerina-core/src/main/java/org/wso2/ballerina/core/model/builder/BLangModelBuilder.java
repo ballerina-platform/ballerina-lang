@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.model.builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.ParserException;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
@@ -91,8 +92,10 @@ import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValueType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -106,7 +109,7 @@ import java.util.regex.Pattern;
  * @since 0.8.0
  */
 public class BLangModelBuilder {
-    private static final Logger log = LoggerFactory.getLogger(BLangModelBuilder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BLangModelBuilder.class);
 
     private String currentPackagePath;
     private BallerinaFile.BFileBuilder bFileBuilder = new BallerinaFile.BFileBuilder();
@@ -129,6 +132,7 @@ public class BLangModelBuilder {
 
     private Queue<BType> typeQueue = new LinkedList<>();
     private Stack<String> pkgPathStack = new Stack<>();
+    private Stack<CallableUnitName> callableUnitNameStack = new Stack<>();
     private Stack<SymbolName> symbolNameStack = new Stack<>();
 
     private Stack<Expression> exprStack = new Stack<>();
@@ -139,6 +143,10 @@ public class BLangModelBuilder {
     private Stack<List<Annotation>> annotationListStack = new Stack<>();
     private Stack<List<KeyValueExpression>> mapInitKeyValueListStack = new Stack<>();
 
+    // We need to keep a map of import packages.
+    // This is useful when analyzing import functions, actions and types.
+    private Map<String, ImportPackage> importPkgMap = new HashMap<>();
+
     public BLangModelBuilder() {
     }
 
@@ -147,6 +155,22 @@ public class BLangModelBuilder {
     }
 
     public BallerinaFile build() {
+        importPkgMap.values()
+                .stream()
+                .filter(importPkg -> !importPkg.isUsed())
+                .findFirst()
+                .ifPresent(importPkg -> {
+                    NodeLocation location = importPkg.getNodeLocation();
+                    String pkgPathStr = "\"" + importPkg.getPath() + "\"";
+                    String importPkgErrStr = (importPkg.getAsName() == null) ? pkgPathStr : pkgPathStr + " as '" +
+                            importPkg.getAsName() + "'";
+
+                    throw new SemanticException(location.getFileName() + ":" + location.getLineNumber() +
+                            ": unused import package " + importPkgErrStr + "");
+                });
+
+
+        bFileBuilder.setImportPackageMap(importPkgMap);
         return bFileBuilder.build();
     }
 
@@ -161,21 +185,41 @@ public class BLangModelBuilder {
     }
 
     public void addImportPackage(NodeLocation location, String pkgPath, String asPkgName) {
-        // TODO Perform checks: duplicate import package paths and names;
-        // TODO Unused import packages - we don't do it here, but added as a reminder
+        ImportPackage importPkg;
         if (asPkgName != null) {
-            bFileBuilder.addImportPackage(new ImportPackage(location, pkgPath, asPkgName));
+            importPkg = new ImportPackage(location, pkgPath, asPkgName);
         } else {
-            bFileBuilder.addImportPackage(new ImportPackage(location, pkgPath));
+            importPkg = new ImportPackage(location, pkgPath);
         }
+
+        if (importPkgMap.get(importPkg.getName()) != null) {
+            throw new SemanticException(location.getFileName() + ":" + location.getLineNumber() +
+                    ": '" + importPkg.getName() + "' redeclared as imported package name");
+        }
+
+        bFileBuilder.addImportPackage(importPkg);
+        importPkgMap.put(importPkg.getName(), importPkg);
     }
 
 
     // Add types. SimpleTypes, Types with full scheme, schema URL or schema ID
 
-    public void addSimpleTypeName(String name, String pkgName, boolean isArrayType) {
-        // TODO Check whether this is an imported package name;
-        SimpleTypeName typeName = new SimpleTypeName(name, pkgName);
+    public void addSimpleTypeName(NodeLocation location, String name, String pkgName, boolean isArrayType) {
+        SimpleTypeName typeName;
+        if (pkgName != null) {
+            ImportPackage importPkg = importPkgMap.get(pkgName);
+            if (importPkg == null) {
+                throw new SemanticException(location.getFileName() + ":" + location.getLineNumber() +
+                        ": undefined package name '" + pkgName + "' in '" + pkgName + ":" + name + "'");
+            }
+
+            importPkg.markUsed();
+            typeName = new SimpleTypeName(name, pkgName, importPkg.getPath());
+        } else {
+            typeName = new SimpleTypeName(name);
+        }
+
+
         typeName.setArrayType(isArrayType);
         typeNameQueue.add(typeName);
     }
@@ -306,7 +350,7 @@ public class BLangModelBuilder {
         //        Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.peek();
         //        annotationBuilder.addKeyValuePair(new Identifier(key), value);
 
-        log.warn("Warning: Key/Value pairs in annotations are not supported");
+        LOGGER.warn("Warning: Key/Value pairs in annotations are not supported");
     }
 
     public void endAnnotation(String name, boolean valueAvailable, NodeLocation location) {
@@ -392,7 +436,7 @@ public class BLangModelBuilder {
 
         // Add this variable declaration to the current callable unit or callable unit group
 //        if (currentCUBuilder != null) {
-            // This connector declaration should added to the relevant function/action or resource
+        // This connector declaration should added to the relevant function/action or resource
 //            currentCUBuilder.addVariableDcl(variableDcl);
 //        } else {
 //            currentCUGroupBuilder.addVariableDcl(variableDef);
@@ -574,13 +618,56 @@ public class BLangModelBuilder {
         addExprToList(exprList, exprCount);
     }
 
-    public void createFunctionInvocationExpr(NodeLocation location) {
+    public void addFunctionInvocationExpr(NodeLocation location) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
-        cIExprBuilder.setExpressionList(exprListStack.pop());
-        cIExprBuilder.setName(symbolNameStack.pop());
         cIExprBuilder.setNodeLocation(location);
+        cIExprBuilder.setExpressionList(exprListStack.pop());
+
+        CallableUnitName callableUnitName = callableUnitNameStack.pop();
+
+        if (callableUnitName.pkgName != null) {
+            ImportPackage importPkg = importPkgMap.get(callableUnitName.pkgName);
+            if (importPkg == null) {
+                throw new SemanticException(location.getFileName() + ":" + location.getLineNumber() +
+                        ": undefined package name '" + callableUnitName.pkgName + "' in '" +
+                        callableUnitName.pkgName + ":" + callableUnitName.name + "'");
+            }
+
+            importPkg.markUsed();
+            cIExprBuilder.setPkgPath(importPkg.getPath());
+        }
+
+        cIExprBuilder.setName(callableUnitName.name);
+        cIExprBuilder.setPkgName(callableUnitName.pkgName);
 
         FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
+        exprStack.push(invocationExpr);
+    }
+
+    public void addActionInvocationExpr(NodeLocation location, String actionName) {
+        CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
+        cIExprBuilder.setNodeLocation(location);
+        cIExprBuilder.setExpressionList(exprListStack.pop());
+
+        CallableUnitName callableUnitName = callableUnitNameStack.pop();
+
+        if (callableUnitName.pkgName != null) {
+            ImportPackage importPkg = importPkgMap.get(callableUnitName.pkgName);
+            if (importPkg == null) {
+                throw new SemanticException(location.getFileName() + ":" + location.getLineNumber() +
+                        ": undefined package name '" + callableUnitName.pkgName + "' in '" +
+                        callableUnitName.pkgName + ":" + callableUnitName.name + "." + actionName + "'");
+            }
+
+            importPkg.markUsed();
+            cIExprBuilder.setPkgPath(importPkg.getPath());
+        }
+
+        cIExprBuilder.setName(actionName);
+        cIExprBuilder.setPkgName(callableUnitName.pkgName);
+        cIExprBuilder.setConnectorName(callableUnitName.name);
+
+        ActionInvocationExpr invocationExpr = cIExprBuilder.buildActionInvocExpr();
         exprStack.push(invocationExpr);
     }
 
@@ -590,16 +677,6 @@ public class BLangModelBuilder {
         //Remove the type added to type queue
         typeQueue.remove();
         exprStack.push(typeCastExpression);
-    }
-
-    public void createActionInvocationExpr(NodeLocation location) {
-        CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
-        cIExprBuilder.setExpressionList(exprListStack.pop());
-        cIExprBuilder.setName(symbolNameStack.pop());
-        cIExprBuilder.setNodeLocation(location);
-
-        ActionInvocationExpr invocationExpr = cIExprBuilder.buildActionInvocExpr();
-        exprStack.push(invocationExpr);
     }
 
     public void createArrayInitExpr(NodeLocation location) {
@@ -644,6 +721,11 @@ public class BLangModelBuilder {
         }
 
 
+    }
+
+    public void addCallableUnitName(String pkgName, String name) {
+        CallableUnitName callableUnitName = new CallableUnitName(pkgName, name);
+        callableUnitNameStack.push(callableUnitName);
     }
 
 
@@ -906,20 +988,27 @@ public class BLangModelBuilder {
 
     public void createFunctionInvocationStmt(NodeLocation location) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
-        cIExprBuilder.setExpressionList(exprListStack.pop());
-        cIExprBuilder.setName(symbolNameStack.pop());
         cIExprBuilder.setNodeLocation(location);
+        cIExprBuilder.setExpressionList(exprListStack.pop());
+
+        CallableUnitName callableUnitName = callableUnitNameStack.pop();
+        cIExprBuilder.setName(callableUnitName.name);
+        cIExprBuilder.setPkgName(callableUnitName.pkgName);
 
         FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
         FunctionInvocationStmt functionInvocationStmt = new FunctionInvocationStmt(location, invocationExpr);
         blockStmtBuilderStack.peek().addStmt(functionInvocationStmt);
     }
 
-    public void createActionInvocationStmt(NodeLocation location) {
+    public void createActionInvocationStmt(NodeLocation location, String actionName) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
-        cIExprBuilder.setExpressionList(exprListStack.pop());
-        cIExprBuilder.setName(symbolNameStack.pop());
         cIExprBuilder.setNodeLocation(location);
+        cIExprBuilder.setExpressionList(exprListStack.pop());
+
+        CallableUnitName callableUnitName = callableUnitNameStack.pop();
+        cIExprBuilder.setName(actionName);
+        cIExprBuilder.setPkgName(callableUnitName.pkgName);
+        cIExprBuilder.setConnectorName(callableUnitName.name);
 
         ActionInvocationExpr invocationExpr = cIExprBuilder.buildActionInvocExpr();
 
@@ -1072,6 +1161,21 @@ public class BLangModelBuilder {
         parentExpr.setFieldExpr(fieldExpr);
         fieldExpr.setParent(parentExpr);
         exprStack.push(parentExpr);
+    }
+
+    /**
+     * This class represents CallableUnitName used in function and action invocation expressions.
+     */
+    private static class CallableUnitName {
+        String pkgName;
+
+        // This used in function/action invocation expressions
+        String name;
+
+        CallableUnitName(String pkgName, String name) {
+            this.name = name;
+            this.pkgName = pkgName;
+        }
     }
 
 }

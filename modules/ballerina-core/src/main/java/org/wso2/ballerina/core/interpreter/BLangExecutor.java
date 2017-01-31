@@ -60,6 +60,7 @@ import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
@@ -108,6 +109,11 @@ public class BLangExecutor implements NodeExecutor {
         for (Statement stmt : stmts) {
             stmt.execute(this);
         }
+    }
+
+    @Override
+    public void visit(VariableDefStmt varDefStmt) {
+
     }
 
     @Override
@@ -259,7 +265,7 @@ public class BLangExecutor implements NodeExecutor {
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
         // return values and function invocation location;
-        SymbolName functionSymbolName = funcIExpr.getCallableUnitName();
+        SymbolName functionSymbolName = funcIExpr.getCallableUnit().getSymbolName();
         CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
                 functionSymbolName.getPkgPath(), funcIExpr.getNodeLocation());
 
@@ -319,7 +325,7 @@ public class BLangExecutor implements NodeExecutor {
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression values and
         // return values;
-        SymbolName actionSymbolName = actionIExpr.getCallableUnitName();
+        SymbolName actionSymbolName = actionIExpr.getCallableUnit().getSymbolName();
         CallableUnitInfo actionInfo = new CallableUnitInfo(actionSymbolName.getName(), actionSymbolName.getPkgPath(),
                 actionIExpr.getNodeLocation());
         StackFrame stackFrame = new StackFrame(localVals, returnVals, actionInfo);
@@ -524,7 +530,7 @@ public class BLangExecutor implements NodeExecutor {
 
             // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
             // return values and function invocation location;
-            SymbolName functionSymbolName = typeCastExpression.getCallableUnitName();
+            SymbolName functionSymbolName = typeCastExpression.getCallableUnit().getSymbolName();
             CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
                     functionSymbolName.getPkgPath(), typeCastExpression.getNodeLocation());
 

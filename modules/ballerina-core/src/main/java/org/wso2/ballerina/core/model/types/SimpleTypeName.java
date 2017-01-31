@@ -24,20 +24,30 @@ package org.wso2.ballerina.core.model.types;
  */
 public class SimpleTypeName {
     protected String name;
-    protected String packagePath;
+    protected String pkgName;
+    protected String pkgPath;
     protected boolean isArrayType;
 
-    public SimpleTypeName(String name, String packagePath) {
+    public SimpleTypeName(String name, String pkgName, String pkgPath) {
         this.name = name;
-        this.packagePath = packagePath;
+        this.pkgName = pkgName;
+        this.pkgPath = pkgPath;
+    }
+
+    public SimpleTypeName(String name) {
+        this(name, null, null);
     }
 
     public String getName() {
         return name;
     }
 
+    public String getPackageName() {
+        return pkgName;
+    }
+
     public String getPackagePath() {
-        return packagePath;
+        return pkgPath;
     }
 
     public boolean isArrayType() {
@@ -49,7 +59,7 @@ public class SimpleTypeName {
     }
 
     protected String getNameWithPkg() {
-        return (packagePath == null || packagePath.equals("")) ? name : packagePath + ":" + name;
+        return (pkgName == null || pkgName.equals("")) ? name : pkgName + ":" + name;
     }
 
     protected String getNamewithArray(String name) {

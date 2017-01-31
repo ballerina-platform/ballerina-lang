@@ -58,6 +58,7 @@ import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
+import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 
 /**
@@ -100,6 +101,8 @@ public interface NodeVisitor {
     void visit(StructDcl structDcl);
 
     // Statements
+
+    void visit(VariableDefStmt varDefStmt);
 
     void visit(AssignStmt assignStmt);
 

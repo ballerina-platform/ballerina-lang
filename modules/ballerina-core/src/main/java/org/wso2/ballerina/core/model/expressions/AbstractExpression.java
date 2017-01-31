@@ -30,10 +30,9 @@ import org.wso2.ballerina.core.model.values.BValue;
  * @since 0.8.0
  */
 public abstract class AbstractExpression implements Expression {
-
+    protected NodeLocation location;
     protected BType type;
     protected int offset;
-    protected NodeLocation location;
 
     public AbstractExpression(NodeLocation location) {
         this.location = location;

@@ -96,6 +96,7 @@ import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.BArrayType;
 import org.wso2.ballerina.core.model.types.BMapType;
@@ -142,7 +143,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         pkgScope.setParent(globalScope);
         symbolTable = new SymTable(pkgScope);
 
-        currentPkg = bFile.getPackageName();
+        currentPkg = bFile.getPackagePath();
+        importPkgMap = bFile.getImportPackageMap();
 
         // TODO We can move this logic to the parser.
         Arrays.asList(bFile.getFunctions()).forEach(this::addFuncSymbol);
@@ -161,9 +163,9 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BallerinaFile bFile) {
-        for (ImportPackage importPkg : bFile.getImportPackages()) {
-            importPkg.accept(this);
-        }
+//        for (ImportPackage importPkg : bFile.getImportPackages()) {
+//            importPkg.accept(this);
+//        }
 
         for (CompilationUnit compilationUnit : bFile.getCompilationUnits()) {
             compilationUnit.accept(this);
@@ -204,12 +206,12 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ImportPackage importPkg) {
-        if (importPkgMap.containsKey(importPkg.getName())) {
-            throw new RuntimeException("Duplicate import package declaration: " + importPkg.getPath() + " in " +
-                    importPkg.getNodeLocation().getFileName() + ":" + importPkg.getNodeLocation().getLineNumber());
-        }
-
-        importPkgMap.put(importPkg.getName(), importPkg);
+//        if (importPkgMap.containsKey(importPkg.getName())) {
+//            throw new RuntimeException("Duplicate import package declaration: " + importPkg.getPath() + " in " +
+//                    importPkg.getNodeLocation().getFileName() + ":" + importPkg.getNodeLocation().getLineNumber());
+//        }
+//
+//        importPkgMap.put(importPkg.getName(), importPkg);
     }
 
     @Override
@@ -1810,11 +1812,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 //    }
 
     private void linkFunction(FunctionInvocationExpr funcIExpr) {
-
-        SymbolName funcName = funcIExpr.getCallableUnitName();
-        String pkgPath = getPackagePath(funcName);
-        funcName.setPkgPath(pkgPath);
-
+        String pkgPath = funcIExpr.getPackagePath();
 
         Expression[] exprs = funcIExpr.getArgExprs();
         BType[] paramTypes = new BType[exprs.length];
@@ -1822,44 +1820,23 @@ public class SemanticAnalyzer implements NodeVisitor {
             paramTypes[i] = exprs[i].getType();
         }
 
-        SymbolName symbolName = LangModelUtils.getSymNameWithParams(funcName.getName(), pkgPath, paramTypes);
+        SymbolName symbolName = LangModelUtils.getSymNameWithParams(funcIExpr.getName(), pkgPath, paramTypes);
         Symbol symbol = symbolTable.lookup(symbolName);
         if (symbol == null) {
-            throw new LinkerException(funcIExpr.getNodeLocation().getFileName() + ":" +
+            String funcName = (funcIExpr.getPackageName() != null) ? funcIExpr.getPackageName() + ":" +
+                    funcIExpr.getName() : funcIExpr.getName();
+            throw new SemanticException(funcIExpr.getNodeLocation().getFileName() + ":" +
                     funcIExpr.getNodeLocation().getLineNumber() +
-                    ": undefined function '" + funcIExpr.getCallableUnitName().getName() + "'");
-        }
-
-        // Package name null means the function is defined in the same bal file. 
-        // Hence set the package name of the bal file as the function's package name.
-        // TODO: Do this in a better way
-        if (funcName.getPkgPath() == null) {
-            String fullPackageName = getPackagePath(new SymbolName(funcName.getName(), currentPkg));
-            funcName.setPkgPath(fullPackageName);
+                    ": undefined function '" + funcName + "'");
         }
 
         // Link
         Function function = symbol.getFunction();
         funcIExpr.setCallableUnit(function);
-
-        // TODO improve this once multiple return types are supported
-        funcIExpr.setType((function.getReturnParameters().length != 0) ?
-                function.getReturnParameters()[0].getType() : null);
     }
 
     private void linkAction(ActionInvocationExpr actionIExpr) {
-        // Can we do this bit in the linker
-        SymbolName actionName = actionIExpr.getCallableUnitName();
-        if (actionName.getConnectorName() == null) {
-            throw new SemanticException("Connector type is not associated with the action invocation in "
-                    + actionIExpr.getNodeLocation().getFileName() + ":" +
-                    actionIExpr.getNodeLocation().getLineNumber());
-        }
-
-        String pkgPath = getPackagePath(actionName);
-
-        // Set the fully qualified package name
-        actionName.setPkgPath(pkgPath);
+        String pkgPath = actionIExpr.getPackagePath();
 
         Expression[] exprs = actionIExpr.getArgExprs();
         BType[] paramTypes = new BType[exprs.length];
@@ -1867,31 +1844,22 @@ public class SemanticAnalyzer implements NodeVisitor {
             paramTypes[i] = exprs[i].getType();
         }
 
-        SymbolName symName = LangModelUtils.getActionSymName(actionName.getName(), actionName.getConnectorName(),
+        SymbolName symName = LangModelUtils.getActionSymName(actionIExpr.getName(), actionIExpr.getConnectorName(),
                 pkgPath, paramTypes);
 
         Symbol symbol = symbolTable.lookup(symName);
         if (symbol == null) {
-            throw new LinkerException("Undefined action: " + actionIExpr.getCallableUnitName().getName() + " in "
-                    + actionIExpr.getNodeLocation().getFileName() + ":" +
-                    actionIExpr.getNodeLocation().getLineNumber());
-        }
-
-        // Package name null means the action is defined in the same bal file. 
-        // Hence set the package name of the bal file as the action's package name.
-        // TODO: Do this in a better way
-        if (actionName.getPkgPath() == null) {
-            String fullPackageName = getPackagePath(new SymbolName(actionName.getName(), currentPkg));
-            actionName.setPkgPath(fullPackageName);
+            String actionWithConnector = actionIExpr.getConnectorName() + "." + actionIExpr.getName();
+            String actionName = (actionIExpr.getPackageName() != null) ? actionIExpr.getPackageName() + ":" +
+                    actionWithConnector : actionWithConnector;
+            throw new SemanticException(actionIExpr.getNodeLocation().getFileName() + ":" +
+                    actionIExpr.getNodeLocation().getLineNumber() +
+                    ": undefined function '" + actionName + "'");
         }
 
         // Link
         Action action = symbol.getAction();
         actionIExpr.setCallableUnit(action);
-
-        // TODO improve this once multiple return types are supported
-        actionIExpr.setType((action.getReturnParameters().length != 0) ?
-                action.getReturnParameters()[0].getType() : null);
     }
 
     private String getNodeLocationStr(NodeLocation nodeLocation) {
@@ -1964,6 +1932,11 @@ public class SemanticAnalyzer implements NodeVisitor {
                     "' not found.");
         }
         structDcl.setStructDef(structSymbol.getStructDef());
+    }
+
+    @Override
+    public void visit(VariableDefStmt varDefStmt) {
+
     }
 
     /**

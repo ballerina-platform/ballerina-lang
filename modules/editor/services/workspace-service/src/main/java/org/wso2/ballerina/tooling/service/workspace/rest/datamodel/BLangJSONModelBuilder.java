@@ -79,6 +79,7 @@ import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 
 import java.util.Stack;
@@ -109,7 +110,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         //package definitions
         JsonObject pkgDefine = new JsonObject();
         pkgDefine.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.PACKAGE_DEFINITION);
-        pkgDefine.addProperty(BLangJSONModelConstants.PACKAGE_NAME, bFile.getPackageName());
+        pkgDefine.addProperty(BLangJSONModelConstants.PACKAGE_NAME, bFile.getPackagePath());
         tempJsonArrayRef.peek().add(pkgDefine);
 
         //import declarations
@@ -663,7 +664,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         funcInvcObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
                 BLangJSONModelConstants.FUNCTION_INVOCATION_EXPRESSION);
         funcInvcObj.addProperty(BLangJSONModelConstants.FUNCTIONS_NAME,
-                funcIExpr.getCallableUnitName().toString());
+                funcIExpr.getCallableUnit().getSymbolName().toString());
         tempJsonArrayRef.push(new JsonArray());
         if (funcIExpr.getArgExprs() != null) {
             for (Expression expression : funcIExpr.getArgExprs()) {
@@ -681,11 +682,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         actionInvcObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
                 BLangJSONModelConstants.ACTION_INVOCATION_EXPRESSION);
         actionInvcObj.addProperty(BLangJSONModelConstants.ACTION_NAME,
-                actionIExpr.getCallableUnitName().getName());
+                actionIExpr.getCallableUnit().getSymbolName().getName());
         actionInvcObj.addProperty(BLangJSONModelConstants.ACTION_PKG_NAME,
-                actionIExpr.getCallableUnitName().getPkgPath());
+                actionIExpr.getCallableUnit().getSymbolName().getPkgPath());
         actionInvcObj.addProperty(BLangJSONModelConstants.ACTION_CONNECTOR_NAME,
-                actionIExpr.getCallableUnitName().getConnectorName());
+                actionIExpr.getConnectorName());
         tempJsonArrayRef.push(new JsonArray());
         if (actionIExpr.getArgExprs() != null) {
             for (Expression expression : actionIExpr.getArgExprs()) {
@@ -1023,5 +1024,10 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     @Override
     public void visit(StructDcl structDcl) {
         // TODO
+    }
+
+    @Override
+    public void visit(VariableDefStmt varDefStmt) {
+
     }
 }

@@ -75,6 +75,7 @@ import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.BTypes;
 
@@ -290,11 +291,11 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     public void visit(FunctionInvocationExpr funcIExpr) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
-        if(funcIExpr.getCallableUnitName().getPkgPath() != null){
-            buffer.append(funcIExpr.getCallableUnitName().getPkgPath()).append(":");
+        if(funcIExpr.getPackageName() != null){
+            buffer.append(funcIExpr.getPackageName()).append(":");
         }
         boolean isFirstItr = true;
-        buffer.append(funcIExpr.getCallableUnitName().getName()).append("( ");
+        buffer.append(funcIExpr.getName()).append("( ");
         if (funcIExpr.getArgExprs() != null) {
             if(!isFirstItr){
 
@@ -313,11 +314,11 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
         boolean isFirstItr = true;
-        if(actionIExpr.getCallableUnitName().getPkgPath() != null){
-            buffer.append(actionIExpr.getCallableUnitName().getPkgPath()).append(":");
+        if(actionIExpr.getPackageName() != null){
+            buffer.append(actionIExpr.getPackageName()).append(":");
         }
-        buffer.append(actionIExpr.getCallableUnitName().getConnectorName())
-                .append(".").append(actionIExpr.getCallableUnitName().getName()).append("( ");
+        buffer.append(actionIExpr.getConnectorName())
+                .append(".").append(actionIExpr.getName()).append("( ");
         if (actionIExpr.getArgExprs() != null) {
             if(!isFirstItr){
 
@@ -610,7 +611,12 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     public void visit(StructDcl structDcl) {
         //TODO
     }
-    
+
+    @Override
+    public void visit(VariableDefStmt varDefStmt) {
+
+    }
+
     @Override
     public void visit(StructVarLocation structVarLocation) {
         //TODO

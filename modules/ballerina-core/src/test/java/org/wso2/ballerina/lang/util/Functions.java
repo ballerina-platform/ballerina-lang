@@ -96,7 +96,7 @@ public class Functions {
         FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(
                 function.getNodeLocation(),
                 new SymbolName(functionName,
-                        bFile.getPackageName()), exprs);
+                        bFile.getPackagePath()), exprs);
         funcIExpr.setOffset(args.length);
         funcIExpr.setCallableUnit(function);
 

@@ -35,10 +35,12 @@ package org.wso2.ballerina.core.model;
  * @since 0.8.0
  */
 public class ImportPackage implements Node {
-
+    protected NodeLocation location;
     private String path;
     private String name;
-    protected NodeLocation location;
+    private String asName;
+
+    private boolean isUsed;
 
     public ImportPackage(String path) {
         int lastIndex = path.lastIndexOf(".");
@@ -56,10 +58,11 @@ public class ImportPackage implements Node {
         this.location = location;
     }
 
-    public ImportPackage(NodeLocation location, String path, String name) {
-        this.path = path;
-        this.name = name;
+    public ImportPackage(NodeLocation location, String path, String asName) {
         this.location = location;
+        this.path = path;
+        this.name = asName;
+        this.asName = asName;
     }
 
     /**
@@ -71,6 +74,10 @@ public class ImportPackage implements Node {
         return name;
     }
 
+    public String getAsName() {
+        return asName;
+    }
+
     /**
      * Get the path of the import package.
      *
@@ -78,6 +85,14 @@ public class ImportPackage implements Node {
      */
     public String getPath() {
         return path;
+    }
+
+    public boolean isUsed() {
+        return isUsed;
+    }
+
+    public void markUsed() {
+        isUsed = true;
     }
 
     public boolean equals(Object obj) {
