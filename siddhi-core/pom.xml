@@ -80,6 +80,14 @@
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi.services</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -99,6 +107,7 @@
                         <Import-Package>
                             *;resolution:=optional
                         </Import-Package>
+                        <_dsannotations>*</_dsannotations>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
