@@ -1634,7 +1634,9 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         Expression rExpr = binaryExpr.getRExpr();
         Expression lExpr = binaryExpr.getLExpr();
-        nullExprCheck(lExpr, rExpr);
+        if (Operator.EQUAL.equals(binaryExpr.getOperator())) {
+            nullExprCheck(lExpr, rExpr);
+        }
         if (lExpr.getType() != rExpr.getType()) {
             TypeCastExpression newExpr = checkWideningPossibleForBinary(lExpr, rExpr, binaryExpr.getOperator());
             if (newExpr != null) {

@@ -848,7 +848,7 @@ public class BLangModelBuilder {
         createLiteral(bValue, BTypes.BOOLEAN_TYPE, sourceLocation);
     }
 
-    public void createNullLiteral(String value, Position sourceLocation) {
+    public void createNullLiteral(Position sourceLocation) {
         NullLiteral nullLiteral = new NullLiteral();
         nullLiteral.setLocation(sourceLocation);
         exprStack.push(nullLiteral);
