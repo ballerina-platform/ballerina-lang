@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.TransportListener;
-import org.wso2.carbon.messaging.TransportListenerManager;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
@@ -66,6 +65,9 @@ public class HTTPTransportListener extends TransportListener {
     private Set<TransportProperty> transportProperties;
 
 
+    public String getProtocol() {
+        return Constants.PROTOCOL_NAME;
+    }
     public HTTPTransportListener(Set<TransportProperty> transportProperties,
             Set<ListenerConfiguration> listenerConfigurationSet) {
         super(listenerConfigurationSet.iterator().next().getId());
@@ -153,10 +155,10 @@ public class HTTPTransportListener extends TransportListener {
             bindInterface(defaultListenerConfig);
         }
 
-        TransportListenerManager transportListenerManager = HTTPTransportContextHolder.getInstance().getManager();
-        if (transportListenerManager != null) {
-            transportListenerManager.registerTransportListener(this);
-        }
+//        TransportListenerManager transportListenerManager = HTTPTransportContextHolder.getInstance().getManager();
+//        if (transportListenerManager != null) {
+//            transportListenerManager.registerTransportListener(this);
+//        }
 
     }
 

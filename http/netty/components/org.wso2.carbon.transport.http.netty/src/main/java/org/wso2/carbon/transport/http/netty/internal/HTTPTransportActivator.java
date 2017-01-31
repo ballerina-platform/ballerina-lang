@@ -20,7 +20,7 @@ package org.wso2.carbon.transport.http.netty.internal;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.wso2.carbon.kernel.transports.CarbonTransport;
+import org.wso2.carbon.messaging.TransportListener;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.messaging.handler.HandlerExecutor;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
@@ -62,7 +62,7 @@ public class HTTPTransportActivator implements BundleActivator {
                                       .setListenerConfiguration(listenerConfiguration.getId(), listenerConfiguration);
             HTTPTransportListener httpTransportListener =
                     new HTTPTransportListener(transportProperties, Collections.singleton(listenerConfiguration));
-            bundleContext.registerService(CarbonTransport.class, httpTransportListener, null);
+            bundleContext.registerService(TransportListener.class, httpTransportListener, null);
         });
     }
 
