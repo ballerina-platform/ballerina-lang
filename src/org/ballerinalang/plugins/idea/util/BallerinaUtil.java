@@ -31,6 +31,7 @@ import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageDeclaration;
+import org.ballerinalang.plugins.idea.psi.BallerinaPackageName;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,11 +74,11 @@ public class BallerinaUtil {
                 File.separatorChar);
         int len = relativePath.length() - virtualFile.getName().length();
 
-        // Remove separator at the end if the file is not situated at the project root.
-        if (len > 0) {
-            len--;
+        if (len <= 0) {
+            return "";
         }
-        return relativePath.substring(0, len).replaceAll(File.separator, ".");
+        // Remove separator at the end if the file is not situated at the project root and get the path.
+        return relativePath.substring(0, len - 1).replaceAll(File.separator, ".");
     }
 
     public static List<String> findAllFullPackageDeclarations(Project project) {
@@ -88,11 +89,14 @@ public class BallerinaUtil {
         for (VirtualFile virtualFile : virtualFiles) {
             BallerinaFile ballerinaFile = (BallerinaFile) PsiManager.getInstance(project).findFile(virtualFile);
             if (ballerinaFile != null) {
-                BallerinaPackageDeclaration[] properties = PsiTreeUtil.getChildrenOfType(ballerinaFile,
-                        BallerinaPackageDeclaration.class);
-                if (properties != null) {
-                    for (BallerinaPackageDeclaration property : properties) {
-                        result.add(property.getPackageName().getText());
+                BallerinaPackageDeclaration[] ballerinaPackageDeclarations =
+                        PsiTreeUtil.getChildrenOfType(ballerinaFile, BallerinaPackageDeclaration.class);
+                if (ballerinaPackageDeclarations != null) {
+                    for (BallerinaPackageDeclaration packageDeclaration : ballerinaPackageDeclarations) {
+                        BallerinaPackageName packageName = packageDeclaration.getPackageName();
+                        if (packageName != null) {
+                            result.add(packageName.getText());
+                        }
                     }
                 }
             }
