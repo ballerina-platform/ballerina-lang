@@ -16,16 +16,20 @@
 
 package org.ballerinalang.plugins.idea.highlighter;
 
+import com.intellij.lang.ASTNode;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import org.ballerinalang.plugins.idea.psi.BallerinaFunctionName;
 import org.ballerinalang.plugins.idea.psi.BallerinaImportDeclaration;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageDeclaration;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageName;
+import org.ballerinalang.plugins.idea.psi.BallerinaTypes;
 import org.ballerinalang.plugins.idea.quickfix.ChangePackageQuickFix;
+import org.ballerinalang.plugins.idea.quickfix.InsertPackageQuickFix;
 import org.ballerinalang.plugins.idea.quickfix.RemovePackageQuickFix;
 import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
@@ -39,18 +43,30 @@ public class BallerinaAnnotator implements Annotator {
     public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
 
         Project project = element.getProject();
-        VirtualFile virtualFile = element.getContainingFile().getVirtualFile();
+        PsiFile psiFile = element.getContainingFile();
+        VirtualFile virtualFile = psiFile.getVirtualFile();
+
+        if (element == psiFile) {
+            ASTNode packageNode = psiFile.getNode().findChildByType(BallerinaTypes.PACKAGE_DECLARATION);
+            if (packageNode == null) {
+                String packageName = BallerinaUtil.suggestPackageNameForFile(project, virtualFile);
+                if (!packageName.isEmpty()) {
+                    holder.createErrorAnnotation(psiFile.getNode().getFirstChildNode(), "Missing package declaration")
+                            .registerFix(new InsertPackageQuickFix(packageName));
+                }
+            }
+        }
 
         if (element instanceof BallerinaPackageDeclaration) {
             BallerinaPackageName packageName = ((BallerinaPackageDeclaration) element).getPackageName();
             if (packageName != null) {
-                String relativePath = BallerinaUtil.suggestPackageNameForFile(project, virtualFile);
-                if (relativePath.isEmpty()) {
+                String suggestedPackageName = BallerinaUtil.suggestPackageNameForFile(project, virtualFile);
+                if (suggestedPackageName.isEmpty()) {
                     holder.createErrorAnnotation(packageName, "Incorrect package").registerFix(
                             new RemovePackageQuickFix());
-                } else if (!Objects.equals(relativePath, packageName.getText())) {
+                } else if (!Objects.equals(suggestedPackageName, packageName.getText())) {
                     holder.createErrorAnnotation(packageName, "Incorrect package").registerFix(
-                            new ChangePackageQuickFix(relativePath));
+                            new ChangePackageQuickFix(suggestedPackageName));
                 }
             }
         }
@@ -60,22 +76,21 @@ public class BallerinaAnnotator implements Annotator {
             List<String> allPackageDeclarations =
                     BallerinaUtil.findAllFullPackageDeclarations(project);
 
-            if (!allPackageDeclarations.contains(packageName.getText())) {
+            if (packageName != null && !allPackageDeclarations.contains(packageName.getText())) {
                 holder.createErrorAnnotation(packageName, "Invalid package name");
-                return;
+
             }
         }
 
         if (element instanceof BallerinaFunctionName) {
             BallerinaPackageName packageName = ((BallerinaFunctionName) element).getPackageName();
             List<String> allPackageDeclarations =
-                    BallerinaUtil.findAllImportedFunctions(project, element.getContainingFile());
+                    BallerinaUtil.findAllImportedFunctions(project, psiFile);
 
-            if (!allPackageDeclarations.contains(packageName.getText())) {
+            if (packageName != null && !allPackageDeclarations.contains(packageName.getText())) {
                 holder.createErrorAnnotation(packageName, "Invalid package name");
-                return;
+
             }
         }
-
     }
 }
