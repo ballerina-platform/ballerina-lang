@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../utils/ace-mode', 'beautify', 'ace/ext/language_tools'],
-    function(log, _, $, EventChannel, ace, BallerinaMode, Beautify) {
+define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../utils/ace-mode', 'beautify', 'ace/ext/language_tools'],
+    function(require, log, _, $, EventChannel, ace, BallerinaMode, Beautify) {
 
     /**
      * @class SourceView
@@ -70,9 +70,9 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../utils/ace-mod
      *
      */
     SourceView.prototype.setContent = function(content){
-        var beautify = Beautify.js_beautify;
-        var formattedContent = beautify(content, { indent_size: 4 });
-        this._editor.session.setValue(formattedContent);
+        this._editor.session.setValue(content);
+        var fomatter = require('ballerina').utils.AceFormatter;
+        fomatter.beautify(this._editor.getSession());
     };
 
     SourceView.prototype.getContent = function(){
