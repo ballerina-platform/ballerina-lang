@@ -60,11 +60,11 @@ rem ----- update classpath -----------------------------------------------------
 
 setlocal EnableDelayedExpansion
 set BALLERINA_CLASSPATH=
-FOR %%C in ("%BALLERINA_HOME%\bre\lib\bootstrap\*.jar") DO set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;".\bre\lib\bootstrap\%%~nC%%~xC"
+FOR %%C in ("%BALLERINA_HOME%\bre\lib\bootstrap\*.jar") DO set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\bre\lib\bootstrap\%%~nC%%~xC"
 
 set BALLERINA_CLASSPATH="%JAVA_HOME%\lib\tools.jar";%BALLERINA_CLASSPATH%;
 
-FOR %%D in ("%BALLERINA_HOME%\bre\lib\*.jar") DO set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;".\bre\lib\%%~nD%%~xD"
+FOR %%D in ("%BALLERINA_HOME%\bre\lib\*.jar") DO set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\bre\lib\%%~nD%%~xD"
 
 rem ----- Process the input command -------------------------------------------
 
@@ -114,7 +114,7 @@ set BALLERINA_CLASSPATH=.\bre\lib\bootstrap;%BALLERINA_CLASSPATH%
 
 set JAVA_ENDORSED=".\bre\lib\bootstrap\endorsed";"%JAVA_HOME%\jre\lib\endorsed";"%JAVA_HOME%\lib\endorsed"
 
-set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\logs\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% %JAVA_OPTS% -Djava.endorsed.dirs=%JAVA_ENDORSED%  -Dballerina.home="%BALLERINA_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Djava.io.tmpdir="%BALLERINA_HOME%\tmp" -Dtransports.netty.conf="%BALLERINA_HOME%\bre\conf\netty-transports.yml" -Dfile.encoding=UTF8
+set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\logs\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% %JAVA_OPTS% -Djava.endorsed.dirs=%JAVA_ENDORSED%  -Dballerina.home="%BALLERINA_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Djava.io.tmpdir="%BALLERINA_HOME%\tmp" -Dtransports.netty.conf="%BALLERINA_HOME%\bre\conf\netty-transports.yml" -Dfile.encoding=UTF8 -Dballerina.version=${project.version}
 
 
 :runJava
