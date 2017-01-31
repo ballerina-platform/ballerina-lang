@@ -820,7 +820,15 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (int i = 0; i < returnArgExprs.length; i++) {
             Expression returnArgExpr = returnArgExprs[i];
             returnArgExpr.accept(this);
-            typesOfReturnExprs[i] = returnArgExpr.getType();
+            if (returnArgExpr instanceof NullLiteral) {
+                if (BTypes.isValueType(returnParamsOfCU[i].getType())) {
+                    throw  new SemanticException(getLocationStr(returnParamsOfCU[i].getLocation())
+                                                 + "can not return null for  " + returnParamsOfCU[i].getType());
+                }
+                typesOfReturnExprs[i] = returnParamsOfCU[i].getType();
+            } else {
+                typesOfReturnExprs[i] = returnArgExpr.getType();
+            }
         }
 
         // Now check whether this return contains a function invocation expression which returns multiple values
@@ -2185,7 +2193,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (rExpr instanceof NullLiteral) {
             if (BTypes.isValueType(lExpr.getType())) {
                 throw  new SemanticException(getLocationStr(rExpr.getLocation())
-                                             + "Value type can not be null " + lExpr.getType());
+                                             + lExpr.getType() + " can not be null " );
             }
             rExpr.setType(lExpr.getType());
         }
