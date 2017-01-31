@@ -562,7 +562,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     // show the variable button and variable pane
                     self._variableButton.show();
                     self._variablePane.show();
-false
+                    
                     // Changing icon if the collapse.
                     headingCollapseIcon.classed("headingExpandIcon", true);
                     headingCollapseIcon.classed("headingCollapsedIcon", false);
