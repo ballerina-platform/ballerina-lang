@@ -102,6 +102,7 @@ import org.wso2.ballerina.core.model.types.BStructType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
+import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.nativeimpl.lang.convertors.NativeCastConvertor;
 
@@ -126,7 +127,8 @@ public class SemanticAnalyzer implements NodeVisitor {
     private SymTable symbolTable;
     private String currentPkg;
     private CallableUnit currentCallableUnit = null;
-    private static final String patternString = "\\$\\{([a-zA-Z_][a-zA-Z0-9_]*)\\}";
+    // following pattern matches ${anyString} or ${anyString[int]} or ${anyString["anyString"]}
+    private static final String patternString = "\\$\\{((\\w+)(\\[(\\d+|\\\"(\\w+)\\\")\\])?)\\}";
     private static final Pattern compiledPattern = Pattern.compile(patternString);
 
     // We need to keep a map of import packages.
@@ -1323,13 +1325,43 @@ public class SemanticAnalyzer implements NodeVisitor {
             i++;
         }
         // Then get the variable references
+        // ${var} --> group0: ${var}, group1: var, group2: var
+        // ${arr[10]} --> group0: ${arr[10]}, group1: arr[10], group2: arr, group3: [10], group4: 10
+        // ${myMap["key"]} --> group0: ${myMap["key"]}, group1: myMap["key"],
+        //                                          group2: myMap, group3: ["key"], group4: "key", group5: key
         Matcher m = compiledPattern.matcher(backtickExpr.getTemplateStr());
 
         while (m.find()) {
-            VariableRefExpr variableRefExpr = new VariableRefExpr(new SymbolName(m.group(1)));
-            variableRefExpr.setLocation(backtickExpr.getLocation());
-            visit(variableRefExpr);
-            backtickExpr.addExpression(variableRefExpr);
+            if (m.group(3) != null) {
+                BasicLiteral indexExpr;
+                if (m.group(5) != null) {
+                    indexExpr = new BasicLiteral(new BString(m.group(5)));
+                    indexExpr.setType(BTypes.STRING_TYPE);
+                } else {
+                    indexExpr = new BasicLiteral(new BInteger(Integer.parseInt(m.group(4))));
+                    indexExpr.setType(BTypes.INT_TYPE);
+                }
+                indexExpr.setLocation(backtickExpr.getLocation());
+                SymbolName mapOrArrName = new SymbolName(m.group(2));
+
+                ArrayMapAccessExpr.ArrayMapAccessExprBuilder builder =
+                        new ArrayMapAccessExpr.ArrayMapAccessExprBuilder();
+
+                VariableRefExpr arrayMapVarRefExpr = new VariableRefExpr(mapOrArrName);
+                visit(arrayMapVarRefExpr);
+
+                builder.setArrayMapVarRefExpr(arrayMapVarRefExpr);
+                builder.setVarName(mapOrArrName);
+                builder.setIndexExpr(indexExpr);
+                ArrayMapAccessExpr arrayMapAccessExpr = builder.build();
+                visit(arrayMapAccessExpr);
+                backtickExpr.addExpression(arrayMapAccessExpr);
+            } else {
+                VariableRefExpr variableRefExpr = new VariableRefExpr(new SymbolName(m.group(1)));
+                variableRefExpr.setLocation(backtickExpr.getLocation());
+                visit(variableRefExpr);
+                backtickExpr.addExpression(variableRefExpr);
+            }
             if (literals.length > i) {
                 BasicLiteral basicLiteral = new BasicLiteral(new BString(literals[i]));
                 visit(basicLiteral);

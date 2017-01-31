@@ -47,7 +47,6 @@
             <directory>ballerina-home/bin</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
-                <include>**/ballerina</include>
                 <include>**/editor</include>
             </includes>
             <fileMode>755</fileMode>
@@ -56,7 +55,7 @@
             <directory>ballerina-home/bin</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
-                <include>**/*.bat</include>
+                <include>**/editor.bat</include>
             </includes>
             <fileMode>644</fileMode>
         </fileSet>
@@ -115,6 +114,27 @@
         </fileSet>
     </fileSets>
 
+    <files>
+        <file>
+            <source>ballerina-home/bin/version.txt</source>
+            <outputDirectory>bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>ballerina-home/bin/ballerina</source>
+            <outputDirectory>bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>755</fileMode>
+        </file>
+        <file>
+            <source>ballerina-home/bin/ballerina.bat</source>
+            <outputDirectory>bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+    </files>
+
     <dependencySets>
         <dependencySet>
             <outputDirectory>bre/lib</outputDirectory>
@@ -148,6 +168,7 @@
                 <include>org.wso2.orbit.org.yaml:snakeyaml</include>
                 <include>commons-logging:commons-logging</include>
                 <include>org.wso2.staxon:staxon-core</include>
+                <include>org.apache.commons:commons-lang3</include>
 
                 <include>org.wso2.carbon:org.wso2.carbon.core:jar</include>
             </includes>
