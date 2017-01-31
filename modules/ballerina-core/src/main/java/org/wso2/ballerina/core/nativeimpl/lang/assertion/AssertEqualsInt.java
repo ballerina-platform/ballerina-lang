@@ -48,7 +48,7 @@ public class AssertEqualsInt extends AbstractNativeFunction {
 
         if (actual.intValue() != expected.intValue()) {
             if (("").equals(message)) {
-                message = "Integer not equal: expected: " + expected + " and actual: " + actual;
+                message = "Integer not equal: expected: " + expected.intValue() + " and actual: " + actual.intValue();
             }
             throw new AssertionFailedException(message);
 

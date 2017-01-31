@@ -48,7 +48,8 @@ public class AssertEqualsBoolean extends AbstractNativeFunction {
 
         if (actual.booleanValue() != expected.booleanValue()) {
             if (("").equals(message)) {
-                message = "Boolean not equal: expected: " + expected + " and actual: " + actual;
+                message = "Boolean not equal: expected: " + expected.stringValue() + " and actual: " +
+                        actual.stringValue();
             }
             throw new AssertionFailedException(message);
 

@@ -48,7 +48,8 @@ public class AssertEqualsDouble extends AbstractNativeFunction {
 
         if (Double.compare(actual.doubleValue(), expected.doubleValue()) != 0) {
             if (("").equals(message)) {
-                message = "Double not equal: expected: " + expected + " and actual: " + actual;
+                message = "Double not equal: expected: " + expected.doubleValue() + " and actual: " +
+                        actual.doubleValue();
             }
             throw new AssertionFailedException(message);
 
