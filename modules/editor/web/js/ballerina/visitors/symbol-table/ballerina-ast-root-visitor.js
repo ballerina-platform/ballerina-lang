@@ -58,7 +58,7 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
         };
 
         BallerinaASTRootVisitor.prototype.visitStructDefinition = function (structDefinition) {
-            this.getPackage().addStructDefinitions(structDefinition);
+            // this.getPackage().addStructDefinitions(structDefinition);
         };
 
         /**
