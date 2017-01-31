@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash','jquery','jsPlumb','nano_scroller'], function(require, _,$,jsPlumb,ggg) {
+define(['require', 'lodash','jquery','jsPlumb'], function(require, _,$,jsPlumb) {
 
     var TypeMapper = function(onConnectionCallback, onDisconnectCallback) {
 
