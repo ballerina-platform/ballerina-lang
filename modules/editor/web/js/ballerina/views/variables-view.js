@@ -30,8 +30,9 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
          */
         var createVariableButton = function (serviceContentSvg, x, y) {
             // Creating variable button.
-            var variableButton = $("<div class='variable-btn'></div>")
-                .appendTo(serviceContentSvg.ownerSVGElement.parentElement);
+            var variableButton = $("<div class='variable-btn' data-toggle='tooltip' title='Variables' " +
+                "data-placement='bottom'></div>")
+                .appendTo(serviceContentSvg.ownerSVGElement.parentElement).tooltip();
 
             // Positioning the variable button.
             variableButton.css("left", parseInt(x) + "px");
@@ -79,8 +80,9 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
             var variablesActionWrapper = $("<div class='variables-action-wrapper'/>").appendTo(variablesContentWrapper);
 
             // Creating add variable editor button.
-            var addVariableButton = $("<div class='action-icon-wrapper variable-add-icon-wrapper'/>")
-                .appendTo(variablesActionWrapper);
+            var addVariableButton = $("<div class='action-icon-wrapper variable-add-icon-wrapper' " +
+                "data-toggle='tooltip' title='Add variable' data-placement='bottom'/>")
+                .appendTo(variablesActionWrapper).tooltip();
             $("<span class='fw-stack fw-lg'><i class='fw fw-square fw-stack-2x'></i>" +
                 "<i class='fw fw-add fw-stack-1x fw-inverse'></i></span>").appendTo(addVariableButton);
 

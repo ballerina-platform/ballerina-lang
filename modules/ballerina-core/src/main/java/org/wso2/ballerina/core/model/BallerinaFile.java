@@ -21,6 +21,7 @@ package org.wso2.ballerina.core.model;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.TypeCastExpression;
 import org.wso2.ballerina.core.model.types.BTypes;
 
 import java.util.ArrayList;
@@ -50,13 +51,12 @@ public class BallerinaFile implements Node {
     private List<Service> services = new ArrayList<>();
     private List<BallerinaConnector> connectorList = new ArrayList<>();
     private Function[] functions;
+    private TypeConvertor[] typeConvertors;
     private Function mainFunction;
     private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
     private List<ActionInvocationExpr> actionIExprList = new ArrayList<>();
     private Const[] consts;
     private BallerinaStruct[] structs;
-    //TODO: add TypeConverters
-    //TODO: add constants
 
     private int sizeOfStaticMem;
 
@@ -72,7 +72,8 @@ public class BallerinaFile implements Node {
             List<FunctionInvocationExpr> funcIExprList,
             List<ActionInvocationExpr> actionInvocationExpr,
             Const[] consts,
-            BallerinaStruct[] structs) {
+            BallerinaStruct[] structs,
+            TypeConvertor[] typeConvertors) {
 
         this.packageName = packageName;
         this.importPackages = importPackages;
@@ -84,6 +85,7 @@ public class BallerinaFile implements Node {
         this.actionIExprList = actionInvocationExpr;
         this.consts = consts;
         this.structs = structs;
+        this.typeConvertors = typeConvertors;
 
         packageScope = new SymScope(SymScope.Name.PACKAGE);
     }
@@ -168,6 +170,10 @@ public class BallerinaFile implements Node {
         return functions;
     }
 
+    public TypeConvertor[] getTypeConvertors() {
+        return typeConvertors;
+    }
+
     public Function getMainFunction() {
         return this.mainFunction;
     }
@@ -223,10 +229,12 @@ public class BallerinaFile implements Node {
         private List<Service> serviceList = new ArrayList<>();
         private List<BallerinaConnector> connectorList = new ArrayList<>();
         private List<Function> functionList = new ArrayList<>();
+        private List<TypeConvertor> typeConvertorList = new ArrayList<>();
         private Function mainFunction;
 
         private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
         private List<ActionInvocationExpr> actionIExprList = new ArrayList<>();
+        private List<TypeCastExpression> typeCastExprList = new ArrayList<>();
 
         private List<Const> constList = new ArrayList<>();
         
@@ -268,8 +276,16 @@ public class BallerinaFile implements Node {
             this.funcIExprList.add(expr);
         }
 
+        public void addTypeCastExpr(TypeCastExpression expr) {
+            this.typeCastExprList.add(expr);
+        }
+
         public void addConst(Const constant) {
             this.constList.add(constant);
+        }
+
+        public void addTypeConverter(TypeConvertor typeConvertor) {
+            this.typeConvertorList.add(typeConvertor);
         }
 
         public BallerinaFile build() {
@@ -287,7 +303,9 @@ public class BallerinaFile implements Node {
                     funcIExprList,
                     actionIExprList,
                     constList.toArray(new Const[constList.size()]),
-                    structList.toArray(new BallerinaStruct[structList.size()]));
+                    structList.toArray(new BallerinaStruct[structList.size()]),
+                    typeConvertorList.toArray(new TypeConvertor[typeCastExprList.size()])
+                    );
         }
 
         /**

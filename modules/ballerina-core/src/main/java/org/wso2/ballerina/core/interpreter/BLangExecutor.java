@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.interpreter;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Action;
+import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFunction;
@@ -31,6 +32,7 @@ import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.TypeConvertor;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
@@ -47,6 +49,7 @@ import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
+import org.wso2.ballerina.core.model.expressions.TypeCastExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
@@ -74,6 +77,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
+import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
@@ -124,7 +128,6 @@ public class BLangExecutor implements NodeExecutor {
         for (int i = 0; i < lExprs.length; i++) {
             Expression lExpr = lExprs[i];
             BValue rValue = rValues[i];
-
             if (lExpr instanceof VariableRefExpr) {
                 assignValueToVarRefExpr(rValue, (VariableRefExpr) lExpr);
             } else if (lExpr instanceof ArrayMapAccessExpr) {
@@ -477,6 +480,66 @@ public class BLangExecutor implements NodeExecutor {
     public BValue visit(VariableRefExpr variableRefExpr) {
         MemoryLocation memoryLocation = variableRefExpr.getMemoryLocation();
         return memoryLocation.execute(this);
+    }
+
+    @Override
+    public BValue visit(TypeCastExpression typeCastExpression) {
+        // Check for native type casting
+        if (typeCastExpression.getEvalFunc() != null) {
+            BValueType result = (BValueType) typeCastExpression.getSourceExpression().execute(this);
+            return typeCastExpression.getEvalFunc().apply(result);
+        } else {
+            TypeConvertor typeConvertor = typeCastExpression.getCallableUnit();
+
+            int sizeOfValueArray = typeConvertor.getStackFrameSize();
+            BValue[] localVals = new BValue[sizeOfValueArray];
+
+            // Get values for all the function arguments
+            int valueCounter = populateArgumentValues(typeCastExpression.getArgExprs(), localVals);
+
+            // Create default values for all declared local variables
+            for (VariableDcl variableDcl : typeConvertor.getVariableDcls()) {
+                localVals[valueCounter] = variableDcl.getType().getDefaultValue();
+                valueCounter++;
+            }
+
+            for (Parameter returnParam : typeConvertor.getReturnParameters()) {
+                // Check whether these are unnamed set of return types.
+                // If so break the loop. You can't have a mix of unnamed and named returns parameters.
+                if (returnParam.getName() == null) {
+                    break;
+                }
+
+                localVals[valueCounter] = returnParam.getType().getDefaultValue();
+                valueCounter++;
+            }
+
+            // Create an array in the stack frame to hold return values;
+            BValue[] returnVals = new BValue[1];
+
+            // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
+            // return values and function invocation location;
+            SymbolName functionSymbolName = typeCastExpression.getCallableUnitName();
+            CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
+                    functionSymbolName.getPkgName(), typeCastExpression.getLocation());
+
+            StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
+            controlStack.pushFrame(stackFrame);
+
+            // Check whether we are invoking a native function or not.
+            if (typeConvertor instanceof BTypeConvertor) {
+                BTypeConvertor bTypeConverter = (BTypeConvertor) typeConvertor;
+                bTypeConverter.getCallableUnitBody().execute(this);
+            } else {
+                AbstractNativeTypeConvertor nativeTypeConverter = (AbstractNativeTypeConvertor) typeConvertor;
+                nativeTypeConverter.convertNative(bContext);
+            }
+
+            controlStack.popFrame();
+
+            // Setting return values to function invocation expression
+            return returnVals[0];
+        }
     }
 
     @Override

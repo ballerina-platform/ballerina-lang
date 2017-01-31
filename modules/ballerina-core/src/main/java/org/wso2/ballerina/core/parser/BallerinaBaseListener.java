@@ -268,6 +268,18 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterWorkerInputParameter(BallerinaParser.WorkerInputParameterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitWorkerInputParameter(BallerinaParser.WorkerInputParameterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterReturnParameters(BallerinaParser.ReturnParametersContext ctx) { }
 	/**
 	 * {@inheritDoc}

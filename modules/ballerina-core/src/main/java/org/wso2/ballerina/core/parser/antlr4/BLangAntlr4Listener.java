@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.parser.BallerinaListener;
@@ -293,28 +294,65 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startCallableUnit();
+        }
     }
 
     @Override
     public void exitTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx) {
+        if (ctx.exception == null) {
+            // Create the return type of the type convertor
+            modelBuilder.createReturnTypes(getCurrentLocation(ctx));
+            boolean isPublic = true;
+            // Set the location info needed to generate the stack trace
+            TerminalNode identifier = ctx.Identifier();
+            if (identifier != null) {
+                String fileName = identifier.getSymbol().getInputStream().getSourceName();
+                int lineNo = identifier.getSymbol().getLine();
+                Position functionLocation = new Position(fileName, lineNo);
+                String typeConverterName = "_" + ctx.typeConvertorInput().typeConvertorType().getText() + "->" + "_" +
+                        ctx.typeConvertorType().getText();
+                modelBuilder.createTypeConverter(typeConverterName, isPublic, functionLocation, childPosition);
+                childPosition++;
+            }
+        }
     }
 
+    /**
+     * Enter a parse tree produced by {@link BallerinaParser#typeConvertorInput}.
+     *
+     * @param ctx the parse tree
+     */
     @Override
     public void enterTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx) {
-
     }
 
+    /**
+     * Exit a parse tree produced by {@link BallerinaParser#typeConvertorInput}.
+     *
+     * @param ctx the parse tree
+     */
     @Override
     public void exitTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx) {
-
+        if (ctx.exception == null) {
+            // Create the input parameter for type convertor
+            modelBuilder.createParam(ctx.Identifier().getText(), getCurrentLocation(ctx));
+        }
     }
 
     @Override
     public void enterTypeConvertorBody(BallerinaParser.TypeConvertorBodyContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startCallableUnitBody();
+        }
     }
 
     @Override
     public void exitTypeConvertorBody(BallerinaParser.TypeConvertorBodyContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.endCallableUnitBody();
+        }
     }
 
     @Override
@@ -350,6 +388,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx) {
+    }
+
+    @Override
+    public void enterWorkerInputParameter(BallerinaParser.WorkerInputParameterContext ctx) {
+
+    }
+
+    @Override
+    public void exitWorkerInputParameter(BallerinaParser.WorkerInputParameterContext ctx) {
+
     }
 
     @Override
@@ -411,7 +459,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterTypeConvertorType(BallerinaParser.TypeConvertorTypeContext ctx) {
-
     }
 
     @Override
@@ -1108,6 +1155,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitTypeCastingExpression(BallerinaParser.TypeCastingExpressionContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.createTypeCastExpr(ctx.typeName().getText(), getCurrentLocation(ctx));
+        }
     }
 
     @Override
@@ -1360,6 +1410,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             if (terminalNode != null) {
                 String stringLiteral = terminalNode.getText();
                 stringLiteral = stringLiteral.substring(1, stringLiteral.length() - 1);
+                stringLiteral = StringEscapeUtils.unescapeJava(stringLiteral);
                 modelBuilder.createStringLiteral(stringLiteral, getCurrentLocation(ctx));
             }
 

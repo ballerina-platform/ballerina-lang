@@ -243,6 +243,17 @@ public class StringTest {
     }
 
     @Test
+    public void testSubString() {
+        BValue[] args = {new BString("testValues"), new BInteger(0), new BInteger(9)};
+        BValue[] returns = Functions.invoke(bFile, "subString", args);
+
+        Assert.assertTrue(returns[0] instanceof BString);
+
+        final String expected = "testValue";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    @Test
     public void testToLowerCase() {
         BValue[] args = {new BString("COMPANY")};
         BValue[] returns = Functions.invoke(bFile, "toLowerCase", args);

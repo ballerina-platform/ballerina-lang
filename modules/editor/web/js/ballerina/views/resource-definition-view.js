@@ -73,13 +73,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // View options for height and width of the heading box.
             this._viewOptions.heading = _.get(args, "viewOptions.heading", {});
-            this._viewOptions.heading.height = _.get(args, "viewOptions.heading.height", 25);
+            this._viewOptions.heading.height = _.get(args, "viewOptions.heading.height", 30);
             this._viewOptions.heading.width = _.get(args, "viewOptions.heading.width", this._container.node().ownerSVGElement.parentElement.offsetWidth - 100);
 
             // View options for height and width of the resource icon in the heading box.
             this._viewOptions.heading.icon = _.get(args, "viewOptions.heading.icon", {});
-            this._viewOptions.heading.icon.height = _.get(args, "viewOptions.heading.icon.height", 25);
-            this._viewOptions.heading.icon.width = _.get(args, "viewOptions.heading.icon.width", 25);
+            this._viewOptions.heading.icon.height = _.get(args, "viewOptions.heading.icon.height", 30);
+            this._viewOptions.heading.icon.width = _.get(args, "viewOptions.heading.icon.width", 30);
 
             this._viewOptions.contentCollapsed = _.get(args, "viewOptions.contentCollapsed", false);
             this._viewOptions.contentWidth = _.get(args, "viewOptions.contentWidth", this._container.node().ownerSVGElement.parentElement.offsetWidth - 100);
@@ -111,6 +111,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             // initialize bounding box
             this.getBoundingBox().fromTopLeft(this._viewOptions.topLeft, this._viewOptions.heading.width, this._viewOptions.heading.height
                 + this._viewOptions.contentHeight);
+            this._resourceGroup = undefined;
             this.init();
         };
 
@@ -120,7 +121,65 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         var variableTypes = ['message', 'boolean', 'string', 'int', 'float', 'long', 'double', 'json', 'xml'];
 
         ResourceDefinitionView.prototype.init = function(){
-            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
+            this._model.on('child-removed', this.childRemovedCallback, this);
+            this.on('remove-view', this.removeViewCallback, this);
+        };
+
+        /**
+         * Override the remove view callback
+         * @param {ASTNode} parent - parent node
+         * @param {ASTNode} child - child node
+         */
+        ResourceDefinitionView.prototype.removeViewCallback = function (parent, child) {
+            d3.select("#_" +this._model.id).remove();
+            $(this._nameDiv).remove();
+            $(this._variablePane).remove();
+            $(this._variableButton).remove();
+            this.unplugView(
+                {
+                    x: this._viewOptions.topLeft.x(),
+                    y: this._viewOptions.topLeft.y(),
+                    w: 0,
+                    h: 0
+                }, parent, child);
+        };
+
+        /**
+         * Child remove callback
+         * @param {ASTNode} child - removed child
+         */
+        ResourceDefinitionView.prototype.childRemovedCallback = function (child) {
+            var self = this;
+            if (BallerinaASTFactory.isStatement(child)) {
+                this.getStatementContainer().childStatementRemovedCallback(child);
+            } else if (BallerinaASTFactory.isConnectorDeclaration(child) || BallerinaASTFactory.isWorkerDeclaration(child)) {
+                var childViewIndex = _.findIndex(this._connectorWorkerViewList, function (view) {
+                    return view.getModel().id === child.id;
+                });
+
+                if (childViewIndex === 0) {
+                    // Deleted the first connector/worker in the list (Addresses both first element scenario and the only element scenario
+                    if (!_.isNil(this._connectorWorkerViewList[childViewIndex + 1])) {
+                        // Unregister the listening event of the second element on the first element
+                        this._connectorWorkerViewList[childViewIndex + 1].stopListening(this._connectorWorkerViewList[childViewIndex].getBoundingBox());
+                    }
+                } else if (childViewIndex === this._connectorWorkerViewList.length - 1) {
+                    // Deleted the last connector/worker when there are more than one worker/ connector
+                    this._connectorWorkerViewList[childViewIndex].stopListening(this._connectorWorkerViewList[childViewIndex - 1].getBoundingBox());
+                } else {
+                    // Deleted connector is in between two other connectors/ workers
+                    // Connector being deleted, stop listening to it's previous connector
+                    this._connectorWorkerViewList[childViewIndex].stopListening(this._connectorWorkerViewList[childViewIndex - 1].getBoundingBox());
+                    this._connectorWorkerViewList[childViewIndex + 1].stopListening(this._connectorWorkerViewList[childViewIndex].getBoundingBox());
+                    this._connectorWorkerViewList[childViewIndex + 1].listenTo(this._connectorWorkerViewList[childViewIndex - 1].getBoundingBox(), 'right-edge-moved', function (offset) {
+                        self.moveResourceLevelConnector(this, offset);
+                    });
+                }
+                this._connectorWorkerViewList[childViewIndex] = null;
+                this._connectorWorkerViewList.splice(childViewIndex, 1);
+            }
+            // Remove the connector/ worker from the diagram rendering context
+            delete this.diagramRenderingContext.getViewModelMap()[child.id];
         };
 
         ResourceDefinitionView.prototype.getChildContainer = function () {
@@ -346,7 +405,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             // Creating resource heading collapse icon.
             var headingCollapseIcon = D3utils.rect(xForCollpaseIcon, yForIcons,
                 iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup)
-                .classed("headingCollapsedIcon", true);
+                .classed("headingExpandIcon", true);
 
             // Creating separator for collapse icon.
             D3utils.line(xEndOfHeadingRect - this._viewOptions.heading.icon.width, parseFloat(headingRect.attr("y")) + 5,
@@ -455,12 +514,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // Add the resource name editable html area
             var svgWrappingHtml = this.getChildContainer().node().ownerSVGElement.parentElement;
-            var nameDiv = $("<div></div>");
-            nameDiv.css('left', (parseInt(headingStart.x()) + 30) + "px");
-            nameDiv.css('top', parseInt(headingStart.y()) + "px");
-            nameDiv.css('width',"100px");
-            nameDiv.css('height',"25px");
-            nameDiv.addClass("name-container-div");
+            this._nameDiv = $("<div></div>");
+            this._nameDiv.css('left', (parseInt(headingStart.x()) + 30) + "px");
+            this._nameDiv.css('top', parseInt(headingStart.y()) + "px");
+            this._nameDiv.css('width',"100px");
+            this._nameDiv.css('height',"30px");
+            this._nameDiv.addClass("name-container-div");
             var nameSpan = $("<span></span>");
             nameSpan.text(self._model.getResourceName());
             nameSpan.addClass("name-span");
@@ -468,10 +527,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             nameSpan.attr("spellcheck", "false");
             nameSpan.focus();
             nameSpan.blur();
-            nameDiv.append(nameSpan);
-            $(svgWrappingHtml).append(nameDiv);
+            this._nameDiv.append(nameSpan);
+            $(svgWrappingHtml).append(this._nameDiv);
             // Container for resource body
-            var contentGroup = D3utils.group(resourceGroup);
+            var contentGroup = D3utils.group(this._resourceGroup);
             contentGroup.attr('id', "contentGroup");
 
             nameSpan.on("change paste keyup", function (e) {
@@ -503,10 +562,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     // show the variable button and variable pane
                     self._variableButton.show();
                     self._variablePane.show();
-
+                    
                     // Changing icon if the collapse.
-                    headingCollapseIcon.classed("headingExpandIcon", false);
-                    headingCollapseIcon.classed("headingCollapsedIcon", true);
+                    headingCollapseIcon.classed("headingExpandIcon", true);
+                    headingCollapseIcon.classed("headingCollapsedIcon", false);
                 }
                 else {
                     contentGroup.attr("display", "none");
@@ -519,8 +578,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     self._variablePane.hide();
 
                     // Changing icon if the collapse.
-                    headingCollapseIcon.classed("headingExpandIcon", true);
-                    headingCollapseIcon.classed("headingCollapsedIcon", false);
+                    headingCollapseIcon.classed("headingExpandIcon", false);
+                    headingCollapseIcon.classed("headingCollapsedIcon", true);
                 }
             };
 
@@ -533,11 +592,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 log.debug("Clicked delete button");
                 var child = self._model;
                 var parent = child.parent;
-                parent.removeChild(child);
+                self.trigger("remove-view", parent, child);
             });
 
             this.getBoundingBox().on("height-changed", function(dh){
-                this._contentRect.attr('height', parseFloat(this._contentRect.attr('height')) + dh);
+                var newHeight = parseFloat(this._contentRect.attr('height')) + dh;
+                this._contentRect.attr('height', (newHeight < 0 ? 0 : newHeight));
             }, this);
 
             this.getBoundingBox().on("right-edge-moved", function(dw){
@@ -646,8 +706,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                    " translate(" + offset.dx + ", " + offset.dy + ")");
 
                 // Reposition the resource name container
-                var newDivPositionVertical = parseInt(nameDiv.css("top")) + offset.dy;
-                nameDiv.css("top", newDivPositionVertical + "px");
+                var newDivPositionVertical = parseInt(self._nameDiv.css("top")) + offset.dy;
+                self._nameDiv.css("top", newDivPositionVertical + "px");
 
                 // Reposition Variable button
                 var newVButtonPositionVertical = parseInt($(self._variableButton).css("top")) + offset.dy;
@@ -804,6 +864,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          * @param {ConnectorDeclaration} connectorDeclaration - The connector declaration model.
          */
         ResourceDefinitionView.prototype.visitConnectorDeclaration = function (connectorDeclaration) {
+            var self = this;
             var connectorContainer = this._contentGroup.node(),
                 height = this._clientLifeLine.getTopCenter().absDistInYFrom(this._clientLifeLine.getBottomCenter()),
                 connectorOpts = {model: connectorDeclaration, container: connectorContainer,
@@ -817,11 +878,17 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             _.set(connectorOpts, 'centerPoint', center);
             connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
-            this._connectorWorkerViewList.push(connectorDeclarationView);
-
             connectorDeclarationView._rootGroup.attr('id', '_' +connectorDeclarationView._model.id);
-
             connectorDeclarationView.render();
+
+            if (this._connectorWorkerViewList.length > 0) {
+                // There are already added resource level connectors
+                // New resource level connector listens to the current last resource level connector
+                var lastConnector = _.last(this._connectorWorkerViewList);
+                connectorDeclarationView.listenTo(lastConnector.getBoundingBox(), 'right-edge-moved', function (offset) {
+                    self.moveResourceLevelConnector(this, offset);
+                });
+            }
 
             // If the New Connector or the worker goes out of the resource bounding box we expand the resource BBox
             if (connectorDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
@@ -854,7 +921,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             });
 
             connectorDeclarationView.setParent(this);
-
+            this._connectorWorkerViewList.push(connectorDeclarationView);
             this.getBoundingBox().on("height-changed", function (dh) {
                 this.getBoundingBox().h( this.getBoundingBox().h() + dh);
             }, connectorDeclarationView);
@@ -983,6 +1050,31 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._resourceParamatersPaneView = new ResourceParametersPaneView(parametersPaneProperties);
             this._resourceParamatersPaneView.createParametersPane(diagramRenderingContext);
 
+        };
+
+        /**
+         * Get the Resource Group
+         * @return {svg}
+         */
+        ResourceDefinitionView.prototype.getResourceGroup = function () {
+            return this._resourceGroup;
+        };
+
+        /**
+         * Return statement container
+         * @return {StatementContainerView}
+         */
+        ResourceDefinitionView.prototype.getStatementContainer = function () {
+            return this._statementContainer;
+        };
+
+        /**
+         * Move the Resource level connector
+         * @param {BallerinaView} connectorView - connector being moved
+         * @param {number} offset - move offset
+         */
+        ResourceDefinitionView.prototype.moveResourceLevelConnector = function (connectorView, offset) {
+            connectorView.getBoundingBox().move(offset, 0);
         };
 
         return ResourceDefinitionView;
