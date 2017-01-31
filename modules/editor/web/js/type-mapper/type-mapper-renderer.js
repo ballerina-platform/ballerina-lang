@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash','jquery','jsPlumb'], function(require, _,$,jsPlumb) {
+define(['require', 'lodash','jquery','jsPlumb', 'dagre'], function(require, _,$,jsPlumb, dagre) {
 
     var TypeMapper = function(onConnectionCallback, onDisconnectCallback) {
 
