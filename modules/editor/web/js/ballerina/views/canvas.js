@@ -23,10 +23,16 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         var mMArgs = {'canvas': this};
         args.messageManager = new MessageManager(mMArgs);
         BallerinaView.call(this, args);
+        this.init();
     };
 
     Canvas.prototype = Object.create(BallerinaView.prototype);
     Canvas.prototype.constructor = Canvas;
+
+    Canvas.prototype.init = function () {
+        this.on('remove-view', this.removeViewCallback, this);
+        this._model.on('child-removed', this.childRemovedCallback, this);
+    };
 
     Canvas.prototype.getSVG = function () {
         return this._svg;
@@ -152,8 +158,6 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
                 // reset ui feed back on drop target change
                 self.toolPalette.dragDropManager.once("drop-target-changed", function(){
                     outerDiv.removeClass(dropActiveClass);
-                    $(svgContainer).height($(svgContainer).find("svg").attr("height"));
-                    $(svgContainer).mCustomScrollbar("update");
                 });
             }
             event.stopPropagation();
@@ -174,7 +178,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
 
             var child = self._model;
             var parent = child.parent;
-            parent.removeChild(child);
+            self.trigger("remove-view", parent, child);
         });
 
         $(svgContainer).mCustomScrollbar({
@@ -220,10 +224,25 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
     Canvas.prototype.setServiceContainerWidth = function (newWidth) {
         this._svg.attr('width', newWidth);
         this.getBoundingBox().w(newWidth);
+        $(this._container).closest(".panel-body").find(".outer-box").mCustomScrollbar("update");
     };
 
     Canvas.prototype.getServiceContainer = function () {
         return this._svg;
+    };
+
+    /**
+     * Override the remove view callback
+     * @param {ASTNode} parent - parent node
+     * @param {ASTNode} child - child node
+     */
+    Canvas.prototype.removeViewCallback = function (parent, child) {
+        $("#_" +this._model.id).remove();
+        this.unplugView(
+            {
+                w: 0,
+                h: 0
+            }, parent, child);
     };
 
     return Canvas;

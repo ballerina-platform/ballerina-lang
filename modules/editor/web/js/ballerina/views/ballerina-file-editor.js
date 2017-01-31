@@ -85,7 +85,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             if (!_.isNil(model) && model instanceof BallerinaASTRoot) {
                 this._model = model;
                 //Registering event listeners
-                this._model.on('child-removed', this.childViewRemovedCallback, this);
                 this._model.on('child-added', function(child){
                      this.visit(child);
                 }, this);
@@ -393,19 +392,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var sourceGenVisitor = new SourceGenVisitor();
             this._model.accept(sourceGenVisitor);
             return sourceGenVisitor.getGeneratedSource();
-        };
-
-        BallerinaFileEditor.prototype.childViewRemovedCallback = function (child) {
-            log.debug("[Eventing] Child element view removed. ");
-            //TODO: remove canvas container for each delete click
-            $(this._$canvasContainer)[0].remove();
-
-            var self = this;
-            self.reDraw({
-                model: self._model,
-                container: self._container,
-                viewOptions: self._viewOptions
-            });
         };
 
         /**
