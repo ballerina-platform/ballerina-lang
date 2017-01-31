@@ -82,7 +82,7 @@ public class BallerinaEditorUITest {
         //Getting inner HTML of the SVG node
         String dom = TestUtils.preprocessDOMContent(domElement.getAttribute("innerHTML"));
 
-        //TestUtils.fileWriter(dom, "helloWorldDOM.xml");
+        //TestUtils.fileWriter(dom, fileName + "DOM.xml");
 
         URL resource1 = BallerinaEditorUITest.class.getResource("DOMFiles" + File.separator + fileName +"DOM.xml");
         //checking inner content of the DOM element
