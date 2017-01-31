@@ -52,7 +52,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             String interfaceId = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID);
             if (interfaceId == null) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Interface id not found on the message, hence using the default interface");
+                    log.debug("interface id not found on the message, hence using the default interface");
                 }
                 interfaceId = Constants.DEFAULT_INTERFACE;
             }
@@ -67,7 +67,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             // dispatching when request path contains multiple slashes
             URI requestUri = URI.create(uriStr.replaceAll("//+", "/"));
             if (requestUri == null) {
-                throw new BallerinaException("URI not found in the message or found an invalid URI.");
+                throw new BallerinaException("uri not found in the message or found an invalid URI.");
             }
 
             String basePath = URIUtil.getFirstPathSegment(requestUri.getPath());
@@ -83,7 +83,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             }
 
             if (service == null) {
-                throw new BallerinaException("No Service found to handle incoming request recieved to : " + uriStr);
+                throw new BallerinaException("no service found to handle incoming request recieved to : " + uriStr);
             }
 
             cMsg.setProperty(Constants.BASE_PATH, basePath);
@@ -136,7 +136,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         }
         if (servicesOnInterface.containsKey(basePath)) {
             throw new BallerinaException(
-                    "Service with base path :" + basePath + " already exists in listener : " + listenerInterface);
+                    "service with base path :" + basePath + " already exists in listener : " + listenerInterface);
         }
 
         servicesOnInterface.put(basePath, service);

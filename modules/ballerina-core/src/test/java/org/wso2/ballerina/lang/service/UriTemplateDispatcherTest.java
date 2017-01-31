@@ -63,8 +63,7 @@ public class UriTemplateDispatcherTest {
 
     @Test(description = "Test resource dispatching with invalid URL. /products/{productId}/{regId}",
             dataProvider = "inValidUrl", expectedExceptions = BallerinaException.class
-            , expectedExceptionsMessageRegExp = ".* Error while executing ballerina program. No Resource found "
-                                                + "to handle the request to Service .*")
+            , expectedExceptionsMessageRegExp = ".* no resource found to handle the request to Service .*")
     public void testInValidUrlTemplateDispatching(String path) {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         final String xOrderIdHeadeName = "X-ORDER-ID";
@@ -92,8 +91,7 @@ public class UriTemplateDispatcherTest {
 
     @Test(description = "Test resource dispatching with invalid URL. /products/{productId}?regID={regID}",
             dataProvider = "inValidUrlWithQueryParam", expectedExceptions = BallerinaException.class
-            , expectedExceptionsMessageRegExp = ".* Error while executing ballerina program. No Resource found "
-                                                + "to handle the request to Service .*")
+            , expectedExceptionsMessageRegExp = ".* no resource found to handle the request to Service .*")
     public void testInValidUrlTemplateWithQueryParamDispatching(String path) {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         Services.invoke(cMsg);

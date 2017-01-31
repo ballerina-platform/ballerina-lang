@@ -72,9 +72,6 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                 String queryStr = cMsg.getProperty(Constants.QUERY_STR) != null
                                   ? "?" + cMsg.getProperty(Constants.QUERY_STR)
                                   : "";
-                if (cMsg.getProperty(Constants.QUERY_STR) != null) {
-                    queryStr = "?" + cMsg.getProperty(Constants.QUERY_STR);
-                }
                 if ((matches(subPathAnnotationVal, (subPath + queryStr), resourceArgumentValues) ||
                         Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal))
                         && (resource.getAnnotation(method) != null)) {
@@ -93,7 +90,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
         }
 
         // Throw an exception if the resource is not found.
-        throw new BallerinaException("No matching Resource found for Path : " + subPath + " , Method : " + method);
+        throw new BallerinaException("no matching resource found for Path : " + subPath + " , Method : " + method);
     }
 
     public static boolean matches(String uriTemplate, String reqPath,
