@@ -22,12 +22,8 @@ import com.intellij.execution.process.KillableColoredProcessHandler;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.process.ProcessTerminatedListener;
 import com.intellij.execution.runners.ExecutionEnvironment;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.CharsetToolkit;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ObjectUtils;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkUtil;
 import org.jetbrains.annotations.NotNull;
@@ -49,12 +45,9 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState {
         GeneralCommandLine commandLine = new GeneralCommandLine();
         commandLine.setExePath(ObjectUtils.notNull(BallerinaSdkUtil.getBallerinaExecutablePath(getProject())));
         commandLine.addParameter(getCommand());
-
-        Editor selectedTextEditor = FileEditorManager.getInstance(getProject()).getSelectedTextEditor();
-        VirtualFile file = FileDocumentManager.getInstance().getFile(selectedTextEditor.getDocument());
-        commandLine.addParameter(file.getPath());
+        commandLine.addParameter(BallerinaRunUtil.getOpenFilePath(getProject()));
         commandLine.withCharset(CharsetToolkit.UTF8_CHARSET);
-
+        // Add program arguments
         commandLine.addParameter(getParams());
 
         KillableColoredProcessHandler handler = new KillableColoredProcessHandler(commandLine, true);

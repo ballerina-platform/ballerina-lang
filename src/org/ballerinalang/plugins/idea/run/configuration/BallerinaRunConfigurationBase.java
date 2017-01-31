@@ -13,16 +13,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.ballerinalang.plugins.idea.run.configuration;
 
 import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.configurations.LocatableConfigurationBase;
+import com.intellij.execution.configurations.RuntimeConfigurationError;
+import com.intellij.execution.configurations.RuntimeConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.JDOMExternalizerUtil;
 import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.containers.ContainerUtil;
+import org.ballerinalang.plugins.idea.sdk.BallerinaSdkUtil;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,6 +44,26 @@ public abstract class BallerinaRunConfigurationBase extends LocatableConfigurati
     protected BallerinaRunConfigurationBase(@NotNull Project project, @NotNull ConfigurationFactory factory, String
             name) {
         super(project, factory, name);
+    }
+
+    /**
+     * This will validate the selected run configuration. This is common to all run run configuration types.
+     *
+     * @throws RuntimeConfigurationException if an incorrect configuration found
+     */
+    @Override
+    public void checkConfiguration() throws RuntimeConfigurationException {
+        String ballerinaExecutablePath = BallerinaSdkUtil.getBallerinaExecutablePath(getProject());
+        if (ballerinaExecutablePath.isEmpty()) {
+            throw new RuntimeConfigurationError("Cannot find Ballerina executable. Please check Ballerina SDK path.");
+        }
+        String openedFile = BallerinaRunUtil.getOpenFilePath(getProject());
+        if (openedFile.isEmpty()) {
+            throw new RuntimeConfigurationError("No Ballerina file is opened in the editor.");
+        }
+        if (!BallerinaRunUtil.isBallerinaFileOpen(getProject())) {
+            throw new RuntimeConfigurationError("Opened file in the editor is not a Ballerina file.");
+        }
     }
 
     @Override
