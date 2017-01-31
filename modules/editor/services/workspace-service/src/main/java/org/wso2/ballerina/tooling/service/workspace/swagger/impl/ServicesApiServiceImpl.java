@@ -45,8 +45,7 @@ public class ServicesApiServiceImpl {
                             "Location header contains URL of newly created API. ", response = void.class)})
     public Service servicesConvertServicePost(@ApiParam(value = "Type to be convert", required = true)
                                               @QueryParam("expectedType") String expectedType
-            , @ApiParam(value = "Service definition to be convert ", required = true) Service serviceDefinition
-    )
+            , @ApiParam(value = "Service definition to be convert ", required = true) Service serviceDefinition)
             throws NotFoundException {
         try {
             String response = parseSwaggerDataModel(serviceDefinition.getSwaggerDefinition()).getSwagger();
@@ -69,7 +68,7 @@ public class ServicesApiServiceImpl {
                     .type(MediaType.APPLICATION_JSON).build();
         */
         }
-        return null;
+        return serviceDefinition;
     }
 
 
