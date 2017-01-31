@@ -23,7 +23,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './resource-definition', './worker-declaration', './statement', './conditional-statement', './connector-declaration',
         './expression', './if-else-statement', './if-statement', './else-statement', './else-if-statement', './trycatch-statement',
         './try-statement', './catch-statement', './reply-statement', './while-statement', './return-statement',
-        './type-converter-definition', './type-definition', './type-element', './variable-declaration',
+        './type-mapper-definition', './type-definition', './type-element', './variable-declaration',
         './package-definition', './import-declaration', './resource-parameter', './assignment', './assignment-statement',
         './function-invocation', './function-invocation-expression', './variable-reference-expression',
         './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
@@ -34,7 +34,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
-              whileStatement, returnStatement, typeConverterDefinition, typeDefinition, typeElement, variableDeclaration,
+              whileStatement, returnStatement, typeMapperDefinition, typeDefinition, typeElement, variableDeclaration,
               packageDefinition, importDeclaration, resourceParameter, assignment, assignmentStatement, functionInvocation,
               functionInvocationExpression, variableReferenceExpression, actionInvocationStatement, arithmeticExpression,
               logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
@@ -142,12 +142,12 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * creates typeConverterDefinition
-         * @param {Object} args - object for typeConverterDefinition creation
-         * @returns {TypeConverterDefinition}
+         * creates typeMapperDefinition
+         * @param {Object} args - object for typeMapperDefinition creation
+         * @returns {TypeMapperDefinition}
          */
-        BallerinaASTFactory.createTypeConverterDefinition = function (args) {
-            return new typeConverterDefinition(args);
+        BallerinaASTFactory.createTypeMapperDefinition = function (args) {
+            return new typeMapperDefinition(args);
         };
 
         /**
@@ -580,15 +580,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * instanceof check for TypeConverterDefinition
-         * @param child - Object for instanceof check
-         * @returns {boolean} - true if same type, else false
-         */
-        BallerinaASTFactory.isTypeConverterDefinition = function (child) {
-            return child instanceof typeConverterDefinition;
-        };
-
-        /**
          * instanceof check for TypeDefinition
          * @param child - Object for instanceof check
          * @returns {boolean} - true if same type, else false
@@ -616,12 +607,12 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * instanceof check for TypeConverterDefinition
+         * instanceof check for TypeMapperDefinition
          * @param {ASTNode} child - Object for instanceof check
          * @returns {boolean} - true if same type, else false
          */
-        BallerinaASTFactory.isTypeConverterDefinition = function (child) {
-            return child instanceof typeConverterDefinition;
+        BallerinaASTFactory.isTypeMapperDefinition = function (child) {
+            return child instanceof typeMapperDefinition;
         };
 
         /**

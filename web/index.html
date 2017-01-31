@@ -49,6 +49,7 @@
     <link rel="stylesheet" type="text/css" href="css/tool-palette.css"/>
     <link rel="stylesheet" type="text/css" href="css/workspace-explorer.css"/>
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
+    <link rel="stylesheet" type="text/css" href="css/type-mapper.css"/>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -506,6 +507,7 @@
             mousetrap: "lib/mousetrap_v1.6.0/mousetrap.min",
             mcustom_scroller: "lib/mCustomScrollbar_v3.1.5/js/jquery.mCustomScrollbar.concat.min",
             jquery_context_menu: "lib/context-menu_v2.4.2/jquery.contextMenu.min",
+            jsPlumb: "lib/jsPlumb-1.5.0/jquery.jsPlumb-1.5.0-min",
             ///////////////////////
             // custom modules ////
             //////////////////////
@@ -523,10 +525,16 @@
             tool_bar: "js/tool-bar/tool-bar",
             alerts: "js/utils/alerts",
             breadcrumbs: "js/breadcrumbs/breadcrumbs",
-            property_pane_utils: "js/property-pane/property-pane-utils"
+            property_pane_utils: "js/property-pane/property-pane-utils",
+            constants: 'js/constants/constants',
+            typeMapper: 'js/type-mapper/type-mapper-renderer'
         },
         shim: {
-            "bootstrap": {"deps": ['jquery']}
+            "bootstrap": {"deps": ['jquery']},
+            "jsPlumb": {
+                deps: ['jquery','jquery_ui'],
+                exports: 'jsPlumb'
+            }
         },
         map: {
             "*": {
@@ -726,7 +734,9 @@
                                 canvas_container: 'canvas-container',
                                 panel_delete_icon: 'fw fw-delete pull-right right-icon-clickable delete-icon hoverable',
                                 panel_annotation_icon: 'fw fw-annotation pull-right right-icon-clickable hoverable',
-                                panel_args_icon: 'fw fw-import pull-right right-icon-clickable hoverable'
+                                panel_args_icon: 'fw fw-import pull-right right-icon-clickable hoverable',
+                                type_mapper_icon: 'fw fw-dgm-service fw-inverse',
+                                type_struct_icon: 'fw fw-dgm-service fw-inverse'
                             },
                             notifications: {
                                 container: '#notification-container'

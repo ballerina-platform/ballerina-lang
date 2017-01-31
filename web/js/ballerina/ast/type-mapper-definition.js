@@ -17,38 +17,38 @@
  */
 define(['lodash', './node'], function (_, ASTNode) {
 
-    var TypeConverterDefinition = function (args) {
-        ASTNode.call(this, 'TypeConverterDefinition');
-        this._typeConverterName = _.get(args, 'typeConverterName', 'newTypeConverter');
+    var TypeMapperDefinition = function (args) {
+        ASTNode.call(this, 'TypeMapperDefinition');
+        this._typeMapperName = _.get(args, 'typeMapperName', 'newTypeMapper');
         this.BallerinaASTFactory = this.getFactory();
     };
 
-    TypeConverterDefinition.prototype = Object.create(ASTNode.prototype);
-    TypeConverterDefinition.prototype.constructor = TypeConverterDefinition;
+    TypeMapperDefinition.prototype = Object.create(ASTNode.prototype);
+    TypeMapperDefinition.prototype.constructor = TypeMapperDefinition;
 
     /**
-     * Set the type converter name
-     * @param typeConverterName
+     * Set the type mapper name
+     * @param typeMapperName
      */
-    TypeConverterDefinition.prototype.setTypeConverterName = function (typeConverterName) {
-        if (!_.isNil(typeConverterName)) {
-            this._typeConverterName = typeConverterName;
+    TypeMapperDefinition.prototype.setTypeMapperName = function (typeMapperName) {
+        if (!_.isNil(typeMapperName)) {
+            this._typeMapperName = typeMapperName;
         }
     };
 
     /**
-     * returns the type converter name
-     * @returns {string} type converter name
+     * returns the type mapper name
+     * @returns {string} type mapper name
      */
-    TypeConverterDefinition.prototype.getTypeConverterName = function () {
-        return this._typeConverterName;
+    TypeMapperDefinition.prototype.getTypeMapperName = function () {
+        return this._typeMapperName;
     };
 
     /**
      * return variable declarations
      * @returns {Array} variable declarations array
      */
-    TypeConverterDefinition.prototype.getVariableDeclarations = function () {
+    TypeMapperDefinition.prototype.getVariableDeclarations = function () {
         var variableDeclarations = [];
         var self = this;
 
@@ -64,7 +64,7 @@ define(['lodash', './node'], function (_, ASTNode) {
      * Add variable declaration
      * @param newVariableDeclaration
      */
-    TypeConverterDefinition.prototype.addVariableDeclaration = function (newVariableDeclaration) {
+    TypeMapperDefinition.prototype.addVariableDeclaration = function (newVariableDeclaration) {
         // Get the index of the last variable declaration.
         var self = this;
 
@@ -79,7 +79,7 @@ define(['lodash', './node'], function (_, ASTNode) {
      * Remove variable declaration
      * @param variableDeclarationIdentifier
      */
-    TypeConverterDefinition.prototype.removeVariableDeclaration = function (variableDeclarationIdentifier) {
+    TypeMapperDefinition.prototype.removeVariableDeclaration = function (variableDeclarationIdentifier) {
         var self = this;
         // Removing the variable from the children.
         var variableDeclarationChild = _.find(this.getChildren(), function (child) {
@@ -93,7 +93,7 @@ define(['lodash', './node'], function (_, ASTNode) {
      * Gets the return type
      * @return {string} - Return type.
      */
-    TypeConverterDefinition.prototype.getReturnType = function () {
+    TypeMapperDefinition.prototype.getReturnType = function () {
         var returnType = "";
         var self = this;
 
@@ -109,7 +109,7 @@ define(['lodash', './node'], function (_, ASTNode) {
      * returns the argument
      * @returns {String} argument
      */
-    TypeConverterDefinition.prototype.getSourceAndIdentifier = function () {
+    TypeMapperDefinition.prototype.getSourceAndIdentifier = function () {
        var sourceAndIdentifier = "";
        var self = this;
 
@@ -121,5 +121,5 @@ define(['lodash', './node'], function (_, ASTNode) {
         return sourceAndIdentifier;
     };
 
-    return TypeConverterDefinition;
+    return TypeMapperDefinition;
 });
