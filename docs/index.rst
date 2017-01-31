@@ -17,3 +17,4 @@ This documentation will help you get up and running fast and provides a full lan
    quick-tour
    tutorial
    key-concepts
+   samples
