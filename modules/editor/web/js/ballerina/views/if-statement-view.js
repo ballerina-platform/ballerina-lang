@@ -36,14 +36,10 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             this.getBoundingBox().fromTopCenter(this.getTopCenter(),
                 _.get(this._viewOptions, 'width'),  _.get(this._viewOptions, 'height'));
             this._statementContainer = undefined;
-            this.init();
         };
 
         IfStatementView.prototype = Object.create(BallerinaStatementView.prototype);
         IfStatementView.prototype.constructor = IfStatementView;
-
-        IfStatementView.prototype.init = function () {
-        };
 
         IfStatementView.prototype.canVisitIfStatement = function(){
             return true;
@@ -142,9 +138,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             var StatementContainer = require('./statement-container');
             this._statementContainer = new StatementContainer(statementContainerOpts);
             this.listenTo(this._statementContainer.getBoundingBox(), 'height-changed', function(dh){
-                if(this.getBoundingBox().getBottom() < this._statementContainer.getBoundingBox().getBottom()){
-                    this.getBoundingBox().h(this.getBoundingBox().h() + dh);
-                }
+                this.getBoundingBox().h(this.getBoundingBox().h() + dh);
             });
             this.getBoundingBox().on('top-edge-moved', function (dy) {
                 this._statementContainer.isOnWholeContainerMove = true;
@@ -155,9 +149,6 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
                 this.getBoundingBox().w(this.getBoundingBox().w() + dw);
             });
 
-            this._statementContainer.getBoundingBox().on('bottom-edge-moved', function (dy) {
-                this.getBoundingBox().h(this.getBoundingBox().h() + dy);
-            }, this);
             this._statementContainer.render(this._diagramRenderingContext);
         };
 
