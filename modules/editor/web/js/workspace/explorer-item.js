@@ -16,8 +16,8 @@
  * under the License.
  */
 
-define(['lodash', 'log', 'file_browser', 'event_channel', 'theme_wso2'],
-    function (_, log, FileBrowser, EventChannel){
+define(['lodash', 'log', 'file_browser', 'event_channel', 'context_menu', 'theme_wso2'],
+    function (_, log, FileBrowser, EventChannel, ContextMenu){
 
     var ExplorerItem = function(args){
         _.assign(this, args);
@@ -44,12 +44,14 @@ define(['lodash', 'log', 'file_browser', 'event_channel', 'theme_wso2'],
             folderIcon = $("<i class='fw fw-folder item-icon'></i>"),
             arrowHeadIcon = $("<i class='fw fw-right expand-icon'></i>");
 
+        header.attr("id", this.path);
         header.append(arrowHeadIcon);
         header.append(folderIcon);
         header.append(folderName);
         item.append(header);
         item.append(body);
         this.container.append(item);
+        this._itemElement = item;
 
         header.attr('title', this.path);
         header.tooltip({
@@ -64,8 +66,7 @@ define(['lodash', 'log', 'file_browser', 'event_channel', 'theme_wso2'],
         var fileBrowser = new FileBrowser({
             container: body,
             application: this.application, root: this.path,
-            fetchFiles: true,
-            contextMenuProvider: this.createContextMenuProvider()
+            fetchFiles: true
         });
         fileBrowser.render();
         fileBrowser.on("double-click-node", function(node){
@@ -73,39 +74,106 @@ define(['lodash', 'log', 'file_browser', 'event_channel', 'theme_wso2'],
                 this.application.commandManager.dispatch("open-file", node.id);
             }
         }, this);
+
+        this._contextMenu = new ContextMenu({
+            container: item,
+            selector: ".folder-tree-header, li",
+            provider: this.createContextMenuProvider()
+        });
         this._fileBrowser = fileBrowser;
+    };
+
+    ExplorerItem.prototype.remove = function(){
+        this._itemElement.remove();
     };
 
     ExplorerItem.prototype.createContextMenuProvider = function(){
         var self = this;
-        return function(node) {
-            var items = {};
+        return function($trigger, e) {
+            var items = {},
+                menu = {items: items},
+                isRoot = $trigger.hasClass("folder-tree-header"),
+                path = $trigger.attr('id'),
+                node = isRoot ? self._fileBrowser.getNode('#') : self._fileBrowser.getNode(path);
 
-            if(_.isEqual('folder', node.type)){
+            if(isRoot || _.isEqual('folder', node.type)){
                 items.createNewFile = {
-                    label: "new file",
-                    action: function () {
+                    name: "new file",
+                    icon: "",
+                    callback: function () {
                         self.application.commandManager.dispatch("create-new-item-at-path",
-                            {path: node.id, type: 'ballerina-file'});
+                            {
+                                path: path,
+                                type: 'ballerina-file',
+                                onSuccess: function(){
+                                    self._fileBrowser.refresh(node);
+                                }
+                            });
                     }
                 };
                 items.createNewFolder = {
-                    label: "new folder",
-                    action: function () {
+                    name: "new folder",
+                    icon: "",
+                    callback: function () {
                         self.application.commandManager.dispatch("create-new-item-at-path",
-                            {path: node.id, type: 'folder'});
+                            {
+                                path: path,
+                                type: 'folder',
+                                onSuccess: function(){
+                                    self._fileBrowser.refresh(node);
+                                }
+                            });
+                    }
+                };
+                items.refreshBtn = {
+                    name: "refresh",
+                    icon: "",
+                    callback: function () {
+                        self._fileBrowser.refresh(node);
+                    }
+                };
+                    items.deleteFolder = {
+                    name: "delete",
+                    icon: "",
+                    callback: function () {
+                        self.application.commandManager.dispatch("remove-from-disk",
+                            {
+                                type: "folder",
+                                path: path,
+                                onSuccess: function(){
+                                    self._fileBrowser.refresh(node.parent);
+                                }
+                            });
                     }
                 }
             }
             else if(_.isEqual('file', node.type)){
                 items.deleteFile = {
-                    label: "remove",
-                    action: function () {
-                        self.application.commandManager.dispatch("remove-file", node.id);
+                    name: "delete",
+                    icon: "",
+                    callback: function () {
+                        self.application.commandManager.dispatch("remove-from-disk",
+                            {
+                                type: "file",
+                                path: node.id,
+                                onSuccess: function(){
+                                    self._fileBrowser.refresh(node.parent);
+                                }
+                            });
                     }
                 }
             }
-            return items;
+
+            if(isRoot){
+                items.removeFolderFromExplorer = {
+                    name: "remove folder",
+                    icon: "",
+                    callback: function () {
+                        self.application.commandManager.dispatch("remove-explorer-item", self);
+                    }
+                };
+            }
+            return menu;
         };
     };
 

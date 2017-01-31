@@ -15,7 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (log, _, d3,Point, Backbone, EventChannel) {
+define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/ast/ballerina-ast-factory'],
+    function (log, _, d3,Point, Backbone, EventChannel, BallerinaASTFactory) {
 
     var MessageManager = function(args) {
         log.debug("Initialising Message Manager");
@@ -108,7 +109,7 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (l
     };
 
     MessageManager.prototype.isAtValidDropTarget = function(){
-        return true;
+        return BallerinaASTFactory.isConnectorDeclaration(this.getActivatedDropTarget());
     };
 
     MessageManager.prototype.reset = function(){
