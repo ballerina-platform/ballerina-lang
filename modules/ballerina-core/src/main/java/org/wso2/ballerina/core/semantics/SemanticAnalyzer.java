@@ -2194,8 +2194,8 @@ public class SemanticAnalyzer implements NodeVisitor {
     private void nullExprCheck(Expression lExpr, Expression rExpr) {
         if (rExpr instanceof NullLiteral) {
             if (BTypes.isValueType(lExpr.getType())) {
-                throw  new SemanticException(getLocationStr(rExpr.getLocation())
-                                             + lExpr.getType() + " can not be null " );
+                throw  new SemanticException(getLocationStr(rExpr.getLocation()) + lExpr.getType()
+                                             + " can not be null ");
             }
             rExpr.setType(lExpr.getType());
         }
