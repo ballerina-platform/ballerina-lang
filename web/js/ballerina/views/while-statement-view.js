@@ -65,7 +65,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
          * Override Child remove callback
          * @param {ASTNode} child - removed child
          */
-        BallerinaStatementView.prototype.childRemovedCallback = function (child) {
+        WhileStatementView.prototype.childRemovedCallback = function (child) {
             if (BallerinaASTFactory.isStatement(child)) {
                 this.getStatementContainer().childStatementRemovedCallback(child);
             }
@@ -178,9 +178,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             var StatementContainer = require('./statement-container');
             this._statementContainer = new StatementContainer(statementContainerOpts);
             this.listenTo(this._statementContainer.getBoundingBox(), 'height-changed', function(dh){
-                if(this.getBoundingBox().getBottom() < this._statementContainer.getBoundingBox().getBottom()){
-                    this.getBoundingBox().h(this.getBoundingBox().h() + dh);
-                }
+                this.getBoundingBox().h(this.getBoundingBox().h() + dh);
             });
             this.getBoundingBox().on('top-edge-moved', function (dy) {
                 this._statementContainer.isOnWholeContainerMove = true;
@@ -192,10 +190,6 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             });
 
             this._statementContainer.render(this._diagramRenderingContext);
-
-            this._statementContainer.getBoundingBox().on('bottom-edge-moved', function (dy) {
-                this.getBoundingBox().h(this.getBoundingBox().h() + dy);
-            }, this);
         };
 
         /**

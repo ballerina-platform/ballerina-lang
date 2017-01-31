@@ -35,7 +35,6 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             // Initialize the bounding box
             this.getBoundingBox().fromTopCenter(this.getTopCenter(),
                 _.get(this._viewOptions, 'width'),  _.get(this._viewOptions, 'height'));
-            this.init();
         };
 
         ElseStatementView.prototype = Object.create(BallerinaStatementView.prototype);
@@ -43,10 +42,6 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
 
         ElseStatementView.prototype.canVisitElseStatement = function(){
             return true;
-        };
-
-        ElseStatementView.prototype.init = function () {
-            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
         };
 
         /**
@@ -141,10 +136,8 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
             var StatementContainer = require('./statement-container');
             this._statementContainer = new StatementContainer(statementContainerOpts);
-            this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy){
-                if(this.getBoundingBox().getBottom() < this._statementContainer.getBoundingBox().getBottom()){
-                    this.getBoundingBox().h(this.getBoundingBox().h() + dy);
-                }
+            this.listenTo(this._statementContainer.getBoundingBox(), 'height-changed', function(dh){
+                this.getBoundingBox().h(this.getBoundingBox().h() + dh);
             });
 
             this.getBoundingBox().on('top-edge-moved', function (dy) {
@@ -157,10 +150,6 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
                     this.getBoundingBox().w(this.getBoundingBox().w() + dw);
                 }
             });
-
-            this._statementContainer.getBoundingBox().on('bottom-edge-moved', function (dy) {
-                this.getBoundingBox().h(this.getBoundingBox().h() + dy);
-            }, this);
 
             this._statementContainer.render(this._diagramRenderingContext);
         };
