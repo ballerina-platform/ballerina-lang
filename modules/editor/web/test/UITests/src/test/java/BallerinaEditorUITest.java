@@ -26,8 +26,10 @@ import org.testng.annotations.Test;
 import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.Set;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 import static junit.framework.Assert.assertEquals;
 import javax.xml.parsers.ParserConfigurationException;
@@ -45,44 +47,58 @@ public class BallerinaEditorUITest {
 
     @Test(dataProvider="getData")
     public void openBallerinaFile(String fileName) throws IOException, InterruptedException,
-            ParserConfigurationException, SAXException, TransformerException {
+            ParserConfigurationException, SAXException, TransformerException, URISyntaxException {
 
-        //opening base URL
+        //creating relevant browser webdriver
+        //TODO make this generic for multiple browsers
         WebDriver driver = new FirefoxDriver();
-        driver.manage().deleteAllCookies();
+
+        //opening base page - welcome page this case
         driver.get(TestConstants.SERVER_URL);
 
-        Thread.sleep(50000);
+        //wait for the open button in welcome page
         WebDriverWait wait = new WebDriverWait(driver, 50);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(TestConstants.WELCOME_PAGE_OPEN_BUTTON_XPATH)));
+        //once the open button available click it
         driver.findElement(By.xpath(TestConstants.WELCOME_PAGE_OPEN_BUTTON_XPATH)).click();
 
+        //wait for the input box in the pop-up windows
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(TestConstants.FILE_OPEN_POPUP_LOCATION_INPUT_XPATH)));
-        driver.findElement(By.xpath(TestConstants.FILE_OPEN_POPUP_LOCATION_INPUT_XPATH)).sendKeys("/home/malintha/ballerina/samples/getting_started/helloWorld/helloWorld.bal");
+        //fill the location of the ballerina file to be opened
 
+        URL resource = BallerinaEditorUITest.class.getResource("BallerinaSourceFiles" + File.separator + fileName + ".bal");
+        driver.findElement(By.xpath(TestConstants.FILE_OPEN_POPUP_LOCATION_INPUT_XPATH)).sendKeys(resource.getPath());
+
+        //wait for the open button in the pop-up window
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(TestConstants.FILE_OPEN_POPUP_LOCATION_OPEN_XPATH)));
+        //click opn button once it is available
         driver.findElement(By.xpath(TestConstants.FILE_OPEN_POPUP_LOCATION_OPEN_XPATH)).click();
 
-
+        //wait for the SVG element where the diagram is rendered
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(TestConstants.SVG_XPATH)));
+        //get DOM of the SVG element
         WebElement domElement = driver.findElement(By.xpath(TestConstants.SVG_XPATH));
 
+        //Getting inner HTML of the SVG node
         String dom = TestUtils.preprocessDOMContent(domElement.getAttribute("innerHTML"));
 
         //TestUtils.fileWriter(dom, "helloWorldDOM.xml");
+
+        URL resource1 = BallerinaEditorUITest.class.getResource("DOMFiles" + File.separator + fileName +"DOM.xml");
+        //checking inner content of the DOM element
         assertEquals("Rendered diagram is not equal to the expected diagram",
-                TestUtils.fileReader("/home/malintha/ScreenCap/src/test/java/resources/DOMFiles/helloWorldDOM.xml"), dom);
+                TestUtils.fileReader(resource1.getPath()), dom);
     }
 
+    /*
+    Data provider for running the test case for multiple ballerina files in parallel
+     */
     @DataProvider(parallel = true)
     public Object[][] getData()
     {
-
         Object[][] data = new Object[2][1];
-
         data[0][0] ="helloWorld";
-        data[1][0] ="helloWorld1";
-
+        data[1][0] ="echoService";
         return data;
     }
 }
