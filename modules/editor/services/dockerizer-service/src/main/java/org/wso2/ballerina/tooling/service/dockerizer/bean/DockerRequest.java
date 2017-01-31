@@ -22,20 +22,24 @@ import com.google.gson.annotations.SerializedName;
 /**
  * Dockerize Request bean from the UI
  */
-public class DockerizeRequest {
+public class DockerRequest {
 
-    @SerializedName("service-name")
-    private String serviceName;
-
+    @SerializedName("type")
+    private String type;
 
     @SerializedName("config")
     private String ballerinaConfig;
 
-    @SerializedName("image-name")
-    private String imageName;
-
     @SerializedName("docker-env")
     private String dockerEnv;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 
     public String getDockerEnv() {
         return dockerEnv;
@@ -45,27 +49,11 @@ public class DockerizeRequest {
         this.dockerEnv = dockerEnv;
     }
 
-    public String getServiceName() {
-        return serviceName;
-    }
-
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
-    }
-
     public String getBallerinaConfig() {
         return ballerinaConfig;
     }
 
     public void setBallerinaConfig(String ballerinaConfig) {
         this.ballerinaConfig = ballerinaConfig;
-    }
-
-    public String getImageName() {
-        return imageName;
-    }
-
-    public void setImageName(String imageName) {
-        this.imageName = imageName;
     }
 }

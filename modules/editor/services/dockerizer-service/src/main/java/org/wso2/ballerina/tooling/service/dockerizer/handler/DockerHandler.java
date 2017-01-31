@@ -51,18 +51,21 @@ public class DockerHandler {
     private static final Logger logger = LoggerFactory.getLogger(DockerHandler.class);
     private static Map<String, DockerClient> clients = new HashMap<>();
 
-    public static boolean createServiceImage(String dockerEnv, String imageName, String serviceName, String ballerinaConfig)
+    public static boolean createServiceImage(String dockerEnv, String serviceName, String ballerinaConfig)
             throws IOException, InterruptedException {
-        return createImage(dockerEnv, imageName, serviceName, ballerinaConfig, true);
+        return createImage(dockerEnv, serviceName, ballerinaConfig, true);
     }
 
-    public static boolean createFunctionImage(String dockerEnv, String imageName, String serviceName, String ballerinaConfig)
+    public static boolean createFunctionImage(String dockerEnv, String serviceName, String ballerinaConfig)
             throws IOException, InterruptedException {
-        return createImage(dockerEnv, imageName, serviceName, ballerinaConfig, false);
+        return createImage(dockerEnv, serviceName, ballerinaConfig, false);
     }
 
-    public static boolean createImage(String dockerEnv, String imageName, String serviceName, String ballerinaConfig,
+    public static boolean createImage(String dockerEnv, String serviceName, String ballerinaConfig,
                                       boolean service) throws IOException, InterruptedException {
+
+        String imageName = serviceName.toLowerCase();
+
         // 1. Create a tmp docker context
         String tempDirName = "ballerina-docker-" + String.valueOf(Instant.now().getEpochSecond());
         Path tmpDir = Files.createTempDirectory(tempDirName);
@@ -119,10 +122,10 @@ public class DockerHandler {
         return (!err[0]);
     }
 
-    public static boolean deleteImage(String dockerEnv, String imageName) {
+    public static boolean deleteImage(String dockerEnv, String serviceName) {
         List<ImageDelete> imageDeleteList = null;
         try {
-            imageDeleteList = getDockerClient(dockerEnv).image().withName(imageName).delete().force().andPrune();
+            imageDeleteList = getDockerClient(dockerEnv).image().withName(serviceName).delete().force().andPrune();
         } catch (DockerClientException e) {
             if (e.getMessage().contains("No such image")) {
                 return false;

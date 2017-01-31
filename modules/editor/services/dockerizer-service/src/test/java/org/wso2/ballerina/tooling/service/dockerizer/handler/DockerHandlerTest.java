@@ -38,12 +38,13 @@ public class DockerHandlerTest {
 
     @Test
     public void testSuccessfulCreateServiceImage() throws IOException, InterruptedException {
-        String imageName = "testimage0001";
+//        String imageName = "testimage0001";
         String serviceName = "TestService";
+        String imageName = serviceName.toLowerCase();
         String ballerinaConfig = new String(Files.readAllBytes(Paths.get(Thread.currentThread().getContextClassLoader().
                 getResource("ballerina/TestService.bal").getPath())));
 
-        boolean result = DockerHandler.createServiceImage(null, imageName, serviceName, ballerinaConfig);
+        boolean result = DockerHandler.createServiceImage(null, serviceName, ballerinaConfig);
 
         deleteDockerImage(imageName + ":latest");
         Assert.assertTrue("Docker image creation failed.", result);
@@ -51,12 +52,13 @@ public class DockerHandlerTest {
 
     @Test
     public void testSuccessfulCreateFunctionImage() throws IOException, InterruptedException {
-        String imageName = "testimage0002";
+//        String imageName = "testimage0002";
         String serviceName = "TestFunction";
+        String imageName = serviceName.toLowerCase();
         String ballerinaConfig = new String(Files.readAllBytes(Paths.get(Thread.currentThread().getContextClassLoader().
                 getResource("ballerina/TestFunction.bal").getPath())));
 
-        boolean result = DockerHandler.createFunctionImage(null, imageName, serviceName, ballerinaConfig);
+        boolean result = DockerHandler.createFunctionImage(null, serviceName, ballerinaConfig);
 
         deleteDockerImage(imageName + ":latest");
         Assert.assertTrue("Docker image creation failed.", result);
@@ -64,12 +66,13 @@ public class DockerHandlerTest {
 
     @Test
     public void testSuccessfulDeleteImage() throws IOException, InterruptedException {
-        String imageName = "testimage0003";
+//        String imageName = "testimage0003";
         String serviceName = "TestFunction";
+        String imageName = serviceName.toLowerCase();
         String ballerinaConfig = new String(Files.readAllBytes(Paths.get(Thread.currentThread().getContextClassLoader().
                 getResource("ballerina/TestFunction.bal").getPath())));
 
-        boolean result = DockerHandler.createFunctionImage(null, imageName, serviceName, ballerinaConfig);
+        boolean result = DockerHandler.createFunctionImage(null, serviceName, ballerinaConfig);
         Assert.assertTrue("Docker image creation failed.", result);
         result = DockerHandler.deleteImage(null, imageName);
         Assert.assertTrue("Docker image deletion failed.", result);
