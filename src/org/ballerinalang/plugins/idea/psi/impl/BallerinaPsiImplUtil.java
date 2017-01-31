@@ -16,9 +16,13 @@
 
 package org.ballerinalang.plugins.idea.psi.impl;
 
+import com.intellij.lang.ASTNode;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;
+import org.ballerinalang.plugins.idea.psi.BallerinaPackageDeclaration;
+import org.ballerinalang.plugins.idea.psi.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -46,4 +50,28 @@ public class BallerinaPsiImplUtil {
         // If the package name cannot be constructed, return empty string
         return "";
     }
+
+    public static String getRealPackageName(BallerinaPackageDeclaration element) {
+        ASTNode keyNode = element.getNode().findChildByType(BallerinaTypes.PACKAGE_NAME);
+        if (keyNode != null) {
+            // IMPORTANT: Convert embedded escaped spaces to simple spaces
+            String text = keyNode.getText().replaceAll("\\\\ ", " ");
+            int index = text.lastIndexOf(".");
+            return text.substring(index == -1 ? 0 : index + 1);
+        } else {
+            return null;
+        }
+    }
+
+    public static String getFunctionName(BallerinaFunctionDefinition element) {
+        ASTNode keyNode = element.getNode().getTreeNext();
+        if (keyNode != null) {
+            // IMPORTANT: Convert embedded escaped spaces to simple spaces
+            return keyNode.getText().replaceAll("\\\\ ", " ");
+        } else {
+            return null;
+        }
+    }
+
+
 }

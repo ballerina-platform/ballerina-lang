@@ -27,14 +27,14 @@ import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.ballerinalang.plugins.idea.psi.*;
 
-public class BallerinaPackageDeclarationImpl extends ASTWrapperPsiElement implements BallerinaPackageDeclaration {
+public class BallerinaNativeFunctionDefinitionImpl extends ASTWrapperPsiElement implements BallerinaNativeFunctionDefinition {
 
-  public BallerinaPackageDeclarationImpl(ASTNode node) {
+  public BallerinaNativeFunctionDefinitionImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitPackageDeclaration(this);
+    visitor.visitNativeFunctionDefinition(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,13 +43,21 @@ public class BallerinaPackageDeclarationImpl extends ASTWrapperPsiElement implem
   }
 
   @Override
-  @Nullable
-  public BallerinaPackageName getPackageName() {
-    return findChildByClass(BallerinaPackageName.class);
+  @NotNull
+  public List<BallerinaAnnotation> getAnnotationList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaAnnotation.class);
   }
 
-  public String getRealPackageName() {
-    return BallerinaPsiImplUtil.getRealPackageName(this);
+  @Override
+  @Nullable
+  public BallerinaParameterList getParameterList() {
+    return findChildByClass(BallerinaParameterList.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaReturnParameters getReturnParameters() {
+    return findChildByClass(BallerinaReturnParameters.class);
   }
 
 }

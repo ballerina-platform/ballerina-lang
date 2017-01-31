@@ -21,23 +21,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaFunctionDefinition extends PsiElement {
+public interface BallerinaNativeFunctionDefinition extends PsiElement {
 
   @NotNull
   List<BallerinaAnnotation> getAnnotationList();
-
-  @Nullable
-  BallerinaFunctionBody getFunctionBody();
-
-  @Nullable
-  BallerinaNativeFunctionDefinition getNativeFunctionDefinition();
 
   @Nullable
   BallerinaParameterList getParameterList();
 
   @Nullable
   BallerinaReturnParameters getReturnParameters();
-
-  String getFunctionName();
 
 }

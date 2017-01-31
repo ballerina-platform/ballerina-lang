@@ -26,10 +26,10 @@ public interface BallerinaServiceDefinition extends PsiElement {
   @NotNull
   List<BallerinaAnnotation> getAnnotationList();
 
-  @NotNull
+  @Nullable
   BallerinaServiceBody getServiceBody();
 
-  @NotNull
+  @Nullable
   PsiElement getIdentifier();
 
 }
