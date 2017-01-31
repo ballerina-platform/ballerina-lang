@@ -172,6 +172,8 @@ import org.wso2.ballerina.core.nativeimpl.net.http.SetReasonPhrase;
 import org.wso2.ballerina.core.nativeimpl.net.http.SetStatusCode;
 import org.wso2.ballerina.core.nativeimpl.net.uri.Encode;
 import org.wso2.ballerina.core.nativeimpl.net.uri.GetQueryParam;
+import org.wso2.ballerina.core.nativeimpl.util.Base64Decode;
+import org.wso2.ballerina.core.nativeimpl.util.Base64Encode;
 import org.wso2.ballerina.core.nativeimpl.util.GetHmac;
 import org.wso2.ballerina.core.nativeimpl.util.GetRandomString;
 
@@ -341,6 +343,8 @@ public class BuiltInNativeConstructLoader {
 
         // lang.util
         registerFunction(scope, new GetHmac());
+        registerFunction(scope, new Base64Decode());
+        registerFunction(scope, new Base64Encode());
 
         // net.uri
         registerFunction(scope, new Encode());
