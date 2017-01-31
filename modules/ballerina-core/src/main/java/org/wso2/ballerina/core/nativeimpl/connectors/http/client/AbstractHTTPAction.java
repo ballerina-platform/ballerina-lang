@@ -47,6 +47,15 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
 
+    private static String userAgent = "ballerina";
+
+    static {
+        String version = System.getProperty(BALLERINA_VERSION);
+        if (version != null) {
+            userAgent = userAgent + "/" + version;
+        }
+    }
+
     protected void prepareRequest(Connector connector, String path, CarbonMessage cMsg) {
 
         // Handle operations for empty content messages initiated from the Ballerina core itself
@@ -93,13 +102,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             Headers headers = (Headers) headerObj;
 
             if (!headers.contains(Constants.USER_AGENT_HEADER)) { // If User-Agent is not already set from program
-
-                String userAgent = "ballerina";
-
-                String version = System.getProperty(BALLERINA_VERSION);
-                if (version != null) {
-                    userAgent = userAgent + "/" + version;
-                }
                 cMsg.setHeader(Constants.USER_AGENT_HEADER, userAgent);
             }
 
