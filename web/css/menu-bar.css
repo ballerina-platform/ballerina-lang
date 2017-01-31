@@ -78,3 +78,7 @@ li.menu-item-disabled > a {
     background-color: #444;
 
 }
+
+.context-menu-list{
+    border-radius: 0;
+}
