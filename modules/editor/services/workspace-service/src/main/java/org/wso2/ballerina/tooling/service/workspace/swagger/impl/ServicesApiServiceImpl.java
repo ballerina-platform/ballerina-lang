@@ -70,6 +70,9 @@ public class ServicesApiServiceImpl {
 
 
     /**
+     * This method will convert ballerina definition to swagger string. Since swagger is subset of ballerina defintion
+     * we can implement converter logic without data loss.
+     *
      * @param ballerinaDefinition String ballerina config to be processed as ballerina service definition
      * @return swagger data model generated from ballerina definition
      * @throws IOException when input process error occur.
@@ -99,6 +102,16 @@ public class ServicesApiServiceImpl {
         return swaggerDefinition;
     }
 
+    /**
+     * This method will generate ballerina string from swagger definition. Since ballerina service definition
+     * is super set of swagger definition we will take both swagger and ballerina definition and merge swagger
+     * changes to ballerina definition selectively to prevent data loss
+     *
+     * @param swaggerDefinition @String swagger definition to be processed as swagger
+     * @param ballerinaDefinition @String ballerina definition to be process as ballerina definition
+     * @return @String representation of converted ballerina source
+     * @throws IOException when error occur while processing input swagger and ballerina definitions.
+     */
     private String parseBallerinaDataModel(String swaggerDefinition, String ballerinaDefinition) throws IOException {
         Swagger swagger = parseSwaggerDataModel(swaggerDefinition);
         //TODO parse ballerina string and process it as ballerina service object and pass it to convertor.
