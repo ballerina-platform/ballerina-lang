@@ -16,9 +16,9 @@
  * under the License.
  */
 
-define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-client', 'mcustom_scroller'],
+define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-client', 'context_menu', 'mcustom_scroller'],
 
-    function (log, $, Backbone, _, ExplorerItem, ServiceClient, mcustomScroller) {
+    function (log, $, Backbone, _, ExplorerItem, ServiceClient, ContextMenu, mcustomScroller) {
 
     var WorkspaceExplorer = Backbone.View.extend({
 
@@ -166,6 +166,20 @@ define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-cli
                 event.stopPropagation();
             });
             this._explorerContainer = explorerContainer;
+
+            this._contextMenu = new ContextMenu({
+                container: this._$parent_el,
+                selector:  "div:first",
+                items:{
+                    "add_folder": {
+                        name: "add folder",
+                        icon: "",
+                        callback: function () {
+                            self.application.commandManager.dispatch("show-folder-open-dialog");
+                        }
+                    }
+                }
+            });
 
             if(!_.isEmpty(this._openedFolders)){
                 this._openedFolders.forEach(function(folder){
