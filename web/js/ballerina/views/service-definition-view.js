@@ -55,16 +55,10 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 log.error("Container for service definition is undefined." + this._container);
                 throw "Container for service definition is undefined." + this._container;
             }
-            this.init();
         };
 
         ServiceDefinitionView.prototype = Object.create(Canvas.prototype);
         ServiceDefinitionView.prototype.constructor = ServiceDefinitionView;
-
-        ServiceDefinitionView.prototype.init = function(){
-            //Registering event listeners
-            this._model.on('child-removed', this.childRemovedCallback, this);
-        };
 
         ServiceDefinitionView.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof ServiceDefinition) {
