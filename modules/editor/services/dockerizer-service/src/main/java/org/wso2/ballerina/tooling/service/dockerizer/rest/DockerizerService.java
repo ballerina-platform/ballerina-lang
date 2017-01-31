@@ -23,6 +23,7 @@ import org.wso2.ballerina.tooling.service.dockerizer.utils.Utils;
 
 import java.io.IOException;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -32,11 +33,12 @@ import javax.ws.rs.core.Response;
 /**
  * A service that will create Docker images for a given set of Ballerina services.
  */
-@Path("/service/dockerizer")
+@Path("/service/docker")
 public class DockerizerService {
 
+    // TODO: better URIs
     @POST
-    @Path("/service")
+    @Path("/image/service")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createServiceImage(DockerizeRequest request) {
@@ -49,6 +51,7 @@ public class DockerizerService {
 
             boolean buildSuccessful = DockerHandler.createServiceImage(dockerEnv, imageName, serviceName, ballerinaConfig);
             if (buildSuccessful) {
+                // TODO: figure out return status later
                 return Response.status(Response.Status.OK).build();
             } else {
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -60,7 +63,7 @@ public class DockerizerService {
     }
 
     @POST
-    @Path("/function")
+    @Path("/image/function")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createFunctionImage(DockerizeRequest request) {
@@ -81,5 +84,15 @@ public class DockerizerService {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @DELETE
+    @Path("/image/env/image-name")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response deleteImage(DockerizeRequest request) {
+        boolean deleteSuccessful = DockerHandler.deleteImage(request.getDockerEnv(), request.getImageName());
+        return deleteSuccessful ?
+                Response.status(Response.Status.OK).build() :
+                Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
 }

@@ -17,13 +17,16 @@
 
 package org.wso2.ballerina.tooling.service.dockerizer.handler;
 
+import io.fabric8.docker.api.model.ImageDelete;
 import io.fabric8.docker.client.Config;
 import io.fabric8.docker.client.ConfigBuilder;
 import io.fabric8.docker.client.DefaultDockerClient;
 import io.fabric8.docker.client.DockerClient;
+import io.fabric8.docker.client.DockerClientException;
 import io.fabric8.docker.dsl.EventListener;
 import io.fabric8.docker.dsl.OutputHandle;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.tooling.service.dockerizer.utils.Utils;
@@ -36,6 +39,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -43,6 +49,7 @@ import java.util.concurrent.CountDownLatch;
  */
 public class DockerHandler {
     private static final Logger logger = LoggerFactory.getLogger(DockerHandler.class);
+    private static Map<String, DockerClient> clients = new HashMap<>();
 
     public static boolean createServiceImage(String dockerEnv, String imageName, String serviceName, String ballerinaConfig)
             throws IOException, InterruptedException {
@@ -69,15 +76,7 @@ public class DockerHandler {
                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
         // 3. Create a docker image from the temp context
-        DockerClient client;
-        if (dockerEnv == null) {
-            client = new DefaultDockerClient();
-        } else {
-            Config dockerClientConfig = new ConfigBuilder()
-                    .withDockerUrl(dockerEnv)
-                    .build();
-            client = new DefaultDockerClient(dockerClientConfig);
-        }
+        DockerClient client = getDockerClient(dockerEnv);
 
         final CountDownLatch buildDone = new CountDownLatch(1);
         final boolean[] err = {false};
@@ -120,5 +119,43 @@ public class DockerHandler {
         return (!err[0]);
     }
 
+    public static boolean deleteImage(String dockerEnv, String imageName) {
+        List<ImageDelete> imageDeleteList = null;
+        try {
+            imageDeleteList = getDockerClient(dockerEnv).image().withName(imageName).delete().force().andPrune();
+        } catch (DockerClientException e) {
+            if (e.getMessage().contains("No such image")) {
+                return false;
+            }
+        }
 
+        for (ImageDelete imageDelete : imageDeleteList) {
+            if (StringUtils.isNotEmpty(imageDelete.getDeleted())) {
+                System.out.println("Deleted:" + imageDelete.getDeleted());
+            }
+            if (StringUtils.isNotEmpty(imageDelete.getUntagged())) {
+                System.out.println("Untagged:" + imageDelete.getUntagged());
+            }
+        }
+
+        return true;
+    }
+
+    private static DockerClient getDockerClient(String env) {
+        if (!clients.containsKey(env)){
+            DockerClient client;
+            if (env == null) {
+                client = new DefaultDockerClient();
+            } else {
+                Config dockerClientConfig = new ConfigBuilder()
+                        .withDockerUrl(env)
+                        .build();
+                client = new DefaultDockerClient(dockerClientConfig);
+            }
+
+            clients.put(env, client);
+        }
+
+        return clients.get(env);
+    }
 }

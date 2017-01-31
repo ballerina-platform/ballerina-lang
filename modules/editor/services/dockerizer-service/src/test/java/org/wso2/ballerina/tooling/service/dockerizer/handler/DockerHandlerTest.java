@@ -45,7 +45,7 @@ public class DockerHandlerTest {
 
         boolean result = DockerHandler.createServiceImage(null, imageName, serviceName, ballerinaConfig);
 
-//        deleteDockerImage(imageName + ":latest");
+        deleteDockerImage(imageName + ":latest");
         Assert.assertTrue("Docker image creation failed.", result);
     }
 
@@ -58,19 +58,41 @@ public class DockerHandlerTest {
 
         boolean result = DockerHandler.createFunctionImage(null, imageName, serviceName, ballerinaConfig);
 
-//        deleteDockerImage(imageName + ":latest");
+        deleteDockerImage(imageName + ":latest");
         Assert.assertTrue("Docker image creation failed.", result);
+    }
+
+    @Test
+    public void testSuccessfulDeleteImage() throws IOException, InterruptedException {
+        String imageName = "testimage0003";
+        String serviceName = "TestFunction";
+        String ballerinaConfig = new String(Files.readAllBytes(Paths.get(Thread.currentThread().getContextClassLoader().
+                getResource("ballerina/TestFunction.bal").getPath())));
+
+        boolean result = DockerHandler.createFunctionImage(null, imageName, serviceName, ballerinaConfig);
+        Assert.assertTrue("Docker image creation failed.", result);
+        result = DockerHandler.deleteImage(null, imageName);
+        Assert.assertTrue("Docker image deletion failed.", result);
+
+    }
+
+    @Test
+    public void testFailedDeleteImage() throws IOException, InterruptedException {
+        String nonExistentImageName = "nonexistentimage:latest";
+        boolean result = DockerHandler.deleteImage(null, nonExistentImageName);
+        Assert.assertFalse("Docker image deletion.", result);
+
     }
 
     private void deleteDockerImage(String imageName) {
         List<ImageDelete> imageDeleteList = client.image().withName(imageName).delete().force().andPrune();
         for (ImageDelete imageDelete : imageDeleteList) {
             if (StringUtils.isNotEmpty(imageDelete.getDeleted())) {
-                System.out.println("Deleted:"+imageDelete.getDeleted());
+                System.out.println("Deleted:" + imageDelete.getDeleted());
             }
             if (StringUtils.isNotEmpty(imageDelete.getUntagged())) {
-                System.out.println("Untagged:"+imageDelete.getUntagged());
+                System.out.println("Untagged:" + imageDelete.getUntagged());
             }
-}
+        }
     }
 }
