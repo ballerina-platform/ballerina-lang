@@ -47,12 +47,14 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
 
-    private static String userAgent = "ballerina";
+    private static final String BALLERINA_USER_AGENT;
 
     static {
         String version = System.getProperty(BALLERINA_VERSION);
         if (version != null) {
-            userAgent = userAgent + "/" + version;
+            BALLERINA_USER_AGENT = "ballerina/" + version;
+        } else {
+            BALLERINA_USER_AGENT = "ballerina";
         }
     }
 
@@ -102,7 +104,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             Headers headers = (Headers) headerObj;
 
             if (!headers.contains(Constants.USER_AGENT_HEADER)) { // If User-Agent is not already set from program
-                cMsg.setHeader(Constants.USER_AGENT_HEADER, userAgent);
+                cMsg.setHeader(Constants.USER_AGENT_HEADER, BALLERINA_USER_AGENT);
             }
 
         } catch (MalformedURLException e) {
