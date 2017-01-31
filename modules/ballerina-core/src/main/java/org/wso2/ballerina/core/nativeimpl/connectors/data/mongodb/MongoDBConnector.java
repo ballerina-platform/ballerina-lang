@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb;
 
+import com.google.gson.stream.JsonWriter;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.ReadConcern;
@@ -28,6 +29,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.UpdateOptions;
+
 import org.bson.Document;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.exception.BallerinaException;
@@ -35,6 +37,7 @@ import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BJSON;
+import org.wso2.ballerina.core.model.values.BJSON.JSONDataSource;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -42,13 +45,13 @@ import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * MongoDB data connector.
  */
-@SuppressWarnings("rawtypes")
 @BallerinaConnector(
         packageName = "ballerina.data.mongodb",
         connectorName = MongoDBConnector.CONNECTOR_NAME,
@@ -198,16 +201,7 @@ public class MongoDBConnector extends AbstractNativeConnector {
         } else {
             itr = collection.find().iterator();
         }
-        StringBuilder builder = new StringBuilder();
-        builder.append("[");
-        while (itr.hasNext()) {
-            builder.append(itr.next().toJson());
-            if (itr.hasNext()) {
-                builder.append(",");
-            }
-        }
-        builder.append("]");
-        return new BJSON(builder.toString());
+        return new BJSON(new MongoJSONDataSource(itr));
     }
     
     public void insert(String collectionName, BJSON document) {
@@ -263,6 +257,28 @@ public class MongoDBConnector extends AbstractNativeConnector {
     
     private Document jsonToDoc(BJSON json) {
         return Document.parse(json.stringValue());
+    }
+    
+    /**
+     * MongoDB result cursor implementation of {@link JSONDataSource}.
+     */
+    private static class MongoJSONDataSource implements JSONDataSource {
+
+        private MongoCursor<Document> mc;
+        
+        public MongoJSONDataSource(MongoCursor<Document> mc) {
+            this.mc = mc;
+        }
+        
+        @Override
+        public void serialize(JsonWriter writer) throws IOException {
+            writer.beginArray();
+            while (this.mc.hasNext()) {
+                writer.jsonValue(this.mc.next().toJson());
+            }
+            writer.endArray();
+        }
+        
     }
     
 }

@@ -29,6 +29,13 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.MongoDBConnector;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.Find;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.FindOne;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.FindOneWithQuery;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.FindWithQuery;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.Insert;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.InsertBatch;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.SQLConnector;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client.Call;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client.Select;
@@ -435,6 +442,18 @@ public class BuiltInNativeConstructLoader {
         registerAction(scope, new Select());
         registerAction(scope, new Update());
         registerAction(scope, new UpdateWithGeneratedKeys());
+        
+        // Mongo
+        registerConnector(scope, new MongoDBConnector());
+        registerAction(scope, new Find());
+        registerAction(scope, new FindOne());
+        registerAction(scope, new FindWithQuery());
+        registerAction(scope, new FindOneWithQuery());
+        registerAction(scope, new org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.Close());
+        registerAction(scope, new org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.Delete());
+        registerAction(scope, new Insert());
+        registerAction(scope, new InsertBatch());
+        registerAction(scope, new org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.Update());
 
         registerConnector(scope, new HTTPConnector());
 

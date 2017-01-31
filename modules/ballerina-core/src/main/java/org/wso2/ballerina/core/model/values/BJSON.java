@@ -19,13 +19,18 @@ package org.wso2.ballerina.core.model.values;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonWriter;
+
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -43,6 +48,9 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
 
     // Output stream to write message out to the socket
     private OutputStream outputStream;
+    
+    // The datasource object to be used for streaming
+    private JSONDataSource datasource;
 
     /**
      * Initialize a {@link BJSON} from a {@link com.google.gson.JsonElement} object.
@@ -51,6 +59,14 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
      */
     public BJSON(JsonElement json) {
         this.value = json;
+    }
+    
+    /**
+     * Initialize a {@link BJSON} with a {@link JSONDataSource} object.
+     * @param datasource The {@link JSONDataSource} object
+     */
+    public BJSON(JSONDataSource datasource) {
+        this.datasource = datasource;
     }
 
     /**
@@ -140,7 +156,13 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     @Override
     public void serializeData() {
         try {
-            this.outputStream.write(this.value.toString().getBytes());
+            if (this.value != null) {
+                this.outputStream.write(this.value.toString().getBytes());
+            } else {
+                JsonWriter writer = new JsonWriter(new OutputStreamWriter(this.outputStream));
+                this.datasource.serialize(writer);
+                writer.flush();
+            }
         } catch (IOException e) {
             throw new BallerinaException("Error occurred during writing the message to the output stream", e);
         }
@@ -158,11 +180,40 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
      */
     @Override
     public JsonElement value() {
+        if (this.value == null) {
+            try {
+                /* the streaming data source is converted to a normal JsonElement */
+                ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+                JsonWriter writer = new JsonWriter(new OutputStreamWriter(byteOut));
+                this.datasource.serialize(writer);
+                writer.close();
+                this.value = new JsonParser().parse(new InputStreamReader(
+                        new ByteArrayInputStream(byteOut.toByteArray())));
+            } catch (IOException e) {
+                throw new BallerinaException("Error in generating the JSON value", e);
+            }
+        }
         return value;
     }
-
+    
     @Override
     public String stringValue() {
         return this.value.toString();
     }
+    
+    /**
+     * This represents a JSON data source implementation, which should be used for custom JSON
+     * streaming implementations.
+     */
+    public static interface JSONDataSource {
+        
+        /**
+         * Serializes the current representation of the JSON data source to the given {@link JsonWriter}.
+         * @param writer The {@link JsonWriter} object to write the data to
+         * @throws IOException Error occurs while serializing
+         */
+        void serialize(JsonWriter writer) throws IOException;
+        
+    }
+
 }
