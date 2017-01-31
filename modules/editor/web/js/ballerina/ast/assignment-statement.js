@@ -64,9 +64,11 @@ define(['lodash', './statement'], function (_, Statement) {
      * @param {string} expression - expression
      */
     AssignmentStatement.prototype.setExpression = function (expression) {
-        var leftAndRightOperands = expression.split("=");
-        this.getChildren()[0].setLeftOperandExpressionString(_.isNil(leftAndRightOperands[0]) ? "leftExpression" : leftAndRightOperands[0]);
-        this.getChildren()[1].setRightOperandExpressionString(_.isNil(leftAndRightOperands[1]) ? "rightExpression" : leftAndRightOperands[1]);
+        var equalIndex = _.indexOf(expression, '=');
+        var leftOperand = expression.substring(0, equalIndex);
+        var rightOperand = expression.substring(equalIndex + 1);
+        this.getChildren()[0].setLeftOperandExpressionString(_.isNil(leftOperand) ? "leftExpression" : leftOperand);
+        this.getChildren()[1].setRightOperandExpressionString(_.isNil(rightOperand) ? "rightExpression" : rightOperand);
     };
 
     return AssignmentStatement;
