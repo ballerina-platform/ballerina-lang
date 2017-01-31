@@ -19,6 +19,10 @@
 package org.wso2.siddhi.core.util;
 
 import org.apache.log4j.Logger;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
+import org.osgi.framework.BundleListener;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.core.function.EvalScript;
 import org.wso2.siddhi.core.publisher.OutputMapper;
@@ -50,33 +54,47 @@ public class SiddhiExtensionLoader {
     private static final String path = "META-INF/extensions/";
     private static final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     private static final Logger log = Logger.getLogger(SiddhiExtensionLoader.class);
-    private static Map<String, Class> extensionMapList = new HashMap<String, Class>();
+    private static List<Class> extensionBaseImplementationList = new ArrayList<Class>();
 
     /**
      * Helper method to load the siddhi extensions
      *
-     * @return class map
+     * @param siddhiExtensionsMap reference map for the siddhi extension
      */
-    public static Map<String, Class> loadSiddhiExtensions() {
+    public void loadSiddhiExtensions(Map<String, Class> siddhiExtensionsMap) {
+        extensionBaseImplementationList.add(AttributeAggregator.class);
+        extensionBaseImplementationList.add(EvalScript.class);
+        extensionBaseImplementationList.add(EventTable.class);
+        extensionBaseImplementationList.add(InputMapper.class);
+        extensionBaseImplementationList.add(InputTransport.class);
+        extensionBaseImplementationList.add(OutputMapper.class);
+        extensionBaseImplementationList.add(OutputTransport.class);
+        extensionBaseImplementationList.add(StreamFunctionProcessor.class);
+        extensionBaseImplementationList.add(StreamProcessor.class);
+        extensionBaseImplementationList.add(WindowProcessor.class);
+        extensionBaseImplementationList.add(FunctionExecutor.class);
+        loadExtensionsSPI(siddhiExtensionsMap);
+        BundleContext bundleContext = SiddhiManagerServiceComponent.getBundleContext();
+        if (bundleContext != null) {
+            loadExtenstionOSGI(bundleContext, siddhiExtensionsMap);
+        }
+    }
+
+    private void loadExtensionsSPI(Map<String, Class> siddhiExtensionsMap) {
         try {
-            loadAllImplementations(AttributeAggregator.class);
-            loadAllImplementations(EvalScript.class);
-            loadAllImplementations(EventTable.class);
-            loadAllImplementations(FunctionExecutor.class);
-            loadAllImplementations(InputMapper.class);
-            loadAllImplementations(InputTransport.class);
-            loadAllImplementations(OutputMapper.class);
-            loadAllImplementations(OutputTransport.class);
-            loadAllImplementations(StreamFunctionProcessor.class);
-            loadAllImplementations(StreamProcessor.class);
-            loadAllImplementations(WindowProcessor.class);
+            loadAllImplementasions(siddhiExtensionsMap);
         } catch (IOException e) {
             log.error("Unable to load extension, the URL cannot be read.", e);
         } catch (ClassNotFoundException e) {
             log.error("Unable to load extension, the class found is not loadable.", e);
         }
-        return extensionMapList;
     }
+
+    private void loadExtenstionOSGI(BundleContext bundleContext, Map<String, Class> siddhiExtensionsMap) {
+        ExtensionBundleListener extensionBundleListener = new ExtensionBundleListener(bundleContext, siddhiExtensionsMap);
+        extensionBundleListener.loadAllExtensions();
+    }
+
 
     /**
      * Assumes the class specified points to a file in the classpath that contains
@@ -91,30 +109,18 @@ public class SiddhiExtensionLoader {
      * org.wso2.siddhi.extension.eventtable.RDBMSEventTable
      * <p/>
      *
-     * @param extensionBaseClass a superclass or interface for extension base class
+     * @param siddhiExtensionsMap a superclass or interface for extension base class
      * @throws IOException            if the URL cannot be read
      * @throws ClassNotFoundException if the class found is not loadable
      */
-    private static void loadAllImplementations(Class extensionBaseClass) throws IOException,
+    private void loadAllImplementasions(Map<String, Class> siddhiExtensionsMap) throws IOException,
             ClassNotFoundException {
-        List<String> classNames = findAllStrings(extensionBaseClass.getName());
-        if (classNames != null) {
-            for (String className : classNames) {
-                Class extension = classLoader.loadClass(className).asSubclass(extensionBaseClass);
-                SiddhiExtension siddhiExtensionAnnotation = (SiddhiExtension) extension.getAnnotation(SiddhiExtension.class);
-                if (siddhiExtensionAnnotation != null) {
-                    if (!siddhiExtensionAnnotation.name().isEmpty()) {
-                        if (!siddhiExtensionAnnotation.namespace().isEmpty()) {
-                            extensionMapList.put(siddhiExtensionAnnotation.namespace() + SiddhiConstants.EXTENSION_SEPARATOR +
-                                    siddhiExtensionAnnotation.name(), extension);
-                        } else {
-                            extensionMapList.put(siddhiExtensionAnnotation.name(), extension);
-                        }
-                    } else {
-                        log.error("Unable to load extension " + extension.getName() + ", missing SiddhiExtension annotation.");
-                    }
-                } else {
-                    log.error("Unable to load extension " + extension.getName() + ", empty name element given in SiddhiExtension annotation.");
+        for (Class extensionBaseClass : extensionBaseImplementationList) {
+            List<String> classNames = findAllStrings(extensionBaseClass.getName());
+            if (classNames != null) {
+                for (String className : classNames) {
+                    Class extension = classLoader.loadClass(className).asSubclass(extensionBaseClass);
+                    addExtensionToMap(extension, siddhiExtensionsMap);
                 }
             }
         }
@@ -129,7 +135,7 @@ public class SiddhiExtensionLoader {
      */
     private static List<String> findAllStrings(String uri) throws IOException {
         String fullUri = path + uri;
-        List<String> stringList = null;
+        List<String> stringList = new ArrayList<>();
         Enumeration<URL> resources = classLoader.getResources(fullUri);
         while (resources.hasMoreElements()) {
             URL url = resources.nextElement();
@@ -157,5 +163,80 @@ public class SiddhiExtensionLoader {
             }
         }
         return resources;
+    }
+
+    private void addExtensionToMap(Class extensionClass, Map<String, Class> siddhiExtensionsMap) {
+        SiddhiExtension siddhiExtensionAnnotation = (SiddhiExtension) extensionClass.getAnnotation(SiddhiExtension.class);
+        if (siddhiExtensionAnnotation != null) {
+            if (!siddhiExtensionAnnotation.name().isEmpty()) {
+                if (!siddhiExtensionAnnotation.namespace().isEmpty()) {
+                    siddhiExtensionsMap.put(siddhiExtensionAnnotation.namespace() + SiddhiConstants.EXTENSION_SEPARATOR +
+                            siddhiExtensionAnnotation.name(), extensionClass);
+                } else {
+                    siddhiExtensionsMap.put(siddhiExtensionAnnotation.name(), extensionClass);
+                }
+            } else {
+                log.error("Unable to load extension " + extensionClass.getName() + ", missing SiddhiExtension annotation.");
+            }
+        } else {
+            log.error("Unable to load extension " + extensionClass.getName() + ", empty name element given in SiddhiExtension annotation.");
+        }
+    }
+
+    private class ExtensionBundleListener implements BundleListener {
+
+        private Map<Class, Integer> bundleExtensions = new HashMap<Class, Integer>();
+        private Map extensionMap;
+        private BundleContext bundleContext;
+
+        public ExtensionBundleListener(BundleContext bundleContext, Map<String, Class> siddhiExtensionsMap) {
+            this.bundleContext = bundleContext;
+            bundleContext.addBundleListener(this);
+            extensionMap = siddhiExtensionsMap;
+        }
+
+        @Override
+        public void bundleChanged(BundleEvent bundleEvent) {
+            if (bundleEvent.getType() == BundleEvent.STARTED) {
+                addExtensions(bundleEvent.getBundle());
+            } else {
+                removeExtensions(bundleEvent.getBundle());
+            }
+        }
+
+        private void addExtensions(Bundle bundle) {
+            for (Class extensionBaseClass : extensionBaseImplementationList) {
+                try {
+                    URL classURL = bundle.getEntry(path + extensionBaseClass.getCanonicalName());
+                    if (classURL != null) {
+                        List<String> classStringList = readContentList(classURL);
+                        for (String classString : classStringList) {
+                            Class classFile = bundle.loadClass(classString);
+                            bundleExtensions.put(classFile, (int) bundle.getBundleId());
+                            addExtensionToMap(classFile, extensionMap);
+                        }
+                    }
+                } catch (IOException e) {
+                    log.error("Unable to load extension, the URL cannot be read.", e);
+                } catch (ClassNotFoundException e) {
+                    log.error("Unable to load extension, the class found is not loadable.", e);
+                }
+            }
+        }
+
+        private void removeExtensions(Bundle bundle) {
+            bundleExtensions.entrySet().stream().filter(entry -> entry.getValue() == bundle.getBundleId()).forEachOrdered(entry -> {
+                extensionMap.remove(entry.getKey());
+            });
+            bundleExtensions.entrySet().removeIf(entry -> entry.getValue() == bundle.getBundleId());
+        }
+
+        public void loadAllExtensions() {
+            for (Bundle b : bundleContext.getBundles()) {
+                if (b.getState() == Bundle.ACTIVE) {
+                    addExtensions(b);
+                }
+            }
+        }
     }
 }
