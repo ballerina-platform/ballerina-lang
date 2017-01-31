@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.models.Swagger;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
@@ -16,6 +18,8 @@ import org.wso2.ballerina.tooling.service.workspace.swagger.model.Service;
 
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +35,8 @@ import java.util.List;
  * ballerina to swagger service definitions
  */
 public class ServicesApiServiceImpl {
+    private static final Logger logger = LoggerFactory.getLogger(ServicesApiServiceImpl.class);
+
     @POST
     @Path("/convert-service")
     @Consumes({"application/json"})
@@ -43,37 +49,27 @@ public class ServicesApiServiceImpl {
             @io.swagger.annotations.ApiResponse(code = 200,
                     message = "Created.  Successful response with the newly created API as entity in the body. " +
                             "Location header contains URL of newly created API. ", response = void.class)})
-    public Service servicesConvertServicePost(@ApiParam(value = "Type to be convert", required = true)
-                                              @QueryParam("expectedType") String expectedType
+    public Response servicesConvertServicePost(@ApiParam(value = "Type to be convert", required = true)
+                                               @QueryParam("expectedType") String expectedType
             , @ApiParam(value = "Service definition to be convert ", required = true) Service serviceDefinition)
             throws NotFoundException {
         try {
             String response = parseSwaggerDataModel(serviceDefinition.getSwaggerDefinition()).getSwagger();
             serviceDefinition.setSwaggerDefinition(response);
-            return serviceDefinition;
+            return Response.ok().entity(serviceDefinition).build();
             //return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, response)).build();
         } catch (IOException ex) {
+            logger.error("Error while processing service definition at converter service" + ex.getMessage());
             JsonObject entity = new JsonObject();
             entity.addProperty("Error", ex.toString());
-            //TODO send proper error
-            /*return Response.status(Response.Status.BAD_REQUEST).entity(entity)
-                    .header("Access-Control-Allow-Origin", '*')
-                    .type(MediaType.APPLICATION_JSON).build();*/
-        } catch (Exception e) {
-            JsonObject entity = new JsonObject();
-            entity.addProperty("Error", e.toString());
-            //TODO send proper error
-        /*            return Response.status(Response.Status.BAD_REQUEST).entity(entity)
+            return Response.status(Response.Status.BAD_REQUEST).entity(entity)
                     .header("Access-Control-Allow-Origin", '*')
                     .type(MediaType.APPLICATION_JSON).build();
-        */
         }
-        return serviceDefinition;
     }
 
 
     /**
-     *
      * @param ballerinaDefinition String ballerina config to be processed as ballerina service definition
      * @return swagger data model generated from ballerina definition
      * @throws IOException when input process error occur.
