@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.wso2.ballerina.lang.util;
+package org.wso2.ballerina.core.utils;
 
 
-import org.wso2.ballerina.core.TestCallback;
 import org.wso2.ballerina.core.runtime.ServerConnectorMessageHandler;
+import org.wso2.ballerina.core.runtime.TestCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
