@@ -21,9 +21,7 @@ package org.wso2.ballerina.core.runtime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.runtime.threadpool.RequestWorkerThread;
-import org.wso2.ballerina.core.runtime.threadpool.ResponseWorkerThread;
 import org.wso2.ballerina.core.runtime.threadpool.ThreadPoolFactory;
-import org.wso2.ballerina.core.runtime.threadpool.WorkerThread;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
@@ -38,21 +36,17 @@ public class MessageProcessor implements CarbonMessageProcessor {
 
     public boolean receive(CarbonMessage cMsg, CarbonCallback carbonCallback) throws Exception {
 
-        WorkerThread workerThread;
-
         if (!org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE.
                 equals(cMsg.getProperty(org.wso2.carbon.messaging.Constants.DIRECTION))) {
             // For Request
             if (log.isDebugEnabled()) {
                 log.debug("ballerina received a request message");
             }
-            workerThread = new RequestWorkerThread(cMsg, carbonCallback);
-
+            ThreadPoolFactory.getInstance().getExecutor().execute(new RequestWorkerThread(cMsg, carbonCallback));
         } else {
             // For Response
-            workerThread = new ResponseWorkerThread(cMsg, carbonCallback);
+            ServerConnectorMessageHandler.handleOutbound(cMsg, carbonCallback);
         }
-        ThreadPoolFactory.getInstance().getExecutor().execute(workerThread);
 
         return true;
     }
