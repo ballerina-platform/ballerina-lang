@@ -98,6 +98,16 @@ define(['lodash', './node', 'constants'], function (_, ASTNode, constants) {
     };
 
     /**
+     * Validates possible immediate child types.
+     * @override
+     * @param node
+     * @return {boolean}
+     */
+    StructDefinition.prototype.canBeParentOf = function (node) {
+        return this.BallerinaASTFactory.isVariableDeclaration(node)
+    };
+
+    /**
      * return attributes list as a json object
      * @returns {Object} attributes array
      */

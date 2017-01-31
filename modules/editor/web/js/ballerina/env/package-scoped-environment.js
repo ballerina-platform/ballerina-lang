@@ -17,6 +17,7 @@
  */
 define(['lodash', './package', './environment'], function(_, Package, Environment){
 
+
     var PackageScopedEnvironment = function (args) {
         this._packages = _.get(args, 'packages', []);
         this.init();
@@ -50,6 +51,18 @@ define(['lodash', './package', './environment'], function(_, Package, Environmen
         });
         return result;
     };
+
+    /**
+     * Given a name, finds relevant package
+     * @param packageName {String} name of the package to find
+     * @return {Package}
+     */
+    PackageScopedEnvironment.prototype.findPackage = function (packageName) {
+        return _.find(this._packages, function(packageInstance){
+            return _.isEqual(packageInstance.getName(), packageName);
+        });
+    };
+
 
     return PackageScopedEnvironment;
 
