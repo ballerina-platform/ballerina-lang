@@ -67,7 +67,7 @@ public class ErrorHandlerUtils {
             return "";
         }
         
-        String stackTrace = getStackTrace(context, throwable, 0);
+        String stackTrace = getStackTrace(context, throwable, 1);
 
         // print the service info
         CallableUnitInfo serviceInfo = context.getServiceInfo();
