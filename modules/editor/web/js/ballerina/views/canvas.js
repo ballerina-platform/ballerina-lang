@@ -158,8 +158,6 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
                 // reset ui feed back on drop target change
                 self.toolPalette.dragDropManager.once("drop-target-changed", function(){
                     outerDiv.removeClass(dropActiveClass);
-                    $(svgContainer).height($(svgContainer).find("svg").attr("height"));
-                    $(svgContainer).mCustomScrollbar("update");
                 });
             }
             event.stopPropagation();
@@ -226,6 +224,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
     Canvas.prototype.setServiceContainerWidth = function (newWidth) {
         this._svg.attr('width', newWidth);
         this.getBoundingBox().w(newWidth);
+        $(this._container).closest(".panel-body").find(".outer-box").mCustomScrollbar("update");
     };
 
     Canvas.prototype.getServiceContainer = function () {
