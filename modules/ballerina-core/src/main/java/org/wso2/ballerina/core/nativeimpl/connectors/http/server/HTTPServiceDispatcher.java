@@ -63,7 +63,9 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             }
 
             String uriStr = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
-            URI requestUri = URI.create(uriStr);
+            //replace multiple slashes from single slash if exist in request path to enable
+            // dispatching when request path contains multiple slashes
+            URI requestUri = URI.create(uriStr.replaceAll("//+", "/"));
             if (requestUri == null) {
                 throw new BallerinaException("URI not found in the message or found an invalid URI.");
             }
