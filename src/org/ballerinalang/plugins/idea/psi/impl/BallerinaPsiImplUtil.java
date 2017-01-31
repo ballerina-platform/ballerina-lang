@@ -17,39 +17,11 @@
 package org.ballerinalang.plugins.idea.psi.impl;
 
 import com.intellij.lang.ASTNode;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageDeclaration;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypes;
-import org.jetbrains.annotations.NotNull;
-
-import java.io.File;
 
 public class BallerinaPsiImplUtil {
-
-    public static String getLocalPackageName(@NotNull VirtualFile directory) {
-
-        Project project = ProjectUtil.guessProjectForContentFile(directory);
-        if (project != null && project.getBasePath() != null) {
-            // Get the relative path of the file in the project
-            String trimmedPath = directory.getPath().replace(project.getBasePath(), "");
-            // Remove the separator at the beginning of the string
-            trimmedPath = trimmedPath.replaceFirst(File.separator, "");
-            // Replace all other separators with . to get the package path
-            trimmedPath = trimmedPath.replaceAll(File.separator, ".");
-            // If the path is not empty, return the path
-            if (!trimmedPath.isEmpty()) {
-                return trimmedPath;
-            }
-            // If the path is empty, return the project base directory name
-            return project.getBaseDir().getName().replaceAll(" ", "_");
-        }
-
-        // If the package name cannot be constructed, return empty string
-        return "";
-    }
 
     public static String getRealPackageName(BallerinaPackageDeclaration element) {
         ASTNode keyNode = element.getNode().findChildByType(BallerinaTypes.PACKAGE_NAME);
@@ -72,6 +44,4 @@ public class BallerinaPsiImplUtil {
             return null;
         }
     }
-
-
 }
