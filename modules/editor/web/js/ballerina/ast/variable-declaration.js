@@ -35,8 +35,12 @@ define(['lodash', 'log', './node'], function(_, log, ASTNode){
     VariableDeclaration.prototype.constructor = VariableDeclaration;
 
     VariableDeclaration.prototype.setType = function (type) {
-        if(!_.isUndefined(type)){
+        if (!_.isUndefined(type)) {
             this._type = type;
+        } else {
+            var exceptionString = "A variable requires a type.";
+            log.error(exceptionString);
+            throw exceptionString;
         }
     };
 
