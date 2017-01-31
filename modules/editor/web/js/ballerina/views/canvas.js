@@ -23,10 +23,16 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         var mMArgs = {'canvas': this};
         args.messageManager = new MessageManager(mMArgs);
         BallerinaView.call(this, args);
+        this.init();
     };
 
     Canvas.prototype = Object.create(BallerinaView.prototype);
     Canvas.prototype.constructor = Canvas;
+
+    Canvas.prototype.init = function () {
+        this.on('remove-view', this.removeViewCallback, this);
+        this._model.on('child-removed', this.childRemovedCallback, this);
+    };
 
     Canvas.prototype.getSVG = function () {
         return this._svg;
@@ -174,7 +180,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
 
             var child = self._model;
             var parent = child.parent;
-            parent.removeChild(child);
+            self.trigger("remove-view", parent, child);
         });
 
         $(svgContainer).mCustomScrollbar({
@@ -224,6 +230,20 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
 
     Canvas.prototype.getServiceContainer = function () {
         return this._svg;
+    };
+
+    /**
+     * Override the remove view callback
+     * @param {ASTNode} parent - parent node
+     * @param {ASTNode} child - child node
+     */
+    Canvas.prototype.removeViewCallback = function (parent, child) {
+        $("#_" +this._model.id).remove();
+        this.unplugView(
+            {
+                w: 0,
+                h: 0
+            }, parent, child);
     };
 
     return Canvas;
