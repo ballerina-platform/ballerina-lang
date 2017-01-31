@@ -41,7 +41,6 @@ public class DockerizerService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createServiceImage(DockerizeRequest request) {
         try {
-
             // 0. Validate payload TODO
             String imageName = Utils.getBase64DecodedString(request.getImageName());
             String serviceName = Utils.getBase64DecodedString(request.getServiceName());
@@ -60,10 +59,27 @@ public class DockerizerService {
         }
     }
 
-//    @POST
-//    @Path("/function")
-//    @Produces("application/json")
-//    public Response createFunctionImage(String payload) {
-//
-//    }
+    @POST
+    @Path("/function")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createFunctionImage(DockerizeRequest request) {
+        try {
+            // 0. Validate payload TODO
+            String imageName = Utils.getBase64DecodedString(request.getImageName());
+            String serviceName = Utils.getBase64DecodedString(request.getServiceName());
+            String ballerinaConfig = Utils.getBase64DecodedString(request.getBallerinaConfig());
+            String dockerEnv = Utils.getBase64DecodedString(request.getDockerEnv());
+
+            boolean buildSuccessful = DockerHandler.createFunctionImage(dockerEnv, imageName, serviceName, ballerinaConfig);
+            if (buildSuccessful) {
+                return Response.status(Response.Status.OK).build();
+            } else {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

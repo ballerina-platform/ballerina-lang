@@ -23,10 +23,12 @@ import io.fabric8.docker.client.DefaultDockerClient;
 import io.fabric8.docker.client.DockerClient;
 import io.fabric8.docker.dsl.EventListener;
 import io.fabric8.docker.dsl.OutputHandle;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.tooling.service.dockerizer.utils.Utils;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,13 +46,21 @@ public class DockerHandler {
 
     public static boolean createServiceImage(String dockerEnv, String imageName, String serviceName, String ballerinaConfig)
             throws IOException, InterruptedException {
-        // 0. Cleanup old temp folders: TODO:
+        return createImage(dockerEnv, imageName, serviceName, ballerinaConfig, true);
+    }
 
+    public static boolean createFunctionImage(String dockerEnv, String imageName, String serviceName, String ballerinaConfig)
+            throws IOException, InterruptedException {
+        return createImage(dockerEnv, imageName, serviceName, ballerinaConfig, false);
+    }
+
+    public static boolean createImage(String dockerEnv, String imageName, String serviceName, String ballerinaConfig,
+                                      boolean service) throws IOException, InterruptedException {
         // 1. Create a tmp docker context
         String tempDirName = "ballerina-docker-" + String.valueOf(Instant.now().getEpochSecond());
         Path tmpDir = Files.createTempDirectory(tempDirName);
         Files.createDirectory(Paths.get(tmpDir.toString() + "/files"));
-        Files.copy(Paths.get(Utils.getResourceFile("docker/image/service/Dockerfile").getAbsolutePath()),
+        Files.copy(Paths.get(Utils.getResourceFile("docker/image/Dockerfile").getAbsolutePath()),
                 Paths.get(tmpDir.toString() + "/Dockerfile"), StandardCopyOption.REPLACE_EXISTING);
 
         // 2. Create a .bal file inside context/files
@@ -76,6 +86,7 @@ public class DockerHandler {
                 .withRepositoryName(imageName)
                 .withNoCache()
                 .alwaysRemovingIntermediate()
+                .withBuildArgs("{\"SVC_MODE\":\"" + String.valueOf(service) + "\"}")
                 .usingListener(new EventListener() {
                     @Override
                     public void onSuccess(String successEvent) {
@@ -95,6 +106,7 @@ public class DockerHandler {
                         logger.debug(event);
                     }
                 })
+                .writingOutput(System.out)
                 .fromFolder(tmpDir.toString());
 
         buildDone.await();
@@ -104,6 +116,7 @@ public class DockerHandler {
         // 4. ??
         // 5. Profit
 
+        FileUtils.deleteDirectory(new File(tmpDir.toString()));
         return (!err[0]);
     }
 

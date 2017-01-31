@@ -45,7 +45,20 @@ public class DockerHandlerTest {
 
         boolean result = DockerHandler.createServiceImage(null, imageName, serviceName, ballerinaConfig);
 
-        deleteDockerImage(imageName + ":latest");
+//        deleteDockerImage(imageName + ":latest");
+        Assert.assertTrue("Docker image creation failed.", result);
+    }
+
+    @Test
+    public void testSuccessfulCreateFunctionImage() throws IOException, InterruptedException {
+        String imageName = "testimage0002";
+        String serviceName = "TestFunction";
+        String ballerinaConfig = new String(Files.readAllBytes(Paths.get(Thread.currentThread().getContextClassLoader().
+                getResource("ballerina/TestFunction.bal").getPath())));
+
+        boolean result = DockerHandler.createFunctionImage(null, imageName, serviceName, ballerinaConfig);
+
+//        deleteDockerImage(imageName + ":latest");
         Assert.assertTrue("Docker image creation failed.", result);
     }
 
