@@ -405,7 +405,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             // Creating resource heading collapse icon.
             var headingCollapseIcon = D3utils.rect(xForCollpaseIcon, yForIcons,
                 iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup)
-                .classed("headingCollapsedIcon", true);
+                .classed("headingExpandIcon", true);
 
             // Creating separator for collapse icon.
             D3utils.line(xEndOfHeadingRect - this._viewOptions.heading.icon.width, parseFloat(headingRect.attr("y")) + 5,
@@ -562,10 +562,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     // show the variable button and variable pane
                     self._variableButton.show();
                     self._variablePane.show();
-
+                    
                     // Changing icon if the collapse.
-                    headingCollapseIcon.classed("headingExpandIcon", false);
-                    headingCollapseIcon.classed("headingCollapsedIcon", true);
+                    headingCollapseIcon.classed("headingExpandIcon", true);
+                    headingCollapseIcon.classed("headingCollapsedIcon", false);
                 }
                 else {
                     contentGroup.attr("display", "none");
@@ -578,8 +578,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     self._variablePane.hide();
 
                     // Changing icon if the collapse.
-                    headingCollapseIcon.classed("headingExpandIcon", true);
-                    headingCollapseIcon.classed("headingCollapsedIcon", false);
+                    headingCollapseIcon.classed("headingExpandIcon", false);
+                    headingCollapseIcon.classed("headingCollapsedIcon", true);
                 }
             };
 
