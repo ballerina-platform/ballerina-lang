@@ -113,7 +113,7 @@ define(['lodash', 'log', 'file_browser', 'event_channel', 'context_menu', 'theme
                 };
                 items.createNewFolder = {
                     name: "new folder",
-                    icon: "fa-delete",
+                    icon: "",
                     callback: function () {
                         self.application.commandManager.dispatch("create-new-item-at-path",
                             {
@@ -166,7 +166,7 @@ define(['lodash', 'log', 'file_browser', 'event_channel', 'context_menu', 'theme
 
             if(isRoot){
                 items.removeFolderFromExplorer = {
-                    name: "remove project folder",
+                    name: "remove folder",
                     icon: "",
                     callback: function () {
                         self.application.commandManager.dispatch("remove-explorer-item", self);
