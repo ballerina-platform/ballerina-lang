@@ -91,6 +91,7 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace/file'
                 this._workingFileSet.push(tab.getFile().id);
                 this.getBrowserStorage().put('workingFileSet', this._workingFileSet);
             }
+            $('[data-toggle="tooltip"]').tooltip();
         },
         removeTab: function (tab) {
             TabList.prototype.removeTab.call(this, tab);
@@ -117,6 +118,7 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace/file'
             if(tab instanceof FileTab){
                 tab.updateHeader();
             }
+            $('[data-toggle="tooltip"]').tooltip();
             return tab;
         },
         getBrowserStorage: function(){
