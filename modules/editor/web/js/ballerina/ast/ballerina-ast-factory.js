@@ -267,6 +267,22 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * creates Aggregated AssignmentStatement
+         * @param {Object} args
+         * @returns {AssignmentStatement}
+         */
+        BallerinaASTFactory.createAggregatedAssignmentStatement = function (args) {
+            var assignmentStmt = new assignmentStatement(args);
+            var leftOperand = BallerinaASTFactory.createLeftOperandExpression();
+            leftOperand.setLeftOperandExpressionString("a");
+            var rightOperand = BallerinaASTFactory.createRightOperandExpression();
+            rightOperand.setRightOperandExpressionString("b");
+            assignmentStmt.addChild(leftOperand);
+            assignmentStmt.addChild(rightOperand);
+            return assignmentStmt;
+        };
+
+        /**
          * creates ReplyStatement
          * @param args
          */

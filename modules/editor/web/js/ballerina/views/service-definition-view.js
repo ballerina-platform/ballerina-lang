@@ -40,6 +40,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             this._viewOptions.offsetTop = _.get(args, "viewOptionsOffsetTop", 50);
             this._viewOptions.topBottomTotalGap = _.get(args, "viewOptionsTopBottomTotalGap", 100);
             this._viewOptions.panelIcon = _.get(args.viewOptions, "cssClass.service_icon");
+            this._viewOptions.minHeight = _.get(args, "minHeight", 300);
             //set initial height for the service container svg
             this._totalHeight = 170;
             //set initial connector margin for the service
@@ -54,16 +55,10 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 log.error("Container for service definition is undefined." + this._container);
                 throw "Container for service definition is undefined." + this._container;
             }
-            this.init();
         };
 
         ServiceDefinitionView.prototype = Object.create(Canvas.prototype);
         ServiceDefinitionView.prototype.constructor = ServiceDefinitionView;
-
-        ServiceDefinitionView.prototype.init = function(){
-            //Registering event listeners
-            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
-        };
 
         ServiceDefinitionView.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof ServiceDefinition) {
@@ -87,7 +82,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             if (!_.isNil(view)) {
                 //stop listening to current last resource view - if any
                 if(!_.isEmpty(this._resourceViewList)){
-                    this.stopListening(_.last(this._resourceViewList).getBoundingBox(), 'bottom-edge-moved');
+                    _.last(this._resourceViewList).getBoundingBox().off('bottom-edge-moved');
 
                     // make new view adjust y on last view's bottom edge move
                     _.last(this._resourceViewList).getBoundingBox().on('bottom-edge-moved', function(dy){
@@ -97,8 +92,8 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 this._resourceViewList.push(view);
 
                 // listen to new last resource view
-                this.listenTo(_.last(this._resourceViewList).getBoundingBox(), 'bottom-edge-moved',
-                    this.onLastResourceBottomEdgeMoved);
+                _.last(this._resourceViewList).getBoundingBox().on('bottom-edge-moved',
+                    this.onLastResourceBottomEdgeMoved, this);
             }
         };
 
@@ -148,7 +143,6 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             var currentContainer = $('#' + divId);
             this._container = currentContainer;
             this.getBoundingBox().fromTopLeft(new Point(0, 0), currentContainer.width(), currentContainer.height());
-            this.getModel().accept(this);
             var self = this;
 
             $("#title-" + this._model.id).addClass("service-title-text").text(this._model.getServiceName())
@@ -192,8 +186,9 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
             // Creating annotation icon.
             var panelAnnotationIcon = $("<i/>", {
-                class: "fw fw-annotation pull-right right-icon-clickable hoverable"
-            }).appendTo(operationsPane);
+                class: "fw fw-annotation pull-right right-icon-clickable hoverable",
+                title: "Annotations"
+            }).appendTo(operationsPane).tooltip();
 
             // Stopping event propagation to the elements behind.
             panelAnnotationIcon.click(function (event) {
@@ -217,6 +212,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
             this.setServiceContainerWidth(this._container.width());
             AnnotationView.createAnnotationPane(annotationProperties);
+            this.getModel().accept(this);
         };
 
         /**
@@ -317,16 +313,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             this.setLifelineMargin(resourceDefinitionView.getBoundingBox().getRight());
             // If the lifeline margin is changed then accordingly the resource should move the bounding box
             this.getLifeLineMargin().on('moved', function (offset) {
-                var newWidth = resourceDefinitionView.getBoundingBox().w() + offset;
-                var minWidth = resourceDefinitionView.getContentMinWidth();
-                // resource bounding box should not shrink than min width
-                if (newWidth > minWidth) {
-                    resourceDefinitionView.getBoundingBox().w(newWidth);
-                } else {
-                    // reset lifeline margin position
-                    self.setLifelineMargin(minWidth + self._viewOptions.offsetTop);
-                    resourceDefinitionView.getBoundingBox().w(minWidth);
-                }
+                resourceDefinitionView.getBoundingBox().w(resourceDefinitionView.getBoundingBox().w() + offset);
             });
 
             //setting height of the service view
@@ -357,21 +344,17 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 center;
             var self = this;
 
-            // Calculate the new connector's center point
-            var widestResource = this.getWidestResource();
-
             if (_.isEmpty(this._connectorViewList)) {
                 // If this is the first service level connector adding
                 center = new Point(this.getLifeLineMargin().getPosition() + 120, this._viewOptions.offsetTop);
             } else {
+                // We have service level connectors already
                 center = new Point(_.last(this._connectorViewList).getBoundingBox().getTopCenterX(),
                     this._viewOptions.offsetTop).move(this._viewOptions.LifeLineCenterGap, 0);
             }
             _.set(connectorOpts, 'centerPoint', center);
             connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
-            this._connectorViewList.push(connectorDeclarationView);
-
             connectorDeclarationView.render();
             
             // Creating property pane
@@ -399,21 +382,31 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             });
 
             connectorDeclarationView.setParent(this);
-            // We render the service level connector first. Then call the ShrinkOrExpand of the resource
-            // This will change the resource BBox if needed. If changed, we move the connector/ reposition it
-            this.getLifeLineMargin().on('moved', function (offset) {
-                connectorDeclarationView.getBoundingBox().move(offset, 0);
-                // After moving the connector, if it go beyond the svg's width, we need to increase the parent svg width
-                if (connectorDeclarationView.getBoundingBox().getRight() > self.getServiceContainer().width()) {
-                    // Add an offset of 60 to the current connector's BBox's right value
-                    self.setServiceContainerWidth(connectorDeclarationView.getBoundingBox().getRight() + 60);
-                }
-            });
-            this.getBoundingBox().on('bottom-edge-moved', function (dh) {
-                connectorDeclarationView.getBoundingBox().h(connectorDeclarationView.getBoundingBox().h() + dh);
-            });
 
-            this.getLifeLineMargin().setPosition(this.getLifeLineMargin().getPosition() - this._viewOptions.LifeLineCenterGap);
+            if (this._connectorViewList.length === 0) {
+                // Always the first connector is listening to the lifeline margin
+                // Use the listen to here, since more than one other objects are listening to the lifeLineMargin.
+                connectorDeclarationView.listenTo(this.getLifeLineMargin(), 'moved', function (offset) {
+                    self.moveServiceLevelConnector(this, offset);
+                });
+            } else {
+                // When there are already added connectors in the service level
+                connectorDeclarationView.listenTo(_.last(this._connectorViewList).getBoundingBox(), 'right-edge-moved', function (offset) {
+                    self.moveServiceLevelConnector(this, offset);
+                });
+            }
+
+            // Add the new connector to the connector views list
+            this._connectorViewList.push(connectorDeclarationView);
+
+            if (this.getResourceViewList().length > 0) {
+                // If we have added resources
+                var newLifeLineMarginPosition = this.getLifeLineMargin().getPosition() - this._viewOptions.LifeLineCenterGap;
+                this.getLifeLineMargin().setPosition(newLifeLineMarginPosition);
+            } else {
+                // When there are no resources added
+                this.setServiceContainerWidth(connectorDeclarationView.getBoundingBox().getRight() + this._viewOptions.LifeLineCenterGap);
+            }
         };
 
         /**
@@ -441,6 +434,98 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
          */
         ServiceDefinitionView.prototype.getLifeLineMargin = function () {
             return this._lifelineMargin;
+        };
+
+        /**
+         * Child Remove Callback
+         * @param {ASTNode} child - removed child node
+         */
+        ServiceDefinitionView.prototype.childRemovedCallback = function (child) {
+            var self = this;
+            var childView = this.diagramRenderingContext.getViewModelMap()[child.id];
+
+            // If the child trying to delete is a resource definition
+            if (BallerinaASTFactory.isResourceDefinition(child)) {
+                var removingChildIndex = _.findIndex(this._resourceViewList, function (child) {
+                    return child.id === childView.id;
+                });
+
+                if (removingChildIndex !== -1 && !_.isNil(this._resourceViewList[removingChildIndex + 1]) && !_.isNil(this._resourceViewList[removingChildIndex - 1])) {
+                    var nextChild = self._resourceViewList[removingChildIndex + 1];
+                    this._resourceViewList[removingChildIndex - 1].getBoundingBox().on('bottom-edge-moved', function (dy) {
+                        nextChild.getBoundingBox().move(0, dy);
+                    })
+                }
+
+                // Remove the event bind for the current last resource
+                if (!_.isEmpty(this._resourceViewList)) {
+                    _.last(this._resourceViewList).getBoundingBox().off('bottom-edge-moved',
+                        this.onLastResourceBottomEdgeMoved);
+                }
+                // Remove the Element
+                _.remove(this._resourceViewList, function (child) {
+                    return child.id === childView.id;
+                });
+                // Bind the event for the new last resource
+                if (!_.isEmpty(this._resourceViewList)) {
+                    _.last(this._resourceViewList).getBoundingBox().on('bottom-edge-moved',
+                        this.onLastResourceBottomEdgeMoved, this);
+                } else {
+                    // If the last child has been removed we re-position the lifelineMargin to 0;
+                    this.getLifeLineMargin().setPosition(0);
+                }
+
+                childView.getBoundingBox().off('bottom-edge-moved');
+                // Remove the view from the view list
+                this._resourceViewList.splice(removingChildIndex, 1);
+            } else if (BallerinaASTFactory.isConnectorDeclaration(child) || BallerinaASTFactory.isWorkerDeclaration(child)) {
+                // If we deleted the firstChild
+                var childId = child.id;
+                var childViewIndex = _.findIndex(this._connectorViewList, function (view) {
+                    return view.getModel().id === childId;
+                });
+                if (childViewIndex === 0) {
+                    // We have deleted the first child (Addresses the scenarios of first child and being the only child
+                    this._connectorViewList[childViewIndex].stopListening(this.getLifeLineMargin());
+                    if (!_.isNil(this._connectorViewList[childViewIndex + 1])) {
+                        this._connectorViewList[childViewIndex + 1].stopListening(this._connectorViewList[childViewIndex].getBoundingBox());
+                        this._connectorViewList[childViewIndex + 1].listenTo(this.getLifeLineMargin(), 'moved', function (offset) {
+                            self.moveServiceLevelConnector(this, offset);
+                        })
+                    }
+                } else if (this._connectorViewList.length - 1 === childViewIndex){
+                    // We are deleting the last child
+                    this._connectorViewList[childViewIndex].stopListening(this._connectorViewList[childViewIndex - 1]);
+                } else {
+                    // We are deleting a connector which is between two connectors
+                    // Connector being deleted, stop listening to it's previous connector
+                    this._connectorViewList[childViewIndex].stopListening(this._connectorViewList[childViewIndex - 1].getBoundingBox());
+                    this._connectorViewList[childViewIndex + 1].stopListening(this._connectorViewList[childViewIndex].getBoundingBox());
+                    this._connectorViewList[childViewIndex + 1].listenTo(this._connectorViewList[childViewIndex - 1].getBoundingBox(), 'right-edge-moved', function (offset) {
+                        self.moveServiceLevelConnector(this, offset);
+                    });
+                }
+                // Remove the view from the view list
+                this._connectorViewList[childViewIndex] = null;
+                this._connectorViewList.splice(childViewIndex, 1);
+            }
+            // Remove the connector/ worker from the diagram rendering context
+            delete this.diagramRenderingContext.getViewModelMap()[child.id];
+            childView = null;
+        };
+
+        /**
+         * Move the service level connector
+         * @param {BallerinaView} connectorView - Connector view being moved
+         * @param {number} offset - move offset
+         */
+        ServiceDefinitionView.prototype.moveServiceLevelConnector = function (connectorView, offset) {
+            connectorView.getBoundingBox().move(offset, 0);
+            // After moving the connector, if it go beyond the svg's width, we need to increase the parent svg width
+            if (connectorView.getBoundingBox().getRight() > this.getServiceContainer().width()) {
+                // Add an offset of 60 to the current connector's BBox's right value
+                this.setServiceContainerWidth(connectorView.getBoundingBox().getRight() + 60);
+            }
         };
 
         return ServiceDefinitionView;

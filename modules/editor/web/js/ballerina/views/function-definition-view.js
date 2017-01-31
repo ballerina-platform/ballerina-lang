@@ -18,11 +18,11 @@
 define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-definition', './default-worker', 'd3utils', '' +
         'd3', './worker-declaration-view', './statement-view-factory', './point', './axis',
         './connector-declaration-view', './statement-container', './variables-view', './function-arguments-view',
-        './return-types-pane-view'],
+        './return-types-pane-view', 'ballerina/ast/ballerina-ast-factory'],
     function (_, log, EventChannel, Canvas, FunctionDefinition, DefaultWorkerView, D3Utils,
               d3, WorkerDeclarationView, StatementViewFactory, Point, Axis,
               ConnectorDeclarationView, StatementContainer, VariablesView, ArgumentsView,
-              ReturnTypePaneView) {
+              ReturnTypePaneView, BallerinaASTFactory) {
 
         /**
          * The view to represent a function definition which is an AST visitor.
@@ -58,11 +58,48 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 log.error("Container for function definition is undefined." + this._container);
                 throw "Container for function definition is undefined." + this._container;
             }
-
         };
 
         FunctionDefinitionView.prototype = Object.create(Canvas.prototype);
         FunctionDefinitionView.prototype.constructor = FunctionDefinitionView;
+
+        /**
+         * Child remove callback
+         * @param {ASTNode} child - removed child
+         */
+        FunctionDefinitionView.prototype.childRemovedCallback = function (child) {
+            var self = this;
+            if (BallerinaASTFactory.isStatement(child)) {
+                this.getStatementContainer().childStatementRemovedCallback(child);
+            } else if (BallerinaASTFactory.isConnectorDeclaration(child) || BallerinaASTFactory.isWorkerDeclaration(child)) {
+                var childViewIndex = _.findIndex(this._workerAndConnectorViews, function (view) {
+                    return view.getModel().id === child.id;
+                });
+
+                if (childViewIndex === 0) {
+                    // Deleted the first connector/worker in the list (Addresses both first element scenario and the only element scenario
+                    if (!_.isNil(this._workerAndConnectorViews[childViewIndex + 1])) {
+                        // Unregister the listening event of the second element on the first element
+                        this._workerAndConnectorViews[childViewIndex + 1].stopListening(this._workerAndConnectorViews[childViewIndex].getBoundingBox());
+                    }
+                } else if (childViewIndex === this._workerAndConnectorViews.length - 1) {
+                    // Deleted the last connector/worker when there are more than one worker/ connector
+                    this._workerAndConnectorViews[childViewIndex].stopListening(this._workerAndConnectorViews[childViewIndex - 1].getBoundingBox());
+                } else {
+                    // Deleted connector is in between two other connectors/ workers
+                    // Connector being deleted, stop listening to it's previous connector
+                    this._workerAndConnectorViews[childViewIndex].stopListening(this._workerAndConnectorViews[childViewIndex - 1].getBoundingBox());
+                    this._workerAndConnectorViews[childViewIndex + 1].stopListening(this._workerAndConnectorViews[childViewIndex].getBoundingBox());
+                    this._workerAndConnectorViews[childViewIndex + 1].listenTo(this._workerAndConnectorViews[childViewIndex - 1].getBoundingBox(), 'right-edge-moved', function (offset) {
+                        self.moveFunctionDefinitionLevelConnector(this, offset);
+                    });
+                }
+                this._workerAndConnectorViews[childViewIndex] = null;
+                this._workerAndConnectorViews.splice(childViewIndex, 1);
+            }
+            // Remove the connector/ worker from the diagram rendering context
+            delete this.diagramRenderingContext.getViewModelMap()[child.id];
+        };
 
         FunctionDefinitionView.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof FunctionDefinition) {
@@ -130,7 +167,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
 
         /**
          * Calls the render method for a worker declaration.
-         * @param {WorkerDeclaration} workerDeclaration - The resource definition model.
+         * @param {WorkerDeclaration} workerDeclaration - The worker declaration model.
          */
         FunctionDefinitionView.prototype.visitWorkerDeclaration = function (workerDeclaration) {
             var workerDeclarationOptions = {
@@ -181,7 +218,6 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             this._totalHeight = this._defaultWorkerLifeLine.getBoundingBox().h() + 85;
             this.setServiceContainerHeight(this._totalHeight);
             this.renderStatementContainer();
-            this.init();
             this.getModel().accept(this);
             //Removing all the registered 'child-added' event listeners for this model.
             //This is needed because we are not unregistering registered event while the diagram element deletion.
@@ -218,8 +254,9 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
 
             // Creating arguments icon.
             var panelArgumentsIcon = $("<i/>", {
-                class: "fw fw-import pull-right right-icon-clickable hoverable"
-            }).appendTo(operationsPane);
+                class: "fw fw-import pull-right right-icon-clickable hoverable",
+                title: "Arguments"
+            }).appendTo(operationsPane).tooltip();
 
             $(panelArgumentsIcon).click(function (event) {
                 event.stopPropagation();
@@ -249,8 +286,9 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
 
             // Creating return type icon.
             var panelReturnTypeIcon = $("<i/>", {
-                class: "fw fw-export pull-right right-icon-clickable hoverable"
-            }).appendTo(operationsPane);
+                class: "fw fw-export pull-right right-icon-clickable hoverable",
+                title: "Return types"
+            }).appendTo(operationsPane).tooltip();
 
             $(panelReturnTypeIcon).click(function (event) {
                 event.stopPropagation();
@@ -332,11 +370,6 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             }
         };
 
-        FunctionDefinitionView.prototype.init = function(){
-            //Registering event listeners
-            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
-        };
-
         /**
          * Render statement container
          */
@@ -394,6 +427,8 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 center;
 
             var startX = 0;
+            var self = this;
+
             if (!_.isEmpty(this._workerAndConnectorViews)) {
                 startX = _.last(this._workerAndConnectorViews).getBoundingBox().getRight() + _.last(this._workerAndConnectorViews).getBoundingBox().w()/2 + offsetBetweenLifeLines;
             } else {
@@ -404,9 +439,17 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             _.set(connectorOpts, 'centerPoint', center);
             connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
-            this._workerAndConnectorViews.push(connectorDeclarationView);
 
             connectorDeclarationView.render();
+
+            if (this._workerAndConnectorViews.length > 0) {
+                // There are already added resource level connectors
+                // New resource level connector listens to the current last resource level connector
+                var lastConnector = _.last(this._workerAndConnectorViews);
+                connectorDeclarationView.listenTo(lastConnector.getBoundingBox(), 'right-edge-moved', function (offset) {
+                    self.moveFunctionDefinitionLevelConnector(this, offset);
+                });
+            }
 
             // Creating property pane
             var editableProperties = [
@@ -431,7 +474,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 editableProperties: editableProperties
             });
             connectorDeclarationView.setParent(this);
-
+            this._workerAndConnectorViews.push(connectorDeclarationView);
             this.getBoundingBox().on("bottom-edge-moved", function (dy) {
                 this.getBoundingBox().h(this.getBoundingBox().h() + dy);
 
@@ -462,6 +505,18 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
 
         FunctionDefinitionView.prototype.getLifeLineMargin = function () {
             return this._lifelineMargin;
+        };
+
+        /**
+         * Return statement container
+         * @return {StatementContainerView}
+         */
+        FunctionDefinitionView.prototype.getStatementContainer = function () {
+            return this._statementContainer;
+        };
+
+        FunctionDefinitionView.prototype.moveFunctionDefinitionLevelConnector = function (connectorView, offset) {
+            connectorView.getBoundingBox().move(offset, 0);
         };
 
         return FunctionDefinitionView;

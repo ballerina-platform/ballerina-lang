@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.parser.BallerinaListener;
@@ -390,6 +391,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterWorkerInputParameter(BallerinaParser.WorkerInputParameterContext ctx) {
+
+    }
+
+    @Override
+    public void exitWorkerInputParameter(BallerinaParser.WorkerInputParameterContext ctx) {
+
+    }
+
+    @Override
     public void enterReturnParameters(BallerinaParser.ReturnParametersContext ctx) {
 
     }
@@ -586,10 +597,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterParameterList(BallerinaParser.ParameterListContext ctx) {
+        modelBuilder.startParamList();
     }
 
     @Override
     public void exitParameterList(BallerinaParser.ParameterListContext ctx) {
+        modelBuilder.endParamList();
     }
 
     @Override
@@ -1397,6 +1410,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             if (terminalNode != null) {
                 String stringLiteral = terminalNode.getText();
                 stringLiteral = stringLiteral.substring(1, stringLiteral.length() - 1);
+                stringLiteral = StringEscapeUtils.unescapeJava(stringLiteral);
                 modelBuilder.createStringLiteral(stringLiteral, getCurrentLocation(ctx));
             }
 

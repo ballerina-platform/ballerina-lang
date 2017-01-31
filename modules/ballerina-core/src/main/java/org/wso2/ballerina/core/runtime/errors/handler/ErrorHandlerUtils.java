@@ -67,13 +67,13 @@ public class ErrorHandlerUtils {
             return "";
         }
         
-        String stackTrace = getStackTrace(context, throwable, 0);
+        String stackTrace = getStackTrace(context, throwable, 1);
 
         // print the service info
         CallableUnitInfo serviceInfo = context.getServiceInfo();
         if (serviceInfo != null) {
-            stackTrace = stackTrace + "\t at " + serviceInfo.getPackage() + ":" + serviceInfo.getName() +
-                    getNodeLocation(serviceInfo) + "\n";
+            String pkgName = (serviceInfo.getPackage() != null) ? serviceInfo.getPackage() + ":" : "";
+            stackTrace = stackTrace + "\t at " + pkgName + serviceInfo.getName() + getNodeLocation(serviceInfo) + "\n";
         }
         
         return stackTrace;

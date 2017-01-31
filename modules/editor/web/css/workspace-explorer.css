@@ -27,9 +27,9 @@
 }
 
 .open-folder-button{
-    max-height: 25px;
+    max-height: 35px;
     padding-top: 3px;
-    position: absolute;
+    position: relative;
     top: 25px;
     left: 50%;
     margin-right: -50%;

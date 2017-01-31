@@ -27,6 +27,7 @@ public class Constants {
 
     public static final String BASE_PATH = "BASE_PATH";
     public static final String SUB_PATH = "SUB_PATH";
+    public static final String QUERY_STR = "QUERY_STR";
 
     public static final String DEFAULT_INTERFACE = "default";
     public static final String DEFAULT_BASE_PATH = "/";
@@ -38,6 +39,7 @@ public class Constants {
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
     public static final String HTTP_REASON_PHRASE = "HTTP_REASON_PHRASE";
     public static final String HTTP_CONTENT_LENGTH = "Content-Length";
+    public static final String USER_AGENT_HEADER = "User-Agent";
     public static final String PROTOCOL = "PROTOCOL";
     public static final String HOST = "HOST";
     public static final String PORT = "PORT";
