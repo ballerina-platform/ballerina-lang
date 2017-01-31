@@ -57,15 +57,15 @@ import java.util.Set;
 class BMainRunner {
 
     static void runMain(Path sourceFilePath, List<String> args) {
-        BallerinaFile bFile = Utils.buildLangModel(sourceFilePath);
+        BallerinaFile bFile = LauncherUtils.buildLangModel(sourceFilePath);
 
         // Check whether there is a main function
         BallerinaFunction function = (BallerinaFunction) bFile.getMainFunction();
         if (function == null) {
             String pkgString = (bFile.getPackageName() != null) ? "in package " + bFile.getPackageName() : "";
-            pkgString = (pkgString.equals("")) ? "in file '" + Utils.getFileName(sourceFilePath) + "'" : "";
+            pkgString = (pkgString.equals("")) ? "in file '" + LauncherUtils.getFileName(sourceFilePath) + "'" : "";
             String errorMsg = "ballerina: main method not found " + pkgString + "";
-            throw Utils.createLauncherException(errorMsg);
+            throw LauncherUtils.createLauncherException(errorMsg);
         }
 
         // Initializing HttpSender.
@@ -128,7 +128,7 @@ class BMainRunner {
         } catch (Throwable ex) {
             String errorMsg = ErrorHandlerUtils.getErrorMessage(ex);
             String stacktrace = ErrorHandlerUtils.getMainFuncStackTrace(bContext, ex);
-            throw Utils.createLauncherException(errorMsg + "\n" + stacktrace);
+            throw LauncherUtils.createLauncherException(errorMsg + "\n" + stacktrace);
         }
     }
 }
