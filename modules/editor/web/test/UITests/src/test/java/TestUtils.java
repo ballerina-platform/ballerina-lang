@@ -43,7 +43,7 @@ public class TestUtils {
         FileWriter fw = null;
         try {
 
-            fw = new FileWriter("/home/malintha/ScreenCap/src/test/java/resources/DOMFiles/"+ fileName);
+            fw = new FileWriter(TestUtils.class.getResource("DOMFiles").getPath() + File.separator + fileName);
             bw = new BufferedWriter(fw);
             bw.write(domElement);
         } catch (IOException e) {
