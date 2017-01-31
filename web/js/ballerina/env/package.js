@@ -16,9 +16,9 @@
  * under the License.
  */
 define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definition', './../ast/function-definition',
-        './../ast/type-definition', './../ast/type-converter-definition', './../ast/constant-definition'],
+        './../ast/type-definition', './../ast/type-converter-definition', './../ast/constant-definition','./../ast/struct-definition'],
     function(log, _, require, EventChannel, ServiceDefinition, FunctionDefinition, TypeDefinition,
-             TypeConverterDefinition, ConstantDefinition){
+             TypeConverterDefinition, ConstantDefinition,StructDefinition){
 
         /**
          * @class Package
@@ -30,6 +30,7 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
             this.setName(_.get(args, 'name', ''));
             this.addServiceDefinitions(_.get(args, 'serviceDefinitions', []));
             this.addFunctionDefinitions(_.get(args, 'functionDefinitions', []));
+            this.addStructDefinitions(_.get(args, 'structDefinitions', []));
             this._connectors = _.get(args, 'connectors', []);
             this.addTypeDefinitions(_.get(args, 'typeDefinitions', []));
             this.addTypeConverterDefinitions(_.get(args, 'typeConverterDefinitions', []));
@@ -345,6 +346,56 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
          */
         Package.prototype.getFunctionDefinitions = function() {
             return this._functionDefinitions;
+        };
+
+        /**
+         * Add struct defs
+         * @param structDefinitions - can be an array of structDefinitions or a single structDefinition
+         */
+        Package.prototype.addStructDefinitions = function(structDefinitions){
+            var err;
+            if(!_.isArray(structDefinitions) && !(structDefinitions instanceof  StructDefinition)){
+                err = "Adding struct def failed. Not an instance of StructDefinition" + structDefinitions;
+                log.error(err);
+                throw err;
+            }
+            if(_.isArray(structDefinitions)){
+                if(!_.isEmpty(structDefinitions)){
+                    _.each(structDefinitions, function(structDefinition){
+                        if(!(structDefinition instanceof  StructDefinition)){
+                            err = "Adding struct def failed. Not an instance of StructDefinition" + structDefinition;
+                            log.error(err);
+                            throw err;
+                        }
+                    });
+                }
+            }
+            this._structDefinitions = this._structDefinitions || [];
+            this._structDefinitions = _.concat(this._structDefinitions , structDefinitions);
+            /**
+             * fired when new struct defs are added to the package.
+             * @event Package#struct-defs-added
+             * @type {[StructDefinition]}
+             */
+            this.trigger("struct-defs-added", structDefinitions);
+        };
+
+        /**
+         * Set struct defs
+         *
+         * @param structDefs
+         */
+        Package.prototype.setStructDefinitions = function(structDefs){
+            this._structDefinitions = null;
+            this.addStructDefinitions(structDefs);
+        };
+
+        /**
+         *
+         * @returns {[StructDefinition]}
+         */
+        Package.prototype.getStructDefinitions = function() {
+            return this._structDefinitions;
         };
 
         Package.prototype.initFromJson = function(jsonNode) {

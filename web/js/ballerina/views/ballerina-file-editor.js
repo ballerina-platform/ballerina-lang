@@ -19,11 +19,11 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view',
         './../visitors/source-gen/ballerina-ast-root-visitor','./../visitors/symbol-table/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
         './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer', './connector-definition-view', './struct-definition-view',
-        './../env/package', './../env/package-scoped-environment', './../env/environment', './constant-definitions-pane-view', './../item-provider/tool-palette-item-provider'],
+        './../env/package', './../env/package-scoped-environment', './../env/environment', './constant-definitions-pane-view', './../item-provider/tool-palette-item-provider','./type-converter-definition-view'],
     function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory,
               PackageDefinition, SourceView, SourceGenVisitor, SymbolTableGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer,
               ConnectorDefinitionView, StructDefinitionView, Package, PackageScopedEnvironment, BallerinaEnvironment,
-              ConstantsDefinitionsPaneView, ToolPaletteItemProvider) {
+              ConstantsDefinitionsPaneView, ToolPaletteItemProvider,TypeConverterDefinitionView) {
 
         /**
          * The view to represent a ballerina file editor which is an AST visitor.
@@ -209,6 +209,18 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             structDefinitionView.render(this.diagramRenderingContext);
         };
 
+        BallerinaFileEditor.prototype.visitTypeConverterDefinition = function (typeConverterDefinition) {
+            var typeConvertertDefinitionView = new TypeConverterDefinitionView({
+                viewOptions: this._viewOptions,
+                container: this._$canvasContainer,
+                model: typeConverterDefinition,
+                parentView: this,
+                toolPalette: this.toolPalette
+            });
+            this.diagramRenderingContext.getViewModelMap()[typeConverterDefinition.id] = TypeConverterDefinitionView;
+            typeConvertertDefinitionView.render(this.diagramRenderingContext);
+        };
+
         /**
          * Adds the service definitions, function definitions and connector definitions to
          * {@link BallerinaFileEditor#_canvasList} and calls {@link BallerinaFileEditor#render}.
@@ -260,6 +272,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this.diagramRenderingContext = diagramRenderingContext;
             //TODO remove this for adding filecontext to the map
             this.diagramRenderingContext.ballerinaFileEditor = this;
+            this.diagramRenderingContext.packagedScopedEnvironemnt = this._environment;
 
             var symbolTableGenVisitor = new SymbolTableGenVisitor(this._package, this._model);
             this._model.accept(symbolTableGenVisitor);

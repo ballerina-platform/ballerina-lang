@@ -33,6 +33,7 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
         this.serviceDefinitions = _.get(args, 'serviceDefinitions', []);
         this.functionDefinitions = _.get(args, 'functionDefinitions', []);
         this.connectorDefinitions = _.get(args, 'connectorDefinitions', []);
+        this.structDefinitions = _.get(args, 'structDefinitions', []);
         this.typeDefinitions = _.get(args, 'typeDefinitions', []);
         this.typeConvertorDefinitions = _.get(args, 'typeConvertorDefinitions', []);
         ASTNode.call(this, "BallerinaASTRoot");
