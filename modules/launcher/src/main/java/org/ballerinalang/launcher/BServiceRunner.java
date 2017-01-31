@@ -23,23 +23,11 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPErrorHandler;
-import org.wso2.ballerina.core.runtime.MessageProcessor;
-import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPListenerInitializer;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
-import org.wso2.carbon.messaging.handler.HandlerExecutor;
-import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
-import org.wso2.carbon.transport.http.netty.config.TransportProperty;
-import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
-import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
-import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
-import org.wso2.carbon.transport.http.netty.sender.HTTPSender;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.util.Set;
 
 /**
  * Starts Ballerina services
@@ -61,28 +49,8 @@ class BServiceRunner {
             }
         }
 
-        // Starting http transport listener and sender
-        TransportsConfiguration trpConfig = YAMLTransportConfigurationBuilder.build();
-        Set<ListenerConfiguration> listenerConfigurations = trpConfig.getListenerConfigurations();
-        Set<TransportProperty> transportProperties = trpConfig.getTransportProperties();
-        Set<SenderConfiguration> senderConfigurations = trpConfig.getSenderConfigurations();
-
-        HTTPTransportContextHolder httpTransportContextHolder = HTTPTransportContextHolder.getInstance();
-        httpTransportContextHolder.setHandlerExecutor(new HandlerExecutor());
-        httpTransportContextHolder.setMessageProcessor(new MessageProcessor());
-
-        HTTPTransportListener listener = new HTTPTransportListener(transportProperties, listenerConfigurations);
-
-        HTTPSender sender = new HTTPSender(senderConfigurations, transportProperties);
-        ServiceContextHolder.getInstance().addTransportSender(sender);
-        ServiceContextHolder.getInstance().registerErrorHandler(new HTTPErrorHandler());
-
-        listener.start();
-
-        for (ListenerConfiguration listenerConfig : listenerConfigurations) {
-            outStream.println("ballerina: started listener " +
-                    listenerConfig.getScheme() + "-" + listenerConfig.getPort());
-        }
+        // Starting http transport listener
+        HTTPListenerInitializer.initialize();
 
         // TODO
         //outStream.println("ballerina: server startup in 500 ms");
