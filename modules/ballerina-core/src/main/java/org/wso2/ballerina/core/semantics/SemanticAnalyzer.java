@@ -652,7 +652,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Now we know that this is a single value assignment statement.
         Expression lExpr = assignStmt.getLExprs()[0];
-        checkNullExpr(lExpr, rExpr);
+        nullExprCheck(lExpr, rExpr);
 
         // If the rExpr typ is not set, then check whether it is a BacktickExpr
         if (rExpr.getType() == null && rExpr instanceof BacktickExpr) {
@@ -1634,7 +1634,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         Expression rExpr = binaryExpr.getRExpr();
         Expression lExpr = binaryExpr.getLExpr();
-        checkNullExpr(lExpr, rExpr);
+        nullExprCheck(lExpr, rExpr);
         if (lExpr.getType() != rExpr.getType()) {
             TypeCastExpression newExpr = checkWideningPossibleForBinary(lExpr, rExpr, binaryExpr.getOperator());
             if (newExpr != null) {
@@ -2189,7 +2189,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         return newExpr;
     }
 
-    private void checkNullExpr(Expression lExpr, Expression rExpr) {
+    private void nullExprCheck(Expression lExpr, Expression rExpr) {
         if (rExpr instanceof NullLiteral) {
             if (BTypes.isValueType(lExpr.getType())) {
                 throw  new SemanticException(getLocationStr(rExpr.getLocation())
