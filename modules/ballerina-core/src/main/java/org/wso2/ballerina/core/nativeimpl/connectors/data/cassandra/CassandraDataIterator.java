@@ -192,6 +192,16 @@ public class CassandraDataIterator implements DataIterator {
     }
 
     @Override
+    public String getObjectAsString(int columnIndex) {
+        return null;
+    }
+
+    @Override
+    public String getObjectAsString(String columnName) {
+        return null;
+    }
+
+    @Override
     public BValue get(int columnIndex, String type) {
         return null;
     }
