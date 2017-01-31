@@ -6,7 +6,7 @@
     left: 0;
     top: 0;
     background-color: #ffffff;
-    height: 92%;
+    height: 92%; /* reduce the toolbar, breadcrumb and tab heading height  */
 }
 
 .tool-group{
