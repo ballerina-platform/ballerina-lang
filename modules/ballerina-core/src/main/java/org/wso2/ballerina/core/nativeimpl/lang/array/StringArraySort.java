@@ -34,7 +34,7 @@ import java.util.List;
 
 
 /**
- * Native function ballerina.lang.array:copyOfRange(string[], int, int).
+ * Native function ballerina.lang.array:sort(string[]).
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.array",
