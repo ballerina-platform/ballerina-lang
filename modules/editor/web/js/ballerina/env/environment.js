@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'event_channel', './ballerina-env-factory'], function(_, EventChannel, BallerinaEnvFactory){
+define(['lodash', 'event_channel', './ballerina-env-factory','./package'], function(_, EventChannel, BallerinaEnvFactory,Package){
 
     var instance;
     /**

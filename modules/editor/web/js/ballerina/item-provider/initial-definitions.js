@@ -85,17 +85,17 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             nodeFactoryMethod: BallerinaASTFactory.createStructDefinition
         };
 
-        var createTypeConverterDefTool = {
-            id: "typeConverter",
-            name: "Type Converter",
+        var createTypeMapperDefTool = {
+            id: "typeMapper",
+            name: "Type Mapper",
             icon: "images/tool-icons/assign.svg",
-            title: "Type Converter",
-            nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createTypeConverterDefinition
+            title: "Type Mapper",
+            nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createTypeMapperDefinition
         };
 
         var mainToolDefArray = [createServiceDefTool, createResourceDefTool, createFunctionDefTool,
             createMainFunctionDefTool, createConnectorDefTool, createConnectorActionTool, createStructsDefTool,
-            createTypeConverterDefTool];
+            createTypeMapperDefTool];
 
         var elements = new ToolGroup({
             toolGroupName: "Elements",

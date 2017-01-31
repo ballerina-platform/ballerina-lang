@@ -17,57 +17,52 @@
  */
 define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-struct-definition-view', 'ballerina/ast/ballerina-ast-factory', './canvas',
             './point','typeMapper'], function (_, log, d3, BallerinaView, VariablesView, TypeStructDefinition, BallerinaASTFactory, Canvas, Point,TypeMapper) {
-    var TypeConverterDefinitionView = function (args) {
+    var TypeMapperDefinitionView = function (args) {
         Canvas.call(this, args);
 
         this._parentView = _.get(args, "parentView");
         this._viewOptions.offsetTop = _.get(args, "viewOptionsOffsetTop", 50);
         this._viewOptions.topBottomTotalGap = _.get(args, "viewOptionsTopBottomTotalGap", 100);
-        //set panel icon for the type converter
-        this._viewOptions.panelIcon = _.get(args.viewOptions, "cssClass.type_converter_icon");
-        //set initial height for the type converter container svg
+        //set panel icon for the type mapper
+        this._viewOptions.panelIcon = _.get(args.viewOptions, "cssClass.type_mapper_icon");
+        //set initial height for the type mapper container svg
         this._totalHeight = 30;
 
-        if (_.isNil(this._model) || !(BallerinaASTFactory.isTypeConverterDefinition(this._model))) {
-            log.error("Type Converter definition is undefined or is of different type." + this._model);
-            throw "Type Converter definition is undefined or is of different type." + this._model;
+        if (_.isNil(this._model) || !(BallerinaASTFactory.isTypeMapperDefinition(this._model))) {
+            log.error("Type Mapper definition is undefined or is of different type." + this._model);
+            throw "Type Mapper definition is undefined or is of different type." + this._model;
         }
 
         if (_.isNil(this._container)) {
-            log.error("Container for Type Converter definition is undefined." + this._container);
-            throw "Container for Type Converter definition is undefined." + this._container;
+            log.error("Container for Type Mapper definition is undefined." + this._container);
+            throw "Container for Type Mapper definition is undefined." + this._container;
         }
-        this.init();
         this._typeMapper = new TypeMapper(this.onAttributesConnect,this.onAttributesDisConnect);
         console.log("PPPPPPPPPPPPPPPPPPPPPPPPPPPPPP");
         console.log(this._typeMapper);
     };
 
-    TypeConverterDefinitionView.prototype = Object.create(Canvas.prototype);
-    TypeConverterDefinitionView.prototype.constructor = Canvas;
+    TypeMapperDefinitionView.prototype = Object.create(Canvas.prototype);
+    TypeMapperDefinitionView.prototype.constructor = Canvas;
 
-    TypeConverterDefinitionView.prototype.init = function(){
-        //Registering event listeners
-        this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
-    };
-
-    TypeConverterDefinitionView.prototype.canVisitTypeConverterDefinition = function (typeConverterDefinition) {
+    TypeMapperDefinitionView.prototype.canVisitTypeMapperDefinition = function (typeMapperDefinition) {
         return true;
     };
 
     /**
-     * Rendering the view of the Type Converter definition.
+     * Rendering the view of the Type Mapper definition.
      * @param {Object} diagramRenderingContext - the object which is carrying data required for rendering
      */
-    TypeConverterDefinitionView.prototype.render = function (diagramRenderingContext) {
+    TypeMapperDefinitionView.prototype.render = function (diagramRenderingContext) {
         this.diagramRenderingContext = diagramRenderingContext;
-        this.drawAccordionCanvas(this._container, this._viewOptions, this._model.id, this._model.type.toLowerCase(), this._model._typeConverterName);
+        this.drawAccordionCanvas(this._container, this._viewOptions, this._model.id, this._model.type.toLowerCase(), this._model._typeMapperName);
         var divId = this._model.id;
         var currentContainer = $('#' + divId);
         var self = this;
         this._assignedModel = this;
 
         console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        //todo get current package name dynamically
         var predefinedStructs = diagramRenderingContext.getPackagedScopedEnvironment().findPackage("Current Package").getStructDefinitions();
         console.log(predefinedStructs);
 
@@ -136,9 +131,9 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         this.getBoundingBox().fromTopLeft(new Point(0, 0), currentContainer.width(), currentContainer.height());
         this.getModel().accept(this);
 
-        $("#title-" + this._model.id).addClass("type-converter-title-text").text(this._model.getTypeConverterName())
+        $("#title-" + this._model.id).addClass("type-mapper-title-text").text(this._model.getTypeMapperName())
             .on("change paste keyup", function (e) {
-                self._model.setTypeConverterName($(this).text());
+                self._model.setTypeMapperName($(this).text());
             }).on("click", function (event) {
             event.stopPropagation();
         }).on("keydown", function (e) {
@@ -156,11 +151,11 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         this.setServiceContainerWidth(this._container.width());
     };
 
-    TypeConverterDefinitionView.prototype.getChildContainer = function () {
+    TypeMapperDefinitionView.prototype.getChildContainer = function () {
         return this._rootGroup;
     };
 
-    TypeConverterDefinitionView.prototype.loadSchemasToComboBox = function (parentId,selectId,schemaArray) {
+    TypeMapperDefinitionView.prototype.loadSchemasToComboBox = function (parentId,selectId,schemaArray) {
 
         var types = ['-select-','employee','student','person'];
 
@@ -176,7 +171,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
      * Calls the render method for a type struct definition.
      * @param {typeStructDefinition} typeStructDefinition - The type struct definition model.
      */
-    TypeConverterDefinitionView.prototype.visitTypeStructDefinition = function (typeStructDefinition) {
+    TypeMapperDefinitionView.prototype.visitTypeStructDefinition = function (typeStructDefinition) {
         log.debug("Visiting type struct definition");
         var self = this;
         var typeStructContainer = this.getChildContainer();
@@ -189,7 +184,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
      * Receives attributes connected
      * @param connection object
      */
-    TypeConverterDefinitionView.prototype.onAttributesConnect = function (connection) {
+    TypeMapperDefinitionView.prototype.onAttributesConnect = function (connection) {
 
         var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
         var leftOp = BallerinaASTFactory.createLeftOperandExpression();
@@ -214,10 +209,10 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
      * Receives the attributes disconnected
      * @param connection object
      */
-    TypeConverterDefinitionView.prototype.onAttributesDisConnect = function (connection) {
+    TypeMapperDefinitionView.prototype.onAttributesDisConnect = function (connection) {
 
        // alert(888);
     };
 
-    return TypeConverterDefinitionView;
+    return TypeMapperDefinitionView;
 });

@@ -16,9 +16,9 @@
  * under the License.
  */
 define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definition', './../ast/function-definition',
-        './../ast/type-definition', './../ast/type-converter-definition', './../ast/constant-definition','./../ast/struct-definition'],
+        './../ast/type-definition', './../ast/type-mapper-definition', './../ast/constant-definition','./../ast/struct-definition'],
     function(log, _, require, EventChannel, ServiceDefinition, FunctionDefinition, TypeDefinition,
-             TypeConverterDefinition, ConstantDefinition,StructDefinition){
+             TypeMapperDefinition, ConstantDefinition,StructDefinition){
 
         /**
          * @class Package
@@ -33,7 +33,7 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
             this.addStructDefinitions(_.get(args, 'structDefinitions', []));
             this._connectors = _.get(args, 'connectors', []);
             this.addTypeDefinitions(_.get(args, 'typeDefinitions', []));
-            this.addTypeConverterDefinitions(_.get(args, 'typeConverterDefinitions', []));
+            this.addTypeMapperDefinitions(_.get(args, 'typeMapperDefinitions', []));
             this.addConstantDefinitions(_.get(args, 'constantDefinitions', []));
             this.BallerinaEnvFactory = require('./ballerina-env-factory');
         };
@@ -106,35 +106,35 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
 
         /**
          * Add type converter defs
-         * @param typeConverterDefinitions - can be an array of typeDefinitions or a single typeDefinition
+         * @param typeMapperDefinitions - can be an array of typeDefinitions or a single typeDefinition
          * @fires Package#type--converter-defs-added
          */
-        Package.prototype.addTypeConverterDefinitions = function(typeConverterDefinitions){
+        Package.prototype.addTypeMapperDefinitions = function(typeMapperDefinitions){
             var err;
-            if(!_.isArray(typeConverterDefinitions) && !(typeConverterDefinitions instanceof  TypeConverterDefinition)){
-                err = "Adding type converter def failed. Not an instance of TypeConverterDefinition" + typeConverterDefinitions;
+            if(!_.isArray(typeMapperDefinitions) && !(typeMapperDefinitions instanceof  TypeMapperDefinition)){
+                err = "Adding type mapper def failed. Not an instance of TypeMapperDefinition" + typeMapperDefinitions;
                 log.error(err);
                 throw err;
             }
-            if(_.isArray(typeConverterDefinitions)){
-                if(!_.isEmpty(typeConverterDefinitions)){
-                    _.each(typeConverterDefinitions, function(typeConverterDefinition){
-                        if(!(typeConverterDefinition instanceof  TypeConverterDefinition)){
-                            err = "Adding type converter def failed. Not an instance of TypeConverterDefinition" + typeConverterDefinition;
+            if(_.isArray(typeMapperDefinitions)){
+                if(!_.isEmpty(typeMapperDefinitions)){
+                    _.each(typeMapperDefinitions, function(typeMapperDefinition){
+                        if(!(typeMapperDefinition instanceof  TypeMapperDefinition)){
+                            err = "Adding type mapper def failed. Not an instance of TypeMapperDefinition" + typeMapperDefinition;
                             log.error(err);
                             throw err;
                         }
                     });
                 }
             }
-            this._typeConverterDefinitions = this._typeConverterDefinitions || [];
-            this._typeConverterDefinitions = _.concat(this._typeConverterDefinitions , typeConverterDefinitions);
+            this._typeMapperDefinitions = this._typeMapperDefinitions || [];
+            this._typeMapperDefinitions = _.concat(this._typeMapperDefinitions , typeMapperDefinitions);
             /**
-             * fired when new type converter defs are added to the package.
+             * fired when new type mapper defs are added to the package.
              * @event Package#type-converter-defs-added
-             * @type {[TypeConverterDefinition]}
+             * @type {[TypeMapperDefinition]}
              */
-            this.trigger("type-converter-defs-added", typeConverterDefinitions);
+            this.trigger("type-converter-defs-added", typeMapperDefinitions);
         };
 
         /**
