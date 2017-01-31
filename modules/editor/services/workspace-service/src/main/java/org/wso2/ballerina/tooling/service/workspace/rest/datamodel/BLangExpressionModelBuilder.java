@@ -343,6 +343,10 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
+    public void visit(NullLiteral nullLiteral) {
+    }
+
+    @Override
     public void visit(UnaryExpression unaryExpression) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);

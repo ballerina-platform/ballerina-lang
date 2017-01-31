@@ -76,6 +76,7 @@ import org.wso2.ballerina.core.model.expressions.LessThanExpression;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
+import org.wso2.ballerina.core.model.expressions.NullLiteral;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
 import org.wso2.ballerina.core.model.expressions.ReferenceExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
@@ -651,6 +652,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Now we know that this is a single value assignment statement.
         Expression lExpr = assignStmt.getLExprs()[0];
+        checkNullExpr(lExpr, rExpr);
 
         // If the rExpr typ is not set, then check whether it is a BacktickExpr
         if (rExpr.getType() == null && rExpr instanceof BacktickExpr) {
@@ -952,6 +954,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
+    public void visit(NullLiteral nullLiteral) {
+    }
+
+    @Override
     public void visit(DivideExpr divideExpr) {
         BType arithmeticExprType = verifyBinaryArithmeticExprType(divideExpr);
 
@@ -1118,6 +1124,9 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else if (compareExprType == BTypes.STRING_TYPE) {
             expr.setEvalFunc(EqualExpression.EQUAL_STRING_FUNC);
+
+        } else if (expr.getRExpr() instanceof NullLiteral || expr.getLExpr() instanceof NullLiteral) {
+            expr.setEvalFunc(EqualExpression.EQUAL_NULL_FUNC);
 
         } else {
             throw new SemanticException("Equals operation is not supported for type: " + compareExprType + " in " +
@@ -1617,7 +1626,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         Expression rExpr = binaryExpr.getRExpr();
         Expression lExpr = binaryExpr.getLExpr();
-
+        checkNullExpr(lExpr, rExpr);
         if (lExpr.getType() != rExpr.getType()) {
             TypeCastExpression newExpr = checkWideningPossibleForBinary(lExpr, rExpr, binaryExpr.getOperator());
             if (newExpr != null) {
@@ -2170,6 +2179,16 @@ public class SemanticAnalyzer implements NodeVisitor {
             newExpr.setLocation(rhsExpr.getLocation());
         }
         return newExpr;
+    }
+
+    private void checkNullExpr(Expression lExpr, Expression rExpr) {
+        if (rExpr instanceof NullLiteral) {
+            if (BTypes.isValueType(lExpr.getType())) {
+                throw  new SemanticException(getLocationStr(rExpr.getLocation())
+                                             + "Value type can not be null " + lExpr.getType());
+            }
+            rExpr.setType(lExpr.getType());
+        }
     }
 
 }
