@@ -19,6 +19,7 @@ public class SwaggerResourceMapper {
 
     /**
      * Get Swagger operation object associated with current resource
+     *
      * @return Swagger operation object associated with current resource
      */
     public Operation getOperation() {
@@ -27,6 +28,7 @@ public class SwaggerResourceMapper {
 
     /**
      * Set Swagger operation object associated with current resource
+     *
      * @param operation Swagger operation object associated with current resource
      */
     public void setOperation(Operation operation) {
@@ -35,6 +37,7 @@ public class SwaggerResourceMapper {
 
     /**
      * Get Ballerina Resource object associated with current resource
+     *
      * @return Ballerina Resource object associated with current resource
      */
     public Resource getResource() {
@@ -43,6 +46,7 @@ public class SwaggerResourceMapper {
 
     /**
      * Set Ballerina Resource object associated with current resource
+     *
      * @param resource Ballerina Resource object associated with current resource
      */
     public void setResource(Resource resource) {
@@ -88,17 +92,22 @@ public class SwaggerResourceMapper {
     }
 
 
+    /**
+     * TODO need to implement
+     * @param pathMap
+     * @return
+     */
     protected Resource[] convertOperationsToResources(Map<String, Path> pathMap) {
         return null;
 
     }
 
-        /**
-         * This method will convert ballerina @Resource to ballerina @OperationAdaptor
-         *
-         * @param resource @Resource array to be convert.
-         * @return @OperationAdaptor of string and swagger path objects.
-         */
+    /**
+     * This method will convert ballerina @Resource to ballerina @OperationAdaptor
+     *
+     * @param resource @Resource array to be convert.
+     * @return @OperationAdaptor of string and swagger path objects.
+     */
     private OperationAdaptor convertResourceToOperation(Resource resource) {
         OperationAdaptor op = new OperationAdaptor();
         if (resource != null) {

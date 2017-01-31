@@ -20,10 +20,21 @@ public class SwaggerServiceMapper {
     ObjectMapper objectMapper;
     private static final Logger logger = LoggerFactory.getLogger(SwaggerServiceMapper.class);
 
+    /**
+     *
+     * @return @ObjectMapper instance to be used to generate service definition.
+     */
     public ObjectMapper getObjectMapper() {
         return objectMapper;
     }
 
+    /**
+     * Object mapper can be used to generate swagger definition in JSON and YAML formats
+     * on demand. If user is willing to generate output in specific format he can set mapper accordingly.
+     * Default mapper will be JSON mapper.
+     *
+     * @param objectMapper
+     */
     public void setObjectMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
