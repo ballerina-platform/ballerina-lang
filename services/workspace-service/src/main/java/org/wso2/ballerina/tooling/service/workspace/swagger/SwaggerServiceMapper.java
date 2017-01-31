@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.models.Info;
 import io.swagger.models.Swagger;
 import io.swagger.util.Json;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
@@ -16,6 +18,7 @@ import org.wso2.ballerina.core.model.Service;
  */
 public class SwaggerServiceMapper {
     ObjectMapper objectMapper;
+    private static final Logger logger = LoggerFactory.getLogger(SwaggerServiceMapper.class);
 
     public ObjectMapper getObjectMapper() {
         return objectMapper;
@@ -37,11 +40,11 @@ public class SwaggerServiceMapper {
     public String generateSwaggerString(Swagger swagger) {
         try {
             String swaggerJson = objectMapper.writeValueAsString(swagger);
-            System.out.print(swaggerJson);
             return swaggerJson;
         } catch (JsonProcessingException e) {
+            logger.error("Error while generating swagger string from definition" + e );
+            return "Error";
         }
-        return null;
     }
 
     /**
