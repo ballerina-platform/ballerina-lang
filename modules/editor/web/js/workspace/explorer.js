@@ -16,9 +16,9 @@
  * under the License.
  */
 
-define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-client', 'mcustom_scroller'],
+define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-client', 'context_menu', 'mcustom_scroller'],
 
-    function (log, $, Backbone, _, ExplorerItem, ServiceClient, mcustomScroller) {
+    function (log, $, Backbone, _, ExplorerItem, ServiceClient, ContextMenu, mcustomScroller) {
 
     var WorkspaceExplorer = Backbone.View.extend({
 
@@ -62,13 +62,11 @@ define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-cli
 
             this.application.commandManager.registerCommand("open-file", {});
             this.application.commandManager.registerHandler("open-file", this.openFile, this);
+
+            this.application.commandManager.registerHandler("remove-explorer-item", this.removeExplorerItem, this);
         },
 
         openFolder: function(folderPath){
-            // this is the first folder to open
-            if(_.isEmpty(this._openedFolders)){
-                this._openFolderBtn.hide();
-            }
             this._openedFolders.push(folderPath);
             this.createExplorerItem(folderPath);
             this.persistState();
@@ -93,6 +91,17 @@ define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-cli
             var explorerItem = new ExplorerItem(opts);
             explorerItem.render();
             this._items.push(explorerItem);
+        },
+
+        removeExplorerItem: function(item){
+            item.remove();
+            _.remove(this._items, function(itemEntry){
+                return _.isEqual(itemEntry.path, item.path);
+            });
+            _.remove(this._openedFolders, function(path){
+                return _.isEqual(path, item.path);
+            });
+            this.persistState();
         },
 
         persistState: function(){
@@ -156,19 +165,21 @@ define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-cli
                 event.preventDefault();
                 event.stopPropagation();
             });
-
-            if(_.isEmpty(this._openedFolders)){
-                var openFolderBtn = $("<button></button>");
-                    openFolderBtn.attr("type", "button");
-                    openFolderBtn.text("Open Folder");
-                    openFolderBtn.addClass(_.get(this._options, 'cssClass.openFolderButton'));
-                    openFolderBtn.click(function(){
-                        self.application.commandManager.dispatch("show-folder-open-dialog");
-                    });
-                    this._openFolderBtn = openFolderBtn;
-                explorerContainer.append(openFolderBtn);
-            }
             this._explorerContainer = explorerContainer;
+
+            this._contextMenu = new ContextMenu({
+                container: this._$parent_el,
+                selector:  "div:first",
+                items:{
+                    "add_folder": {
+                        name: "add folder",
+                        icon: "",
+                        callback: function () {
+                            self.application.commandManager.dispatch("show-folder-open-dialog");
+                        }
+                    }
+                }
+            });
 
             if(!_.isEmpty(this._openedFolders)){
                 this._openedFolders.forEach(function(folder){
