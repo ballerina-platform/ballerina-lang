@@ -123,6 +123,7 @@ import org.wso2.ballerina.core.nativeimpl.lang.string.Replace;
 import org.wso2.ballerina.core.nativeimpl.lang.string.ReplaceAll;
 import org.wso2.ballerina.core.nativeimpl.lang.string.ReplaceFirst;
 import org.wso2.ballerina.core.nativeimpl.lang.string.StringValueOf;
+import org.wso2.ballerina.core.nativeimpl.lang.string.SubString;
 import org.wso2.ballerina.core.nativeimpl.lang.string.ToLowerCase;
 import org.wso2.ballerina.core.nativeimpl.lang.string.ToUpperCase;
 import org.wso2.ballerina.core.nativeimpl.lang.string.Trim;
@@ -286,6 +287,7 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new ReplaceAll());
         registerFunction(scope, new ReplaceFirst());
         registerFunction(scope, new StringValueOf());
+        registerFunction(scope, new SubString());
         registerFunction(scope, new ToLowerCase());
         registerFunction(scope, new ToUpperCase());
         registerFunction(scope, new Trim());
