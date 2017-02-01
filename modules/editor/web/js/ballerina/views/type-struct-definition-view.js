@@ -62,7 +62,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerin
         var category = this._model.getCategory();
         var selectedStructName = this._model.getSelectedStructName();
 
-        var mapper = new TypeMapper(this._model.getOnConnectInstance(),this._model.getOnDisconnectInstance());
+        var mapper = new TypeMapper(this._model.getOnConnectInstance(),this._model.getOnDisconnectInstance(), this._parentView);
         mapper.removeStruct(selectedStructName);
         if(category == "SOURCE"){
             mapper.addSourceStruct(struct,this._model);

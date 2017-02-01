@@ -16,7 +16,7 @@
     margin-left: 70%;
 }
 
-#data-mapper-container {
+.data-mapper-container {
     position: relative;
     border: 1px solid #aaaaaa;
     width: 100%;
