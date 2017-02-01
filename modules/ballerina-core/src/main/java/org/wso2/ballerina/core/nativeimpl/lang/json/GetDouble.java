@@ -18,8 +18,7 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.json;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.JsonPathException;
@@ -65,14 +64,13 @@ public class GetDouble extends AbstractJSONFunction {
             Object elementObj = jsonCtx.read(jsonPath);
             if (elementObj == null) {
                 throw new BallerinaException("No matching element found for jsonpath: " + jsonPath);
-            } else if (elementObj instanceof JsonElement) {
-                JsonElement element = (JsonElement) elementObj;
-                if (element.isJsonPrimitive()) {
+            } else if (elementObj instanceof JsonNode) {
+                JsonNode element = (JsonNode) elementObj;
+                if (element.isValueNode()) {
                     // if the resulting value is a primitive, return the respective primitive value object
-                    JsonPrimitive value = element.getAsJsonPrimitive();
-                    if (value.isNumber()) {
-                        Number number = value.getAsNumber();
-                    if (number instanceof Float || number instanceof Double) {
+                    if (element.isNumber()) {
+                        Number number = element.numberValue(); 
+                        if (number instanceof Float || number instanceof Double) {
                             result = new BDouble(number.doubleValue());
                         } else {
                             throw new BallerinaException(
