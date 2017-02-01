@@ -586,8 +586,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 this._contentRect.attr('width', parseFloat(this._contentRect.attr('width')) + dw);
                 this._headingRect.attr('width', parseFloat(this._headingRect.attr('width')) + dw);
                 // If the bounding box of the connector action go over the svg's current width
-                if (this.getBoundingBox().getRight() > this._parentView.getServiceContainer().width()) {
-                    this._parentView.setServiceContainerWidth(this.getBoundingBox().getRight() + 60);
+                if (this.getBoundingBox().getRight() > this._parentView.getSVG().width()) {
+                    this._parentView.setSVGWidth(this.getBoundingBox().getRight() + 60);
                 }
             }, this);
 
@@ -614,24 +614,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 // Show/Hide scrolls.
                 self._showHideScrolls(self.getChildContainer().node().ownerSVGElement.parentElement, self.getChildContainer().node().ownerSVGElement);
             });
-
-            this._variableButton = VariablesView.createVariableButton(this.getChildContainer().node(),
-                parseInt(this.getChildContainer().attr("x")) + 4, parseInt(this.getChildContainer().attr("y")) + 7);
-
-            var variableProperties = {
-                model: this._model,
-                activatorElement: this._variableButton,
-                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
-                viewOptions: {
-                    position: {
-                        x: parseInt(this.getChildContainer().attr("x")) + 17,
-                        y: parseInt(this.getChildContainer().attr("y")) + 6
-                    },
-                    width: parseInt(this.getChildContainer().node().getBBox().width) - (2 * $(this._variableButton).width())
-                }
-            };
-
-            this._variablePane = VariablesView.createVariablePane(variableProperties, diagramRenderingContext);
 
             var annotationProperties = {
                 model: this._model,

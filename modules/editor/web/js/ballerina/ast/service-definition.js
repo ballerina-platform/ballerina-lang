@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'],
-    function (_, ASTNode) {
+define(['lodash', './node', 'log'],
+    function (_, ASTNode, log) {
 
     /**
      * Constructor for ServiceDefinition
@@ -67,8 +67,12 @@ define(['lodash', './node'],
     ServiceDefinition.prototype.constructor = ServiceDefinition;
 
     ServiceDefinition.prototype.setServiceName = function (serviceName) {
-        if(!_.isNil(serviceName)){
+        if (!_.isNil(serviceName) && ServiceDefinition.isValidServiceName(serviceName)) {
             this._serviceName = serviceName;
+        } else {
+            var errorString = "Invalid name for the service name: " + serviceName;
+            log.error(errorString);
+            throw errorString;
         }
     };
 
@@ -209,6 +213,16 @@ define(['lodash', './node'],
         } else {
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, newIndex);
         }
+    };
+
+    /**
+     * Validates the name of the service.
+     * @param {string} serviceName - The name of the service.
+     * @return {boolean} - True if valid name, else false.
+     * @static
+     */
+    ServiceDefinition.isValidServiceName = function (serviceName) {
+        return _.isUndefined(serviceName) ? false : /^[a-zA-Z$_][a-zA-Z0-9$_]*$/.test(serviceName);
     };
 
     return ServiceDefinition;

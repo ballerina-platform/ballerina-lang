@@ -28,26 +28,10 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
             this._viewOptions.panelIcon = _.get(args.viewOptions, "cssClass.struct_icon");
             //set initial height for the struct container svg
             this._totalHeight = 30;
-
-            if (_.isNil(this._model) || !(BallerinaASTFactory.isStructDefinition(this._model))) {
-                log.error("Struct definition is undefined or is of different type." + this._model);
-                throw "Struct definition is undefined or is of different type." + this._model;
-            }
-
-            if (_.isNil(this._container)) {
-                log.error("Container for Struct definition is undefined." + this._container);
-                throw "Container for Struct definition is undefined." + this._container;
-            }
-            this.init();
         };
 
         StructDefinitionView.prototype = Object.create(Canvas.prototype);
         StructDefinitionView.prototype.constructor = Canvas;
-
-        StructDefinitionView.prototype.init = function () {
-            //Registering event listeners
-            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
-        };
 
         StructDefinitionView.prototype.canVisitStructDefinition = function (structDefinition) {
             return true;
@@ -58,13 +42,40 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
          * @param {Object} diagramRenderingContext - the object which is carrying data required for rendering
          */
         StructDefinitionView.prototype.render = function (diagramRenderingContext) {
-            this.diagramRenderingContext = diagramRenderingContext;
-            this.drawAccordionCanvas(this._container, this._viewOptions, this._model.id, this._model.type.toLowerCase(), this._model._structName);
-            var divId = this._model.id;
-            var currentContainer = $('#' + divId);
-            this._container = currentContainer;
+            this.setDiagramRenderingContext(diagramRenderingContext);
 
+            // Draws the outlying body of the struct definition.
+            this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().type.toLowerCase(), this.getModel().getStructName());
+
+            // Setting the styles for the canvas icon.
+            this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.struct_icon", ""));
+
+            this._container = $('#' + this.getModel().getID());
             var self = this;
+
+            $(this.getTitle()).text(this.getModel().getStructName())
+                .on("change paste keyup", function () {
+                    self.getModel().setStructName($(this).text());
+                }).on("click", function (event) {
+                event.stopPropagation();
+            }).keypress(function (e) {
+                var enteredKey = e.which || e.charCode || e.keyCode;
+                // Disabling enter key
+                if (enteredKey == 13) {
+                    event.stopPropagation();
+                    return false;
+                }
+
+                var newServiceName = $(this).val() + String.fromCharCode(enteredKey);
+
+                try {
+                    self.getModel().setStructName(newServiceName);
+                } catch (error) {
+                    Alerts.error(error);
+                    event.stopPropagation();
+                    return false;
+                }
+            });
 
             var tempContainer = $(this._container).find("svg").parent();
             $(this._container).find("svg").remove();
