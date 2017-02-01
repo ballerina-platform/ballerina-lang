@@ -46,6 +46,7 @@
 
 .panel-title > a {
     margin-left: 6px;
+    text-decoration: none;
 }
 
 .panel-icon, .service-icon, .connector-icon, .function-icon{
