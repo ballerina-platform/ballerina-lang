@@ -37,8 +37,8 @@ define('ace/mode/ballerina',
             this.$rules = {
                 "start": [
                     {token: "comment", regex: "//"},
+                    {token: "ballerina-xml-json", regex: '[`](?:(?:\\\\.)|(?:[^`\\\\]))*?[`]'},
                     {token: "ballerina-strings", regex: '["](?:(?:\\\\.)|(?:[^"\\\\]))*?["]'},
-                    {token: "ballerina-xml-json", regex: '[`](?:(?:\\\\.)|(?:[^"\\\\]))*?[`]'},
                     {token: "ballerina-numeric", regex: "0[xX][0-9a-fA-F]+\\b"},
                     {token: "ballerina-numeric", regex: "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?\\b"},
                     {token: "ballerina-operator", regex: "!|%|\\\\|/|\\*|\\-|\\+|~=|==|<>|!=|<=|>=|<|>|&&|\\|\\|"},
