@@ -60,9 +60,10 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerin
         this._diagramRenderingContext = diagramRenderingContext;
         var struct = this._model.getSchemaPropertyObj();
         var category = this._model.getCategory();
+        var selectedStructName = this._model.getSelectedStructName();
 
         var mapper = new TypeMapper(this._model.getOnConnectInstance(),this._model.getOnDisconnectInstance());
-
+        mapper.removeStruct(selectedStructName);
         if(category == "SOURCE"){
             mapper.addSourceStruct(struct,this._model);
         }else{
