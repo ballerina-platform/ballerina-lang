@@ -255,11 +255,13 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
                     targetStruct: targetParts[0],
                     targetProperty: targetParts [6],
                     targetType: targetParts[7],
-                    targetReference: targetRefObj
+                    targetReference: targetRefObj,
+                    isComplexMapping : false,
+                    complexMapperName: null
                 };
 
                 if (isValidTypes) {
-                    callback(connection, typeConverterObj);
+                    callback(connection);
                 } else {
                     var compatibleTypeConverters = [];
                     var typeConverters = typeConverterObj._package.getTypeMapperDefinitions();
@@ -272,8 +274,12 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
                             }
                         }
                     }
-                    console.log(compatibleTypeConverters);
                     isValidTypes = compatibleTypeConverters.length > 0;
+                    if (isValidTypes){
+                        connection.isComplexMapping = true;
+                        connection.complexMapperName = compatibleTypeConverters[0]; //TODO: show select drop down
+                        callback(connection);
+                    }
                 }
                 return isValidTypes;
             },
@@ -321,8 +327,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
         // Applying the calculated layout
         g.nodes().forEach(function (v) {
             //TODO: commenting out temporily due to the issue in adding multiple type mappers
-            // $("#" + v).css("left", g.node(v).x + "px");
-            // $("#" + v).css("top", g.node(v).y + "px");
+            $("#" + v).css("left", g.node(v).x + "px");
+            $("#" + v).css("top", g.node(v).y + "px");
         });
         jsPlumb.repaintEverything();
     };
