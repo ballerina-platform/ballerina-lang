@@ -50,16 +50,31 @@ define(['require', 'lodash','jquery','jsPlumb', 'dagre'], function(require, _,$,
             } ]});
 
         var positionFunc = this.dagrePosition;
-        var seperator = this.idNameSeperator;
+        var separator = this.idNameSeperator;
+        var refObjects = this.references;
 
         jsPlumb.bind('dblclick', function (connection, e) {
+
+            var sourceRefObj;
+            var targetRefObj;
+
+            for (var i = 0; i < refObjects.length; i++) {
+                if (refObjects[i].name == connection.sourceId.split(separator)[0]) {
+                    sourceRefObj = refObjects[i].refObj;
+                } else if (refObjects[i].name == connection.targetId.split(separator)[0]) {
+                    targetRefObj = refObjects[i].refObj;
+                }
+            };
+
             var PropertyConnection = {
-                sourceStruct : connection.source.id.split(seperator)[0],
-                sourceProperty : connection.source.id.split(seperator)[1],
-                sourceType : connection.source.id.split(seperator)[2],
-                targetStruct : connection.target.id.split(seperator)[0],
-                targetProperty : connection.target.id.split(seperator)[1],
-                targetType : connection.target.id.split(seperator)[2]
+                sourceStruct : connection.source.id.split(separator)[0],
+                sourceProperty : connection.source.id.split(separator)[1],
+                sourceType : connection.source.id.split(separator)[2],
+                sourceReference : sourceRefObj,
+                targetStruct : connection.target.id.split(separator)[0],
+                targetProperty : connection.target.id.split(separator)[1],
+                targetType : connection.target.id.split(separator)[2],
+                targetReference : targetRefObj
             }
 
             jsPlumb.detach(connection);
