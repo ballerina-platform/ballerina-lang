@@ -17,16 +17,13 @@
  */
 package org.wso2.ballerina.core.model.values;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMFactory;
 import org.wso2.ballerina.core.model.DataIterator;
+import org.wso2.ballerina.core.model.DataTableJSONDataSource;
 import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.values.BJSON.JSONDataSource;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.DataTableOMDataSource;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -192,7 +189,7 @@ public class BDataframe implements BRefType<Object> {
     }
     
     public BJSON toJSON() {
-        return new BJSON(new DataTableJSONDataSource());
+        return new BJSON(new DataTableJSONDataSource(this));
     }
     
     /**
@@ -237,68 +234,5 @@ public class BDataframe implements BRefType<Object> {
     public List<ColumnDefinition> getColumnDefs() {
         return columnDefs;
     }
-    
-    /**
-     * {@link JSONDataSource} implementation for DataTable.
-     */
-    private class DataTableJSONDataSource implements JSONDataSource {
-
-        @Override
-        public void serialize(JsonGenerator gen) throws IOException {
-            String name;
-            gen.writeStartArray();
-            while (next()) {
-                gen.writeStartObject();
-                for (ColumnDefinition col : columnDefs) {
-                    name = col.getName();
-                    gen.writeFieldName(name);
-                    switch (col.getType()) {
-                    case STRING:
-                        gen.writeString(getString(name));
-                        break;
-                    case INT:
-                        gen.writeNumber(getInt(name));
-                        break;
-                    case LONG:
-                        gen.writeNumber(getLong(name));
-                        break;
-                    case DOUBLE:
-                        gen.writeNumber(getDouble(name));
-                        break;
-                    case FLOAT:
-                        gen.writeNumber(getFloat(name));
-                        break;
-                    case BOOLEAN:
-                        gen.writeBoolean(getBoolean(name));
-                        break;
-                    case ARRAY:
-                        gen.writeStartArray();
-                        //TODO: ARRAY
-                        gen.writeEndArray();
-                        break;
-                    case JSON:
-                        //TODO: JSON                        
-                        break;
-                    case MAP:
-                        gen.writeStartObject();
-                        //TODO: MAP
-                        gen.writeEndObject();
-                        break;
-                    case XML:
-                        //TODO: get XML
-                        gen.writeString("");
-                        break;
-                    default:
-                        gen.writeString(getString(name));
-                        break;                    
-                    }
-                }
-                gen.writeEndObject();
-            }
-            gen.writeEndArray();
-            close();
-        }
         
-    }
-    
 }
