@@ -33,8 +33,8 @@ import org.wso2.ballerina.core.nativeimpl.util.GetRandomString;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.FunctionUtils;
+import org.wso2.ballerina.core.utils.Functions;
 import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
 
 import java.util.ArrayList;
 import java.util.List;
