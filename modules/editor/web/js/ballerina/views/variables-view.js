@@ -98,6 +98,12 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
                     .appendTo($(variableSelect));
             }
 
+            variableTypes = diagramRenderingContext.getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
+            for (var typeCount = 0; typeCount < variableTypes.length; typeCount++) {
+                $("<option value=" + variableTypes[typeCount].getStructName() + ">" + variableTypes[typeCount].getStructName() + "</option>")
+                    .appendTo($(variableSelect));
+            }
+            
             // Add new variable upon enter key.
             $(variableText).on("change paste keydown", function (e) {
                 if (e.which == 13) {
