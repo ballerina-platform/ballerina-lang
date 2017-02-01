@@ -16,17 +16,20 @@
  * under the License.
  */
 define(['log', 'lodash', 'event_channel'],
-    function(log, _, EventChannel ){
+    function (log, _, EventChannel) {
 
-    /**
-     * @class Package
-     * @augments 
-     * @param args {Object} - args.name: name of the package
-     * @constructor
-     */
-    var Function = function(args){
-        this.name = _.get(args, 'name', []);
-    };
+        /**
+         * @class Package
+         * @augments
+         * @param args {Object} - args.name: name of the package
+         * @constructor
+         */
+        var Function = function (args) {
+            this.name = _.get(args, 'name', []);
+        };
 
-    return Function;
-});
+        Function.prototype = Object.create(EventChannel.prototype);
+        Function.prototype.constructor = Function;
+
+        return Function;
+    });

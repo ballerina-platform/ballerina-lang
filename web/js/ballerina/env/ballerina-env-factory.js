@@ -67,6 +67,10 @@ define(['./package', './connector', './connector-action', './function'],
             return (connector instanceof Connector);
         };
 
+        BallerinaEnvFactory.isFunction = function (functionDef) {
+            return (functionDef instanceof Function);
+        };
+
         return BallerinaEnvFactory;
 
     });
