@@ -64,8 +64,18 @@ define(['lodash', 'log', './node'], function(_, log, ASTNode){
     };
 
     /**
-     * initialize VariableDeclaration from json object
-     * @param {Object} jsonNode to initialize from
+     * Gets the variable declaration as a string.
+     * @return {string} - Variable declaration as string.
+     */
+    VariableDeclaration.prototype.getVariableDeclarationAsString = function() {
+      return this._type + " " + this._identifier + ";";
+    };
+
+    /**
+     * Initialize VariableDeclaration from json object
+     * @param {Object} jsonNode - The JSON object.
+     * @param {string} jsonNode.variable_type - The ballerina type.
+     * @param {string} jsonNode.variable_name - The identifier of the variable.
      */
     VariableDeclaration.prototype.initFromJson = function (jsonNode) {
         this.setType(jsonNode.variable_type);

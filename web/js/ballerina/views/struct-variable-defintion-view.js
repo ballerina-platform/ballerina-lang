@@ -45,7 +45,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
 
             var structVariableDefinitionWrapper = $("<div/>", {
                 id: this.getModel().getID(),
-                class: "struct-variable-definition-wrapper pull-left"
+                class: "struct-variable-definition-wrapper"
             }).data("model", this.getModel()).appendTo(this.getContainer());
 
             this._structVariableWrapper = structVariableDefinitionWrapper.get(0);
@@ -65,12 +65,13 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
             this._identifierWrapper = structVariableDefinitionIdentifierWrapper.get(0);
 
             // Creating delete button.
-            var deleteButton = $("<i class='fw fw-cancel'></i>").hide().appendTo(structVariableDefinitionWrapper);
+            var deleteButton = $("<i class='fw fw-cancel'></i>").css("visibility", "hidden")
+                .appendTo(structVariableDefinitionWrapper);
 
             $(structVariableDefinitionWrapper).hover(function () {
-                deleteButton.show();
+                deleteButton.css("visibility", "visible");
             }, function () {
-                deleteButton.hide();
+                deleteButton.css("visibility", "hidden");
             });
 
             this._deleteButton = deleteButton.get(0);
