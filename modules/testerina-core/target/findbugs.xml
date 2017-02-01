@@ -1,2 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<BugCollection version='3.0.1' threshold='low' effort='max'><Error></Error><Project><SrcDir>/Users/Chanuka/work/projects/testerina/modules/testerina-core/src/main/java</SrcDir><SrcDir>/Users/Chanuka/work/projects/testerina/modules/testerina-core/target/generated-sources/annotations</SrcDir><SrcDir>/Users/Chanuka/work/projects/testerina/modules/testerina-core/src/test/java</SrcDir></Project></BugCollection>
