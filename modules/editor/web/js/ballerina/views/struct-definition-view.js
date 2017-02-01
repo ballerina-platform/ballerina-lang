@@ -45,12 +45,11 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
             this.setDiagramRenderingContext(diagramRenderingContext);
 
             // Draws the outlying body of the struct definition.
-            this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().type.toLowerCase(), this.getModel().getStructName());
+            this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().getType().toLowerCase(), this.getModel().getStructName());
 
             // Setting the styles for the canvas icon.
             this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.struct_icon", ""));
 
-            this._container = $('#' + this.getModel().getID());
             var self = this;
 
             $(this.getTitle()).text(this.getModel().getStructName())
@@ -77,13 +76,10 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                 }
             });
 
-            var tempContainer = $(this._container).find("svg").parent();
-            $(this._container).find("svg").remove();
-
             var structContentWrapper = $("<div/>", {
                 id: this.getModel().getID(),
                 class: "struct-content-wrapper"
-            }).data("model", this.getModel()).appendTo(tempContainer);
+            }).data("model", this.getModel()).appendTo(this.getBodyWrapper());
 
             //// Creating operational panel
 

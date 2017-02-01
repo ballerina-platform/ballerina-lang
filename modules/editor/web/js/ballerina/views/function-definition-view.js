@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel',  'alerts', './canvas', './../ast/function-definition', './default-worker', 'd3utils', '' +
-        'd3', './worker-declaration-view', './statement-view-factory', './point', './axis',
+define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/function-definition', './default-worker',
+        'd3utils', 'd3', './worker-declaration-view', './statement-view-factory', './point', './axis',
         './connector-declaration-view', './statement-container', './variables-view', './function-arguments-view',
         './return-types-pane-view', 'ballerina/ast/ballerina-ast-factory'],
-    function (_, log, EventChannel, Alerts, Canvas, FunctionDefinition, DefaultWorkerView, D3Utils,
-              d3, WorkerDeclarationView, StatementViewFactory, Point, Axis,
+    function (_, log, EventChannel, Alerts, SVGCanvas, FunctionDefinition, DefaultWorkerView,
+              D3Utils, d3, WorkerDeclarationView, StatementViewFactory, Point, Axis,
               ConnectorDeclarationView, StatementContainer, VariablesView, ArgumentsView,
               ReturnTypePaneView, BallerinaASTFactory) {
 
@@ -31,10 +31,10 @@ define(['lodash', 'log', 'event_channel',  'alerts', './canvas', './../ast/funct
          * @param {Object} args.container - The HTML container to which the view should be added to.
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
          * @constructor
-         * @augments Canvas
+         * @augments SVGCanvas
          */
         var FunctionDefinitionView = function (args) {
-            Canvas.call(this, args);
+            SVGCanvas.call(this, args);
             //set initial connector margin for the service
             this._lifelineMargin = new Axis(210, false);
             this._statementExpressionViewList = [];
@@ -61,7 +61,7 @@ define(['lodash', 'log', 'event_channel',  'alerts', './canvas', './../ast/funct
             }
         };
 
-        FunctionDefinitionView.prototype = Object.create(Canvas.prototype);
+        FunctionDefinitionView.prototype = Object.create(SVGCanvas.prototype);
         FunctionDefinitionView.prototype.constructor = FunctionDefinitionView;
 
         /**
