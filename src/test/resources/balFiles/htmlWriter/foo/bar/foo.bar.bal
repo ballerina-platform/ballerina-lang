@@ -1,4 +1,4 @@
-package foo.bar.mediation;
+package foo.bar;
 
 import ballerina.lang.system;
 import ballerina.lang.message;

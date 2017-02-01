@@ -24,6 +24,7 @@ import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.docgen.docs.model.BallerinaPackageDoc;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocGenTestUtils;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -51,6 +52,8 @@ public class BallerinaFunctionDocGenTest {
             Assert.assertEquals(funcDoc.getParameters().length, 1);
             Assert.assertEquals(funcDoc.getReturnParameters().length, 1);
             //Assert.assertEquals(funcDoc.getThrownExceptions().size(), 0);
+        } catch (IOException e) {
+            Assert.fail();
         } finally {
             BallerinaDocGenTestUtils.cleanUp();
         }
@@ -75,6 +78,8 @@ public class BallerinaFunctionDocGenTest {
             BallerinaFunction function1 = functions.get(1);
             Assert.assertEquals(function1.getParameters().length, 2);
             Assert.assertEquals(function1.getReturnParameters().length, 0);
+        } catch (IOException e) {
+            Assert.fail();
         } finally {
             BallerinaDocGenTestUtils.cleanUp();
         }

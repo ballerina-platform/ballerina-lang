@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerina.docgen.docs.model.BallerinaPackageDoc;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocGenTestUtils;
 
+import java.io.IOException;
 import java.util.Map;
 
 public class BallerinaDocGenTest {
@@ -38,6 +39,8 @@ public class BallerinaDocGenTest {
                     .generatePackageDocsFromBallerina("src/test/resources/balFiles/helloWorld.bal");
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
+        } catch (IOException e) {
+            Assert.fail();
         } finally {
             BallerinaDocGenTestUtils.cleanUp();
         }
@@ -54,6 +57,8 @@ public class BallerinaDocGenTest {
             // assert package names
             Assert.assertEquals(docsMap.containsKey("a.b"), true);
             Assert.assertEquals(docsMap.containsKey("a.b.c"), true);
+        } catch (IOException e) {
+            Assert.fail();
         } finally {
             BallerinaDocGenTestUtils.cleanUp();
         }
