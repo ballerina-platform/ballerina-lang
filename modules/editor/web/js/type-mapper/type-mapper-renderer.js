@@ -50,15 +50,16 @@ define(['require', 'lodash','jquery','jsPlumb', 'dagre'], function(require, _,$,
             } ]});
 
         var positionFunc = this.dagrePosition;
+        var seperator = this.idNameSeperator;
 
         jsPlumb.bind('dblclick', function (connection, e) {
             var PropertyConnection = {
-                sourceStruct : connection.source.id.split(this.idNameSeperator)[0],
-                sourceProperty : connection.source.id.split(this.idNameSeperator)[1],
-                sourceType : connection.source.id.split(this.idNameSeperator)[2],
-                targetStruct : connection.target.id.split(this.idNameSeperator)[0],
-                targetProperty : connection.target.id.split(this.idNameSeperator)[1],
-                targetType : connection.target.id.split(this.idNameSeperator)[2]
+                sourceStruct : connection.source.id.split(seperator)[0],
+                sourceProperty : connection.source.id.split(seperator)[1],
+                sourceType : connection.source.id.split(seperator)[2],
+                targetStruct : connection.target.id.split(seperator)[0],
+                targetProperty : connection.target.id.split(seperator)[1],
+                targetType : connection.target.id.split(seperator)[2]
             }
 
             jsPlumb.detach(connection);
