@@ -20,15 +20,9 @@ package org.wso2.ballerina.core.model.values;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser.Feature;
-import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.node.BaseJsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
@@ -37,7 +31,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
 
 /**
  * {@code BJSON} represents a JSON value in Ballerina.
@@ -53,6 +46,9 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     }
     
     private static final JsonFactory JSON_FAC = new JsonFactory();
+    
+    // The streaming JSON data source object
+    private JSONDataSource datasource;
     
     // GSON json object model associated with this JSONType object
     private JsonNode value;
@@ -86,7 +82,7 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
      * @param datasource
      */
     public BJSON(JSONDataSource datasource) {
-        this(new StreamingJSONNode(datasource));
+        this.datasource = datasource;
     }
 
     /**
@@ -175,7 +171,13 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     public void serializeData() {
         try {
             JsonGenerator gen = JSON_FAC.createGenerator(this.outputStream);
-            this.value.serialize(gen, null);
+            /* the below order is important, where if the value is generated from a streaming data source,
+             * it should be able to serialize the data out again using the value */
+            if (this.value != null) {
+                this.value.serialize(gen, null);
+            } else {
+                this.datasource.serialize(gen);
+            }
             gen.flush();
         } catch (IOException e) {
             throw new BallerinaException("Error occurred during writing the message to the output stream", e);
@@ -194,7 +196,18 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
      */
     @Override
     public JsonNode value() {
-        return value;
+        if (this.value == null) {
+            ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+            try {
+                JsonGenerator gen = JSON_FAC.createGenerator(byteOut);
+                this.datasource.serialize(gen);
+                gen.close();
+                this.value = OBJECT_MAPPER.readTree(byteOut.toByteArray());
+            } catch (IOException e) {
+                throw new BallerinaException("Error in building JSON node", e);
+            }
+        }
+        return this.value;
     }
     
     @Override
@@ -204,150 +217,6 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
         } catch (JsonProcessingException e) {
             throw new BallerinaException("Error in converting JsonNode to String", e);
         }
-    }
-    
-    /**
-     * A streaming {@link JsonNode} implementation based on {@link JSONDataSource}.
-     */
-    private static class StreamingJSONNode extends BaseJsonNode {
-        
-        private JSONDataSource datasource;
-        
-        private JsonNode jsonNode;
-        
-        public StreamingJSONNode(JSONDataSource datasource) {
-            this.datasource = datasource;
-        }
-        
-        private void checkAndBuildNode() {
-            if (this.jsonNode == null) {
-                ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-                try {
-                    JsonGenerator gen = JSON_FAC.createGenerator(byteOut);
-                    this.datasource.serialize(gen);
-                    gen.close();
-                    this.jsonNode = OBJECT_MAPPER.readTree(byteOut.toByteArray());
-                } catch (IOException e) {
-                    throw new BallerinaException("Error in building JSON node", e);
-                }
-            }
-        }
-
-        @Override
-        public JsonToken asToken() {
-            this.checkAndBuildNode();
-            return this.jsonNode.asToken();
-        }
-
-        @Override
-        public int hashCode() {
-            this.checkAndBuildNode();
-            return this.jsonNode.hashCode();
-        }
-
-        @Override
-        public void serialize(JsonGenerator gen, SerializerProvider sp) throws IOException, JsonProcessingException {
-            if (this.jsonNode == null) {
-                this.datasource.serialize(gen);
-            } else {
-                this.jsonNode.serialize(gen, sp);
-            }
-        }
-
-        @Override
-        public void serializeWithType(JsonGenerator gen, SerializerProvider sp, TypeSerializer ts)
-                throws IOException, JsonProcessingException {
-            if (this.jsonNode == null) {
-                this.datasource.serialize(gen);
-            } else {
-                this.jsonNode.serializeWithType(gen, sp, ts);
-            }
-        }
-
-        @Override
-        protected JsonNode _at(JsonPointer ptr) {
-            this.checkAndBuildNode();
-            return this.jsonNode.at(ptr);
-        }
-
-        @Override
-        public String asText() {
-            this.checkAndBuildNode();
-            return this.jsonNode.asText();
-        }
-
-        @Override
-        public <T extends JsonNode> T deepCopy() {
-            this.checkAndBuildNode();
-            return this.jsonNode.deepCopy();
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            this.checkAndBuildNode();
-            return this.jsonNode.equals(obj);
-        }
-
-        @Override
-        public JsonNode findParent(String fieldName) {
-            this.checkAndBuildNode();
-            return this.jsonNode.findParent(fieldName);
-        }
-
-        @Override
-        public List<JsonNode> findParents(String fieldName, List<JsonNode> foundSoFar) {
-            this.checkAndBuildNode();
-            return this.jsonNode.findParents(fieldName, foundSoFar);
-        }
-
-        @Override
-        public JsonNode findValue(String fieldValue) {
-            this.checkAndBuildNode();
-            return this.jsonNode.findValue(fieldValue);
-        }
-
-        @Override
-        public List<JsonNode> findValues(String fieldName, List<JsonNode> foundSoFar) {
-            this.checkAndBuildNode();
-            return this.jsonNode.findValues(fieldName, foundSoFar);
-        }
-
-        @Override
-        public List<String> findValuesAsText(String fieldName, List<String> foundSoFar) {
-            this.checkAndBuildNode();
-            return this.jsonNode.findValuesAsText(fieldName, foundSoFar);
-        }
-
-        @Override
-        public JsonNode get(int index) {
-            this.checkAndBuildNode();
-            return this.jsonNode.get(index);
-        }
-
-        @Override
-        public JsonNodeType getNodeType() {
-            this.checkAndBuildNode();
-            return this.jsonNode.getNodeType();
-        }
-
-        @Override
-        public JsonNode path(String fieldName) {
-            this.checkAndBuildNode();
-            return this.jsonNode.path(fieldName);
-        }
-
-        @Override
-        public JsonNode path(int index) {
-            this.checkAndBuildNode();
-            return this.jsonNode.path(index);
-        }
-
-        @Override
-        public String toString() {
-            this.checkAndBuildNode();
-            return this.jsonNode.toString();
-        }
-        
     }
     
     /**
