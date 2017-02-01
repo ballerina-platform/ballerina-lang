@@ -177,6 +177,24 @@ define(['lodash', './node'], function (_, ASTNode) {
     };
 
     /**
+     * removes the already selected child before adding a new child
+     * @param type
+     */
+    TypeMapperDefinition.prototype.removeAssignmentDefinition = function (sourceProperty, targetProperty) {
+        //TODO: Remove hardcoded x and y
+        var self = this;
+        if (this.getChildren() != 0) {
+            var assignmentStatement = _.find(this.getChildren(), function (child) {
+                return self.BallerinaASTFactory.isAssignmentStatement(child) &&
+                    (('x.' + targetProperty + ' = ' + 'y.' + sourceProperty) === child.getExpression());
+            });
+            if (assignmentStatement) {
+                this.removeChild(assignmentStatement);
+            }
+        }
+    };
+
+    /**
      * returns the index of the selected struct
      * @param structArray
      * @param selectedStructName
