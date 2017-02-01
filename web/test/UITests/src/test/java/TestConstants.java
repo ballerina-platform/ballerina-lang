@@ -18,10 +18,14 @@
 
 public class TestConstants {
 
-    public static String WELCOME_PAGE_OPEN_BUTTON_XPATH = "/html/body/div[1]/div[2]/div/div[3]/div[2]/div/div/div/div[2]/div[1]/div/div/div/div[1]/div[3]/button";
-    public static String FILE_OPEN_POPUP_LOCATION_INPUT_XPATH = "/html/body/div[11]/div/div/div[2]/div/form/div[1]/div/input";
-    public static String FILE_OPEN_POPUP_LOCATION_OPEN_XPATH = "/html/body/div[11]/div/div/div[2]/div/form/div[3]/div/button[1]";
-    public static String SVG_XPATH = "/html/body/div[1]/div[2]/div/div[3]/div[2]/div/div/div/div[2]/div[1]/div[2]/div[1]/div[4]";
+    public static final String WELCOME_PAGE_OPEN_BUTTON_XPATH = "/html/body/div[1]/div[2]/div/div[3]/div[2]/div/div/div" +
+            "/div[2]/div[1]/div/div/div/div[1]/div[3]/button";
+    public static final String FILE_OPEN_POPUP_LOCATION_INPUT_XPATH = "/html/body/div[11]/div/div/div[2]/div/form/div[1]" +
+            "/div/input";
+    public static final String FILE_OPEN_POPUP_LOCATION_OPEN_XPATH = "/html/body/div[11]/div/div/div[2]/div/form/div[3]" +
+            "/div/button[1]";
+    public static final String SVG_XPATH = "/html/body/div[1]/div[2]/div/div[3]/div[2]/div/div/div/div[2]/div[1]/div[2]" +
+            "/div[1]/div[4]";
 
-    public static String SERVER_URL = "http://localhost:9091";
+    public static final String SERVER_URL = "http://localhost:9091";
 }
