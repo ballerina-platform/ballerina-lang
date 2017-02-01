@@ -133,11 +133,11 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
 
                 var newVariableDeclaration = BallerinaASTFactory.createVariableDeclaration();
                 newVariableDeclaration.setType(schema.getStructName());
-                newVariableDeclaration.setIdentifier("e");
+                newVariableDeclaration.setIdentifier("x");
                 self._model.addChild(newVariableDeclaration);
 
                 var newReturnStatement = BallerinaASTFactory.createReturnStatement();
-                newReturnStatement.setReturnExpression("e");
+                newReturnStatement.setReturnExpression("x");
                 self._model.addChild(newReturnStatement);
             } else {
                 var t = self._model.getSelectedStructIndex(predefinedStructs, self._model.getSelectedStructNameForTarget());
@@ -207,10 +207,10 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
 
         var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
         var leftOp = BallerinaASTFactory.createLeftOperandExpression();
-        var leftOperandExpression = "e." + connection.sourceProperty;
+        var leftOperandExpression = "x." + connection.sourceProperty;
         leftOp.setLeftOperandExpressionString(leftOperandExpression);
         var rightOp = BallerinaASTFactory.createRightOperandExpression();
-        var rightOperandExpression = "p." + connection.targetProperty;
+        var rightOperandExpression = "y." + connection.targetProperty;
         rightOp.setRightOperandExpressionString(rightOperandExpression);
         assignmentStmt.addChild(leftOp);
         assignmentStmt.addChild(rightOp);
