@@ -292,7 +292,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
     TypeMapper.prototype.dagrePosition = function () {
         // construct dagre graph from JsPlumb graph
         var g = new dagre.graphlib.Graph();
-
+        var seperator = '-';
 
         var alignment = 'LR';
 
@@ -304,8 +304,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
         g.setDefaultEdgeLabel(function () {
             return {};
         });
-        
-        var nodes = $(".property");
+
+        var nodes = $(".struct, .func");
         for (var i = 0; i < nodes.length; i++) {
             var n = nodes[i];
             g.setNode(n.id, {width: $("#" + n.id).width() + 30, height: $("#" + n.id).height() + 30});
@@ -313,22 +313,19 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
         var edges = jsPlumb.getAllConnections();
         for (var i = 0; i < edges.length; i++) {
             var c = edges[i];
-            var sourceParts = c.source.id.split(this.idNameSeperator);
-            var targetParts = c.target.id.split(this.idNameSeperator);
-            var sourceId = sourceParts.slice(0, 6).join('-');
-            var targetId = targetParts.slice(0, 6).join('-');
+            var sourceParts = c.source.id.split(seperator);
+            var targetParts = c.target.id.split(seperator);
+            var sourceId = sourceParts.slice(0, 6).join(seperator);
+            var targetId = targetParts.slice(0, 6).join(seperator);
             g.setEdge(sourceId, targetId);
         }
 
         // calculate the layout (i.e. node positions)
         dagre.layout(g);
-
         // Applying the calculated layout
         g.nodes().forEach(function (v) {
-            if (g.node(v)) {
-                $("#" + v).css("left", g.node(v).x + "px");
-                $("#" + v).css("top", g.node(v).y + "px");
-            }
+            $("#" + v).css("left", g.node(v).x + "px");
+            $("#" + v).css("top", g.node(v).y + "px");
         });
         jsPlumb.repaintEverything();
     };
