@@ -18,10 +18,10 @@
 define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './service-definition-visitor',
         './function-definition-visitor', './package-definition-visitor', './import-declaration-visitor',
         './connector-definition-visitor', './struct-definition-visitor', './constant-definition-visitor',
-        './type-converter-definition-visitor'],
+        './type-mapper-definition-visitor'],
     function (_, log, EventChannel, AbstractSourceGenVisitor, ServiceDefinitionVisitor, FunctionDefinitionVisitor,
               PackageDefinitionVisitor, ImportDeclarationVisitor, ConnectorDefinitionVisitor, StructDefinitionVisitor,
-              ConstantDefinitionVisitor, TypeConverterDefinitionVisitor) {
+              ConstantDefinitionVisitor, TypeMapperDefinitionVisitor) {
 
         var BallerinaASTRootVisitor = function () {
             AbstractSourceGenVisitor.call(this);
@@ -66,9 +66,9 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './se
             structDefinition.accept(structDefinitionVisitor);
         };
 
-        BallerinaASTRootVisitor.prototype.visitTypeConverterDefinition = function (typeConverterDefinition) {
-            var typeConverterDefinitionVisitor = new TypeConverterDefinitionVisitor(this);
-            typeConverterDefinition.accept(typeConverterDefinitionVisitor);
+        BallerinaASTRootVisitor.prototype.visitTypeMapperDefinition = function (typeMapperDefinition) {
+            var typeMapperDefinitionVisitor = new TypeMapperDefinitionVisitor(this);
+            typeMapperDefinition.accept(typeMapperDefinitionVisitor);
         };
 
         BallerinaASTRootVisitor.prototype.visitPackageDefinition = function (packageDefinition) {

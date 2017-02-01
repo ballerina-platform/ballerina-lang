@@ -50,17 +50,11 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
 
     //todo make this as normal NOT a composit one
     /**
-     * creates TypeConverterDefinition
+     * creates TypeMapperDefinition
      * @param args
      */
     DefaultsAddedBallerinaASTFactory.createTypeMapperDefinition = function (args) {
         var typeMapperDef = BallerinaASTFactory.createTypeMapperDefinition(args);
-//        var leftTypeStructDef = BallerinaASTFactory.createTypeStructDefinition(args);
-//        leftTypeStructDef.setTypeStructName("Left Struct");
-//        var rightTypeStructDef = BallerinaASTFactory.createTypeStructDefinition(args);
-//        rightTypeStructDef.setTypeStructName("Right Struct");
-//        typeConverterDef.addChild(leftTypeStructDef);
-//        typeConverterDef.addChild(rightTypeStructDef);
         return typeMapperDef;
     };
 
