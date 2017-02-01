@@ -913,9 +913,8 @@ public class BLangExecutor implements NodeExecutor {
      */
     private BValue getUnitValue(BValue currentVal, StructFieldAccessExpr fieldExpr) {
         if (currentVal instanceof BNull) {
-            throw new BallerinaException(getLocationStr(fieldExpr.getLocation())
-                                         + " NullPointerException : Symbol "
-                                         + fieldExpr.getSymbolName() + " null");
+            throw new BallerinaException(
+                    getLocationStr(fieldExpr.getLocation()) + "Symbol " + fieldExpr.getSymbolName() + " is null");
         }
         if (!(currentVal instanceof BArray || currentVal instanceof BMap<?, ?>)) {
             return currentVal;

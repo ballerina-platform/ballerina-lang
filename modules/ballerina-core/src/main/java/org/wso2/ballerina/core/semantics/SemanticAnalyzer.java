@@ -821,11 +821,12 @@ public class SemanticAnalyzer implements NodeVisitor {
             Expression returnArgExpr = returnArgExprs[i];
             returnArgExpr.accept(this);
             if (returnArgExpr instanceof NullLiteral) {
-                if (BTypes.isValueType(returnParamsOfCU[i].getType())) {
+                Parameter parameter = returnParamsOfCU[i];
+                if (BTypes.isValueType(parameter.getType())) {
                     throw  new SemanticException(getLocationStr(returnParamsOfCU[i].getLocation())
-                                                 + "can not return null for  " + returnParamsOfCU[i].getType());
+                                                 + "can not return null for  " + parameter.getType());
                 }
-                typesOfReturnExprs[i] = returnParamsOfCU[i].getType();
+                typesOfReturnExprs[i] = parameter.getType();
             } else {
                 typesOfReturnExprs[i] = returnArgExpr.getType();
             }
@@ -2194,10 +2195,16 @@ public class SemanticAnalyzer implements NodeVisitor {
     private void nullExprCheck(Expression lExpr, Expression rExpr) {
         if (rExpr instanceof NullLiteral) {
             if (BTypes.isValueType(lExpr.getType())) {
-                throw  new SemanticException(getLocationStr(rExpr.getLocation()) + lExpr.getType()
-                                             + " can not be null ");
+                throw new SemanticException(
+                        getLocationStr(rExpr.getLocation()) + lExpr.getType() + " can not be null ");
             }
             rExpr.setType(lExpr.getType());
+        } else if (lExpr instanceof NullLiteral) {
+            if (BTypes.isValueType(rExpr.getType())) {
+                throw new SemanticException(
+                        getLocationStr(lExpr.getLocation()) + rExpr.getType() + " can not be null ");
+            }
+            lExpr.setType(rExpr.getType());
         }
     }
 
