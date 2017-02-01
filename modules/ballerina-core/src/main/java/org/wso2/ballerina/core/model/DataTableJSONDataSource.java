@@ -120,7 +120,7 @@ public class DataTableJSONDataSource implements JSONDataSource {
          * Converts the current position of the given dataframe to a JSON object.
          * @param dataframe The dataframe that should be used in the current position
          * @return The generated JSON object
-         * @throws IOException, JsonProcessingException
+         * @throws IOException
          */
         JsonNode transform(BDataframe dataframe) throws IOException;
         
