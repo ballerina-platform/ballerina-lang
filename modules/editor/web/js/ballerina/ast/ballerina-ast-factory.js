@@ -835,6 +835,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * instanceof check for Assignment Statement
+         * @param child
+         * @returns {boolean}
+         */
+        BallerinaASTFactory.isAssignmentStatement = function (child) {
+            return child instanceof assignmentStatement;
+        };
+
+        /**
          * instanceof check for BasicLiteralExpression
          * @param child
          * @returns {boolean}

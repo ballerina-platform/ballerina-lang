@@ -229,8 +229,8 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
      * @param connection object
      */
     TypeMapperDefinitionView.prototype.onAttributesDisConnect = function (connection) {
-
-       // alert(888);
+        connection.targetReference.getParent().removeAssignmentDefinition(connection.sourceProperty,
+            connection.targetProperty);
     };
 
     return TypeMapperDefinitionView;
