@@ -51,14 +51,12 @@ public class BallerinaEditorUITest {
         driver.get(TestConstants.SERVER_URL);
 
         //once the open button available click it
-
         waitAndGetElementByXpath(driver, TestConstants.WELCOME_PAGE_OPEN_BUTTON_XPATH).click();
 
         //fill the location of the ballerina file to be opened
-        URL ballerinaResourceFileLocation = BallerinaEditorUITest.class.getResource("BallerinaSourceFiles" +
-                File.separator + fileName + ".bal");
-        waitAndGetElementByXpath(driver, TestConstants.FILE_OPEN_POPUP_LOCATION_INPUT_XPATH).
-                sendKeys(ballerinaResourceFileLocation.getPath());
+        URL resource = BallerinaEditorUITest.class.getResource(TestConstants.BALLERINA_RESOURCE_FOLDER + File.separator
+                + fileName + ".bal");
+        waitAndGetElementByXpath(driver, TestConstants.FILE_OPEN_POPUP_LOCATION_INPUT_XPATH).sendKeys(resource.getPath());
 
         //wait for the open button in the pop-up window
         waitAndGetElementByXpath(driver, TestConstants.FILE_OPEN_POPUP_LOCATION_OPEN_XPATH).click();
@@ -72,11 +70,11 @@ public class BallerinaEditorUITest {
         //TODO Add mechanism to generate DOM files
         //TestUtils.fileWriter(dom, fileName + "DOM.xml");
 
-        URL resourceDOMFileLocation = BallerinaEditorUITest.class.getResource("DOMFiles" + File.separator
+        URL resource1 = BallerinaEditorUITest.class.getResource(TestConstants.DOM_RESOURCE_FOLDER + File.separator
                 + fileName +"DOM.xml");
         //checking inner content of the DOM element
         assertEquals("Rendered diagram of " + fileName + "is not equal to the expected diagram",
-                TestUtils.fileReader(resourceDOMFileLocation.getPath()), dom);
+                TestUtils.fileReader(resource1.getPath()), dom);
 
         //destroying browser instance
         driver.quit();
