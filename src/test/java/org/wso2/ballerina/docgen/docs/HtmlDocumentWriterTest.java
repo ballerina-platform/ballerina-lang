@@ -37,14 +37,15 @@ public class HtmlDocumentWriterTest {
 
     @Test(description = "HTML generation test")
     public void testHtmlGeneration() {
-        try {
-            String userDir = System.getProperty("user.dir");
-            String balPackagePath = userDir + File.separator + "src" + File.separator + "test" + File.separator
-                    + "resources" + File.separator + "balFiles" + File.separator + "htmlWriter";
-            String outputPath =  userDir + File.separator + "api-docs" + File.separator + "html";
-            String outputFilePath1 = outputPath + File.separator + "foo.bar.html";
-            String outputFilePath2 = outputPath + File.separator + "foo.bar.xyz.html";
 
+        String userDir = System.getProperty("user.dir");
+        String balPackagePath = userDir + File.separator + "src" + File.separator + "test" + File.separator
+                + "resources" + File.separator + "balFiles" + File.separator + "htmlWriter";
+        String outputPath =  userDir + File.separator + "api-docs" + File.separator + "html";
+        String outputFilePath1 = outputPath + File.separator + "foo.bar.html";
+        String outputFilePath2 = outputPath + File.separator + "foo.bar.xyz.html";
+
+        try {
             // Delete if file already exists
             deleteFile(outputFilePath1);
             deleteFile(outputFilePath2);
@@ -69,13 +70,15 @@ public class HtmlDocumentWriterTest {
             Assert.fail(e.getMessage());
         } finally {
             BallerinaDocGenTestUtils.cleanUp();
+            deleteFile(outputFilePath1);
+            deleteFile(outputFilePath2);
         }
     }
 
-    private void deleteFile(String outputFilePath1) {
-        File htmlFile = new File(outputFilePath1);
+    private void deleteFile(String filePath) {
+        File htmlFile = new File(filePath);
         if (htmlFile.exists()) {
-            out.println("Deleting existing file: " + htmlFile.getAbsolutePath());
+            out.println("Deleting file: " + htmlFile.getAbsolutePath());
             htmlFile.delete();
         }
     }
