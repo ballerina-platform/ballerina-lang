@@ -91,7 +91,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
                 var leftTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
                 leftTypeStructDef.setTypeStructName(schema.getStructName());
                 leftTypeStructDef.setSelectedStructName(self._model.getSelectedStructNameForSource());
-                leftTypeStructDef.setIdentifier("p");
+                leftTypeStructDef.setIdentifier("y");
                 leftTypeStructDef.setSchema(schema);
                 leftTypeStructDef.setCategory("SOURCE");
                 //leftTypeStructDef.setDataMapperInstance(self._typeMapper);
@@ -122,7 +122,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
                 var rightTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
                 rightTypeStructDef.setTypeStructName(schema.getStructName());
                 rightTypeStructDef.setSelectedStructName(self._model.getSelectedStructNameForTarget());
-                rightTypeStructDef.setIdentifier("e");
+                rightTypeStructDef.setIdentifier("x");
                 rightTypeStructDef.setSchema(schema);
                 rightTypeStructDef.setCategory("TARGET");
                 //rightTypeStructDef.setDataMapperInstance(self._typeMapper);
