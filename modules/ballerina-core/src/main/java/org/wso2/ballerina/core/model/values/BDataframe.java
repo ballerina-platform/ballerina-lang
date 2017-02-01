@@ -20,11 +20,11 @@ package org.wso2.ballerina.core.model.values;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import org.apache.axiom.om.OMAbstractFactory;
-import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.wso2.ballerina.core.model.DataIterator;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BJSON.JSONDataSource;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.DataTableOMDataSource;
 
 import java.io.IOException;
 import java.util.List;
@@ -40,6 +40,11 @@ public class BDataframe implements BRefType<Object> {
     private DataIterator iterator;
     private Map<String, Object> properties;
     private List<ColumnDefinition> columnDefs;
+    private static OMFactory omFactory;
+
+    static {
+        omFactory = OMAbstractFactory.getOMFactory();
+    }
 
     public BDataframe(DataIterator dataIterator, Map<String, Object> properties, 
             List<ColumnDefinition> columnDefs) {
@@ -170,6 +175,14 @@ public class BDataframe implements BRefType<Object> {
         return iterator.get(columnName, type);
     }
 
+    public String getObjectAsString(int index) {
+        return iterator.getObjectAsString(index);
+    }
+
+    public String getObjectAsString(String columnName) {
+        return iterator.getObjectAsString(columnName);
+    }
+
     public String[] getAvailableProprtyNames() {
         return properties.keySet().toArray(new String[properties.keySet().size()]);
     }
@@ -218,40 +231,11 @@ public class BDataframe implements BRefType<Object> {
     }
 
     public BXML toXML() {
-        OMFactory factory = OMAbstractFactory.getOMFactory();
-        OMElement root = factory.createOMElement("results", null);
-        while (this.next()) {
-            OMElement resultElement = factory.createOMElement("result", null);
-            for (ColumnDefinition col : this.columnDefs) {
-                String value = null;
-                switch (col.getType()) {
-                case BOOLEAN:
-                    value = String.valueOf(this.getBoolean(col.getName()));
-                    break;
-                case STRING:
-                    value = this.getString(col.getName());
-                    break;
-                case INT:
-                    value = String.valueOf(this.getInt(col.getName()));
-                    break;
-                case LONG:
-                    value = String.valueOf(this.getLong(col.getName()));
-                    break;
-                case FLOAT:
-                    value = String.valueOf(this.getFloat(col.getName()));
-                    break;
-                case DOUBLE:
-                    value = String.valueOf(this.getDouble(col.getName()));
-                    break;
-                }
-                OMElement element = factory.createOMElement(col.getName(), null);
-                element.addChild(factory.createOMText(value));
-                resultElement.addChild(element);
-            }
-            root.addChild(resultElement);
-        }
-        this.close();
-        return new BXML(root);
+        return new BXML(omFactory.createOMElement(new DataTableOMDataSource(this)));
+    }
+
+    public List<ColumnDefinition> getColumnDefs() {
+        return columnDefs;
     }
     
     /**

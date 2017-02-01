@@ -77,6 +77,10 @@ public interface DataIterator {
 
     boolean[] getBooleanArray(String columnName);
 
+    String getObjectAsString(int columnIndex);
+
+    String getObjectAsString(String columnName);
+
     BValue get(int columnIndex, String type);
 
     BValue get(String columnName, String type);

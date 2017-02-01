@@ -23,7 +23,9 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BConnector;
+import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
@@ -31,7 +33,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.SQLConnector;
 
 /**
- * {@code updateWithGeneratedKeys} is the updateWithGeneratedKeys action implementation of the SQL Connector
+ * {@code UpdateWithGeneratedKeyColumns} is the updateWithGeneratedKeys action implementation of the SQL Connector
  */
 @BallerinaAction(
         packageName = "ballerina.data.sql",
@@ -41,26 +43,30 @@ import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.SQLConnector;
                 @Argument(name = "connector",
                           type = TypeEnum.CONNECTOR),
                 @Argument(name = "query",
-                          type = TypeEnum.STRING)  /*, //TODO:Add Parameter []
+                          type = TypeEnum.STRING),
+                @Argument(name = "keyColumns",
+                          type = TypeEnum.ARRAY,
+                          elementType = TypeEnum.STRING) /*, //TODO:Add Parameter [],String[]
                 @Argument(name = "optionalProperties",
                           type = TypeEnum.MAP)*/
         },
         returnType = { TypeEnum.INT, TypeEnum.STRING }) //TODO:array of generated kyes
 @Component(
-        name = "action.data.sql.updateWithGeneratedKeys",
+        name = "action.data.sql.UpdateWithGeneratedKeyColumns",
         immediate = true,
         service = AbstractNativeAction.class)
-public class UpdateWithGeneratedKeys extends AbstractSQLAction {
+public class UpdateWithGeneratedKeyColumns extends AbstractSQLAction {
     @Override
     public BValue execute(Context context) {
         BConnector bConnector = (BConnector) getArgument(context, 0);
         String query = getArgument(context, 1).stringValue();
+        BArray<BString> keyColumns = ((BArray<BString>) getArgument(context, 2));
 
         Connector connector = bConnector.value();
         if (!(connector instanceof SQLConnector)) {
             throw new BallerinaException("Need to use a SQL Connector as the first argument", context);
         }
-        executeUpdateWithKeys(context, (SQLConnector) connector, query, null);
+        executeUpdateWithKeys(context, (SQLConnector) connector, query, keyColumns);
         return null;
     }
 }

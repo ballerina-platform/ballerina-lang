@@ -36,10 +36,18 @@ import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.FindOne
 import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.FindWithQuery;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.Insert;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.InsertBatch;
+//import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.MongoDBConnector;
+//import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.Find;
+//import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.FindOne;
+//import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.FindOneWithQuery;
+//import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.FindWithQuery;
+//import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.Insert;
+//import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.InsertBatch;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.SQLConnector;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client.Call;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client.Select;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client.Update;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client.UpdateWithGeneratedKeyColumns;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client.UpdateWithGeneratedKeys;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Delete;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Execute;
@@ -101,6 +109,8 @@ import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetLongArrayByIndex;
 import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetLongArrayByName;
 import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetLongByIndex;
 import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetLongByName;
+import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetObjectAsStringByIndex;
+import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetObjectAsStringByName;
 import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetStringArrayByIndex;
 import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetStringArrayByName;
 import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetStringByIndex;
@@ -429,6 +439,8 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new GetStringByName());
         registerFunction(scope, new GetStringArrayByIndex());
         registerFunction(scope, new GetStringArrayByName());
+        registerFunction(scope, new GetObjectAsStringByIndex());
+        registerFunction(scope, new GetObjectAsStringByName());
         registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.dataframe.Next());
         registerFunction(scope, new Close());
         registerFunction(scope, new ToJSON());
@@ -442,6 +454,7 @@ public class BuiltInNativeConstructLoader {
         registerAction(scope, new Select());
         registerAction(scope, new Update());
         registerAction(scope, new UpdateWithGeneratedKeys());
+        registerAction(scope, new UpdateWithGeneratedKeyColumns());
         
         // Mongo
         registerConnector(scope, new MongoDBConnector());

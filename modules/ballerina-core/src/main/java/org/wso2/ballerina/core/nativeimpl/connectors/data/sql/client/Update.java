@@ -60,7 +60,7 @@ public class Update extends AbstractSQLAction {
         if (!(connector instanceof SQLConnector)) {
             throw new BallerinaException("Need to use a SQL Connector as the first argument", context);
         }
-        executeUpdate(context, (SQLConnector) connector, query, false);
+        executeUpdate(context, (SQLConnector) connector, query);
         return null;
     }
 }
