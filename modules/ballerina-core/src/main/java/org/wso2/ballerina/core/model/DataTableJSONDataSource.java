@@ -18,6 +18,9 @@
 package org.wso2.ballerina.core.model;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.wso2.ballerina.core.model.values.BDataframe;
 import org.wso2.ballerina.core.model.values.BDataframe.ColumnDefinition;
@@ -29,67 +32,95 @@ import java.io.IOException;
  * {@link JSONDataSource} implementation for DataTable.
  */
 public class DataTableJSONDataSource implements JSONDataSource {
-
+    
     private BDataframe df;
     
+    private JSONObjectGenerator objGen;
+    
     public DataTableJSONDataSource(BDataframe df) {
+        this (df, new DefaultJSONObjectGenerator());
+    }
+    
+    public DataTableJSONDataSource(BDataframe df, JSONObjectGenerator objGen) {
         this.df = df;
+        this.objGen = objGen;
     }
     
     @Override
     public void serialize(JsonGenerator gen) throws IOException {
-        String name;
         gen.writeStartArray();
         while (this.df.next()) {
-            gen.writeStartObject();
-            for (ColumnDefinition col : this.df.getColumnDefs()) {
+            this.objGen.transform(this.df).serialize(gen, null);
+        }
+        this.df.close();
+    }
+    
+    /**
+     * Default {@link JSONObjectGenerator} implementation based on the dataframe's in-built column definition.
+     */
+    private static class DefaultJSONObjectGenerator implements JSONObjectGenerator {
+
+        @Override
+        public JsonNode transform(BDataframe df) {
+            JsonNodeFactory fac = JsonNodeFactory.instance;
+            ObjectNode objNode = fac.objectNode();
+            String name;
+            for (ColumnDefinition col : df.getColumnDefs()) {
                 name = col.getName();
-                gen.writeFieldName(name);
                 switch (col.getType()) {
                 case STRING:
-                    gen.writeString(this.df.getString(name));
+                    objNode.put(name, df.getString(name));
                     break;
                 case INT:
-                    gen.writeNumber(this.df.getInt(name));
+                    objNode.put(name, df.getInt(name));
                     break;
                 case LONG:
-                    gen.writeNumber(this.df.getLong(name));
+                    objNode.put(name, df.getLong(name));
                     break;
                 case DOUBLE:
-                    gen.writeNumber(this.df.getDouble(name));
+                    objNode.put(name, df.getDouble(name));
                     break;
                 case FLOAT:
-                    gen.writeNumber(this.df.getFloat(name));
+                    objNode.put(name, df.getFloat(name));
                     break;
                 case BOOLEAN:
-                    gen.writeBoolean(this.df.getBoolean(name));
+                    objNode.put(name, df.getBoolean(name));
                     break;
                 case ARRAY:
-                    gen.writeStartArray();
                     //TODO: ARRAY
-                    gen.writeEndArray();
                     break;
                 case JSON:
                     //TODO: JSON                        
                     break;
                 case MAP:
-                    gen.writeStartObject();
                     //TODO: MAP
-                    gen.writeEndObject();
                     break;
                 case XML:
                     //TODO: get XML
-                    gen.writeString("");
                     break;
                 default:
-                    gen.writeString(this.df.getString(name));
+                    objNode.put(name, df.getString(name));
                     break;                    
                 }
             }
-            gen.writeEndObject();
+            return objNode;
         }
-        gen.writeEndArray();
-        this.df.close();
+        
+    }
+    
+    /**
+     * This represents the logic that will transform the current entry of a 
+     * data table to a {@link JsonNode}.
+     */
+    public static interface JSONObjectGenerator {
+        
+        /**
+         * Converts the current position of the given dataframe to a JSON object.
+         * @param dataframe The dataframe that should be used in the current position
+         * @return The generated JSON object
+         */
+        JsonNode transform(BDataframe dataframe);
+        
     }
     
 }
