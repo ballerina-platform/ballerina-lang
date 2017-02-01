@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.model;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -61,7 +62,7 @@ public class DataTableJSONDataSource implements JSONDataSource {
     private static class DefaultJSONObjectGenerator implements JSONObjectGenerator {
 
         @Override
-        public JsonNode transform(BDataframe df) {
+        public JsonNode transform(BDataframe df) throws IOException {
             JsonNodeFactory fac = JsonNodeFactory.instance;
             ObjectNode objNode = fac.objectNode();
             String name;
@@ -90,12 +91,13 @@ public class DataTableJSONDataSource implements JSONDataSource {
                     //TODO: ARRAY
                     break;
                 case JSON:
-                    //TODO: JSON                        
+                    objNode.set(name, new ObjectMapper().readTree(""));
                     break;
                 case MAP:
                     //TODO: MAP
                     break;
                 case XML:
+                    objNode.put(name, "");
                     //TODO: get XML
                     break;
                 default:
@@ -118,8 +120,9 @@ public class DataTableJSONDataSource implements JSONDataSource {
          * Converts the current position of the given dataframe to a JSON object.
          * @param dataframe The dataframe that should be used in the current position
          * @return The generated JSON object
+         * @throws IOException, JsonProcessingException
          */
-        JsonNode transform(BDataframe dataframe);
+        JsonNode transform(BDataframe dataframe) throws IOException;
         
     }
     
