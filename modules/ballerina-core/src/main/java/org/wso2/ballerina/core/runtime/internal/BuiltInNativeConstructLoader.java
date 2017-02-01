@@ -60,6 +60,12 @@ import org.wso2.ballerina.core.nativeimpl.lang.array.StringArrayRangeCopy;
 import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayCopyOf;
 import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayLength;
 import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayRangeCopy;
+import org.wso2.ballerina.core.nativeimpl.lang.assertion.AssertEqualsBoolean;
+import org.wso2.ballerina.core.nativeimpl.lang.assertion.AssertEqualsDouble;
+import org.wso2.ballerina.core.nativeimpl.lang.assertion.AssertEqualsInt;
+import org.wso2.ballerina.core.nativeimpl.lang.assertion.AssertEqualsString;
+import org.wso2.ballerina.core.nativeimpl.lang.assertion.AssertFalse;
+import org.wso2.ballerina.core.nativeimpl.lang.assertion.AssertTrue;
 import org.wso2.ballerina.core.nativeimpl.lang.convertors.JSONToString;
 import org.wso2.ballerina.core.nativeimpl.lang.convertors.JSONToXML;
 import org.wso2.ballerina.core.nativeimpl.lang.convertors.StringToJSON;
@@ -225,6 +231,14 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new XmlArrayCopyOf());
         registerFunction(scope, new XmlArrayLength());
         registerFunction(scope, new XmlArrayRangeCopy());
+
+        //lang.assertion
+        registerFunction(scope, new AssertTrue());
+        registerFunction(scope, new AssertFalse());
+        registerFunction(scope, new AssertEqualsBoolean());
+        registerFunction(scope, new AssertEqualsDouble());
+        registerFunction(scope, new AssertEqualsInt());
+        registerFunction(scope, new AssertEqualsString());
 
         //lang.json
         registerFunction(scope, new AddBooleanToArray());

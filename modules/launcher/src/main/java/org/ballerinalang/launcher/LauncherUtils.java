@@ -53,7 +53,7 @@ import java.util.List;
  *
  * @since 0.8.0
  */
-public class Utils {
+public class LauncherUtils {
 
     static BallerinaFile buildLangModel(Path sourceFilePath) {
         ANTLRInputStream antlrInputStream = getAntlrInputStream(sourceFilePath);
@@ -90,7 +90,7 @@ public class Utils {
         }
     }
 
-    static BLauncherException createUsageException(String errorMsg) {
+    public static BLauncherException createUsageException(String errorMsg) {
         BLauncherException launcherException = new BLauncherException();
         launcherException.addMessage("ballerina: " + errorMsg);
         launcherException.addMessage("Run 'ballerina help' for usage.");

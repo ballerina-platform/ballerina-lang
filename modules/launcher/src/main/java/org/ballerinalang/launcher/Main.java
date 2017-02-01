@@ -32,17 +32,18 @@ public class Main {
         try {
             Optional<BLauncherCmd> optionalInvokedCmd = getInvokedCmd(args);
 
-            Utils.writePID(System.getProperty("ballerina.home"));
+            LauncherUtils.writePID(System.getProperty("ballerina.home"));
             optionalInvokedCmd.ifPresent(BLauncherCmd::execute);
         } catch (BLauncherException e) {
-            Utils.printLauncherException(e, outStream);
+            LauncherUtils.printLauncherException(e, outStream);
             Runtime.getRuntime().exit(1);
         } catch (Throwable e) {
             String msg = e.getMessage();
             if (msg == null) {
                 outStream.println("ballerina: unexpected error occurred");
             } else {
-                outStream.println("ballerina: unexpected error occurred: " + Utils.makeFirstLetterUpperCase(msg));
+                outStream.println("ballerina: unexpected error occurred: " +
+                        LauncherUtils.makeFirstLetterUpperCase(msg));
             }
             Runtime.getRuntime().exit(1);
         }
@@ -91,24 +92,24 @@ public class Main {
 
         } catch (MissingCommandException e) {
             String errorMsg = "unknown command '" + e.getUnknownCommand() + "'";
-            throw Utils.createUsageException(errorMsg);
+            throw LauncherUtils.createUsageException(errorMsg);
 
         } catch (ParameterException e) {
             String msg = e.getMessage();
             if (msg == null) {
-                throw Utils.createUsageException("unexpected error occurred");
+                throw LauncherUtils.createUsageException("unexpected error occurred");
 
             } else if (msg.startsWith(JC_UNKNOWN_OPTION_PREFIX)) {
                 String flag = msg.substring(JC_UNKNOWN_OPTION_PREFIX.length());
-                throw Utils.createUsageException("unknown flag '" + flag.trim() + "'");
+                throw LauncherUtils.createUsageException("unknown flag '" + flag.trim() + "'");
 
             } else if (msg.startsWith(JC_EXPECTED_A_VALUE_AFTER_PARAMETER_PREFIX)) {
                 String flag = msg.substring(JC_EXPECTED_A_VALUE_AFTER_PARAMETER_PREFIX.length());
-                throw Utils.createUsageException("flag '" + flag.trim() + "' needs an argument");
+                throw LauncherUtils.createUsageException("flag '" + flag.trim() + "' needs an argument");
 
             } else {
                 // Make the first character of the error message lower case
-                throw Utils.createUsageException(Utils.makeFirstLetterUpperCase(msg));
+                throw LauncherUtils.createUsageException(LauncherUtils.makeFirstLetterUpperCase(msg));
             }
         }
     }
@@ -227,7 +228,7 @@ public class Main {
 
         public void execute() {
             if (argList == null || argList.size() == 0) {
-                throw Utils.createUsageException("no ballerina program given");
+                throw LauncherUtils.createUsageException("no ballerina program given");
             }
 
             List<String> programArgs;
@@ -272,7 +273,7 @@ public class Main {
 
         public void execute() {
             if (sourceFileList == null || sourceFileList.size() == 0) {
-                throw Utils.createUsageException("no ballerina programs given");
+                throw LauncherUtils.createUsageException("no ballerina programs given");
             }
 
             Path[] paths = new Path[sourceFileList.size()];
@@ -374,12 +375,12 @@ public class Main {
                 return;
 
             } else if (helpCommands.size() > 1) {
-                throw Utils.createUsageException("too many arguments given");
+                throw LauncherUtils.createUsageException("too many arguments given");
             }
 
             String userCommand = helpCommands.get(0);
             if (cmdParser.getCommands().get(userCommand) == null) {
-                throw Utils.createUsageException("unknown help topic `" + userCommand + "`");
+                throw LauncherUtils.createUsageException("unknown help topic `" + userCommand + "`");
             }
 
             printCommandUsageInfo(cmdParser, userCommand);
