@@ -44,6 +44,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this._managedInnerDropzones = [];
         this._lastStatementView = undefined;
         this._selectedInnerDropZoneIndex = -1;
+        this._minHeight = 290;
 
         _.set(this._viewOptions, 'cssClass.group',  _.get(this._viewOptions, 'cssClass.group', 'statement-container'));
         _.set(this._viewOptions, 'cssClass.mainDropZone',  _.get(this._viewOptions, 'cssClass.mainDropZone', 'main-drop-zone'));
@@ -217,23 +218,29 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
     };
 
     StatementContainerView.prototype.setLastStatementView = function(lastStatementView){
-            if(!_.isNil(this._lastStatementView)){
-                this._lastStatementView.getBoundingBox().off('bottom-edge-moved');
-            }
-            this._lastStatementView = lastStatementView;
+        if(!_.isNil(this._lastStatementView)){
+            this._lastStatementView.getBoundingBox().off('bottom-edge-moved');
+        }
+        this._lastStatementView = lastStatementView;
 
-            if(this.getBoundingBox().getBottom() <
-                (this._lastStatementView.getBoundingBox().getBottom() + _.get(this._viewOptions, 'offset.bottom'))){
-                this.getBoundingBox().h((this._lastStatementView.getBoundingBox().getBottom() - this.getBoundingBox().getTop()) +
-                    _.get(this._viewOptions, 'offset.bottom'));
-            }
+        if(this.getBoundingBox().getBottom() <
+            (this._lastStatementView.getBoundingBox().getBottom() + _.get(this._viewOptions, 'offset.bottom'))){
+            this.getBoundingBox().h((this._lastStatementView.getBoundingBox().getBottom() - this.getBoundingBox().getTop()) +
+                _.get(this._viewOptions, 'offset.bottom'));
+        }
 
-            this._lastStatementView.getBoundingBox().on('bottom-edge-moved', function(dy){
-                    if(!this.isOnWholeContainerMove){
-                        this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+        this._lastStatementView.getBoundingBox().on('bottom-edge-moved', function(dy){
+            var newHeight = this.getBoundingBox().h() + dy;
+                if(!this.isOnWholeContainerMove){
+                    // If the new height is smaller than the minimum height we set the height of the statement container to the minimum allowed
+                    if (newHeight > this._minHeight) {
+                        this.getBoundingBox().h(newHeight);
+                    } else {
+                        this.getBoundingBox().h(this._minHeight);
                     }
-                    this.isOnWholeContainerMove = false;
-            }, this);
+                }
+                this.isOnWholeContainerMove = false;
+        }, this);
     };
 
     StatementContainerView.prototype.render = function (diagramRenderingContext) {
@@ -380,7 +387,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                     nextStatementView.getBoundingBox().y(nextStatementView.getBoundingBox().y() + dy);
                 });
             }
-        } else if (!_.isNil(nextStatementView) && !_.isNil(previousStatementView)) {
+        } else if (_.isNil(nextStatementView) && !_.isNil(previousStatementView)) {
             // This means we have deleted the last statement and it is not the only element.
             // We have to reset the last statement
             this.setLastStatementView(previousStatementView)
