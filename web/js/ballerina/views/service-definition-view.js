@@ -407,6 +407,12 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 // When there are no resources added
                 this.setServiceContainerWidth(connectorDeclarationView.getBoundingBox().getRight() + this._viewOptions.LifeLineCenterGap);
             }
+
+            connectorDeclarationView.listenTo(this.getBoundingBox(), 'height-changed', function (dh) {
+                var newHeight = this.getBoundingBox().h() + dh;
+                this.getBoundingBox().h(newHeight);
+            }, connectorDeclarationView);
+
         };
 
         /**
@@ -484,6 +490,9 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 var childViewIndex = _.findIndex(this._connectorViewList, function (view) {
                     return view.getModel().id === childId;
                 });
+
+                // Unregister the listening event for the service view's bounding box's changes
+                this._connectorViewList[childViewIndex].stopListening(this.getBoundingBox());
                 if (childViewIndex === 0) {
                     // We have deleted the first child (Addresses the scenarios of first child and being the only child
                     this._connectorViewList[childViewIndex].stopListening(this.getLifeLineMargin());
