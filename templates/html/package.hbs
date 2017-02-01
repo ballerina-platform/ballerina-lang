@@ -27,7 +27,7 @@
 					<div class="content">
 
 						    <h2>Functions of {{this.name}} package</h2>
-						    {{#each functionDocs}}
+						    {{#each functions}}
 						        <div style="padding-bottom: 30px;">
                                 <h3>
                                    function {{functionName}}({{#each parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}

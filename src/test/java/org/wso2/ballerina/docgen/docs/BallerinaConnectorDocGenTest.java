@@ -19,8 +19,8 @@ package org.wso2.ballerina.docgen.docs;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.docgen.docs.model.BallerinaActionDoc;
-import org.wso2.ballerina.docgen.docs.model.BallerinaConnectorDoc;
+import org.wso2.ballerina.core.model.BallerinaAction;
+import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.docgen.docs.model.BallerinaPackageDoc;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocGenTestUtils;
 
@@ -40,15 +40,14 @@ public class BallerinaConnectorDocGenTest {
             Assert.assertEquals(docsMap.size(), 1);
             BallerinaDocGenTestUtils.printDocMap(docsMap);
             BallerinaPackageDoc doc = docsMap.get("a.b");
-            List<BallerinaConnectorDoc> connectorDocs = doc.getBallerinaConnectorDocs();
-            Assert.assertEquals(connectorDocs.size(), 1);
-            BallerinaConnectorDoc connectorDoc = connectorDocs.get(0);
-            Assert.assertEquals(connectorDoc.getParameters().size(), 1);
-            List<BallerinaActionDoc> actionDocs = connectorDoc.getActions();
-            BallerinaActionDoc actionDoc = actionDocs.get(0);
-            Assert.assertEquals(actionDoc.getParameters().size(), 1);
-            Assert.assertEquals(actionDoc.getReturnParams().size(), 1);
-            Assert.assertEquals(actionDoc.getThrownExceptions().size(), 0);
+            List<BallerinaConnector> connectors = doc.getBallerinaConnectors();
+            Assert.assertEquals(connectors.size(), 1);
+            BallerinaConnector connectorDoc = connectors.get(0);
+            Assert.assertEquals(connectorDoc.getParameters().length, 4);
+            BallerinaAction[] actions = connectorDoc.getActions();
+            BallerinaAction action = actions[0];
+            Assert.assertEquals(action.getParameters().length, 2);
+            Assert.assertEquals(action.getReturnParameters().length, 1);
         } finally {
             BallerinaDocGenTestUtils.cleanUp();
         }
@@ -59,19 +58,19 @@ public class BallerinaConnectorDocGenTest {
         try {
             Map<String, BallerinaPackageDoc> docsMap = BallerinaDocGeneratorMain
                     .generatePackageDocsFromBallerina(resources + "balWith2Actions.bal");
+
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
             BallerinaDocGenTestUtils.printDocMap(docsMap);
             BallerinaPackageDoc doc = docsMap.get("a.b");
-            List<BallerinaConnectorDoc> connectorDocs = doc.getBallerinaConnectorDocs();
-            Assert.assertEquals(connectorDocs.size(), 1);
-            BallerinaConnectorDoc connectorDoc = connectorDocs.get(0);
-            Assert.assertEquals(connectorDoc.getParameters().size(), 1);
-            List<BallerinaActionDoc> actionDocs = connectorDoc.getActions();
-            for (BallerinaActionDoc actionDoc : actionDocs) {
-                Assert.assertEquals(actionDoc.getParameters().size(), 1);
-                Assert.assertEquals(actionDoc.getReturnParams().size(), 1);
-                Assert.assertEquals(actionDoc.getThrownExceptions().size(), 0);
+            List<BallerinaConnector> connectors = doc.getBallerinaConnectors();
+            Assert.assertEquals(connectors.size(), 1);
+            BallerinaConnector connector = connectors.get(0);
+            Assert.assertEquals(connector.getParameters().length, 4);
+
+            for (BallerinaAction action : connector.getActions()) {
+                Assert.assertEquals(action.getParameters().length, 2);
+                Assert.assertEquals(action.getReturnParameters().length, 1);
             }
         } finally {
             BallerinaDocGenTestUtils.cleanUp();
