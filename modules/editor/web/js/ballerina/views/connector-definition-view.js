@@ -55,16 +55,10 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 log.error("Container for connector definition is undefined." + this._container);
                 throw "Container for connector definition is undefined." + this._container;
             }
-            this.init();
         };
 
         ConnectorDefinitionView.prototype = Object.create(Canvas.prototype);
         ConnectorDefinitionView.prototype.constructor = ConnectorDefinitionView;
-
-        ConnectorDefinitionView.prototype.init = function(){
-            //Registering event listeners
-            this._model.on('child-removed', this.childRemovedCallback, this);
-        };
 
         ConnectorDefinitionView.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof ConnectorDefinition) {
@@ -340,8 +334,8 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             // Set the lifelineMargin
             this.setLifelineMargin(connectorActionView.getBoundingBox().getRight());
             // If the lifeline margin is changed then accordingly the action should move the bounding box
-            this.getLifeLineMargin().on('moved', function (offset) {
-                connectorActionView.getBoundingBox().w(connectorActionView.getBoundingBox().w() + offset);
+            connectorActionView.listenTo(this.getLifeLineMargin(), 'moved', function (offset) {
+                connectorActionView.getBoundingBox().w(connectorActionView.getBoundingBox().w() + offset)
             });
 
             //setting height of the connector definition view
@@ -478,32 +472,31 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                     return child.id === childView.id;
                 });
 
-                if (removingChildIndex !== -1 && !_.isNil(this._actionViewList[removingChildIndex + 1]) && !_.isNil(this._actionViewList[removingChildIndex - 1])) {
-                    var nextChild = self._actionViewList[removingChildIndex + 1];
-                    this._actionViewList[removingChildIndex - 1].getBoundingBox().on('bottom-edge-moved', function (dy) {
-                        nextChild.getBoundingBox().move(0, dy);
-                    })
-                }
+                var previousAction = this._actionViewList[removingChildIndex - 1];
+                var nextAction = this._actionViewList[removingChildIndex + 1];
 
-                // Remove the event bind for the current last action
-                if (!_.isEmpty(this._actionViewList)) {
-                    _.last(this._actionViewList).getBoundingBox().off('bottom-edge-moved',
-                        this.onLastActionBottomEdgeMoved);
-                }
-                // Remove the Element
-                _.remove(this._actionViewList, function (child) {
-                    return child.id === childView.id;
-                });
-                // Bind the event for the new last action
-                if (!_.isEmpty(this._actionViewList)) {
-                    _.last(this._actionViewList).getBoundingBox().on('bottom-edge-moved',
-                        this.onLastActionBottomEdgeMoved, this);
+                // Unregister all the events listening to the child view
+                childView.getBoundingBox().off();
+                if (_.isNil(previousAction)) {
+                    // We have deleted the only element
+                    if (this._actionViewList.length === 1) {
+                        // If the last remaining child has been removed we re-position the lifelineMargin to 0;
+                        // Here the event is un registered since the lifelineMargin reposition also triggers the width to change
+                        // as well as the unPlugView does. If this event is not un registered before the lifeLineMargin
+                        // re positioning twice we will try to adjust the container widths by throwing errors
+                        childView.stopListening(this.getLifeLineMargin());
+                        this.getLifeLineMargin().setPosition(0);
+                    }
+                } else if (_.isNil(nextAction)) {
+                    // We have deleted the last action having a previous action
+                    previousAction.getBoundingBox().on('bottom-edge-moved',
+                        this.onLastActionBottomEdgeMoved(), this);
                 } else {
-                    // If the last child has been removed we re-position the lifelineMargin to 0;
-                    this.getLifeLineMargin().setPosition(this.getLifeLineMargin().getPosition());
+                    // We have deleted a action in between two another actions
+                    previousAction.getBoundingBox().on('bottom-edge-moved', function (dy) {
+                        nextAction.getBoundingBox().move(0, dy);
+                    });
                 }
-
-                childView.getBoundingBox().off('bottom-edge-moved');
                 // Remove the view from the view list
                 this._actionViewList.splice(removingChildIndex, 1);
             } else if (BallerinaASTFactory.isConnectorDeclaration(child) || BallerinaASTFactory.isWorkerDeclaration(child)) {

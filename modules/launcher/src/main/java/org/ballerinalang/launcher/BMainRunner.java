@@ -35,19 +35,10 @@ import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.runtime.MessageProcessor;
 import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
-import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
-import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
-import org.wso2.carbon.transport.http.netty.config.TransportProperty;
-import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
-import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
-import org.wso2.carbon.transport.http.netty.sender.HTTPSender;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Executes the main function of a Ballerina program
@@ -67,16 +58,6 @@ class BMainRunner {
             String errorMsg = "ballerina: main method not found " + pkgString + "";
             throw Utils.createLauncherException(errorMsg);
         }
-
-        // Initializing HttpSender.
-        // TODO Remove this once the sender initialization is moved HTTPConnector
-        HTTPTransportContextHolder nettyTransportContextHolder = HTTPTransportContextHolder.getInstance();
-        nettyTransportContextHolder.setMessageProcessor(new MessageProcessor());
-        TransportsConfiguration trpConfig = YAMLTransportConfigurationBuilder.build();
-        Set<SenderConfiguration> senderConfigurations = trpConfig.getSenderConfigurations();
-        Set<TransportProperty> transportProperties = trpConfig.getTransportProperties();
-        HTTPSender sender = new HTTPSender(senderConfigurations, transportProperties);
-        ServiceContextHolder.getInstance().addTransportSender(sender);
 
         execute(bFile, args);
         Runtime.getRuntime().exit(0);

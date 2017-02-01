@@ -55,16 +55,10 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 log.error("Container for service definition is undefined." + this._container);
                 throw "Container for service definition is undefined." + this._container;
             }
-            this.init();
         };
 
         ServiceDefinitionView.prototype = Object.create(Canvas.prototype);
         ServiceDefinitionView.prototype.constructor = ServiceDefinitionView;
-
-        ServiceDefinitionView.prototype.init = function(){
-            //Registering event listeners
-            this._model.on('child-removed', this.childRemovedCallback, this);
-        };
 
         ServiceDefinitionView.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof ServiceDefinition) {
@@ -318,8 +312,8 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             // Set the lifelineMargin
             this.setLifelineMargin(resourceDefinitionView.getBoundingBox().getRight());
             // If the lifeline margin is changed then accordingly the resource should move the bounding box
-            this.getLifeLineMargin().on('moved', function (offset) {
-                resourceDefinitionView.getBoundingBox().w(resourceDefinitionView.getBoundingBox().w() + offset);
+            resourceDefinitionView.listenTo(this.getLifeLineMargin(), 'moved', function (offset) {
+                resourceDefinitionView.getBoundingBox().w(resourceDefinitionView.getBoundingBox().w() + offset)
             });
 
             //setting height of the service view
@@ -413,6 +407,12 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 // When there are no resources added
                 this.setServiceContainerWidth(connectorDeclarationView.getBoundingBox().getRight() + this._viewOptions.LifeLineCenterGap);
             }
+
+            connectorDeclarationView.listenTo(this.getBoundingBox(), 'height-changed', function (dh) {
+                var newHeight = this.getBoundingBox().h() + dh;
+                this.getBoundingBox().h(newHeight);
+            }, connectorDeclarationView);
+
         };
 
         /**
@@ -456,32 +456,31 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                     return child.id === childView.id;
                 });
 
-                if (removingChildIndex !== -1 && !_.isNil(this._resourceViewList[removingChildIndex + 1]) && !_.isNil(this._resourceViewList[removingChildIndex - 1])) {
-                    var nextChild = self._resourceViewList[removingChildIndex + 1];
-                    this._resourceViewList[removingChildIndex - 1].getBoundingBox().on('bottom-edge-moved', function (dy) {
-                        nextChild.getBoundingBox().move(0, dy);
-                    })
-                }
+                var previousResource = this._resourceViewList[removingChildIndex - 1];
+                var nextResource = this._resourceViewList[removingChildIndex + 1];
 
-                // Remove the event bind for the current last resource
-                if (!_.isEmpty(this._resourceViewList)) {
-                    _.last(this._resourceViewList).getBoundingBox().off('bottom-edge-moved',
-                        this.onLastResourceBottomEdgeMoved);
-                }
-                // Remove the Element
-                _.remove(this._resourceViewList, function (child) {
-                    return child.id === childView.id;
-                });
-                // Bind the event for the new last resource
-                if (!_.isEmpty(this._resourceViewList)) {
-                    _.last(this._resourceViewList).getBoundingBox().on('bottom-edge-moved',
+                // Unregister all the events listening to the child view
+                childView.getBoundingBox().off();
+                if (_.isNil(previousResource)) {
+                    // We have deleted the only element
+                    if (this._resourceViewList.length === 1) {
+                        // If the last remaining child has been removed we re-position the lifelineMargin to 0;
+                        // Here the event is un registered since the lifelineMargin reposition also triggers the width to change
+                        // as well as the unPlugView does. If this event is not un registered before the lifeLineMargin
+                        // re positioning twice we will try to adjust the container widths by throwing errors
+                        childView.stopListening(this.getLifeLineMargin());
+                        this.getLifeLineMargin().setPosition(0);
+                    }
+                } else if (_.isNil(nextResource)) {
+                    // We have deleted the last resource having a previous resource
+                    previousResource.getBoundingBox().on('bottom-edge-moved',
                         this.onLastResourceBottomEdgeMoved, this);
                 } else {
-                    // If the last child has been removed we re-position the lifelineMargin to 0;
-                    this.getLifeLineMargin().setPosition(0);
+                    // We have deleted a resource in between two another resources
+                    previousResource.getBoundingBox().on('bottom-edge-moved', function (dy) {
+                        nextResource.getBoundingBox().move(0, dy);
+                    });
                 }
-
-                childView.getBoundingBox().off('bottom-edge-moved');
                 // Remove the view from the view list
                 this._resourceViewList.splice(removingChildIndex, 1);
             } else if (BallerinaASTFactory.isConnectorDeclaration(child) || BallerinaASTFactory.isWorkerDeclaration(child)) {
@@ -490,6 +489,9 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 var childViewIndex = _.findIndex(this._connectorViewList, function (view) {
                     return view.getModel().id === childId;
                 });
+
+                // Unregister the listening event for the service view's bounding box's changes
+                this._connectorViewList[childViewIndex].stopListening(this.getBoundingBox());
                 if (childViewIndex === 0) {
                     // We have deleted the first child (Addresses the scenarios of first child and being the only child
                     this._connectorViewList[childViewIndex].stopListening(this.getLifeLineMargin());
