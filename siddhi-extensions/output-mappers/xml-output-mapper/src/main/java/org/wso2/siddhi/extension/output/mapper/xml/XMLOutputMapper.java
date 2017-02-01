@@ -20,13 +20,17 @@ package org.wso2.siddhi.extension.output.mapper.xml;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
+import org.wso2.siddhi.annotation.SiddhiExtension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.publisher.OutputMapper;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import javax.xml.namespace.QName;
 import java.util.Map;
-
+@SiddhiExtension(
+        name = "xml",
+        namespace = "outputmapper"
+)
 public class XMLOutputMapper extends OutputMapper {
     private StreamDefinition streamDefinition;
     private static final String EVENTS_PARENT_TAG = "events";

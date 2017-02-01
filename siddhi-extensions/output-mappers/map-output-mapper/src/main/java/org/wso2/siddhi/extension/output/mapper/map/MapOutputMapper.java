@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.extension.output.mapper.map;
 
+import org.wso2.siddhi.annotation.SiddhiExtension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.publisher.OutputMapper;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -25,6 +26,10 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import java.util.Map;
 import java.util.TreeMap;
 
+@SiddhiExtension(
+        name = "map",
+        namespace = "outputmapper"
+)
 public class MapOutputMapper extends OutputMapper {
     private StreamDefinition streamDefinition;
     private Map<String, String> options;

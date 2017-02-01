@@ -28,7 +28,8 @@ import java.util.Map;
 @SiddhiExtension(
         name = "text",
         namespace = "outputmapper"
-)public class TextOutputMapper extends OutputMapper {
+)
+public class TextOutputMapper extends OutputMapper {
     private StreamDefinition streamDefinition;
     private static final String EVENT_ATTRIBUTE_SEPARATOR = ",";
     private static final String EVENT_ATTRIBUTE_VALUE_SEPARATOR = ":";
