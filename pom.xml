@@ -54,11 +54,6 @@
         	<version>${ballerina.version}</version>
 		</dependency>
        <dependency>
-           <groupId>org.apache.velocity</groupId>
-           <artifactId>velocity</artifactId>
-           <version>1.7</version>
-       </dependency>
-       <dependency>
             <groupId>org.wso2.ballerina</groupId>
             <artifactId>ballerina-launcher</artifactId>
             <version>${ballerina.version}</version>
@@ -68,6 +63,11 @@
             <artifactId>jcommander</artifactId>
             <version>1.60</version>
         </dependency>
+       <dependency>
+           <groupId>com.github.jknack</groupId>
+           <artifactId>handlebars</artifactId>
+           <version>${handlebars.version}</version>
+       </dependency>
     </dependencies>
 
     <build>
@@ -264,5 +264,6 @@
         <cobertura.version>2.7</cobertura.version>
         <maven.paxexam.plugin.version>1.2.4</maven.paxexam.plugin.version>
         <mockito.version>1.9.0</mockito.version>
+        <handlebars.version>4.0.6</handlebars.version>
     </properties>
 </project>

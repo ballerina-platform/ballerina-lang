@@ -26,13 +26,13 @@
 				<section id="banner">
 					<div class="content">
 
-						    <h2>Functions of $package.name package</h2>
-						    #foreach($balarinaFunctionDoc in $package.functionDocs)
+						    <h2>Functions of {{this.name}} package</h2>
+						    {{#each functionDocs}}
 						        <div style="padding-bottom: 30px;">
                                 <h3>
-                                    $balarinaFunctionDoc.signature
+                                   {{signature}}
                                 </h3>
-                                <p>$balarinaFunctionDoc.description</p>
+                                <p>{{description}}</p>
 
                                 <p>
                                 <b>Parameters:</b>
@@ -40,31 +40,31 @@
                                     <tr>
                                         <th>Parameter Name</th><th>Data Type</th><th>Description</th>
                                     </tr>
-                                    #foreach($parameter in $balarinaFunctionDoc.parameters)
+                                    {{#each parameters}}
                                     <tr>
-                                        <td>$parameter.name</td><td>$parameter.dataType</td><td>$parameter.description</td>
+                                        <td>{{name}}</td><td>{{dataType}}</td><td>{{description}}</td>
                                     </tr>
-                                    #end
+                                    {{/each}}
                                 </table>
                                 </p>
 
-                                #if( $balarinaFunctionDoc.returnParameters.size() > 0 )
+                                {{#if returnParameters}}
                                 <p>
                                 <b>Return Parameters:</b>
                                 <table>
                                     <tr>
                                         <th>Return Variable</th><th>Data Type</th><th>Description</th>
                                     </tr>
-                                    #foreach($returnType in $balarinaFunctionDoc.returnParameters)
+                                    {{#each returnParameters}}
                                     <tr>
-                                        <td>$returnType.name</td><td>$returnType.dataType</td><td>$returnType.description</td>
+                                        <td>{{name}}</td><td>{{dataType}}</td><td>{{description}}</td>
                                     </tr>
-                                    #end
+                                    {{/each}}
                                 </table>
                                 </p>
-                                #end
+                                {{/if}}
                                 </div>
-                            #end
+                            {{/each}}
 						<p></p>
 					</div>
 				</section>
