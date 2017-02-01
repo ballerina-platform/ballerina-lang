@@ -50,8 +50,12 @@ define(['lodash', 'log', './callable-definition'],
     }
 
     FunctionDefinition.prototype.setFunctionName = function(name){
-        if(!_.isNil(name)){
+        if (!_.isNil(name) && FunctionDefinition.isValidFunctionName(name)) {
             this._functionName = name;
+        } else {
+            var errorString = "Invalid function name: " + name;
+            log.error(errorString);
+            throw errorString;
         }
     };
 
@@ -377,6 +381,16 @@ define(['lodash', 'log', './callable-definition'],
             self.addChild(child);
             child.initFromJson(childNode);
         });
+    };
+
+    /**
+     * Validates the name of a function.
+     * @param {string} functionName - The name of the function.
+     * @return {boolean} - True if valid name, else false.
+     * @static
+     */
+    FunctionDefinition.isValidFunctionName = function(functionName) {
+        return _.isUndefined(functionName) ? false : /^[a-zA-Z$_][a-zA-Z0-9$_]*$/.test(functionName);
     };
 
     return FunctionDefinition;

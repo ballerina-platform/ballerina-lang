@@ -164,7 +164,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', '.
                         return false;
                     }
 
-                    var newServiceName = $(this).val() + String.fromCharCode(enteredKey);
+                    var newServiceName = $(this).text() + String.fromCharCode(enteredKey);
 
                     try {
                         self.getModel().setServiceName(newServiceName);

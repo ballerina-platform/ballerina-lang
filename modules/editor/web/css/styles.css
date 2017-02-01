@@ -602,7 +602,7 @@ button.variable-list {
 }
 
 .right-icon-clickable {
-    padding: 6px 6px;
+    padding: 4px 6px;
 }
 
 .collapser:hover {
@@ -1061,7 +1061,7 @@ button.variable-list {
 .canvas-operations-wrapper {
     float: right;
     margin-right: 1px;
-    margin-top: 3px;
+    margin-top: 1px;
 }
 
 .annotation-icon {
@@ -1079,9 +1079,9 @@ button.variable-list {
     -ms-transform: scale(1, 2);
     -o-transform: scale(1, 2);
     transform: scale(1, 2);
-    margin-top: 8px;
+    margin-top: 6px;
     color: #d8d8d8;
-    font-size: 11px;
+    font-size: 8px;
 }
 
 .service-annotation-action-icon {

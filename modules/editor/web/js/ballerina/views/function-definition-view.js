@@ -212,7 +212,7 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
                     return false;
                 }
 
-                var newServiceName = $(this).val() + String.fromCharCode(enteredKey);
+                var newServiceName = $(this).text() + String.fromCharCode(enteredKey);
 
                 try {
                     self.getModel().setFunctionName(newServiceName);
