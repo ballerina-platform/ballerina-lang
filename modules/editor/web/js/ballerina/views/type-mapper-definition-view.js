@@ -38,8 +38,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             throw "Container for Type Mapper definition is undefined." + this._container;
         }
         this._typeMapper = new TypeMapper(this.onAttributesConnect,this.onAttributesDisConnect);
-        console.log("PPPPPPPPPPPPPPPPPPPPPPPPPPPPPP");
-        console.log(this._typeMapper);
+
     };
 
     TypeMapperDefinitionView.prototype = Object.create(Canvas.prototype);
@@ -79,53 +78,73 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
 
         $(currentContainer).find("#sourceStructs").change(function() {
 
-            var selectedArrayIndex = $( "#sourceStructs option:selected" ).val();
+            var selectedArrayIndex = $("#sourceStructs option:selected").val();
+            var selectedStructNameForSource = $("#sourceStructs option:selected").text();
+            self._model.removeTypeStructDefinition("SOURCE");
             var schema = predefinedStructs[selectedArrayIndex];
 
-            var leftTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
-            leftTypeStructDef.setTypeStructName(schema.getStructName());
-            leftTypeStructDef.setIdentifier("p");
-            leftTypeStructDef.setSchema(schema);
-            leftTypeStructDef.setCategory("SOURCE");
-            //leftTypeStructDef.setDataMapperInstance(self._typeMapper);
-            leftTypeStructDef.setOnConnectInstance(self.onAttributesConnect);
-            leftTypeStructDef.setOnDisconnectInstance(self.onAttributesDisConnect);
-            self._model.addChild(leftTypeStructDef);
+            if (selectedStructNameForSource != self._model.getSelectedStructNameForTarget()) {
+                if (!self._model.getSelectedStructNameForSource()) {
+                    self._model.setSelectedStructNameForSource(selectedStructNameForSource);
+                }
 
+                var leftTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
+                leftTypeStructDef.setTypeStructName(schema.getStructName());
+                leftTypeStructDef.setSelectedStructName(self._model.getSelectedStructNameForSource());
+                leftTypeStructDef.setIdentifier("p");
+                leftTypeStructDef.setSchema(schema);
+                leftTypeStructDef.setCategory("SOURCE");
+                //leftTypeStructDef.setDataMapperInstance(self._typeMapper);
+                leftTypeStructDef.setOnConnectInstance(self.onAttributesConnect);
+                leftTypeStructDef.setOnDisconnectInstance(self.onAttributesDisConnect);
+                self._model.addChild(leftTypeStructDef);
+                self._model.setSelectedStructNameForSource(selectedStructNameForSource);
+            } else {
+                var t = self._model.getSelectedStructIndex(predefinedStructs, self._model.getSelectedStructNameForSource());
+                $("#sourceStructs").val(self._model.getSelectedStructIndex(predefinedStructs,
+                    self._model.getSelectedStructNameForSource()));
+            }
         });
-
-//        var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
-//        var leftOp = BallerinaASTFactory.createLeftOperandExpression();
-//        var rightOp = BallerinaASTFactory.createRightOperandExpression();
-//        assignmentStmt.addChild(leftOp);
-//        assignmentStmt.addChild(rightOp);
 
         $(currentContainer).find("#targetStructs").change(function() {
 
-            var selectedArrayIndex = $( "#targetStructs option:selected" ).val();
+            var selectedArrayIndex = $("#targetStructs option:selected").val();
+            var selectedArrayIndex = $("#targetStructs option:selected").val();
+            var selectedStructNameForTarget = $("#targetStructs option:selected").text();
+            self._model.removeTypeStructDefinition("TARGET");
             var schema = predefinedStructs[selectedArrayIndex];
 
-            var rightTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
-            rightTypeStructDef.setTypeStructName(schema.getStructName());
-            rightTypeStructDef.setIdentifier("e");
-            rightTypeStructDef.setSchema(schema);
-            rightTypeStructDef.setCategory("TARGET");
-            //rightTypeStructDef.setDataMapperInstance(self._typeMapper);
-            rightTypeStructDef.setOnConnectInstance(self.onAttributesConnect);
-            rightTypeStructDef.setOnDisconnectInstance(self.onAttributesDisConnect);
-            self._model.addChild(rightTypeStructDef);
+            if (self._model.getSelectedStructNameForSource() != selectedStructNameForTarget) {
+                if (!self._model.getSelectedStructNameForTarget()) {
+                    self._model.setSelectedStructNameForTarget(selectedStructNameForTarget);
+                }
 
+                var rightTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
+                rightTypeStructDef.setTypeStructName(schema.getStructName());
+                rightTypeStructDef.setSelectedStructName(self._model.getSelectedStructNameForTarget());
+                rightTypeStructDef.setIdentifier("e");
+                rightTypeStructDef.setSchema(schema);
+                rightTypeStructDef.setCategory("TARGET");
+                //rightTypeStructDef.setDataMapperInstance(self._typeMapper);
+                rightTypeStructDef.setOnConnectInstance(self.onAttributesConnect);
+                rightTypeStructDef.setOnDisconnectInstance(self.onAttributesDisConnect);
+                self._model.addChild(rightTypeStructDef);
+                self._model.setSelectedStructNameForTarget(selectedStructNameForTarget);
 
-            var newVariableDeclaration = BallerinaASTFactory.createVariableDeclaration();
-            newVariableDeclaration.setType(schema.getStructName());
-            newVariableDeclaration.setIdentifier("e");
-            self._model.addChild(newVariableDeclaration);
+                var newVariableDeclaration = BallerinaASTFactory.createVariableDeclaration();
+                newVariableDeclaration.setType(schema.getStructName());
+                newVariableDeclaration.setIdentifier("e");
+                self._model.addChild(newVariableDeclaration);
 
-            var newReturnStatement = BallerinaASTFactory.createReturnStatement();
-            newReturnStatement.setReturnExpression("e");
-            self._model.addChild(newReturnStatement);
-
-        });
+                var newReturnStatement = BallerinaASTFactory.createReturnStatement();
+                newReturnStatement.setReturnExpression("e");
+                self._model.addChild(newReturnStatement);
+            } else {
+                var t = self._model.getSelectedStructIndex(predefinedStructs, self._model.getSelectedStructNameForTarget());
+                $("#targetStructs").val(self._model.getSelectedStructIndex(predefinedStructs,
+                    self._model.getSelectedStructNameForTarget()));
+            }
+       });
 
         this._container = currentContainer;
         this.getBoundingBox().fromTopLeft(new Point(0, 0), currentContainer.width(), currentContainer.height());
