@@ -302,8 +302,9 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
          * @param functionDefinitions - can be an array of functionDefinitions or a single functionDefinition
          */
         Package.prototype.addFunctionDefinitions = function(functionDefinitions){
+            var self = this;
             var err;
-            if(!_.isArray(functionDefinitions) && !(functionDefinitions instanceof  FunctionDefinition)){
+            if(!_.isArray(functionDefinitions) && !(self.BallerinaEnvFactory.isFunction(functionDefinitions))){
                 err = "Adding function def failed. Not an instance of FunctionDefinition" + functionDefinitions;
                 log.error(err);
                 throw err;
