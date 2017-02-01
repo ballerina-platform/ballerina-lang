@@ -52,6 +52,8 @@ public class RuntimeEnvironment {
 
         int staticMemOffset = 0;
         for (ConstDef constant : bFile.getConstants()) {
+
+            // TODO Evaluate the constant expression here.
             staticMemory.setValue(staticMemOffset, constant.getValue());
             staticMemOffset++;
         }

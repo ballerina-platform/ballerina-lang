@@ -590,6 +590,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             typeName = null;
             currentPkgName = null;
             isArrayType = false;
+            isSimpleType = false;
         }
     }
 

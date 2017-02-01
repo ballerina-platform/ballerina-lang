@@ -19,8 +19,8 @@ package org.wso2.ballerina.core.model.builder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.exception.ParserException;
-import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
@@ -38,6 +38,7 @@ import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
@@ -78,7 +79,6 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
-import org.wso2.ballerina.core.model.symbols.SymbolScope;
 import org.wso2.ballerina.core.model.types.BStructType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
@@ -147,6 +147,8 @@ public class BLangModelBuilder {
     // This is useful when analyzing import functions, actions and types.
     private Map<String, ImportPackage> importPkgMap = new HashMap<>();
 
+    private List<String> errorMessageList = new ArrayList<>();
+
     public BLangModelBuilder() {
     }
 
@@ -155,6 +157,12 @@ public class BLangModelBuilder {
     }
 
     public BallerinaFile build() {
+        if (!errorMessageList.isEmpty()) {
+            BallerinaException e = new BallerinaException(
+                    errorMessageList.toArray(new String[errorMessageList.size()]));
+            throw e;
+        }
+
         importPkgMap.values()
                 .stream()
                 .filter(importPkg -> !importPkg.isUsed())
@@ -165,7 +173,7 @@ public class BLangModelBuilder {
                     String importPkgErrStr = (importPkg.getAsName() == null) ? pkgPathStr : pkgPathStr + " as '" +
                             importPkg.getAsName() + "'";
 
-                    throw new SemanticException(location.getFileName() + ":" + location.getLineNumber() +
+                    throw new BallerinaException(location.getFileName() + ":" + location.getLineNumber() +
                             ": unused import package " + importPkgErrStr + "");
                 });
 
@@ -193,8 +201,11 @@ public class BLangModelBuilder {
         }
 
         if (importPkgMap.get(importPkg.getName()) != null) {
-            throw new SemanticException(location.getFileName() + ":" + location.getLineNumber() +
-                    ": '" + importPkg.getName() + "' redeclared as imported package name");
+            String errMsg = location.getFileName() + ":" + location.getLineNumber() +
+                    ": '" + importPkg.getName() + "' redeclared as imported package name";
+            // throw new SemanticException(errMsg);
+            errorMessageList.add(errMsg);
+            return;
         }
 
         bFileBuilder.addImportPackage(importPkg);
@@ -209,8 +220,11 @@ public class BLangModelBuilder {
         if (pkgName != null) {
             ImportPackage importPkg = importPkgMap.get(pkgName);
             if (importPkg == null) {
-                throw new SemanticException(location.getFileName() + ":" + location.getLineNumber() +
-                        ": undefined package name '" + pkgName + "' in '" + pkgName + ":" + name + "'");
+                String errMsg = location.getFileName() + ":" + location.getLineNumber() +
+                        ": undefined package name '" + pkgName + "' in '" + pkgName + ":" + name + "'";
+                errorMessageList.add(errMsg);
+                // throw new SemanticException(errMsg);
+                return;
             }
 
             importPkg.markUsed();
@@ -229,6 +243,15 @@ public class BLangModelBuilder {
 
     public void addConstantDef(NodeLocation location, String name, boolean isPublic) {
         SymbolName symbolName = new SymbolName(name, currentPackagePath);
+
+        // Check whether this constant is already defined.
+        if (currentScope.resolve(symbolName) != null) {
+            String errMsg = location.getFileName() + ":" + location.getLineNumber() +
+                    ": redeclared constant '" + name + "'";
+            errorMessageList.add(errMsg);
+            //throw new BallerinaException(errMsg);
+            return;
+        }
 
         SimpleTypeName typeName = typeNameQueue.remove();
         ConstDef constantDef = new ConstDef(location, name, typeName, currentPackagePath,
@@ -362,7 +385,7 @@ public class BLangModelBuilder {
             Expression expr = exprStack.pop();
 
             // Assuming the annotation value is a string literal
-            if (expr instanceof BasicLiteral && expr.getType() == BTypes.STRING_TYPE) {
+            if (expr instanceof BasicLiteral && expr.getType() == BTypes.typeString) {
                 String value = ((BasicLiteral) expr).getBValue().stringValue();
                 annotationBuilder.setValue(value);
             } else {
@@ -389,6 +412,17 @@ public class BLangModelBuilder {
      */
     public void addParam(String paramName, NodeLocation location) {
         SymbolName symbolName = new SymbolName(paramName);
+
+        // Check whether this constant is already defined.
+        if (currentScope.resolve(symbolName) != null) {
+            String errMsg = location.getFileName() + ":" + location.getLineNumber() +
+                    ": redeclared parameter '" + paramName + "'";
+            errorMessageList.add(errMsg);
+            //throw new BallerinaException(errMsg);
+            return;
+        }
+
+
         SimpleTypeName typeName = typeNameQueue.remove();
         ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
 
@@ -404,7 +438,7 @@ public class BLangModelBuilder {
 
     public void registerConnectorType(String typeName) {
         //TODO: We might have to do this through a symbol table in the future
-        BTypes.addConnectorType(typeName);
+        //BTypes.addConnectorType(typeName);
     }
 
     public void createReturnTypes(NodeLocation location) {
@@ -417,6 +451,16 @@ public class BLangModelBuilder {
 
     public void createNamedReturnParams(String paramName, NodeLocation location) {
         SymbolName symbolName = new SymbolName(paramName);
+
+        // Check whether this constant is already defined.
+        if (currentScope.resolve(symbolName) != null) {
+            String errMsg = location.getFileName() + ":" + location.getLineNumber() +
+                    ": redeclared parameter '" + paramName + "'";
+            errorMessageList.add(errMsg);
+            //throw new BallerinaException(errMsg);
+            return;
+        }
+
         SimpleTypeName typeName = typeNameQueue.remove();
         ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
         currentCUBuilder.addReturnParameter(paramDef);
@@ -628,9 +672,12 @@ public class BLangModelBuilder {
         if (callableUnitName.pkgName != null) {
             ImportPackage importPkg = importPkgMap.get(callableUnitName.pkgName);
             if (importPkg == null) {
-                throw new SemanticException(location.getFileName() + ":" + location.getLineNumber() +
+                String errMsg = location.getFileName() + ":" + location.getLineNumber() +
                         ": undefined package name '" + callableUnitName.pkgName + "' in '" +
-                        callableUnitName.pkgName + ":" + callableUnitName.name + "'");
+                        callableUnitName.pkgName + ":" + callableUnitName.name + "'";
+                errorMessageList.add(errMsg);
+                // throw new SemanticException(errMsg);
+                return;
             }
 
             importPkg.markUsed();
@@ -654,9 +701,12 @@ public class BLangModelBuilder {
         if (callableUnitName.pkgName != null) {
             ImportPackage importPkg = importPkgMap.get(callableUnitName.pkgName);
             if (importPkg == null) {
-                throw new SemanticException(location.getFileName() + ":" + location.getLineNumber() +
+                String errMsg = location.getFileName() + ":" + location.getLineNumber() +
                         ": undefined package name '" + callableUnitName.pkgName + "' in '" +
-                        callableUnitName.pkgName + ":" + callableUnitName.name + "." + actionName + "'");
+                        callableUnitName.pkgName + ":" + callableUnitName.name + "." + actionName + "'";
+                errorMessageList.add(errMsg);
+                //throw new SemanticException(errMsg);
+                return;
             }
 
             importPkg.markUsed();
@@ -992,6 +1042,22 @@ public class BLangModelBuilder {
         cIExprBuilder.setExpressionList(exprListStack.pop());
 
         CallableUnitName callableUnitName = callableUnitNameStack.pop();
+
+        if (callableUnitName.pkgName != null) {
+            ImportPackage importPkg = importPkgMap.get(callableUnitName.pkgName);
+            if (importPkg == null) {
+                String errMsg = location.getFileName() + ":" + location.getLineNumber() +
+                        ": undefined package name '" + callableUnitName.pkgName + "' in '" +
+                        callableUnitName.pkgName + ":" + callableUnitName.name + "'";
+                errorMessageList.add(errMsg);
+                //throw new SemanticException(errMsg);
+                return;
+            }
+
+            importPkg.markUsed();
+            cIExprBuilder.setPkgPath(importPkg.getPath());
+        }
+
         cIExprBuilder.setName(callableUnitName.name);
         cIExprBuilder.setPkgName(callableUnitName.pkgName);
 
@@ -1006,6 +1072,22 @@ public class BLangModelBuilder {
         cIExprBuilder.setExpressionList(exprListStack.pop());
 
         CallableUnitName callableUnitName = callableUnitNameStack.pop();
+
+        if (callableUnitName.pkgName != null) {
+            ImportPackage importPkg = importPkgMap.get(callableUnitName.pkgName);
+            if (importPkg == null) {
+                String errMsg = location.getFileName() + ":" + location.getLineNumber() +
+                        ": undefined package name '" + callableUnitName.pkgName + "' in '" +
+                        callableUnitName.pkgName + ":" + callableUnitName.name + "'";
+                errorMessageList.add(errMsg);
+                // throw new SemanticException(errMsg);
+                return;
+            }
+
+            importPkg.markUsed();
+            cIExprBuilder.setPkgPath(importPkg.getPath());
+        }
+
         cIExprBuilder.setName(actionName);
         cIExprBuilder.setPkgName(callableUnitName.pkgName);
         cIExprBuilder.setConnectorName(callableUnitName.name);
@@ -1020,32 +1102,32 @@ public class BLangModelBuilder {
 
     public void createIntegerLiteral(String value, NodeLocation location) {
         BValueType bValue = new BInteger(Integer.parseInt(value));
-        createLiteral(bValue, BTypes.INT_TYPE, location);
+        createLiteral(bValue, BTypes.typeInt, location);
     }
 
     public void createLongLiteral(String value, NodeLocation location) {
         BValueType bValue = new BLong(Long.parseLong(value));
-        createLiteral(bValue, BTypes.LONG_TYPE, location);
+        createLiteral(bValue, BTypes.typeLong, location);
     }
 
     public void createFloatLiteral(String value, NodeLocation location) {
         BValueType bValue = new BFloat(Float.parseFloat(value));
-        createLiteral(bValue, BTypes.FLOAT_TYPE, location);
+        createLiteral(bValue, BTypes.typeFloat, location);
     }
 
     public void createDoubleLiteral(String value, NodeLocation location) {
         BValueType bValue = new BDouble(Double.parseDouble(value));
-        createLiteral(bValue, BTypes.DOUBLE_TYPE, location);
+        createLiteral(bValue, BTypes.typeDouble, location);
     }
 
     public void createStringLiteral(String value, NodeLocation location) {
         BValueType bValue = new BString(value);
-        createLiteral(bValue, BTypes.STRING_TYPE, location);
+        createLiteral(bValue, BTypes.typeString, location);
     }
 
     public void createBooleanLiteral(String value, NodeLocation location) {
         BValueType bValue = new BBoolean(Boolean.parseBoolean(value));
-        createLiteral(bValue, BTypes.BOOLEAN_TYPE, location);
+        createLiteral(bValue, BTypes.typeBoolean, location);
     }
 
     public void createNullLiteral(String value, NodeLocation location) {
@@ -1134,7 +1216,7 @@ public class BLangModelBuilder {
 
         // Create the RHS of the expression
         StructInitExpr structInitExpr = new StructInitExpr(location, structDcl);
-        structInitExpr.setType(new BStructType(structName));
+        // structInitExpr.setType(new BStructType(structName));
         exprStack.push(structInitExpr);
     }
 

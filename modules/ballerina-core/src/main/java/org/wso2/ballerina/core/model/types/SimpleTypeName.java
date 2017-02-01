@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolName;
+
 /**
  * {@code SimpleTypeName} represents a simple type name(int, boolean, json, Person..) in Ballerina.
  *
@@ -26,12 +28,14 @@ public class SimpleTypeName {
     protected String name;
     protected String pkgName;
     protected String pkgPath;
+    protected SymbolName symbolName;
     protected boolean isArrayType;
 
     public SimpleTypeName(String name, String pkgName, String pkgPath) {
         this.name = name;
         this.pkgName = pkgName;
         this.pkgPath = pkgPath;
+        this.symbolName = new SymbolName(getNameWithArray(name), pkgPath);
     }
 
     public SimpleTypeName(String name) {
@@ -50,6 +54,10 @@ public class SimpleTypeName {
         return pkgPath;
     }
 
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
     public boolean isArrayType() {
         return isArrayType;
     }
@@ -62,12 +70,12 @@ public class SimpleTypeName {
         return (pkgName == null || pkgName.equals("")) ? name : pkgName + ":" + name;
     }
 
-    protected String getNamewithArray(String name) {
+    protected String getNameWithArray(String name) {
         return isArrayType ? name + "[]" : name;
     }
 
     @Override
     public String toString() {
-        return getNamewithArray(getNameWithPkg());
+        return getNameWithArray(getNameWithPkg());
     }
 }

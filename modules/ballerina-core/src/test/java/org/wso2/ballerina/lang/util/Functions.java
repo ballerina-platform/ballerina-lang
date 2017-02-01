@@ -94,9 +94,7 @@ public class Functions {
 
         // 3) Create a function invocation expression
         FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(
-                function.getNodeLocation(),
-                new SymbolName(functionName,
-                        bFile.getPackagePath()), exprs);
+                function.getNodeLocation(), functionName, null, bFile.getPackagePath(), exprs);
         funcIExpr.setOffset(args.length);
         funcIExpr.setCallableUnit(function);
 
@@ -164,25 +162,25 @@ public class Functions {
 //            return BTypes.INT_TYPE;
 //
 //        } else if (bValue instanceof BLong) {
-//            return BTypes.LONG_TYPE;
+//            return BTypes.typeLong;
 //
 //        } else if (bValue instanceof BFloat) {
-//            return BTypes.FLOAT_TYPE;
+//            return BTypes.typeFloat;
 //
 //        } else if (bValue instanceof BDouble) {
-//            return BTypes.DOUBLE_TYPE;
+//            return BTypes.typeDouble;
 //
 //        } else if (bValue instanceof BBoolean) {
-//            return BTypes.BOOLEAN_TYPE;
+//            return BTypes.typeBoolean;
 //
 //        } else if (bValue instanceof BString) {
-//            return BTypes.STRING_TYPE;
+//            return BTypes.typeString;
 //
 //        } else if (bValue instanceof BJSON) {
-//            return BTypes.JSON_TYPE;
+//            return BTypes.typeJSON;
 //
 //        } else if (bValue instanceof BMessage) {
-//            return BTypes.MESSAGE_TYPE;
+//            return BTypes.typeMessage;
 //
 //        } else if (bValue instanceof BArray) {
 //            BArray bArray = (BArray) bValue;

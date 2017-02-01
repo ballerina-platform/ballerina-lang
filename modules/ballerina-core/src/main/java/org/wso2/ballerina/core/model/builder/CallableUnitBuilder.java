@@ -24,12 +24,11 @@ import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
-import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
-import org.wso2.ballerina.core.model.symbols.SymbolScope;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -107,8 +106,8 @@ class CallableUnitBuilder implements SymbolScope {
     }
 
     @Override
-    public String getScopeName() {
-        return null;
+    public ScopeName getScopeName() {
+        return ScopeName.LOCAL;
     }
 
     @Override
@@ -122,8 +121,8 @@ class CallableUnitBuilder implements SymbolScope {
     }
 
     @Override
-    public Symbol resolve(SymbolName name) {
-        return null;
+    public BLangSymbol resolve(SymbolName name) {
+        return resolve(symbolMap, name);
     }
 
     BallerinaFunction buildFunction() {

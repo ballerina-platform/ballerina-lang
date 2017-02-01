@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.model.symbols.SymbolScope;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
 

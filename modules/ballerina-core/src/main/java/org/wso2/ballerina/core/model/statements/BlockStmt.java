@@ -20,10 +20,9 @@ package org.wso2.ballerina.core.model.statements;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
-import org.wso2.ballerina.core.model.symbols.SymbolScope;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,8 +66,8 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
     }
 
     @Override
-    public String getScopeName() {
-        return null;
+    public ScopeName getScopeName() {
+        return ScopeName.LOCAL;
     }
 
     @Override
@@ -82,8 +81,8 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
     }
 
     @Override
-    public Symbol resolve(SymbolName name) {
-        return null;
+    public BLangSymbol resolve(SymbolName name) {
+        return resolve(symbolMap, name);
     }
 
     /**
@@ -112,8 +111,8 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
         }
 
         @Override
-        public String getScopeName() {
-            return null;
+        public ScopeName getScopeName() {
+            return ScopeName.LOCAL;
         }
 
         @Override
@@ -127,8 +126,8 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
         }
 
         @Override
-        public Symbol resolve(SymbolName name) {
-            return null;
+        public BLangSymbol resolve(SymbolName name) {
+            return resolve(symbolMap, name);
         }
 
         public BlockStmt build() {

@@ -50,6 +50,7 @@ import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.TypeConvertor;
 import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.Worker;
@@ -103,6 +104,7 @@ import org.wso2.ballerina.core.model.types.BMapType;
 import org.wso2.ballerina.core.model.types.BStructType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
+import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
@@ -129,6 +131,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     private SymTable symbolTable;
     private String currentPkg;
     private CallableUnit currentCallableUnit = null;
+    private MemoryLocation currentMemLocation = null;
 
     // following pattern matches ${anyString} or ${anyString[int]} or ${anyString["anyString"]}
     private static final String patternString = "\\$\\{((\\w+)(\\[(\\d+|\\\"(\\w+)\\\")\\])?)\\}";
@@ -138,6 +141,15 @@ public class SemanticAnalyzer implements NodeVisitor {
     // This is useful when analyzing import functions, actions and types.
     private Map<String, ImportPackage> importPkgMap = new HashMap<>();
 
+    private SymbolScope currentScope;
+
+    public SemanticAnalyzer(BallerinaFile bFile, SymbolScope packageScope) {
+        currentScope = packageScope;
+
+        currentPkg = bFile.getPackagePath();
+        importPkgMap = bFile.getImportPackageMap();
+    }
+
     public SemanticAnalyzer(BallerinaFile bFile, SymScope globalScope) {
         SymScope pkgScope = bFile.getPackageScope();
         pkgScope.setParent(globalScope);
@@ -146,62 +158,28 @@ public class SemanticAnalyzer implements NodeVisitor {
         currentPkg = bFile.getPackagePath();
         importPkgMap = bFile.getImportPackageMap();
 
-        // TODO We can move this logic to the parser.
+        // TODO Re-visit these definitions with the new implementation
         Arrays.asList(bFile.getFunctions()).forEach(this::addFuncSymbol);
-
-        // Add struct symbols to symbol table
-        for (StructDef structDef : bFile.getStructDefs()) {
-            addStructSymbol(structDef);
-        }
 
         bFile.getConnectorList().forEach(connector -> {
             addConnectorSymbol(connector);
             Arrays.asList(connector.getActions()).forEach(this::addActionSymbol);
         });
+
         Arrays.asList(bFile.getTypeConvertors()).forEach(this::addTypeConverterSymbol);
     }
 
     @Override
     public void visit(BallerinaFile bFile) {
-//        for (ImportPackage importPkg : bFile.getImportPackages()) {
-//            importPkg.accept(this);
-//        }
-
         for (CompilationUnit compilationUnit : bFile.getCompilationUnits()) {
             compilationUnit.accept(this);
         }
 
-//        // Analyze and allocate static memory locations for constants
-//        for (Const constant : bFile.getConstants()) {
-//            staticMemAddrOffset++;
-//            constant.accept(this);
-//        }
-//
-//        for (BallerinaStruct struct : bFile.getStructs()) {
-//            struct.accept(this);
-//        }
-//
-//        for (BallerinaConnector connector : bFile.getConnectorList()) {
-//            connector.accept(this);
-//        }
-//
-//        for (Service service : bFile.getServices()) {
-//            service.accept(this);
-//        }
-//
-//        for (Function function : bFile.getFunctions()) {
-//            BallerinaFunction bFunction = (BallerinaFunction) function;
-//            bFunction.accept(this);
-//        }
-//
-//        for (TypeConvertor tConverter : bFile.getTypeConvertors()) {
-//            BTypeConvertor typeConvertor = (BTypeConvertor) tConverter;
-//            typeConvertor.accept(this);
-//        }
-
         int setSizeOfStaticMem = staticMemAddrOffset + 1;
         bFile.setSizeOfStaticMem(setSizeOfStaticMem);
         staticMemAddrOffset = -1;
+
+        // TODO We can perform additional check here
     }
 
     @Override
@@ -215,31 +193,24 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(ConstDef constant) {
-        staticMemAddrOffset++;
-        SymbolName symName = constant.getSymbolName();
-
-        Symbol symbol = symbolTable.lookup(symName);
-        if (symbol != null && isSymbolInCurrentScope(symbol)) {
-            throw new SemanticException("Duplicate constant name: " + symName.getName() + " in " +
-                    constant.getNodeLocation().getFileName() + ":" + constant.getNodeLocation().getLineNumber());
+    public void visit(ConstDef constDef) {
+        SimpleTypeName typeName = constDef.getTypeName();
+        BType bType = resolveType(typeName, constDef.getNodeLocation());
+        constDef.setType(bType);
+        if (!BTypes.isValueType(bType)) {
+            throw new SemanticException(getNodeLocationStr(constDef.getNodeLocation()) +
+                    "invalid constant type '" + typeName + "'");
         }
 
-        BasicLiteral basicLiteral = (BasicLiteral) constant.getRhsExpr();
-        constant.setValue(basicLiteral.getBValue());
 
-        ConstantLocation location = new ConstantLocation(staticMemAddrOffset);
-        BType type = constant.getType();
+        // Set memory location
+        ConstantLocation memLocation = new ConstantLocation(++staticMemAddrOffset);
+        constDef.setMemoryLocation(memLocation);
 
-        // constants can be only of value types.
-        if (!BTypes.isValueType(type)) {
-            throw new SemanticException(getNodeLocationStr(constant.getNodeLocation()) + "constant cannot be of type '"
-                    + type.toString() + "'.");
-        }
-        validateType(type, constant.getNodeLocation());
-        symbol = new Symbol(type, SymScope.Name.PACKAGE, location);
-
-        symbolTable.insert(symName, symbol);
+        // TODO Figure out how to evaluate constant values properly
+        // TODO This should be done properly in the RuntimeEnvironment
+        BasicLiteral basicLiteral = (BasicLiteral) constDef.getRhsExpr();
+        constDef.setValue(basicLiteral.getBValue());
     }
 
     @Override
@@ -343,26 +314,15 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(BallerinaFunction function) {
         // Open a new symbol scope
-        openScope(SymScope.Name.FUNCTION);
-        currentCallableUnit = function;
+        currentScope = function;
 
         // Check whether the return statement is missing. Ignore if the function does not return anything.
         // TODO Define proper error message codes
         //checkForMissingReturnStmt(function, "missing return statement at end of function");
 
         for (ParameterDef parameterDef : function.getParameterDefs()) {
-            stackFrameOffset++;
+            currentMemLocation = new LocalVarLocation(++stackFrameOffset);
             visit(parameterDef);
-        }
-
-        for (ConnectorDcl connectorDcl : function.getConnectorDcls()) {
-            stackFrameOffset++;
-            visit(connectorDcl);
-        }
-
-        for (VariableDef variableDef : function.getVariableDefs()) {
-            stackFrameOffset++;
-            visit(variableDef);
         }
 
         for (ParameterDef parameterDef : function.getReturnParameters()) {
@@ -372,7 +332,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 break;
             }
 
-            stackFrameOffset++;
+            currentMemLocation = new LocalVarLocation(++stackFrameOffset);
             visit(parameterDef);
         }
 
@@ -391,8 +351,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Close the symbol scope
         stackFrameOffset = -1;
-        currentCallableUnit = null;
-        closeScope();
+        currentScope = function.getEnclosingScope();
     }
 
     @Override
@@ -511,67 +470,47 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(ParameterDef parameterDef) {
-        SymbolName symName = parameterDef.getSymbolName();
+    public void visit(ParameterDef paramDef) {
+        BType bType = resolveType(paramDef.getTypeName(), paramDef.getNodeLocation());
+        paramDef.setType(bType);
 
-        Symbol symbol = symbolTable.lookup(symName);
-        if (symbol != null && isSymbolInCurrentScope(symbol)) {
-            throw new SemanticException(parameterDef.getNodeLocation().getFileName() + ":" +
-                    parameterDef.getNodeLocation().getLineNumber() + ": duplicate parameter '" +
-                    symName.getName() + "'");
-        }
-
-        MemoryLocation location;
-        if (isInScope(SymScope.Name.CONNECTOR)) {
-            location = new ConnectorVarLocation(connectorMemAddrOffset);
-        } else if (isInScope(SymScope.Name.FUNCTION) ||
-                isInScope(SymScope.Name.RESOURCE) ||
-                isInScope(SymScope.Name.ACTION) ||
-                isInScope(SymScope.Name.TYPECONVERTOR)) {
-
-            location = new LocalVarLocation(stackFrameOffset);
-        } else {
-            // This error should not be thrown
-            throw new IllegalStateException("Parameter declaration is invalid");
-        }
-
-        BType type = parameterDef.getType();
-        validateType(type, parameterDef.getNodeLocation());
-        symbol = new Symbol(type, currentScopeName(), location);
-        symbolTable.insert(symName, symbol);
+        paramDef.setMemoryLocation(currentMemLocation);
     }
 
     @Override
-    public void visit(VariableDef variableDef) {
-        BType type = variableDef.getType();
-        validateType(type, variableDef.getNodeLocation());
+    public void visit(VariableDef varDef) {
+//        BType bType = resolveType(varDef.getTypeName(), varDef.getNodeLocation());
+//        varDef.setType(bType);
 
-        SymbolName symName = variableDef.getSymbolName();
-        Symbol symbol = symbolTable.lookup(symName);
-        if (symbol != null && isSymbolInCurrentScope(symbol)) {
-            throw new SemanticException(getNodeLocationStr(variableDef.getNodeLocation()) + "duplicate variable '" +
-                    symName.getName() + "'");
-        }
-
-        MemoryLocation location;
-        if (isInScope(SymScope.Name.CONNECTOR)) {
-            location = new ConnectorVarLocation(connectorMemAddrOffset);
-        } else if (isInScope(SymScope.Name.SERVICE)) {
-            location = new ServiceVarLocation(staticMemAddrOffset);
-        } else if (isInScope(SymScope.Name.FUNCTION) ||
-                isInScope(SymScope.Name.RESOURCE) ||
-                isInScope(SymScope.Name.ACTION) ||
-                isInScope(SymScope.Name.TYPECONVERTOR)) {
-            location = new LocalVarLocation(stackFrameOffset);
-        } else if (isInScope(SymScope.Name.PACKAGE)) {
-            location = new StructVarLocation(structMemAddrOffset);
-        } else {
-            // This error should not be thrown
-            throw new IllegalStateException("Variable declaration is invalid");
-        }
-
-        symbol = new Symbol(type, currentScopeName(), location);
-        symbolTable.insert(symName, symbol);
+//        BType type = variableDef.getType();
+//        validateType(type, variableDef.getNodeLocation());
+//
+//        SymbolName symName = variableDef.getSymbolName();
+//        Symbol symbol = symbolTable.lookup(symName);
+//        if (symbol != null && isSymbolInCurrentScope(symbol)) {
+//            throw new SemanticException(getNodeLocationStr(variableDef.getNodeLocation()) + "duplicate variable '" +
+//                    symName.getName() + "'");
+//        }
+//
+//        MemoryLocation location;
+//        if (isInScope(SymScope.Name.CONNECTOR)) {
+//            location = new ConnectorVarLocation(connectorMemAddrOffset);
+//        } else if (isInScope(SymScope.Name.SERVICE)) {
+//            location = new ServiceVarLocation(staticMemAddrOffset);
+//        } else if (isInScope(SymScope.Name.FUNCTION) ||
+//                isInScope(SymScope.Name.RESOURCE) ||
+//                isInScope(SymScope.Name.ACTION) ||
+//                isInScope(SymScope.Name.TYPECONVERTOR)) {
+//            location = new LocalVarLocation(stackFrameOffset);
+//        } else if (isInScope(SymScope.Name.PACKAGE)) {
+//            location = new StructVarLocation(structMemAddrOffset);
+//        } else {
+//            // This error should not be thrown
+//            throw new IllegalStateException("Variable declaration is invalid");
+//        }
+//
+//        symbol = new Symbol(type, currentScopeName(), location);
+//        symbolTable.insert(symName, symbol);
     }
 
     /**
@@ -645,6 +584,60 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
+
+    // Visit statements
+
+    @Override
+    public void visit(VariableDefStmt varDefStmt) {
+        // Resolves the type of the variable
+        VariableDef varDef = varDefStmt.getVariableDef();
+        BType varBType = resolveType(varDef.getTypeName(), varDef.getNodeLocation());
+        varDef.setType(varBType);
+
+        Expression rExpr = varDefStmt.getRExpr();
+        rExpr.accept(this);
+
+        if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
+            CallableUnitInvocationExpr invocationExpr = (CallableUnitInvocationExpr) rExpr;
+            BType[] returnTypes = invocationExpr.getTypes();
+            if (returnTypes.length != 1) {
+                throw new SemanticException(varDefStmt.getNodeLocation().getFileName() + ":"
+                        + varDefStmt.getNodeLocation().getLineNumber() + ": assignment count mismatch: " +
+                        "1 = " + returnTypes.length);
+
+            } else if ((varBType != BTypes.typeMap) && (rExpr.getType() != BTypes.typeMap) &&
+                    (!varBType.equals(rExpr.getType()))) {
+
+                TypeCastExpression newExpr = checkWideningPossibleForAssign(varBType, rExpr);
+                if (newExpr != null) {
+                    newExpr.accept(this);
+                    varDefStmt.setRExpr(newExpr);
+                } else {
+                    throw new SemanticException(rExpr.getNodeLocation().getFileName() + ":"
+                            + rExpr.getNodeLocation().getLineNumber() + ": incompatible types: " + rExpr.getType() +
+                            " cannot be converted to " + varBType);
+                }
+            }
+
+            return;
+        }
+
+        // TODO Implement so many cases here..
+
+        // If the rExpr type is not set, then check whether it is a BacktickExpr
+        if (rExpr instanceof BacktickExpr) {
+
+            // In this case, type of the lExpr should be either xml or json
+            if (varBType != BTypes.typeJSON && varBType != BTypes.typeXML) {
+                throw new SemanticException(getNodeLocationStr(varDefStmt.getNodeLocation()) +
+                        "incompatible types: expected json or xml");
+            }
+
+            rExpr.setType(varBType);
+        }
+
+    }
+
     @Override
     public void visit(AssignStmt assignStmt) {
         Expression[] lExprs = assignStmt.getLExprs();
@@ -653,8 +646,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression rExpr = assignStmt.getRExpr();
         rExpr.accept(this);
 
-        // Return types of the function or action invoked are only available during the linking phase
-        // There type compatibility check is impossible during the semantic analysis phase.
         if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
             checkForMultiAssignmentErrors(assignStmt, lExprs, (CallableUnitInvocationExpr) rExpr);
             return;
@@ -667,7 +658,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (rExpr.getType() == null && rExpr instanceof BacktickExpr) {
 
             // In this case, type of the lExpr should be either xml or json
-            if (lExpr.getType() != BTypes.JSON_TYPE && lExpr.getType() != BTypes.XML_TYPE) {
+            if (lExpr.getType() != BTypes.typeJSON && lExpr.getType() != BTypes.typeXML) {
                 throw new SemanticException(getNodeLocationStr(lExpr.getNodeLocation()) +
                         "incompatible types: expected json" +
                         " or xml on the left side of assignment");
@@ -677,9 +668,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // TODO Remove the MAP related logic when type casting is implemented
-        if ((lExpr.getType() != BTypes.MAP_TYPE) && (rExpr.getType() != BTypes.MAP_TYPE) &&
+        if ((lExpr.getType() != BTypes.typeMap) && (rExpr.getType() != BTypes.typeMap) &&
                 (!lExpr.getType().equals(rExpr.getType()))) {
-            TypeCastExpression newExpr = checkWideningPossibleForAssign(lExpr, rExpr);
+            TypeCastExpression newExpr = checkWideningPossibleForAssign(lExpr.getType(), rExpr);
             if (newExpr != null) {
                 newExpr.accept(this);
                 assignStmt.setRhsExpr(newExpr);
@@ -708,7 +699,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression expr = ifElseStmt.getCondition();
         expr.accept(this);
 
-        if (expr.getType() != BTypes.BOOLEAN_TYPE) {
+        if (expr.getType() != BTypes.typeBoolean) {
             throw new SemanticException("Incompatible types: expected a boolean expression in " +
                     expr.getNodeLocation().getFileName() + ":" + expr.getNodeLocation().getLineNumber());
         }
@@ -720,7 +711,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             Expression elseIfCondition = elseIfBlock.getElseIfCondition();
             elseIfCondition.accept(this);
 
-            if (elseIfCondition.getType() != BTypes.BOOLEAN_TYPE) {
+            if (elseIfCondition.getType() != BTypes.typeBoolean) {
                 throw new SemanticException("Incompatible types: expected a boolean expression in " +
                         elseIfCondition.getNodeLocation().getFileName() + ":" +
                         elseIfCondition.getNodeLocation().getLineNumber());
@@ -741,7 +732,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression expr = whileStmt.getCondition();
         expr.accept(this);
 
-        if (expr.getType() != BTypes.BOOLEAN_TYPE) {
+        if (expr.getType() != BTypes.typeBoolean) {
             throw new SemanticException("Incompatible types: expected a boolean expression in " +
                     whileStmt.getNodeLocation().getFileName() + ":" + whileStmt.getNodeLocation().getLineNumber());
         }
@@ -907,6 +898,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
+
     // Expressions
 
     @Override
@@ -969,16 +961,16 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(DivideExpr divideExpr) {
         BType arithmeticExprType = verifyBinaryArithmeticExprType(divideExpr);
 
-        if (arithmeticExprType == BTypes.INT_TYPE) {
+        if (arithmeticExprType == BTypes.typeInt) {
             divideExpr.setEvalFunc(DivideExpr.DIV_INT_FUNC);
 
-        } else if (arithmeticExprType == BTypes.FLOAT_TYPE) {
+        } else if (arithmeticExprType == BTypes.typeFloat) {
             divideExpr.setEvalFunc(DivideExpr.DIV_FLOAT_FUNC);
 
-        } else if (arithmeticExprType == BTypes.DOUBLE_TYPE) {
+        } else if (arithmeticExprType == BTypes.typeDouble) {
             divideExpr.setEvalFunc(DivideExpr.DIV_DOUBLE_FUNC);
 
-        } else if (arithmeticExprType == BTypes.LONG_TYPE) {
+        } else if (arithmeticExprType == BTypes.typeLong) {
             divideExpr.setEvalFunc(DivideExpr.DIV_LONG_FUNC);
 
         } else {
@@ -993,26 +985,26 @@ public class SemanticAnalyzer implements NodeVisitor {
         unaryExpr.setType(unaryExpr.getRExpr().getType());
 
         if (Operator.SUB.equals(unaryExpr.getOperator())) {
-            if (unaryExpr.getType() == BTypes.INT_TYPE) {
+            if (unaryExpr.getType() == BTypes.typeInt) {
                 unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_INT_FUNC);
-            } else if (unaryExpr.getType() == BTypes.DOUBLE_TYPE) {
+            } else if (unaryExpr.getType() == BTypes.typeDouble) {
                 unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_DOUBLE_FUNC);
-            } else if (unaryExpr.getType() == BTypes.LONG_TYPE) {
+            } else if (unaryExpr.getType() == BTypes.typeLong) {
                 unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_LONG_FUNC);
-            } else if (unaryExpr.getType() == BTypes.FLOAT_TYPE) {
+            } else if (unaryExpr.getType() == BTypes.typeFloat) {
                 unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_FLOAT_FUNC);
             } else {
                 throw new SemanticException("Incompatible type in unary expression: " + unaryExpr.getType() + " in " +
                         unaryExpr.getNodeLocation().getFileName() + ":" + unaryExpr.getNodeLocation().getLineNumber());
             }
         } else if (Operator.ADD.equals(unaryExpr.getOperator())) {
-            if (unaryExpr.getType() == BTypes.INT_TYPE) {
+            if (unaryExpr.getType() == BTypes.typeInt) {
                 unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_INT_FUNC);
-            } else if (unaryExpr.getType() == BTypes.DOUBLE_TYPE) {
+            } else if (unaryExpr.getType() == BTypes.typeDouble) {
                 unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_DOUBLE_FUNC);
-            } else if (unaryExpr.getType() == BTypes.LONG_TYPE) {
+            } else if (unaryExpr.getType() == BTypes.typeLong) {
                 unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_LONG_FUNC);
-            } else if (unaryExpr.getType() == BTypes.FLOAT_TYPE) {
+            } else if (unaryExpr.getType() == BTypes.typeFloat) {
                 unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_FLOAT_FUNC);
             } else {
                 throw new SemanticException("Incompatible type in unary expression: " + unaryExpr.getType() + " in " +
@@ -1020,7 +1012,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
         } else if (Operator.NOT.equals(unaryExpr.getOperator())) {
-            if (unaryExpr.getType() == BTypes.BOOLEAN_TYPE) {
+            if (unaryExpr.getType() == BTypes.typeBoolean) {
                 unaryExpr.setEvalFunc(UnaryExpression.NOT_BOOLEAN_FUNC);
             } else {
                 throw new SemanticException("Incompatible type in unary expression: " + unaryExpr.getType() + " in " +
@@ -1040,19 +1032,19 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(AddExpression addExpr) {
         BType arithmeticExprType = verifyBinaryArithmeticExprType(addExpr);
 
-        if (arithmeticExprType == BTypes.INT_TYPE) {
+        if (arithmeticExprType == BTypes.typeInt) {
             addExpr.setEvalFunc(AddExpression.ADD_INT_FUNC);
 
-        } else if (arithmeticExprType == BTypes.FLOAT_TYPE) {
+        } else if (arithmeticExprType == BTypes.typeFloat) {
             addExpr.setEvalFunc(AddExpression.ADD_FLOAT_FUNC);
 
-        } else if (arithmeticExprType == BTypes.LONG_TYPE) {
+        } else if (arithmeticExprType == BTypes.typeLong) {
             addExpr.setEvalFunc(AddExpression.ADD_LONG_FUNC);
 
-        } else if (arithmeticExprType == BTypes.DOUBLE_TYPE) {
+        } else if (arithmeticExprType == BTypes.typeDouble) {
             addExpr.setEvalFunc(AddExpression.ADD_DOUBLE_FUNC);
 
-        } else if (arithmeticExprType == BTypes.STRING_TYPE) {
+        } else if (arithmeticExprType == BTypes.typeString) {
             addExpr.setEvalFunc(AddExpression.ADD_STRING_FUNC);
 
         } else {
@@ -1065,16 +1057,16 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(MultExpression multExpr) {
         BType binaryExprType = verifyBinaryArithmeticExprType(multExpr);
 
-        if (binaryExprType == BTypes.INT_TYPE) {
+        if (binaryExprType == BTypes.typeInt) {
             multExpr.setEvalFunc(MultExpression.MULT_INT_FUNC);
 
-        } else if (binaryExprType == BTypes.FLOAT_TYPE) {
+        } else if (binaryExprType == BTypes.typeFloat) {
             multExpr.setEvalFunc(MultExpression.MULT_FLOAT_FUNC);
 
-        } else if (binaryExprType == BTypes.DOUBLE_TYPE) {
+        } else if (binaryExprType == BTypes.typeDouble) {
             multExpr.setEvalFunc(MultExpression.MULT_DOUBLE_FUNC);
 
-        } else if (binaryExprType == BTypes.LONG_TYPE) {
+        } else if (binaryExprType == BTypes.typeLong) {
             multExpr.setEvalFunc(MultExpression.MULT_LONG_FUNC);
 
         } else {
@@ -1087,16 +1079,16 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(SubtractExpression subtractExpr) {
         BType binaryExprType = verifyBinaryArithmeticExprType(subtractExpr);
 
-        if (binaryExprType == BTypes.INT_TYPE) {
+        if (binaryExprType == BTypes.typeInt) {
             subtractExpr.setEvalFunc(SubtractExpression.SUB_INT_FUNC);
 
-        } else if (binaryExprType == BTypes.FLOAT_TYPE) {
+        } else if (binaryExprType == BTypes.typeFloat) {
             subtractExpr.setEvalFunc(SubtractExpression.SUB_FLOAT_FUNC);
 
-        } else if (binaryExprType == BTypes.DOUBLE_TYPE) {
+        } else if (binaryExprType == BTypes.typeDouble) {
             subtractExpr.setEvalFunc(SubtractExpression.SUB_DOUBLE_FUNC);
 
-        } else if (binaryExprType == BTypes.LONG_TYPE) {
+        } else if (binaryExprType == BTypes.typeLong) {
             subtractExpr.setEvalFunc(SubtractExpression.SUB_LONG_FUNC);
 
         } else {
@@ -1122,16 +1114,16 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(EqualExpression expr) {
         BType compareExprType = verifyBinaryCompareExprType(expr);
 
-        if (compareExprType == BTypes.INT_TYPE) {
+        if (compareExprType == BTypes.typeInt) {
             expr.setEvalFunc(EqualExpression.EQUAL_INT_FUNC);
 
-        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+        } else if (compareExprType == BTypes.typeFloat) {
             expr.setEvalFunc(EqualExpression.EQUAL_FLOAT_FUNC);
 
-        } else if (compareExprType == BTypes.BOOLEAN_TYPE) {
+        } else if (compareExprType == BTypes.typeBoolean) {
             expr.setEvalFunc(EqualExpression.EQUAL_BOOLEAN_FUNC);
 
-        } else if (compareExprType == BTypes.STRING_TYPE) {
+        } else if (compareExprType == BTypes.typeString) {
             expr.setEvalFunc(EqualExpression.EQUAL_STRING_FUNC);
 
         } else {
@@ -1144,16 +1136,16 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(NotEqualExpression notEqualExpr) {
         BType compareExprType = verifyBinaryCompareExprType(notEqualExpr);
 
-        if (compareExprType == BTypes.INT_TYPE) {
+        if (compareExprType == BTypes.typeInt) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_INT_FUNC);
 
-        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+        } else if (compareExprType == BTypes.typeFloat) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_FLOAT_FUNC);
 
-        } else if (compareExprType == BTypes.BOOLEAN_TYPE) {
+        } else if (compareExprType == BTypes.typeBoolean) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_BOOLEAN_FUNC);
 
-        } else if (compareExprType == BTypes.STRING_TYPE) {
+        } else if (compareExprType == BTypes.typeString) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_STRING_FUNC);
 
         } else {
@@ -1167,10 +1159,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(GreaterEqualExpression greaterEqualExpr) {
         BType compareExprType = verifyBinaryCompareExprType(greaterEqualExpr);
 
-        if (compareExprType == BTypes.INT_TYPE) {
+        if (compareExprType == BTypes.typeInt) {
             greaterEqualExpr.setEvalFunc(GreaterEqualExpression.GREATER_EQUAL_INT_FUNC);
 
-        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+        } else if (compareExprType == BTypes.typeFloat) {
             greaterEqualExpr.setEvalFunc(GreaterEqualExpression.GREATER_EQUAL_FLOAT_FUNC);
 
         } else {
@@ -1184,10 +1176,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(GreaterThanExpression greaterThanExpr) {
         BType compareExprType = verifyBinaryCompareExprType(greaterThanExpr);
 
-        if (compareExprType == BTypes.INT_TYPE) {
+        if (compareExprType == BTypes.typeInt) {
             greaterThanExpr.setEvalFunc(GreaterThanExpression.GREATER_THAN_INT_FUNC);
 
-        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+        } else if (compareExprType == BTypes.typeFloat) {
             greaterThanExpr.setEvalFunc(GreaterThanExpression.GREATER_THAN_FLOAT_FUNC);
 
         } else {
@@ -1201,10 +1193,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(LessEqualExpression lessEqualExpr) {
         BType compareExprType = verifyBinaryCompareExprType(lessEqualExpr);
 
-        if (compareExprType == BTypes.INT_TYPE) {
+        if (compareExprType == BTypes.typeInt) {
             lessEqualExpr.setEvalFunc(LessEqualExpression.LESS_EQUAL_INT_FUNC);
 
-        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+        } else if (compareExprType == BTypes.typeFloat) {
             lessEqualExpr.setEvalFunc(LessEqualExpression.LESS_EQUAL_FLOAT_FUNC);
 
         } else {
@@ -1218,10 +1210,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(LessThanExpression lessThanExpr) {
         BType compareExprType = verifyBinaryCompareExprType(lessThanExpr);
 
-        if (compareExprType == BTypes.INT_TYPE) {
+        if (compareExprType == BTypes.typeInt) {
             lessThanExpr.setEvalFunc(LessThanExpression.LESS_THAN_INT_FUNC);
 
-        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+        } else if (compareExprType == BTypes.typeFloat) {
             lessThanExpr.setEvalFunc(LessThanExpression.LESS_THAN_FLOAT_FUNC);
 
         } else {
@@ -1255,7 +1247,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             // Check the type of the index expression
             Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
             indexExpr.accept(this);
-            if (indexExpr.getType() != BTypes.INT_TYPE) {
+            if (indexExpr.getType() != BTypes.typeInt) {
                 throw new SemanticException("Array index should be of type int, not " +
                         indexExpr.getType().toString() +
                         ". Array name: " + arrayMapVarRefExpr.getSymbolName().getName() + " in "
@@ -1269,7 +1261,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             // Check the type of the index expression
             Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
             indexExpr.accept(this);
-            if (indexExpr.getType() != BTypes.STRING_TYPE) {
+            if (indexExpr.getType() != BTypes.typeString) {
                 throw new SemanticException("Map index should be of type string, not " + indexExpr.getType().toString()
                         + ". Map name: " + arrayMapVarRefExpr.getSymbolName().getName() + " in "
                         + indexExpr.getNodeLocation().getFileName() + ":" +
@@ -1301,7 +1293,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // Type of this expression is map and internal data type cannot be identifier from declaration
-        mapInitExpr.setType(BTypes.MAP_TYPE);
+        mapInitExpr.setType(BTypes.typeMap);
     }
 
     @Override
@@ -1360,11 +1352,11 @@ public class SemanticAnalyzer implements NodeVisitor {
                 BasicLiteral indexExpr;
                 if (m.group(5) != null) {
                     indexExpr = new BasicLiteral(backtickExpr.getNodeLocation(), new BString(m.group(5)));
-                    indexExpr.setType(BTypes.STRING_TYPE);
+                    indexExpr.setType(BTypes.typeString);
                 } else {
                     indexExpr = new BasicLiteral(backtickExpr.getNodeLocation(),
                             new BInteger(Integer.parseInt(m.group(4))));
-                    indexExpr.setType(BTypes.INT_TYPE);
+                    indexExpr.setType(BTypes.typeInt);
                 }
 
                 SymbolName mapOrArrName = new SymbolName(m.group(2));
@@ -1420,80 +1412,80 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Check whether this is a native conversion
         if (BTypes.isValueType(sourceType) &&
                 BTypes.isValueType(targetType)) {
-            if (sourceType == BTypes.STRING_TYPE) {
-                if (targetType == BTypes.INT_TYPE) {
+            if (sourceType == BTypes.typeString) {
+                if (targetType == BTypes.typeInt) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_INT_FUNC);
-                } else if (targetType == BTypes.LONG_TYPE) {
+                } else if (targetType == BTypes.typeLong) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_LONG_FUNC);
-                } else if (targetType == BTypes.FLOAT_TYPE) {
+                } else if (targetType == BTypes.typeFloat) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_FLOAT_FUNC);
-                } else if (targetType == BTypes.DOUBLE_TYPE) {
+                } else if (targetType == BTypes.typeDouble) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_DOUBLE_FUNC);
-                } else if (targetType == BTypes.BOOLEAN_TYPE) {
+                } else if (targetType == BTypes.typeBoolean) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_BOOLEAN_FUNC);
                 } else {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_STRING_FUNC);
                 }
-            } else if (sourceType == BTypes.INT_TYPE) {
-                if (targetType == BTypes.STRING_TYPE) {
+            } else if (sourceType == BTypes.typeInt) {
+                if (targetType == BTypes.typeString) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_STRING_FUNC);
-                } else if (targetType == BTypes.LONG_TYPE) {
+                } else if (targetType == BTypes.typeLong) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_LONG_FUNC);
-                } else if (targetType == BTypes.FLOAT_TYPE) {
+                } else if (targetType == BTypes.typeFloat) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_FLOAT_FUNC);
-                } else if (targetType == BTypes.DOUBLE_TYPE) {
+                } else if (targetType == BTypes.typeDouble) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_DOUBLE_FUNC);
-                } else if (targetType == BTypes.INT_TYPE) {
+                } else if (targetType == BTypes.typeInt) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_INT_FUNC);
                 }
-            } else if (sourceType == BTypes.LONG_TYPE) {
-                if (targetType == BTypes.INT_TYPE) {
+            } else if (sourceType == BTypes.typeLong) {
+                if (targetType == BTypes.typeInt) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_INT_FUNC);
-                } else if (targetType == BTypes.STRING_TYPE) {
+                } else if (targetType == BTypes.typeString) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_STRING_FUNC);
-                } else if (targetType == BTypes.FLOAT_TYPE) {
+                } else if (targetType == BTypes.typeFloat) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_FLOAT_FUNC);
-                } else if (targetType == BTypes.DOUBLE_TYPE) {
+                } else if (targetType == BTypes.typeDouble) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_DOUBLE_FUNC);
-                } else if (targetType == BTypes.LONG_TYPE) {
+                } else if (targetType == BTypes.typeLong) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_LONG_FUNC);
                 }
-            } else if (sourceType == BTypes.FLOAT_TYPE) {
-                if (targetType == BTypes.INT_TYPE) {
+            } else if (sourceType == BTypes.typeFloat) {
+                if (targetType == BTypes.typeInt) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_INT_FUNC);
-                } else if (targetType == BTypes.LONG_TYPE) {
+                } else if (targetType == BTypes.typeLong) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_LONG_FUNC);
-                } else if (targetType == BTypes.FLOAT_TYPE) {
+                } else if (targetType == BTypes.typeFloat) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_FLOAT_FUNC);
-                } else if (targetType == BTypes.DOUBLE_TYPE) {
+                } else if (targetType == BTypes.typeDouble) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_DOUBLE_FUNC);
-                } else if (targetType == BTypes.STRING_TYPE) {
+                } else if (targetType == BTypes.typeString) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_STRING_FUNC);
                 }
-            } else if (sourceType == BTypes.DOUBLE_TYPE) {
-                if (targetType == BTypes.INT_TYPE) {
+            } else if (sourceType == BTypes.typeDouble) {
+                if (targetType == BTypes.typeInt) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_INT_FUNC);
-                } else if (targetType == BTypes.LONG_TYPE) {
+                } else if (targetType == BTypes.typeLong) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_LONG_FUNC);
-                } else if (targetType == BTypes.FLOAT_TYPE) {
+                } else if (targetType == BTypes.typeFloat) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_FLOAT_FUNC);
-                } else if (targetType == BTypes.DOUBLE_TYPE) {
+                } else if (targetType == BTypes.typeDouble) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_DOUBLE_FUNC);
-                } else if (targetType == BTypes.STRING_TYPE) {
+                } else if (targetType == BTypes.typeString) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_STRING_FUNC);
                 }
-            } else if (sourceType == BTypes.BOOLEAN_TYPE) {
-                if (targetType == BTypes.STRING_TYPE) {
+            } else if (sourceType == BTypes.typeBoolean) {
+                if (targetType == BTypes.typeString) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.BOOLEAN_TO_STRING_FUNC);
-                } else if (targetType == BTypes.BOOLEAN_TYPE) {
+                } else if (targetType == BTypes.typeBoolean) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.BOOLEAN_TO_BOOLEAN_FUNC);
                 }
-            } else if (sourceType == BTypes.XML_TYPE) {
-                if (targetType == BTypes.STRING_TYPE) {
+            } else if (sourceType == BTypes.typeXML) {
+                if (targetType == BTypes.typeString) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.XML_TO_STRING_FUNC);
                 }
-            } else if (sourceType == BTypes.JSON_TYPE) {
-                if (targetType == BTypes.STRING_TYPE) {
+            } else if (sourceType == BTypes.typeJSON) {
+                if (targetType == BTypes.typeString) {
                     typeCastExpression.setEvalFunc(NativeCastConvertor.JSON_TO_STRING_FUNC);
                 }
             }
@@ -1635,7 +1627,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private BType verifyBinaryCompareExprType(BinaryExpression binaryExpression) {
         BType type = verifyBinaryExprType(binaryExpression);
-        binaryExpression.setType(BTypes.BOOLEAN_TYPE);
+        binaryExpression.setType(BTypes.typeBoolean);
         return type;
     }
 
@@ -1666,8 +1658,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression rExpr = expr.getRExpr();
         Expression lExpr = expr.getLExpr();
 
-        if (lExpr.getType() == BTypes.BOOLEAN_TYPE && rExpr.getType() == BTypes.BOOLEAN_TYPE) {
-            expr.setType(BTypes.BOOLEAN_TYPE);
+        if (lExpr.getType() == BTypes.typeBoolean && rExpr.getType() == BTypes.typeBoolean) {
+            expr.setType(BTypes.typeBoolean);
         } else {
             throw new SemanticException("Incompatible types used for '&&' operator" + " in " +
                     expr.getNodeLocation().getFileName() + ":" + expr.getNodeLocation().getLineNumber());
@@ -1899,19 +1891,19 @@ public class SemanticAnalyzer implements NodeVisitor {
         structMemAddrOffset = -1;
     }
 
-    /**
-     * Add the struct to the symbol table.
-     *
-     * @param structDef Ballerina struct
-     */
-    private void addStructSymbol(StructDef structDef) {
-        if (symbolTable.lookup(structDef.getSymbolName()) != null) {
-            throw new SemanticException(getNodeLocationStr(structDef.getNodeLocation()) +
-                    "duplicate struct '" + structDef.getName() + "'");
-        }
-        Symbol symbol = new Symbol(structDef);
-        symbolTable.insert(structDef.getSymbolName(), symbol);
-    }
+//    /**
+//     * Add the struct to the symbol table.
+//     *
+//     * @param structDef Ballerina struct
+//     */
+//    private void addStructSymbol(StructDef structDef) {
+//        if (symbolTable.lookup(structDef.getSymbolName()) != null) {
+//            throw new SemanticException(getNodeLocationStr(structDef.getNodeLocation()) +
+//                    "duplicate struct '" + structDef.getName() + "'");
+//        }
+//        Symbol symbol = new Symbol(structDef);
+//        symbolTable.insert(structDef.getSymbolName(), symbol);
+//    }
 
     /**
      * Visit and analyze allerina Struct declaration expression.
@@ -1932,11 +1924,6 @@ public class SemanticAnalyzer implements NodeVisitor {
                     "' not found.");
         }
         structDcl.setStructDef(structSymbol.getStructDef());
-    }
-
-    @Override
-    public void visit(VariableDefStmt varDefStmt) {
-
     }
 
     /**
@@ -2083,45 +2070,45 @@ public class SemanticAnalyzer implements NodeVisitor {
         BType rhsType = rhsExpr.getType();
         BType lhsType = lhsExpr.getType();
         TypeCastExpression newExpr = null;
-        if ((rhsType == BTypes.INT_TYPE && lhsType == BTypes.LONG_TYPE) ||
-                (lhsType == BTypes.INT_TYPE && rhsType == BTypes.LONG_TYPE)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.LONG_TYPE);
+        if ((rhsType == BTypes.typeInt && lhsType == BTypes.typeLong) ||
+                (lhsType == BTypes.typeInt && rhsType == BTypes.typeLong)) {
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeLong);
             newExpr.setEvalFunc(NativeCastConvertor.INT_TO_LONG_FUNC);
-        } else if ((rhsType == BTypes.INT_TYPE && lhsType == BTypes.FLOAT_TYPE) ||
-                (lhsType == BTypes.INT_TYPE && rhsType == BTypes.FLOAT_TYPE)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.FLOAT_TYPE);
+        } else if ((rhsType == BTypes.typeInt && lhsType == BTypes.typeFloat) ||
+                (lhsType == BTypes.typeInt && rhsType == BTypes.typeFloat)) {
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeFloat);
             newExpr.setEvalFunc(NativeCastConvertor.INT_TO_FLOAT_FUNC);
-        } else if ((rhsType == BTypes.INT_TYPE && lhsType == BTypes.DOUBLE_TYPE) ||
-                (lhsType == BTypes.INT_TYPE && rhsType == BTypes.DOUBLE_TYPE)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.DOUBLE_TYPE);
+        } else if ((rhsType == BTypes.typeInt && lhsType == BTypes.typeDouble) ||
+                (lhsType == BTypes.typeInt && rhsType == BTypes.typeDouble)) {
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeDouble);
             newExpr.setEvalFunc(NativeCastConvertor.INT_TO_DOUBLE_FUNC);
-        } else if (((rhsType == BTypes.INT_TYPE && lhsType == BTypes.STRING_TYPE) ||
-                (lhsType == BTypes.INT_TYPE && rhsType == BTypes.STRING_TYPE)) && op.equals(Operator.ADD)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.STRING_TYPE);
+        } else if (((rhsType == BTypes.typeInt && lhsType == BTypes.typeString) ||
+                (lhsType == BTypes.typeInt && rhsType == BTypes.typeString)) && op.equals(Operator.ADD)) {
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
             newExpr.setEvalFunc(NativeCastConvertor.INT_TO_STRING_FUNC);
-        } else if ((rhsType == BTypes.LONG_TYPE && lhsType == BTypes.FLOAT_TYPE) ||
-                (lhsType == BTypes.LONG_TYPE && rhsType == BTypes.FLOAT_TYPE)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.FLOAT_TYPE);
+        } else if ((rhsType == BTypes.typeLong && lhsType == BTypes.typeFloat) ||
+                (lhsType == BTypes.typeLong && rhsType == BTypes.typeFloat)) {
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeFloat);
             newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_FLOAT_FUNC);
-        } else if ((rhsType == BTypes.LONG_TYPE && lhsType == BTypes.DOUBLE_TYPE) ||
-                (lhsType == BTypes.LONG_TYPE && rhsType == BTypes.DOUBLE_TYPE)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.DOUBLE_TYPE);
+        } else if ((rhsType == BTypes.typeLong && lhsType == BTypes.typeDouble) ||
+                (lhsType == BTypes.typeLong && rhsType == BTypes.typeDouble)) {
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeDouble);
             newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_DOUBLE_FUNC);
-        } else if (((rhsType == BTypes.LONG_TYPE && lhsType == BTypes.STRING_TYPE) ||
-                (lhsType == BTypes.LONG_TYPE && rhsType == BTypes.STRING_TYPE)) && op.equals(Operator.ADD)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.STRING_TYPE);
+        } else if (((rhsType == BTypes.typeLong && lhsType == BTypes.typeString) ||
+                (lhsType == BTypes.typeLong && rhsType == BTypes.typeString)) && op.equals(Operator.ADD)) {
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
             newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_STRING_FUNC);
-        } else if ((rhsType == BTypes.FLOAT_TYPE && lhsType == BTypes.DOUBLE_TYPE) ||
-                (lhsType == BTypes.FLOAT_TYPE && rhsType == BTypes.DOUBLE_TYPE)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.DOUBLE_TYPE);
+        } else if ((rhsType == BTypes.typeFloat && lhsType == BTypes.typeDouble) ||
+                (lhsType == BTypes.typeFloat && rhsType == BTypes.typeDouble)) {
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeDouble);
             newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_DOUBLE_FUNC);
-        } else if (((rhsType == BTypes.FLOAT_TYPE && lhsType == BTypes.STRING_TYPE) ||
-                (lhsType == BTypes.FLOAT_TYPE && rhsType == BTypes.STRING_TYPE)) && op.equals(Operator.ADD)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.STRING_TYPE);
+        } else if (((rhsType == BTypes.typeFloat && lhsType == BTypes.typeString) ||
+                (lhsType == BTypes.typeFloat && rhsType == BTypes.typeString)) && op.equals(Operator.ADD)) {
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
             newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_STRING_FUNC);
-        } else if (((rhsType == BTypes.DOUBLE_TYPE && lhsType == BTypes.STRING_TYPE) ||
-                (lhsType == BTypes.DOUBLE_TYPE && rhsType == BTypes.STRING_TYPE)) && op.equals(Operator.ADD)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.STRING_TYPE);
+        } else if (((rhsType == BTypes.typeDouble && lhsType == BTypes.typeString) ||
+                (lhsType == BTypes.typeDouble && rhsType == BTypes.typeString)) && op.equals(Operator.ADD)) {
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
             newExpr.setEvalFunc(NativeCastConvertor.DOUBLE_TO_STRING_FUNC);
         }
 
@@ -2129,43 +2116,51 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     // Function to check whether implicit widening (casting) is possible for assignment statement
-    private TypeCastExpression checkWideningPossibleForAssign(Expression lhsExpr, Expression rhsExpr) {
+    private TypeCastExpression checkWideningPossibleForAssign(BType lhsType, Expression rhsExpr) {
         BType rhsType = rhsExpr.getType();
-        BType lhsType = lhsExpr.getType();
+//        BType lhsType = lhsExpr.getType();
         TypeCastExpression newExpr = null;
-        if (rhsType == BTypes.INT_TYPE && lhsType == BTypes.LONG_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.LONG_TYPE);
+        if (rhsType == BTypes.typeInt && lhsType == BTypes.typeLong) {
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeLong);
             newExpr.setEvalFunc(NativeCastConvertor.INT_TO_LONG_FUNC);
-        } else if (rhsType == BTypes.INT_TYPE && lhsType == BTypes.FLOAT_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.FLOAT_TYPE);
+        } else if (rhsType == BTypes.typeInt && lhsType == BTypes.typeFloat) {
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeFloat);
             newExpr.setEvalFunc(NativeCastConvertor.INT_TO_FLOAT_FUNC);
-        } else if (rhsType == BTypes.INT_TYPE && lhsType == BTypes.DOUBLE_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.DOUBLE_TYPE);
+        } else if (rhsType == BTypes.typeInt && lhsType == BTypes.typeDouble) {
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeDouble);
             newExpr.setEvalFunc(NativeCastConvertor.INT_TO_DOUBLE_FUNC);
-        } else if (rhsType == BTypes.INT_TYPE && lhsType == BTypes.STRING_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.STRING_TYPE);
+        } else if (rhsType == BTypes.typeInt && lhsType == BTypes.typeString) {
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
             newExpr.setEvalFunc(NativeCastConvertor.INT_TO_STRING_FUNC);
-        } else if (rhsType == BTypes.LONG_TYPE && lhsType == BTypes.FLOAT_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.FLOAT_TYPE);
+        } else if (rhsType == BTypes.typeLong && lhsType == BTypes.typeFloat) {
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeFloat);
             newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_FLOAT_FUNC);
-        } else if (rhsType == BTypes.LONG_TYPE && lhsType == BTypes.DOUBLE_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.DOUBLE_TYPE);
+        } else if (rhsType == BTypes.typeLong && lhsType == BTypes.typeDouble) {
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeDouble);
             newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_DOUBLE_FUNC);
-        } else if (rhsType == BTypes.LONG_TYPE && lhsType == BTypes.STRING_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.STRING_TYPE);
+        } else if (rhsType == BTypes.typeLong && lhsType == BTypes.typeString) {
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
             newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_STRING_FUNC);
-        } else if (rhsType == BTypes.FLOAT_TYPE && lhsType == BTypes.DOUBLE_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.DOUBLE_TYPE);
+        } else if (rhsType == BTypes.typeFloat && lhsType == BTypes.typeDouble) {
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeDouble);
             newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_DOUBLE_FUNC);
-        } else if (rhsType == BTypes.FLOAT_TYPE && lhsType == BTypes.STRING_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.STRING_TYPE);
+        } else if (rhsType == BTypes.typeFloat && lhsType == BTypes.typeString) {
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
             newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_STRING_FUNC);
-        } else if (rhsType == BTypes.DOUBLE_TYPE && lhsType == BTypes.STRING_TYPE) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.STRING_TYPE);
+        } else if (rhsType == BTypes.typeDouble && lhsType == BTypes.typeString) {
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
             newExpr.setEvalFunc(NativeCastConvertor.DOUBLE_TO_STRING_FUNC);
         }
 
         return newExpr;
     }
 
+    private BType resolveType(SimpleTypeName typeName, NodeLocation location) {
+        BType bType = (BType) currentScope.resolve(typeName.getSymbolName());
+        if (bType == null) {
+            throw new SemanticException(getNodeLocationStr(location) +
+                    ": undefined type '" + typeName + "'");
+        }
+        return bType;
+    }
 }

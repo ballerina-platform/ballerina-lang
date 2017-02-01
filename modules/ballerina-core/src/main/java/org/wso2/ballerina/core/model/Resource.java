@@ -20,7 +20,6 @@ package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
-import org.wso2.ballerina.core.model.symbols.SymbolScope;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -267,8 +266,8 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     // Methods in the SymbolScope interface
 
     @Override
-    public String getScopeName() {
-        return null;
+    public ScopeName getScopeName() {
+        return ScopeName.LOCAL;
     }
 
     @Override
@@ -282,7 +281,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     }
 
     @Override
-    public Symbol resolve(SymbolName name) {
-        return null;
+    public BLangSymbol resolve(SymbolName name) {
+        return resolve(symbolMap, name);
     }
 }

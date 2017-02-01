@@ -85,7 +85,7 @@ public class BalDeployer {
                 BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
                 ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
 
-                BLangModelBuilder bLangModelBuilder = new BLangModelBuilder();
+                BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(null);
                 BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
                 ballerinaParser.addParseListener(ballerinaBaseListener);
                 ballerinaParser.compilationUnit();

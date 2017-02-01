@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.symbols;
 
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.SymbolScope;
 
 /**
  * {@code BLangSymbol} is the base class for all the symbols in Ballerina.

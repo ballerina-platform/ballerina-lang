@@ -19,8 +19,6 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
-import org.wso2.ballerina.core.model.symbols.SymbolCategory;
-import org.wso2.ballerina.core.model.symbols.SymbolScope;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BStruct;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -43,7 +41,6 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, BL
     private int structMemorySize;
     private VariableDef[] fields;
 
-    private SymbolCategory symbolCategory = SymbolCategory.STRUCT;
     private SymbolName symbolName;
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
@@ -62,7 +59,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, BL
                      boolean isPublic,
                      SymbolScope enclosingScope,
                      Map<SymbolName, BLangSymbol> symbolMap) {
-        super(name, BStruct.class);
+        super(name, pkgPath, enclosingScope, BStruct.class);
 
         this.location = location;
         this.name = name;
@@ -160,8 +157,8 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, BL
     // Methods in the SymbolScope interface
 
     @Override
-    public String getScopeName() {
-        return null;
+    public ScopeName getScopeName() {
+        return ScopeName.LOCAL;
     }
 
     @Override
@@ -175,8 +172,8 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, BL
     }
 
     @Override
-    public Symbol resolve(SymbolName name) {
-        return null;
+    public BLangSymbol resolve(SymbolName name) {
+        return resolve(symbolMap, name);
     }
 
     @Override
@@ -245,8 +242,8 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, BL
         }
 
         @Override
-        public String getScopeName() {
-            return null;
+        public ScopeName getScopeName() {
+            return ScopeName.LOCAL;
         }
 
         @Override
@@ -260,8 +257,8 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, BL
         }
 
         @Override
-        public Symbol resolve(SymbolName name) {
-            return null;
+        public BLangSymbol resolve(SymbolName name) {
+            return resolve(symbolMap, name);
         }
 
         /**

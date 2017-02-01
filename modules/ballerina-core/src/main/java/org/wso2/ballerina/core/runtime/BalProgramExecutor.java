@@ -88,7 +88,7 @@ public class BalProgramExecutor {
                 argsName = parameterDefs[0].getSymbolName();
 
 //                if (parameters.length == 1 && parameters[0].getType() == BTypes.getArrayType(BTypes.
-//                        STRING_TYPE.toString())) {
+//                        typeString.toString())) {
 //                } else {
 //                    throw new BallerinaException("Main function does not comply with standard main function in" +
 //                            " ballerina");
@@ -109,7 +109,7 @@ public class BalProgramExecutor {
                 VariableRefExpr variableRefExpr = new VariableRefExpr(mainFuncLocation, argsName);
                 LocalVarLocation location = new LocalVarLocation(0);
                 variableRefExpr.setMemoryLocation(location);
-                variableRefExpr.setType(BTypes.STRING_TYPE);
+                variableRefExpr.setType(BTypes.typeString);
                 exprs[0] = variableRefExpr;
 
                 BArray<BString> arrayArgs = new BArray<>(BString.class);

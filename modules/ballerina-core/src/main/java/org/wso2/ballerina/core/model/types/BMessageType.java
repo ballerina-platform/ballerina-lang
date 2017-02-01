@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -32,8 +33,8 @@ class BMessageType extends BType {
      *
      * @param typeName string name of the type
      */
-    BMessageType(String typeName) {
-        super(typeName, BMessage.class);
+    BMessageType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BMessage.class);
     }
 
     @SuppressWarnings("unchecked")

@@ -18,7 +18,6 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.expressions.Expression;
-import org.wso2.ballerina.core.model.symbols.SymbolScope;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -29,8 +28,6 @@ import org.wso2.ballerina.core.model.values.BValue;
  * @since 0.8.0
  */
 public class ConstDef extends VariableDef implements CompilationUnit {
-    protected NodeLocation location;
-    private BType type;
     private Expression rhsExpr;
     private BValue value;
 
@@ -64,10 +61,6 @@ public class ConstDef extends VariableDef implements CompilationUnit {
         this.rhsExpr = rhsExpr;
     }
 
-    public BType getType() {
-        return type;
-    }
-
     public Expression getRhsExpr() {
         return rhsExpr;
     }
@@ -86,10 +79,5 @@ public class ConstDef extends VariableDef implements CompilationUnit {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public NodeLocation getNodeLocation() {
-        return location;
     }
 }
