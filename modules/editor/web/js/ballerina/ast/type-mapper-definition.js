@@ -20,6 +20,8 @@ define(['lodash', './node'], function (_, ASTNode) {
     var TypeMapperDefinition = function (args) {
         ASTNode.call(this, 'TypeMapperDefinition');
         this._typeMapperName = _.get(args, 'typeMapperName', 'newTypeMapper');
+        this._selectedTypeStructNameForSource;
+        this._selectedTypeStructNameForTarget;
         this.BallerinaASTFactory = this.getFactory();
     };
 
@@ -119,6 +121,71 @@ define(['lodash', './node'], function (_, ASTNode) {
             }
         });
         return sourceAndIdentifier;
+    };
+
+    /**
+     * Set the already selected type struct name for source
+     * @param selectedStructNameForSource
+     */
+    TypeMapperDefinition.prototype.setSelectedStructNameForSource = function (selectedStructNameForSource) {
+        if (!_.isNil(selectedStructNameForSource)) {
+            this._selectedTypeStructNameForSource = selectedStructNameForSource;
+        }
+    };
+
+    /**
+     * Returns the selected type struct name for source
+     * @returns {string} type struct name for source
+     */
+    TypeMapperDefinition.prototype.getSelectedStructNameForSource = function () {
+        return this._selectedTypeStructNameForSource;
+    };
+
+    /**
+     * Set the already selected type struct name for target
+     * @param selectedStructNameForTarget
+     */
+    TypeMapperDefinition.prototype.setSelectedStructNameForTarget = function (selectedStructNameForTarget) {
+        if (!_.isNil(selectedStructNameForTarget)) {
+            this._selectedTypeStructNameForTarget = selectedStructNameForTarget;
+        }
+    };
+    
+    /**
+     * Returns the selected type struct name for target
+     * @returns {string} type struct name for target
+     */
+    TypeMapperDefinition.prototype.getSelectedStructNameForTarget = function () {
+        return this._selectedTypeStructNameForTarget;
+    };
+
+    /**
+     * removes the already selected child before adding a new child
+     * @param type
+     */
+    TypeMapperDefinition.prototype.removeTypeStructDefinition = function (type) {
+        var self = this;
+        if (this.getChildren() != 0) {
+            var selectedTypeDef = _.find(this.getChildren(), function (child) {
+                return self.BallerinaASTFactory.isTypeStructDefinition(child)
+                    && child._category === type;
+            });
+            if (selectedTypeDef) {
+                this.removeChild(selectedTypeDef);
+            }
+        }
+    };
+
+    /**
+     * returns the index of the selected struct
+     * @param structArray
+     * @param selectedStructName
+     */
+    TypeMapperDefinition.prototype.getSelectedStructIndex = function (structArray, selectedStructName) {
+        var index = _.findIndex(structArray, function (child) {
+            return child._structName === selectedStructName;
+        });
+        return index;
     };
 
     return TypeMapperDefinition;
