@@ -193,7 +193,6 @@ public class TargetHandler extends ReadTimeoutHandler {
 
         Map<String, String> transportHeaders = new HashMap<>();
         transportHeaders.put(Constants.HTTP_CONNECTION, Constants.KEEP_ALIVE);
-        transportHeaders.put(Constants.HTTP_CONTENT_ENCODING, Constants.GZIP);
         transportHeaders.put(Constants.HTTP_CONTENT_TYPE, Constants.TEXT_XML);
         transportHeaders.put(Constants.HTTP_CONTENT_LENGTH, (String.valueOf(errorMessageBytes.length)));
 
