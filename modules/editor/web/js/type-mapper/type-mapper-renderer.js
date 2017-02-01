@@ -57,26 +57,30 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
         var refObjects = this.references;
 
         jsPlumb.bind('dblclick', function (connection, e) {
+            var sourceParts = connection.sourceId.split(separator);
+            var targetParts = connection.targetId.split(separator);
+            var sourceId = sourceParts.slice(0, 6).join('-');
+            var targetId = targetParts.slice(0, 6).join('-');
 
             var sourceRefObj;
             var targetRefObj;
 
             for (var i = 0; i < refObjects.length; i++) {
-                if (refObjects[i].name == connection.sourceId.split(separator)[0]) {
+                if (refObjects[i].name == sourceId) {
                     sourceRefObj = refObjects[i].refObj;
-                } else if (refObjects[i].name == connection.targetId.split(separator)[0]) {
+                } else if (refObjects[i].name == targetId) {
                     targetRefObj = refObjects[i].refObj;
                 }
             }
 
             var PropertyConnection = {
-                sourceStruct: connection.source.id.split(separator)[0],
-                sourceProperty: connection.source.id.split(separator)[1],
-                sourceType: connection.source.id.split(separator)[2],
+                sourceStruct: sourceParts[0],
+                sourceProperty: sourceParts[6],
+                sourceType: sourceParts[7],
                 sourceReference: sourceRefObj,
-                targetStruct: connection.target.id.split(separator)[0],
-                targetProperty: connection.target.id.split(separator)[1],
-                targetType: connection.target.id.split(separator)[2],
+                targetStruct: targetParts[0],
+                targetProperty: targetParts[6],
+                targetType: targetParts[7],
                 targetReference: targetRefObj
             };
 
@@ -117,13 +121,15 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
     TypeMapper.prototype.getConnections = function () {
         var connections = [];
         for (var i = 0; i < jsPlumb.getConnections().length; i++) {
+            var sourceParts = jsPlumb.getConnections()[i].sourceId.split(this.idNameSeperator);
+            var targetParts = jsPlumb.getConnections()[i].targetId.split(this.idNameSeperator);
             var connection = {
-                sourceStruct: jsPlumb.getConnections()[i].sourceId.split(this.idNameSeperator)[0],
-                sourceProperty: jsPlumb.getConnections()[i].sourceId.split(this.idNameSeperator)[6],
-                sourceType: jsPlumb.getConnections()[i].sourceId.split(this.idNameSeperator)[7],
-                targetStruct: jsPlumb.getConnections()[i].targetId.split(this.idNameSeperator)[0],
-                targetProperty: jsPlumb.getConnections()[i].targetId.split(this.idNameSeperator)[6],
-                targetType: jsPlumb.getConnections()[i].targetId.split(this.idNameSeperator)[7]
+                sourceStruct: sourceParts[0],
+                sourceProperty: sourceParts[6],
+                sourceType: sourceParts[7],
+                targetStruct: targetParts[0],
+                targetProperty: targetParts[6],
+                targetType: targetParts[7]
             };
             connections.push(connection);
         }
@@ -298,16 +304,20 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
         g.setDefaultEdgeLabel(function () {
             return {};
         });
-        var nodes = $(".struct, .func");
+        
+        var nodes = $(".property");
         for (var i = 0; i < nodes.length; i++) {
             var n = nodes[i];
-
             g.setNode(n.id, {width: $("#" + n.id).width() + 30, height: $("#" + n.id).height() + 30});
         }
         var edges = jsPlumb.getAllConnections();
         for (var i = 0; i < edges.length; i++) {
             var c = edges[i];
-            g.setEdge(c.source.id.split("-")[0], c.target.id.split("-")[0]);
+            var sourceParts = c.source.id.split(this.idNameSeperator);
+            var targetParts = c.target.id.split(this.idNameSeperator);
+            var sourceId = sourceParts.slice(0, 6).join('-');
+            var targetId = targetParts.slice(0, 6).join('-');
+            g.setEdge(sourceId, targetId);
         }
 
         // calculate the layout (i.e. node positions)
@@ -315,8 +325,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
 
         // Applying the calculated layout
         g.nodes().forEach(function (v) {
-            $("#" + v).css("left", g.node(v).x + "px");
-            $("#" + v).css("top", g.node(v).y + "px");
+            if (g.node(v)) {
+                $("#" + v).css("left", g.node(v).x + "px");
+                $("#" + v).css("top", g.node(v).y + "px");
+            }
         });
         jsPlumb.repaintEverything();
     };
