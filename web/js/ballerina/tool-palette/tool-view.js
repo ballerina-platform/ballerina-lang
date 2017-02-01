@@ -20,8 +20,14 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
 
     var toolView = Backbone.View.extend({
 
-        toolTemplate: _.template("<div id=\"<%=id%>\" class=\"tool-block tool-container <%=classNames%>\"  data-placement=\"bottom\" data-toggle=\"tooltip\" title='<%=title%>'> <img src=\"<%=icon%>\" class=\"tool-image\"  /><p class=\"tool-title\"><%=title%></p></div>"),
-        toolTemplateVertical: _.template("<div id=\"<%=id%>\" class=\"tool-block tool-container-vertical <%=classNames%>\"  data-placement=\"bottom\" data-toggle=\"tooltip\" title='<%=title%>'> <div class=\"tool-container-vertical-icon\"><img src=\"<%=icon%>\" class=\"tool-image\"  /></div><div class=\"tool-container-vertical-title\"><%=title%></div><p class=\"tool-title\"><%=title%></p></div>"),
+        toolTemplate: _.template("<div id=\"<%=id%>\" class=\"tool-block tool-container <%=classNames%>\"  " +
+            "data-placement=\"bottom\" data-toggle=\"tooltip\" title='<%=title%>'> <img src=\"<%=icon%>\" " +
+            "class=\"tool-image\"  /><p class=\"tool-title\"><%=title%></p></div>"),
+        toolTemplateVertical: _.template("<div id=\"<%=id%>\" class=\"tool-block tool-container-vertical " +
+            "<%=classNames%>\"> <div class=\"tool-container-vertical-icon\" data-placement=\"bottom\" " +
+            "data-toggle=\"tooltip\" title='<%=title%>'><img src=\"<%=icon%>\" class=\"tool-image\"  />" +
+            "</div><div class=\"tool-container-vertical-title\" data-placement=\"bottom\" data-toggle=\"tooltip\" " +
+            "title='<%=title%>'><%=title%></div><p class=\"tool-title\"><%=title%></p></div>"),
 
         initialize: function (options) {
             _.extend(this, _.pick(options, ["toolPalette"]));
