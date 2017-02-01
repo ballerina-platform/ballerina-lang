@@ -15,14 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash','jquery','jsPlumb', 'dagre'], function(require, _,$,jsPlumb, dagre) {
+define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _, $, jsPlumb, dagre) {
 
-    var TypeMapper = function(onConnectionCallback, onDisconnectCallback) {
+    var TypeMapper = function (onConnectionCallback, onDisconnectCallback, typeConverterView) {
 
-        this.references = []
-        this.placeHolderName = "data-mapper-container"
+        this.references = [];
+        this.placeHolderName = "data-mapper-container-" + typeConverterView._model.id;
         this.idNameSeperator = "-";
         this.onConnection = onConnectionCallback;
+        this.typeConverterView = typeConverterView;
 
         var strokeColor = "#414e66";
         var strokeWidth = 1;
@@ -31,121 +32,134 @@ define(['require', 'lodash','jquery','jsPlumb', 'dagre'], function(require, _,$,
 
         jsPlumb.Defaults.Container = $("#" + this.placeHolderName);
         jsPlumb.Defaults.PaintStyle = {
-            strokeStyle:strokeColor,
-            lineWidth:strokeWidth
+            strokeStyle: strokeColor,
+            lineWidth: strokeWidth
         };
 
         jsPlumb.Defaults.EndpointStyle = {
-            radius:pointSize,
-            fillStyle:pointColor
+            radius: pointSize,
+            fillStyle: pointColor
         };
         jsPlumb.Defaults.Overlays = [
-            [ "Arrow",{location:1, width:10, length:10} ]
+            ["Arrow", {location: 1, width: 10, length: 10}]
         ];
 
-        jsPlumb.importDefaults({Connector : [ "Flowchart",
-            {
-                cornerRadius: 20,
-                stub:1,  alwaysRespectStubs: false, midpoint:0.2
-            } ]});
+        jsPlumb.importDefaults({
+            Connector: ["Flowchart",
+                {
+                    cornerRadius: 20,
+                    stub: 1, alwaysRespectStubs: false, midpoint: 0.2
+                }]
+        });
 
         var positionFunc = this.dagrePosition;
         var separator = this.idNameSeperator;
         var refObjects = this.references;
 
         jsPlumb.bind('dblclick', function (connection, e) {
+            var sourceParts = connection.sourceId.split(separator);
+            var targetParts = connection.targetId.split(separator);
+            var sourceId = sourceParts.slice(0, 6).join('-');
+            var targetId = targetParts.slice(0, 6).join('-');
 
             var sourceRefObj;
             var targetRefObj;
 
             for (var i = 0; i < refObjects.length; i++) {
-                if (refObjects[i].name == connection.sourceId.split(separator)[0]) {
+                if (refObjects[i].name == sourceId) {
                     sourceRefObj = refObjects[i].refObj;
-                } else if (refObjects[i].name == connection.targetId.split(separator)[0]) {
+                } else if (refObjects[i].name == targetId) {
                     targetRefObj = refObjects[i].refObj;
                 }
-            };
+            }
 
             var PropertyConnection = {
-                sourceStruct : connection.source.id.split(separator)[0],
-                sourceProperty : connection.source.id.split(separator)[1],
-                sourceType : connection.source.id.split(separator)[2],
-                sourceReference : sourceRefObj,
-                targetStruct : connection.target.id.split(separator)[0],
-                targetProperty : connection.target.id.split(separator)[1],
-                targetType : connection.target.id.split(separator)[2],
-                targetReference : targetRefObj
-            }
+                sourceStruct: sourceParts[0],
+                sourceProperty: sourceParts[6],
+                sourceType: sourceParts[7],
+                sourceReference: sourceRefObj,
+                targetStruct: targetParts[0],
+                targetProperty: targetParts[6],
+                targetType: targetParts[7],
+                targetReference: targetRefObj
+            };
 
             jsPlumb.detach(connection);
             positionFunc();
             onDisconnectCallback(PropertyConnection);
         });
 
-        jsPlumb.bind('connection',function(info,ev){
+        jsPlumb.bind('connection', function (info, ev) {
             positionFunc();
         });
-
-
-    }
+    };
 
     TypeMapper.prototype.constructor = TypeMapper;
 
-    TypeMapper.prototype.removeStruct  = function (name){
-        jsPlumb.detachEveryConnection();
-        $("#" + name).remove();
+    TypeMapper.prototype.removeStruct = function (name) {
+        var structId = name + '-' + this.typeConverterView._model.id;
+        var structConns = $('div[id^="' + structId + '"]');
+        for (var i = 0; i < structConns.length; i++) {
+            var div = structConns[i];
+            if (_.includes(div.className, 'property')) {
+                jsPlumb.remove(div.id);
+            }
+        }
+        $("#" + structId).remove();
         this.dagrePosition();
-    }
+    };
 
-    TypeMapper.prototype.addConnection  = function (connection) {
+    TypeMapper.prototype.addConnection = function (connection) {
         jsPlumb.connect({
-            source:connection.sourceStruct + this.idNameSeperator + connection.sourceProperty + this.idNameSeperator + connection.sourceType,
-            target:connection.targetStruct + this.idNameSeperator + connection.targetProperty + this.idNameSeperator + connection.targetType
+            source: connection.sourceStruct + this.idNameSeperator + connection.sourceProperty + this.idNameSeperator + connection.sourceType,
+            target: connection.targetStruct + this.idNameSeperator + connection.targetProperty + this.idNameSeperator + connection.targetType
         });
         this.dagrePosition();
-    }
+    };
 
-    TypeMapper.prototype.getConnections  = function () {
+
+    TypeMapper.prototype.getConnections = function () {
         var connections = [];
-
         for (var i = 0; i < jsPlumb.getConnections().length; i++) {
+            var sourceParts = jsPlumb.getConnections()[i].sourceId.split(this.idNameSeperator);
+            var targetParts = jsPlumb.getConnections()[i].targetId.split(this.idNameSeperator);
             var connection = {
-                sourceStruct : jsPlumb.getConnections()[i].sourceId.split(this.idNameSeperator)[0],
-                sourceProperty : jsPlumb.getConnections()[i].sourceId.split(this.idNameSeperator)[1],
-                sourceType : jsPlumb.getConnections()[i].sourceId.split(this.idNameSeperator)[2],
-                targetStruct : jsPlumb.getConnections()[i].targetId.split(this.idNameSeperator)[0],
-                targetProperty : jsPlumb.getConnections()[i].targetId.split(this.idNameSeperator)[1],
-                targetType : jsPlumb.getConnections()[i].targetId.split(this.idNameSeperator)[2]
-            }
+                sourceStruct: sourceParts[0],
+                sourceProperty: sourceParts[6],
+                sourceType: sourceParts[7],
+                targetStruct: targetParts[0],
+                targetProperty: targetParts[6],
+                targetType: targetParts[7]
+            };
             connections.push(connection);
-        };
-
+        }
         return connections;
-    }
+    };
 
-    TypeMapper.prototype.addSourceStruct  = function (struct, reference) {
+    TypeMapper.prototype.addSourceStruct = function (struct, reference) {
+        struct.id = struct.name + '-' + this.typeConverterView._model.id;
         this.makeStruct(struct, 50, 50, reference);
         for (var i = 0; i < struct.properties.length; i++) {
-            this.addSourceProperty($('#' + struct.name), struct.properties[i].name, struct.properties[i].type);
-        };
-
+            this.addSourceProperty($('#' + struct.id), struct.properties[i].name, struct.properties[i].type);
+        }
         this.dagrePosition();
-    }
 
-    TypeMapper.prototype.addTargetStruct  = function (struct, reference) {
+    };
+
+    TypeMapper.prototype.addTargetStruct = function (struct, reference) {
+        struct.id = struct.name + '-' + this.typeConverterView._model.id;
         var placeHolderWidth = document.getElementById(this.placeHolderName).offsetWidth;
-        var posY = placeHolderWidth - (placeHolderWidth/4);
+        var posY = placeHolderWidth - (placeHolderWidth / 4);
         this.makeStruct(struct, 50, posY, reference);
         for (var i = 0; i < struct.properties.length; i++) {
-            this.addTargetProperty($('#' +struct.name), struct.properties[i].name, struct.properties[i].type);
-        };
-
+            this.addTargetProperty($('#' + struct.id), struct.properties[i].name, struct.properties[i].type);
+        }
         this.dagrePosition();
-    }
+    };
 
-    TypeMapper.prototype.makeStruct  = function (struct, posX, posY, reference) {
-        this.references.push({ name : struct.name, refObj : reference});
-        var newStruct = $('<div>').attr('id', struct.name).addClass('struct');
+    TypeMapper.prototype.makeStruct = function (struct, posX, posY, reference) {
+        this.references.push({name: struct.id, refObj: reference});
+        var newStruct = $('<div>').attr('id', struct.id).addClass('struct');
 
         var structName = $('<div>').addClass('struct-name').text(struct.name);
         newStruct.append(structName);
@@ -159,10 +173,10 @@ define(['require', 'lodash','jquery','jsPlumb', 'dagre'], function(require, _,$,
         // jsPlumb.draggable(newStruct, {
         //     containment: 'parent'
         // });
-    }
+    };
 
-    TypeMapper.prototype.addFunction  = function (func, reference) {
-        this.references.push({ name : func.name, refObj : reference});
+    TypeMapper.prototype.addFunction = function (func, reference) {
+        this.references.push({name: func.name, refObj: reference});
         var newFunc = $('<div>').attr('id', func.name).addClass('func');
 
         var funcName = $('<div>').addClass('struct-name').text(func.name);
@@ -175,22 +189,19 @@ define(['require', 'lodash','jquery','jsPlumb', 'dagre'], function(require, _,$,
 
         $("#" + this.placeHolderName).append(newFunc);
 
-
-
         for (var i = 0; i < func.parameters.length; i++) {
-            this.addTargetProperty($('#' +func.name), func.parameters[i].name, func.parameters[i].type);
-        };
+            this.addTargetProperty($('#' + func.name), func.parameters[i].name, func.parameters[i].type);
+        }
 
         this.addSourceProperty($('#' + func.name), "output", func.returnType);
         this.dagrePosition();
 
-    }
+    };
 
 
-
-    TypeMapper.prototype.makeProperty  = function (parentId, name, type) {
-        var id = parentId.selector.replace("#","") + this.idNameSeperator + name + this.idNameSeperator  + type;
-        var property = $('<div>').attr('id', id).addClass('property')
+    TypeMapper.prototype.makeProperty = function (parentId, name, type) {
+        var id = parentId.selector.replace("#", "") + this.idNameSeperator + name + this.idNameSeperator + type;
+        var property = $('<div>').attr('id', id).addClass('property');
         var propertyName = $('<span>').addClass('property-name').text(name);
         var seperator = $('<span>').addClass('property-name').text(":");
         var propertyType = $('<span>').addClass('property-type').text(type);
@@ -199,69 +210,89 @@ define(['require', 'lodash','jquery','jsPlumb', 'dagre'], function(require, _,$,
         property.append(seperator);
         property.append(propertyType);
         $(parentId).append(property);
-
         return property;
-    }
+    };
 
-    TypeMapper.prototype.addSourceProperty  = function (parentId, name, type) {
+    TypeMapper.prototype.addSourceProperty = function (parentId, name, type) {
         jsPlumb.makeSource(this.makeProperty(parentId, name, type), {
-            anchor:["Continuous", { faces:["right"] } ]
+            anchor: ["Continuous", {faces: ["right"]}]
         });
-    }
+    };
 
-    TypeMapper.prototype.addTargetProperty  = function (parentId, name, type) {
+    TypeMapper.prototype.addTargetProperty = function (parentId, name, type) {
         var callback = this.onConnection;
         var refObjects = this.references;
         var seperator = this.idNameSeperator;
+        var typeConverterObj = this.typeConverterView;
 
         jsPlumb.makeTarget(this.makeProperty(parentId, name, type), {
-            maxConnections:1,
-            anchor:["Continuous", { faces:[ "left"] } ],
+            maxConnections: 1,
+            anchor: ["Continuous", {faces: ["left"]}],
             beforeDrop: function (params) {
                 //Checks property types are equal
-                var isValidTypes = params.sourceId.split(seperator)[2] == params.targetId.split(seperator)[2];
+                var sourceParts = params.sourceId.split(seperator);
+                var targetParts = params.targetId.split(seperator);
+                var isValidTypes = sourceParts[7] == targetParts[7];
+                var sourceId = sourceParts.slice(0, 6).join('-');
+                var targetId = targetParts.slice(0, 6).join('-');
 
+                var sourceRefObj;
+                var targetRefObj;
+
+                for (var i = 0; i < refObjects.length; i++) {
+                    if (refObjects[i].name == sourceId) {
+                        sourceRefObj = refObjects[i].refObj;
+                    } else if (refObjects[i].name == targetId) {
+                        targetRefObj = refObjects[i].refObj;
+                    }
+                }
+
+                var connection = {
+                    sourceStruct: sourceParts[0],
+                    sourceProperty: sourceParts[6],
+                    sourceType: sourceParts [7],
+                    sourceReference: sourceRefObj,
+                    targetStruct: targetParts[0],
+                    targetProperty: targetParts [6],
+                    targetType: targetParts[7],
+                    targetReference: targetRefObj
+                };
 
                 if (isValidTypes) {
-
-                    var sourceRefObj;
-                    var targetRefObj;
-
-                    for (var i = 0; i < refObjects.length; i++) {
-                        if (refObjects[i].name == params.sourceId.split(seperator)[0]) {
-                            sourceRefObj = refObjects[i].refObj;
-                        } else if (refObjects[i].name == params.targetId.split(seperator)[0]) {
-                            targetRefObj = refObjects[i].refObj;
-                        }
-                    };
-
-                    var connection = {
-                        sourceStruct : params.sourceId.split(seperator)[0],
-                        sourceProperty : params.sourceId.split(seperator)[1],
-                        sourceType : params.sourceId.split(seperator)[2],
-                        sourceReference : sourceRefObj,
-                        targetStruct : params.targetId.split(seperator)[0],
-                        targetProperty : params.targetId.split(seperator)[1],
-                        targetType : params.targetId.split(seperator)[2],
-                        targetReference : targetRefObj
-                    }
-
-                    callback(connection);
+                    callback(connection, typeConverterObj);
                 }
+                // } else {
+                //     var compatibleTypeConverters = [];
+                //     var typeConverters = typeConverterObj._package.getTypeConverterDefinitions();
+                //     for (var i = 0; i < typeConverters.length; i++) {
+                //         var aTypeConverter = typeConverters[i];
+                //         if (typeConverterObj._model._typeConverterName !== aTypeConverter.getTypeConverterName()) {
+                //             if (connection.sourceType == aTypeConverter.getSourceAndIdentifier().split(" ")[0] &&
+                //                 connection.targetType == aTypeConverter.getReturnType()) {
+                //                 compatibleTypeConverters.push(aTypeConverter.getTypeConverterName());
+                //                 // console.log(aTypeConverter.getTypeConverterName());
+                //                 // console.log(aTypeConverter.getSourceAndIdentifier());
+                //                 // console.log(aTypeConverter.getReturnType());
+                //             }
+                //         }
+                //     }
+                //     console.log(compatibleTypeConverters);
+                //     isValidTypes = compatibleTypeConverters.length > 0;
+                // }
                 return isValidTypes;
             },
 
-            onDrop : function(params) {
+            onDrop: function (params) {
                 this.dagrePosition();
             }
         });
-    }
+    };
 
 
-    TypeMapper.prototype.dagrePosition  = function(){
+    TypeMapper.prototype.dagrePosition = function () {
         // construct dagre graph from JsPlumb graph
         var g = new dagre.graphlib.Graph();
-
+        var seperator = '-';
 
         var alignment = 'LR';
 
@@ -269,31 +300,37 @@ define(['require', 'lodash','jquery','jsPlumb', 'dagre'], function(require, _,$,
             alignment = 'TD';
         }
 
-        g.setGraph({ranksep:'50',rankdir: alignment , edgesep:'50', marginx : '0'});
-        g.setDefaultEdgeLabel(function() { return {}; });
+        g.setGraph({ranksep: '50', rankdir: alignment, edgesep: '50', marginx: '0'});
+        g.setDefaultEdgeLabel(function () {
+            return {};
+        });
+
         var nodes = $(".struct, .func");
         for (var i = 0; i < nodes.length; i++) {
             var n = nodes[i];
-
-            g.setNode(n.id, {width: $("#" + n.id).width() + 30 , height: $("#" + n.id).height() + 30});
+            g.setNode(n.id, {width: $("#" + n.id).width() + 30, height: $("#" + n.id).height() + 30});
         }
         var edges = jsPlumb.getAllConnections();
         for (var i = 0; i < edges.length; i++) {
             var c = edges[i];
-            g.setEdge(c.source.id.split("-")[0],c.target.id.split("-")[0]);
+            var sourceParts = c.source.id.split(seperator);
+            var targetParts = c.target.id.split(seperator);
+            var sourceId = sourceParts.slice(0, 6).join(seperator);
+            var targetId = targetParts.slice(0, 6).join(seperator);
+            g.setEdge(sourceId, targetId);
         }
 
         // calculate the layout (i.e. node positions)
         dagre.layout(g);
-
         // Applying the calculated layout
-        g.nodes().forEach(function(v) {
+        g.nodes().forEach(function (v) {
             $("#" + v).css("left", g.node(v).x + "px");
             $("#" + v).css("top", g.node(v).y + "px");
         });
         jsPlumb.repaintEverything();
-    }
+    };
 
     return TypeMapper;
-
 });
+
+

@@ -16,7 +16,7 @@
  * under the License.
  */
 define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-struct-definition-view', 'ballerina/ast/ballerina-ast-factory', './canvas',
-            './point','typeMapper'], function (_, log, d3, BallerinaView, VariablesView, TypeStructDefinition, BallerinaASTFactory, Canvas, Point,TypeMapper) {
+    './point', 'typeMapper'], function (_, log, d3, BallerinaView, VariablesView, TypeStructDefinition, BallerinaASTFactory, Canvas, Point, TypeMapper) {
     var TypeMapperDefinitionView = function (args) {
         Canvas.call(this, args);
 
@@ -37,7 +37,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             log.error("Container for Type Mapper definition is undefined." + this._container);
             throw "Container for Type Mapper definition is undefined." + this._container;
         }
-        this._typeMapper = new TypeMapper(this.onAttributesConnect,this.onAttributesDisConnect);
+        this._typeMapper = new TypeMapper(this.onAttributesConnect, this.onAttributesDisConnect, this);
 
     };
 
@@ -62,25 +62,27 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
 
         console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         //todo get current package name dynamically
-        var predefinedStructs = diagramRenderingContext.getPackagedScopedEnvironment().findPackage("Current Package").getStructDefinitions();
+        var predefinedStructs = diagramRenderingContext.getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
         console.log(predefinedStructs);
 
-        var selectorContainer = $('<div class="selector"><div class="source-view"><span>Source :</span><select id="sourceStructs">' +
-            '<option value="-1">--Select--</option></select></div><div class="target-view"><span>Target :</span><select id="targetStructs"><option value="-1">--Select--</option></select></div></div>');
-        var dataMapperContainer = $('<div id="data-mapper-container"></div>');
+        var dataMapperContainerId = "data-mapper-container-" + this._model.id;
+        var sourceId = 'sourceStructs' + this._model.id;
+        var targetId = 'targetStructs' + this._model.id;
+        var selectorContainer = $('<div class="selector"><div class="source-view"><span>Source :</span><select id="' + sourceId + '">' +
+            '<option value="-1">--Select--</option></select></div><div class="target-view"><span>Target :</span><select id="' + targetId + '"><option value="-1">--Select--</option></select></div></div>');
+        var dataMapperContainer = $('<div id="' + dataMapperContainerId + '" class="data-mapper-container"></div>');
 
         currentContainer.find('svg').parent().append(selectorContainer);
         currentContainer.find('svg').parent().append(dataMapperContainer);
         currentContainer.find('svg').remove();
 
-        this.loadSchemasToComboBox(currentContainer,"#sourceStructs",predefinedStructs);
-        this.loadSchemasToComboBox(currentContainer,"#targetStructs",predefinedStructs);
+        this.loadSchemasToComboBox(currentContainer, "#" + sourceId, predefinedStructs);
+        this.loadSchemasToComboBox(currentContainer, "#" + targetId, predefinedStructs);
 
-        $(currentContainer).find("#sourceStructs").change(function() {
-
-            var selectedArrayIndex = $("#sourceStructs option:selected").val();
-            var selectedStructNameForSource = $("#sourceStructs option:selected").text();
-            self._model.removeTypeStructDefinition("SOURCE");
+        $(currentContainer).find("#" + sourceId).change(function () {
+            var selectedArrayIndex = $("#" + sourceId + " option:selected").val();
+            var selectedStructNameForSource = $("#" + sourceId + " option:selected").text();
+            // self._model.removeTypeStructDefinition("SOURCE");
             var schema = predefinedStructs[selectedArrayIndex];
 
             if (selectedStructNameForSource != self._model.getSelectedStructNameForTarget()) {
@@ -101,17 +103,16 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
                 self._model.setSelectedStructNameForSource(selectedStructNameForSource);
             } else {
                 var t = self._model.getSelectedStructIndex(predefinedStructs, self._model.getSelectedStructNameForSource());
-                $("#sourceStructs").val(self._model.getSelectedStructIndex(predefinedStructs,
+                $("#" + sourceId).val(self._model.getSelectedStructIndex(predefinedStructs,
                     self._model.getSelectedStructNameForSource()));
             }
         });
 
-        $(currentContainer).find("#targetStructs").change(function() {
+        $(currentContainer).find("#" + targetId).change(function () {
 
-            var selectedArrayIndex = $("#targetStructs option:selected").val();
-            var selectedArrayIndex = $("#targetStructs option:selected").val();
-            var selectedStructNameForTarget = $("#targetStructs option:selected").text();
-            self._model.removeTypeStructDefinition("TARGET");
+            var selectedArrayIndex = $("#" + targetId + " option:selected").val();
+            var selectedStructNameForTarget = $("#" + targetId + " option:selected").text();
+            // self._model.removeTypeStructDefinition("TARGET");
             var schema = predefinedStructs[selectedArrayIndex];
 
             if (self._model.getSelectedStructNameForSource() != selectedStructNameForTarget) {
@@ -141,10 +142,10 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
                 self._model.addChild(newReturnStatement);
             } else {
                 var t = self._model.getSelectedStructIndex(predefinedStructs, self._model.getSelectedStructNameForTarget());
-                $("#targetStructs").val(self._model.getSelectedStructIndex(predefinedStructs,
+                $("#" + targetId).val(self._model.getSelectedStructIndex(predefinedStructs,
                     self._model.getSelectedStructNameForTarget()));
             }
-       });
+        });
 
         this._container = currentContainer;
         this.getBoundingBox().fromTopLeft(new Point(0, 0), currentContainer.width(), currentContainer.height());
@@ -174,16 +175,11 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         return this._rootGroup;
     };
 
-    TypeMapperDefinitionView.prototype.loadSchemasToComboBox = function (parentId,selectId,schemaArray) {
-
-        var types = ['-select-','employee','student','person'];
-
+    TypeMapperDefinitionView.prototype.loadSchemasToComboBox = function (parentId, selectId, schemaArray) {
         for (var i = 0; i < schemaArray.length; i++) {
-            $(parentId).find(selectId).append('<option value="'+i+'">'+schemaArray[i].getStructName()+'</option>');
+            $(parentId).find(selectId).append('<option value="' + i + '">' + schemaArray[i].getStructName() + '</option>');
 
-        };
-
-
+        }
     };
 
     /**
@@ -194,8 +190,10 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         log.debug("Visiting type struct definition");
         var self = this;
         var typeStructContainer = this.getChildContainer();
-        var typeStructDefinitionView = new TypeStructDefinition({model: typeStructDefinition,container: typeStructContainer,
-            toolPalette: this.toolPalette, parentView: this});
+        var typeStructDefinitionView = new TypeStructDefinition({
+            model: typeStructDefinition, container: typeStructContainer,
+            toolPalette: this.toolPalette, parentView: this
+        });
         typeStructDefinitionView.render(this.diagramRenderingContext);
     };
 
@@ -223,12 +221,12 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
     };
 
 
-
     /**
      * Receives the attributes disconnected
      * @param connection object
      */
     TypeMapperDefinitionView.prototype.onAttributesDisConnect = function (connection) {
+
         connection.targetReference.getParent().removeAssignmentDefinition(connection.sourceProperty,
             connection.targetProperty);
     };
