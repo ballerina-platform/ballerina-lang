@@ -45,24 +45,29 @@
         <dependencies>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.launcher</artifactId>
+                <artifactId>org.wso2.carbon.core</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.kernel.feature</artifactId>
-                <version>${carbon.kernel.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.runtime.feature</artifactId>
-                <version>${carbon.kernel.version}</version>
-                <type>zip</type>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.wso2.carbon</groupId>-->
+                <!--<artifactId>org.wso2.carbon.kernel.feature</artifactId>-->
+                <!--<version>${carbon.kernel.version}</version>-->
+                <!--<type>zip</type>-->
+            <!--</dependency>-->
+            <!--<dependency>-->
+                <!--<groupId>org.wso2.carbon</groupId>-->
+                <!--<artifactId>org.wso2.carbon.runtime.feature</artifactId>-->
+                <!--<version>${carbon.kernel.version}</version>-->
+                <!--<type>zip</type>-->
+            <!--</dependency>-->
             <dependency>
                 <groupId>org.wso2.ballerina</groupId>
                 <artifactId>ballerina-core</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.ballerina</groupId>
+                <artifactId>ballerina-launcher</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -140,6 +145,11 @@
                 <version>${geronimo.stax}</version>
             </dependency>
             <dependency>
+                <groupId>org.wso2.staxon</groupId>
+                <artifactId>staxon-core</artifactId>
+                <version>${staxon.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.james</groupId>
                 <artifactId>apache-mime4j-core</artifactId>
                 <version>${mime4j.version}</version>
@@ -175,6 +185,16 @@
                 <artifactId>slf4j-log4j12</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-nop</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons.lang3.version}</version>
+            </dependency>
 
             <!-- JSON dependencies -->
             <dependency>
@@ -202,6 +222,52 @@
                 <groupId>org.wso2.ballerina</groupId>
                 <artifactId>gson-fragment</artifactId>
                 <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.beust</groupId>
+                <artifactId>jcommander</artifactId>
+                <version>${jcommander.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-common</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-buffer</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-transport</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-handler</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-http</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-pool.wso2</groupId>
+                <artifactId>commons-pool</artifactId>
+                <version>${commons.pool.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${org.snakeyaml.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -326,7 +392,7 @@
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.pax.version>5.2.0-m2</carbon.kernel.pax.version>
 
-        <carbon.transport.version>3.0.2</carbon.transport.version>
+        <carbon.transport.version>3.0.4</carbon.transport.version>
         <carbon.transport.package.import.version.range>[3.0.0, 3.1.0)</carbon.transport.package.import.version.range>
 
         <carbon.messaging.version>1.0.11</carbon.messaging.version>
@@ -335,11 +401,12 @@
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.deployment.export.version>5.0.0</carbon.deployment.export.version>
 
-        <slf4j.version>1.7.5</slf4j.version>
+        <slf4j.version>1.7.22</slf4j.version>
         <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)
         </slf4j.logging.package.import.version.range>
 
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
+        <commons.lang3.version>3.5</commons.lang3.version>
         
         <!-- json dependencies -->
         <gson.version>2.7</gson.version>
@@ -359,6 +426,7 @@
         <geronimo.activation>1.1</geronimo.activation>
         <geronimo.stax>1.0.1</geronimo.stax>
         <mime4j.version>0.7.2</mime4j.version>
+        <staxon.version>1.2.0.wso2v2</staxon.version>
 
         <!--pax-exam dependencies-->
         <javax.inject.version>1</javax.inject.version>
@@ -371,15 +439,24 @@
         <maven.paxexam.plugin.version>1.2.4</maven.paxexam.plugin.version>
         <mockito.version>1.9.0</mockito.version>
 
+        <!-- netty version -->
+        <netty.version>4.0.30.Final</netty.version>
+
+        <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
+        <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
+        <jcommander.version>1.60</jcommander.version>
+
     </properties>
 
     <modules>
         <module>modules/ballerina-core</module>
-        <module>modules/gson-fragment</module>
-        <module>modules/features</module>
+        <module>modules/launcher</module>
+        <!--<module>modules/gson-fragment</module>-->
+        <!--<module>modules/features</module>-->
         <module>modules/editor/services/workspace-service</module>
         <module>modules/distribution</module>
         <!--<module>modules/tests</module>-->
+        <module>modules/tests/test-integration</module>
     </modules>
 
 </project>

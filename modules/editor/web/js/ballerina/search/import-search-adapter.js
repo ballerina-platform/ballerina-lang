@@ -15,28 +15,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash' , 'log', 'jquery', 'backbone', './../views/backend'],
-    function (require, _ , log, $, Backbone, Backend ) {
+define(['./../env/environment'],
+    function (BallerinaEnvironment ) {
 
     ImportSearchAdapter = function(){
         this._excludes = [];
-    }
+    };
 
     ImportSearchAdapter.prototype = {
 
         search: function (query) {
-            var backend = new Backend({ url: ""});
-            return backend.searchPackage(query, this._excludes);
+            return BallerinaEnvironment.searchPackage(query, this._excludes);
         },
 
         render: function (item){
-            return item.name;            
+            return item.getName();
         },
 
         setExcludes: function(excludes){
             var self = this;
-            _.forEach(excludes,function(o){
-                self._excludes.push(o.name);
+            _.forEach(excludes,function(exclude){
+                self._excludes.push(exclude.getName());
             });
         }
 

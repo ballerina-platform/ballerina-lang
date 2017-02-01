@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './../ast/else-statement', 'd3utils', 'd3', './point'],
-    function (require, _, $, log, BallerinaStatementView, ElseStatement, D3Utils, d3, Point) {
+define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './../ast/else-statement', 'd3utils', 'd3', './point', 'ballerina/ast/ballerina-ast-factory'],
+    function (require, _, $, log, BallerinaStatementView, ElseStatement, D3Utils, d3, Point, BallerinaASTFactory) {
 
         /**
          * The view to represent a Else statement which is an AST visitor.
@@ -35,7 +35,6 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             // Initialize the bounding box
             this.getBoundingBox().fromTopCenter(this.getTopCenter(),
                 _.get(this._viewOptions, 'width'),  _.get(this._viewOptions, 'height'));
-            this.init();
         };
 
         ElseStatementView.prototype = Object.create(BallerinaStatementView.prototype);
@@ -43,10 +42,6 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
 
         ElseStatementView.prototype.canVisitElseStatement = function(){
             return true;
-        };
-
-        ElseStatementView.prototype.init = function () {
-            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
         };
 
         /**
@@ -141,10 +136,8 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
             var StatementContainer = require('./statement-container');
             this._statementContainer = new StatementContainer(statementContainerOpts);
-            this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy){
-                if(this.getBoundingBox().getBottom() < this._statementContainer.getBoundingBox().getBottom()){
-                    this.getBoundingBox().h(this.getBoundingBox().h() + dy);
-                }
+            this.listenTo(this._statementContainer.getBoundingBox(), 'height-changed', function(dh){
+                this.getBoundingBox().h(this.getBoundingBox().h() + dh);
             });
 
             this.getBoundingBox().on('top-edge-moved', function (dy) {
@@ -157,6 +150,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
                     this.getBoundingBox().w(this.getBoundingBox().w() + dw);
                 }
             });
+
             this._statementContainer.render(this._diagramRenderingContext);
         };
 
@@ -192,6 +186,24 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
 
         ElseStatementView.prototype.getContainer = function () {
             return this._container;
+        };
+
+        /**
+         * Get the statement container
+         * @return {StatementContainer} - Statement container
+         */
+        ElseStatementView.prototype.getStatementContainer = function () {
+            return this._statementContainer;
+        };
+
+        /**
+         * Override Child remove callback
+         * @param {ASTNode} child - removed child
+         */
+        ElseStatementView.prototype.childRemovedCallback = function (child) {
+            if (BallerinaASTFactory.isStatement(child)) {
+                this.getStatementContainer().childStatementRemovedCallback(child);
+            }
         };
 
         return ElseStatementView;

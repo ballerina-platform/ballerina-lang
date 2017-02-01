@@ -35,7 +35,10 @@ public class Constants {
     public static final String PROTOCOL_HTTP = "http";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String HTTP_METHOD = "HTTP_METHOD";
+    public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
+    public static final String HTTP_REASON_PHRASE = "HTTP_REASON_PHRASE";
     public static final String HTTP_CONTENT_LENGTH = "Content-Length";
+    public static final String USER_AGENT_HEADER = "User-Agent";
     public static final String PROTOCOL = "PROTOCOL";
     public static final String HOST = "HOST";
     public static final String PORT = "PORT";
@@ -48,6 +51,7 @@ public class Constants {
     public static final String HTTP_METHOD_PATCH = "PATCH";
     public static final String HTTP_METHOD_DELETE = "DELETE";
     public static final String HTTP_METHOD_OPTIONS = "OPTIONS";
+    public static final String HTTP_METHOD_HEAD = "HEAD";
 
     /* Annotations */
     public static final String ANNOTATION_NAME_SOURCE = "Source";

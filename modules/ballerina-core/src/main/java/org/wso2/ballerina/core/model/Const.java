@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
-public class Const implements Node {
+public class Const extends PositionAwareNode implements Node {
 
     private BType type;
     private SymbolName symbolName;
