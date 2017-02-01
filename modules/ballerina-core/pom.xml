@@ -129,7 +129,7 @@
                 <version>0.7.8</version>
                 <configuration>
                     <excludes>
-                        <exclude>org/wso2/ballerina/core/parser/*</exclude>
+                        <exclude>org/wso2/ballerina/core/parser/Ballerina*</exclude>
                     </excludes>
                     <destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
                 </configuration>
@@ -181,7 +181,7 @@
                     </execution>
                     <execution>
                         <id>jacoco-site</id>
-                        <phase>package</phase>
+                        <phase>test</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
