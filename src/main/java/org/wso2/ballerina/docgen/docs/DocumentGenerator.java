@@ -21,12 +21,15 @@ import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
 import org.wso2.ballerina.core.interpreter.ConstantLocation;
 import org.wso2.ballerina.core.interpreter.LocalVarLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
+import org.wso2.ballerina.core.interpreter.StructVarLocation;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
+import org.wso2.ballerina.core.model.BallerinaStruct;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.Function;
@@ -35,6 +38,7 @@ import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
@@ -58,7 +62,10 @@ import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
+import org.wso2.ballerina.core.model.expressions.StructInitExpr;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
+import org.wso2.ballerina.core.model.expressions.TypeCastExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
@@ -423,5 +430,47 @@ public class DocumentGenerator implements NodeVisitor {
 
     @Override
     public void visit(MainInvoker arg0) {
+    }
+
+    @Override
+    public void visit(BTypeConvertor arg0) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void visit(BallerinaStruct arg0) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void visit(StructDcl arg0) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void visit(TypeCastExpression arg0) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void visit(StructVarLocation arg0) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void visit(StructInitExpr arg0) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void visit(StructFieldAccessExpr arg0) {
+        // TODO Auto-generated method stub
+        
     }
 }
