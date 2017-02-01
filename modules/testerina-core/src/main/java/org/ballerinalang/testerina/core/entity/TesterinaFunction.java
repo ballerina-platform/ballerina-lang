@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.testerina.core.entity;
+package org.ballerinalang.testerina.core.entity;
 
 import org.wso2.ballerina.core.exception.AssertionException;
 import org.wso2.ballerina.core.model.Function;
@@ -46,7 +46,7 @@ public class TesterinaFunction {
         private Type(String prefix) {
             this.prefix = prefix;
         }
-    };
+    }
 
     TesterinaFunction(String name, Type type, Function bFunction, TesterinaFile tFile) {
         this.name = name;

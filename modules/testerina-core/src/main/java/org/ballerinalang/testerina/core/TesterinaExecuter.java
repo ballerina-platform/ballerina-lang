@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.testerina.core;
+package org.ballerinalang.testerina.core;
 
 //import org.wso2.ballerina.core.exception.LinkerException;
 import org.wso2.ballerina.core.exception.AssertionException;
@@ -30,8 +30,8 @@ import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnString;
 //import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.FunctionUtils;
 import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.testerina.core.entity.TesterinaFile;
-import org.wso2.testerina.core.entity.TesterinaFunction;
+import org.ballerinalang.testerina.core.entity.TesterinaFile;
+import org.ballerinalang.testerina.core.entity.TesterinaFunction;
 
 import java.io.File;
 import java.util.ArrayList;
