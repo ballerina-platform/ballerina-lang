@@ -117,6 +117,7 @@ public class BallerinaConnectorManager {
                         serverConnector.setMessageProcessor(messageProcessor);
                         registerServerConnector(serverConnector);
                     });
+                    registerServerConnectorProvider(serverConnectorProvider);
                 });
 
         //2. Loading transport listener error handlers
