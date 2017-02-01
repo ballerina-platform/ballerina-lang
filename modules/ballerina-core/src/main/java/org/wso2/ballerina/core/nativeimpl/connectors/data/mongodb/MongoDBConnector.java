@@ -17,7 +17,9 @@
  */
 package org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb;
 
-import com.google.gson.stream.JsonWriter;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.BaseJsonNode;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.ReadConcern;
@@ -260,7 +262,7 @@ public class MongoDBConnector extends AbstractNativeConnector {
     }
     
     /**
-     * MongoDB result cursor implementation of {@link JSONDataSource}.
+     * MongoDB result cursor implementation of {@link BasicJson}.
      */
     private static class MongoJSONDataSource implements JSONDataSource {
 
@@ -271,12 +273,13 @@ public class MongoDBConnector extends AbstractNativeConnector {
         }
         
         @Override
-        public void serialize(JsonWriter writer) throws IOException {
-            writer.beginArray();
+        public void serialize(JsonGenerator gen) throws IOException {
+            gen.writeStartArray();
+            ObjectMapper mapper = new ObjectMapper();
             while (this.mc.hasNext()) {
-                writer.jsonValue(this.mc.next().toJson());
+                ((BaseJsonNode) mapper.readTree(this.mc.next().toJson())).serialize(gen, null);
             }
-            writer.endArray();
+            gen.writeEndArray();
         }
         
     }
