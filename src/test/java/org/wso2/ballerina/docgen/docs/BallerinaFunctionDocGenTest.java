@@ -20,7 +20,7 @@ package org.wso2.ballerina.docgen.docs;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.docgen.docs.model.BallerinaFunctionDoc;
+import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.docgen.docs.model.BallerinaPackageDoc;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocGenTestUtils;
 
@@ -45,12 +45,12 @@ public class BallerinaFunctionDocGenTest {
             BallerinaDocGenTestUtils.printDocMap(docsMap);
             
             BallerinaPackageDoc doc = docsMap.get("a.b");
-            List<BallerinaFunctionDoc> funcDocs = doc.getFunctionDocs();
-            Assert.assertEquals(funcDocs.size(), 1);
-            BallerinaFunctionDoc funcDoc = funcDocs.get(0);
-            Assert.assertEquals(funcDoc.getParameters().size(), 1);
-            Assert.assertEquals(funcDoc.getReturnParameters().size(), 1);
-            Assert.assertEquals(funcDoc.getThrownExceptions().size(), 0);
+            List<BallerinaFunction> function = doc.getFunctionDocs();
+            Assert.assertEquals(function.size(), 1);
+            BallerinaFunction funcDoc = function.get(0);
+            Assert.assertEquals(funcDoc.getParameters().length, 1);
+            Assert.assertEquals(funcDoc.getReturnParameters().length, 1);
+            //Assert.assertEquals(funcDoc.getThrownExceptions().size(), 0);
         } finally {
             BallerinaDocGenTestUtils.cleanUp();
         }
@@ -66,17 +66,15 @@ public class BallerinaFunctionDocGenTest {
             BallerinaDocGenTestUtils.printDocMap(docsMap);
             
             BallerinaPackageDoc doc = docsMap.get("a.b");
-            List<BallerinaFunctionDoc> funcDocs = doc.getFunctionDocs();
-            Assert.assertEquals(funcDocs.size(), 2);
-            BallerinaFunctionDoc funcDoc = funcDocs.get(0);
-            Assert.assertEquals(funcDoc.getParameters().size(), 1);
-            Assert.assertEquals(funcDoc.getReturnParameters().size(), 1);
-            Assert.assertEquals(funcDoc.getThrownExceptions().size(), 0);
+            List<BallerinaFunction> functions = doc.getFunctionDocs();
+            Assert.assertEquals(functions.size(), 2);
+            BallerinaFunction function = functions.get(0);
+            Assert.assertEquals(function.getParameters().length, 1);
+            Assert.assertEquals(function.getReturnParameters().length, 1);
 
-            BallerinaFunctionDoc funcDoc1 = funcDocs.get(1);
-            Assert.assertEquals(funcDoc1.getParameters().size(), 2);
-            Assert.assertEquals(funcDoc1.getReturnParameters().size(), 0);
-            Assert.assertEquals(funcDoc1.getThrownExceptions().size(), 0);
+            BallerinaFunction function1 = functions.get(1);
+            Assert.assertEquals(function1.getParameters().length, 2);
+            Assert.assertEquals(function1.getReturnParameters().length, 0);
         } finally {
             BallerinaDocGenTestUtils.cleanUp();
         }

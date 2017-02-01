@@ -18,6 +18,8 @@
 
 package org.wso2.ballerina.docgen.docs.model;
 
+import org.wso2.ballerina.core.model.BallerinaFunction;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +29,7 @@ import java.util.List;
 public class BallerinaPackageDoc {
 
     private String name;
-    private List<BallerinaFunctionDoc> functionDocs;
+    private List<BallerinaFunction> functions;
     private List<BallerinaConnectorDoc> connectorDocs;
 
     /**
@@ -36,7 +38,7 @@ public class BallerinaPackageDoc {
      */
     public BallerinaPackageDoc(String name) {
         this.name = name;
-        functionDocs = new ArrayList<BallerinaFunctionDoc>();
+        functions = new ArrayList<BallerinaFunction>();
         connectorDocs = new ArrayList<BallerinaConnectorDoc>();
     }
 
@@ -49,11 +51,11 @@ public class BallerinaPackageDoc {
     }
 
     /**
-     * Add a ballerina function document to the package
-     * @param ballerinaFunctionDoc Ballerina function document
+     * Add a ballerina function to the package
+     * @param ballerinaFunction Ballerina function
      */
-    public void addFunctionDoc(BallerinaFunctionDoc ballerinaFunctionDoc) {
-        functionDocs.add(ballerinaFunctionDoc);
+    public void addFunction(BallerinaFunction ballerinaFunction) {
+        functions.add(ballerinaFunction);
     }
 
     /**
@@ -66,26 +68,26 @@ public class BallerinaPackageDoc {
 
     /**
      * Add a list of ballerina function documents to the package
-     * @param ballerinaFunctionDocs Ballerina function documents
+     * @param ballerinaFunction Ballerina function documents
      */
-    public void addFunctionDocs(List<BallerinaFunctionDoc> ballerinaFunctionDocs) {
-        this.functionDocs.addAll(ballerinaFunctionDocs);
+    public void addFunctionDocs(List<BallerinaFunction> ballerinaFunction) {
+        this.functions.addAll(ballerinaFunction);
     }
 
     /**
      * Remove ballerina function document
-     * @param ballerinaFunctionDoc Ballerina function document
+     * @param ballerinaFunction Ballerina function document
      */
-    public void removeFunctionDocs(BallerinaFunctionDoc ballerinaFunctionDoc) {
-        functionDocs.remove(ballerinaFunctionDoc);
+    public void removeFunctionDocs(BallerinaFunction ballerinaFunction) {
+        functions.remove(ballerinaFunction);
     }
 
     /**
      * Get ballerina function documents.
      * @return
      */
-    public List<BallerinaFunctionDoc> getFunctionDocs() {
-        return functionDocs;
+    public List<BallerinaFunction> getFunctionDocs() {
+        return functions;
     }
 
     /**
@@ -106,7 +108,7 @@ public class BallerinaPackageDoc {
 
     @Override
     public String toString() {
-        return "BallerinaPackageDoc [name=" + name + ", ballerinaFunctionDocs=" + functionDocs
+        return "BallerinaPackageDoc [name=" + name + ", ballerinaFunctionDocs=" + functions
                 + ", ballerinaConnectorDocs=" + connectorDocs + "]";
     }
 }

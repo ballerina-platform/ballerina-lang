@@ -80,9 +80,7 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.docgen.docs.model.BallerinaActionDoc;
 import org.wso2.ballerina.docgen.docs.model.BallerinaConnectorDoc;
-import org.wso2.ballerina.docgen.docs.model.BallerinaFunctionDoc;
 import org.wso2.ballerina.docgen.docs.model.BallerinaPackageDoc;
-import org.wso2.ballerina.docgen.docs.model.BallerinaParameterDoc;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocUtils;
 
 /**
@@ -92,14 +90,14 @@ import org.wso2.ballerina.docgen.docs.utils.BallerinaDocUtils;
  */
 public class DocumentGenerator implements NodeVisitor {
     private String currentPkg;
-    private BallerinaPackageDoc ballerinaDoc;
+    private BallerinaPackageDoc packageDoc;
 
     public DocumentGenerator(BallerinaFile bFile, SymScope globalScope) {
         currentPkg = bFile.getPackageName();
-        ballerinaDoc = BallerinaDocDataHolder.getInstance().getBallerinaPackageDocsMap().get(currentPkg);
-        if (ballerinaDoc == null) {
-            ballerinaDoc = new BallerinaPackageDoc(currentPkg);
-            BallerinaDocDataHolder.getInstance().getBallerinaPackageDocsMap().put(currentPkg, ballerinaDoc);
+        packageDoc = BallerinaDocDataHolder.getInstance().getBallerinaPackageDocsMap().get(currentPkg);
+        if (packageDoc == null) {
+            packageDoc = new BallerinaPackageDoc(currentPkg);
+            BallerinaDocDataHolder.getInstance().getBallerinaPackageDocsMap().put(currentPkg, packageDoc);
         }
     }
 
@@ -197,61 +195,7 @@ public class DocumentGenerator implements NodeVisitor {
 
     @Override
     public void visit(BallerinaFunction function) {
-        BallerinaFunctionDoc doc = new BallerinaFunctionDoc();
-        BallerinaDocDataHolder.getInstance().getBallerinaPackageDocsMap().get(currentPkg).addFunctionDoc(doc);
-
-        StringBuilder s = new StringBuilder("function " + function.getFunctionName() + " (");
-        for (Parameter parameter : function.getParameters()) {
-            // Prepare parameter signature
-            String parameterName = (parameter.getName() != null) ? parameter.getName().getName() : "";
-            s.append(BallerinaDocUtils.getType(parameter.getType()) + " " + parameterName + ", ");
-
-            // Add parameter to the function document
-            doc.addParameter(new BallerinaParameterDoc(parameterName, BallerinaDocUtils.getType(parameter.getType())));
-        }
-        s = new StringBuilder(s.substring(0, s.length() - 2).concat(")"));
-
-        if ((function.getReturnParameters() != null) && (function.getReturnParameters().length > 0)) {
-            s.append(" (");
-            for (Parameter parameter : function.getReturnParameters()) {
-                // Prepare return parameter signature
-                s.append(BallerinaDocUtils.getType(parameter.getType()) + " " + parameter.getName() + ", ");
-
-                // Add return parameters to the function document
-                String parameterName = (parameter.getName() != null) ? parameter.getName().getName() : "";
-                doc.addReturnParameter(new BallerinaParameterDoc(parameterName,
-                        BallerinaDocUtils.getType(parameter.getType())));
-            }
-            s = new StringBuilder(s.substring(0, s.length() - 2).concat(")"));
-        }
-        doc.setSignature(s.toString());
-
-        // Read function annotations
-        for (Annotation annotation : function.getAnnotations()) {
-            if (annotation.getName().equalsIgnoreCase("param")) {
-                // Set parameter description
-                String[] paramValues = annotation.getValue().split(":");
-                if (paramValues.length == 2) {
-                    BallerinaParameterDoc parameterDoc = doc.getParameter(paramValues[0]);
-                    if (parameterDoc != null) {
-                        parameterDoc.setDescription(paramValues[1]);
-                    }
-                }
-            } else if (annotation.getName().equalsIgnoreCase("description")) {
-                doc.setDescription(annotation.getValue());
-            } else if (annotation.getName().equalsIgnoreCase("return")) {
-                // Set return parameter description
-                String[] paramValues = annotation.getValue().split(":");
-                if (paramValues.length == 2) {
-                    BallerinaParameterDoc parameterDoc = doc.getReturnParameter(paramValues[0]);
-                    if (parameterDoc != null) {
-                        parameterDoc.setDescription(paramValues[1]);
-                    }
-                }
-            } else if (annotation.getName().equalsIgnoreCase("throws")) {
-                doc.getThrownExceptions().add(annotation.getValue());
-            }
-        }
+        BallerinaDocDataHolder.getInstance().getBallerinaPackageDocsMap().get(currentPkg).addFunction(function);
     }
 
     @Override

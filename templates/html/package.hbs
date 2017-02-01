@@ -30,7 +30,7 @@
 						    {{#each functionDocs}}
 						        <div style="padding-bottom: 30px;">
                                 <h3>
-                                   {{signature}}
+                                   function {{functionName}}({{#each parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}
                                 </h3>
                                 <p>{{description}}</p>
 
@@ -42,7 +42,7 @@
                                     </tr>
                                     {{#each parameters}}
                                     <tr>
-                                        <td>{{name}}</td><td>{{dataType}}</td><td>{{description}}</td>
+                                        <td>{{name}}</td><td>{{type}}</td><td>{{description}}</td>
                                     </tr>
                                     {{/each}}
                                 </table>
@@ -57,7 +57,7 @@
                                     </tr>
                                     {{#each returnParameters}}
                                     <tr>
-                                        <td>{{name}}</td><td>{{dataType}}</td><td>{{description}}</td>
+                                        <td>{{name}}</td><td>{{type}}</td><td>{{description}}</td>
                                     </tr>
                                     {{/each}}
                                 </table>
