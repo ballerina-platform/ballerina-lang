@@ -60,6 +60,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         var self = this;
         this._assignedModel = this;
 
+        console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         //todo get current package name dynamically
         var predefinedStructs = diagramRenderingContext.getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
         console.log(predefinedStructs);
@@ -204,10 +205,10 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
 
         var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
         var leftOp = BallerinaASTFactory.createLeftOperandExpression();
-        var leftOperandExpression = "x." + connection.sourceProperty;
+        var leftOperandExpression = "x." + connection.targetProperty;
         leftOp.setLeftOperandExpressionString(leftOperandExpression);
         var rightOp = BallerinaASTFactory.createRightOperandExpression();
-        var rightOperandExpression = "y." + connection.targetProperty;
+        var rightOperandExpression = "y." + connection.sourceProperty;
         rightOp.setRightOperandExpressionString(rightOperandExpression);
         assignmentStmt.addChild(leftOp);
         assignmentStmt.addChild(rightOp);
@@ -226,6 +227,8 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
      */
     TypeMapperDefinitionView.prototype.onAttributesDisConnect = function (connection) {
 
+        connection.targetReference.getParent().removeAssignmentDefinition(connection.sourceProperty,
+            connection.targetProperty);
     };
 
     return TypeMapperDefinitionView;
