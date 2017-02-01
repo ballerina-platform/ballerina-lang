@@ -21,10 +21,10 @@ import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
-import org.wso2.ballerina.core.runtime.errors.handler.ServerConnectorErrorHandler;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
+import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 
 import java.nio.charset.Charset;
 import java.util.HashMap;

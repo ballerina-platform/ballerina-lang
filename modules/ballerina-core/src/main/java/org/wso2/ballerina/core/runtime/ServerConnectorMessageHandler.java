@@ -24,15 +24,17 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.core.runtime.dispatching.ResourceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
 import org.wso2.ballerina.core.runtime.errors.handler.DefaultServerConnectorErrorHandler;
 import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
-import org.wso2.ballerina.core.runtime.errors.handler.ServerConnectorErrorHandler;
-import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
+
+import java.util.Optional;
 
 /**
  * {@code ServerConnectorMessageHandler} is responsible for bridging Ballerina Program and External Server Connector.
@@ -112,17 +114,12 @@ public class ServerConnectorMessageHandler {
         log.error(errorMsg + "\n" + stacktrace);
         
         Object protocol = cMsg.getProperty("PROTOCOL");
-        Object errorHandler = null;
-        if (protocol != null) {
-            errorHandler = ServiceContextHolder.getInstance().getErrorHandler((String) protocol);
-        }
+        Optional<ServerConnectorErrorHandler> optionalErrorHandler =
+                BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
 
-        if (errorHandler == null) {
-            errorHandler = DefaultServerConnectorErrorHandler.getInstance();
-        }
-
-        ((ServerConnectorErrorHandler) errorHandler)
-            .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext), cMsg, callback);
+        optionalErrorHandler
+                .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
+                .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext), cMsg, callback);
     }
 
 }
