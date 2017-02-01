@@ -31,6 +31,8 @@ import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnString;
 //import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.FunctionUtils;
 import org.wso2.ballerina.core.utils.ParserUtils;
+import org.wso2.testerina.core.entity.TesterinaFile;
+import org.wso2.testerina.core.entity.TesterinaFunction;
 
 import java.io.File;
 import java.util.ArrayList;

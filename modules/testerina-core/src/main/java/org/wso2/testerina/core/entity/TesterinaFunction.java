@@ -1,4 +1,4 @@
-package org.wso2.testerina.core;
+package org.wso2.testerina.core.entity;
 
 import org.wso2.ballerina.core.exception.AssertionException;
 import org.wso2.ballerina.core.model.Function;
