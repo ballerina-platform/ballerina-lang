@@ -27,7 +27,6 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -111,14 +110,15 @@ public class DistinctcountAttributeAggregator extends AttributeAggregator {
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("DistinctValues", distinctValues)};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("DistinctValues", distinctValues);
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-        distinctValues = (Map<Object, Long>) stateEntry.getValue();
+    public void restoreState(Map<String, Object> state) {
+        distinctValues = (Map<Object, Long>) state.get("DistinctValues");
     }
 
     private long getDistinctCount() {

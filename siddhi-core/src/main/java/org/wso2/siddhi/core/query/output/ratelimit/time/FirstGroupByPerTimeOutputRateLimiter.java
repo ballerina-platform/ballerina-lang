@@ -28,8 +28,8 @@ import org.wso2.siddhi.core.util.Schedulable;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.parser.SchedulerParser;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
@@ -113,16 +113,18 @@ public class FirstGroupByPerTimeOutputRateLimiter extends OutputRateLimiter impl
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("AllComplexEventChunk", allComplexEventChunk), new AbstractMap.SimpleEntry<String, Object>("GroupByKeys", groupByKeys)};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("AllComplexEventChunk", allComplexEventChunk.getFirst());
+        state.put("GroupByKeys", groupByKeys);
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-        allComplexEventChunk = (ComplexEventChunk<ComplexEvent>) stateEntry.getValue();
-        Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
-        groupByKeys = (List<String>) stateEntry2.getValue();
+    public void restoreState(Map<String, Object> state) {
+        allComplexEventChunk.clear();
+        allComplexEventChunk.add((ComplexEvent) state.get("AllComplexEventChunk"));
+        groupByKeys = (List<String>) state.get("GroupByKeys");
     }
 
 }

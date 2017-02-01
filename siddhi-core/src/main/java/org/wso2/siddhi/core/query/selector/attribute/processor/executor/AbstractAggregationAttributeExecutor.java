@@ -40,7 +40,7 @@ public abstract class AbstractAggregationAttributeExecutor implements Expression
         this.size = attributeExpressionExecutors.length;
         this.queryName = queryName;
         if (elementId == null) {
-            elementId = "AbstractAggregationAttributeExecutor" + executionPlanContext.getElementIdGenerator().createNewId();
+            elementId = "AbstractAggregationAttributeExecutor-" + executionPlanContext.getElementIdGenerator().createNewId();
         }
         executionPlanContext.getSnapshotService().addSnapshotable(queryName, this);
     }

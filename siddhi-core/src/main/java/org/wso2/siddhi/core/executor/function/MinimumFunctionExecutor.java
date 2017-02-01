@@ -30,6 +30,8 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
+import java.util.Map;
+
 @Description("Returns the minimum value of the input parameters.")
 @Parameters({
         @Parameter(name = "arg", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
@@ -128,12 +130,12 @@ public class MinimumFunctionExecutor extends FunctionExecutor {
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[0];
+    public Map<String, Object> currentState() {
+        return null;
     }
 
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> state) {
 
     }
 }

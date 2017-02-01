@@ -113,14 +113,17 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends Aggr
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{eventList, groupByAggregateAttributeValueMap};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("EventList", eventList);
+        state.put("GroupByAggregateAttributeValueMap", groupByAggregateAttributeValueMap);
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        eventList = (LinkedList<GroupedComplexEvent>) state[0];
-        groupByAggregateAttributeValueMap = (Map<String, Map<Integer, Object>>) state[1];
+    public void restoreState(Map<String, Object> state) {
+        eventList = (LinkedList<GroupedComplexEvent>) state.get("EventList");
+        groupByAggregateAttributeValueMap = (Map<String, Map<Integer, Object>>) state.get("GroupByAggregateAttributeValueMap");
     }
 
     @Override

@@ -244,7 +244,7 @@ public class EventTestCase {
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
         StreamDefinition outStreamDefinition = StreamDefinition.id("outputStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT);
         Query query = new Query();
-        query.annotation(Annotation.annotation("info").element("name", "query1"));
+        query.annotation(Annotation.create("info").element("name", "query1"));
         query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"), Compare.Operator.NOT_EQUAL, Expression.value(50))));
         query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression.variable("price")));
         query.insertInto("outputStream");

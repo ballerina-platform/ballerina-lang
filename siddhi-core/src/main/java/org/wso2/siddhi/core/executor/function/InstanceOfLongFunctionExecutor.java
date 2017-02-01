@@ -28,6 +28,8 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
+import java.util.Map;
+
 /**
  * instanceOfLong(input)
  * This method returns true if and only if the input is a instance of Long
@@ -80,12 +82,12 @@ public class InstanceOfLongFunctionExecutor extends FunctionExecutor {
     }
 
     @Override
-    public Object[] currentState() {
+    public Map<String, Object> currentState() {
         return null;
     }
 
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> state) {
 
     }
 }

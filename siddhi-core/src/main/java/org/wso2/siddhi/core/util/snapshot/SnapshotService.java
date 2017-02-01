@@ -19,9 +19,11 @@ package org.wso2.siddhi.core.util.snapshot;
 
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.debugger.QueryState;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SnapshotService {
 
@@ -50,7 +52,7 @@ public class SnapshotService {
     }
 
     public byte[] snapshot() {
-        HashMap<String, Object[]> snapshots = new HashMap<String, Object[]>(snapshotableMap.size());
+        HashMap<String, Map<String, Object>> snapshots = new HashMap<>(snapshotableMap.size());
         List<Snapshotable> snapshotableList = new ArrayList<Snapshotable>();
         log.debug("Taking snapshot ...");
         try {
@@ -74,34 +76,18 @@ public class SnapshotService {
 
     }
 
-    public QueryState queryState(String queryName) {
-        QueryState queryState = new QueryState();
+    public Map<String, Object> queryState(String queryName) {
+        Map<String, Object> state = new HashMap<>();
         try {
             // Lock the threads in Siddhi
             executionPlanContext.getThreadBarrier().lock();
             List<Snapshotable> list = snapshotableMap.get(queryName);
+
             if (list != null) {
                 for (Snapshotable element : list) {
-                    Map<String, Object> subMap = new HashMap<String, Object>();
-                    List<Object> unknownFieldList = new ArrayList<Object>();
-                    Object[] currentState = element.currentState();
+                    Map<String, Object> elementState = element.currentState();
                     String elementId = element.getElementId();
-                    for (Object state : currentState) {
-                        if (state instanceof Map.Entry) {
-                            subMap.put((String) ((Map.Entry) state).getKey(), ((Map.Entry) state).getValue());
-                        } else {
-                            unknownFieldList.add(state);
-                        }
-                    }
-                    if (subMap.size() != 0) {
-                        queryState.addKnownFields(new AbstractMap.SimpleEntry<String, Map<String, Object>>
-                                (elementId, subMap));
-                    }
-                    if (unknownFieldList.size() != 0) {
-                        queryState.addUnknownFields(new AbstractMap.SimpleEntry<String, Object[]>(elementId,
-                                unknownFieldList.toArray()));
-                    }
-
+                    state.put(elementId, elementState);
                 }
             }
 
@@ -110,13 +96,13 @@ public class SnapshotService {
         }
         log.debug("Taking snapshot finished.");
 
-        return queryState;
+        return state;
 
     }
 
 
     public void restore(byte[] snapshot) {
-        HashMap<String, Object[]> snapshots = (HashMap<String, Object[]>) ByteSerializer.BToO(snapshot);
+        HashMap<String, Map<String, Object>> snapshots = (HashMap<String, Map<String, Object>>) ByteSerializer.BToO(snapshot);
         List<Snapshotable> snapshotableList;
         try {
             this.executionPlanContext.getThreadBarrier().lock();

@@ -26,19 +26,14 @@ import java.util.List;
 public class Annotation {
     private String name;
     private List<Element> elements = new ArrayList<Element>();
+    private List<Annotation> annotations = new ArrayList<Annotation>();
 
     public Annotation(String name) {
         this.name = name;
     }
 
-    public Annotation element(String key, String value) {
-        elements.add(new Element(key, value));
-        return this;
-    }
-
-    public Annotation element(String value) {
-        elements.add(new Element(null, value));
-        return this;
+    public static Annotation create(String name) {
+        return new Annotation(name);
     }
 
     public String getName() {
@@ -57,22 +52,55 @@ public class Annotation {
         this.elements = elements;
     }
 
+    public String getElement(String key) {
+        for (Element element : elements) {
+            if (element.getKey().equalsIgnoreCase(key)) {
+                return element.getValue();
+            }
+        }
+        return null;
+    }
+
+    public Annotation element(String key, String value) {
+        elements.add(new Element(key, value));
+        return this;
+    }
+
+    public Annotation element(String value) {
+        elements.add(new Element(null, value));
+        return this;
+    }
+
     public Annotation element(Element element) {
         this.elements.add(element);
         return this;
     }
 
-    public static Annotation annotation(String name) {
-        return new Annotation(name);
+    public List<Annotation> getAnnotations() {
+        return annotations;
     }
 
-    public String getElement(String key){
-        for(Element element : elements){
-            if(element.getKey().equalsIgnoreCase(key)){
-                return element.getValue();
+    public void setAnnotations(List<Annotation> annotations) {
+        this.annotations = annotations;
+    }
+
+    public Annotation getAnnotation(String name) {
+        for (Annotation annotation : annotations) {
+            if (annotation.getName().equalsIgnoreCase(name)) {
+                return annotation;
             }
         }
         return null;
+    }
+
+    public Annotation annotation(String name) {
+        annotations.add(create(name));
+        return this;
+    }
+
+    public Annotation annotation(Annotation annotation) {
+        annotations.add(annotation);
+        return this;
     }
 
     @Override
@@ -80,26 +108,28 @@ public class Annotation {
         return "Annotation{" +
                 "name='" + name + '\'' +
                 ", elements=" + elements +
+                ", annotations=" + annotations +
                 '}';
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Annotation)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         Annotation that = (Annotation) o;
 
-        if (elements != null ? !elements.equals(that.elements) : that.elements != null) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (elements != null ? !elements.equals(that.elements) : that.elements != null) return false;
+        return annotations != null ? annotations.equals(that.annotations) : that.annotations == null;
 
-        return true;
     }
 
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (elements != null ? elements.hashCode() : 0);
+        result = 31 * result + (annotations != null ? annotations.hashCode() : 0);
         return result;
     }
 }

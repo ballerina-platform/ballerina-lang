@@ -29,6 +29,8 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
+import java.util.Map;
+
 @Description("Returns the the value of the arg1 parameter if the condition parameter is set to true, or returns " +
         "the value of the arg2 parameter if the condition parameter is set to false.")
 @Parameters({
@@ -98,12 +100,12 @@ public class IfThenElseFunctionExecutor extends FunctionExecutor {
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[0]; // No need to maintain a state.
+    public Map<String, Object> currentState() {
+        return null; // No need to maintain a state.
     }
 
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> state) {
         // Since there's no need to maintain a state, nothing needs to be done here.
     }
 

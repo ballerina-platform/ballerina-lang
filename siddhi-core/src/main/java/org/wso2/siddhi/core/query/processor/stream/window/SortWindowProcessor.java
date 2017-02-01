@@ -38,12 +38,7 @@ import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.Expression;
 
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Sample Query:
@@ -150,14 +145,16 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("SortedWindow", sortedWindow)};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("SortedWindow", sortedWindow);
+        return state;
     }
 
+
     @Override
-    public void restoreState(Object[] state) {
-        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-        sortedWindow = (ArrayList<StreamEvent>) stateEntry.getValue();
+    public void restoreState(Map<String, Object> state) {
+        sortedWindow = (ArrayList<StreamEvent>) state.get("SortedWindow");
     }
 
     @Override

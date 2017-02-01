@@ -26,7 +26,9 @@ import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.parser.SchedulerParser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class AllAggregationPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
@@ -104,13 +106,15 @@ public class AllAggregationPerSnapshotOutputRateLimiter extends SnapshotOutputRa
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{lastEvent};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("LastEvent", lastEvent);
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        lastEvent = (ComplexEvent) state[0];
+    public void restoreState(Map<String, Object> state) {
+        lastEvent = (ComplexEvent) state.get("LastEvent");
     }
 
 }

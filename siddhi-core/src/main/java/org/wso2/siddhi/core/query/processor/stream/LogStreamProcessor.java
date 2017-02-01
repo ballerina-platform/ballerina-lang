@@ -33,6 +33,7 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Input attributes to log is (priority (String), logMessage (String), isEventLogged (Bool))
@@ -198,13 +199,13 @@ public class LogStreamProcessor extends StreamProcessor {
 
 
     @Override
-    public Object[] currentState() {
+    public Map<String, Object> currentState() {
         //No state
         return null;
     }
 
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> state) {
         //Nothing to be done
     }
 

@@ -251,8 +251,8 @@ public class EventWindow implements FindableProcessor, Snapshotable {
      * @return current state of the EventWindow
      */
     @Override
-    public Object[] currentState() {
-        return new Object[]{this.internalWindowProcessor.currentState()};
+    public Map<String, Object> currentState() {
+        return this.internalWindowProcessor.currentState();
     }
 
     /**
@@ -261,8 +261,8 @@ public class EventWindow implements FindableProcessor, Snapshotable {
      * @param state the stateful objects of the element as an array on
      */
     @Override
-    public void restoreState(Object[] state) {
-        this.internalWindowProcessor.restoreState((Object[]) state[0]);
+    public void restoreState(Map<String, Object> state) {
+        this.internalWindowProcessor.restoreState(state);
     }
 
 

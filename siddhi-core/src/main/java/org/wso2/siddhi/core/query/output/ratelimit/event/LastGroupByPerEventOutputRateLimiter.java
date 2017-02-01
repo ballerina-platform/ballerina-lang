@@ -24,8 +24,8 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.GroupedComplexEvent;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -42,7 +42,7 @@ public class LastGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
 
     @Override
     public OutputRateLimiter clone(String key) {
-        LastGroupByPerEventOutputRateLimiter instance = new LastGroupByPerEventOutputRateLimiter(id+key,value);
+        LastGroupByPerEventOutputRateLimiter instance = new LastGroupByPerEventOutputRateLimiter(id + key, value);
         instance.setLatencyTracker(latencyTracker);
         return instance;
     }
@@ -89,15 +89,16 @@ public class LastGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("AllGroupByKeyEvents", allGroupByKeyEvents), new AbstractMap.SimpleEntry<String, Object>("Counter", counter)};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("Counter", counter);
+        state.put("AllGroupByKeyEvents", allGroupByKeyEvents);
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-        allGroupByKeyEvents = (Map<String, ComplexEvent>) stateEntry.getValue();
-        Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
-        counter = (Integer) stateEntry2.getValue();
+    public void restoreState(Map<String, Object> state) {
+        counter = (int) state.get("Counter");
+        allGroupByKeyEvents = (Map<String, ComplexEvent>) state.get("AllGroupByKeyEvents");
     }
 }

@@ -27,8 +27,8 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 @Description("This is the attribute aggregator to store the maximum value for a given " +
@@ -114,12 +114,12 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
     }
 
     @Override
-    public Object[] currentState() {
+    public Map<String, Object> currentState() {
         return maxForeverAttributeAggregator.currentState();
     }
 
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> state) {
         maxForeverAttributeAggregator.restoreState(state);
     }
 
@@ -156,14 +156,15 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("MaxValue", maxValue)};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("MaxValue", maxValue);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-            maxValue = (Double) stateEntry.getValue();
+        public void restoreState(Map<String, Object> state) {
+            maxValue = (Double) state.get("MaxValue");
         }
 
     }
@@ -201,14 +202,15 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("MaxValue", maxValue)};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("MaxValue", maxValue);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-            maxValue = (Float) stateEntry.getValue();
+        public void restoreState(Map<String, Object> state) {
+            maxValue = (Float) state.get("MaxValue");
         }
 
     }
@@ -246,14 +248,15 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("MaxValue", maxValue)};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("MaxValue", maxValue);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-            maxValue = (Integer) stateEntry.getValue();
+        public void restoreState(Map<String, Object> state) {
+            maxValue = (Integer) state.get("MaxValue");
         }
 
     }
@@ -291,14 +294,15 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("MaxValue", maxValue)};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("MaxValue", maxValue);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-            maxValue = (Long) stateEntry.getValue();
+        public void restoreState(Map<String, Object> state) {
+            maxValue = (Long) state.get("MaxValue");
         }
 
     }

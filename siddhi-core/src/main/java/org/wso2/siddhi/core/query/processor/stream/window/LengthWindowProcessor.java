@@ -37,7 +37,7 @@ import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 
-import java.util.AbstractMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -117,17 +117,20 @@ public class LengthWindowProcessor extends WindowProcessor implements FindablePr
         //Do nothing
     }
 
-    @Override
-    public Object[] currentState() {
-        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("ExpiredEventChunk", expiredEventChunk.getFirst()), new AbstractMap.SimpleEntry<String, Object>("Count", count)};
-    }
 
     @Override
-    public void restoreState(Object[] state) {
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("Count", count);
+        state.put("ExpiredEventChunk", expiredEventChunk.getFirst());
+        return state;
+    }
+
+
+    @Override
+    public void restoreState(Map<String, Object> state) {
+        count = (int) state.get("Count");
         expiredEventChunk.clear();
-        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-        expiredEventChunk.add((StreamEvent) stateEntry.getValue());
-        Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
-        count = (Integer) stateEntry2.getValue();
+        expiredEventChunk.add((StreamEvent) state.get("ExpiredEventChunk"));
     }
 }

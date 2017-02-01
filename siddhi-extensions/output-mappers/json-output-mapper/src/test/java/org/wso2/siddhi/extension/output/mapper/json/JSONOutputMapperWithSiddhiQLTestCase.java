@@ -210,7 +210,7 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
     //    publish inMemory options ("topic", "{{symbol}}")
     //    map json multiple mapping
     @Test
-    public void testTextOutputMultipleMappingWithSiddhiQL() throws InterruptedException {
+    public void testJSONOutputMultipleMappingWithSiddhiQL() throws InterruptedException {
         log.info("Test multiple json mapping with SiddhiQL");
         List<Object> onMessageList = new ArrayList<Object>();
 
@@ -226,23 +226,8 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
                 return "WSO2";
             }
         };
-
-        InMemoryBroker.Subscriber subscriberIBM = new InMemoryBroker.Subscriber() {
-            @Override
-            public void onMessage(Object msg) {
-                ibmCount.incrementAndGet();
-                onMessageList.add(msg);
-            }
-
-            @Override
-            public String getTopic() {
-                return "IBM";
-            }
-        };
-
         //subscribe to "inMemory" broker per topic
         InMemoryBroker.subscribe(subscriberWSO2);
-        InMemoryBroker.subscribe(subscriberIBM);
 
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
@@ -275,7 +260,7 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
 
         //assert event count
         Assert.assertEquals("Number of WSO2 events", 1, wso2Count.get());
-        //assert custom text
+        //assert custom json
         Assert.assertEquals("{\n" +
                 "   \"Stock Data\":{\n" +
                 "      \"Symbol\":\"WSO2\",\n" +
@@ -292,7 +277,6 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberWSO2);
-        InMemoryBroker.unsubscribe(subscriberIBM);
     }
 
     //    from FooStream

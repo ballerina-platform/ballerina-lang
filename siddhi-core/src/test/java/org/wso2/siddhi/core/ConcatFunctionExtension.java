@@ -24,6 +24,8 @@ import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
+import java.util.Map;
+
 /*
 * concat(string1, string2, ..., stringN)
 * Returns a string that is the result of concatenating two or more string values.
@@ -74,12 +76,12 @@ public class ConcatFunctionExtension extends FunctionExecutor{
     }
 
     @Override
-    public Object[] currentState() {
+    public Map<String, Object> currentState() {
         return null;    //No states
     }
 
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> state) {
         //Nothing to be done
     }
 }

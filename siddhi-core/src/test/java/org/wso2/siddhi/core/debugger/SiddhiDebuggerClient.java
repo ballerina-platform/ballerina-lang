@@ -27,6 +27,7 @@ import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -73,6 +74,11 @@ public class SiddhiDebuggerClient {
      * Command to skip the current breakpoint check.
      */
     private static final String PLAY = "play";
+
+    /**
+     * Command to get state of a query.
+     */
+    private static final String STATE = "state";
 
     /**
      * Query in terminal.
@@ -241,6 +247,7 @@ public class SiddhiDebuggerClient {
                 System.out.println("You can use the following commands:\n - " +
                         NEXT + "\n - " +
                         PLAY + "\n - " +
+                        STATE + ":<query name>\n - " +
                         STOP);
                 break;
             } else {
@@ -269,6 +276,23 @@ public class SiddhiDebuggerClient {
                     } else if (PLAY.equals(command)) {
                         debugger.play();
                         break;
+                    } else if (command.startsWith(STATE)) {
+                        if (!command.contains(QUERY_DELIMITER)) {
+                            error("Invalid get state request. The query must be " + STATE + ":<query " +
+                                    "name>. Please try again");
+                            printNextLine();
+                            continue;
+                        }
+                        String[] components = command.split(QUERY_DELIMITER);
+                        String requestQueryName = components[1];
+
+                        Map<String, Object> state = debugger.getQueryState(requestQueryName.trim());
+                        System.out.println("Query '" + requestQueryName + "' state : ");
+                        for (Map.Entry<String, Object> entry : state.entrySet()) {
+                            System.out.println("    '" + entry.getKey() + "' : " + entry.getValue());
+                        }
+                        printNextLine();
+                        continue;
                     } else {
                         error("Invalid command: " + command);
                         printNextLine();

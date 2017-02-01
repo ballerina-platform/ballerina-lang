@@ -27,8 +27,8 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 @Description("This is the attribute aggregator to store the minimum value for a given attribute " +
@@ -114,12 +114,12 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
     }
 
     @Override
-    public Object[] currentState() {
+    public Map<String, Object> currentState() {
         return minForeverAttributeAggregator.currentState();
     }
 
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> state) {
         minForeverAttributeAggregator.restoreState(state);
     }
 
@@ -156,14 +156,15 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("MinValue", minValue)};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("MinValue", minValue);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-            minValue = (Double) stateEntry.getValue();
+        public void restoreState(Map<String, Object> state) {
+            minValue = (Double) state.get("MinValue");
         }
 
     }
@@ -201,15 +202,17 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("MinValue", minValue)};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("MinValue", minValue);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-            minValue = (Float) stateEntry.getValue();
+        public void restoreState(Map<String, Object> state) {
+            minValue = (Float) state.get("MinValue");
         }
+
 
     }
 
@@ -246,15 +249,17 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("MinValue", minValue)};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("MinValue", minValue);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-            minValue = (Integer) stateEntry.getValue();
+        public void restoreState(Map<String, Object> state) {
+            minValue = (Integer) state.get("MinValue");
         }
+
 
     }
 
@@ -291,15 +296,17 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("MinValue", minValue)};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("MinValue", minValue);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
-            minValue = (Long) stateEntry.getValue();
+        public void restoreState(Map<String, Object> state) {
+            minValue = (Long) state.get("MinValue");
         }
+
 
     }
 

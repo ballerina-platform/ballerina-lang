@@ -23,6 +23,7 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -215,7 +216,7 @@ public class SiddhiDebugger {
      * @param queryName name of the Siddhi query
      * @return QueryState internal state of the query
      */
-    public QueryState getQueryState(String queryName) {
+    public Map<String, Object> getQueryState(String queryName) {
         return this.snapshotService.queryState(queryName);
     }
 

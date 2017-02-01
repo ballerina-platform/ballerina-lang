@@ -22,6 +22,8 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
 
+import java.util.Map;
+
 public class AggregationAttributeExecutor extends AbstractAggregationAttributeExecutor {
 
     public AggregationAttributeExecutor(AttributeAggregator attributeAggregator,
@@ -39,12 +41,12 @@ public class AggregationAttributeExecutor extends AbstractAggregationAttributeEx
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{attributeAggregator.currentState()};
+    public Map<String, Object> currentState() {
+        return attributeAggregator.currentState();
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        attributeAggregator.restoreState((Object[]) state[0]);
+    public void restoreState(Map<String,Object> state) {
+        attributeAggregator.restoreState(state);
     }
 }

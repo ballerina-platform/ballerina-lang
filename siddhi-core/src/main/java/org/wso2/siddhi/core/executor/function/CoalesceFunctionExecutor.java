@@ -27,6 +27,8 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
+import java.util.Map;
+
 @Description("Returns the value of the first input parameter that is not null.")
 @Parameters({
         @Parameter(name = "arg1", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
@@ -87,13 +89,13 @@ public class CoalesceFunctionExecutor extends FunctionExecutor {
     }
 
     @Override
-    public Object[] currentState() {
+    public Map<String, Object> currentState() {
         //No states
         return null;
     }
 
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> state) {
         //Nothing to be done
     }
 }
