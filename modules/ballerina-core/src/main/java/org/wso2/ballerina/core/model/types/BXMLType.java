@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
 
@@ -32,8 +33,8 @@ class BXMLType extends BType {
      *
      * @param typeName string name of the type
      */
-    BXMLType(String typeName) {
-        super(typeName, BXML.class);
+    BXMLType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BXML.class);
     }
 
     @SuppressWarnings("unchecked")

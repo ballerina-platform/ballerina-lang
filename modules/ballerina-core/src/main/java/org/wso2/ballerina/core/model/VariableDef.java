@@ -18,8 +18,8 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.interpreter.MemoryLocation;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
-import org.wso2.ballerina.core.model.symbols.SymbolScope;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
 
@@ -35,6 +35,7 @@ public class VariableDef implements BLangSymbol, Node {
     protected NodeLocation location;
     protected SimpleTypeName typeName;
     protected BType type;
+    protected MemoryLocation memoryLocation;
 
     // BLangSymbol related attributes
     protected String name;
@@ -70,6 +71,17 @@ public class VariableDef implements BLangSymbol, Node {
         return type;
     }
 
+    public void setType(BType type) {
+        this.type = type;
+    }
+
+    public MemoryLocation getMemoryLocation() {
+        return memoryLocation;
+    }
+
+    public void setMemoryLocation(MemoryLocation memoryLocation) {
+        this.memoryLocation = memoryLocation;
+    }
 
     // Methods in BLangSymbol interface
 

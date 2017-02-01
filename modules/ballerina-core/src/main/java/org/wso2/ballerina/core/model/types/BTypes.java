@@ -17,17 +17,16 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolScope;
+
 import static org.wso2.ballerina.core.model.types.TypeConstants.ARRAY_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.BOOLEAN_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.DOUBLE_TNAME;
-import static org.wso2.ballerina.core.model.types.TypeConstants.FLOAT_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.INT_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.JSON_TNAME;
-import static org.wso2.ballerina.core.model.types.TypeConstants.LONG_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.MAP_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.MESSAGE_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.STRING_TNAME;
-import static org.wso2.ballerina.core.model.types.TypeConstants.STRUCT_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.XML_TNAME;
 
 /**
@@ -36,44 +35,62 @@ import static org.wso2.ballerina.core.model.types.TypeConstants.XML_TNAME;
  * @since 0.8.0
  */
 public class BTypes {
-
-    public static final BType INT_TYPE = new BIntegerType(INT_TNAME);
-    public static final BType LONG_TYPE = new BLongType(LONG_TNAME);
-    public static final BType FLOAT_TYPE = new BFloatType(FLOAT_TNAME);
-    public static final BType DOUBLE_TYPE = new BDoubleType(DOUBLE_TNAME);
-    public static final BType BOOLEAN_TYPE = new BBooleanType(BOOLEAN_TNAME);
-    public static final BType STRING_TYPE = new BStringType(STRING_TNAME);
-    public static final BType XML_TYPE = new BXMLType(XML_TNAME);
-    public static final BType JSON_TYPE = new BJSONType(JSON_TNAME);
-    public static final BType MESSAGE_TYPE = new BMessageType(MESSAGE_TNAME);
-    public static final BType MAP_TYPE = new BMapType(MAP_TNAME);
-    public static final BType STRUCT_TYPE = new BStructType(STRUCT_TNAME);
+    public static  BType typeInt;
+    public static  BType typeLong;
+    public static  BType typeFloat;
+    public static  BType typeDouble;
+    public static  BType typeBoolean;
+    public static  BType typeString;
+    public static  BType typeXML;
+    public static  BType typeJSON;
+    public static  BType typeMessage;
+    public static  BType typeMap;
 
     private BTypes() {
+    }
+
+    public static void loadBuiltInTypes(SymbolScope globalScope) {
+        typeInt = new BIntegerType(INT_TNAME, null, globalScope);
+        typeDouble = new BDoubleType(DOUBLE_TNAME, null, globalScope);
+        typeBoolean = new BBooleanType(BOOLEAN_TNAME, null, globalScope);
+        typeString = new BStringType(STRING_TNAME, null, globalScope);
+        typeXML = new BXMLType(XML_TNAME, null, globalScope);
+        typeJSON = new BJSONType(JSON_TNAME, null, globalScope);
+        typeMessage = new BMessageType(MESSAGE_TNAME, null, globalScope);
+        typeMap = new BMapType(MAP_TNAME, null, globalScope);
+
+        globalScope.define(typeInt.getSymbolName(), typeInt);
+        globalScope.define(typeDouble.getSymbolName(), typeDouble);
+        globalScope.define(typeBoolean.getSymbolName(), typeBoolean);
+        globalScope.define(typeString.getSymbolName(), typeString);
+        globalScope.define(typeXML.getSymbolName(), typeXML);
+        globalScope.define(typeJSON.getSymbolName(), typeJSON);
+        globalScope.define(typeMessage.getSymbolName(), typeMessage);
+        globalScope.define(typeMap.getSymbolName(), typeMap);
     }
 
     public static BArrayType getArrayType(String elementTypeName) {
         String arrayTypeName = elementTypeName + ARRAY_TNAME;
 
         BArrayType type = BType.getType(arrayTypeName);
-        if (type == null) {
-            type = new BArrayType(arrayTypeName, elementTypeName);
-        }
+//        if (type == null) {
+//            type = new BArrayType(arrayTypeName, elementTypeName);
+//        }
 
         return type;
     }
 
-    public static void addConnectorType(String connectorName) {
-        new BConnectorType(connectorName);
-    }
+//    public static void addConnectorType(String connectorName) {
+//        new BConnectorType(connectorName);
+//    }
 
     public static boolean isValueType(BType type) {
-        if (type == BTypes.INT_TYPE ||
-                type == BTypes.STRING_TYPE ||
-                type == BTypes.LONG_TYPE ||
-                type == BTypes.FLOAT_TYPE ||
-                type == BTypes.DOUBLE_TYPE ||
-                type == BTypes.BOOLEAN_TYPE) {
+        if (type == BTypes.typeInt ||
+                type == BTypes.typeString ||
+                type == BTypes.typeLong ||
+                type == BTypes.typeFloat ||
+                type == BTypes.typeDouble ||
+                type == BTypes.typeBoolean) {
             return true;
         }
 
@@ -84,7 +101,7 @@ public class BTypes {
         return BType.getType(typeName);
     }
     
-    public static void addStructType(String structName) {
-        new BStructType(structName);
-    }
+//    public static void addStructType(String structName) {
+//        new BStructType(structName);
+//    }
 }

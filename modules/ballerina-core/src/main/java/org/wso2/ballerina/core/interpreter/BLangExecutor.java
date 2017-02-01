@@ -423,7 +423,7 @@ public class BLangExecutor implements NodeExecutor {
         // If yes skip setting the value;
         if (!arrayMapAccessExpr.isLHSExpr()) {
 
-            if (arrayMapAccessExpr.getType() != BTypes.MAP_TYPE) {
+            if (arrayMapAccessExpr.getType() != BTypes.typeMap) {
                 // Get the value stored in the index
                 if (collectionValue instanceof BArray) {
                     return ((BArray) collectionValue).get(((BInteger) indexValue).intValue());
@@ -479,7 +479,7 @@ public class BLangExecutor implements NodeExecutor {
     public BValue visit(BacktickExpr backtickExpr) {
         // Evaluate the variable references before creating objects
         String evaluatedString = evaluteBacktickString(backtickExpr);
-        if (backtickExpr.getType() == BTypes.JSON_TYPE) {
+        if (backtickExpr.getType() == BTypes.typeJSON) {
             return new BJSON(evaluatedString);
 
         } else {
@@ -676,7 +676,7 @@ public class BLangExecutor implements NodeExecutor {
 
     private void assignValueToArrayMapAccessExpr(BValue rValue, ArrayMapAccessExpr lExpr) {
         ArrayMapAccessExpr accessExpr = lExpr;
-        if (!(accessExpr.getType() == BTypes.MAP_TYPE)) {
+        if (!(accessExpr.getType() == BTypes.typeMap)) {
             BArray arrayVal = (BArray) accessExpr.getRExpr().execute(this);
             BInteger indexVal = (BInteger) accessExpr.getIndexExpr().execute(this);
             arrayVal.add(indexVal.intValue(), rValue);
@@ -851,7 +851,7 @@ public class BLangExecutor implements NodeExecutor {
         BValue arrayMapValue = lExprValue.getValue(memoryLocation);
         
         // Set the value to array/map's index location
-        if (fieldExpr.getRefVarType() == BTypes.MAP_TYPE) {
+        if (fieldExpr.getRefVarType() == BTypes.typeMap) {
             ((BMap) arrayMapValue).put(indexValue, rValue);
         } else {
             ((BArray) arrayMapValue).add(((BInteger) indexValue).intValue(), rValue);
@@ -926,7 +926,7 @@ public class BLangExecutor implements NodeExecutor {
         BValue indexValue = indexExpr.execute(this);
         
         // Get the value from array/map's index location
-        if (fieldExpr.getRefVarType() == BTypes.MAP_TYPE) {
+        if (fieldExpr.getRefVarType() == BTypes.typeMap) {
             return ((BMap) currentVal).get(indexValue);
         } else {
             return ((BArray) currentVal).get(((BInteger) indexValue).intValue());

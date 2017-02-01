@@ -21,7 +21,6 @@ package org.wso2.ballerina.core.model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
-import org.wso2.ballerina.core.model.symbols.SymbolScope;
 
 import java.util.Map;
 
@@ -41,7 +40,6 @@ import java.util.Map;
  *
  * @since 0.8.0
  */
-@SuppressWarnings("unused")
 public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
     private static final Logger logger = LoggerFactory.getLogger(Service.class);
 
@@ -177,8 +175,8 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
     // Methods in the SymbolScope interface
 
     @Override
-    public String getScopeName() {
-        return null;
+    public ScopeName getScopeName() {
+        return ScopeName.SERVICE;
     }
 
     @Override
@@ -192,8 +190,8 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
     }
 
     @Override
-    public Symbol resolve(SymbolName name) {
-        return null;
+    public BLangSymbol resolve(SymbolName name) {
+        return resolve(symbolMap, name);
     }
 
 }

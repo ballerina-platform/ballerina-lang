@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -32,8 +33,8 @@ class BStringType extends BType {
      *
      * @param typeName string name of the type
      */
-    BStringType(String typeName) {
-        super(typeName, BString.class);
+    BStringType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BString.class);
     }
 
     @SuppressWarnings("unchecked")

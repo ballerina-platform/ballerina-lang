@@ -32,18 +32,22 @@ public class VariableDefStmt extends AbstractStatement {
     private VariableDef variableDef;
     private Expression rhsExpr;
 
-    public VariableDefStmt(NodeLocation location, VariableDef variableDef, Expression rhsExpr) {
+    public VariableDefStmt(NodeLocation location, VariableDef variableDef, Expression rExpr) {
         super(location);
         this.variableDef = variableDef;
-        this.rhsExpr = rhsExpr;
+        this.rhsExpr = rExpr;
     }
 
     public VariableDef getVariableDef() {
         return variableDef;
     }
 
-    public Expression getRhsExpr() {
+    public Expression getRExpr() {
         return rhsExpr;
+    }
+
+    public void setRExpr(Expression rhsExpr) {
+        this.rhsExpr = rhsExpr;
     }
 
     @Override

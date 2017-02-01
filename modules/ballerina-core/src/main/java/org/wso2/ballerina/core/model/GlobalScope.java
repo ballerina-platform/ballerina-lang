@@ -15,27 +15,41 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model.types;
+package org.wso2.ballerina.core.model;
+
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * {@code SchemaIDTypeName} represents a type name with the schema ID (json<Person>) in Ballerina.
  *
  * @since 0.8.0
  */
-public class SchemaIDTypeName extends SimpleTypeName {
-    private String schemaID;
+public class GlobalScope implements SymbolScope {
+    private Map<SymbolName, BLangSymbol> symbolMap;
 
-    public SchemaIDTypeName(String name, String pkgName, String pkgPath, String schemaID) {
-        super(name, pkgName, pkgPath);
-        this.schemaID = schemaID;
-    }
-
-    public String getSchemaID() {
-        return schemaID;
+    public GlobalScope() {
+        symbolMap = new HashMap<>();
     }
 
     @Override
-    public String toString() {
-        return getNameWithArray(getNameWithPkg() + "<" + schemaID + ">");
+    public ScopeName getScopeName() {
+        return ScopeName.GLOBAL;
+    }
+
+    @Override
+    public SymbolScope getEnclosingScope() {
+        return null;
+    }
+
+    @Override
+    public void define(SymbolName name, BLangSymbol symbol) {
+        symbolMap.put(name, symbol);
+    }
+
+    @Override
+    public BLangSymbol resolve(SymbolName name) {
+        return resolve(symbolMap, name);
     }
 }

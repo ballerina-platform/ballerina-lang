@@ -233,7 +233,7 @@ public class BallerinaFile implements Node {
 
                 ParameterDef[] parameterDefs = function.getParameterDefs();
                 if (parameterDefs.length == 1 && parameterDefs[0].getType() == BTypes.getArrayType(BTypes.
-                        STRING_TYPE.toString())) {
+                        typeString.toString())) {
                     mainFunction = function;
                 }
             }

@@ -19,7 +19,6 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
-import org.wso2.ballerina.core.model.symbols.SymbolScope;
 
 import java.util.Map;
 
@@ -191,8 +190,8 @@ public class BallerinaConnector implements Connector, SymbolScope, BLangSymbol, 
     // Methods in the SymbolScope interface
 
     @Override
-    public String getScopeName() {
-        return null;
+    public ScopeName getScopeName() {
+        return ScopeName.CONNECTOR;
     }
 
     @Override
@@ -206,7 +205,7 @@ public class BallerinaConnector implements Connector, SymbolScope, BLangSymbol, 
     }
 
     @Override
-    public Symbol resolve(SymbolName name) {
-        return null;
+    public BLangSymbol resolve(SymbolName name) {
+        return resolve(symbolMap, name);
     }
 }

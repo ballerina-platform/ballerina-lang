@@ -15,10 +15,11 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model.symbols;
+package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.model.Symbol;
-import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+
+import java.util.Map;
 
 /**
  * {@code SymbolScope} represents the base interface of a structure which allows us to manage scopes.
@@ -27,11 +28,34 @@ import org.wso2.ballerina.core.model.SymbolName;
  */
 public interface SymbolScope {
 
-    String getScopeName();
+    ScopeName getScopeName();
 
     SymbolScope getEnclosingScope();
 
     void define(SymbolName name, BLangSymbol symbol);
 
-    Symbol resolve(SymbolName name);
+    BLangSymbol resolve(SymbolName name);
+
+    default BLangSymbol resolve(Map<SymbolName, BLangSymbol> symbolMap, SymbolName name) {
+        BLangSymbol symbol = symbolMap.get(name);
+        if (symbol == null && getEnclosingScope() != null) {
+            return getEnclosingScope().resolve(name);
+        }
+
+        return symbol;
+    }
+
+    /**
+     * {@code ScopeName} is used to name symbol scopes in Ballerina.
+     *
+     * @since 0.8.0
+     */
+    enum ScopeName {
+        GLOBAL,
+        PROGRAM,
+        PACKAGE,
+        SERVICE,
+        CONNECTOR,
+        LOCAL  // The term 'LOCAL' represents a function, an action or a resource scope.
+    }
 }

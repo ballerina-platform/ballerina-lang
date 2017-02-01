@@ -96,7 +96,7 @@ class BMainRunner {
             VariableRefExpr variableRefExpr = new VariableRefExpr(mainFuncLocation, argsName);
             LocalVarLocation location = new LocalVarLocation(0);
             variableRefExpr.setMemoryLocation(location);
-            variableRefExpr.setType(BTypes.STRING_TYPE);
+            variableRefExpr.setType(BTypes.typeString);
             exprs[0] = variableRefExpr;
 
             BArray<BString> arrayArgs = new BArray<>(BString.class);
