@@ -26,14 +26,10 @@
     width: 100%;
 }
 
-.workspace-explorer-separator{
-
-}
-
 .open-folder-button{
-    max-height: 25px;
+    max-height: 35px;
     padding-top: 3px;
-    position: absolute;
+    position: relative;
     top: 25px;
     left: 50%;
     margin-right: -50%;
@@ -51,13 +47,13 @@
 }
 
 .folder-tree-header > i.expand-icon{
-   margin-right: 8px;
-   font-size: 8px;
-   vertical-align:middle;
+    margin-right: 8px;
+    font-size: 8px;
+    vertical-align:middle;
 }
 
 .folder-tree-header > i.item-icon{
-   vertical-align:middle;
+    vertical-align:middle;
 }
 
 .folder-tree-header:hover{
@@ -108,27 +104,28 @@
     margin-left: 25px;
 }
 
-
 .vakata-context li > a {
     display: block;
-    padding: 0 1em 0 1em;
+    padding: 0 40px 0 5px;
     text-decoration: none;
     width: auto;
-    color: #dedede;
+    color: #fff;
     white-space: nowrap;
     text-shadow: none;
     border-radius: 0px;
 }
 
-.vakata-context li > a:hover {
-    position: relative;
-    background-color: #dde4ec;
-    color: black;
+.vakata-context-hover, li.vakata-context-hover > a, .vakata-context li > a:hover {
+    background-color: #111;
+    color: #f47b20;
+    border: 0;
+    box-shadow: none;
 }
 
 .vakata-context, .vakata-context ul {
-    background: #333333;
-    border: none;
+    background: #111;
+    border-width: 0;
+    padding: 0;
     color: black;
     box-shadow: none;
 }

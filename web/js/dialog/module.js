@@ -16,11 +16,14 @@
  * under the License.
  */
 
-define(['./save-to-file-dialog', './open-file-dialog', './folder-open-dialog'],
-    function (SaveToFileDialog,OpenFileDialog, FolderOpenDialog) {
+define(['./save-to-file-dialog', './open-file-dialog', './new-item-dialog', './delete-item-dialog',
+        './folder-open-dialog'],
+    function (SaveToFileDialog, OpenFileDialog, NewItemDialog, DeleteItemDialog, FolderOpenDialog) {
     return {
         save_to_file_dialog: SaveToFileDialog,
         FolderOpenDialog: FolderOpenDialog,
+        NewItemDialog: NewItemDialog,
+        DeleteItemDialog: DeleteItemDialog,
         open_file_dialog: OpenFileDialog
     };
-})
+});
