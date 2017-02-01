@@ -25,9 +25,9 @@ define(['require', 'lodash','jquery','jsPlumb', 'dagre'], function(require, _,$,
         this.onConnection = onConnectionCallback;
 
         var strokeColor = "#414e66";
-        var strokeWidth = 2;
+        var strokeWidth = 1;
         var pointColor = "#414e66";
-        var pointSize = 1;
+        var pointSize = 0.5;
 
         jsPlumb.Defaults.Container = $("#" + this.placeHolderName);
         jsPlumb.Defaults.PaintStyle = {
@@ -40,13 +40,13 @@ define(['require', 'lodash','jquery','jsPlumb', 'dagre'], function(require, _,$,
             fillStyle:pointColor
         };
         jsPlumb.Defaults.Overlays = [
-            [ "Arrow",{location:1, width:12, length:12} ]
+            [ "Arrow",{location:1, width:10, length:10} ]
         ];
 
         jsPlumb.importDefaults({Connector : [ "Flowchart",
             {
-                cornerRadius: 10,
-                stub:20,  alwaysRespectStubs: true
+                cornerRadius: 20,
+                stub:1,  alwaysRespectStubs: false, midpoint:0.2
             } ]});
 
         var positionFunc = this.dagrePosition;
@@ -161,9 +161,9 @@ define(['require', 'lodash','jquery','jsPlumb', 'dagre'], function(require, _,$,
         // });
     }
 
-    TypeMapper.prototype.makeFunction  = function (func, reference) {
+    TypeMapper.prototype.addFunction  = function (func, reference) {
         this.references.push({ name : func.name, refObj : reference});
-        var newFunc = $('<div>').attr('id', func.name).addClass('struct');
+        var newFunc = $('<div>').attr('id', func.name).addClass('func');
 
         var funcName = $('<div>').addClass('struct-name').text(func.name);
         newFunc.append(funcName);
@@ -261,13 +261,21 @@ define(['require', 'lodash','jquery','jsPlumb', 'dagre'], function(require, _,$,
     TypeMapper.prototype.dagrePosition  = function(){
         // construct dagre graph from JsPlumb graph
         var g = new dagre.graphlib.Graph();
-        g.setGraph({ranksep:'100',rankdir: 'LR', edgesep:'50', ranker : 'tight-tree'});
+
+
+        var alignment = 'LR';
+
+        if (jsPlumb.getAllConnections() == 0) {
+            alignment = 'TD';
+        }
+
+        g.setGraph({ranksep:'50',rankdir: alignment , edgesep:'50', marginx : '0'});
         g.setDefaultEdgeLabel(function() { return {}; });
-        var nodes = $(".struct");
+        var nodes = $(".struct, .func");
         for (var i = 0; i < nodes.length; i++) {
             var n = nodes[i];
 
-            g.setNode(n.id, {width: 300, height: $("#" + n.id).height()});
+            g.setNode(n.id, {width: $("#" + n.id).width() + 30 , height: $("#" + n.id).height() + 30});
         }
         var edges = jsPlumb.getAllConnections();
         for (var i = 0; i < edges.length; i++) {
