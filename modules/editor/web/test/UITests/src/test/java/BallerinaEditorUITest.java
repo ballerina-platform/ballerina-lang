@@ -46,39 +46,30 @@ public class BallerinaEditorUITest {
         //creating relevant browser webdriver
         //TODO make this generic for multiple browsers
         WebDriver driver = new FirefoxDriver();
-
         //opening base page - welcome page this case
         driver.get(TestConstants.SERVER_URL);
-
         //once the open button available click it
         waitAndGetElementByXpath(driver, TestConstants.WELCOME_PAGE_OPEN_BUTTON_XPATH).click();
-
         //fill the location of the ballerina file to be opened
         URL BallerinaResourceLocation = BallerinaEditorUITest.class.getResource(
                 TestConstants.BALLERINA_RESOURCE_FOLDER + File.separator + fileName + ".bal");
         waitAndGetElementByXpath(driver, TestConstants.FILE_OPEN_POPUP_LOCATION_INPUT_XPATH).
                 sendKeys(BallerinaResourceLocation.getPath());
-
         //wait for the open button in the pop-up window
         waitAndGetElementByXpath(driver, TestConstants.FILE_OPEN_POPUP_LOCATION_OPEN_XPATH).click();
-
         //wait for the SVG element where the diagram is rendered
         WebElement domElement = waitAndGetElementByXpath(driver, TestConstants.SVG_XPATH);
-
         //Getting inner HTML of the SVG node
         String dom = TestUtils.preprocessDOMContent(domElement.getAttribute("innerHTML"));
-
         //TODO Add mechanism to generate DOM files
         //TestUtils.fileWriter(dom, fileName + "DOM.xml");
-
         URL DOMResourceLocation = BallerinaEditorUITest.class.getResource(TestConstants.DOM_RESOURCE_FOLDER +
                 File.separator + fileName +"DOM.xml");
+        //destroying browser instance
+        driver.quit();
         //checking inner content of the DOM element
         assertEquals("Rendered diagram of " + fileName + "is not equal to the expected diagram",
                 TestUtils.fileReader(DOMResourceLocation.getPath()), dom);
-
-        //destroying browser instance
-        driver.quit();
     }
 
     /*
