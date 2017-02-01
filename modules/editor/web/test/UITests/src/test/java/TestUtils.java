@@ -20,48 +20,19 @@ import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import javax.xml.transform.TransformerException;
-
 public class TestUtils {
 
+    /*
+    Taking screenshot of a given page
+     */
     public static void saveScreenshot(WebDriver driver, String screenshotFileName) throws IOException {
         File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
         FileUtils.copyFile(screenshot, new File(screenshotFileName));
-    }
-
-    public static void fileWriter(String domElement, String fileName) throws ParserConfigurationException, IOException,
-            SAXException, TransformerException {
-
-        BufferedWriter bw = null;
-        FileWriter fw = null;
-        try {
-
-            fw = new FileWriter(TestUtils.class.getResource("DOMFiles").getPath() + File.separator + fileName);
-            bw = new BufferedWriter(fw);
-            bw.write(domElement);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-
-                if (bw != null)
-                    bw.close();
-
-                if (fw != null)
-                    fw.close();
-
-            } catch (IOException ex) {
-
-                ex.printStackTrace();
-            }
-        }
     }
 
     public static String fileReader(String fileName) throws IOException {

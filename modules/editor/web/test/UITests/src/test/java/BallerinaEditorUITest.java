@@ -39,12 +39,6 @@ import org.xml.sax.SAXException;
 public class BallerinaEditorUITest {
 
 
-    @BeforeTest
-    public void openBrowser() {}
-
-    @AfterTest
-    public void saveScreenshotAndCloseBrowser() throws IOException {}
-
     @Test(dataProvider="getData")
     public void openBallerinaFile(String fileName) throws IOException, InterruptedException,
             ParserConfigurationException, SAXException, TransformerException, URISyntaxException {
@@ -56,49 +50,42 @@ public class BallerinaEditorUITest {
         //opening base page - welcome page this case
         driver.get(TestConstants.SERVER_URL);
 
-        //wait for the open button in welcome page
-        WebDriverWait wait = new WebDriverWait(driver, 50);
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(TestConstants.WELCOME_PAGE_OPEN_BUTTON_XPATH)));
         //once the open button available click it
-        driver.findElement(By.xpath(TestConstants.WELCOME_PAGE_OPEN_BUTTON_XPATH)).click();
 
-        WebDriverWait wait1 = new WebDriverWait(driver, 50);
-        //wait for the input box in the pop-up windows
-        wait1.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(TestConstants.FILE_OPEN_POPUP_LOCATION_INPUT_XPATH)));
+        waitAndGetElementByXpath(driver, TestConstants.WELCOME_PAGE_OPEN_BUTTON_XPATH).click();
+
         //fill the location of the ballerina file to be opened
-
-        URL resource = BallerinaEditorUITest.class.getResource("BallerinaSourceFiles" + File.separator + fileName + ".bal");
-        driver.findElement(By.xpath(TestConstants.FILE_OPEN_POPUP_LOCATION_INPUT_XPATH)).sendKeys(resource.getPath());
+        URL ballerinaResourceFileLocation = BallerinaEditorUITest.class.getResource("BallerinaSourceFiles" +
+                File.separator + fileName + ".bal");
+        waitAndGetElementByXpath(driver, TestConstants.FILE_OPEN_POPUP_LOCATION_INPUT_XPATH).
+                sendKeys(ballerinaResourceFileLocation.getPath());
 
         //wait for the open button in the pop-up window
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(TestConstants.FILE_OPEN_POPUP_LOCATION_OPEN_XPATH)));
-        //click opn button once it is available
-        driver.findElement(By.xpath(TestConstants.FILE_OPEN_POPUP_LOCATION_OPEN_XPATH)).click();
+        waitAndGetElementByXpath(driver, TestConstants.FILE_OPEN_POPUP_LOCATION_OPEN_XPATH).click();
 
         //wait for the SVG element where the diagram is rendered
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(TestConstants.SVG_XPATH)));
-        //get DOM of the SVG element
-        WebElement domElement = driver.findElement(By.xpath(TestConstants.SVG_XPATH));
+        WebElement domElement = waitAndGetElementByXpath(driver, TestConstants.SVG_XPATH);
 
         //Getting inner HTML of the SVG node
         String dom = TestUtils.preprocessDOMContent(domElement.getAttribute("innerHTML"));
 
-        TestUtils.fileWriter(dom, fileName + "DOM.xml");
+        //TODO Add mechanism to generate DOM files
+        //TestUtils.fileWriter(dom, fileName + "DOM.xml");
 
-        URL resource1 = BallerinaEditorUITest.class.getResource("DOMFiles" + File.separator + fileName +"DOM.xml");
+        URL resourceDOMFileLocation = BallerinaEditorUITest.class.getResource("DOMFiles" + File.separator
+                + fileName +"DOM.xml");
         //checking inner content of the DOM element
-        assertEquals("Rendered diagram is not equal to the expected diagram",
-                TestUtils.fileReader(resource1.getPath()), dom);
+        assertEquals("Rendered diagram of " + fileName + "is not equal to the expected diagram",
+                TestUtils.fileReader(resourceDOMFileLocation.getPath()), dom);
 
-        //TODO Close browser at the end of the test
-        //TODO Problem: If we close once browser it will affect other browser instance, session may be removed
+        //destroying browser instance
         driver.quit();
     }
 
     /*
-    Data provider for running the test case for multiple ballerina files in parallel
+    Data provider for running the test case for multiple ballerina files
      */
-    @DataProvider(parallel = false)
+    @DataProvider()
     public Object[][] getData()
     {
         Object[][] data = new Object[9][1];
@@ -112,5 +99,14 @@ public class BallerinaEditorUITest {
         data[7][0] ="tweetMediumFeed";
         data[8][0] ="tweetOpenPR";
         return data;
+    }
+
+    /*
+    Wait for visibility of an element and provide that element
+     */
+    private WebElement waitAndGetElementByXpath(WebDriver driver, String xpath){
+        WebDriverWait wait = new WebDriverWait(driver, 50);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath)));
+        return driver.findElement(By.xpath(xpath));
     }
 }
