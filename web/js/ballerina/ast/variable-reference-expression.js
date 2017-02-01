@@ -23,7 +23,7 @@ define(['lodash', './expression'], function (_, Expression) {
      * @constructor
      */
     var VariableReferenceExpression = function (args) {
-        this._symbolName = _.get(args, 'symbolName');
+        this._variableReferenceName = _.get(args, 'variableReferenceName');
         Expression.call(this, 'VariableReferenceExpression');
     };
 
@@ -31,28 +31,33 @@ define(['lodash', './expression'], function (_, Expression) {
     VariableReferenceExpression.prototype.constructor = VariableReferenceExpression;
 
     /**
-     * Setter for Symbol name
-     * @param symbolName
+     * Setter for Variable Reference
+     * @param variableReference
      */
-    VariableReferenceExpression.prototype.setSymbolName = function (symbolName) {
-        this._symbolName = symbolName;
-    }
+    VariableReferenceExpression.prototype.setVariableReferenceName = function (variableReferenceName) {
+        this._variableReferenceName = variableReferenceName;
+    };
 
     /**
-     * Getter for Symbol name
-     * @returns {*}
+     * Getter for VariableReference
+     * @returns variableReference
      */
-    VariableReferenceExpression.prototype.getSymbolName = function () {
-        return this._symbolName;
-    }
+    VariableReferenceExpression.prototype.getVariableReferenceName = function () {
+        return this._variableReferenceName;
+    };
 
     /**
      * initialize VariableReferenceExpression from json object
      * @param {Object} jsonNode to initialize from
-     * @param {string} [jsonNode.symbolName] - Symbol name of the VariableReferenceExpression
+     * @param {string} [jsonNode.variable_reference_name] - Symbol name of the VariableReferenceExpression
      */
     VariableReferenceExpression.prototype.initFromJson = function (jsonNode) {
-        this.setSymbolName(jsonNode.variable_reference_name);
+        this.setVariableReferenceName(jsonNode.variable_reference_name);
+        this.setExpression(this.generateExpression());
+    };
+
+    VariableReferenceExpression.prototype.generateExpression = function () {
+        this._expression = this.getVariableReferenceName()
     };
 
     return VariableReferenceExpression;

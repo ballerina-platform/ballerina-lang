@@ -26,7 +26,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './type-converter-definition', './type-definition', './type-element', './variable-declaration',
         './package-definition', './import-declaration', './resource-parameter', './assignment', './assignment-statement',
         './function-invocation', './function-invocation-expression', './variable-reference-expression',
-        './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
+        './arithmetic-expression', './logical-expression', './action-invocation-expression',
         './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression',
         './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
         './if-condition', './array-map-access-expression', './binary-expression', './connector-action', './struct-definition',
@@ -36,7 +36,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
               whileStatement, returnStatement, typeConverterDefinition, typeDefinition, typeElement, variableDeclaration,
               packageDefinition, importDeclaration, resourceParameter, assignment, assignmentStatement, functionInvocation,
-              functionInvocationExpression, variableReferenceExpression, actionInvocationStatement, arithmeticExpression,
+              functionInvocationExpression, variableReferenceExpression, arithmeticExpression,
               logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
               thenBody, ifCondition, arrayMapAccessExpression, binaryExpression, connectorAction, structDefinition,
@@ -179,10 +179,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createExpression = function (args) {
             return new expression(args);
-        };
-
-        BallerinaASTFactory.createActionInvocationStatement = function(args) {
-            return new actionInvocationStatement(args);
         };
 
         BallerinaASTFactory.createActionInvocationExpression = function(args) {
@@ -747,17 +743,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.isResourceParameter = function (child) {
             return child instanceof resourceParameter;
-        };
-
-        /**
-         * instanceof check for ActionInvocationStatement
-         * @param child - Object for instanceof check
-         * @returns {boolean} - true if same type, else false
-         */
-        BallerinaASTFactory.isActionInvocationStatement = function(statement){
-            if (statement instanceof actionInvocationStatement){
-                return true;
-            }
         };
 
         /**
