@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './../ast/connector-definition',
+define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './canvas', './point', './../ast/connector-definition',
         './client-life-line', './connector-action-view', 'ballerina/ast/ballerina-ast-factory', './axis',
         './connector-declaration-view', './../ast/variable-declaration', './variables-view', './annotation-view',
         './function-arguments-view'],
-    function (_, log, d3, D3utils, $, Canvas, Point, ConnectorDefinition,
+    function (_, log, d3, D3utils, $, Alerts, Canvas, Point, ConnectorDefinition,
               ClientLifeLine, ConnectorActionView, BallerinaASTFactory, Axis,
               ConnectorDeclarationView, VariableDeclaration, VariablesView, AnnotationView, ArgumentsView) {
 
@@ -30,6 +30,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
          * @param {Object} args.container - The HTML container to which the view should be added to.
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
          * @constructor
+         * @augments Canvas
          */
         var ConnectorDefinitionView = function (args) {
             Canvas.call(this, args);
@@ -107,7 +108,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
          */
         ConnectorDefinitionView.prototype.onLastActionBottomEdgeMoved = function (dy) {
             this._totalHeight = this._totalHeight + dy;
-            this.setServiceContainerHeight(this._totalHeight);
+            this.setSVGHeight(this._totalHeight);
         };
 
         /**
@@ -147,7 +148,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
          * @return {SVG} svg container
          */
         ConnectorDefinitionView.prototype.getChildContainer = function () {
-            return this._rootGroup;
+            return this.getRootGroup();
         };
 
         /**
@@ -163,51 +164,50 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
          * @returns {Object} - The svg group which the connector definition view resides in.
          */
         ConnectorDefinitionView.prototype.render = function (diagramRenderingContext) {
-            this.diagramRenderingContext = diagramRenderingContext;
-            this.drawAccordionCanvas(this._container, this._viewOptions,
-                this._model.id, this._model.type.toLowerCase(), this._model.getConnectorName());
-            var divId = this._model.id;
-            var currentContainer = $('#' + divId);
+            this.setDiagramRenderingContext(diagramRenderingContext);
+
+            // Draws the outlying body of the function.
+            this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().type.toLowerCase(), this.getModel().getConnectorName());
+
+            // Setting the styles for the canvas icon.
+            this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.connector_icon", ""));
+
+            var currentContainer = $('#' + this.getModel().getID());
             this._container = currentContainer;
             this.getBoundingBox().fromTopLeft(new Point(0, 0), currentContainer.width(), currentContainer.height());
             var self = this;
 
-            $("#title-" + this._model.id).addClass("service-title-text").text(this._model.getConnectorName())
-                .on("change paste keyup", function (e) {
-                    self._model.setConnectorName($(this).text());
+            $(this.getTitle()).text(this.getModel().getConnectorName())
+                .on("change paste keyup", function () {
+                    self.getModel().setConnectorName($(this).text());
                 }).on("click", function (event) {
+                event.stopPropagation();
+            }).keypress(function (e) {
+                var enteredKey = e.which || e.charCode || e.keyCode;
+                // Disabling enter key
+                if (enteredKey == 13) {
                     event.stopPropagation();
-                }).on("keydown", function (e) {
-                    // Check whether the Enter key has been pressed. If so return false. Won't type the character
-                    if (e.keyCode === 13) {
-                        return false;
-                    }
-                });
+                    return false;
+                }
 
-            this._model.on('child-added', function (child) {
+                var newServiceName = $(this).val() + String.fromCharCode(enteredKey);
+
+                try {
+                    self.getModel().setConnectorName(newServiceName);
+                } catch (error) {
+                    Alerts.error(error);
+                    event.stopPropagation();
+                    return false;
+                }
+            });
+
+            this.getModel().on('child-added', function (child) {
                 self.visit(child);
-                self._model.trigger("child-visited", child);
+                self.getModel().trigger("child-visited", child);
 
                 // Show/Hide scrolls.
                 self._showHideScrolls(self._container, self.getChildContainer().node().ownerSVGElement);
             });
-
-            var variableButton = VariablesView.createVariableButton(this.getChildContainer().node(), 14, 10);
-
-            var variableProperties = {
-                model: this._model,
-                activatorElement: variableButton,
-                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
-                viewOptions: {
-                    position: {
-                        x: parseInt(this.getChildContainer().attr("x")) + 17,
-                        y: parseInt(this.getChildContainer().attr("y")) + 6
-                    },
-                    width: $(this.getChildContainer().node().ownerSVGElement.parentElement).width() - (2 * $(variableButton).width())
-                }
-            };
-
-            VariablesView.createVariablePane(variableProperties, diagramRenderingContext);
 
             var operationsPane = this.getOperationsPane();
 
@@ -238,7 +238,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 }
             };
 
-            this.setServiceContainerWidth(this._container.width());
+            this.setSVGWidth(this._container.width());
             ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
             this.getModel().accept(this);
         };
@@ -342,7 +342,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             var childView = this.diagramRenderingContext.getViewModelMap()[connectorAction.id];
             var staticHeights = childView.getGapBetweenConnectorActions();
             this._totalHeight = this._totalHeight + childView.getBoundingBox().h() + staticHeights;
-            this.setServiceContainerHeight(this._totalHeight);
+            this.setSVGHeight(this._totalHeight);
         };
 
         ConnectorDefinitionView.prototype.canVisitConnectorDeclaration = function (connectorDeclaration) {
@@ -427,7 +427,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 this.getLifeLineMargin().setPosition(newLifeLineMarginPosition);
             } else {
                 // When there are no actions added
-                this.setServiceContainerWidth(connectorDeclarationView.getBoundingBox().getRight() + this._viewOptions.LifeLineCenterGap);
+                this.setSVGWidth(connectorDeclarationView.getBoundingBox().getRight() + this._viewOptions.LifeLineCenterGap);
             }
         };
 
@@ -543,9 +543,9 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
         ConnectorDefinitionView.prototype.moveConnectorDefinitionLevelConnector = function (connectorView, offset) {
             connectorView.getBoundingBox().move(offset, 0);
             // After moving the connector, if it go beyond the svg's width, we need to increase the parent svg width
-            if (connectorView.getBoundingBox().getRight() > this.getServiceContainer().width()) {
+            if (connectorView.getBoundingBox().getRight() > this.getSVG().width()) {
                 // Add an offset of 60 to the current connector's BBox's right value
-                this.setServiceContainerWidth(connectorView.getBoundingBox().getRight() + 60);
+                this.setSVGWidth(connectorView.getBoundingBox().getRight() + 60);
             }
         };
 

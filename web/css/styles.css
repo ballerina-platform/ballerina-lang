@@ -56,6 +56,10 @@ svg text::selection {
     width: 100%;
 }
 
+.canvas-heading {
+    cursor: pointer;
+}
+
 /** Editor canvas related styles | -> End **/
 /*//////////////////////////////////////////////////*/
 
@@ -598,7 +602,7 @@ button.variable-list {
 }
 
 .right-icon-clickable {
-    padding: 10px 6px;
+    padding: 6px 6px;
 }
 
 .collapser:hover {
@@ -1057,6 +1061,7 @@ button.variable-list {
 .canvas-operations-wrapper {
     float: right;
     margin-right: 1px;
+    margin-top: 3px;
 }
 
 .annotation-icon {
@@ -1074,7 +1079,7 @@ button.variable-list {
     -ms-transform: scale(1, 2);
     -o-transform: scale(1, 2);
     transform: scale(1, 2);
-    margin-top: 13px;
+    margin-top: 8px;
     color: #d8d8d8;
     font-size: 11px;
 }
@@ -1234,15 +1239,7 @@ button.variable-list {
     color: #ff7916;
 }
 
-.service-title-text:hover {
-    cursor: text;
-}
-
-.struct-title-text:hover {
-    cursor: text;
-}
-
-.function-title-text:hover {
+.canvas-title:hover {
     cursor: text;
 }
 
