@@ -186,7 +186,7 @@ define(['lodash', './node'], function (_, ASTNode) {
         if (this.getChildren() != 0) {
             var assignmentStatement = _.find(this.getChildren(), function (child) {
                 return self.BallerinaASTFactory.isAssignmentStatement(child) &&
-                    (('x.' + sourceProperty + ' = ' + 'y.' + targetProperty) === child.getExpression());
+                    (('x.' + targetProperty + ' = ' + 'y.' + sourceProperty) === child.getExpression());
             });
             if (assignmentStatement) {
                 this.removeChild(assignmentStatement);
