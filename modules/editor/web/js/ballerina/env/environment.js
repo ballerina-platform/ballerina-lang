@@ -177,7 +177,8 @@ define(['lodash', 'event_channel', './ballerina-env-factory'], function(_, Event
         }];
 
         _.each(packagesJson, function (packageNode) {
-            var package = BallerinaEnvFactory.createPackage(packageNode);
+            var package = BallerinaEnvFactory.createPackage();
+            package.initFromJson(packageNode);
             self._packages.push(package);
         });
     };
