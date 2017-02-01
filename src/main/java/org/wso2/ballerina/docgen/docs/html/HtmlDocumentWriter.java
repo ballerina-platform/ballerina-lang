@@ -17,19 +17,18 @@
  */
 package org.wso2.ballerina.docgen.docs.html;
 
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Template;
+import com.github.jknack.handlebars.io.FileTemplateLoader;
+import com.github.jknack.handlebars.io.TemplateLoader;
 import org.wso2.ballerina.docgen.docs.DocumentWriter;
 import org.wso2.ballerina.docgen.docs.model.BallerinaPackageDoc;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.Collection;
-import java.util.Properties;
 
 /**
  * HTML document writer generates ballerina API documentation in HTML format.
@@ -53,7 +52,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
                 userDir + File.separator + "api-docs" + File.separator + "html");
         this.templatesFolderPath =  System.getProperty(TEMPLATES_FOLDER_PATH_KEY,
                 userDir + File.separator + "templates" + File.separator + "html");
-        this.packageTemplateFileName = System.getProperty(PACKAGE_TEMPLATE_FILE_KEY, "package.vm");
+        this.packageTemplateFileName = System.getProperty(PACKAGE_TEMPLATE_FILE_KEY, "package");
     }
 
     @Override
@@ -74,39 +73,21 @@ public class HtmlDocumentWriter implements DocumentWriter {
      * @param ballerinaPackageDoc Ballerina package document object
      */
     private void writeHtmlDocument(BallerinaPackageDoc ballerinaPackageDoc) {
-        OutputStreamWriter writer = null;
+        PrintWriter writer = null;
         try {
-            // Create velocity engine instance
-            VelocityEngine ve = new VelocityEngine();
-            Properties properties = new Properties();
-            properties.put(FILE_RESOURCE_LOADER_PATH_KEY, templatesFolderPath);
-            ve.init(properties);
+            TemplateLoader templateLoader = new FileTemplateLoader(templatesFolderPath);
+            Handlebars handlebars = new Handlebars(templateLoader);
+            Template template = handlebars.compile(packageTemplateFileName);
 
-            // Set template file
-            Template template = ve.getTemplate(packageTemplateFileName);
-
-            // Create context and add data
-            VelocityContext context = new VelocityContext();
-            context.put("package", ballerinaPackageDoc);
-
-            // Generate HTML file
-            if (!outputFilePath.trim().endsWith(File.separator)) {
-                outputFilePath = outputFilePath + File.separator;
-            }
-            File file = new File(outputFilePath + ballerinaPackageDoc.getName() + ".html");
-            writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
-            template.merge(context, writer);
-            out.println("HTML file written: " + file.getPath());
-            writer.flush();
-        } catch (Exception e) {
+            writer = new PrintWriter(outputFilePath
+                    + File.separator + ballerinaPackageDoc.getName() + ".html", "UTF-8");
+            writer.println(template.apply(ballerinaPackageDoc));
+        } catch (IOException e) {
             out.println("Docerina: Could not write HTML file of package " + ballerinaPackageDoc.getName() +
                     System.lineSeparator() + e.getMessage());
         } finally {
             if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException ignore) {
-                }
+                writer.close();
             }
         }
     }
