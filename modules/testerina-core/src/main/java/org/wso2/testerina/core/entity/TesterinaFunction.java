@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.testerina.core.entity;
 
 import org.wso2.ballerina.core.exception.AssertionException;
@@ -6,7 +23,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.lang.util.Functions;
 
 /**
- * Created by nirodha on 1/26/17.
+ * TesterinaFunction entity class
  */
 public class TesterinaFunction {
 
@@ -19,23 +36,26 @@ public class TesterinaFunction {
     public static final String PREFIX_BEFORETEST = "beforeTest";
     public static final String PREFIX_AFTERTEST = "afterTest";
 
-    public enum Type{
+    /**
+     * Prefixes for the test function names
+     */
+    public enum Type {
         TEST(PREFIX_TEST), BEFORETEST(PREFIX_BEFORETEST), AFTERTEST(PREFIX_AFTERTEST);
         private String prefix;
 
-        private Type(String prefix){
+        private Type(String prefix) {
             this.prefix = prefix;
         }
     };
 
-    TesterinaFunction(String name, Type type, Function bFunction, TesterinaFile tFile){
+    TesterinaFunction(String name, Type type, Function bFunction, TesterinaFile tFile) {
         this.name = name;
         this.type = type;
         this.bFunction = bFunction;
         this.tFile = tFile;
     }
 
-    public BValue[] invoke() throws AssertionException{
+    public BValue[] invoke() throws AssertionException {
         return Functions.invoke(this.tFile.getBFile(), this.name);
     }
 
@@ -63,10 +83,5 @@ public class TesterinaFunction {
     public void setbFunction(Function bFunction) {
         this.bFunction = bFunction;
     }
-
-
-
-
-
 
 }
