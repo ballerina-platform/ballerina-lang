@@ -404,7 +404,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // Creating resource heading collapse icon.
             var headingCollapseIcon = D3utils.rect(xForCollpaseIcon, yForIcons,
-                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup)
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Collapse pane")
                 .classed("headingExpandIcon", true);
 
             // Creating separator for collapse icon.
@@ -441,7 +441,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // Resource heading delete icon
             var headingDeleteIcon = D3utils.rect(xForDeleteIcon, yForIcons,
-                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).classed("headingDeleteIcon", true);
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Delete").classed("headingDeleteIcon", true);
 
             // Creating wrapper for annotation icon.
             var headingAnnotationIconWrapper = D3utils.rect(
@@ -453,7 +453,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // Resource heading annotation icon
             var headingAnnotationIcon = D3utils.rect(xForAnnotationIcon, yForIcons,
-                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).classed("headingAnnotationBlackIcon", true);
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Annotations").classed("headingAnnotationBlackIcon", true);
 
             // Creating wrapper for arguments icon.
             var headingArgumentsIconWrapper = D3utils.rect(
@@ -465,7 +465,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // Resource heading arguments icon.
             var headingArgumentsIcon = D3utils.rect(xForArgumentsIcon, yForIcons,
-                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).classed("headingArgumentsBlackIcon", true);
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Arguments").classed("headingArgumentsBlackIcon", true);
+
+            //initialize all svg related tooltips
+            $('svg rect').tooltip({'container': 'body'});
 
             // UI changes when the annotation button is clicked.
             $(headingAnnotationIcon.node()).click(function () {
