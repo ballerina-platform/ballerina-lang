@@ -151,17 +151,10 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                 },
                 {
                     propertyType: "text",
-                    key: "Path Parameter",
+                    key: "Action Invocation",
                     model: actionInvocationModel,
-                    getterMethod: actionInvocationModel.getPath,
-                    setterMethod: actionInvocationModel.setPath
-                },
-                {
-                    propertyType: "text",
-                    key: "Message Parameter",
-                    model: actionInvocationModel,
-                    getterMethod: actionInvocationModel.getMessageVariableReference,
-                    setterMethod: actionInvocationModel.setMessageVariableReference
+                    getterMethod: actionInvocationModel.getExpression,
+                    setterMethod: actionInvocationModel.setExpression
                 }
             ];
             this._createPropertyPane({
