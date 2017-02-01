@@ -34,7 +34,7 @@ public class LauncherTest {
     @Test(description = "Test getFileName method which returns the file name from the given path")
     public void testGetFileName() {
         Path p = Paths.get("/Users/john/Work/clones/ballerina/modules/foo.bal");
-        String fileName = Utils.getFileName(p);
+        String fileName = LauncherUtils.getFileName(p);
         Assert.assertEquals(fileName, "foo.bal");
     }
 
@@ -47,7 +47,7 @@ public class LauncherTest {
 
     @Test(description = "Test makeFirstLetterUpperCase method which makes the first letter lowercase")
     public void testMakeFirstLetterUpperCase() {
-        String actual = Utils.makeFirstLetterUpperCase("No file or directory found");
+        String actual = LauncherUtils.makeFirstLetterUpperCase("No file or directory found");
         Assert.assertEquals(actual, "no file or directory found");
     }
 
@@ -55,7 +55,7 @@ public class LauncherTest {
     @Test(description = "Test buildLangModel method which creates BallerinaFile from the given path")
     public void testBuildLangModel() {
         Path filePath = Paths.get(System.getProperty("user.dir"), "src", "test", "resources", "balfiles", "foo.bal");
-        BallerinaFile bFile = Utils.buildLangModel(filePath);
+        BallerinaFile bFile = LauncherUtils.buildLangModel(filePath);
 
         Assert.assertEquals(bFile.getFunctions().length, 1);
     }
