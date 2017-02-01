@@ -29,6 +29,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.cassandra.CassandraConnector;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.MongoDBConnector;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.Find;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.FindOne;
@@ -467,6 +468,11 @@ public class BuiltInNativeConstructLoader {
         registerAction(scope, new Insert());
         registerAction(scope, new InsertBatch());
         registerAction(scope, new org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.Update());
+        
+        // Cassandra
+        registerConnector(scope, new CassandraConnector());
+        registerAction(scope, new org.wso2.ballerina.core.nativeimpl.connectors.data.cassandra.client.Execute());
+        registerAction(scope, new org.wso2.ballerina.core.nativeimpl.connectors.data.cassandra.client.Close());
 
         registerConnector(scope, new HTTPConnector());
 
