@@ -15,13 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './canvas', './point', './../ast/connector-definition',
-        './client-life-line', './connector-action-view', 'ballerina/ast/ballerina-ast-factory', './axis',
-        './connector-declaration-view', './../ast/variable-declaration', './variables-view', './annotation-view',
-        './function-arguments-view'],
-    function (_, log, d3, D3utils, $, Alerts, Canvas, Point, ConnectorDefinition,
-              ClientLifeLine, ConnectorActionView, BallerinaASTFactory, Axis,
-              ConnectorDeclarationView, VariableDeclaration, VariablesView, AnnotationView, ArgumentsView) {
+define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', './point',
+        './../ast/connector-definition', './client-life-line', './connector-action-view',
+        'ballerina/ast/ballerina-ast-factory', './axis', './connector-declaration-view',
+        './../ast/variable-declaration', './variables-view', './annotation-view', './function-arguments-view'],
+    function (_, log, d3, D3utils, $, Alerts, SVGCanvas, Point,
+              ConnectorDefinition, ClientLifeLine, ConnectorActionView,
+              BallerinaASTFactory, Axis, ConnectorDeclarationView,
+              VariableDeclaration, VariablesView, AnnotationView, ArgumentsView) {
 
         /**
          * The view to represent a connector definition which is an AST visitor.
@@ -30,10 +31,10 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './canvas', './poi
          * @param {Object} args.container - The HTML container to which the view should be added to.
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
          * @constructor
-         * @augments Canvas
+         * @augments SVGCanvas
          */
         var ConnectorDefinitionView = function (args) {
-            Canvas.call(this, args);
+            SVGCanvas.call(this, args);
             this._connectorViewList =  _.get(args, "connectorViewList", []);
             this._viewOptions.LifeLineCenterGap = 180;
             this._actionViewList = _.get(args, "actionViewList", []);
@@ -58,7 +59,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './canvas', './poi
             }
         };
 
-        ConnectorDefinitionView.prototype = Object.create(Canvas.prototype);
+        ConnectorDefinitionView.prototype = Object.create(SVGCanvas.prototype);
         ConnectorDefinitionView.prototype.constructor = ConnectorDefinitionView;
 
         ConnectorDefinitionView.prototype.setModel = function (model) {

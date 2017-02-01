@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './canvas', './point', './../ast/service-definition',
+define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', './point', './../ast/service-definition',
         './client-life-line', './resource-definition-view', 'ballerina/ast/ballerina-ast-factory', './axis',
         './connector-declaration-view', './../ast/variable-declaration', './variables-view', './annotation-view'],
-    function (_, log, d3, D3utils, $, Alerts, Canvas, Point, ServiceDefinition,
+    function (_, log, d3, D3utils, $, Alerts, SVGCanvas, Point, ServiceDefinition,
               ClientLifeLine, ResourceDefinitionView, BallerinaASTFactory, Axis,
               ConnectorDeclarationView, VariableDeclaration, VariablesView, AnnotationView) {
 
@@ -29,9 +29,10 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './canvas', './poi
          * @param {Object} args.container - The HTML container to which the view should be added to.
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
          * @constructor
+         * @augments SVGCanvas
          */
         var ServiceDefinitionView = function (args) {
-            Canvas.call(this, args);
+            SVGCanvas.call(this, args);
 
             this._connectorViewList =  _.get(args, "connectorViewList", []);
             this._viewOptions.LifeLineCenterGap = 180;
@@ -57,7 +58,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './canvas', './poi
             }
         };
 
-        ServiceDefinitionView.prototype = Object.create(Canvas.prototype);
+        ServiceDefinitionView.prototype = Object.create(SVGCanvas.prototype);
         ServiceDefinitionView.prototype.constructor = ServiceDefinitionView;
 
         ServiceDefinitionView.prototype.setModel = function (model) {

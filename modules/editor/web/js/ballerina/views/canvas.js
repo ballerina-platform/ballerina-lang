@@ -16,27 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor', './ballerina-view', './message-manager', 'mcustom_scroller'],
-    function(log, _, $, d3, D3Utils, AstVisitor, BallerinaView, MessageManager, mcustomScroller){
+define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor', './ballerina-view', './message-manager'],
+    function(log, _, $, d3, D3Utils, AstVisitor, BallerinaView, MessageManager){
 
+    /**
+        * Generic class for a canvas. i.e Services, Functions.
+        * @param {Object} args={} - Argument for a canvas.
+        * @constructor
+        * @augments BallerinaView
+        */
     var Canvas = function(args) {
         var mMArgs = {'canvas': this};
         args.messageManager = new MessageManager(mMArgs);
         BallerinaView.call(this, args);
-
-        /**
-         * The <svg> element which is has all svg elements should be drawn on.
-         * @type {SVGSVGElement}
-         * @private
-         */
-        this._svg = undefined;
-
-        /**
-         * A wrapper SVG <g> element which resides inside {@link _svg}.
-         * @type {SVGGElement}
-         * @private
-         */
-        this._rootGroup = undefined;
 
         /**
          * The icon of the icon position at top left corner.
@@ -59,7 +51,12 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
          */
         this._canvasOperationsWrapper = undefined;
 
-        this._minHeight = 400;
+        /**
+         * Gets the body wrapper.
+         * @type {HTMLDivElement}
+         * @private
+         */
+        this._bodyWrapper = undefined;
 
         this.bindEvents();
     };
@@ -144,25 +141,16 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         //// Creating the body of the canvas.
 
         // The wrapper for the body of the canvas.
-        var bodyWrapper = $("<div/>", {
+        var bodyContainer = $("<div/>", {
             id: id + "_body",
             class: _.get(options, "cssClass.canvas", "")
         }).appendTo(outerDiv);
 
-        // Wrapper for the SVG
-        var svgContainer = $("<div/>", {
+        this._bodyWrapper = $("<div/>", {
             id: id,
             name: name,
             class: _.get(options, "cssClass.outer_box", "")
-        }).appendTo(bodyWrapper);
-
-        this._svg = $("<svg class='" + _.get(options, "cssClass.svg_container", "") + "'></svg>")
-            .appendTo(svgContainer);
-
-        this._rootGroup = D3Utils.group(d3.select(this._svg.get(0)));
-
-        // Setting initial height of the SVG.
-        this.setSVGHeight(this._minHeight);
+        }).appendTo(bodyContainer);
 
         var self = this,
             dropActiveClass = _.get(options, 'cssClass.design_view_drop');
@@ -209,52 +197,6 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
             var parent = child.parent;
             self.trigger("remove-view", parent, child);
         });
-
-        $(svgContainer).mCustomScrollbar({
-            theme: "dark",
-            axis: "x",
-            scrollInertia: 0,
-            autoHideScrollbar: true,
-            mouseWheel: {
-                enable: false
-            }
-        });
-    };
-
-    /**
-     * Set canvas container height
-     * @param newHeight
-     */
-    Canvas.prototype.setSVGHeight = function (newHeight) {
-        var dn = newHeight < this._minHeight ? this._minHeight : newHeight;
-        this._svg.attr('height', dn);
-        this.getBoundingBox().h(dn);
-
-        // If service container's height is lesser than the height of the svg
-        // Increase the height of the service container and the inner div
-        if ($(this._container).closest("svg").attr('height')) {
-            if ($(this._container).closest(".panel-body").height() < $(this._container).closest("svg").attr('height')) {
-                $(this._container).closest(".panel-body").height($(this._container).closest("svg").attr("height"));
-                $(this._container).closest(".panel-body").find("#" + $(this._container).closest(".panel-body")
-                        .attr("id")).height($(this._container).closest("svg").attr('height'));
-            }
-        } else {
-            if ($(this._container).height() < $(this._container).find('svg').attr('height')) {
-                $(this._container).height($(this._container).find('svg').attr('height'));
-                $(this._container).find("#" + $(this._container).attr('id')).height($(this._container).find('svg')
-                    .attr('height'));
-            }
-        }
-    };
-
-    /**
-     * Set canvas container width
-     * @param {number} newWidth
-     */
-    Canvas.prototype.setSVGWidth = function (newWidth) {
-        this._svg.attr('width', newWidth);
-        this.getBoundingBox().w(newWidth);
-        $(this._container).closest(".panel-body").find(".outer-box").mCustomScrollbar("update");
     };
 
     /**
@@ -271,10 +213,6 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
             }, parent, child);
     };
 
-    Canvas.prototype.getSVG = function () {
-        return this._svg;
-    };
-
     Canvas.prototype.getOperationsPane = function () {
         return this._canvasOperationsWrapper;
     };
@@ -287,8 +225,8 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         return this._titleLink;
     };
 
-    Canvas.prototype.getRootGroup = function () {
-        return this._rootGroup;
+    Canvas.prototype.getBodyWrapper = function() {
+        return this._bodyWrapper;
     };
 
     return Canvas;
