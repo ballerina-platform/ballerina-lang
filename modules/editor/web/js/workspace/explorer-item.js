@@ -59,8 +59,12 @@ define(['lodash', 'log', 'file_browser', 'event_channel', 'context_menu', 'theme
             'placement': 'bottom'
         });
 
-        header.click(function(){
-            arrowHeadIcon.toggleClass("fw-rotate-90");
+        body.on('show.bs.collapse', function(){
+            arrowHeadIcon.addClass("fw-rotate-90");
+        });
+
+        body.on('hide.bs.collapse', function(){
+            arrowHeadIcon.removeClass("fw-rotate-90");
         });
 
         var fileBrowser = new FileBrowser({
