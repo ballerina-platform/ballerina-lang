@@ -219,11 +219,6 @@
                 <version>${mockito.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.zaxxer</groupId>
-                <artifactId>HikariCP</artifactId>
-                <version>${com.zaxxer.hikaricp.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.beust</groupId>
                 <artifactId>jcommander</artifactId>
                 <version>${jcommander.version}</version>
@@ -400,10 +395,6 @@
 
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.deployment.export.version>5.0.0</carbon.deployment.export.version>
-
-
-        <com.zaxxer.hikaricp.version>2.4.1</com.zaxxer.hikaricp.version>
-        <com.zaxxer.hikari.import.version.range>[2.4.0,2.5.0)</com.zaxxer.hikari.import.version.range>
 
         <slf4j.version>1.7.22</slf4j.version>
         <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)
