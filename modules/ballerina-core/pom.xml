@@ -65,10 +65,6 @@
             <artifactId>Saxon-HE</artifactId>
           </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
         </dependency>
@@ -112,6 +108,10 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -139,6 +139,45 @@
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
+                    </execution>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <id>check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
+                            <haltOnFailure>true</haltOnFailure>
+                            <rules>
+                                <rule >
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit >
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.76</minimum>
+                                        </limit>
+                                        <limit >
+                                            <counter>BRANCH</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.62</minimum>
+                                        </limit>
+                                    </limits>
+                                    <excludes>
+                                        <exclude>*Test</exclude>
+                                        <exclude>org/wso2/ballerina/core/parser/
+                                            BallerinaBaseListener*</exclude>
+                                        <exclude>org/wso2/ballerina/core/parser/
+                                            BallerinaLexer*</exclude>
+                                        <exclude>org/wso2/ballerina/core/parser/
+                                            BallerinaListener*</exclude>
+                                        <exclude>org/wso2/ballerina/core/parser/
+                                            BallerinaParser*</exclude>
+                                    </excludes>
+                                </rule>
+                            </rules>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>jacoco-site</id>
@@ -227,13 +266,6 @@
                     <formats>
                         <format>html</format>
                     </formats>
-                     <reportSets>
-                         <reportSet>
-                             <reports>
-                                 <report>cobertura</report>
-                             </reports>
-                         </reportSet>
-                     </reportSets>
                 </configuration>
                 <executions>
                     <execution>
