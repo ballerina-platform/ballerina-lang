@@ -136,7 +136,7 @@ define(['lodash', 'log', 'file_browser', 'event_channel', 'context_menu', 'theme
                         self._fileBrowser.refresh(node);
                     }
                 };
-                    items.deleteFolder = {
+                items.deleteFolder = {
                     name: "delete",
                     icon: "",
                     callback: function () {
@@ -145,7 +145,11 @@ define(['lodash', 'log', 'file_browser', 'event_channel', 'context_menu', 'theme
                                 type: "folder",
                                 path: path,
                                 onSuccess: function(){
-                                    self._fileBrowser.refresh(node.parent);
+                                    if(isRoot){
+                                        self.application.commandManager.dispatch("remove-explorer-item", self);
+                                    } else {
+                                        self._fileBrowser.refresh(node.parent);
+                                    }
                                 }
                             });
                     }
