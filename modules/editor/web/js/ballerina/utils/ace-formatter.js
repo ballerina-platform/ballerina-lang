@@ -26,22 +26,51 @@ define(["require", "ace/token_iterator"],
             {
                 type: 'paren.lparen',
                 value: '{',
-                indent: true
+                breakBefore: false,
+                breakAfter: true
             },
             {
                 type: 'paren.rparen',
                 breakBefore: true,
+                breakAfter: true,
                 value: '}'
             },
             {
                 type: 'paren.rparen',
                 breakBefore: true,
                 value: '})',
-                dontBreak: true
+                breakAfter: true
+            },
+            {
+                type: 'ballerina-import-package-name-part',
+                breakBefore: false,
+                breakAfter: true
+            },
+            {
+                type: 'ballerina-annotation',
+                breakBefore: true,
+                breakAfter: false
+            },
+            {
+                type: 'punctuation.operator',
+                value: ";",
+                breakBefore: false,
+                breakAfter: true
+            },
+            {
+                type: 'ballerina-keyword-definition',
+                breakBefore: true,
+                breakAfter: false
             }
         ];
 
         BallerinaFormatter.spaceRules = [
+            {
+                type: 'paren.lparen',
+                value: '{',
+                prepend: true,
+                append: false
+            },
             {
                 type: 'ballerina-operator',
                 value: '=',
@@ -50,32 +79,32 @@ define(["require", "ace/token_iterator"],
             },
             {
                 type: 'ballerina-keyword-control',
-                prepend: true,
+                prepend: false,
                 append: true
             },
             {
                 type: 'ballerina-keyword-other',
-                prepend: true,
+                prepend: false,
                 append: true
             },
             {
                 type: 'ballerina-keyword-primitive-type',
-                prepend: true,
+                prepend: false,
                 append: true
             },
             {
                 type: 'ballerina-keyword-non-primitive-type',
-                prepend: true,
+                prepend: false,
                 append: true
             },
             {
                 type: 'ballerina-keyword-definition',
-                prepend: true,
+                prepend: false,
                 append: true
             },
             {
                 type: 'ballerina-keyword-language',
-                prepend: true,
+                prepend: false,
                 append: true
             },
             {
@@ -94,24 +123,23 @@ define(["require", "ace/token_iterator"],
         BallerinaFormatter.beautify = function (session) {
             var iterator = new TokenIterator(session, 0, 0);
             this.session = session;
-            var token = iterator.getCurrentToken();
             var code = this.format(iterator);
             session.doc.setValue(code);
         };
 
-        BallerinaFormatter.format = function (iterator, context) {
+        BallerinaFormatter.format = function (iterator) {
 
             var token = iterator.getCurrentToken(),
                  newLinesRules = this.newLinesRules,
                  spaceRules = this.spaceRules,
                  code = '',
                  indentation = 0,
-                 tag,
-                 lastTag,
                  lastToken = {},
                  nextToken = {},
                  value = '',
-                 skipNextSpace = false;
+                 space = ' ',
+                 newLine = '\n',
+                 tab = '\t';
 
             while (token !== null) {
                 console.log(token);
@@ -128,54 +156,57 @@ define(["require", "ace/token_iterator"],
                     token.value = token.value.trim();
                 }
 
-                //skip empty tokens
-                if (!token.value) {
-                    token = nextToken;
-                    continue;
+                // add indent counts
+                if (token.type == 'paren.lparen' && token.value === "{") {
+                    indentation++
+                }
+                else if (token.type == 'paren.rparen' && token.value === "}") {
+                    indentation--
                 }
 
-                //put spaces back in
+                //put spaces
                 value = token.value;
-                for (var i in spaceRules) {
-                    if (token.type == spaceRules[i].type && (!spaceRules[i].value || token.value == spaceRules[i].value))
+                spaceRules.forEach(function(spaceRule){
+                    if (token.type == spaceRule.type && (!spaceRule.value || token.value == spaceRule.value))
                     {
-                        if (!skipNextSpace && spaceRules[i].prepend) {
-                            value = ' ' + token.value;
-                        } else {
-                            skipNextSpace = false;
+                        if (spaceRule.prepend && !_.endsWith(code, space)) {
+                            value = space + token.value;
                         }
-
-                        if (spaceRules[i].append) {
-                            value += ' ';
-                            skipNextSpace = true;
+                        if (spaceRule.append) {
+                            value += space;
                         }
                     }
+                });
+
+                if(_.isEqual(token.type, 'ballerina-identifier')
+                    && _.isEqual(lastToken.type, 'whitespace')
+                    && !_.endsWith(code, space)){
+                    value = space + token.value;
                 }
 
-                for (i in newLinesRules) {
-                    if (token.type == newLinesRules[i].type && (!newLinesRules[i].value || token.value == newLinesRules[i].value)) {
-                        if (newLinesRules[i].indent === false) {
-                            indentation--;
-                        } else if(newLinesRules[i].indent === true){
-                            indentation++;
-                        }
+                // put new lines
+                newLinesRules.forEach(function(newLineRule){
+                    if (token.type == newLineRule.type && (!newLineRule.value || token.value == newLineRule.value)) {
 
-                        if (newLinesRules[i].breakBefore && (!newLinesRules[i].prev || newLinesRules[i].prev.test(lastToken.value))) {
-                            code += "\n";
-
-                            //indent
-                            for (i = 0; i < indentation; i++) {
-                                code += "\t";
+                        if (newLineRule.breakBefore && !_.endsWith(code, newLine)) {
+                            code += newLine;
+                            // indent
+                            for (var i = 0; i < indentation; i++) {
+                                code += tab;
                             }
                         }
-                        break;
+                        if (newLineRule.breakAfter) {
+                            value += newLine;
+
+                            // indent
+                            for (var i = 0; i < indentation; i++) {
+                                value += tab;
+                            }
+                        }
                     }
-                }
+                });
 
                 code += value;
-
-                //next token
-                lastTag = tag;
 
                 lastToken = token;
 
