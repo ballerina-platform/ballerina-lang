@@ -44,12 +44,12 @@
     vertical-align: middle;
 }
 
-.panel-title > a{
-   margin-left: 10px;
+.panel-title > a {
+    margin-left: 6px;
 }
 
 .panel-icon, .service-icon, .connector-icon, .function-icon{
-    padding: 8px;
+    padding: 4px;
     background-color: black;
 }
 
@@ -471,7 +471,7 @@
 }
 
 .struct-type-dropdown-wrapper i {
-    line-height: 19px;
+    line-height: 20px;
     padding-left: 7px;
 }
 
@@ -523,18 +523,19 @@
     border: 1px solid #CCC;
     background: #FFF;
     margin-top: 2px;
-    width: 100%;
     cursor: pointer;
+    height: 41px;
 }
 
 .struct-variable-definition-type {
-    width: 35%;
+    width: 200px;
     border-right: 1px solid #CCC;
-    padding: 13px;
+    padding: 10px 13px;
 }
 
 .struct-variable-definition-identifier {
-    padding: 13px;
+    padding: 10px 13px;
+    min-width: 160px;
 }
 
 .struct-variable-definition-wrapper i {
@@ -575,7 +576,7 @@
 
 .struct-variable-type-dropdown-wrapper button {
     height: 24px;
-    padding-top: 2px;
+    padding-top: 1px;
     width: 140px;
 }
 

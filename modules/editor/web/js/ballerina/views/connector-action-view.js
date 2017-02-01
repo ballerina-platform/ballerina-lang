@@ -86,9 +86,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.defua = 180;
             this._viewOptions.hoverClass = _.get(args, "viewOptions.cssClass.hover_svg", 'design-view-hover-svg');
 
-            this._variableButton = undefined;
-            this._variablePane = undefined;
-
             //setting initial height for connector action container
             this._totalHeight = 230;
             this._headerIconGroup = undefined;
@@ -116,8 +113,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         ConnectorActionView.prototype.removeViewCallback = function (parent, child) {
             d3.select("#_" +this._model.id).remove();
             $(this._nameDiv).remove();
-            $(this._variablePane).remove();
-            $(this._variableButton).remove();
             this.unplugView(
                 {
                     x: this._viewOptions.topLeft.x(),
@@ -538,10 +533,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     // connector action content is expanded. Hence expand connector action BBox
                     connectorActionBBox.h(connectorActionBBox.h() + self._minizedHeight);
 
-                    // show the variable button and variable pane
-                    self._variableButton.show();
-                    self._variablePane.show();
-
                     // Changing icon if the collapse.
                     headingCollapseIcon.classed("headingExpandIcon", true);
                     headingCollapseIcon.classed("headingCollapsedIcon", false);
@@ -551,10 +542,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     // connector action content is folded. Hence decrease connector action BBox height and keep the minimized size
                     self._minizedHeight =  parseFloat(contentRect.attr('height'));
                     connectorActionBBox.h(connectorActionBBox.h() - self._minizedHeight);
-
-                    // hide the variable button and variable pane
-                    self._variableButton.hide();
-                    self._variablePane.hide();
 
                     // Changing icon if the collapse.
                     headingCollapseIcon.classed("headingExpandIcon", false);
@@ -686,14 +673,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 // Reposition the connector action name container
                 var newDivPositionVertical = parseInt(this._nameDiv.css("top")) + offset.dy;
                 this._nameDiv.css("top", newDivPositionVertical + "px");
-
-                // Reposition Variable button
-                var newVButtonPositionVertical = parseInt($(self._variableButton).css("top")) + offset.dy;
-                $(self._variableButton).css("top", newVButtonPositionVertical + "px");
-
-                // Reposition variable pane
-                var newVPanePositionVertical = parseInt($(self._variablePane).css("top")) + offset.dy;
-                $(self._variablePane).css("top", newVPanePositionVertical + "px");
             }, this);
         };
 
