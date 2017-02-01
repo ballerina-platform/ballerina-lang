@@ -94,6 +94,7 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
 
     /**
      * Removes new variable declaration.
+     * @param {string} modelID - The model ID of the variable.
      */
     StructDefinition.prototype.removeVariableDeclaration = function (modelID) {
         var self = this;
@@ -106,9 +107,10 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
     };
 
     /**
-     * initialize StructDefinition from json object
-     * @param {Object} jsonNode to initialize from
-     * @param {string} [jsonNode.struct_name] - Name of the struct definition
+     * Initialize StructDefinition from json object
+     * @param {Object} jsonNode - JSON object for initialization.
+     * @param {string} jsonNode.struct_name - Name of the struct definition.
+     * @param {VariableDeclaration[]} jsonNode.children - Variables of the struct definition.
      */
     StructDefinition.prototype.initFromJson = function (jsonNode) {
         var self = this;

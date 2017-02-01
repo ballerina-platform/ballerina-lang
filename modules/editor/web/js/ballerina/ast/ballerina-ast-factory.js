@@ -1069,6 +1069,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                     case 'constant_definition':
                         node = BallerinaASTFactory.createConstantDefinition();
                         break;
+                    case 'struct_definition':
+                        node = BallerinaASTFactory.createStructDefinition();
+                        break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;
                 }
