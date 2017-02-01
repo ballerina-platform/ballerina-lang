@@ -24,6 +24,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         args.messageManager = new MessageManager(mMArgs);
         BallerinaView.call(this, args);
         this.init();
+        this._minHeight = 400;
     };
 
     Canvas.prototype = Object.create(BallerinaView.prototype);
@@ -70,7 +71,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         this._rootGroup = D3Utils.group(d3.select(svg.get(0)));
         this._svg = svg;
         // Set the initial service container height to 300px
-        this.setServiceContainerHeight(300);
+        this.setServiceContainerHeight(this._minHeight);
         //draw a collapse accordion
         var outerDiv = $('<div></div>');
         outerDiv.attr('id', '_'+canvas[0].id);//to support HTML4
@@ -197,8 +198,9 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
      * @param newHeight
      */
     Canvas.prototype.setServiceContainerHeight = function (newHeight) {
-        this._svg.attr('height', newHeight);
-        this.getBoundingBox().h(newHeight);
+        var dn = newHeight < this._minHeight ? this._minHeight : newHeight;
+        this._svg.attr('height', dn);
+        this.getBoundingBox().h(dn);
 
         // If service container's height is lesser than the height of the svg
         // Increase the height of the service container and the inner div
