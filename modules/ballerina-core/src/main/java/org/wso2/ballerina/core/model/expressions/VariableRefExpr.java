@@ -28,7 +28,7 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
-public class VariableRefExpr extends AbstractExpression {
+public class VariableRefExpr extends AbstractExpression implements ReferenceExpr {
 
     private SymbolName symbolName;
 
