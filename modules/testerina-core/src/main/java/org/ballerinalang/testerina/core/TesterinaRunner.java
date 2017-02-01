@@ -15,42 +15,44 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.wso2.testerina.core;
+package org.ballerinalang.testerina.core;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
 
 import java.io.File;
 import java.io.FilenameFilter;
 
+/**
+ * TesterinaRunner class
+ */
 public class TesterinaRunner {
 
-    static final String suffix = "_test.bal";
+    static final String SUFFIX = "_test.bal";
 
      public static void main(String[] args) {
          String resource_path = "/home/nirodha/wso2/bal/testFiles/";
          File resourceFile = new File(resource_path);
          TesterinaExecuter testExec = new TesterinaExecuter();
 
-         if(resourceFile.isDirectory()){
+         if (resourceFile.isDirectory()) {
              // if the resource path is a directory execute all the test files
              FilenameFilter filter = new FilenameFilter() {
                  @Override
                  public boolean accept(File dir, String name) {
-                     return name.endsWith(suffix);
+                     return name.endsWith(SUFFIX);
                      //return true;
                  }
              };
              File[] files = resourceFile.listFiles(filter);
-             for(int i=0; i < files.length; i++){
+             for (int i = 0; i < files.length; i++) {
                  String path = files[i].getPath();
                  System.out.println("Executing test file : " + path);
                  testExec.executeTestFile(path);
              }
          }
 
-         if(resourceFile.isFile()) {
-             if (resourceFile.getName().endsWith(suffix)) {
+         if (resourceFile.isFile()) {
+             if (resourceFile.getName().endsWith(SUFFIX)) {
                  testExec.executeTestFile(resource_path);
              } else {
                  throw new BallerinaException("Error: Invalid File Naming..");

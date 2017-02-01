@@ -15,8 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.wso2.testerina.core;
+package org.ballerinalang.testerina.core;
 
 //import org.wso2.ballerina.core.exception.LinkerException;
 import org.wso2.ballerina.core.exception.AssertionException;
@@ -31,6 +30,8 @@ import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnString;
 //import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.FunctionUtils;
 import org.wso2.ballerina.core.utils.ParserUtils;
+import org.ballerinalang.testerina.core.entity.TesterinaFile;
+import org.ballerinalang.testerina.core.entity.TesterinaFunction;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,11 +39,14 @@ import java.util.Iterator;
 
 //import java.io.File;
 
+/**
+ * TeterinaExecutor class
+ */
 public class TesterinaExecuter {
 
     private BallerinaFile bFile;
 
-    public void executeTestFile(String resourcePath){
+    public void executeTestFile(String resourcePath) {
         SymScope symScope = new SymScope(null);
         FunctionUtils.addNativeFunction(symScope, new PrintlnInt());
         FunctionUtils.addNativeFunction(symScope, new PrintlnString());
@@ -52,17 +56,18 @@ public class TesterinaExecuter {
 
         //BuiltInNativeConstructLoader.loadConstructs();
         // SymScope globalSymScope = GlobalScopeHolder.getInstance().getScope();
-        //bFile = ParserUtils.parseBalFile(File.separator+"home"+File.separator+"nirodha"+File.separator+"wso2"+File.separator+"bal"+File.separator+"BallerinaEcho"+File.separator+"Echo.bal", globalSymScope);
+        //bFile = ParserUtils.parseBalFile(File.separator+"home"+File.separator+"nirodha"+File.separator+"wso2"+
+        // File.separator+"bal"+File.separator+"BallerinaEcho"+File.separator+"Echo.bal", globalSymScope);
         bFile = ParserUtils.parseBalFile(resourcePath, symScope, true);
         TesterinaFile tFile = new TesterinaFile(getFileNameFromResourcePath(resourcePath), resourcePath, bFile);
         ArrayList<TesterinaFunction> testFunctions = tFile.getTestFunctions();
         Iterator<TesterinaFunction> testFuncIter = testFunctions.iterator();
-        while(testFuncIter.hasNext()){
+        while (testFuncIter.hasNext()) {
             TesterinaFunction tFunc = testFuncIter.next();
             System.out.println("Running '" + tFunc.getName() + "'...");
             try {
                 tFunc.invoke();
-            }catch (AssertionException e){
+            } catch (AssertionException e) {
                 System.out.println(e.getMessage());
             }
         }
@@ -92,9 +97,9 @@ public class TesterinaExecuter {
         */
     }
 
-    private String getFileNameFromResourcePath(String path){
+    private String getFileNameFromResourcePath(String path) {
         int indexOfLastSeparator = path.lastIndexOf(File.separator);
-        String fileName = path.substring(indexOfLastSeparator+1);
+        String fileName = path.substring(indexOfLastSeparator + 1);
         return fileName;
     }
 
@@ -107,7 +112,8 @@ public class TesterinaExecuter {
         FunctionUtils.addNativeFunction(symScope,  new AssertFalse());
         //BuiltInNativeConstructLoader.loadConstructs();
        // SymScope globalSymScope = GlobalScopeHolder.getInstance().getScope();
-        //bFile = ParserUtils.parseBalFile(File.separator+"home"+File.separator+"nirodha"+File.separator+"wso2"+File.separator+"bal"+File.separator+"BallerinaEcho"+File.separator+"Echo.bal", globalSymScope);
+        //bFile = ParserUtils.parseBalFile(File.separator+"home"+File.separator+"nirodha"+File.separator+"wso2"+
+        File.separator+"bal"+File.separator+"BallerinaEcho"+File.separator+"Echo.bal", globalSymScope);
         bFile = ParserUtils.parseBalFile("testerina.resources/Echo.bal", symScope);
         Function[] functions = bFile.getFunctions();
         for(int i=0; i < functions.length; i++){
