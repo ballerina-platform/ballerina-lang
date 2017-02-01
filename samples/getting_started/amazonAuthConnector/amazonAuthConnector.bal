@@ -30,16 +30,111 @@ connector AmazonLambda(string accessKeyId, string secretAccessKey,
         host = "lambda.us-east-1.amazonaws.com";
         endpoint = "https://lambda." + region + ".amazonaws.com";
 
-
         message:setHeader(requestMsg, "Host", host);
-
-
         response = sample:AmazonAuthConnector.req(amazonAuthConnector, requestMsg, httpMethod, requestURI, "");
 
         return response;
-
     }
+    action deleteFunction(AmazonLambda amz, string arn) (message) throws exception {
 
+            string signature;
+            string httpMethod;
+            string requestURI;
+            string host;
+            string endpoint;
+            message requestMsg;
+            message response;
+
+            httpMethod = "DELETE";
+            requestURI = "/2015-03-31/functions/" + arn;
+            host = "lambda.us-east-1.amazonaws.com";
+            endpoint = "https://lambda." + region + ".amazonaws.com";
+
+            message:setHeader(requestMsg, "Host", host);
+            response = sample:AmazonAuthConnector.req(amazonAuthConnector, requestMsg, httpMethod, requestURI, "");
+
+            return response;
+    }
+    action getAccountDetails(AmazonLambda amz) (message) throws exception {
+
+            string signature;
+            string httpMethod;
+            string requestURI;
+            string host;
+            string endpoint;
+            message requestMsg;
+            message response;
+
+            httpMethod = "GET";
+            requestURI = "/2016-08-19/account-settings/";
+            host = "lambda.us-east-1.amazonaws.com";
+            endpoint = "https://lambda." + region + ".amazonaws.com";
+
+            message:setHeader(requestMsg, "Host", host);
+            response = sample:AmazonAuthConnector.req(amazonAuthConnector, requestMsg, httpMethod, requestURI, "");
+
+            return response;
+    }
+    action getFunction(AmazonLambda amz, string arn) (message) throws exception {
+
+            string signature;
+            string httpMethod;
+            string requestURI;
+            string host;
+            string endpoint;
+            message requestMsg;
+            message response;
+
+            httpMethod = "GET";
+            requestURI = "/2015-03-31/functions/" + arn;
+            host = "lambda.us-east-1.amazonaws.com";
+            endpoint = "https://lambda." + region + ".amazonaws.com";
+
+            message:setHeader(requestMsg, "Host", host);
+            response = sample:AmazonAuthConnector.req(amazonAuthConnector, requestMsg, httpMethod, requestURI, "");
+
+            return response;
+    }
+    action listFunctions(AmazonLambda amz) (message) throws exception {
+
+            string signature;
+            string httpMethod;
+            string requestURI;
+            string host;
+            string endpoint;
+            message requestMsg;
+            message response;
+
+            httpMethod = "GET";
+            requestURI = "/2015-03-31/functions/";
+            host = "lambda.us-east-1.amazonaws.com";
+            endpoint = "https://lambda." + region + ".amazonaws.com";
+
+            message:setHeader(requestMsg, "Host", host);
+            response = sample:AmazonAuthConnector.req(amazonAuthConnector, requestMsg, httpMethod, requestURI, "");
+
+            return response;
+    }
+    action invokeFunction(AmazonLambda amz, string arn) (message) throws exception {
+
+            string signature;
+            string httpMethod;
+            string requestURI;
+            string host;
+            string endpoint;
+            message requestMsg;
+            message response;
+
+            httpMethod = "GET";
+            requestURI = "/2015-03-31/functions/" + arn + "/versions";
+            host = "lambda.us-east-1.amazonaws.com";
+            endpoint = "https://lambda." + region + ".amazonaws.com";
+
+            message:setHeader(requestMsg, "Host", host);
+            response = sample:AmazonAuthConnector.req(amazonAuthConnector, requestMsg, httpMethod, requestURI, "");
+
+            return response;
+    }
 }
 
 connector AmazonAuthConnector(string accessKeyId, string secretAccessKey,
