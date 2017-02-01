@@ -36,26 +36,26 @@ public final class BNull extends BValueType {
 
     @Override
     public int intValue() {
-        throw new BallerinaException("null can not be converted to integer");
+        throw new BallerinaException("null cannot be converted to integer");
     }
 
     @Override
     public long longValue() {
-        throw new BallerinaException("null can not be converted to long");
+        throw new BallerinaException("null cannot be converted to long");
     }
 
     @Override
     public float floatValue() {
-        throw new BallerinaException("null can not be converted to float");
+        throw new BallerinaException("null cannot be converted to float");
     }
 
     @Override
     public double doubleValue() {
-        throw new BallerinaException("null can not be converted to double");
+        throw new BallerinaException("null cannot be converted to double");
     }
 
     @Override
     public boolean booleanValue() {
-        throw new BallerinaException("null can not be converted to boolean");
+        throw new BallerinaException("null cannot be converted to boolean");
     }
 }

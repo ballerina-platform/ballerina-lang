@@ -824,7 +824,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 Parameter parameter = returnParamsOfCU[i];
                 if (BTypes.isValueType(parameter.getType())) {
                     throw  new SemanticException(getLocationStr(returnParamsOfCU[i].getLocation())
-                                                 + "can not return null for  " + parameter.getType());
+                                                 + "cannot return null for  " + parameter.getType());
                 }
                 typesOfReturnExprs[i] = parameter.getType();
             } else {
@@ -2196,13 +2196,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (rExpr instanceof NullLiteral) {
             if (BTypes.isValueType(lExpr.getType())) {
                 throw new SemanticException(
-                        getLocationStr(rExpr.getLocation()) + lExpr.getType() + " can not be null ");
+                        getLocationStr(rExpr.getLocation()) + lExpr.getType() + " cannot be null ");
             }
             rExpr.setType(lExpr.getType());
         } else if (lExpr instanceof NullLiteral) {
             if (BTypes.isValueType(rExpr.getType())) {
                 throw new SemanticException(
-                        getLocationStr(lExpr.getLocation()) + rExpr.getType() + " can not be null ");
+                        getLocationStr(lExpr.getLocation()) + rExpr.getType() + " cannot be null ");
             }
             lExpr.setType(rExpr.getType());
         }
