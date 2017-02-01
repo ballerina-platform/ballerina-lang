@@ -32,8 +32,6 @@ import java.util.TreeMap;
 )
 public class MapOutputMapper extends OutputMapper {
     private StreamDefinition streamDefinition;
-    private Map<String, String> options;
-    private static final String EVENT_ATTRIBUTE_SEPARATOR = ",";
 
     /**
      * Initialize the mapper and the mapping configurations.
@@ -45,7 +43,6 @@ public class MapOutputMapper extends OutputMapper {
     @Override
     public void init(StreamDefinition streamDefinition, Map<String, String> options, Map<String, String> unmappedDynamicOptions) {
         this.streamDefinition = streamDefinition;
-        this.options = options;
     }
 
     /**
@@ -77,21 +74,16 @@ public class MapOutputMapper extends OutputMapper {
     }
 
     /**
-     * Convert the given option mapping to a Map object
-     *
      * @param event            Event object
      * @param mappedAttributes Event mapping string array
      * @param dynamicOptions   Dynamic options
-     * @return the mapped string
+     * @return null
      */
+    // Note: Currently, we do not support custom mapping for "map" type since the expected usecases such as renaming and
+    // extracting desired attributes can be handled by writing siddhi queries
     @Override
     public Object convertToMappedInputEvent(Event event, String[] mappedAttributes, Map<String, String> dynamicOptions) {
-        Map<Object, Object> eventMapObject = new TreeMap<Object, Object>();
-        Object[] eventData = event.getData();
-        for (Map.Entry<String, String> entry : options.entrySet()) {
-            int attributePosition = streamDefinition.getAttributePosition(entry.getKey());
-            eventMapObject.put(entry.getValue(), eventData[attributePosition]);
-        }
-        return eventMapObject;
+        return null;
     }
+
 }
