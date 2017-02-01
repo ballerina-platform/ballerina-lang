@@ -58,9 +58,8 @@ public class BallerinaDocCmd implements BLauncherCmd {
     public void printUsage(StringBuilder stringBuilder) {
         stringBuilder.append("ballerina doc <path-to-ballerina-files>\n");
         stringBuilder
-                .append("<path-to-ballerina-files>:\n a valid path which points either to a Ballerina file or a folder"
+                .append("\npath-to-ballerina-files:\n A valid path which points either to a Ballerina file or a folder"
                         + " with Ballerina files");
         stringBuilder.append("\n");
     }
-
 }
