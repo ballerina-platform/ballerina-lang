@@ -575,7 +575,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             });
 
             this.getBoundingBox().on("height-changed", function(dh){
-                this._contentRect.attr('height', parseFloat(this._contentRect.attr('height')) + dh);
+                var newHeight = parseFloat(this._contentRect.attr('height')) + dh;
+                this._contentRect.attr('height', (newHeight < 0 ? 0 : newHeight));
             }, this);
 
             this.getBoundingBox().on("right-edge-moved", function(dw){
