@@ -105,9 +105,9 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
         };
 
         /**
-         * Add type converter defs
+         * Add type mapper defs
          * @param typeMapperDefinitions - can be an array of typeDefinitions or a single typeDefinition
-         * @fires Package#type--converter-defs-added
+         * @fires Package#type--mapper-defs-added
          */
         Package.prototype.addTypeMapperDefinitions = function(typeMapperDefinitions){
             var err;
@@ -131,28 +131,28 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
             this._typeMapperDefinitions = _.concat(this._typeMapperDefinitions , typeMapperDefinitions);
             /**
              * fired when new type mapper defs are added to the package.
-             * @event Package#type-converter-defs-added
+             * @event Package#type-mapper-defs-added
              * @type {[TypeMapperDefinition]}
              */
-            this.trigger("type-converter-defs-added", typeMapperDefinitions);
+            this.trigger("type-mapper-defs-added", typeMapperDefinitions);
         };
 
         /**
-         * Set type converter defs
+         * Set type mapper defs
          *
-         * @param typeConverterDefs
+         * @param typeMapperDefs
          */
-        Package.prototype.setTypeConverterDefinitions = function(typeConverterDefs){
-            this._typeConverterDefinitions = null;
-            this.addTypeConverterDefinitions(typeConverterDefs);
+        Package.prototype.setTypeMapperDefinitions = function(typeMapperDefs){
+            this._typeMapperDefinitions = null;
+            this.addTypeMapperDefinitions(typeMapperDefs);
         };
 
         /**
          *
-         * @returns {[TypeConverterDefinition]}
+         * @returns {[TypeMapperDefinition]}
          */
-        Package.prototype.getTypeConverterDefinitions = function() {
-            return this._typeConverterDefinitions;
+        Package.prototype.getTypeMapperDefinitions = function() {
+            return this._typeMapperDefinitions;
         };
 
         /**
