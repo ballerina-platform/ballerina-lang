@@ -24,23 +24,49 @@ define(['lodash', './expression'], function (_, Expression) {
      */
     var BackQuoteExpression = function (args) {
         Expression.call(this, 'BackQuoteExpression');
-    }
+        this._backQuoteEnclosedString = _.get(args, 'backQuoteEnclosedString', '');
+    };
 
     BackQuoteExpression.prototype = Object.create(Expression.prototype);
     BackQuoteExpression.prototype.constructor = BackQuoteExpression;
+
+    /**
+     * Setter for BackQuoteEnclosedString
+     * @param backQuoteEnclosedString
+     */
+    BackQuoteExpression.prototype.setBackQuoteEnclosedString = function (backQuoteEnclosedString) {
+        this._backQuoteEnclosedString = backQuoteEnclosedString;
+    };
+
+    /**
+     * Getter for BackQuoteEnclosedString
+     * @returns backQuoteEnclosedString
+     */
+    BackQuoteExpression.prototype.getBackQuoteEnclosedString = function () {
+        return this._backQuoteEnclosedString;
+    };
 
     /**
      * setting parameters from json
      * @param jsonNode
      */
     BackQuoteExpression.prototype.initFromJson = function (jsonNode) {
+        this.setBackQuoteEnclosedString(jsonNode.variable_reference_name);
+        this.setExpression(this.generateExpression());
+    };
 
-        var self = this;
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
-            child.initFromJson(childNode);
-        });
+    /**
+     * initialize BackQuoteExpression from json object
+     * @param {Object} jsonNode to initialize from
+     * @param {string} [jsonNode.back_quote_enclosed_string] - Symbol name of the BackQuoteExpression
+     */
+    BackQuoteExpression.prototype.initFromJson = function (jsonNode) {
+        this.setBackQuoteEnclosedString(jsonNode.back_quote_enclosed_string);
+        this.setExpression(this.generateExpression());
+    };
+
+    BackQuoteExpression.prototype.generateExpression = function () {
+        this._expression = '`' + this.getBackQuoteEnclosedString() + '`';
     };
 
     return BackQuoteExpression;

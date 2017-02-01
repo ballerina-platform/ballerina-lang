@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './action-invocation-statement'], function (_, log, ActionInvocationStatement) {
+define(['lodash', 'log', './expression'], function (_, log, Expression) {
 
     /**
      * Class to represent a action invocation to ballerina.
@@ -23,36 +23,21 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
      * @constructor
      */
     var ActionInvocationExpression = function (args) {
-        ActionInvocationStatement.call(this, args);
+        Expression.call(this, "ActionInvocationExpression");
         this._variableAccessor = _.get(args, 'accessor', '');
         this._actionName = _.get(args, 'action', '');
         this._actionPackageName = _.get(args, 'actionPackageName', '');
         this._actionConnectorName = _.get(args, 'actionConnectorName', '');
-        this._actionInvocationReference = _.get(args, 'actionInvocationReference', '');
         this._connectorVariableReference = _.get(args, 'connectorVariableReference', '');
-        this._path = _.get(args, 'path', '\"/\"');
-        this._messageVariableReference = _.get(args, 'messageRef', 'm');
+        this._arguments = _.get(args, "arguments", []);
+        this._connector = _.get(args, 'connector');
+        //create the default expression for action invocation
+        this.setExpression(this.generateExpression());
         this.type = "ActionInvocationExpression";
     };
 
-    ActionInvocationExpression.prototype = Object.create(ActionInvocationStatement.prototype);
+    ActionInvocationExpression.prototype = Object.create(Expression.prototype);
     ActionInvocationExpression.prototype.constructor = ActionInvocationExpression;
-
-    /**
-     * Set variable accessor
-     * @param {string} accessor
-     */
-    ActionInvocationExpression.prototype.setVariableAccessor = function (accessor) {
-        this._variableAccessor = accessor;
-    };
-
-    /**
-     * Get the variable accessor
-     * @returns {string}
-     */
-    ActionInvocationExpression.prototype.getVariableAccessor = function () {
-        return this._variableAccessor;
-    };
 
     /**
      * Set action name
@@ -114,35 +99,16 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
         return this._connectorVariableReference;
     };
 
-    /**
-     * Set Path
-     * @param {string} path
-     */
-    ActionInvocationExpression.prototype.setPath = function (path) {
-        this._path = path;
-    };
-    /**
-     * Get Path
-     * @returns {string}
-     */
-    ActionInvocationExpression.prototype.getPath = function () {
-        return this._path;
+    ActionInvocationExpression.prototype.getConnector = function(){
+        return this._connector;
     };
 
-    /**
-     * Set Message Variable Reference
-     * @param {string} messageVariableReference
-     */
-    ActionInvocationExpression.prototype.setMessageVariableReference = function (messageVariableReference) {
-        this._messageVariableReference = messageVariableReference;
-    };
-
-    /**
-     * Get Message variable reference
-     * @returns {string}
-     */
-    ActionInvocationExpression.prototype.getMessageVariableReference = function () {
-        return this._messageVariableReference;
+    ActionInvocationExpression.prototype.setConnector = function(connector){
+        if(!_.isNil(connector)){
+            this._connector = connector;
+            //update the expression when setting connector
+            this.setExpression(this.generateExpression());
+        }
     };
 
     /**
@@ -150,32 +116,31 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
      * @param {Object} jsonNode to initialize from
      */
     ActionInvocationExpression.prototype.initFromJson = function (jsonNode) {
-        this.setConnector(_.head(this.getInvocationConnector(_.head(jsonNode.children).variable_reference_name)));
+        if(!_.isUndefined(jsonNode.children[0])) {
+            this.setConnector(_.head(this.getInvocationConnector(jsonNode.children[0].variable_reference_name)));
+            this.setConnectorVariableReference(jsonNode.children[0].variable_reference_name);
+        }
         this.setActionName(jsonNode.action_name);
         this.setActionPackageName(jsonNode.action_pkg_name);
         this.setActionConnectorName(jsonNode.action_connector_name);
-        this.setConnectorVariableReference(jsonNode.children[0].variable_reference_name);
 
-        var pathNode = jsonNode.children[1];
-        //TODO : Need to remove this if/else ladder by delegating expression string calculation to child classes
-        if (pathNode.type == "basic_literal_expression") {
-            if(pathNode.basic_literal_type == "string") {
-                // Adding double quotes if it is a string.
-                this.setPath("\"" + pathNode.basic_literal_value + "\"");
-            } else {
-                this.setPath(pathNode.basic_literal_value);
-            }
-        } else if (pathNode.type == "variable_reference_expression") {
-            this.setPath(pathNode.variable_reference_name);
-        } else {
-            var child = this.getFactory().createFromJson(pathNode);
-            child.initFromJson(pathNode);
-            this.setPath(child.getExpression());
-        }
+        var self = this;
 
-        if (!_.isUndefined(jsonNode.children[2])) {
-            this.setMessageVariableReference(jsonNode.children[2].variable_reference_name);
-        }
+        _.each(_.slice(jsonNode.children, 1), function (argNode) {
+            var arg = self.getFactory().createFromJson(argNode);
+            arg.initFromJson(argNode);
+            self.addArgument(arg);
+        });
+
+        this.setExpression(this.generateExpression());
+    };
+
+    ActionInvocationExpression.prototype.addArgument = function (argument){
+        this._arguments.push(argument);
+    };
+
+    ActionInvocationExpression.prototype.getArguments = function (){
+        return this._arguments;
     };
 
     ActionInvocationExpression.prototype.getInvocationConnector = function (variable_reference_name) {
@@ -194,6 +159,32 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
             return (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === variable_reference_name));
         });
         return connectorReference;
+    };
+
+    /**
+     * Get the action invocation statement
+     * @return {string} action invocation statement
+     */
+    ActionInvocationExpression.prototype.generateExpression = function () {
+        var argsString = "";
+        var arguments = this.getArguments();
+
+        var self = this;
+
+        for (var itr = 0; itr < arguments.length; itr++) {
+            argsString += arguments[itr].getExpression();
+
+            if (itr !== arguments.length - 1) {
+                argsString += ' , ';
+            }
+        }
+
+        _.isEmpty(argsString)
+            ? (argsString = this.getConnectorVariableReference())
+            : (argsString = this.getConnectorVariableReference() + ' , ' + argsString);
+
+        return this.getActionPackageName() + ':' + this.getActionConnectorName() + '.' + this.getActionName() +
+            '(' + argsString +  ')';
     };
 
     return ActionInvocationExpression;

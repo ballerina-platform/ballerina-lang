@@ -55,8 +55,10 @@ define(['lodash', './statement'], function (_, Statement) {
      * @return {string} assignment statement string
      */
     AssignmentStatement.prototype.getStatementString = function () {
-        return (!_.isNil(this.getChildren()[0].getLeftOperandExpressionString()) ? this.getChildren()[0].getLeftOperandExpressionString() : "leftExpression") + " = " +
-            (!_.isNil(this.getChildren()[1].getRightOperandExpressionString()) ? this.getChildren()[1].getRightOperandExpressionString() : "rightExpression");
+        return (!_.isNil(this.getChildren()[0].getLeftOperandExpressionString())
+                ? this.getChildren()[0].getLeftOperandExpressionString() : "leftExpression") + " = " +
+            (!_.isNil(this.getChildren()[1].getRightOperandExpressionString())
+                ? this.getChildren()[1].getRightOperandExpressionString() : "rightExpression");
     };
 
     /**

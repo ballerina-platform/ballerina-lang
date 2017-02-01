@@ -159,7 +159,7 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
             if(self.isAtValidDropTarget()){
                 var connectorReference = self.getActivatedDropTarget();
                 self.getMessageSource().setConnector(connectorReference);
-                self.getMessageSource().setActionName(self.getMessageSource().getAction());
+                //self.getMessageSource().setActionName(self.getMessageSource().getAction());
                 self.getMessageSource().setActionPackageName(connectorReference.getConnectorPkgName());
                 self.getMessageSource().setActionConnectorName(connectorReference.getConnectorName());
                 self.getMessageSource().setConnectorVariableReference(connectorReference.getConnectorVariable());
