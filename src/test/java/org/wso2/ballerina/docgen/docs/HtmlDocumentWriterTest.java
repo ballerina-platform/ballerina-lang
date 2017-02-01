@@ -65,8 +65,8 @@ public class HtmlDocumentWriterTest {
 
             // Assert function definitions
             String content = new Scanner(htmlFile).useDelimiter("\\Z").next();
-            Assert.assertTrue(content.contains("addHeader"));
-            Assert.assertTrue(content.contains("getHeader"));
+            Assert.assertTrue(content.contains("function addHeader(message m, string key, string value)"));
+            Assert.assertTrue(content.contains("function getHeader(message m, string key) (string value)"));
         } catch (FileNotFoundException e) {
             Assert.fail(e.getMessage());
         } finally {
