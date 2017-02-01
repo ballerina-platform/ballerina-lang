@@ -23,28 +23,53 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         var mMArgs = {'canvas': this};
         args.messageManager = new MessageManager(mMArgs);
         BallerinaView.call(this, args);
-        this.init();
+
+        /**
+         * The <svg> element which is has all svg elements should be drawn on.
+         * @type {SVGSVGElement}
+         * @private
+         */
+        this._svg = undefined;
+
+        /**
+         * A wrapper SVG <g> element which resides inside {@link _svg}.
+         * @type {SVGGElement}
+         * @private
+         */
+        this._rootGroup = undefined;
+
+        /**
+         * The icon of the icon position at top left corner.
+         * @type {HTMLElement}
+         * @private
+         */
+        this._panelIcon = undefined;
+
+        /**
+         * The title of the canvas. This is editable.
+         * @type {HTMLAnchorElement}
+         * @private
+         */
+        this._titleLink = undefined;
+
+        /**
+         * The wrapper which contains the right top corner operations pane.
+         * @type {HTMLDivElement}
+         * @private
+         */
+        this._canvasOperationsWrapper = undefined;
+
         this._minHeight = 400;
+
+        this.bindEvents();
     };
 
     Canvas.prototype = Object.create(BallerinaView.prototype);
     Canvas.prototype.constructor = Canvas;
 
-    Canvas.prototype.init = function () {
+    Canvas.prototype.bindEvents = function () {
         this.on('remove-view', this.removeViewCallback, this);
         this._model.on('child-removed', this.childRemovedCallback, this);
-    };
-
-    Canvas.prototype.getSVG = function () {
-        return this._svg;
-    };
-
-    Canvas.prototype.getMainWrapper = function () {
-        return this._mainSVGGroup;
-    };
-
-    Canvas.prototype.getOperationsPane = function () {
-        return this._canvasOperationsWrapper;
     };
 
     /**
@@ -60,81 +85,84 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         return true;
     };
 
-    Canvas.prototype.drawAccordionCanvas = function (parent, options, id, name, title) {
-        var svgContainer = $('<div style="position:relative; top:0; right:0;"></div>');
-        svgContainer.attr('id', id);
-        svgContainer.attr('name', name);
-        svgContainer.addClass(_.get(options, 'cssClass.outer_box'));
-        var canvas = svgContainer;
-        var svg = $('<svg class="service-container"></svg>');
-        svgContainer.append(svg);
-        this._rootGroup = D3Utils.group(d3.select(svg.get(0)));
-        this._svg = svg;
-        // Set the initial service container height to 300px
-        this.setServiceContainerHeight(this._minHeight);
-        //draw a collapse accordion
-        var outerDiv = $('<div></div>');
-        outerDiv.attr('id', '_'+canvas[0].id);//to support HTML4
-        outerDiv.addClass(_.get(options, 'cssClass.outer_div'));
-        var panelHeading = $('<div></div>');
-        panelHeading.attr('id', canvas[0].id + 3).attr('role', 'tab');
-        panelHeading.attr('role', 'button').attr('data-toggle', 'collapse').attr('data-parent', "#accordion").attr('href', '#' + canvas[0].id).attr('aria-expanded', 'false').attr('aria-controls', canvas[0].id);
-        var panelTitle = $('<h4></h4>');
-        panelTitle.addClass(_.get(options, 'cssClass.panel_title'));
-        var panelIcon = $('<i></i>');
-        panelIcon.addClass(_.get(options, 'cssClass.panel_icon'));
-        panelIcon.addClass(_.get(options, 'panelIcon'));
-        panelTitle.append(panelIcon);
-        var titleLink = $('<a></a>');
-        titleLink.attr('id', 'title-' + id);
-        titleLink[0].setAttribute("contenteditable", "true");
-        titleLink[0].setAttribute("spellcheck", "false");
-        titleLink.focus();
-        titleLink.blur();
-        if (title !== undefined) {
-            titleLink.append("&nbsp;" + title);
-        }
-        titleLink.addClass(_.get(options, 'cssClass.title_link'));
-        //TODO: update href,aria-controls
-        panelTitle.append(titleLink);
+    Canvas.prototype.drawAccordionCanvas = function (options, id, name, title) {
+        // The main wrapper of the canvas.
+        var outerDiv = $("<div/>", {
+            id: "_" + id,
+            class: _.get(options, "cssClass.outer_div", "")
+        }).appendTo(this.getContainer());
 
-        this._canvasOperationsWrapper = $("<div class='canvas-operations-wrapper'/>");
+        //// Creating the heading of the canvas.
 
-        panelTitle.append(this._canvasOperationsWrapper);
+        // Creating the wrapper for the heading.
+        var panelHeading = $("<div/>", {
+            id: id + "_heading",
+            "data-toggle": "collapse",
+            "data-target": "#" + id + "_body",
+            class: _.get(options, "cssClass.head_div", "")
+        }).appendTo(outerDiv);
+
+        // The title element of the heading.
+        var panelTitle = $("<h4/>", {
+            class: _.get(options, "cssClass.panel_title", "")
+        }).appendTo(panelHeading);
+
+        // The icon of the canvas positioned in the heading.
+        this._panelIcon = $("<i/>", {
+            class: _.get(options, "cssClass.panel_icon", "")
+        }).appendTo(panelTitle);
+
+        this._titleLink = $("<a/>", {
+            class: _.get(options, "cssClass.title_link", ""),
+            "contenteditable": "true",
+            "spellcheck": "false",
+            text: _.isUndefined(title) ? "" : title
+        }).appendTo(panelTitle);
+
+        this._canvasOperationsWrapper = $("<div class='canvas-operations-wrapper'/>").appendTo(panelTitle);
 
         // Creating collapsable icon.
-        var panelRightIcon = $("<i/>", {
-            class: _.get(options, 'cssClass.panel_right_icon'),
-            title:"Collapse pane"
-        }).appendTo(this._canvasOperationsWrapper).tooltip();
+        var panelCollapsibleIcon = $("<i/>", {
+            class: _.get(options, 'cssClass.panel_right_icon')
+        }).appendTo(this._canvasOperationsWrapper);
 
         $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(this._canvasOperationsWrapper);
 
         // Creating delete icon.
         var panelDeleteIcon = $("<i/>", {
-            class: _.get(options, 'cssClass.panel_delete_icon'),
-            title:"Delete"
-        }).appendTo(this._canvasOperationsWrapper).tooltip();
+            class: _.get(options, 'cssClass.panel_delete_icon')
+        }).appendTo(this._canvasOperationsWrapper);
 
         $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(this._canvasOperationsWrapper);
 
         panelHeading.append(panelTitle);
 
-        panelHeading.click(function() {
-            $(this).find('i.collapser').toggleClass('fw-down fw-up');
+        panelHeading.click({panelCollapsibleIcon: panelCollapsibleIcon}, function (event) {
+            $(event.data.panelCollapsibleIcon).toggleClass('fw-down fw-up');
         });
 
-        var bodyDiv = $('<div></div>');
-        bodyDiv.addClass(_.get(options, 'cssClass.body_div'));
-        bodyDiv.attr('id', canvas[0].id).attr('aria-labelledby', canvas[0].id + 3).attr('role', 'tabpanel').attr('class', 'collapse in');
-        bodyDiv.addClass(_.get(options, 'cssClass.canvas'));
-        bodyDiv.append(canvas);
+        //// Creating the body of the canvas.
 
-        outerDiv.append(panelHeading);
-        outerDiv.append(bodyDiv);
+        // The wrapper for the body of the canvas.
+        var bodyWrapper = $("<div/>", {
+            id: id + "_body",
+            class: _.get(options, "cssClass.canvas", "")
+        }).appendTo(outerDiv);
 
-        // append to parent
-        parent.append(outerDiv);
+        // Wrapper for the SVG
+        var svgContainer = $("<div/>", {
+            id: id,
+            name: name,
+            class: _.get(options, "cssClass.outer_box", "")
+        }).appendTo(bodyWrapper);
+
+        this._svg = $("<svg class='" + _.get(options, "cssClass.svg_container", "") + "'></svg>")
+            .appendTo(svgContainer);
+
+        this._rootGroup = D3Utils.group(d3.select(this._svg.get(0)));
+
+        // Setting initial height of the SVG.
+        this.setSVGHeight(this._minHeight);
 
         var self = this,
             dropActiveClass = _.get(options, 'cssClass.design_view_drop');
@@ -197,24 +225,24 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
      * Set canvas container height
      * @param newHeight
      */
-    Canvas.prototype.setServiceContainerHeight = function (newHeight) {
+    Canvas.prototype.setSVGHeight = function (newHeight) {
         var dn = newHeight < this._minHeight ? this._minHeight : newHeight;
         this._svg.attr('height', dn);
         this.getBoundingBox().h(dn);
 
         // If service container's height is lesser than the height of the svg
         // Increase the height of the service container and the inner div
-        if($(this._container).closest("svg").attr('height')) {
+        if ($(this._container).closest("svg").attr('height')) {
             if ($(this._container).closest(".panel-body").height() < $(this._container).closest("svg").attr('height')) {
                 $(this._container).closest(".panel-body").height($(this._container).closest("svg").attr("height"));
-                $(this._container).closest(".panel-body").find("#" + $(this._container).closest(".panel-body").attr("id"))
-                    .height($(this._container).closest("svg").attr('height'));
+                $(this._container).closest(".panel-body").find("#" + $(this._container).closest(".panel-body")
+                        .attr("id")).height($(this._container).closest("svg").attr('height'));
             }
-        }else{
-            if($(this._container).height() < $(this._container).find('svg').attr('height')) {
+        } else {
+            if ($(this._container).height() < $(this._container).find('svg').attr('height')) {
                 $(this._container).height($(this._container).find('svg').attr('height'));
-                $(this._container).find("#" + $(this._container).attr('id')).
-                    height($(this._container).find('svg').attr('height'));
+                $(this._container).find("#" + $(this._container).attr('id')).height($(this._container).find('svg')
+                    .attr('height'));
             }
         }
     };
@@ -223,14 +251,10 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
      * Set canvas container width
      * @param {number} newWidth
      */
-    Canvas.prototype.setServiceContainerWidth = function (newWidth) {
+    Canvas.prototype.setSVGWidth = function (newWidth) {
         this._svg.attr('width', newWidth);
         this.getBoundingBox().w(newWidth);
         $(this._container).closest(".panel-body").find(".outer-box").mCustomScrollbar("update");
-    };
-
-    Canvas.prototype.getServiceContainer = function () {
-        return this._svg;
     };
 
     /**
@@ -239,12 +263,32 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
      * @param {ASTNode} child - child node
      */
     Canvas.prototype.removeViewCallback = function (parent, child) {
-        $("#_" +this._model.id).remove();
+        $("#_" + this.getModel().getID()).remove();
         this.unplugView(
             {
                 w: 0,
                 h: 0
             }, parent, child);
+    };
+
+    Canvas.prototype.getSVG = function () {
+        return this._svg;
+    };
+
+    Canvas.prototype.getOperationsPane = function () {
+        return this._canvasOperationsWrapper;
+    };
+
+    Canvas.prototype.getPanelIcon = function () {
+        return this._panelIcon;
+    };
+
+    Canvas.prototype.getTitle = function () {
+        return this._titleLink;
+    };
+
+    Canvas.prototype.getRootGroup = function () {
+        return this._rootGroup;
     };
 
     return Canvas;
