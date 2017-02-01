@@ -18,57 +18,36 @@
 
 package org.wso2.ballerina.core.nativeimpl.connectors.data;
 
-import org.apache.axiom.om.OMDataSource;
-import org.apache.axiom.om.OMOutputFormat;
-import org.apache.axiom.om.util.StAXUtils;
+import org.apache.axiom.om.ds.AbstractPushOMDataSource;
 import org.wso2.ballerina.core.model.values.BDataframe;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.Writer;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
  * This will provide custom OMDataSource implementation by wrapping BDataframe.
  * This will use to convert result set into XML stream.
  */
-public class DataTableOMDataSource implements OMDataSource {
+public class DataTableOMDataSource extends AbstractPushOMDataSource {
 
     private static final String XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance";
     private static final String XSI_PREFIX = "xsi";
 
     private BDataframe dataframe;
+    private String rootWrapper;
+    private String rowWrapper;
 
-    public DataTableOMDataSource(BDataframe dataframe) {
+    public DataTableOMDataSource(BDataframe dataframe, String rootWrapper, String rowWrapper) {
         this.dataframe = dataframe;
-    }
-
-    @Override
-    public void serialize(OutputStream outputStream, OMOutputFormat omOutputFormat) throws XMLStreamException {
-        XMLStreamWriter streamWriter;
-        if (omOutputFormat != null && omOutputFormat.getCharSetEncoding() != null
-                && omOutputFormat.getCharSetEncoding().length() > 0) {
-            streamWriter = StAXUtils.createXMLStreamWriter(outputStream, omOutputFormat.getCharSetEncoding());
-        } else {
-            streamWriter = StAXUtils.createXMLStreamWriter(outputStream);
-        }
-        serialize(streamWriter);
-    }
-
-    @Override
-    public void serialize(Writer writer, OMOutputFormat omOutputFormat) throws XMLStreamException {
-        XMLStreamWriter streamWriter = StAXUtils.createXMLStreamWriter(writer);
-        serialize(streamWriter);
+        this.rootWrapper = rootWrapper;
+        this.rowWrapper = rowWrapper;
     }
 
     @Override
     public void serialize(XMLStreamWriter xmlStreamWriter) throws XMLStreamException {
-        xmlStreamWriter.writeStartElement("results");
+        xmlStreamWriter.writeStartElement(this.rootWrapper != null ? this.rootWrapper : "results");
         while (dataframe.next()) {
-            xmlStreamWriter.writeStartElement("result");
+            xmlStreamWriter.writeStartElement(this.rowWrapper != null ? this.rowWrapper : "result");
             for (BDataframe.ColumnDefinition col : dataframe.getColumnDefs()) {
                 xmlStreamWriter.writeStartElement(col.getName());
                 String value = null;
@@ -163,11 +142,7 @@ public class DataTableOMDataSource implements OMDataSource {
     }
 
     @Override
-    public XMLStreamReader getReader() throws XMLStreamException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        serialize(bos, null);
-
-        ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-        return StAXUtils.createXMLStreamReader(bis);
+    public boolean isDestructiveWrite() {
+        return false;
     }
 }

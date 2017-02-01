@@ -17,8 +17,7 @@
  */
 package org.wso2.ballerina.core.model.values;
 
-import org.apache.axiom.om.OMAbstractFactory;
-import org.apache.axiom.om.OMFactory;
+import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
 import org.wso2.ballerina.core.model.DataIterator;
 import org.wso2.ballerina.core.model.DataTableJSONDataSource;
 import org.wso2.ballerina.core.model.types.TypeEnum;
@@ -37,11 +36,6 @@ public class BDataframe implements BRefType<Object> {
     private DataIterator iterator;
     private Map<String, Object> properties;
     private List<ColumnDefinition> columnDefs;
-    private static OMFactory omFactory;
-
-    static {
-        omFactory = OMAbstractFactory.getOMFactory();
-    }
 
     public BDataframe(DataIterator dataIterator, Map<String, Object> properties, 
             List<ColumnDefinition> columnDefs) {
@@ -224,15 +218,15 @@ public class BDataframe implements BRefType<Object> {
         public TypeEnum getElementType() {
             return elementType;
         }
-        
     }
 
-    public BXML toXML() {
-        return new BXML(omFactory.createOMElement(new DataTableOMDataSource(this)));
+    public BXML toXML(String rootWrapper, String rowWrapper) {
+        OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
+        omSourcedElement.init(new DataTableOMDataSource(this, rootWrapper, rowWrapper));
+        return new BXML(omSourcedElement);
     }
 
     public List<ColumnDefinition> getColumnDefs() {
         return columnDefs;
     }
-        
 }

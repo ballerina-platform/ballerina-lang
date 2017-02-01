@@ -29,12 +29,14 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
  * Native function to get the XML representation of the dataframe.
- * ballerina.lang.dataframe:toXml(dataframe)
+ * ballerina.lang.dataframe:toXml(dataframe, string, string)
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.dataframe",
         functionName = "toXml",
-        args = {@Argument(name = "dataframe", type = TypeEnum.DATAFRAME)},
+        args = {@Argument(name = "dataframe", type = TypeEnum.DATAFRAME),
+                @Argument(name = "rootWrapper", type = TypeEnum.STRING),
+                @Argument(name = "rowWrapper", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.XML)},
         isPublic = true
 )
@@ -42,6 +44,8 @@ public class ToXML extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataframe dataframe = (BDataframe) getArgument(ctx, 0);
-        return getBValues(dataframe.toXML());
+        String rootWrapper = getArgument(ctx, 1).stringValue();
+        String rowWrapper = getArgument(ctx, 2).stringValue();
+        return getBValues(dataframe.toXML(rootWrapper, rowWrapper));
     }
 }
