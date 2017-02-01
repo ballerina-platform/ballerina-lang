@@ -60,18 +60,13 @@ public class HTTPErrorHandler implements ServerConnectorErrorHandler {
 
         // TODO: Set following according to the request
         Map<String, String> transportHeaders = new HashMap<>();
-        transportHeaders.put(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONNECTION,
-                             org.wso2.carbon.transport.http.netty.common.Constants.KEEP_ALIVE);
-        transportHeaders.put(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONTENT_ENCODING,
-                             org.wso2.carbon.transport.http.netty.common.Constants.GZIP);
-        transportHeaders.put(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONTENT_TYPE,
-                             org.wso2.carbon.transport.http.netty.common.Constants.TEXT_PLAIN);
-        transportHeaders.put(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONTENT_LENGTH,
-                             (String.valueOf(errorMessageBytes.length)));
+        transportHeaders.put(Constants.HTTP_CONNECTION, Constants.KEEP_ALIVE);
+        transportHeaders.put(Constants.HTTP_CONTENT_TYPE, Constants.CONTENT_TYPE_TEXT_PLAIN);
+        transportHeaders.put(Constants.HTTP_CONTENT_LENGTH, (String.valueOf(errorMessageBytes.length)));
 
         response.setHeaders(transportHeaders);
 
-        response.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, statusCode);
+        response.setProperty(Constants.HTTP_STATUS_CODE, statusCode);
         response.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
                              org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
         return response;
