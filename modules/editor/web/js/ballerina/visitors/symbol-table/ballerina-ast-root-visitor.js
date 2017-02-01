@@ -61,6 +61,10 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
             this.getPackage().addStructDefinitions(structDefinition);
         };
 
+        BallerinaASTRootVisitor.prototype.visitTypeMapperDefinition = function (typeMapperDefinition) {
+            this.getPackage().addTypeMapperDefinitions(typeMapperDefinition);
+        };
+
         /**
          * visit connector definition
          * @param {Object} connectorDefinition - connector definition model

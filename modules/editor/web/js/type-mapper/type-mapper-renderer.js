@@ -260,25 +260,21 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
 
                 if (isValidTypes) {
                     callback(connection, typeConverterObj);
+                } else {
+                    var compatibleTypeConverters = [];
+                    var typeConverters = typeConverterObj._package.getTypeMapperDefinitions();
+                    for (var i = 0; i < typeConverters.length; i++) {
+                        var aTypeConverter = typeConverters[i];
+                        if (typeConverterObj._model.getTypeMapperName() !== aTypeConverter.getTypeMapperName()) {
+                            if (connection.sourceType == aTypeConverter.getSourceAndIdentifier().split(" ")[0] &&
+                                connection.targetType == aTypeConverter.getReturnType()) {
+                                compatibleTypeConverters.push(aTypeConverter.getTypeMapperName());
+                            }
+                        }
+                    }
+                    console.log(compatibleTypeConverters);
+                    isValidTypes = compatibleTypeConverters.length > 0;
                 }
-                // } else {
-                //     var compatibleTypeConverters = [];
-                //     var typeConverters = typeConverterObj._package.getTypeConverterDefinitions();
-                //     for (var i = 0; i < typeConverters.length; i++) {
-                //         var aTypeConverter = typeConverters[i];
-                //         if (typeConverterObj._model._typeConverterName !== aTypeConverter.getTypeConverterName()) {
-                //             if (connection.sourceType == aTypeConverter.getSourceAndIdentifier().split(" ")[0] &&
-                //                 connection.targetType == aTypeConverter.getReturnType()) {
-                //                 compatibleTypeConverters.push(aTypeConverter.getTypeConverterName());
-                //                 // console.log(aTypeConverter.getTypeConverterName());
-                //                 // console.log(aTypeConverter.getSourceAndIdentifier());
-                //                 // console.log(aTypeConverter.getReturnType());
-                //             }
-                //         }
-                //     }
-                //     console.log(compatibleTypeConverters);
-                //     isValidTypes = compatibleTypeConverters.length > 0;
-                // }
                 return isValidTypes;
             },
 
@@ -324,8 +320,9 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
         dagre.layout(g);
         // Applying the calculated layout
         g.nodes().forEach(function (v) {
-            $("#" + v).css("left", g.node(v).x + "px");
-            $("#" + v).css("top", g.node(v).y + "px");
+            //TODO: commenting out temporily due to the issue in adding multiple type mappers
+            // $("#" + v).css("left", g.node(v).x + "px");
+            // $("#" + v).css("top", g.node(v).y + "px");
         });
         jsPlumb.repaintEverything();
     };
