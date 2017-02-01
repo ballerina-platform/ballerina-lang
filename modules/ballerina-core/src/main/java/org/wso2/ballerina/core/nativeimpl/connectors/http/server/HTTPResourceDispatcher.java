@@ -67,16 +67,21 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                     subPathAnnotationVal = subPathAnnotationVal.substring(1, subPathAnnotationVal.length() - 1);
                 }
 
+                String queryStr = cMsg.getProperty(Constants.QUERY_STR) != null
+                        ? (String) cMsg.getProperty(Constants.QUERY_STR) : "";
+                if (queryStr != null && !queryStr.equals("")) {
+                    subPath = subPath.concat("?".concat(queryStr));
+                }
+
                 Map<String, String> resourceArgumentValues = new HashMap<>();
+
                 if ((matches(subPathAnnotationVal, subPath, resourceArgumentValues) ||
                         Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal))
                         && (resource.getAnnotation(method) != null)) {
+                    QueryParamProcessor.processQueryParams
+                            (queryStr)
+                            .forEach((resourceArgumentValues::put));
 
-                    if (cMsg.getProperty(Constants.QUERY_STR) != null) {
-                        QueryParamProcessor.processQueryParams
-                                ((String) cMsg.getProperty(Constants.QUERY_STR))
-                                .forEach((resourceArgumentValues::put));
-                    }
                     cMsg.setProperty(org.wso2.ballerina.core.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
                     return resource;
                 }

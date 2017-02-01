@@ -63,6 +63,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             }
 
             String uriStr = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
+            uriStr = uriStr.replace("//", Constants.DEFAULT_BASE_PATH);
             URI requestUri = URI.create(uriStr);
             if (requestUri == null) {
                 throw new BallerinaException("URI not found in the message or found an invalid URI.");
@@ -72,7 +73,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             String subPath = URIUtil.getSubPath(requestUri.getPath());
 
             // Most of the time we will find service from here
-            Service service = servicesOnInterface.get("/" + basePath);
+            Service service = servicesOnInterface.get(Constants.DEFAULT_BASE_PATH + basePath);
 
             // Check if there is a service with default base path ("/")
             if (service == null) {
