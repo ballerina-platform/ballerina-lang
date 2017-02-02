@@ -29,6 +29,7 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
+import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
 import org.wso2.carbon.transport.http.netty.sender.HTTPSender;
@@ -46,7 +47,7 @@ import java.util.Set;
  */
 public class TestUtil {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(TestUtil.class);
 
     public static final int TEST_SERVER_PORT = 9000;
     public static final int TEST_ESB_PORT = 8490;
@@ -62,14 +63,14 @@ public class TestUtil {
         try {
             Thread.sleep(TestUtil.SERVERS_SHUTDOWN_WAIT_TIME);
         } catch (InterruptedException e) {
-
+            log.error("Thread Interrupted while sleeping ", e);
         }
         httpTransportListener.stop();
         httpServer.shutdown();
         try {
             Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
         } catch (InterruptedException e) {
-
+            log.error("Thread Interrupted while sleeping ", e);
         }
     }
 
@@ -99,14 +100,44 @@ public class TestUtil {
             try {
                 httpTransportListener.start();
             } catch (Exception e) {
-                LOGGER.error("Unable to start Netty Listener ", e);
+                log.error("Unable to start Netty Listener ", e);
             }
         });
         transportRunner.start();
         try {
             Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
         } catch (InterruptedException e) {
-            LOGGER.error("Thread Interuppted while sleeping ", e);
+            log.error("Thread Interrupted while sleeping ", e);
+        }
+        return httpTransportListener;
+    }
+
+    public static HTTPTransportListener startCarbonTransport(TransportsConfiguration transportsConfiguration,
+            CarbonMessageProcessor carbonMessageProcessor) {
+
+        HTTPTransportListener httpTransportListener = new HTTPTransportListener(
+                transportsConfiguration.getTransportProperties(), transportsConfiguration.getListenerConfigurations());
+
+        HTTPSender httpSender = new HTTPSender(transportsConfiguration.getSenderConfigurations(),
+                transportsConfiguration.getTransportProperties());
+
+        HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
+
+        carbonMessageProcessor.setTransportSender(httpSender);
+
+        Thread transportRunner = new Thread(() -> {
+            try {
+                httpTransportListener.start();
+            } catch (Exception e) {
+                log.error("Unable to start Netty Listener ", e);
+            }
+        });
+
+        transportRunner.start();
+        try {
+            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
+        } catch (InterruptedException e) {
+            log.error("Thread Interrupted while sleeping ", e);
         }
         return httpTransportListener;
     }
@@ -123,7 +154,7 @@ public class TestUtil {
         try {
             Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
         } catch (InterruptedException e) {
-            LOGGER.error("Thread Interuppted while sleeping ", e);
+            log.error("Thread Interrupted while sleeping ", e);
         }
         return httpServer;
     }
@@ -138,7 +169,7 @@ public class TestUtil {
         try {
             Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
         } catch (InterruptedException e) {
-            LOGGER.error("Thread Interuppted while sleeping ", e);
+            log.error("Thread Interrupted while sleeping ", e);
         }
         return httpServer;
     }
@@ -148,7 +179,7 @@ public class TestUtil {
         try {
             Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
         } catch (InterruptedException e) {
-            LOGGER.error("Thread Interuppted while sleeping ", e);
+            log.error("Thread Interuppted while sleeping ", e);
         }
     }
 
@@ -157,7 +188,7 @@ public class TestUtil {
         try {
             Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
         } catch (InterruptedException e) {
-            LOGGER.error("Thread Interuppted while sleeping ", e);
+            log.error("Thread Interrupted while sleeping ", e);
         }
     }
 
@@ -185,12 +216,12 @@ public class TestUtil {
     }
 
     public static void updateMessageProcessor(CarbonMessageProcessor carbonMessageProcessor,
-            SenderConfiguration senderConfiguration, ListenerConfiguration listenerConfiguration) {
-        Set<SenderConfiguration> senderConfigurationSet = new HashSet<>();
-        senderConfigurationSet.add(senderConfiguration);
-        Set<TransportProperty> transportProperties = new HashSet<>();
-        TransportSender transportSender = new HTTPSender(senderConfigurationSet, transportProperties);
-        carbonMessageProcessor.setTransportSender(transportSender);
+            TransportsConfiguration transportsConfiguration) {
+
+        HTTPSender httpSender = new HTTPSender(transportsConfiguration.getSenderConfigurations(),
+                transportsConfiguration.getTransportProperties());
+
+        carbonMessageProcessor.setTransportSender(httpSender);
         HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
     }
 

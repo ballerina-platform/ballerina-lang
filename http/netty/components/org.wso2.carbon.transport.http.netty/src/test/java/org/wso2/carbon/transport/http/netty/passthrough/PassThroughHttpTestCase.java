@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.transport.http.netty.passthrough.test;
+package org.wso2.carbon.transport.http.netty.passthrough;
 
 import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;
@@ -25,8 +25,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
+import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
+import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
@@ -36,14 +36,13 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
 
 /**
  * A test class for passthrough transport
  */
-public class PassThroughHttpGetMethodTestCase {
+public class PassThroughHttpTestCase {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(PassThroughHttpGetMethodTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(PassThroughHttpTestCase.class);
 
     private HTTPTransportListener httpTransportListener;
 
@@ -51,44 +50,41 @@ public class PassThroughHttpGetMethodTestCase {
 
     private HTTPServer httpServer;
 
-    private ListenerConfiguration listenerConfiguration;
-
-    private SenderConfiguration senderConfiguration;
-
     private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", 8490));
 
-    @BeforeClass(groups = "passthroughGET")
+    @BeforeClass
     public void setUp() {
-        listenerConfiguration = new ListenerConfiguration();
-        listenerConfiguration.setHost(TestUtil.TEST_HOST);
-        listenerConfiguration.setId("test-listener");
-        listenerConfiguration.setPort(TestUtil.TEST_ESB_PORT);
-        senderConfiguration = new SenderConfiguration("passthrough-sender");
-        httpTransportListener = TestUtil
-                .startCarbonTransport(listenerConfiguration, senderConfiguration, new PassthroughMessageProcessor());
+        TransportsConfiguration configuration = YAMLTransportConfigurationBuilder
+                .build("src/test/resources/simple-test-config/netty-transports.yml");
+        httpTransportListener = TestUtil.startCarbonTransport(configuration, new PassthroughMessageProcessor());
         httpServer = TestUtil.startHTTPServer(TestUtil.TEST_SERVER_PORT, testValue, Constants.TEXT_PLAIN);
     }
 
-    @Test(groups = "passthroughGET")
-    public void passthrougGetTestCase() {
-        Object lock = new Object();
+    @Test
+    public void passthroughGetTest() {
         try {
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.GET.name(), true);
             String content = TestUtil.getContent(urlConn);
             assertEquals(testValue, content);
             urlConn.disconnect();
         } catch (IOException e) {
-            LOGGER.error("IO Exception occurred", e);
-            assertTrue(false);
+            log.error("Error while running passthroughGetTest ", e);
         }
     }
 
-    public PassThroughHttpGetMethodTestCase() {
-        super();
+    @Test
+    public void passthroughPostTest() {
+        try {
+            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
+            String content = TestUtil.getContent(urlConn);
+            assertEquals(testValue, content);
+            urlConn.disconnect();
+        } catch (IOException e) {
+            log.error("Error while running passthroughPostTest ", e);
+        }
     }
 
-
-    @AfterClass(groups = "passthroughGET")
+    @AfterClass
     public void cleanUp() {
         TestUtil.cleanUp(httpTransportListener, httpServer);
     }

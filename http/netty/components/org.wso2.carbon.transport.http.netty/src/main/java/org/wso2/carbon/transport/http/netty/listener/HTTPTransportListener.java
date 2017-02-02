@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 /**
  * A class that starts the HTTP Server Bootstrap in given port and capable of binding interfaces to Server Bootstrap.
  */
+@Deprecated
 public class HTTPTransportListener extends TransportListener {
     private static final Logger log = LoggerFactory.getLogger(HTTPTransportListener.class);
 

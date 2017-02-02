@@ -26,12 +26,17 @@ import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.transport.http.netty.common.Constants;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.InflaterInputStream;
 
 /**
  * HTTP based representation for CarbonMessage.
@@ -97,6 +102,30 @@ public class HTTPCarbonMessage extends CarbonMessage {
         }
 
         return byteBufferList;
+    }
+
+
+    @Override
+    public InputStream getInputStream() {
+        String contentEncodingHeader = getHeader(Constants.CONTENT_ENCODING);
+        if (contentEncodingHeader != null) {
+            // removing the header because, we are handling the decoded content and we need to send out
+            // as encoded one. so once this header is removed, transport will encode again by looking the
+            // accept-encoding request header
+            removeHeader(Constants.CONTENT_ENCODING);
+            try {
+                if (contentEncodingHeader.equalsIgnoreCase(Constants.ENCODING_GZIP)) {
+                    return new GZIPInputStream(super.getInputStream());
+                } else if (contentEncodingHeader.equalsIgnoreCase(Constants.ENCODING_DEFLATE)) {
+                    return new InflaterInputStream(super.getInputStream());
+                } else {
+                    LOG.warn("Unknown Content-Encoding: " + contentEncodingHeader);
+                }
+            } catch (IOException e) {
+                LOG.error("Error while creating inputStream for content-encoding: " + contentEncodingHeader, e);
+            }
+        }
+        return super.getInputStream();
     }
 
     @Override
