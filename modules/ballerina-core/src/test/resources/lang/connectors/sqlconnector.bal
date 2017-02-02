@@ -11,7 +11,7 @@ service SQLConnectorTestService {
     @GET
     @Path ("/actionCreateTable")
     resource passthrough (message m) {
-    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:h2:file:./TEST_SERV_SAMP_DB2", "driverClassName":"org.h2.Driver", "username":"root", "password":"root"});
+    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:h2:file:./TEST_SERV_SAMP_DB2", "driverClassName":"org.h2.Driver", "username":"root", "password":"root", "maximumPoolSize":1});
 
     int returnValue;
     message response;
@@ -27,13 +27,13 @@ service SQLConnectorTestService {
     @GET
     @Path ("/actionInsertData")
     resource passthrough (message m) {
-    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:h2:file:./TEST_SERV_SAMP_DB2", "driverClassName":"org.h2.Driver", "username":"root", "password":"root"});
+    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:h2:file:./TEST_SERV_SAMP_DB2", "driverClassName":"org.h2.Driver", "username":"root", "password":"root", "maximumPoolSize":1});
 
     int insertCount;
     message response;
     json payload;
 
-    insertCount = sql:Connector.update(testDB, "insert into Customers (firstName,lastName,registrationID,creditLimit,country) values ('John', 'Thomas', 2, 5000.75, 'USA');");
+    insertCount = sql:Connector.update(testDB, "insert into Customers (firstName,lastName,registrationID,creditLimit,country) values ('John', 'Thomas', 2, 5000.75, 'USA')");
 
     response = new message;
     message:setStringPayload(response,string:valueOf(insertCount));
@@ -43,7 +43,7 @@ service SQLConnectorTestService {
     @GET
     @Path ("/actionUpdateData")
     resource passthrough (message m) {
-    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:h2:file:./TEST_SERV_SAMP_DB2", "driverClassName":"org.h2.Driver", "username":"root", "password":"root"});
+    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:h2:file:./TEST_SERV_SAMP_DB2", "driverClassName":"org.h2.Driver", "username":"root", "password":"root", "maximumPoolSize":1});
 
     int updateCount;
     message response;
@@ -59,7 +59,7 @@ service SQLConnectorTestService {
     @GET
     @Path ("/actionInsertDataWithKeys")
     resource passthrough (message m) {
-    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:h2:file:./TEST_SERV_SAMP_DB2", "driverClassName":"org.h2.Driver", "username":"root", "password":"root"});
+    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:h2:file:./TEST_SERV_SAMP_DB2", "driverClassName":"org.h2.Driver", "username":"root", "password":"root", "maximumPoolSize":1});
 
     int insertCount;
     string generatedID;
@@ -77,7 +77,7 @@ service SQLConnectorTestService {
     @GET
     @Path ("/actionSelectData")
     resource passthrough (message m) {
-	sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:h2:file:./TEST_SERV_SAMP_DB2", "driverClassName":"org.h2.Driver", "username":"root", "password":"root"});
+	sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:h2:file:./TEST_SERV_SAMP_DB2", "driverClassName":"org.h2.Driver", "username":"root", "password":"root", "maximumPoolSize":1});
 
     dataframe df;
 	message response;
