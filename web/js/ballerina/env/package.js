@@ -16,9 +16,11 @@
  * under the License.
  */
 define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definition', './../ast/function-definition',
-        './../ast/type-definition', './../ast/type-mapper-definition', './../ast/constant-definition','./../ast/struct-definition'],
-    function(log, _, require, EventChannel, ServiceDefinition, FunctionDefinition, TypeDefinition,
-             TypeMapperDefinition, ConstantDefinition,StructDefinition){
+        './../ast/type-definition', './../ast/type-mapper-definition', './../ast/constant-definition',
+        './../ast/struct-definition'],
+    function(log, _, require, EventChannel, ServiceDefinition, FunctionDefinition,
+             TypeDefinition, TypeMapperDefinition, ConstantDefinition,
+             StructDefinition){
 
         /**
          * @class Package
@@ -303,8 +305,9 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
          * @param functionDefinitions - can be an array of functionDefinitions or a single functionDefinition
          */
         Package.prototype.addFunctionDefinitions = function(functionDefinitions){
+            var self = this;
             var err;
-            if(!_.isArray(functionDefinitions) && !(functionDefinitions instanceof  FunctionDefinition)){
+            if(!_.isArray(functionDefinitions) && !(self.BallerinaEnvFactory.isFunction(functionDefinitions))){
                 err = "Adding function def failed. Not an instance of FunctionDefinition" + functionDefinitions;
                 log.error(err);
                 throw err;
@@ -349,13 +352,13 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
         };
 
         /**
-         * Add struct defs
-         * @param structDefinitions - can be an array of structDefinitions or a single structDefinition
+         * Add struct definition(s) to the package.
+         * @param {StructDefinition[]|StructDefinition} structDefinitions - The struct definition(s).
          */
         Package.prototype.addStructDefinitions = function(structDefinitions){
             var err;
-            if(!_.isArray(structDefinitions) && !(structDefinitions instanceof  StructDefinition)){
-                err = "Adding struct def failed. Not an instance of StructDefinition" + structDefinitions;
+            if(!_.isArray(structDefinitions) && !(structDefinitions instanceof StructDefinition)){
+                err = "Adding struct def failed. Not an instance of StructDefinition: " + structDefinitions;
                 log.error(err);
                 throw err;
             }
@@ -363,7 +366,7 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
                 if(!_.isEmpty(structDefinitions)){
                     _.each(structDefinitions, function(structDefinition){
                         if(!(structDefinition instanceof  StructDefinition)){
-                            err = "Adding struct def failed. Not an instance of StructDefinition" + structDefinition;
+                            err = "Adding struct def failed. Not an instance of StructDefinition: " + structDefinition;
                             log.error(err);
                             throw err;
                         }
@@ -373,26 +376,26 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
             this._structDefinitions = this._structDefinitions || [];
             this._structDefinitions = _.concat(this._structDefinitions , structDefinitions);
             /**
-             * fired when new struct defs are added to the package.
+             * Fired when new struct defs are added to the package.
              * @event Package#struct-defs-added
-             * @type {[StructDefinition]}
+             * @type {FunctionDefinition}
              */
             this.trigger("struct-defs-added", structDefinitions);
         };
 
         /**
-         * Set struct defs
+         * Set struct definitions.
          *
-         * @param structDefs
+         * @param {StructDefinition[]} structDefinitions
          */
-        Package.prototype.setStructDefinitions = function(structDefs){
+        Package.prototype.setStructDefinitions = function(structDefinitions){
             this._structDefinitions = null;
-            this.addStructDefinitions(structDefs);
+            this.addStructDefinitions(structDefinitions);
         };
 
         /**
-         *
-         * @returns {[StructDefinition]}
+         * Gets the struct definitions in the package.
+         * @return {StructDefinition[]} - The struct definitions.
          */
         Package.prototype.getStructDefinitions = function() {
             return this._structDefinitions;
@@ -403,8 +406,15 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
             this.setName(jsonNode.name);
 
             _.each(jsonNode.connectors, function (connectorNode) {
-                var connector = self.BallerinaEnvFactory.createConnector(connectorNode);
+                var connector = self.BallerinaEnvFactory.createConnector();
+                connector.initFromJson(connectorNode);
                 self.addConnectors(connector);
+            });
+
+            _.each(jsonNode.functions, function(functionNode){
+                var functionDef = self.BallerinaEnvFactory.createFunction();
+                functionDef.initFromJson(functionNode);
+                self.addFunctionDefinitions(functionDef);
             });
         };
 

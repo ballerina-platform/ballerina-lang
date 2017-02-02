@@ -15,8 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './ast-node-add-operation', './ast-node-remove-operation', './ast-node-modify-operation'],
-    function (_, ASTNodeAddOperation, ASTNodeRemoveOperation, ASTNodeModifyOperation ) {
+define(['lodash', './ast-node-add-operation', './ast-node-remove-operation', './ast-node-modify-operation',
+        './custom-undoable-operation'],
+    function (_, ASTNodeAddOperation, ASTNodeRemoveOperation, ASTNodeModifyOperation, CustomUndoableOperation ) {
 
         var UndoableOperationFactory = {};
         /**
@@ -28,6 +29,7 @@ define(['lodash', './ast-node-add-operation', './ast-node-remove-operation', './
                 case "child-added": return new ASTNodeAddOperation(args);
                 case "child-removed": return new ASTNodeRemoveOperation(args);
                 case "node-modified": return new ASTNodeModifyOperation(args);
+                case "custom": return new CustomUndoableOperation(args);
             }
         };
 
