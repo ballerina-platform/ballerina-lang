@@ -510,8 +510,6 @@ button.variable-list {
 .expression-editor-form-wrapper{
     width: 265px;
     max-height: 250px;
-    /*border: 1px solid #cdcdcd;*/
-    /*border-top: 2px solid #7b7b7b;*/
     background: #FFFFFF;
     position: absolute;
 }
