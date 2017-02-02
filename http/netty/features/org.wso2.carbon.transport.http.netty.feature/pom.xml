@@ -59,7 +59,14 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-codec-http</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-resolver</artifactId>
+        </dependency>
         <dependency>
             <groupId>commons-pool.wso2</groupId>
             <artifactId>commons-pool</artifactId>
@@ -144,6 +151,14 @@
                                 </bundle>
                                 <bundle>
                                     <symbolicName>io.netty.buffer</symbolicName>
+                                    <version>${netty.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>io.netty.codec-http2</symbolicName>
+                                    <version>${netty.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>io.netty.resolver</symbolicName>
                                     <version>${netty.version}</version>
                                 </bundle>
 
