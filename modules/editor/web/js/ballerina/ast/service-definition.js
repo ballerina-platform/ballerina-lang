@@ -67,7 +67,7 @@ define(['lodash', './node', 'log'],
     ServiceDefinition.prototype.constructor = ServiceDefinition;
 
     ServiceDefinition.prototype.setServiceName = function (serviceName) {
-        if (!_.isNil(serviceName) && ServiceDefinition.isValidServiceName(serviceName)) {
+        if (!_.isNil(serviceName) && ASTNode.isValidIdentifier(serviceName)) {
             this._serviceName = serviceName;
         } else {
             var errorString = "Invalid name for the service name: " + serviceName;
@@ -213,16 +213,6 @@ define(['lodash', './node', 'log'],
         } else {
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, newIndex);
         }
-    };
-
-    /**
-     * Validates the name of the service.
-     * @param {string} serviceName - The name of the service.
-     * @return {boolean} - True if valid name, else false.
-     * @static
-     */
-    ServiceDefinition.isValidServiceName = function (serviceName) {
-        return _.isUndefined(serviceName) ? false : /^[a-zA-Z$_][a-zA-Z0-9$_]*$/.test(serviceName);
     };
 
     return ServiceDefinition;

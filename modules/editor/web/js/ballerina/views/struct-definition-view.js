@@ -16,9 +16,9 @@
  * under the License.
  */
 define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ballerina-ast-factory', './canvas',
-        '../utils/bootstrap-dropdown', './../ast/variable-declaration', './struct-variable-defintion-view'],
+        '../utils/dropdown', './../ast/node', './struct-variable-defintion-view'],
     function (_, log, d3, Alerts, BallerinaView, BallerinaASTFactory,
-              Canvas, BootstrapDropdown, VariableDeclaration, StructVariableDefinitionView) {
+              Canvas, Dropdown, ASTNode, StructVariableDefinitionView) {
         var StructDefinitionView = function (args) {
             Canvas.call(this, args);
 
@@ -47,8 +47,11 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
             // Draws the outlying body of the struct definition.
             this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().getType().toLowerCase(), this.getModel().getStructName());
 
+            var structWrapper = $("#_" + this.getModel().getID());
             // Setting width auto for the struct.
-            $("#_" + this.getModel().getID()).css("width", "auto");
+            structWrapper.css("width", "auto");
+            // Setting padding-right to keep gap between structs.
+            structWrapper.css("padding-right", "25px");
 
             // Setting the styles for the canvas icon.
             this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.struct_icon", ""));
@@ -90,7 +93,7 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                 class: "struct-content-operations-wrapper"
             }).appendTo(structContentWrapper);
 
-            var typeDropdown = new BootstrapDropdown({
+            var typeDropdown = new Dropdown({
                 class: {mainWrapper: "struct-type-dropdown-wrapper"},
                 emptyValue: "Type"
             });
@@ -119,7 +122,7 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                 var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
 
                 // Validation the identifier against grammar.
-                if (!VariableDeclaration.isValidIdentifier(newIdentifier)) {
+                if (!ASTNode.isValidIdentifier(newIdentifier)) {
                     var errorString = "Invalid identifier for a variable: " + newIdentifier;
                     Alerts.error(errorString);
                     event.stopPropagation();

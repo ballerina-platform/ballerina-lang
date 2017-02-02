@@ -1012,7 +1012,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             };
 
             this._resourceParamatersPaneView = new ResourceParametersPaneView(parametersPaneProperties);
-            this._resourceParamatersPaneView.createParametersPane(diagramRenderingContext);
+            this._resourceParamatersPaneView.createParametersPane();
 
         };
 
