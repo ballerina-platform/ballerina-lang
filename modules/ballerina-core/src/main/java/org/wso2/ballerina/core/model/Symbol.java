@@ -38,7 +38,11 @@ public class Symbol {
     private Action action;
     private Connector connector;
     private BallerinaStruct struct;
-
+    
+    public Symbol() {
+        // Do nothing. TODO: remove this
+    }
+    
     public Symbol(BType type, SymScope.Name scopeName, MemoryLocation location) {
         this.type = type;
         this.scopeName = scopeName;

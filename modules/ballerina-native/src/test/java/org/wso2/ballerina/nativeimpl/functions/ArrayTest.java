@@ -34,9 +34,9 @@ import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
+import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.nativeimpl.util.Functions;
-import org.wso2.ballerina.nativeimpl.util.NativeConstructLoader;
 import org.wso2.ballerina.nativeimpl.util.ParserUtils;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
@@ -53,7 +53,7 @@ public class ArrayTest {
         // Add Native functions.
         SymScope symScope = GlobalScopeHolder.getInstance().getScope();
         if (symScope.lookup(new SymbolName("ballerina.lang.system:print_string")) == null) {
-            NativeConstructLoader.loadConstructs();
+            BuiltInNativeConstructLoader.loadConstructs();
         }
         bFile = ParserUtils.parseBalFile("samples/arrayTest.bal", symScope);
     }

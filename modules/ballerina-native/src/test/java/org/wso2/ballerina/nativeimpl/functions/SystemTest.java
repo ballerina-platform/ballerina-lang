@@ -35,9 +35,9 @@ import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValueType;
+import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.nativeimpl.util.Functions;
-import org.wso2.ballerina.nativeimpl.util.NativeConstructLoader;
 import org.wso2.ballerina.nativeimpl.util.ParserUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -58,7 +58,7 @@ public class SystemTest {
 
     @BeforeTest
     public void loadBuiltInNativeFunctions() {
-        NativeConstructLoader.loadConstructs();
+        BuiltInNativeConstructLoader.loadConstructs();
     }
 
     @BeforeClass

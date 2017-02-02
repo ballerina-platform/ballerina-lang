@@ -29,9 +29,9 @@ import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.nativeimpl.util.Functions;
-import org.wso2.ballerina.nativeimpl.util.NativeConstructLoader;
 import org.wso2.ballerina.nativeimpl.util.ParserUtils;
 
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ public class MapTest {
         // Add Native functions.
         SymScope symScope = GlobalScopeHolder.getInstance().getScope();
         if (symScope.lookup(new SymbolName("ballerina.lang.system:print_string")) == null) {
-            NativeConstructLoader.loadConstructs();
+            BuiltInNativeConstructLoader.loadConstructs();
         }
         bFile = ParserUtils.parseBalFile("samples/mapTest.bal", symScope);
         dataSet = new BMap<>();
