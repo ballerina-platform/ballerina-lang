@@ -54,7 +54,7 @@ public class HTTPServerConnectorProvider extends ServerConnectorProvider {
             if (config.isBindOnStartup()) {
                 connector.bind();
             }
-
+            connectors.add(connector);
         });
 
         return connectors;
