@@ -110,7 +110,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
             this._createPropertyPane({
                 model: this._model,
                 statementGroup:this.getStatementGroup(),
-                editableProperties: editableProperties
+                editableProperties: editableProperty
             });
 
             this.getBoundingBox().on('top-edge-moved', function(dy){
@@ -129,6 +129,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
 
         AssignmentStatementView.prototype.updateStatementText = function (updatedText) {
             if (!_.isUndefined(updatedText) && updatedText !== '') {
+                updatedText = ((updatedText.length) > 11 ? (updatedText.substring(0, 11) + '..') : updatedText);
                 this.getStatementGroup().expression_text.node().textContent = updatedText;
             }
         };

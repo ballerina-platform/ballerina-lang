@@ -25,6 +25,7 @@ define(['lodash', './statement'], function (_, Statement) {
         this._packageName = _.get(args, 'package', '');
         this._functionName = _.get(args, 'function', 'callFunction');
         this._params = _.get(args, 'params');
+        this._expression = _.get(args, 'expression' ,'callFunction()');
         Statement.call(this, 'FunctionInvocation');
     };
 
@@ -41,6 +42,36 @@ define(['lodash', './statement'], function (_, Statement) {
 
     FunctionInvocation.prototype.setParams = function (params) {
         this._params = params;
+    };
+
+    FunctionInvocation.prototype.setFunctionalExpression = function(expression){
+        if(!_.isNil(expression) && expression !== "") {
+            var split = expression.split("(",1);
+            var splitedText = split[0].split(":", 2);
+
+            this._packageName = "";
+            this._functionName = "";
+            this._params = "";
+
+            if(splitedText.length == 2){
+                this._packageName = splitedText[0];
+                this._functionName = splitedText[1];
+            }else{
+                this._functionName = splitedText[0];
+            }
+
+            this._params = expression.slice(((expression.indexOf(this._functionName) + 1)
+            + this._functionName.split("(", 1)[0].length), (expression.length - 1));
+        }
+    };
+
+    FunctionInvocation.prototype.getFunctionalExpression = function(){
+        var text = "";
+        if (!_.isNil(this._packageName) && this._packageName !== "") {
+            text += this._packageName + ":";
+        }
+        text += this._functionName + '('+ (this._params? this._params:'') +')';
+        return text;
     };
 
     FunctionInvocation.prototype.getPackageName = function () {
