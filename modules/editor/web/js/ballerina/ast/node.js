@@ -218,6 +218,7 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
     };
 
     /**
+<<<<<<< HEAD
      * A generic method to be used for setting node attributes while firing required change events
      *
      * @param attributeName {String} name of the attribute that needs to be updated
@@ -261,6 +262,10 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
      */
     ASTNode.prototype.getAttribute = function (attributeName) {
         return _.get(this, attributeName);
+    }
+
+    ASTNode.isValidIdentifier = function (identifier) {
+        return _.isUndefined(identifier) ? false : /^[a-zA-Z$_][a-zA-Z0-9$_]*$/.test(identifier);
     };
 
     return ASTNode;
