@@ -1,32 +1,29 @@
-<!--
-~   Copyright (c) 2016, WSO2 Inc. (http://wso2.com) All Rights Reserved.
-~
-~   Licensed under the Apache License, Version 2.0 (the "License");
-~   you may not use this file except in compliance with the License.
-~   You may obtain a copy of the License at
-~
-~        http://www.apache.org/licenses/LICENSE-2.0
-~
-~   Unless required by applicable law or agreed to in writing, software
-~   distributed under the License is distributed on an "AS IS" BASIS,
-~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-~   See the License for the specific language governing permissions and
-~   limitations under the License.
--->
+<!--Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.-->
 
-<html lang="en" class="webkit chrome mac js gr__localhost">
+<!--WSO2 Inc. licenses this file to you under the Apache License,-->
+<!--Version 2.0 (the "License"); you may not use this file except-->
+<!--in compliance with the License.-->
+<!--You may obtain a copy of the License at-->
+
+<!--http://www.apache.org/licenses/LICENSE-2.0-->
+
+<!--Unless required by applicable law or agreed to in writing,-->
+<!--software distributed under the License is distributed on an-->
+<!--"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY-->
+<!--KIND, either express or implied. See the License for the-->
+<!--specific language governing permissions and limitations-->
+<!--under the License.-->
+
+<html lang="en" class=" webkit chrome mac js gr__localhost">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-    <title>Ballerina Editor</title>
 
     <!-- Favion -->
     <link href="images/favicon.png" rel="icon" type="image/png" sizes="16x16" />
 
     <script src="lib/css-browser-selector_0.4.0/css_browser_selector.js"></script>
-    
     <link href="lib/font-wso2-1.2.1/css/font-wso2.min.css" rel="stylesheet" type="text/css"/>
     <link href="lib/theme-wso2-2.0.0/css/theme-wso2.css" rel="stylesheet" type="text/css"/>
     <link href="lib/jquery-ui_v1.12.1/jquery-ui.css" rel="stylesheet" type="text/css"/>
@@ -39,22 +36,22 @@
     <link href="css/fileDialog.css" rel="stylesheet" type="text/css"/>
     <link href="lib/nanoscroller_0.8.7/nanoscroller.css" rel="stylesheet" type="text/css"/>
     <link href="lib/mCustomScrollbar_v3.1.5/css/jquery.mCustomScrollbar.css" rel="stylesheet" type="text/css"/>
-    <link href="lib/context-menu_v2.4.2/jquery.contextMenu.min.css" rel="stylesheet" type="text/css"/>
-
-    <link rel="stylesheet" type="text/css" href="css/sequence_diagram/sequenced-styles.css"/>
-    <link rel="stylesheet" type="text/css" href="css/ballerina-file-editor.css"/>
-    <link rel="stylesheet" type="text/css" href="css/menu-bar.css"/>
-    <link rel="stylesheet" type="text/css" href="css/tool-palette.css"/>
-    <link rel="stylesheet" type="text/css" href="css/workspace-explorer.css"/>
-    <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
     <script src="lib/html5shiv_3.7.2/html5shiv.min.js"></script>
     <script src="lib/respond_1.4.2/respond.min.js"></script>
-    <![endif]--> 
+    <![endif]-->
+    <link rel="stylesheet" type="text/css" href="css/sequence_diagram/sequenced-styles.css"/>
+    <link rel="stylesheet" type="text/css" href="css/ballerina-file-editor.css"/>
+    <link rel="stylesheet" type="text/css" href="css/menu-bar.css"/>
+    <link rel="stylesheet" type="text/css" href="css/tool-palette.css"/>
+    <link rel="stylesheet" type="text/css" href="css/workspace-explorer.css"/>
+    <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
+    <title>Ballerina Editor</title>
 </head>
+
 <body class="sticky-footer">
 
 <!-- Start: header -->
@@ -521,7 +518,8 @@
             tool_bar: "js/tool-bar/tool-bar",
             alerts: "js/utils/alerts",
             breadcrumbs: "js/breadcrumbs/breadcrumbs",
-            property_pane_utils: "js/property-pane/property-pane-utils"
+            property_pane_utils: "js/property-pane/property-pane-utils",
+            expression_editor_utils: "js/expression-editor/expression-editor-utils"
         },
         shim: {
             "bootstrap": {"deps": ['jquery']}
@@ -717,7 +715,7 @@
                                 connector_icon:'fw fw-connector fw-inverse',
                                 function_icon:'fw fw-function fw-inverse',
                                 title_link:'collapsed',
-                                panel_right_icon:'fw fw-up pull-right right-icon-clickable collapser hoverable',
+                                panel_right_icon:'fw fw-down pull-right right-icon-clickable collapser hoverable',
                                 body_div:'panel-collapse collapse',
                                 canvas: 'panel-body',
                                 design_view_drop: 'design-view-hover',
@@ -794,4 +792,5 @@
 
 </script>
 </body>
+
 </html>

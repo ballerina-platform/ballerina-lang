@@ -268,6 +268,7 @@ define(['lodash', 'require', 'log', './node'],
      * @param {string} [jsonNode.annotations] - Annotations of the resource definition
      */
     ResourceDefinition.prototype.initFromJson = function (jsonNode) {
+        debugger;
         this._resourceName = jsonNode.resource_name;
         this._annotations = jsonNode.annotations;
 
