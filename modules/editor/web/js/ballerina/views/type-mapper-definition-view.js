@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-struct-definition-view', 'ballerina/ast/ballerina-ast-factory', './canvas',
-    './point', 'typeMapper'], function (_, log, d3, BallerinaView, VariablesView, TypeStructDefinition, BallerinaASTFactory, Canvas, Point, TypeMapper) {
+define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-struct-definition-view', 'ballerina/ast/ballerina-ast-factory', './svg-canvas',
+    './point', 'typeMapper'], function (_, log, d3, BallerinaView, VariablesView, TypeStructDefinition, BallerinaASTFactory, SVGCanvas, Point, TypeMapper) {
     var TypeMapperDefinitionView = function (args) {
-        Canvas.call(this, args);
+        SVGCanvas.call(this, args);
 
         this._parentView = _.get(args, "parentView");
         this._viewOptions.offsetTop = _.get(args, "viewOptionsOffsetTop", 50);
@@ -40,8 +40,8 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
 
     };
 
-    TypeMapperDefinitionView.prototype = Object.create(Canvas.prototype);
-    TypeMapperDefinitionView.prototype.constructor = Canvas;
+    TypeMapperDefinitionView.prototype = Object.create(SVGCanvas.prototype);
+    TypeMapperDefinitionView.prototype.constructor = TypeMapperDefinitionView;
 
     TypeMapperDefinitionView.prototype.canVisitTypeMapperDefinition = function (typeMapperDefinition) {
         return true;
@@ -52,17 +52,48 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
      * @param {Object} diagramRenderingContext - the object which is carrying data required for rendering
      */
     TypeMapperDefinitionView.prototype.render = function (diagramRenderingContext) {
-        this.diagramRenderingContext = diagramRenderingContext;
-        this.drawAccordionCanvas(this._container, this._viewOptions, this._model.id, this._model.type.toLowerCase(), this._model._typeMapperName);
-        var divId = this._model.id;
-        var currentContainer = $('#' + divId);
-        var self = this;
-        this._assignedModel = this;
+        this.setDiagramRenderingContext(diagramRenderingContext);
 
-        console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-        //todo get current package name dynamically
-        this._package = diagramRenderingContext.getPackagedScopedEnvironment().getCurrentPackage();
-        var predefinedStructs = this._package.getStructDefinitions();
+        // Draws the outlying body of the function.
+        this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().type.toLowerCase(), this.getModel().getTypeMapperName());
+
+        // Setting the styles for the canvas icon.
+        this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.type_mapper_icon", ""));
+
+        var currentContainer = $('#' + this.getModel().getID());
+        this._container = currentContainer;
+        this.getBoundingBox().fromTopLeft(new Point(0, 0), currentContainer.width(), currentContainer.height());
+        var self = this;
+
+        $(this.getTitle()).text(this.getModel().getTypeMapperName())
+            .on("change paste keyup", function () {
+                self.getModel().setTypeMapperName($(this).text());
+            }).on("click", function (event) {
+                event.stopPropagation();
+            }).keypress(function (e) {
+                var enteredKey = e.which || e.charCode || e.keyCode;
+                // Disabling enter key
+                if (enteredKey == 13) {
+                    event.stopPropagation();
+                    return false;
+                }
+
+                var newTypeMapperName = $(this).val() + String.fromCharCode(enteredKey);
+
+                try {
+                    self.getModel().setTypeMapperName(newTypeMapperName);
+                } catch (error) {
+                    Alerts.error(error);
+                    event.stopPropagation();
+                    return false;
+                }
+            });
+
+
+//        var divId = this._model.id;
+//        var currentContainer = $('#' + divId);
+//        var self = this;
+        var predefinedStructs = diagramRenderingContext.getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
         console.log(predefinedStructs);
 
         var dataMapperContainerId = "data-mapper-container-" + this._model.id;
@@ -82,29 +113,29 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         $(currentContainer).find("#" + sourceId).change(function () {
             var selectedArrayIndex = $("#" + sourceId + " option:selected").val();
             var selectedStructNameForSource = $("#" + sourceId + " option:selected").text();
-            self._model.removeTypeStructDefinition("SOURCE");
+            self.getModel().removeTypeStructDefinition("SOURCE");
             var schema = predefinedStructs[selectedArrayIndex];
 
-            if (selectedStructNameForSource != self._model.getSelectedStructNameForTarget()) {
-                if (!self._model.getSelectedStructNameForSource()) {
-                    self._model.setSelectedStructNameForSource(selectedStructNameForSource);
+            if (selectedStructNameForSource != self.getModel().getSelectedStructNameForTarget()) {
+                if (!self.getModel().getSelectedStructNameForSource()) {
+                    self.getModel().setSelectedStructNameForSource(selectedStructNameForSource);
                 }
 
                 var leftTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
                 leftTypeStructDef.setTypeStructName(schema.getStructName());
-                leftTypeStructDef.setSelectedStructName(self._model.getSelectedStructNameForSource());
+                leftTypeStructDef.setSelectedStructName(self.getModel().getSelectedStructNameForSource());
                 leftTypeStructDef.setIdentifier("y");
                 leftTypeStructDef.setSchema(schema);
                 leftTypeStructDef.setCategory("SOURCE");
                 //leftTypeStructDef.setDataMapperInstance(self._typeMapper);
                 leftTypeStructDef.setOnConnectInstance(self.onAttributesConnect);
                 leftTypeStructDef.setOnDisconnectInstance(self.onAttributesDisConnect);
-                self._model.addChild(leftTypeStructDef);
-                self._model.setSelectedStructNameForSource(selectedStructNameForSource);
+                self.getModel().addChild(leftTypeStructDef);
+                self.getModel().setSelectedStructNameForSource(selectedStructNameForSource);
             } else {
-                var t = self._model.getSelectedStructIndex(predefinedStructs, self._model.getSelectedStructNameForSource());
-                $("#" + sourceId).val(self._model.getSelectedStructIndex(predefinedStructs,
-                    self._model.getSelectedStructNameForSource()));
+                var t = self.getModel().getSelectedStructIndex(predefinedStructs, self.getModel().getSelectedStructNameForSource());
+                $("#" + sourceId).val(self.getModel().getSelectedStructIndex(predefinedStructs,
+                    self.getModel().getSelectedStructNameForSource()));
             }
         });
 
@@ -112,67 +143,63 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
 
             var selectedArrayIndex = $("#" + targetId + " option:selected").val();
             var selectedStructNameForTarget = $("#" + targetId + " option:selected").text();
-            self._model.removeTypeStructDefinition("TARGET");
+            self.getModel().removeTypeStructDefinition("TARGET");
             var schema = predefinedStructs[selectedArrayIndex];
 
-            if (self._model.getSelectedStructNameForSource() != selectedStructNameForTarget) {
-                if (!self._model.getSelectedStructNameForTarget()) {
-                    self._model.setSelectedStructNameForTarget(selectedStructNameForTarget);
+            if (self.getModel().getSelectedStructNameForSource() != selectedStructNameForTarget) {
+                if (!self.getModel().getSelectedStructNameForTarget()) {
+                    self.getModel().setSelectedStructNameForTarget(selectedStructNameForTarget);
                 }
 
                 var rightTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
                 rightTypeStructDef.setTypeStructName(schema.getStructName());
-                rightTypeStructDef.setSelectedStructName(self._model.getSelectedStructNameForTarget());
+                rightTypeStructDef.setSelectedStructName(self.getModel().getSelectedStructNameForTarget());
                 rightTypeStructDef.setIdentifier("x");
                 rightTypeStructDef.setSchema(schema);
                 rightTypeStructDef.setCategory("TARGET");
                 //rightTypeStructDef.setDataMapperInstance(self._typeMapper);
                 rightTypeStructDef.setOnConnectInstance(self.onAttributesConnect);
                 rightTypeStructDef.setOnDisconnectInstance(self.onAttributesDisConnect);
-                self._model.addChild(rightTypeStructDef);
-                self._model.setSelectedStructNameForTarget(selectedStructNameForTarget);
+                self.getModel().addChild(rightTypeStructDef);
+                self.getModel().setSelectedStructNameForTarget(selectedStructNameForTarget);
 
                 var newVariableDeclaration = BallerinaASTFactory.createVariableDeclaration();
                 newVariableDeclaration.setType(schema.getStructName());
                 newVariableDeclaration.setIdentifier("x");
-                self._model.addChild(newVariableDeclaration);
+                self.getModel().addChild(newVariableDeclaration);
 
                 var newReturnStatement = BallerinaASTFactory.createReturnStatement();
                 newReturnStatement.setReturnExpression("x");
-                self._model.addChild(newReturnStatement);
+                self.getModel().addChild(newReturnStatement);
             } else {
-                var t = self._model.getSelectedStructIndex(predefinedStructs, self._model.getSelectedStructNameForTarget());
-                $("#" + targetId).val(self._model.getSelectedStructIndex(predefinedStructs,
-                    self._model.getSelectedStructNameForTarget()));
+                var t = self.getModel().getSelectedStructIndex(predefinedStructs, self.getModel().getSelectedStructNameForTarget());
+                $("#" + targetId).val(self.getModel().getSelectedStructIndex(predefinedStructs,
+                    self.getModel().getSelectedStructNameForTarget()));
             }
         });
 
-        this._container = currentContainer;
-        this.getBoundingBox().fromTopLeft(new Point(0, 0), currentContainer.width(), currentContainer.height());
+//        this._container = currentContainer;
+//        this.getBoundingBox().fromTopLeft(new Point(0, 0), currentContainer.width(), currentContainer.height());
         this.getModel().accept(this);
 
-        $("#title-" + this._model.id).addClass("type-mapper-title-text").text(this._model.getTypeMapperName())
-            .on("change paste keyup", function (e) {
-                self._model.setTypeMapperName($(this).text());
-            }).on("click", function (event) {
-            event.stopPropagation();
-        }).on("keydown", function (e) {
-            // Check whether the Enter key has been pressed. If so return false. Won't type the character
-            if (e.keyCode === 13) {
-                return false;
-            }
-        });
+//        $("#title-" + this._model.id).addClass("type-mapper-title-text").text(this._model.getTypeMapperName())
+//            .on("change paste keyup", function (e) {
+//                self._model.setTypeMapperName($(this).text());
+//            }).on("click", function (event) {
+//            event.stopPropagation();
+//        }).on("keydown", function (e) {
+//            // Check whether the Enter key has been pressed. If so return false. Won't type the character
+//            if (e.keyCode === 13) {
+//                return false;
+//            }
+//        });
 
-        this._model.on('child-added', function (child) {
+        this.getModel().on('child-added', function (child) {
             self.visit(child);
-            self._model.trigger("child-visited", child);
+            self.getModel().trigger("child-visited", child);
         });
 
-        this.setServiceContainerWidth(this._container.width());
-    };
-
-    TypeMapperDefinitionView.prototype.getChildContainer = function () {
-        return this._rootGroup;
+        //this.setServiceContainerWidth(this._container.width());
     };
 
     TypeMapperDefinitionView.prototype.loadSchemasToComboBox = function (parentId, selectId, schemaArray) {
@@ -189,10 +216,8 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
     TypeMapperDefinitionView.prototype.visitTypeStructDefinition = function (typeStructDefinition) {
         log.debug("Visiting type struct definition");
         var self = this;
-        var typeStructContainer = this.getChildContainer();
         var typeStructDefinitionView = new TypeStructDefinition({
-            model: typeStructDefinition, container: typeStructContainer,
-            toolPalette: this.toolPalette, parentView: this
+            model: typeStructDefinition, parentView: this
         });
         typeStructDefinitionView.render(this.diagramRenderingContext);
     };
@@ -233,6 +258,27 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         connection.targetReference.getParent().removeAssignmentDefinition(connection.sourceProperty,
             connection.targetProperty);
     };
+
+    TypeMapperDefinitionView.prototype.getModel = function () {
+        return this._model;
+    };
+
+    TypeMapperDefinitionView.prototype.getContainer = function () {
+        return this._container;
+    };
+
+    TypeMapperDefinitionView.prototype.getViewOptions = function () {
+        return this._viewOptions;
+    };
+
+    TypeMapperDefinitionView.prototype.getChildContainer = function(){
+        return this._childContainer ;
+    };
+
+    TypeMapperDefinitionView.prototype.setViewOptions = function (viewOptions) {
+        this._viewOptions = viewOptions;
+    };
+
 
     return TypeMapperDefinitionView;
 });

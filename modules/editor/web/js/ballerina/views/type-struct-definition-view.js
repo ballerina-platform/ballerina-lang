@@ -15,38 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerina/ast/ballerina-ast-factory', './canvas',
-            'typeMapper'], function (_, log, d3, BallerinaView, VariablesView, BallerinaASTFactory, Canvas, TypeMapper) {
+define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerina/ast/ballerina-ast-factory',
+            'typeMapper','./svg-canvas'], function (_, log, d3, BallerinaView, VariablesView, BallerinaASTFactory,TypeMapper,SVGCanvas) {
     var TypeStructDefinitionView = function (args) {
-        Canvas.call(this, args);
 
+        SVGCanvas.call(this, args);
         this._parentView = _.get(args, "parentView");
-        this._viewOptions.offsetTop = _.get(args, "viewOptionsOffsetTop", 50);
-        this._viewOptions.topBottomTotalGap = _.get(args, "viewOptionsTopBottomTotalGap", 100);
-        //set panel icon for the type struct
-        this._viewOptions.panelIcon = _.get(args.viewOptions, "cssClass.type_struct_icon");
-        //set initial height for the type struct container svg
-        this._totalHeight = 30;
 
-        if (_.isNil(this._model) || !(BallerinaASTFactory.isTypeStructDefinition(this._model))) {
-            log.error("Type Struct definition is undefined or is of different type." + this._model);
-            throw "Type Struct definition is undefined or is of different type." + this._model;
+        if (_.isNil(this.getModel()) || !(BallerinaASTFactory.isTypeStructDefinition(this.getModel()))) {
+            log.error("Type Struct definition is undefined or is of different type." + this.getModel());
+            throw "Type Struct definition is undefined or is of different type." + this.getModel();
         }
 
-        if (_.isNil(this._container)) {
-            log.error("Container for Type Struct definition is undefined." + this._container);
-            throw "Container for Type Struct definition is undefined." + this._container;
-        }
-        this.init();
     };
 
-    TypeStructDefinitionView.prototype = Object.create(Canvas.prototype);
-    TypeStructDefinitionView.prototype.constructor = Canvas;
-
-    TypeStructDefinitionView.prototype.init = function(){
-        //Registering event listeners
-        this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
-    };
+    TypeStructDefinitionView.prototype = Object.create(SVGCanvas.prototype);
+    TypeStructDefinitionView.prototype.constructor = TypeStructDefinitionView;
 
     TypeStructDefinitionView.prototype.canVisitTypeStructDefinition = function (typeStructDefinition) {
         return true;
@@ -58,22 +42,24 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerin
      */
     TypeStructDefinitionView.prototype.render = function (diagramRenderingContext) {
         this._diagramRenderingContext = diagramRenderingContext;
-        var struct = this._model.getSchemaPropertyObj();
-        var category = this._model.getCategory();
-        var selectedStructName = this._model.getSelectedStructName();
+        var struct = this.getModel().getSchemaPropertyObj();
+        var category = this.getModel().getCategory();
+        var selectedStructName = this.getModel().getSelectedStructName();
 
-        var mapper = new TypeMapper(this._model.getOnConnectInstance(),this._model.getOnDisconnectInstance(), this._parentView);
+        var mapper = new TypeMapper(this.getModel().getOnConnectInstance(),this.getModel().getOnDisconnectInstance(), this._parentView);
         mapper.removeStruct(selectedStructName);
         if(category == "SOURCE"){
-            mapper.addSourceStruct(struct,this._model);
+            mapper.addSourceStruct(struct,this.getModel());
         }else{
-            mapper.addTargetStruct(struct,this._model);
+            mapper.addTargetStruct(struct,this.getModel());
         }
     };
 
-    TypeStructDefinitionView.prototype.getChildContainer = function () {
-        return this._rootGroup;
+    TypeStructDefinitionView.prototype.getModel = function () {
+        return this._model;
     };
+
+
 
 //    /**
 //     * Receives attributes connected
