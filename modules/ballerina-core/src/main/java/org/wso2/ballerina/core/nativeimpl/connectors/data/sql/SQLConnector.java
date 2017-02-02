@@ -38,7 +38,7 @@ import java.sql.SQLException;
 import java.util.Set;
 
 /**
- * Native RDBMS Connector.
+ * Native SQL Connector.
  */
 @BallerinaConnector(
         packageName = "ballerina.data.sql",
