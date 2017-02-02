@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2015 WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ *  Copyright (c) 2017 WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,50 +28,49 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.BufferFactory;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.RequestSizeValidationConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * A class that responsible for create server side channels.
  */
-@Deprecated
-public class CarbonHTTPServerInitializer extends ChannelInitializer<SocketChannel>
+public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChannel>
         implements CarbonTransportInitializer {
 
-    private static final Logger log = LoggerFactory.getLogger(CarbonHTTPServerInitializer.class);
+    private static final Logger log = LoggerFactory.getLogger(HTTPServerChannelInitializer.class);
     private ConnectionManager connectionManager;
 
-    private Map<String, ListenerConfiguration> listenerConfigurationMap;
+    private Map<Integer, ListenerConfiguration> listenerConfigurationMap = new HashMap<>();
 
-    private SSLConfig sslConfig;
+    public HTTPServerChannelInitializer() {
+    }
 
-    private Map<String, org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig> sslConfigMap;
+    public void registerListenerConfig(ListenerConfiguration listenerConfiguration) {
+        listenerConfigurationMap.put(listenerConfiguration.getPort(), listenerConfiguration);
+    }
 
-    public CarbonHTTPServerInitializer(Map<String, ListenerConfiguration> integerListenerConfigurationMap) {
-        this.listenerConfigurationMap = integerListenerConfigurationMap;
+    public void unRegisterListenerConfig(ListenerConfiguration listenerConfiguration) {
+        listenerConfigurationMap.remove(listenerConfiguration.getPort());
     }
 
     @Override
+    //TODO: Check the usage of this
     public void setup(Map<String, String> parameters) {
-
         if (parameters != null && parameters.get(Constants.OUTPUT_CONTENT_BUFFER_SIZE) != null) {
             BufferFactory.createInstance(Integer.parseInt(parameters.get(Constants.OUTPUT_CONTENT_BUFFER_SIZE)));
         }
-
     }
 
-    public void setup(Set<TransportProperty> transportPropertySet) {
-
+    public void setupConnectionManager(Set<TransportProperty> transportPropertySet) {
         try {
             connectionManager = ConnectionManager.getInstance(transportPropertySet);
-
         } catch (Exception e) {
             log.error("Error initializing the transport ", e);
             throw new RuntimeException(e);
@@ -85,13 +84,9 @@ public class CarbonHTTPServerInitializer extends ChannelInitializer<SocketChanne
         }
         int port = ch.localAddress().getPort();
 
-        String id = String.valueOf(port);
-        ListenerConfiguration listenerConfiguration = listenerConfigurationMap.get(id);
-        if (sslConfigMap.get(id) != null) {
-            SslHandler sslHandler = new SSLHandlerFactory(sslConfigMap.get(id)).create();
-            ch.pipeline().addLast("ssl", sslHandler);
-        } else if (sslConfig != null) {
-            SslHandler sslHandler = new SSLHandlerFactory(sslConfig).create();
+        ListenerConfiguration listenerConfiguration = listenerConfigurationMap.get(port);
+        if (listenerConfiguration.getSslConfig() != null) {
+            SslHandler sslHandler = new SSLHandlerFactory(listenerConfiguration.getSslConfig()).create();
             ch.pipeline().addLast("ssl", sslHandler);
         }
         ChannelPipeline p = ch.pipeline();
@@ -107,9 +102,7 @@ public class CarbonHTTPServerInitializer extends ChannelInitializer<SocketChanne
         p.addLast("compressor", new HttpContentCompressor());
         p.addLast("chunkWriter", new ChunkedWriteHandler());
         try {
-
             p.addLast("handler", new SourceHandler(connectionManager, listenerConfiguration));
-
         } catch (Exception e) {
             log.error("Cannot Create SourceHandler ", e);
         }
@@ -118,14 +111,6 @@ public class CarbonHTTPServerInitializer extends ChannelInitializer<SocketChanne
     @Override
     public boolean isServerInitializer() {
         return true;
-    }
-
-    public void setSslConfig(SSLConfig sslConfig) {
-        this.sslConfig = sslConfig;
-    }
-
-    public void setSslConfigMap(Map<String, SSLConfig> sslConfigMap) {
-        this.sslConfigMap = sslConfigMap;
     }
 
 }
