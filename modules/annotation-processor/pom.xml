@@ -41,11 +41,7 @@
         </dependency>
     </dependencies>
 
-        <properties>
-            <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
-    
-            <export.package>
-                org.wso2.ballerina.annotation.processor.*;version="${ballerina.package.export.version}"
-            </export.package>
-        </properties>
+    <properties>
+        <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
+    </properties>
 </project>

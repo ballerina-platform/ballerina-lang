@@ -20,7 +20,7 @@ under the License.
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-annotation-processor-test-suite">
-
-    <test name="ballerina-annotation-processor-unit-tests" preserve-order="true" parallel="false">
+    <test name="ballerina-annotation-processor-tests" preserve-order="true" parallel="false">
+        <classes/>
     </test>
 </suite>
