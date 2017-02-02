@@ -49,7 +49,6 @@
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
     <link rel="stylesheet" type="text/css" href="css/debugger.css"/>
     <link rel="stylesheet" type="text/css" href="css/left-tool-bar.css"/>
-    <link rel="stylesheet" type="text/css" href="css/type-mapper.css"/>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -507,7 +506,6 @@
             jquery_ui: "lib/jquery-ui_v1.12.1/jquery-ui",
             bootstrap: "lib/bootstrap_v3.3.6/js/bootstrap",
             d3: "lib/d3_v4.1.1/d3",
-            dagre: "lib/dagre-0.7.4/dagre.min",
             log4javascript: "lib/log4javascript-1.4.13/log4javascript",
             lodash: "lib/lodash_v4.13.1/lodash",
             backbone: "lib/backbone_v1.3.3/backbone",
@@ -519,7 +517,6 @@
             mousetrap: "lib/mousetrap_v1.6.0/mousetrap.min",
             mcustom_scroller: "lib/mCustomScrollbar_v3.1.5/js/jquery.mCustomScrollbar.concat.min",
             jquery_context_menu: "lib/context-menu_v2.4.2/jquery.contextMenu.min",
-            jsPlumb: "lib/jsPlumb-1.5.0/jquery.jsPlumb-1.5.0-min",
             ///////////////////////
             // custom modules ////
             //////////////////////
@@ -539,15 +536,10 @@
             breadcrumbs: "js/breadcrumbs/breadcrumbs",
             property_pane_utils: "js/property-pane/property-pane-utils",
             debugger: "js/debugger/debugger",
-            constants: 'js/constants/constants',
-            typeMapper: 'js/type-mapper/type-mapper-renderer'
+			expression_editor_utils: "js/expression-editor/expression-editor-utils"
         },
         shim: {
-            "bootstrap": {"deps": ['jquery']},
-            "jsPlumb": {
-                deps: ['jquery','jquery_ui'],
-                exports: 'jsPlumb'
-            }
+            "bootstrap": {"deps": ['jquery']}
         },
         map: {
             "*": {
@@ -756,9 +748,7 @@
                                 canvas_container: 'canvas-container',
                                 panel_delete_icon: 'fw fw-delete pull-right right-icon-clickable delete-icon hoverable',
                                 panel_annotation_icon: 'fw fw-annotation pull-right right-icon-clickable hoverable',
-                                panel_args_icon: 'fw fw-import pull-right right-icon-clickable hoverable',
-                                type_mapper_icon: 'fw fw-dgm-service fw-inverse',
-                                type_struct_icon: 'fw fw-dgm-service fw-inverse'
+                                panel_args_icon: 'fw fw-import pull-right right-icon-clickable hoverable'
                             },
                             notifications: {
                                 container: '#notification-container'
@@ -801,7 +791,6 @@
                 },
                 containerId: 'workspace-explorer',
                 cssClass: {
-
                     container: 'workspace-explorer-container tab-pane',
                     openFolderButton: 'btn  btn-default open-folder-button'
                 }
