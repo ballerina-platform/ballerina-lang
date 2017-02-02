@@ -24,7 +24,8 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
         './worker-declaration', './package-definition', './import-declaration', './assignment',
         './assignment-statement', './function-invocation', './arithmetic-expression', './logical-expression',
         './action-invocation-expression', './ballerina-ast-deserializer', './function-invocation-expression',
-        './left-operand-expression', './right-operand-expression', './connector-action', './struct-definition'],
+        './left-operand-expression', './right-operand-expression', './connector-action', './struct-definition',
+        './action-invocation-statement'],
     function (BallerinaASTFactory, BallerinaASTRoot, ConditionalStatement, ConnectorDeclaration, ConnectorDefinition,
               ConstantDefinition, Expression, FunctionDefinition, IfElseStatement, IfStatement, ElseStatement,
               ElseIfStatement, TryCatchStatement, TryStatement, CatchStatement, ASTNode, ReplyStatement,
@@ -33,7 +34,7 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
               WorkerDeclaration, PackageDefinition, ImportDeclaration, Assignment, AssignmentStatement,
               FunctionInvocation, ArithmeticExpression, LogicalExpression, ActionInvocationExpression,
               BallerinaASTDeserializer, FunctionInvocationExpression, LeftOperandExpression, RightOperandExpression,
-              ConnectorAction, StructDefinition) {
+              ConnectorAction, StructDefinition, ActionInvocationStatement) {
 
         return  {
             BallerinaASTFactory: BallerinaASTFactory,
@@ -74,6 +75,7 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
             FunctionInvocationExpression: FunctionInvocationExpression,
             ArithmeticExpression: ArithmeticExpression,
             LogicalExpression: LogicalExpression,
+            ActionInvocationStatement: ActionInvocationStatement,
             ActionInvocationExpression: ActionInvocationExpression,
             BallerinaASTDeserializer : BallerinaASTDeserializer,
             ConnectorAction : ConnectorAction,
