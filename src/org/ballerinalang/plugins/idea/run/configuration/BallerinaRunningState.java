@@ -29,6 +29,7 @@ public abstract class BallerinaRunningState extends CommandLineState {
         super(environment);
         this.project = project;
         this.params = params;
+        addConsoleFilters(new BallerinaConsoleFilter(project));
     }
 
     public abstract String getCommand();
