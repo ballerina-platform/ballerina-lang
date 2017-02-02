@@ -91,7 +91,7 @@ constantDefinition
 // cannot have conector declaration, need to validate at semantic analyzing
 // typeName below is only 'message' type
 workerDeclaration
-    :   'worker' Identifier '(' typeName Identifier ')'  '{' statement+ '}'
+    :   'worker' Identifier '(' namedParameter ')'  '{' statement+ '}'
     ;
 
 returnParameters
@@ -415,10 +415,11 @@ expression
     |   expression '<=' expression                      # binaryLEExpression
     |   expression '==' expression                      # binaryEqualExpression
     |   expression '!=' expression                      # binaryNotEqualExpression
-    |   '[' expressionList? ']'                         # arrayInitExpression
+    |   '[]'                                            # arrayInitExpression
+    |   '[' expressionList ']'                          # arrayInitExpression // couldn't match empty array with:  '[' expressionList? ']' hence writing in two branches
     |   '{' mapStructInitKeyValueList? '}'              # refTypeInitExpression
-    |   'create' typeName ('(' expressionList? ')')     # connectorInitExpression
-        ;
+    |   'create' typeName argumentList                  # connectorInitExpression
+    ;
 
 mapStructInitKeyValueList
     :   mapStructInitKeyValue (',' mapStructInitKeyValue)*
