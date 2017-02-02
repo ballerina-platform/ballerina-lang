@@ -44,7 +44,7 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
      * @param {string} actionName
      */
     ActionInvocationExpression.prototype.setActionName = function (actionName) {
-        this._actionName = actionName;
+        this.setAttribute('_actionName', actionName);
     };
     /**
      * Get action name
@@ -59,7 +59,7 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
      * @param {string} actionPackageName
      */
     ActionInvocationExpression.prototype.setActionPackageName = function (actionPackageName) {
-        this._actionPackageName = actionPackageName;
+        this.setAttribute('_actionPackageName', actionPackageName);
     };
     /**
      * Get Action Package Name
@@ -74,7 +74,7 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
      * @param {string} actionConnectorName
      */
     ActionInvocationExpression.prototype.setActionConnectorName = function (actionConnectorName) {
-        this._actionConnectorName = actionConnectorName;
+        this.setAttribute('_actionConnectorName', actionConnectorName);
     };
     /**
      * Get action connector Name
