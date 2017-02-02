@@ -44,11 +44,13 @@ public class HtmlDocumentWriterTest {
         String outputPath =  userDir + File.separator + "api-docs" + File.separator + "html";
         String outputFilePath1 = outputPath + File.separator + "foo.bar.html";
         String outputFilePath2 = outputPath + File.separator + "foo.bar.xyz.html";
+        String indexOutputFilePath = outputPath + File.separator + "index.html";
 
         try {
             // Delete if file already exists
             deleteFile(outputFilePath1);
             deleteFile(outputFilePath2);
+            deleteFile(indexOutputFilePath);
 
             // Generate HTML file
             Map<String, Package> docsMap =
@@ -61,6 +63,8 @@ public class HtmlDocumentWriterTest {
             Assert.assertTrue(htmlFile1.exists());
             File htmlFile2 = new File(outputFilePath2);
             Assert.assertTrue(htmlFile2.exists());
+            File indexHtmlFile = new File(indexOutputFilePath);
+            Assert.assertTrue(indexHtmlFile.exists());
 
             // Assert function definitions
             String content = new Scanner(htmlFile1).useDelimiter("\\Z").next();
@@ -68,12 +72,18 @@ public class HtmlDocumentWriterTest {
                     "<a href=\"\">message</a> m, <a href=\"\">string</a> key, <a href=\"\">string</a> value)"));
             Assert.assertTrue(content.contains("function getHeader(" +
                     "<a href=\"\">message</a> m, <a href=\"\">string</a> key) (string value)"));
+
+            // Assert packages in index.html
+            content = new Scanner(indexHtmlFile).useDelimiter("\\Z").next();
+            Assert.assertTrue(content.contains("foo.bar"));
+            Assert.assertTrue(content.contains("foo.bar.xyz"));
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         } finally {
             BallerinaDocGenTestUtils.cleanUp();
             deleteFile(outputFilePath1);
             deleteFile(outputFilePath2);
+            deleteFile(indexOutputFilePath);
         }
     }
 
@@ -86,6 +96,7 @@ public class HtmlDocumentWriterTest {
         String outputPath =  userDir + File.separator + "api-docs" + File.separator + "html";
         String outputFilePath1 = outputPath + File.separator + "foo.bar.html";
         String outputFilePath2 = outputPath + File.separator + "foo.bar.xyz.html";
+        String indexOutputFilePath = outputPath + File.separator + "index.html";
 
         try {
             // Delete if file already exists
@@ -103,12 +114,15 @@ public class HtmlDocumentWriterTest {
             Assert.assertTrue(htmlFile1.exists());
             File htmlFile2 = new File(outputFilePath2);
             Assert.assertFalse(htmlFile2.exists());
+            File indexHtmlFile = new File(indexOutputFilePath);
+            Assert.assertTrue(indexHtmlFile.exists());
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         } finally {
             BallerinaDocGenTestUtils.cleanUp();
             deleteFile(outputFilePath1);
             deleteFile(outputFilePath2);
+            deleteFile(indexOutputFilePath);
         }
     }
 

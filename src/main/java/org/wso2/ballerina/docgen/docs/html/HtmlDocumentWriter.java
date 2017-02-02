@@ -35,15 +35,21 @@ import java.util.Collection;
  */
 public class HtmlDocumentWriter implements DocumentWriter {
 
+    private static final String HTML = ".html";
+    private static final String INDEX_HTML = "index.html";
+    private static final String UTF_8 = "UTF-8";
+
     private static PrintStream out = System.out;
 
-    public static final String PACKAGE_TEMPLATE_FILE_KEY = "package.template.filename";
+    public static final String PACKAGE_TEMPLATE_NAME_KEY = "package.template.name";
     public static final String HTML_OUTPUT_PATH_KEY = "html.output.path";
     public static final String TEMPLATES_FOLDER_PATH_KEY = "templates.folder.path";
+    public static final String INDEX_TEMPLATE_NAME_KEY = "index.template.name";
 
     private String templatesFolderPath;
     private String outputFilePath;
-    private String packageTemplateFileName;
+    private String packageTemplateName;
+    private String indexTemplateName;
 
     public HtmlDocumentWriter() {
         String userDir = System.getProperty("user.dir");
@@ -51,7 +57,8 @@ public class HtmlDocumentWriter implements DocumentWriter {
                 userDir + File.separator + "api-docs" + File.separator + "html");
         this.templatesFolderPath =  System.getProperty(TEMPLATES_FOLDER_PATH_KEY,
                 userDir + File.separator + "templates" + File.separator + "html");
-        this.packageTemplateFileName = System.getProperty(PACKAGE_TEMPLATE_FILE_KEY, "package");
+        this.packageTemplateName = System.getProperty(PACKAGE_TEMPLATE_NAME_KEY, "package");
+        this.indexTemplateName = System.getProperty(INDEX_TEMPLATE_NAME_KEY, "index");
     }
 
     @Override
@@ -63,27 +70,31 @@ public class HtmlDocumentWriter implements DocumentWriter {
 
         out.println("Generating HTML API documentation...");
         for (Package balPackage : packages) {
-            writeHtmlDocument(balPackage);
+            String filePath = outputFilePath + File.separator + balPackage.getFullyQualifiedName() + HTML;
+            writeHtmlDocument(balPackage, packageTemplateName, filePath);
         }
+        String filePath = outputFilePath + File.separator + INDEX_HTML;
+        writeHtmlDocument(packages, indexTemplateName, filePath);
     }
 
     /**
-     * Write HTML document for a given ballerina package
-     * @param balPackage Ballerina package object
+     * Write HTML document using a data object
+     * @param object object to be passed to hbs template
+     * @param templateName hbs template name without the extension
+     * @param absoluteFilePath absolute file path of the output html file
      */
-    private void writeHtmlDocument(Package balPackage) {
+    private void writeHtmlDocument(Object object, String templateName, String absoluteFilePath) {
         PrintWriter writer = null;
         try {
             TemplateLoader templateLoader = new FileTemplateLoader(templatesFolderPath);
             Handlebars handlebars = new Handlebars(templateLoader);
-            Template template = handlebars.compile(packageTemplateFileName);
+            Template template = handlebars.compile(templateName);
 
-            String filePath = outputFilePath + File.separator + balPackage.getFullyQualifiedName() + ".html";
-            writer = new PrintWriter(filePath, "UTF-8");
-            writer.println(template.apply(balPackage));
-            out.println("HTML file written: " + filePath);
+            writer = new PrintWriter(absoluteFilePath, UTF_8);
+            writer.println(template.apply(object));
+            out.println("HTML file written: " + absoluteFilePath);
         } catch (IOException e) {
-            out.println("Docerina: Could not write HTML file of package " + balPackage.getFullyQualifiedName() +
+            out.println("Docerina: Could not write HTML file " + absoluteFilePath +
                     System.lineSeparator() + e.getMessage());
         } finally {
             if (writer != null) {
