@@ -35,7 +35,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      */
     TryCatchStatement.prototype.setExceptionType = function (exception) {
         if (!_.isNil(exception)) {
-            this._exceptionType = exception;
+            this.setAttribute('_exceptionType', exception);
         } else {
             log.error("Cannot set undefined to the exception.");
         }

@@ -114,7 +114,6 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             });
 
             // Creating property pane
-            var editableProperties = [];
             var editableProperty = {
                 propertyType: "text",
                 key: "Condition",
@@ -122,11 +121,10 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
                 getterMethod: this._model.getCondition,
                 setterMethod: this._model.setCondition
             };
-            editableProperties.push(editableProperty);
             this._createPropertyPane({
                 model: this._model,
                 statementGroup:whileGroup,
-                editableProperties: editableProperties
+                editableProperties: editableProperty
             });
 
             this.getBoundingBox().on('height-changed', function(dh){
