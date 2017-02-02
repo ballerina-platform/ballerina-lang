@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.SymbolScope;
 
 import static org.wso2.ballerina.core.model.types.TypeConstants.ARRAY_TNAME;
@@ -46,6 +47,9 @@ public class BTypes {
     public static  BType typeMessage;
     public static  BType typeMap;
 
+    // TODO Temporary fix. Please remove this and refactor properly
+    private static SymbolScope globalScope;
+
     private BTypes() {
     }
 
@@ -67,17 +71,20 @@ public class BTypes {
         globalScope.define(typeJSON.getSymbolName(), typeJSON);
         globalScope.define(typeMessage.getSymbolName(), typeMessage);
         globalScope.define(typeMap.getSymbolName(), typeMap);
+
+        BTypes.globalScope = globalScope;
     }
 
     public static BArrayType getArrayType(String elementTypeName) {
         String arrayTypeName = elementTypeName + ARRAY_TNAME;
 
-        BArrayType type = BType.getType(arrayTypeName);
+        return (BArrayType) globalScope.resolve(new SymbolName(arrayTypeName));
+//        BArrayType type = BType.getType(arrayTypeName);
 //        if (type == null) {
 //            type = new BArrayType(arrayTypeName, elementTypeName);
 //        }
 
-        return type;
+//        return type;
     }
 
 //    public static void addConnectorType(String connectorName) {
@@ -97,8 +104,10 @@ public class BTypes {
         return false;
     }
 
+    @SuppressWarnings("unchecked")
     public static <T extends BType> T getType(String typeName) {
-        return BType.getType(typeName);
+        return (T) globalScope.resolve(new SymbolName(typeName));
+//        return BType.getType(typeName);
     }
     
 //    public static void addStructType(String structName) {

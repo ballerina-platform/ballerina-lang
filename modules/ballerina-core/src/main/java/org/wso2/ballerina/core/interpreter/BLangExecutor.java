@@ -41,6 +41,7 @@ import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.CallableUnitInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.ConnectorInitExpr;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
@@ -238,16 +239,16 @@ public class BLangExecutor implements NodeExecutor {
         int valueCounter = populateArgumentValues(funcIExpr.getArgExprs(), localVals);
 
         // Populate values for Connector declarations
-        if (function instanceof BallerinaFunction) {
-            BallerinaFunction ballerinaFunction = (BallerinaFunction) function;
-            valueCounter = populateConnectorDclValues(ballerinaFunction.getConnectorDcls(), localVals, valueCounter);
-        }
+//        if (function instanceof BallerinaFunction) {
+//            BallerinaFunction ballerinaFunction = (BallerinaFunction) function;
+//            valueCounter = populateConnectorDclValues(ballerinaFunction.getConnectorDcls(), localVals, valueCounter);
+//        }
 
         // Create default values for all declared local variables
-        for (VariableDef variableDef : function.getVariableDefs()) {
-            localVals[valueCounter] = variableDef.getType().getDefaultValue();
-            valueCounter++;
-        }
+//        for (VariableDef variableDef : function.getVariableDefs()) {
+//            localVals[valueCounter] = variableDef.getType().getDefaultValue();
+//            valueCounter++;
+//        }
 
         for (ParameterDef returnParam : function.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
@@ -269,7 +270,7 @@ public class BLangExecutor implements NodeExecutor {
         CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
                 functionSymbolName.getPkgPath(), funcIExpr.getNodeLocation());
 
-        StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, null);
         controlStack.pushFrame(stackFrame);
 
         // Check whether we are invoking a native function or not.
@@ -473,6 +474,11 @@ public class BLangExecutor implements NodeExecutor {
             bMap.put(key, value);
         }
         return bMap;
+    }
+
+    @Override
+    public BValue visit(ConnectorInitExpr connectorInitExpr) {
+        return null;
     }
 
     @Override

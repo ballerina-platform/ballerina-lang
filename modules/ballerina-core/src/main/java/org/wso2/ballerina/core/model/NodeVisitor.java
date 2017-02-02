@@ -29,6 +29,7 @@ import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
+import org.wso2.ballerina.core.model.expressions.ConnectorInitExpr;
 import org.wso2.ballerina.core.model.expressions.DivideExpr;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
@@ -100,6 +101,7 @@ public interface NodeVisitor {
 
     void visit(StructDcl structDcl);
 
+
     // Statements
 
     void visit(VariableDefStmt varDefStmt);
@@ -121,6 +123,7 @@ public interface NodeVisitor {
     void visit(FunctionInvocationStmt functionInvocationStmt);
 
     void visit(ActionInvocationStmt actionInvocationStmt);
+
 
     // Expressions
 
@@ -158,19 +161,26 @@ public interface NodeVisitor {
 
     void visit(UnaryExpression unaryExpression);
 
+    void visit(TypeCastExpression typeCastExpression);
+
     void visit(ArrayMapAccessExpr arrayMapAccessExpr);
+
+    void visit(StructFieldAccessExpr structAttributeAccessExpr);
+
+    void visit(BacktickExpr backtickExpr);
 
     void visit(ArrayInitExpr arrayInitExpr);
 
     void visit(RefTypeInitExpr refTypeInitExpr);
 
-    void visit(MapStructInitKeyValueExpr keyValueExpr);
+    void visit(ConnectorInitExpr connectorInitExpr);
 
-    void visit(BacktickExpr backtickExpr);
+    void visit(StructInitExpr structInitExpr);
+
+    void visit(MapStructInitKeyValueExpr keyValueExpr);
 
     void visit(VariableRefExpr variableRefExpr);
 
-    void visit(TypeCastExpression typeCastExpression);
 
     void visit(LocalVarLocation localVarLocation);
 
@@ -179,14 +189,10 @@ public interface NodeVisitor {
     void visit(ConnectorVarLocation connectorVarLocation);
 
     void visit(ConstantLocation constantLocation);
-    
+
     void visit(ResourceInvocationExpr resourceIExpr);
 
     void visit(MainInvoker mainInvoker);
 
     void visit(StructVarLocation structVarLocation);
-
-    void visit(StructInitExpr structInitExpr);
-
-    void visit(StructFieldAccessExpr structAttributeAccessExpr);
 }

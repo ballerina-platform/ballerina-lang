@@ -1324,7 +1324,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitConnectorInitExpression(BallerinaParser.ConnectorInitExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        modelBuilder.createConnectorInitExpr(getCurrentLocation(ctx));
     }
 
     @Override
@@ -1344,9 +1348,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitBinaryAddExpression(BallerinaParser.BinaryAddExpressionContext ctx) {
-        if (ctx.exception == null) {
-            createBinaryExpr(ctx);
+        if (ctx.exception != null) {
+            return;
         }
+
+        createBinaryExpr(ctx);
     }
 
     @Override

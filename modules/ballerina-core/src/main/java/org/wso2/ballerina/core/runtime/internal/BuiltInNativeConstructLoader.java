@@ -19,9 +19,9 @@
 package org.wso2.ballerina.core.runtime.internal;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
@@ -188,187 +188,189 @@ import org.wso2.ballerina.core.nativeimpl.util.GetRandomString;
 public class BuiltInNativeConstructLoader {
 
 
+    public static void loadConstructs(SymbolScope globalScope) {
+        loadNativeFunctions(globalScope);
+        loadNativeTypeConverters(globalScope);
+    }
+
     public static void loadConstructs() {
-        loadNativeFunctions();
-        loadNativeTypeConverters();
     }
 
     /**
      * Load native functions to the runtime.
      */
-    private static void loadNativeFunctions() {
-        SymScope scope = GlobalScopeHolder.getInstance().getScope();
+    private static void loadNativeFunctions(SymbolScope globalScope) {
 
         //lang.array
-        registerFunction(scope, new DoubleArrayCopyOf());
-        registerFunction(scope, new DoubleArrayLength());
-        registerFunction(scope, new DoubleArrayRangeCopy());
-        registerFunction(scope, new FloatArrayCopyOf());
-        registerFunction(scope, new FloatArrayLength());
-        registerFunction(scope, new FloatArrayRangeCopy());
-        registerFunction(scope, new IntArrayCopyOf());
-        registerFunction(scope, new IntArrayLength());
-        registerFunction(scope, new IntArrayRangeCopy());
-        registerFunction(scope, new JsonArrayCopyOf());
-        registerFunction(scope, new JsonArrayLength());
-        registerFunction(scope, new JsonArrayRangeCopy());
-        registerFunction(scope, new LongArrayCopyOf());
-        registerFunction(scope, new LongArrayLength());
-        registerFunction(scope, new LongArrayRangeCopy());
-        registerFunction(scope, new MessageArrayCopyOf());
-        registerFunction(scope, new MessageArrayLength());
-        registerFunction(scope, new MessageArrayRangeCopy());
-        registerFunction(scope, new StringArrayCopyOf());
-        registerFunction(scope, new StringArrayLength());
-        registerFunction(scope, new StringArrayRangeCopy());
-        registerFunction(scope, new XmlArrayCopyOf());
-        registerFunction(scope, new XmlArrayLength());
-        registerFunction(scope, new XmlArrayRangeCopy());
+        registerFunction(globalScope, new DoubleArrayCopyOf());
+        registerFunction(globalScope, new DoubleArrayLength());
+        registerFunction(globalScope, new DoubleArrayRangeCopy());
+        registerFunction(globalScope, new FloatArrayCopyOf());
+        registerFunction(globalScope, new FloatArrayLength());
+        registerFunction(globalScope, new FloatArrayRangeCopy());
+        registerFunction(globalScope, new IntArrayCopyOf());
+        registerFunction(globalScope, new IntArrayLength());
+        registerFunction(globalScope, new IntArrayRangeCopy());
+        registerFunction(globalScope, new JsonArrayCopyOf());
+        registerFunction(globalScope, new JsonArrayLength());
+        registerFunction(globalScope, new JsonArrayRangeCopy());
+        registerFunction(globalScope, new LongArrayCopyOf());
+        registerFunction(globalScope, new LongArrayLength());
+        registerFunction(globalScope, new LongArrayRangeCopy());
+        registerFunction(globalScope, new MessageArrayCopyOf());
+        registerFunction(globalScope, new MessageArrayLength());
+        registerFunction(globalScope, new MessageArrayRangeCopy());
+        registerFunction(globalScope, new StringArrayCopyOf());
+        registerFunction(globalScope, new StringArrayLength());
+        registerFunction(globalScope, new StringArrayRangeCopy());
+        registerFunction(globalScope, new XmlArrayCopyOf());
+        registerFunction(globalScope, new XmlArrayLength());
+        registerFunction(globalScope, new XmlArrayRangeCopy());
 
         //lang.json
-        registerFunction(scope, new AddBooleanToArray());
-        registerFunction(scope, new AddBooleanToObject());
-        registerFunction(scope, new AddDoubleToArray());
-        registerFunction(scope, new AddDoubleToObject());
-        registerFunction(scope, new AddFloatToArray());
-        registerFunction(scope, new AddFloatToObject());
-        registerFunction(scope, new AddIntToArray());
-        registerFunction(scope, new AddIntToObject());
-        registerFunction(scope, new AddJSONToArray());
-        registerFunction(scope, new AddJSONToObject());
-        registerFunction(scope, new AddStringToArray());
-        registerFunction(scope, new AddStringToObject());
-        registerFunction(scope, new GetBoolean());
-        registerFunction(scope, new GetDouble());
-        registerFunction(scope, new GetFloat());
-        registerFunction(scope, new GetInt());
-        registerFunction(scope, new GetJSON());
-        registerFunction(scope, new GetString());
-        registerFunction(scope, new Remove());
-        registerFunction(scope, new Rename());
-        registerFunction(scope, new SetBoolean());
-        registerFunction(scope, new SetDouble());
-        registerFunction(scope, new SetFloat());
-        registerFunction(scope, new SetInt());
-        registerFunction(scope, new SetJSON());
-        registerFunction(scope, new SetString());
-        registerFunction(scope, new ToString());
+        registerFunction(globalScope, new AddBooleanToArray());
+        registerFunction(globalScope, new AddBooleanToObject());
+        registerFunction(globalScope, new AddDoubleToArray());
+        registerFunction(globalScope, new AddDoubleToObject());
+        registerFunction(globalScope, new AddFloatToArray());
+        registerFunction(globalScope, new AddFloatToObject());
+        registerFunction(globalScope, new AddIntToArray());
+        registerFunction(globalScope, new AddIntToObject());
+        registerFunction(globalScope, new AddJSONToArray());
+        registerFunction(globalScope, new AddJSONToObject());
+        registerFunction(globalScope, new AddStringToArray());
+        registerFunction(globalScope, new AddStringToObject());
+        registerFunction(globalScope, new GetBoolean());
+        registerFunction(globalScope, new GetDouble());
+        registerFunction(globalScope, new GetFloat());
+        registerFunction(globalScope, new GetInt());
+        registerFunction(globalScope, new GetJSON());
+        registerFunction(globalScope, new GetString());
+        registerFunction(globalScope, new Remove());
+        registerFunction(globalScope, new Rename());
+        registerFunction(globalScope, new SetBoolean());
+        registerFunction(globalScope, new SetDouble());
+        registerFunction(globalScope, new SetFloat());
+        registerFunction(globalScope, new SetInt());
+        registerFunction(globalScope, new SetJSON());
+        registerFunction(globalScope, new SetString());
+        registerFunction(globalScope, new ToString());
 
         //lang.message
-        registerFunction(scope, new AddHeader());
-        registerFunction(scope, new Clone());
-        registerFunction(scope, new GetHeader());
-        registerFunction(scope, new GetHeaders());
-        registerFunction(scope, new GetJsonPayload());
-        registerFunction(scope, new GetStringPayload());
-        registerFunction(scope, new GetXMLPayload());
-        registerFunction(scope, new RemoveHeader());
-        registerFunction(scope, new SetHeader());
-        registerFunction(scope, new SetJsonPayload());
-        registerFunction(scope, new SetStringPayload());
-        registerFunction(scope, new SetXMLPayload());
+        registerFunction(globalScope, new AddHeader());
+        registerFunction(globalScope, new Clone());
+        registerFunction(globalScope, new GetHeader());
+        registerFunction(globalScope, new GetHeaders());
+        registerFunction(globalScope, new GetJsonPayload());
+        registerFunction(globalScope, new GetStringPayload());
+        registerFunction(globalScope, new GetXMLPayload());
+        registerFunction(globalScope, new RemoveHeader());
+        registerFunction(globalScope, new SetHeader());
+        registerFunction(globalScope, new SetJsonPayload());
+        registerFunction(globalScope, new SetStringPayload());
+        registerFunction(globalScope, new SetXMLPayload());
 
         // lang.string
-        registerFunction(scope, new BooleanValueOf());
-        registerFunction(scope, new Contains());
-        registerFunction(scope, new DoubleValueOf());
-        registerFunction(scope, new EqualsIgnoreCase());
-        registerFunction(scope, new FloatValueOf());
-        registerFunction(scope, new HasPrefix());
-        registerFunction(scope, new HasSuffix());
-        registerFunction(scope, new IndexOf());
-        registerFunction(scope, new IntValueOf());
-        registerFunction(scope, new JsonValueOf());
-        registerFunction(scope, new LastIndexOf());
-        registerFunction(scope, new Length());
-        registerFunction(scope, new LongValueOf());
-        registerFunction(scope, new Replace());
-        registerFunction(scope, new ReplaceAll());
-        registerFunction(scope, new ReplaceFirst());
-        registerFunction(scope, new StringValueOf());
-        registerFunction(scope, new ToLowerCase());
-        registerFunction(scope, new ToUpperCase());
-        registerFunction(scope, new Trim());
-        registerFunction(scope, new Unescape());
-        registerFunction(scope, new XmlValueOf());
-        registerFunction(scope, new GetRandomString());
+        registerFunction(globalScope, new BooleanValueOf());
+        registerFunction(globalScope, new Contains());
+        registerFunction(globalScope, new DoubleValueOf());
+        registerFunction(globalScope, new EqualsIgnoreCase());
+        registerFunction(globalScope, new FloatValueOf());
+        registerFunction(globalScope, new HasPrefix());
+        registerFunction(globalScope, new HasSuffix());
+        registerFunction(globalScope, new IndexOf());
+        registerFunction(globalScope, new IntValueOf());
+        registerFunction(globalScope, new JsonValueOf());
+        registerFunction(globalScope, new LastIndexOf());
+        registerFunction(globalScope, new Length());
+        registerFunction(globalScope, new LongValueOf());
+        registerFunction(globalScope, new Replace());
+        registerFunction(globalScope, new ReplaceAll());
+        registerFunction(globalScope, new ReplaceFirst());
+        registerFunction(globalScope, new StringValueOf());
+        registerFunction(globalScope, new ToLowerCase());
+        registerFunction(globalScope, new ToUpperCase());
+        registerFunction(globalScope, new Trim());
+        registerFunction(globalScope, new Unescape());
+        registerFunction(globalScope, new XmlValueOf());
+        registerFunction(globalScope, new GetRandomString());
 
         // lang.system
-        registerFunction(scope, new CurrentTimeMillis());
-        registerFunction(scope, new EpochTime());
-        registerFunction(scope, new LogBoolean());
-        registerFunction(scope, new LogDouble());
-        registerFunction(scope, new LogFloat());
-        registerFunction(scope, new LogInt());
-        registerFunction(scope, new LogLong());
-        registerFunction(scope, new LogString());
-        registerFunction(scope, new NanoTime());
-        registerFunction(scope, new PrintBoolean());
-        registerFunction(scope, new PrintDouble());
-        registerFunction(scope, new PrintFloat());
-        registerFunction(scope, new PrintInt());
-        registerFunction(scope, new PrintlnBoolean());
-        registerFunction(scope, new PrintlnDouble());
-        registerFunction(scope, new PrintlnFloat());
-        registerFunction(scope, new PrintlnInt());
-        registerFunction(scope, new PrintlnLong());
-        registerFunction(scope, new PrintlnString());
-        registerFunction(scope, new PrintLong());
-        registerFunction(scope, new PrintString());
-        registerFunction(scope, new PrintJSON());
-        registerFunction(scope, new PrintlnJSON());
-        registerFunction(scope, new PrintXML());
-        registerFunction(scope, new PrintlnXML());
+        registerFunction(globalScope, new CurrentTimeMillis());
+        registerFunction(globalScope, new EpochTime());
+        registerFunction(globalScope, new LogBoolean());
+        registerFunction(globalScope, new LogDouble());
+        registerFunction(globalScope, new LogFloat());
+        registerFunction(globalScope, new LogInt());
+        registerFunction(globalScope, new LogLong());
+        registerFunction(globalScope, new LogString());
+        registerFunction(globalScope, new NanoTime());
+        registerFunction(globalScope, new PrintBoolean());
+        registerFunction(globalScope, new PrintDouble());
+        registerFunction(globalScope, new PrintFloat());
+        registerFunction(globalScope, new PrintInt());
+        registerFunction(globalScope, new PrintlnBoolean());
+        registerFunction(globalScope, new PrintlnDouble());
+        registerFunction(globalScope, new PrintlnFloat());
+        registerFunction(globalScope, new PrintlnInt());
+        registerFunction(globalScope, new PrintlnLong());
+        registerFunction(globalScope, new PrintlnString());
+        registerFunction(globalScope, new PrintLong());
+        registerFunction(globalScope, new PrintString());
+        registerFunction(globalScope, new PrintJSON());
+        registerFunction(globalScope, new PrintlnJSON());
+        registerFunction(globalScope, new PrintXML());
+        registerFunction(globalScope, new PrintlnXML());
 
         // lang.xml
-        registerFunction(scope, new AddAttribute());
-        registerFunction(scope, new AddAttributeWithNamespaces());
-        registerFunction(scope, new AddElement());
-        registerFunction(scope, new AddElementWithNamespaces());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.GetString());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.GetStringWithNamespaces());
-        registerFunction(scope, new GetXML());
-        registerFunction(scope, new GetXMLWithNamespaces());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.Remove());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.RemoveWithNamespaces());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.SetString());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.SetStringWithNamespaces());
-        registerFunction(scope, new SetXML());
-        registerFunction(scope, new SetXMLWithNamespaces());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.ToString());
+        registerFunction(globalScope, new AddAttribute());
+        registerFunction(globalScope, new AddAttributeWithNamespaces());
+        registerFunction(globalScope, new AddElement());
+        registerFunction(globalScope, new AddElementWithNamespaces());
+        registerFunction(globalScope, new org.wso2.ballerina.core.nativeimpl.lang.xml.GetString());
+        registerFunction(globalScope, new org.wso2.ballerina.core.nativeimpl.lang.xml.GetStringWithNamespaces());
+        registerFunction(globalScope, new GetXML());
+        registerFunction(globalScope, new GetXMLWithNamespaces());
+        registerFunction(globalScope, new org.wso2.ballerina.core.nativeimpl.lang.xml.Remove());
+        registerFunction(globalScope, new org.wso2.ballerina.core.nativeimpl.lang.xml.RemoveWithNamespaces());
+        registerFunction(globalScope, new org.wso2.ballerina.core.nativeimpl.lang.xml.SetString());
+        registerFunction(globalScope, new org.wso2.ballerina.core.nativeimpl.lang.xml.SetStringWithNamespaces());
+        registerFunction(globalScope, new SetXML());
+        registerFunction(globalScope, new SetXMLWithNamespaces());
+        registerFunction(globalScope, new org.wso2.ballerina.core.nativeimpl.lang.xml.ToString());
 
         // lang.util
-        registerFunction(scope, new GetHmac());
+        registerFunction(globalScope, new GetHmac());
 
         // net.uri
-        registerFunction(scope, new Encode());
-        registerFunction(scope, new GetQueryParam());
+        registerFunction(globalScope, new Encode());
+        registerFunction(globalScope, new GetQueryParam());
 
         // net.http
-        registerFunction(scope, new SetStatusCode());
-        registerFunction(scope, new GetStatusCode());
-        registerFunction(scope, new SetContentLength());
-        registerFunction(scope, new GetContentLength());
-        registerFunction(scope, new SetReasonPhrase());
+        registerFunction(globalScope, new SetStatusCode());
+        registerFunction(globalScope, new GetStatusCode());
+        registerFunction(globalScope, new SetContentLength());
+        registerFunction(globalScope, new GetContentLength());
+        registerFunction(globalScope, new SetReasonPhrase());
 
         // lang.map
-        registerFunction(scope, new GetKeys());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.map.Length());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.map.Remove());
+        registerFunction(globalScope, new GetKeys());
+        registerFunction(globalScope, new org.wso2.ballerina.core.nativeimpl.lang.map.Length());
+        registerFunction(globalScope, new org.wso2.ballerina.core.nativeimpl.lang.map.Remove());
 
         //http
-        registerFunction(scope, new ConvertToResponse());
-        registerFunction(scope, new GetMethod());
-        registerFunction(scope, new AcceptAndReturn());
+        registerFunction(globalScope, new ConvertToResponse());
+        registerFunction(globalScope, new GetMethod());
+        registerFunction(globalScope, new AcceptAndReturn());
 
-        registerConnector(scope, new HTTPConnector());
+        registerConnector(globalScope, new HTTPConnector());
 
-        registerAction(scope, new Get());
-        registerAction(scope, new Post());
-        registerAction(scope, new Put());
-        registerAction(scope, new Delete());
-        registerAction(scope, new Execute());
-        registerAction(scope, new Patch());
+        registerAction(globalScope, new Get());
+        registerAction(globalScope, new Post());
+        registerAction(globalScope, new Put());
+        registerAction(globalScope, new Delete());
+        registerAction(globalScope, new Execute());
+        registerAction(globalScope, new Patch());
 
     }
 
@@ -378,7 +380,7 @@ public class BuiltInNativeConstructLoader {
      * @param symScope SymScope instance.
      * @param function Function instance.
      */
-    private static void registerFunction(SymScope symScope, AbstractNativeFunction function) {
+    private static void registerFunction(SymbolScope symScope, AbstractNativeFunction function) {
 
         BallerinaFunction functionNameAnnotation = function.getClass().getAnnotation(BallerinaFunction.class);
         if (functionNameAnnotation == null) {
@@ -388,8 +390,7 @@ public class BuiltInNativeConstructLoader {
         SymbolName symbolName =
                 LangModelUtils.getSymNameWithParams(function.getPackagePath() + ":" +
                         functionNameAnnotation.functionName(), function.getParameterDefs());
-        Symbol symbol = new Symbol(function);
-        symScope.insert(symbolName, symbol);
+        symScope.define(symbolName, function);
     }
 
     /**
@@ -397,15 +398,15 @@ public class BuiltInNativeConstructLoader {
      *
      * @param action AbstractNativeAction instance.
      */
-    public static void registerAction(SymScope symScope, AbstractNativeAction action) {
+    public static void registerAction(SymbolScope symScope, AbstractNativeAction action) {
         String actionName = action.getSymbolName().getName();
         SymbolName symbolName = LangModelUtils.getSymNameWithParams(actionName, action.getParameterDefs());
         Symbol symbol = new Symbol(action);
 
-        symScope.insert(symbolName, symbol);
+        symScope.define(symbolName, action);
     }
 
-    public static void registerConnector(SymScope symScope, AbstractNativeConnector connector) {
+    public static void registerConnector(SymbolScope symScope, AbstractNativeConnector connector) {
         org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector connectorAnnotation =
                 connector.getClass().getAnnotation(
                         org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector.class);
@@ -414,18 +415,16 @@ public class BuiltInNativeConstructLoader {
         SymbolName symbolName = new SymbolName(connectorAnnotation.packageName() + ":" +
                 connectorAnnotation.connectorName());
 
-        symScope.insert(symbolName, symbol);
+        symScope.define(symbolName, connector);
     }
 
-    private static void loadNativeTypeConverters() {
-        SymScope scope = GlobalScopeHolder.getInstance().getScope();
-
-        registerTypeConverter(scope, new JSONToXML());
-        registerTypeConverter(scope, new XMLToJSON());
-        registerTypeConverter(scope, new StringToJSON());
-        registerTypeConverter(scope, new StringToXML());
-        registerTypeConverter(scope, new XMLToString());
-        registerTypeConverter(scope, new JSONToString());
+    private static void loadNativeTypeConverters(SymbolScope globalScope) {
+        registerTypeConverter(globalScope, new JSONToXML());
+        registerTypeConverter(globalScope, new XMLToJSON());
+        registerTypeConverter(globalScope, new StringToJSON());
+        registerTypeConverter(globalScope, new StringToXML());
+        registerTypeConverter(globalScope, new XMLToString());
+        registerTypeConverter(globalScope, new JSONToString());
 
     }
 
@@ -435,7 +434,7 @@ public class BuiltInNativeConstructLoader {
      * @param symScope SymScope instance.
      * @param typeConvertor TypeConvertor instance.
      */
-    private static void registerTypeConverter(SymScope symScope, AbstractNativeTypeConvertor typeConvertor) {
+    private static void registerTypeConverter(SymbolScope symScope, AbstractNativeTypeConvertor typeConvertor) {
         BallerinaTypeConvertor typeConverterNameAnnotation = typeConvertor.getClass()
                 .getAnnotation(BallerinaTypeConvertor.class);
         if (typeConverterNameAnnotation == null) {
@@ -446,7 +445,7 @@ public class BuiltInNativeConstructLoader {
                 LangModelUtils.getTypeConverterSymName(typeConvertor.getPackagePath(), typeConvertor.getParameterDefs(),
                         typeConvertor.getReturnParameters());
         Symbol symbol = new Symbol(typeConvertor);
-        symScope.insert(symbolName, symbol);
+        symScope.define(symbolName, typeConvertor);
 
     }
 }

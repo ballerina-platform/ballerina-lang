@@ -28,6 +28,7 @@ import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
+import org.wso2.ballerina.core.model.expressions.ConnectorInitExpr;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
 import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
@@ -87,11 +88,17 @@ public interface NodeExecutor {
 
     BValue visit(ArrayMapAccessExpr arrayMapAccessExpr);
 
+    BValue visit(StructFieldAccessExpr structAttributeAccessExpr);
+
     BValue visit(ArrayInitExpr arrayInitExpr);
 
     BValue visit(RefTypeInitExpr refTypeInitExpr);
 
+    BValue visit(ConnectorInitExpr connectorInitExpr);
+
     BValue visit(BacktickExpr backtickExpr);
+
+    BValue visit(StructInitExpr structInitExpr);
 
     BValue visit(VariableRefExpr variableRefExpr);
 
@@ -108,8 +115,4 @@ public interface NodeExecutor {
     BValue visit(ConnectorVarLocation connectorVarLocation);
 
     BValue visit(StructVarLocation structVarLocation);
-
-    BValue visit(StructInitExpr structInitExpr);
-
-    BValue visit(StructFieldAccessExpr structAttributeAccessExpr);
 }

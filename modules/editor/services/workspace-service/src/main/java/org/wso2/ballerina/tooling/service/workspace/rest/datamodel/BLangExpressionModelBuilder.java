@@ -569,6 +569,11 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
+    public void visit(ConnectorInitExpr connectorInitExpr) {
+
+    }
+
+    @Override
     public void visit(ConstantLocation constantLocation) {
         //TODO
     }
