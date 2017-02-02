@@ -602,7 +602,7 @@ button.variable-list {
 }
 
 .right-icon-clickable {
-    padding: 4px 6px;
+    padding: 5px 7px;
 }
 
 .collapser:hover {
@@ -713,6 +713,16 @@ button.variable-list {
 
 .service-annotation-wrapper-heading {
     background-color: #3d3d3d
+}
+
+.service-annotation-wrapper-heading[disabled] {
+    border-left: 1px solid #000;
+}
+
+.service-annotation-wrapper-heading[disabled] , .service-annotation-wrapper-heading[disabled] * {
+    background-color: #eeeeee;
+    opacity: 1;
+    cursor: not-allowed;
 }
 
 .service-annotation-wrapper-heading input[type=text] {
@@ -1061,7 +1071,6 @@ button.variable-list {
 .canvas-operations-wrapper {
     float: right;
     margin-right: 1px;
-    margin-top: 1px;
 }
 
 .annotation-icon {
