@@ -29,6 +29,8 @@ import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
 import org.wso2.ballerina.core.runtime.errors.handler.DefaultServerConnectorErrorHandler;
 import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
 import org.wso2.ballerina.core.runtime.errors.handler.ServerConnectorErrorHandler;
+import org.wso2.ballerina.core.runtime.exceptions.NoResourceFoundBallerinaException;
+import org.wso2.ballerina.core.runtime.exceptions.NoServiceFoundBallerinaException;
 import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -64,7 +66,8 @@ public class ServerConnectorMessageHandler {
             // Find the Service
             Service service = dispatcher.findService(cMsg, callback, balContext);
             if (service == null) {
-                throw new BallerinaException("No Service found to handle the service request", balContext);
+                throw new NoServiceFoundBallerinaException("No Service found to handle the service request",
+                        balContext);
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
             }
 
@@ -80,11 +83,11 @@ public class ServerConnectorMessageHandler {
             try {
                 resource = resourceDispatcher.findResource(service, cMsg, callback, balContext);
             } catch (BallerinaException ex) {
-                throw new BallerinaException("No Resource found to handle the request to Service : " +
+                throw new NoResourceFoundBallerinaException("No Resource found to handle the request to Service : " +
                                              service.getSymbolName().getName() + " : " + ex.getMessage());
             }
             if (resource == null) {
-                throw new BallerinaException("No Resource found to handle the request to Service : " +
+                throw new NoResourceFoundBallerinaException("No Resource found to handle the request to Service : " +
                                              service.getSymbolName().getName());
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
             }

@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.ballerina.core.runtime.errors.handler.ServerConnectorErrorHandler;
+import org.wso2.ballerina.core.runtime.exceptions.NoResourceFoundBallerinaException;
+import org.wso2.ballerina.core.runtime.exceptions.NoServiceFoundBallerinaException;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
@@ -43,7 +45,14 @@ public class HTTPErrorHandler implements ServerConnectorErrorHandler {
 
     @Override
     public void handleError(Exception ex, CarbonMessage cMsg, CarbonCallback callback) {
-        callback.done(createErrorMessage(ex.getMessage(), 500));
+        int statusCode = 500;
+        if ((ex instanceof NoServiceFoundBallerinaException) ||
+                (ex instanceof NoResourceFoundBallerinaException ||
+                        (ex.getCause() instanceof NoServiceFoundBallerinaException) ||
+                        (ex.getCause() instanceof NoResourceFoundBallerinaException))) {
+            statusCode = 404;
+        }
+        callback.done(createErrorMessage(ex.getMessage(), statusCode));
     }
 
     @Override

@@ -26,6 +26,7 @@ import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
+import org.wso2.ballerina.core.runtime.exceptions.NoServiceFoundBallerinaException;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -101,7 +102,8 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             }
 
             if (service == null) {
-                throw new BallerinaException("No Service found to handle incoming request recieved to : " + uri);
+                throw new NoServiceFoundBallerinaException("No Service found to handle " +
+                        "incoming request received to : " + uri);
             }
 
             cMsg.setProperty(Constants.BASE_PATH, basePath);
@@ -109,7 +111,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
 
             return service;
         } catch (Throwable e) {
-            throw new BallerinaException(e.getMessage(), balContext);
+            throw new BallerinaException(e.getMessage(), e, balContext);
         }
     }
 
