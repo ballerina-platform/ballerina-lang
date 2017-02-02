@@ -24,23 +24,23 @@ import org.wso2.ballerina.tooling.service.dockerizer.rest.DockerizerService;
 import org.wso2.msf4j.MicroservicesRunner;
 
 /**
- * A service that will create Docker images for a given set of Ballerina services.
+ * A service that will create Docker images for a given set of Ballerina
+ * services.
  */
 public class DockerizerServiceRunner {
-    private static final Logger logger = LoggerFactory.getLogger(DockerizerServiceRunner.class);
+	private static final Logger logger = LoggerFactory.getLogger(DockerizerServiceRunner.class);
 
-    public static void Main(String [] args){
-        String balHome = System.getProperty(Constants.SYS_BAL_HOME);
-        if (balHome == null) {
-            balHome = System.getenv(Constants.SYS_BAL_HOME);
-        }
-        if (balHome == null) {
-            logger.error("BALLERINA_HOME is not set. Please set ballerina.home system variable.");
-            return;
-        }
+	public static void main(String[] args) {
+		String balHome = System.getProperty(Constants.SYS_BAL_HOME);
+		if (balHome == null) {
+			balHome = System.getenv(Constants.SYS_BAL_HOME);
+		}
+		if (balHome == null) {
+			logger.error("BALLERINA_HOME is not set. Please set ballerina.home system variable.");
+			return;
+		}
 
-         new MicroservicesRunner(Integer.getInteger(Constants.SYS_DOCKERIZER_PORT, Constants.DEFAULT_DOCKERIZER_PORT))
-                .deploy(DockerizerService.class)
-                .start();
-    }
+		new MicroservicesRunner(Integer.getInteger(Constants.SYS_DOCKERIZER_PORT, Constants.DEFAULT_DOCKERIZER_PORT))
+				.deploy(new DockerizerService()).start();
+	}
 }
