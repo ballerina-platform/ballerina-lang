@@ -68,7 +68,7 @@ define(['lodash', './node'],
 
     ServiceDefinition.prototype.setServiceName = function (serviceName) {
         if(!_.isNil(serviceName)){
-            this._serviceName = serviceName;
+            this.setAttribute('_serviceName', serviceName);
         }
     };
 
