@@ -453,3 +453,7 @@
     height: auto;
 }
 /** End of Return type CSS **/
+
+.source-view-container .ace_gutter-cell.ace_breakpoint{
+    background-color: #be0016;
+}
