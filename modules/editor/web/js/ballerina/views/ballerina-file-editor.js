@@ -288,6 +288,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             _.set(sourceViewOpts, 'container', aceEditorContainer.get(0));
             _.set(sourceViewOpts, 'content', "");
             this._sourceView = new SourceView(sourceViewOpts);
+            this._sourceView.on('add-breakpoint', function (row) {
+                self.trigger('add-breakpoint', row);
+            });
             this._sourceView.render();
 
             var sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
@@ -591,6 +594,11 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._constantDefinitionsPane = new ConstantsDefinitionsPaneView(constantsDefinitionPaneProperties);
 
             this._constantDefinitionsPane.createConstantDefinitionPane();
+        };
+
+        BallerinaFileEditor.prototype.highlightExecutionPoint = function () {
+            this._sourceView._editor.selection.moveCursorToPosition({row: 1, column: 0});
+            this._sourceView._editor.selection.selectLine();
         };
 
         return BallerinaFileEditor;
