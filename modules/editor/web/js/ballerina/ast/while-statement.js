@@ -55,7 +55,7 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
             var child = self.getFactory().createFromJson(childNode);
             if (self.getFactory().isExpression(child)) {
                 child.initFromJson(childNode);
-                this._condition = child.getExpression();
+                self._condition = child.getExpression();
             } else {
                 self.addChild(child);
                 child.initFromJson(childNode);
