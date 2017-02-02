@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../utils/ace-mode', 'beautify', 'ace/ext/language_tools'],
-    function(log, _, $, EventChannel, ace, BallerinaMode, Beautify) {
+define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../utils/ace-mode', 'beautify', 'ace/ext/language_tools'],
+    function(require, log, _, $, EventChannel, ace, BallerinaMode, Beautify) {
 
     /**
      * @class SourceView
@@ -40,6 +40,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../utils/ace-mod
     SourceView.prototype.constructor = SourceView;
 
     SourceView.prototype.render = function () {
+        var self = this;
         this._editor = ace.edit(this._container);
         //Avoiding ace warning
         this._editor.$blockScrolling = Infinity;
@@ -55,6 +56,20 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../utils/ace-mod
                 self._editor.execCommand("startAutocomplete");
             }
         });
+
+        this._editor.on("gutterdblclick", function(e){
+            var row = e.getDocumentPosition().row;
+            var breakpointsArray = e.editor.session.getBreakpoints();
+            if(!(row in breakpointsArray)){
+                e.editor.session.setBreakpoint(row);
+                self.trigger('add-breakpoint', row, e.editor.session.getBreakpoints());
+            }else{
+                e.editor.session.clearBreakpoint(row);
+                self.trigger('remove-breakpoint', row);
+            }
+            e.stop();
+        });
+
         this._editor.getSession().setValue(this._content);
         this._editor.getSession().setMode(_.get(this._options, 'mode'));
         this._editor.renderer.setScrollMargin(_.get(this._options, 'scroll_margin'), _.get(this._options, 'scroll_margin'));
@@ -70,9 +85,9 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../utils/ace-mod
      *
      */
     SourceView.prototype.setContent = function(content){
-        var beautify = Beautify.js_beautify;
-        var formattedContent = beautify(content, { indent_size: 4 });
-        this._editor.session.setValue(formattedContent);
+        this._editor.session.setValue(content);
+        var fomatter = require('ballerina').utils.AceFormatter;
+        fomatter.beautify(this._editor.getSession());
     };
 
     SourceView.prototype.getContent = function(){
