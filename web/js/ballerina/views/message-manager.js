@@ -159,10 +159,15 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
             if(self.isAtValidDropTarget()){
                 var connectorReference = self.getActivatedDropTarget();
                 self.getMessageSource().setConnector(connectorReference);
-                //self.getMessageSource().setActionName(self.getMessageSource().getAction());
                 self.getMessageSource().setActionPackageName(connectorReference.getConnectorPkgName());
                 self.getMessageSource().setActionConnectorName(connectorReference.getConnectorName());
                 self.getMessageSource().setConnectorVariableReference(connectorReference.getConnectorVariable());
+                //set the right hand expression to set the statement string of the assignment-statement containing the
+                //action invocation expression. This is to keep action invocation statement UI and source-gen in sync
+                //when action invocation is configured
+                if (BallerinaASTFactory.isRightOperandExpression(rightOp = self.getMessageSource().getParent())){
+                    rightOp.setRightOperandExpressionString(self.getMessageSource().getExpression());
+                }
             }
             tempLine.remove();
             arrowPoint.remove();
