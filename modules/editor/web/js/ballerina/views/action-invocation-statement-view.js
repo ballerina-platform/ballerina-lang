@@ -144,17 +144,10 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             var editableProperties = [
                 {
                     propertyType: "text",
-                    key: "Assign To",
-                    model: leftOperandModel,
-                    getterMethod: leftOperandModel.getLeftOperandExpressionString,
-                    setterMethod: leftOperandModel.setLeftOperandExpressionString
-                },
-                {
-                    propertyType: "text",
                     key: "Action Invocation",
-                    model: actionInvocationModel,
-                    getterMethod: actionInvocationModel.getExpression,
-                    setterMethod: actionInvocationModel.setExpression
+                    model: this._model,
+                    getterMethod: this._model.getStatementString,
+                    setterMethod: this._model.setStatementString
                 }
             ];
             this._createPropertyPane({

@@ -35,7 +35,6 @@ define(['lodash', './statement'], function(_, Statement){
      * @returns {string} - The expression
      */
     RightOperandExpression.prototype.getRightOperandExpressionString = function () {
-        this._right_operand_expression_string = this.getChildren()[0].getExpression();
         return this._right_operand_expression_string;
     };
 
@@ -62,15 +61,10 @@ define(['lodash', './statement'], function(_, Statement){
     RightOperandExpression.prototype.initFromJson = function (jsonNode) {
         var self = this;
         _.each(jsonNode.children, function (childNode) {
-            // TODO: Handle this Properly
-            if (childNode.type === 'instance_creation_expression'){
-                self.setRightOperandExpressionString("new " + childNode.instance_type);
-            } else {
-                var child = self.getFactory().createFromJson(childNode);
-                self.addChild(child);
-                child.initFromJson(childNode);
-                self.setRightOperandExpressionString(child.getExpression());
-            }
+            var child = self.getFactory().createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+            self.setRightOperandExpressionString(child.getExpression());
         });
     };
 

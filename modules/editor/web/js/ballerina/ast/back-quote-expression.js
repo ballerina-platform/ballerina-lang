@@ -47,18 +47,9 @@ define(['lodash', './expression'], function (_, Expression) {
     };
 
     /**
-     * setting parameters from json
-     * @param jsonNode
-     */
-    BackQuoteExpression.prototype.initFromJson = function (jsonNode) {
-        this.setBackQuoteEnclosedString(jsonNode.variable_reference_name);
-        this.setExpression(this.generateExpression());
-    };
-
-    /**
      * initialize BackQuoteExpression from json object
      * @param {Object} jsonNode to initialize from
-     * @param {string} [jsonNode.back_quote_enclosed_string] - Symbol name of the BackQuoteExpression
+     * @param {string} [jsonNode.back_quote_enclosed_string] - back quote enclosed string
      */
     BackQuoteExpression.prototype.initFromJson = function (jsonNode) {
         this.setBackQuoteEnclosedString(jsonNode.back_quote_enclosed_string);
