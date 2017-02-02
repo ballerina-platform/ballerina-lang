@@ -18,17 +18,21 @@
 
 package org.wso2.ballerina.docgen.docs;
 
-import org.wso2.ballerina.core.interpreter.SymScope;
+import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
+import org.wso2.ballerina.core.model.BallerinaFunction;
+import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.docgen.docs.html.HtmlDocumentWriter;
 import org.wso2.ballerina.docgen.docs.model.BallerinaPackageDoc;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocUtils;
 
-import java.io.File;
-import java.io.FileFilter;
+import java.io.IOException;
 import java.io.PrintStream;
-import java.util.HashMap;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -45,53 +49,58 @@ public class BallerinaDocGeneratorMain {
             return;
         }
 
-        Map<String, BallerinaPackageDoc> docsMap = generatePackageDocsFromBallerina(args[0]);
-        HtmlDocumentWriter htmlDocumentWriter = new HtmlDocumentWriter();
-        htmlDocumentWriter.write(docsMap.values());
+        try {
+            Map<String, BallerinaPackageDoc> docsMap = generatePackageDocsFromBallerina(args[0]);
+            HtmlDocumentWriter htmlDocumentWriter = new HtmlDocumentWriter();
+            htmlDocumentWriter.write(docsMap.values());
+        } catch (IOException e) {
+            out.println("Docerina: Could not read ballerina file(s): " + e.getMessage());
+        }
     }
 
     /**
      * Generates {@link BallerinaPackageDoc} objects for each Ballerina package from the given ballerina files.
-     * @param path should point either to a ballerina file or a folder with ballerina files.
+     *
+     * @param packagePath should point either to a ballerina file or a folder with ballerina files.
      * @return a map of {@link BallerinaPackageDoc} objects.
-     *  Key - Ballerina package name
-     *  Value - {@link BallerinaPackageDoc}
+     * Key - Ballerina package name
+     * Value - {@link BallerinaPackageDoc}
      */
-    public static Map<String, BallerinaPackageDoc> generatePackageDocsFromBallerina(String path) {
-        String ballerinaFolder = path;
-        File[] ballerinaFiles;
+    public static Map<String, BallerinaPackageDoc> generatePackageDocsFromBallerina(String packagePath)
+            throws IOException {
 
-        File ballerinaFolderFile = new File(ballerinaFolder);
-        if (ballerinaFolderFile.isDirectory()) {
-            ballerinaFiles = ballerinaFolderFile.listFiles(new FileFilter() {
+        List<Path> filePaths = new ArrayList<>();
 
-                @Override
-                public boolean accept(File file) {
-                    // TODO get .bal from Core constants.
-                    if (file.getName().endsWith(".bal")) {
-                        return true;
-                    }
-                    return false;
-                }
-            });
-        } else {
-            ballerinaFiles = new File[] { ballerinaFolderFile };
-        }
+        Files.find(Paths.get(packagePath), Integer.MAX_VALUE,
+                (p, bfa) -> bfa.isRegularFile() && p.getFileName().toString().matches(".*\\.bal")).
+                forEach(path -> filePaths.add(path));
 
-        if (ballerinaFiles == null) {
-            return new HashMap<String, BallerinaPackageDoc>();
-        }
         BallerinaDocDataHolder dataHolder = BallerinaDocDataHolder.getInstance();
-
-        for (File file : ballerinaFiles) {
-            BallerinaFile balFile = BallerinaDocUtils.buildLangModel(file.toPath());
+        for (Path path : filePaths) {
+            BallerinaFile balFile = BallerinaDocUtils.buildLangModel(path);
             if (balFile == null) {
-                out.println(String.format("Docerina: Invalid Ballerina file: %s", file.getAbsolutePath()));
+                out.println(String.format("Docerina: Invalid Ballerina file: %s", path));
                 continue;
             }
-            SymScope globalScope = GlobalScopeHolder.getInstance().getScope();
-            DocumentGenerator docgen = new DocumentGenerator(balFile, globalScope);
-            docgen.visit(balFile);
+
+            BallerinaPackageDoc packageDoc = dataHolder.getBallerinaPackageDocsMap().get(balFile.getPackageName());
+            if (packageDoc == null) {
+                packageDoc = new BallerinaPackageDoc(balFile.getPackageName());
+                dataHolder.getBallerinaPackageDocsMap().put(balFile.getPackageName(), packageDoc);
+            }
+
+            for (Function function : balFile.getFunctions()) {
+                if (function instanceof BallerinaFunction) {
+                    packageDoc.addFunction((BallerinaFunction) function);
+                } else {
+                    out.println("Warning: An unknown function type found: " + function.getClass().getSimpleName() + ":"
+                            + function.getName());
+                }
+            }
+
+            for (BallerinaConnector connector : balFile.getConnectors()) {
+                packageDoc.addConnector(connector);
+            }
         }
 
         return dataHolder.getBallerinaPackageDocsMap();

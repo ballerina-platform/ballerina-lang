@@ -18,6 +18,9 @@
 
 package org.wso2.ballerina.docgen.docs.model;
 
+import org.wso2.ballerina.core.model.BallerinaConnector;
+import org.wso2.ballerina.core.model.BallerinaFunction;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,21 +30,23 @@ import java.util.List;
 public class BallerinaPackageDoc {
 
     private String name;
-    private List<BallerinaFunctionDoc> functionDocs;
-    private List<BallerinaConnectorDoc> connectorDocs;
+    private List<BallerinaFunction> functions;
+    private List<BallerinaConnector> connectors;
 
     /**
      * Constructor
+     *
      * @param name Package name
      */
     public BallerinaPackageDoc(String name) {
         this.name = name;
-        functionDocs = new ArrayList<BallerinaFunctionDoc>();
-        connectorDocs = new ArrayList<BallerinaConnectorDoc>();
+        functions = new ArrayList<BallerinaFunction>();
+        connectors = new ArrayList<BallerinaConnector>();
     }
 
     /**
      * Get package name
+     *
      * @return
      */
     public String getName() {
@@ -49,64 +54,63 @@ public class BallerinaPackageDoc {
     }
 
     /**
-     * Add a ballerina function document to the package
-     * @param ballerinaFunctionDoc Ballerina function document
+     * Add a ballerina function to the package
+     *
+     * @param ballerinaFunction Ballerina function
      */
-    public void addFunctionDoc(BallerinaFunctionDoc ballerinaFunctionDoc) {
-        functionDocs.add(ballerinaFunctionDoc);
+    public void addFunction(BallerinaFunction ballerinaFunction) {
+        functions.add(ballerinaFunction);
     }
 
     /**
-     * Add a ballerina connector document to the package
-     * @param ballerinaConnectorDoc Ballerina connector document
+     * Add a ballerina connector to the package
+     *
+     * @param ballerinaConnector Ballerina connector
      */
-    public void addConnectorDoc(BallerinaConnectorDoc ballerinaConnectorDoc) {
-        connectorDocs.add(ballerinaConnectorDoc);
+    public void addConnector(BallerinaConnector ballerinaConnector) {
+        connectors.add(ballerinaConnector);
     }
 
     /**
-     * Add a list of ballerina function documents to the package
-     * @param ballerinaFunctionDocs Ballerina function documents
+     * Add a list of ballerina functions to the package
+     *
+     * @param ballerinaFunction Ballerina functions
      */
-    public void addFunctionDocs(List<BallerinaFunctionDoc> ballerinaFunctionDocs) {
-        this.functionDocs.addAll(ballerinaFunctionDocs);
+    public void addFunctions(List<BallerinaFunction> ballerinaFunction) {
+        this.functions.addAll(ballerinaFunction);
     }
 
     /**
-     * Remove ballerina function document
-     * @param ballerinaFunctionDoc Ballerina function document
+     * Remove ballerina function
+     *
+     * @param ballerinaFunction Ballerina function
      */
-    public void removeFunctionDocs(BallerinaFunctionDoc ballerinaFunctionDoc) {
-        functionDocs.remove(ballerinaFunctionDoc);
+    public void removeFunction(BallerinaFunction ballerinaFunction) {
+        functions.remove(ballerinaFunction);
     }
 
     /**
-     * Get ballerina function documents.
+     * Get ballerina functions.
+     *
      * @return
      */
-    public List<BallerinaFunctionDoc> getFunctionDocs() {
-        return functionDocs;
+    public List<BallerinaFunction> getFunctions() {
+        return functions;
     }
 
     /**
-     * Get ballerina connector documents.
+     * Get ballerina connectors.
+     *
      * @return
      */
-    public List<BallerinaConnectorDoc> getBallerinaConnectorDocs() {
-        return connectorDocs;
-    }
 
-    /**
-     * Set ballerina connector documents.
-     * @param connectorDocs Ballerina connector documents
-     */
-    public void setBallerinaConnectorDocs(List<BallerinaConnectorDoc> connectorDocs) {
-        this.connectorDocs = connectorDocs;
+    public List<BallerinaConnector> getBallerinaConnectors() {
+        return connectors;
     }
 
     @Override
     public String toString() {
-        return "BallerinaPackageDoc [name=" + name + ", ballerinaFunctionDocs=" + functionDocs
-                + ", ballerinaConnectorDocs=" + connectorDocs + "]";
+        return "BallerinaPackageDoc [name=" + name + ", ballerinaFunctions=" + functions
+                + ", ballerinaConnectors=" + connectors + "]";
     }
 }

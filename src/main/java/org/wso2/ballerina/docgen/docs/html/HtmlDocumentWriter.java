@@ -79,9 +79,10 @@ public class HtmlDocumentWriter implements DocumentWriter {
             Handlebars handlebars = new Handlebars(templateLoader);
             Template template = handlebars.compile(packageTemplateFileName);
 
-            writer = new PrintWriter(outputFilePath
-                    + File.separator + ballerinaPackageDoc.getName() + ".html", "UTF-8");
+            String filePath = outputFilePath + File.separator + ballerinaPackageDoc.getName() + ".html";
+            writer = new PrintWriter(filePath, "UTF-8");
             writer.println(template.apply(ballerinaPackageDoc));
+            out.println("HTML file written: " + filePath);
         } catch (IOException e) {
             out.println("Docerina: Could not write HTML file of package " + ballerinaPackageDoc.getName() +
                     System.lineSeparator() + e.getMessage());
