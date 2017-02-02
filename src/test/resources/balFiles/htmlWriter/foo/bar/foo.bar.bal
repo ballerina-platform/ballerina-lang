@@ -8,7 +8,7 @@ import ballerina.lang.json;
 @Param("m: Incoming message")
 @Param("key: HTTP header key")
 @Param("value: HTTP header value")
-function addHeader (message m, string key, string value) {
+public function addHeader (message m, string key, string value) {
     system:println("invoked");
 }
 
@@ -16,7 +16,7 @@ function addHeader (message m, string key, string value) {
 @Param("m: Incoming message")
 @Param("key: HTTP header key")
 @Return("value: HTTP header value")
-function getHeader (message m, string key) (string value) {
+public function getHeader (message m, string key) (string value) {
     system:println("invoked");
     return value;
 }

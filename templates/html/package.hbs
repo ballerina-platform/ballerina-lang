@@ -26,11 +26,11 @@
 				<section id="banner">
 					<div class="content">
 
-						    <h2>Functions of {{this.name}} package</h2>
-						    {{#each functions}}
+						    <h2>Functions of {{fullyQualifiedName}} package</h2>
+						    {{#each publicFunctions}}
 						        <div style="padding-bottom: 30px;">
                                 <h3>
-                                   function {{functionName}}({{#each parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}
+                                   function {{functionName}}({{#each parameters}}<a href="">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}
                                 </h3>
                                 <p>{{description}}</p>
 
@@ -42,7 +42,7 @@
                                     </tr>
                                     {{#each parameters}}
                                     <tr>
-                                        <td>{{name}}</td><td>{{type}}</td><td>{{description}}</td>
+                                        <td>{{name}}</td><td><a href="">{{type}}</a></td><td>{{description}}</td>
                                     </tr>
                                     {{/each}}
                                 </table>
@@ -57,7 +57,7 @@
                                     </tr>
                                     {{#each returnParameters}}
                                     <tr>
-                                        <td>{{name}}</td><td>{{type}}</td><td>{{description}}</td>
+                                        <td>{{name}}</td><td><a href="">{{type}}</a></td><td>{{description}}</td>
                                     </tr>
                                     {{/each}}
                                 </table>

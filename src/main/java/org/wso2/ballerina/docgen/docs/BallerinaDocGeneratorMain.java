@@ -18,12 +18,9 @@
 
 package org.wso2.ballerina.docgen.docs;
 
-import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.Function;
+import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.docgen.docs.html.HtmlDocumentWriter;
-import org.wso2.ballerina.docgen.docs.model.BallerinaPackageDoc;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocUtils;
 
 import java.io.IOException;
@@ -44,13 +41,14 @@ public class BallerinaDocGeneratorMain {
 
     public static void main(String[] args) {
 
-        if ((args == null) || (args.length != 1)) {
-            out.println("Usage: docerina [ballerina-package-path]");
+        if ((args == null) || (args.length < 1 || args.length > 2)) {
+            out.println("Usage: docerina [ballerina-package-path] [package-filter]");
             return;
         }
 
         try {
-            Map<String, BallerinaPackageDoc> docsMap = generatePackageDocsFromBallerina(args[0]);
+            Map<String, Package> docsMap = generatePackageDocsFromBallerina(args[0],
+                    (args.length == 2) ? args[1] : null);
             HtmlDocumentWriter htmlDocumentWriter = new HtmlDocumentWriter();
             htmlDocumentWriter.write(docsMap.values());
         } catch (IOException e) {
@@ -59,15 +57,29 @@ public class BallerinaDocGeneratorMain {
     }
 
     /**
-     * Generates {@link BallerinaPackageDoc} objects for each Ballerina package from the given ballerina files.
+     * Generates {@link Package} objects for each Ballerina package from the given ballerina files.
      *
      * @param packagePath should point either to a ballerina file or a folder with ballerina files.
-     * @return a map of {@link BallerinaPackageDoc} objects.
+     * @return a map of {@link Package} objects.
      * Key - Ballerina package name
-     * Value - {@link BallerinaPackageDoc}
+     * Value - {@link Package}
      */
-    public static Map<String, BallerinaPackageDoc> generatePackageDocsFromBallerina(String packagePath)
-            throws IOException {
+    public static Map<String, Package> generatePackageDocsFromBallerina(
+            String packagePath) throws IOException {
+        return generatePackageDocsFromBallerina(packagePath, null);
+    }
+
+    /**
+     * Generates {@link Package} objects for each Ballerina package from the given ballerina files.
+     *
+     * @param packagePath   should point either to a ballerina file or a folder with ballerina files.
+     * @param packageFilter the name of the package or pattern to be excluded
+     * @return a map of {@link Package} objects.
+     * Key - Ballerina package name
+     * Value - {@link Package}
+     */
+    public static Map<String, Package> generatePackageDocsFromBallerina(
+            String packagePath, String packageFilter) throws IOException {
 
         List<Path> filePaths = new ArrayList<>();
 
@@ -83,26 +95,19 @@ public class BallerinaDocGeneratorMain {
                 continue;
             }
 
-            BallerinaPackageDoc packageDoc = dataHolder.getBallerinaPackageDocsMap().get(balFile.getPackageName());
-            if (packageDoc == null) {
-                packageDoc = new BallerinaPackageDoc(balFile.getPackageName());
-                dataHolder.getBallerinaPackageDocsMap().put(balFile.getPackageName(), packageDoc);
+            if ((packageFilter != null) && (packageFilter.trim().length() > 0) &&
+                    (balFile.getPackageName().startsWith(packageFilter.replace(".*", "")))) {
+                out.println("Package " + balFile.getPackageName() + " excluded");
+                continue;
             }
 
-            for (Function function : balFile.getFunctions()) {
-                if (function instanceof BallerinaFunction) {
-                    packageDoc.addFunction((BallerinaFunction) function);
-                } else {
-                    out.println("Warning: An unknown function type found: " + function.getClass().getSimpleName() + ":"
-                            + function.getName());
-                }
+            Package balPackage = dataHolder.getPackageMap().get(balFile.getPackageName());
+            if (balPackage == null) {
+                balPackage = new Package(balFile.getPackageName());
+                dataHolder.getPackageMap().put(balFile.getPackageName(), balPackage);
             }
-
-            for (BallerinaConnector connector : balFile.getConnectors()) {
-                packageDoc.addConnector(connector);
-            }
+            balPackage.addFiles(balFile);
         }
-
-        return dataHolder.getBallerinaPackageDocsMap();
+        return dataHolder.getPackageMap();
     }
 }

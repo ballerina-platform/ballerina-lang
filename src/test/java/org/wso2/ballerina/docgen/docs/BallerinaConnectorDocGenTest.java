@@ -21,10 +21,13 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
-import org.wso2.ballerina.docgen.docs.model.BallerinaPackageDoc;
+import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.Connector;
+import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocGenTestUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -35,15 +38,20 @@ public class BallerinaConnectorDocGenTest {
     @Test(description = "Test single action in a connector file")
     public void testConnectorWithSingleAction() {
         try {
-            Map<String, BallerinaPackageDoc> docsMap = BallerinaDocGeneratorMain
+            Map<String, Package> docsMap = BallerinaDocGeneratorMain
                     .generatePackageDocsFromBallerina(resources + "helloWorldConnector.bal");
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
             BallerinaDocGenTestUtils.printDocMap(docsMap);
-            BallerinaPackageDoc doc = docsMap.get("a.b");
-            List<BallerinaConnector> connectors = doc.getBallerinaConnectors();
+            Package balPackage = docsMap.get("a.b");
+
+            List<Connector> connectors = new ArrayList<>();
+            for (BallerinaFile balFile : balPackage.getFiles()) {
+                connectors.addAll(balFile.getConnectors());
+            }
+
             Assert.assertEquals(connectors.size(), 1);
-            BallerinaConnector connectorDoc = connectors.get(0);
+            BallerinaConnector connectorDoc = (BallerinaConnector) connectors.iterator().next();
             Assert.assertEquals(connectorDoc.getParameters().length, 4);
             BallerinaAction[] actions = connectorDoc.getActions();
             BallerinaAction action = actions[0];
@@ -59,16 +67,22 @@ public class BallerinaConnectorDocGenTest {
     @Test(description = "Test single action in a connector file")
     public void testConnectorWithMultipleAction() {
         try {
-            Map<String, BallerinaPackageDoc> docsMap = BallerinaDocGeneratorMain
+            Map<String, Package> docsMap = BallerinaDocGeneratorMain
                     .generatePackageDocsFromBallerina(resources + "balWith2Actions.bal");
 
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
             BallerinaDocGenTestUtils.printDocMap(docsMap);
-            BallerinaPackageDoc doc = docsMap.get("a.b");
-            List<BallerinaConnector> connectors = doc.getBallerinaConnectors();
+
+            Package balPackage = docsMap.get("a.b");
+
+            List<Connector> connectors = new ArrayList<>();
+            for (BallerinaFile balFile : balPackage.getFiles()) {
+                connectors.addAll(balFile.getConnectors());
+            }
+
             Assert.assertEquals(connectors.size(), 1);
-            BallerinaConnector connector = connectors.get(0);
+            BallerinaConnector connector = (BallerinaConnector) connectors.iterator().next();
             Assert.assertEquals(connector.getParameters().length, 4);
 
             for (BallerinaAction action : connector.getActions()) {
