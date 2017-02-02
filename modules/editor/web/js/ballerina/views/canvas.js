@@ -82,6 +82,13 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         return true;
     };
 
+    /**
+     * Draws the main body of the model
+     * @param {Object} options - Options for modifying the canvas
+     * @param {string} id - The ID of the model.
+     * @param {string} name - The type of model.
+     * @param {string} title - The identifier of the model.
+     */
     Canvas.prototype.drawAccordionCanvas = function (options, id, name, title) {
         // The main wrapper of the canvas.
         var outerDiv = $("<div/>", {
@@ -120,15 +127,17 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
 
         // Creating collapsable icon.
         var panelCollapsibleIcon = $("<i/>", {
-            class: _.get(options, 'cssClass.panel_right_icon')
-        }).appendTo(this._canvasOperationsWrapper);
+            class: _.get(options, 'cssClass.panel_right_icon'),
+            title:"Collapse pane"
+        }).appendTo(this._canvasOperationsWrapper).tooltip();
 
         $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(this._canvasOperationsWrapper);
 
         // Creating delete icon.
         var panelDeleteIcon = $("<i/>", {
-            class: _.get(options, 'cssClass.panel_delete_icon')
-        }).appendTo(this._canvasOperationsWrapper);
+            class: _.get(options, 'cssClass.panel_delete_icon'),
+            title:"Delete"
+        }).appendTo(this._canvasOperationsWrapper).tooltip();
 
         $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(this._canvasOperationsWrapper);
 
