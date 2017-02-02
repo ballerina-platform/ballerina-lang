@@ -24,6 +24,7 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -126,7 +127,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         for (Annotation annotation : service.getAnnotations()) {
             if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
                 String sourceInterfaceVal = annotation
-                        .getValueOfKeyValuePair(Constants.ANNOTATION_SOURCE_KEY_INTERFACE);
+                        .getValueOfElementPair(new SymbolName(Constants.ANNOTATION_SOURCE_KEY_INTERFACE));
                 if (sourceInterfaceVal != null) {   //TODO: Filter non-http protocols
                     listenerInterface = sourceInterfaceVal;
                 }
@@ -173,7 +174,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         for (Annotation annotation : service.getAnnotations()) {
             if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
                 String sourceInterfaceVal = annotation
-                        .getValueOfKeyValuePair(Constants.ANNOTATION_SOURCE_KEY_INTERFACE);
+                        .getValueOfElementPair(new SymbolName(Constants.ANNOTATION_SOURCE_KEY_INTERFACE));
                 if (sourceInterfaceVal != null) {   //TODO: Filter non-http protocols
                     listenerInterface = sourceInterfaceVal;
                 }

@@ -23,7 +23,9 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPListenerInitializer;
+import org.wso2.ballerina.core.runtime.MessageProcessor;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
 
 import java.io.PrintStream;
@@ -39,12 +41,14 @@ class BServiceRunner {
     private static PrintStream outStream = System.err;
 
     static void start(Path[] serviceFilePaths) {
+        BallerinaConnectorManager.getInstance().initializeServerConnectors(new MessageProcessor());
+
         for (Path serviceFilePath : serviceFilePaths) {
             try {
                 start(serviceFilePath);
             } catch (BLauncherException e) {
-                outStream.println("error: fail to deploy service(s) in " + Utils.getFileName(serviceFilePath));
-                Utils.printLauncherException(e, outStream);
+                outStream.println("error: fail to deploy service(s) in " + LauncherUtils.getFileName(serviceFilePath));
+                LauncherUtils.printLauncherException(e, outStream);
                 // Continuing service deployment
             }
         }
@@ -57,11 +61,11 @@ class BServiceRunner {
     }
 
     private static void start(Path serviceFilePath) {
-        BallerinaFile bFile = Utils.buildLangModel(serviceFilePath);
-        String fileName = Utils.getFileName(serviceFilePath);
+        BallerinaFile bFile = LauncherUtils.buildLangModel(serviceFilePath);
+        String fileName = LauncherUtils.getFileName(serviceFilePath);
 
         if (bFile.getServices().size() == 0) {
-            throw Utils.createLauncherException("error: no service(s) found in " + fileName);
+            throw LauncherUtils.createLauncherException("error: no service(s) found in " + fileName);
         }
 
         try {
@@ -98,10 +102,10 @@ class BServiceRunner {
             }
 
             ApplicationRegistry.getInstance().updatePackage(aPackage);
-            outStream.println("ballerina: deployed service(s) in " + Utils.getFileName(serviceFilePath));
+            outStream.println("ballerina: deployed service(s) in " + LauncherUtils.getFileName(serviceFilePath));
         } catch (Throwable e) {
-            throw Utils.createLauncherException(Utils.getFileName(serviceFilePath) + ": " +
-                    Utils.makeFirstLetterUpperCase(e.getMessage()));
+            throw LauncherUtils.createLauncherException(LauncherUtils.getFileName(serviceFilePath) + ": " +
+                    LauncherUtils.makeFirstLetterUpperCase(e.getMessage()));
         }
     }
 }

@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 
 /**
  * {@code DefaultServerConnectorErrorHandler} is the default error handler implementation.
