@@ -25,7 +25,6 @@ define(['lodash', './statement'], function (_, Statement) {
         this._packageName = _.get(args, 'package', '');
         this._functionName = _.get(args, 'function', 'callFunction');
         this._params = _.get(args, 'params');
-        this._expression = _.get(args, 'expression' ,'callFunction()');
         Statement.call(this, 'FunctionInvocation');
     };
 
