@@ -35,7 +35,7 @@ define(['lodash', './expression'], function (_, Expression) {
      * @param symbolName
      */
     VariableReferenceExpression.prototype.setSymbolName = function (symbolName) {
-        this._symbolName = symbolName;
+        this.setAttribute('_symbolName', symbolName);
     }
 
     /**

@@ -65,7 +65,7 @@ define(['lodash', 'require', 'log', './node'],
 
     ResourceDefinition.prototype.setResourceName = function (resourceName) {
         if (!_.isNil(resourceName)) {
-            this._resourceName = resourceName;
+            this.setAttribute('_resourceName', resourceName);
         } else {
             log.error('Invalid Resource name [' + resourceName + '] Provided');
             throw 'Invalid Resource name [' + resourceName + '] Provided';
