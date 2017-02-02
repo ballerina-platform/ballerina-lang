@@ -44,45 +44,61 @@ public class HtmlDocumentWriterTest {
         String outputPath =  userDir + File.separator + "api-docs" + File.separator + "html";
         String outputFilePath1 = outputPath + File.separator + "foo.bar.html";
         String outputFilePath2 = outputPath + File.separator + "foo.bar.xyz.html";
+        String outputFilePath3 = outputPath + File.separator + "foo.bar.xyz.str.html";
         String indexOutputFilePath = outputPath + File.separator + "index.html";
 
         try {
             // Delete if file already exists
             deleteFile(outputFilePath1);
             deleteFile(outputFilePath2);
+            deleteFile(outputFilePath3);
             deleteFile(indexOutputFilePath);
 
             // Generate HTML file
-            Map<String, Package> docsMap =
+            Map<String, Package> packageMap =
                     BallerinaDocGeneratorMain.generatePackageDocsFromBallerina(balPackagePath);
             HtmlDocumentWriter htmlDocumentWriter = new HtmlDocumentWriter();
-            htmlDocumentWriter.write(docsMap.values());
+            htmlDocumentWriter.write(packageMap.values());
 
             // Assert file creation
             File htmlFile1 = new File(outputFilePath1);
             Assert.assertTrue(htmlFile1.exists());
             File htmlFile2 = new File(outputFilePath2);
             Assert.assertTrue(htmlFile2.exists());
+            File htmlFile3 = new File(outputFilePath3);
+            Assert.assertTrue(htmlFile3.exists());
             File indexHtmlFile = new File(indexOutputFilePath);
             Assert.assertTrue(indexHtmlFile.exists());
 
             // Assert function definitions
-            String content = new Scanner(htmlFile1).useDelimiter("\\Z").next();
-            Assert.assertTrue(content.contains("function addHeader(" +
+            String content1 = new Scanner(htmlFile1).useDelimiter("\\Z").next();
+            Assert.assertTrue(content1.contains("function addHeader(" +
                     "<a href=\"\">message</a> m, <a href=\"\">string</a> key, <a href=\"\">string</a> value)"));
-            Assert.assertTrue(content.contains("function getHeader(" +
+            Assert.assertTrue(content1.contains("function getHeader(" +
                     "<a href=\"\">message</a> m, <a href=\"\">string</a> key) (string value)"));
+            Assert.assertTrue(content1.contains("Functions"));
+            Assert.assertTrue(content1.contains("Connectors"));
+
+            // Assert function and connector exclusion logic
+            String content2 = new Scanner(htmlFile2).useDelimiter("\\Z").next();
+            Assert.assertTrue(content2.contains("Functions"));
+            Assert.assertFalse(content2.contains("Connectors"));
+
+            String content3 = new Scanner(htmlFile3).useDelimiter("\\Z").next();
+            Assert.assertFalse(content3.contains("Functions"));
+            Assert.assertTrue(content3.contains("Connectors"));
 
             // Assert packages in index.html
-            content = new Scanner(indexHtmlFile).useDelimiter("\\Z").next();
-            Assert.assertTrue(content.contains("foo.bar"));
-            Assert.assertTrue(content.contains("foo.bar.xyz"));
+            String content4 = new Scanner(indexHtmlFile).useDelimiter("\\Z").next();
+            Assert.assertTrue(content4.contains("foo.bar"));
+            Assert.assertTrue(content4.contains("foo.bar.xyz"));
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         } finally {
             BallerinaDocGenTestUtils.cleanUp();
             deleteFile(outputFilePath1);
             deleteFile(outputFilePath2);
+            deleteFile(outputFilePath3);
             deleteFile(indexOutputFilePath);
         }
     }
@@ -104,10 +120,10 @@ public class HtmlDocumentWriterTest {
             deleteFile(outputFilePath2);
 
             // Generate HTML file
-            Map<String, Package> docsMap =
+            Map<String, Package> packageMap =
                     BallerinaDocGeneratorMain.generatePackageDocsFromBallerina(balPackagePath, "foo.bar.xyz");
             HtmlDocumentWriter htmlDocumentWriter = new HtmlDocumentWriter();
-            htmlDocumentWriter.write(docsMap.values());
+            htmlDocumentWriter.write(packageMap.values());
 
             // Assert file exclusion
             File htmlFile1 = new File(outputFilePath1);

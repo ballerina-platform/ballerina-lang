@@ -4050,11 +4050,13 @@
 
 			#menu > ul > li > ul a, #menu > ul > li > ul span {
 				font-size: 0.8em;
+				text-transform: none;
 			}
 
 			#menu > ul > li > ul > li {
 				margin: 0.125em 0 0 0;
 				padding: 0.125em 0 0 0;
+				text-transform: none;
 			}
 
 		#menu > ul > li:first-child {
