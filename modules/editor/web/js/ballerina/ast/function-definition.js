@@ -51,7 +51,7 @@ define(['lodash', 'log', './node', './callable-definition'],
 
     FunctionDefinition.prototype.setFunctionName = function(name){
         if (!_.isNil(name) && ASTNode.isValidIdentifier(name)) {
-            this._functionName = name;
+            this.setAttribute('_functionName', name);
         } else {
             var errorString = "Invalid function name: " + name;
             log.error(errorString);
@@ -61,7 +61,7 @@ define(['lodash', 'log', './node', './callable-definition'],
 
     FunctionDefinition.prototype.setIsPublic = function(isPublic){
         if(!_.isNil(isPublic)){
-            this._isPublic = isPublic;
+            this.setAttribute('_isPublic', isPublic);
         }
     };
 
