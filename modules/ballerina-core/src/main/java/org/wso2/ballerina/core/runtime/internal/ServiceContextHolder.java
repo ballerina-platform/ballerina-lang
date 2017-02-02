@@ -20,7 +20,7 @@ package org.wso2.ballerina.core.runtime.internal;
 
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.runtime.Constants;
-import org.wso2.ballerina.core.runtime.errors.handler.ServerConnectorErrorHandler;
+import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 import org.wso2.carbon.messaging.TransportSender;
 
 import java.util.HashMap;

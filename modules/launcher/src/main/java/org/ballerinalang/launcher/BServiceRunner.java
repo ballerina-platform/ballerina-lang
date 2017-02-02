@@ -23,7 +23,9 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPListenerInitializer;
+import org.wso2.ballerina.core.runtime.MessageProcessor;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
 
 import java.io.PrintStream;
@@ -39,6 +41,8 @@ class BServiceRunner {
     private static PrintStream outStream = System.err;
 
     static void start(Path[] serviceFilePaths) {
+        BallerinaConnectorManager.getInstance().initializeServerConnectors(new MessageProcessor());
+
         for (Path serviceFilePath : serviceFilePaths) {
             try {
                 start(serviceFilePath);
