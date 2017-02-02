@@ -307,46 +307,49 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
 
         g.setGraph({ranksep:'10',rankdir: alignment , edgesep:'10', marginx : '20'});
         g.setDefaultEdgeLabel(function() { return {}; });
-        var nodes = $(".struct, .func");
+        var nodes = $("#" + viewId + "> .struct, #" + viewId + "> .func");
 
-        var maxTypeHeight = 0;
+        if (nodes.length > 0) {
+            var maxTypeHeight = 0;
 
-        for (var i = 0; i < nodes.length; i++) {
-            var n = nodes[i];
+            for (var i = 0; i < nodes.length; i++) {
+                var n = nodes[i];
 
-            if (maxTypeHeight < $("#" + n.id).width()) {
-                maxTypeHeight = $("#" + n.id).width();
+                if (maxTypeHeight < $("#" + n.id).width()) {
+                    maxTypeHeight = $("#" + n.id).width();
+                }
+
+                g.setNode(n.id, {width: $("#" + n.id).width() , height: $("#" + n.id).height()});
+            }
+            var edges = jsPlumb.getAllConnections();
+            for (var i = 0; i < edges.length; i++) {
+                var c = edges[i];
+                g.setEdge(c.source.id.split("-")[0],c.target.id.split("-")[0]);
             }
 
-            g.setNode(n.id, {width: $("#" + n.id).width() , height: $("#" + n.id).height()});
+            // calculate the layout (i.e. node positions)
+            dagre.layout(g);
+
+
+            var maxYPosition = 0;
+
+            // Applying the calculated layout
+            g.nodes().forEach(function(v) {
+                if ($("#" + v).attr('class') == "func") {
+                    $("#" + v).css("left", g.node(v).x + "px");
+                    $("#" + v).css("top", g.node(v).y + "px");
+                }
+
+                if (g.node(v) != null && g.node(v).y  > maxYPosition) {
+                    maxYPosition =  g.node(v).y  ;
+                }
+            });
+
+            $("#" + viewId).height(maxTypeHeight + maxYPosition);
+           // jsPlumb.repaintEverything();
         }
-        var edges = jsPlumb.getAllConnections();
-        for (var i = 0; i < edges.length; i++) {
-            var c = edges[i];
-            g.setEdge(c.source.id.split("-")[0],c.target.id.split("-")[0]);
-        }
-
-        // calculate the layout (i.e. node positions)
-        dagre.layout(g);
 
 
-        var maxYPosition = 0;
-
-        // Applying the calculated layout
-        g.nodes().forEach(function(v) {
-            if ($("#" + v).attr('class') == "func") {
-                $("#" + v).css("left", g.node(v).x + "px");
-                $("#" + v).css("top", g.node(v).y + "px");
-            }
-
-            if ( g.node(v).y  > maxYPosition) {
-                maxYPosition =  g.node(v).y  ;
-            }
-        });
-//alert(viewId);
-      //  alert(maxTypeHeight + maxYPosition);
-        $("#" + viewId).height(maxTypeHeight + maxYPosition);
-        jsPlumb.repaintEverything();
 
     };
 
