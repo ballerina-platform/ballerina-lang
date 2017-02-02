@@ -217,6 +217,16 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
             s4() + '-' + s4() + s4() + s4();
     };
 
+    /**
+     * Checks whether the identifier is valid or not.
+     * @param {string} identifier - The identifier
+     * @return {boolean} - True if valid identifier, else false.
+     * @static
+     */
+    ASTNode.isValidIdentifier = function (identifier) {
+        return _.isUndefined(identifier) ? false : /^[a-zA-Z$_][a-zA-Z0-9$_]*$/.test(identifier);
+    };
+
     return ASTNode;
 
 });
