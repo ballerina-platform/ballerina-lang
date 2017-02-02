@@ -474,6 +474,10 @@ public class BuiltInNativeConstructLoader {
         registerAction(scope, new org.wso2.ballerina.core.nativeimpl.connectors.data.cassandra.client.Execute());
         registerAction(scope, new org.wso2.ballerina.core.nativeimpl.connectors.data.cassandra.client.Close());
 
+        registerConnector(scope, new CassandraConnector());
+        registerAction(scope, new org.wso2.ballerina.core.nativeimpl.connectors.data.cassandra.client.Close());
+        registerAction(scope, new org.wso2.ballerina.core.nativeimpl.connectors.data.cassandra.client.Execute());
+
         registerConnector(scope, new HTTPConnector());
 
         registerAction(scope, new Get());

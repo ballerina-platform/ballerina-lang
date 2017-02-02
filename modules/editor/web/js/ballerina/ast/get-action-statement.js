@@ -31,7 +31,7 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, act
 
     getActionStatement.prototype.setConnector = function(connector){
         if(!_.isNil(connector)){
-            this._connector = connector;
+            this.setAttribute('_connector', connector);
         }
     };
 

@@ -21,6 +21,7 @@ package org.wso2.ballerina.core.nativeimpl.connectors;
 import org.h2.tools.DeleteDbFiles;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.EnvironmentInitializer;
@@ -50,6 +51,7 @@ public class SQLConnectorTest {
             BuiltInNativeConstructLoader.loadConstructs();
         }
         EnvironmentInitializer.initialize("lang/connectors/sqlconnector.bal");
+        DeleteDbFiles.execute("./", null, true);
         initDatabase();
     }
 
@@ -148,7 +150,7 @@ public class SQLConnectorTest {
         }
     }
 
-    @AfterClass
+    @AfterSuite
     public void cleanup() {
         DeleteDbFiles.execute("./", null, true);
     }
