@@ -65,6 +65,7 @@ import org.wso2.ballerina.core.model.expressions.BinaryArithmeticExpression;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.BinaryLogicalExpression;
 import org.wso2.ballerina.core.model.expressions.CallableUnitInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.ConnectorInitExpr;
 import org.wso2.ballerina.core.model.expressions.DivideExpr;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
 import org.wso2.ballerina.core.model.expressions.Expression;
@@ -99,6 +100,7 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.types.BArrayType;
 import org.wso2.ballerina.core.model.types.BMapType;
 import org.wso2.ballerina.core.model.types.BStructType;
@@ -181,17 +183,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         bFile.setSizeOfStaticMem(setSizeOfStaticMem);
         staticMemAddrOffset = -1;
 
-        // TODO We can perform additional check here
+        // TODO We can perform additional checks here
     }
 
     @Override
     public void visit(ImportPackage importPkg) {
-//        if (importPkgMap.containsKey(importPkg.getName())) {
-//            throw new RuntimeException("Duplicate import package declaration: " + importPkg.getPath() + " in " +
-//                    importPkg.getNodeLocation().getFileName() + ":" + importPkg.getNodeLocation().getLineNumber());
-//        }
-//
-//        importPkgMap.put(importPkg.getName(), importPkg);
     }
 
     @Override
@@ -201,9 +197,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         constDef.setType(bType);
         if (!BTypes.isValueType(bType)) {
             throw new SemanticException(getNodeLocationStr(constDef.getNodeLocation()) +
-                    "invalid constant type '" + typeName + "'");
+                    "invalid type '" + typeName + "'");
         }
-
 
         // Set memory location
         ConstantLocation memLocation = new ConstantLocation(++staticMemAddrOffset);
@@ -221,15 +216,17 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Open a new symbol scope
         openScope(SymScope.Name.SERVICE);
 
-        for (ConnectorDcl connectorDcl : service.getConnectorDcls()) {
-            staticMemAddrOffset++;
-            visit(connectorDcl);
-        }
+        // TODO Analyze service level variable definition statements
 
-        for (VariableDef variableDef : service.getVariableDefs()) {
-            staticMemAddrOffset++;
-            visit(variableDef);
-        }
+//        for (ConnectorDcl connectorDcl : service.getConnectorDcls()) {
+//            staticMemAddrOffset++;
+//            visit(connectorDcl);
+//        }
+//
+//        for (VariableDef variableDef : service.getVariableDefs()) {
+//            staticMemAddrOffset++;
+//            visit(variableDef);
+//        }
 
         // Visit the set of resources in a service
         for (Resource resource : service.getResources()) {
@@ -250,15 +247,17 @@ public class SemanticAnalyzer implements NodeVisitor {
             visit(parameterDef);
         }
 
-        for (ConnectorDcl connectorDcl : connector.getConnectorDcls()) {
-            connectorMemAddrOffset++;
-            visit(connectorDcl);
-        }
+        // TODO Analyze connector level variable definition statements
 
-        for (VariableDef variableDef : connector.getVariableDefs()) {
-            connectorMemAddrOffset++;
-            visit(variableDef);
-        }
+//        for (ConnectorDcl connectorDcl : connector.getConnectorDcls()) {
+//            connectorMemAddrOffset++;
+//            visit(connectorDcl);
+//        }
+//
+//        for (VariableDef variableDef : connector.getVariableDefs()) {
+//            connectorMemAddrOffset++;
+//            visit(variableDef);
+//        }
 
         for (BallerinaAction action : connector.getActions()) {
             action.accept(this);
@@ -276,29 +275,14 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(Resource resource) {
         // Visit the contents within a resource
         // Open a new symbol scope
-        openScope(SymScope.Name.RESOURCE);
-        currentCallableUnit = resource;
+        currentScope = resource;
 
-        // Check whether the return statement is missing. Ignore if the function does not return anything.
+        // TODO Check whether the reply statement is missing. Ignore if the function does not return anything.
         //checkForMissingReplyStmt(resource);
 
         for (ParameterDef parameterDef : resource.getParameterDefs()) {
-            stackFrameOffset++;
+            currentMemLocation = new LocalVarLocation(++stackFrameOffset);
             visit(parameterDef);
-        }
-
-        for (ParameterDef parameterDef : resource.getReturnParameters()) {
-            validateType(parameterDef.getType(), parameterDef.getNodeLocation());
-        }
-
-        for (ConnectorDcl connectorDcl : resource.getConnectorDcls()) {
-            stackFrameOffset++;
-            visit(connectorDcl);
-        }
-
-        for (VariableDef variableDef : resource.getVariableDefs()) {
-            stackFrameOffset++;
-            visit(variableDef);
         }
 
         BlockStmt blockStmt = resource.getResourceBody();
@@ -309,8 +293,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Close the symbol scope
         stackFrameOffset = -1;
-        currentCallableUnit = null;
-        closeScope();
+        currentScope = resource.getEnclosingScope();
     }
 
     @Override
@@ -371,10 +354,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             visit(parameterDef);
         }
 
-        for (VariableDef variableDef : typeConvertor.getVariableDefs()) {
-            stackFrameOffset++;
-            visit(variableDef);
-        }
+//        for (VariableDef variableDef : typeConvertor.getVariableDefs()) {
+//            stackFrameOffset++;
+//            visit(variableDef);
+//        }
 
         for (ParameterDef parameterDef : typeConvertor.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
@@ -409,26 +392,15 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(BallerinaAction action) {
         // Open a new symbol scope
-        openScope(SymScope.Name.ACTION);
-        currentCallableUnit = action;
+        currentScope = action;
 
         // Check whether the return statement is missing. Ignore if the function does not return anything.
         // TODO Define proper error message codes
         //checkForMissingReturnStmt(action, "missing return statement at end of action");
 
         for (ParameterDef parameterDef : action.getParameterDefs()) {
-            stackFrameOffset++;
+            currentMemLocation = new LocalVarLocation(++stackFrameOffset);
             visit(parameterDef);
-        }
-
-        for (ConnectorDcl connectorDcl : action.getConnectorDcls()) {
-            stackFrameOffset++;
-            visit(connectorDcl);
-        }
-
-        for (VariableDef variableDef : action.getVariableDefs()) {
-            stackFrameOffset++;
-            visit(variableDef);
         }
 
         for (ParameterDef parameterDef : action.getReturnParameters()) {
@@ -438,7 +410,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 break;
             }
 
-            stackFrameOffset++;
+            currentMemLocation = new LocalVarLocation(++stackFrameOffset);
             visit(parameterDef);
         }
 
@@ -457,8 +429,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Close the symbol scope
         stackFrameOffset = -1;
-        currentCallableUnit = null;
-        closeScope();
+        currentScope = action.getEnclosingScope();
     }
 
     @Override
@@ -481,38 +452,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(VariableDef varDef) {
-//        BType bType = resolveType(varDef.getTypeName(), varDef.getNodeLocation());
-//        varDef.setType(bType);
-
-//        BType type = variableDef.getType();
-//        validateType(type, variableDef.getNodeLocation());
-//
-//        SymbolName symName = variableDef.getSymbolName();
-//        Symbol symbol = symbolTable.lookup(symName);
-//        if (symbol != null && isSymbolInCurrentScope(symbol)) {
-//            throw new SemanticException(getNodeLocationStr(variableDef.getNodeLocation()) + "duplicate variable '" +
-//                    symName.getName() + "'");
-//        }
-//
-//        MemoryLocation location;
-//        if (isInScope(SymScope.Name.CONNECTOR)) {
-//            location = new ConnectorVarLocation(connectorMemAddrOffset);
-//        } else if (isInScope(SymScope.Name.SERVICE)) {
-//            location = new ServiceVarLocation(staticMemAddrOffset);
-//        } else if (isInScope(SymScope.Name.FUNCTION) ||
-//                isInScope(SymScope.Name.RESOURCE) ||
-//                isInScope(SymScope.Name.ACTION) ||
-//                isInScope(SymScope.Name.TYPECONVERTOR)) {
-//            location = new LocalVarLocation(stackFrameOffset);
-//        } else if (isInScope(SymScope.Name.PACKAGE)) {
-//            location = new StructVarLocation(structMemAddrOffset);
-//        } else {
-//            // This error should not be thrown
-//            throw new IllegalStateException("Variable declaration is invalid");
-//        }
-//
-//        symbol = new Symbol(type, currentScopeName(), location);
-//        symbolTable.insert(symName, symbol);
     }
 
     /**
@@ -607,7 +546,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                         + varDefStmt.getNodeLocation().getLineNumber() + ": assignment count mismatch: " +
                         "1 = " + returnTypes.length);
 
-            } else if ((varBType != BTypes.typeMap) && (rExpr.getType() != BTypes.typeMap) &&
+            } else if ((varBType != BTypes.typeMap) && (returnTypes[0] != BTypes.typeMap) &&
                     (!varBType.equals(rExpr.getType()))) {
 
                 TypeCastExpression newExpr = checkWideningPossibleForAssign(varBType, rExpr);
@@ -637,6 +576,18 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             rExpr.setType(varBType);
         }
+
+        if (rExpr instanceof ArrayInitExpr) {
+
+        }
+
+        if (rExpr instanceof RefTypeInitExpr) {
+
+        }
+
+//        if(rExpr instanceof ConnectorInitExpr){
+//
+//        }
 
     }
 
@@ -793,7 +744,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression[] returnArgExprs = returnStmt.getExprs();
 
         // Return parameters of the current function or actions
-        ParameterDef[] returnParamsOfCU = currentCallableUnit.getReturnParameters();
+        ParameterDef[] returnParamsOfCU = ((CallableUnit) currentScope).getReturnParameters();
 
         if (returnArgExprs.length == 0 && returnParamsOfCU.length == 0) {
             // Return stmt has no expressions and function/action does not return anything. Just return.
@@ -1296,6 +1247,11 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Type of this expression is map and internal data type cannot be identifier from declaration
         refTypeInitExpr.setType(BTypes.typeMap);
+    }
+
+    @Override
+    public void visit(ConnectorInitExpr connectorInitExpr) {
+
     }
 
     @Override
@@ -1815,8 +1771,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         SymbolName symbolName = LangModelUtils.getSymNameWithParams(funcIExpr.getName(), pkgPath, paramTypes);
-        Symbol symbol = symbolTable.lookup(symbolName);
-        if (symbol == null) {
+        BLangSymbol functionSymbol = currentScope.resolve(symbolName);
+        if (functionSymbol == null) {
             String funcName = (funcIExpr.getPackageName() != null) ? funcIExpr.getPackageName() + ":" +
                     funcIExpr.getName() : funcIExpr.getName();
             throw new SemanticException(funcIExpr.getNodeLocation().getFileName() + ":" +
@@ -1825,7 +1781,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // Link
-        Function function = symbol.getFunction();
+        Function function = (Function) functionSymbol;
         funcIExpr.setCallableUnit(function);
     }
 

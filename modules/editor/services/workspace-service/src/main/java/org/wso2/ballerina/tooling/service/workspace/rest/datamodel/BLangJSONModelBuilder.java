@@ -48,6 +48,7 @@ import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
+import org.wso2.ballerina.core.model.expressions.ConnectorInitExpr;
 import org.wso2.ballerina.core.model.expressions.DivideExpr;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
 import org.wso2.ballerina.core.model.expressions.Expression;
@@ -945,6 +946,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     @Override
     public void visit(RefTypeInitExpr refTypeInitExpr) {
         //TODO
+    }
+
+    @Override
+    public void visit(ConnectorInitExpr connectorInitExpr) {
+
     }
 
     @Override

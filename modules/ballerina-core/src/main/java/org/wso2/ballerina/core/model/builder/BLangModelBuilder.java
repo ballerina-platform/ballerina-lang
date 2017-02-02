@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.model.builder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
@@ -44,6 +45,7 @@ import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
+import org.wso2.ballerina.core.model.expressions.ConnectorInitExpr;
 import org.wso2.ballerina.core.model.expressions.DivideExpr;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
 import org.wso2.ballerina.core.model.expressions.Expression;
@@ -155,8 +157,7 @@ public class BLangModelBuilder {
         importPkgMap.values()
                 .stream()
                 .filter(importPkg -> !importPkg.isUsed())
-                .findFirst()
-                .ifPresent(importPkg -> {
+                .forEach(importPkg -> {
                     NodeLocation location = importPkg.getNodeLocation();
                     String pkgPathStr = "\"" + importPkg.getPath() + "\"";
                     String importPkgErrStr = (importPkg.getAsName() == null) ? pkgPathStr : pkgPathStr + " as '" +
@@ -167,15 +168,15 @@ public class BLangModelBuilder {
                     errorMessageList.add(errMsg);
                 });
 
-        if (!errorMessageList.isEmpty()) {
-
-            for (String errMsg : errorMessageList) {
-            }
-
+//        if (!errorMessageList.isEmpty()) {
+//
+//            for (String errMsg : errorMessageList) {
+//            }
+//
 //            BallerinaException e = new BallerinaException(
 //                    errorMessageList.toArray(new String[errorMessageList.size()]));
 //            throw e;
-        }
+//        }
 
 
         bFileBuilder.setImportPackageMap(importPkgMap);
@@ -371,7 +372,7 @@ public class BLangModelBuilder {
     }
 
 
-    // Function parameters
+    // Function/action input and out parameters
 
     /**
      * Create a function parameter and a corresponding variable reference expression.
@@ -441,54 +442,7 @@ public class BLangModelBuilder {
     }
 
 
-    // Constants, Variable definitions, reference expressions
-
-    public void createVariableDcl(String varName, NodeLocation location) {
-        // Create a variable declaration
-//        SymbolName localVarId = new SymbolName(varName);
-//        BType localVarType = typeQueue.remove();
-
-//        VariableDef variableDef = new VariableDef(location, localVarType, localVarId);
-
-        // Add this variable declaration to the current callable unit or callable unit group
-//        if (currentCUBuilder != null) {
-        // This connector declaration should added to the relevant function/action or resource
-//            currentCUBuilder.addVariableDcl(variableDcl);
-//        } else {
-//            currentCUGroupBuilder.addVariableDcl(variableDef);
-//        }
-
-    }
-
-    public void createConnectorDcl(String varName, NodeLocation location) {
-        // Here we build the object model for the following line
-
-        // Here we need to pop the symbolName stack twice as the connector name appears twice in the declaration.
-//        if (symbol/NameStack.size() < 2) {
-//            IllegalStateException ex = new IllegalStateException("symbol stack size should be " +
-//                    "greater than or equal to two");
-//            throw new ParserException("Failed to parse connector declaration" + varName + " in " +
-//                    location.getFileName() + ":" + location.getLineNumber(), ex);
-//        }
-
-//        symbolNameStack.pop();
-//        SymbolName cSymName = symbolNameStack.pop();
-//        List<Expression> exprList = exprListStack.pop();
-//
-//        ConnectorDcl.ConnectorDclBuilder builder = new ConnectorDcl.ConnectorDclBuilder();
-//        builder.setConnectorName(cSymName);
-//        builder.setVarName(new SymbolName(varName));
-//        builder.setExprList(exprList);
-//        builder.setNodeLocation(location);
-//
-//        ConnectorDcl connectorDcl = builder.build();
-//        if (currentCUBuilder != null) {
-//             This connector declaration should added to the relevant function/action or resource
-//            currentCUBuilder.addConnectorDcl(connectorDcl);
-//        } else {
-//            currentCUGroupBuilder.addConnectorDcl(connectorDcl);
-//        }
-    }
+    // Expressions
 
     public void startVarRefList() {
         exprListStack.push(new ArrayList<>());
@@ -528,9 +482,6 @@ public class BLangModelBuilder {
         ArrayMapAccessExpr accessExpr = builder.build();
         exprStack.push(accessExpr);
     }
-
-
-    // Expressions
 
     public void createBinaryExpr(NodeLocation location, String opStr) {
         Expression rExpr = exprStack.pop();
@@ -754,15 +705,19 @@ public class BLangModelBuilder {
     }
 
     public void createConnectorInitExpr(NodeLocation location) {
+        List<Expression> argExprList = exprListStack.pop();
+        checkArgExprValidity(location, argExprList);
+        SimpleTypeName typeName = typeNameStack.pop();
 
+        ConnectorInitExpr connectorInitExpr = new ConnectorInitExpr(location, typeName,
+                argExprList.toArray(new Expression[argExprList.size()]));
+        exprStack.push(connectorInitExpr);
     }
 
     public void addCallableUnitName(String pkgName, String name) {
         CallableUnitName callableUnitName = new CallableUnitName(pkgName, name);
         callableUnitNameStack.push(callableUnitName);
     }
-
-    // TODO Add connector init expression
 
 
     // Functions, Actions and Resources
@@ -907,7 +862,6 @@ public class BLangModelBuilder {
                     "redeclared variable '" + varName + "'";
             errorMessageList.add(errMsg);
             //throw new BallerinaException(errMsg);
-            return;
         }
 
         SimpleTypeName typeName = typeNameStack.pop();
