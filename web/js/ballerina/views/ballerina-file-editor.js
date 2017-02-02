@@ -610,6 +610,11 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._sourceView._editor.selection.selectLine();
         };
 
+
+        BallerinaFileEditor.prototype.debugHit = function (position) {
+            this._sourceView.debugHit(position);
+        };        
+
         return BallerinaFileEditor;
     });
 

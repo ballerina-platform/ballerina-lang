@@ -70,6 +70,7 @@ define(['require' 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../uti
         //register actions
         if(this._debugger != undefined && this._debugger.isEnabled()){
             this._editor.on("guttermousedown", _.bind(this.toggleDebugPoints, this));
+            this._debugger.on("resume-execution", _.bind(this.clearExistingDebugHit, this));
         }
     };
 
@@ -116,16 +117,26 @@ define(['require' 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../uti
         if(typeof breakpoints[row] === typeof undefined){
             this._markers[row] = this._editor.getSession().addMarker(new Range.Range(row, 0, row, 2000), "debug-point", "line", true);
             e.editor.session.setBreakpoint(row);
-            this.trigger('add-breakpoint', row );
+            this.trigger('add-breakpoint', row + 1);
         }
         else{
             this._editor.getSession().removeMarker(this._markers[row]);
             delete this._markers[row];
-            this.trigger('remove-breakpoint', row );
+            this.trigger('remove-breakpoint', row + 1);
             e.editor.session.clearBreakpoint(row);
         }
         e.stop();
-    };    
+    };
+
+    SourceView.prototype.debugHit = function(position){
+        this.debugPointMarker = this._editor.getSession().addMarker(new Range.Range(position.line - 1, 0, position.line - 1, 2000), "debug-point-hit", "line", true);
+    }
+
+    SourceView.prototype.clearExistingDebugHit = function(position){
+        if(this.debugPointMarker != undefined){
+            this._editor.getSession().removeMarker(this.debugPointMarker);
+        }
+    }    
 
     //dbeugger related functions. 
 
