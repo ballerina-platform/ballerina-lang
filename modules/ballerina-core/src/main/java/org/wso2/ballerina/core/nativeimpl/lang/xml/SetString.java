@@ -21,6 +21,7 @@ package org.wso2.ballerina.core.nativeimpl.lang.xml;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMContainer;
+import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.jaxen.JaxenException;
@@ -80,9 +81,14 @@ public class SetString extends AbstractNativeFunction {
                 for (Object obj : list) {
                     if (obj instanceof OMNode) {
                         OMNode omNode = (OMNode) obj;
-                        OMContainer omContainer = omNode.getParent();
-                        omNode.detach();
-                        OMAbstractFactory.getOMFactory().createOMText(omContainer, value);
+                        if (omNode instanceof OMElement) {
+                            OMElement ome = (OMElement) omNode;
+                            ome.setText(value);
+                        } else {
+                            OMContainer omContainer = omNode.getParent();
+                            omNode.detach();
+                            OMAbstractFactory.getOMFactory().createOMText(omContainer, value);
+                        }
                     } else if (obj instanceof OMAttribute) {
                         OMAttribute omAttribute = (OMAttribute) obj;
                         omAttribute.setAttributeValue(value);
