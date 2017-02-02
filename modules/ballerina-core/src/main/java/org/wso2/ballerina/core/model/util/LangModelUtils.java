@@ -50,24 +50,6 @@ public class LangModelUtils {
         return new SymbolName(sBuilder.toString());
     }
 
-    public static SymbolName getTypeConverterSymName(String pkgName, Parameter[] parameters,
-                                                     Parameter[] returnParams) {
-        StringBuilder stringBuilder = new StringBuilder(pkgName + ":");
-        for (Parameter param : parameters) {
-            stringBuilder.append("_").append(param.getType());
-        }
-        stringBuilder.append("->");
-        for (Parameter param : returnParams) {
-            stringBuilder.append("_").append(param.getType());
-        }
-        return new SymbolName(stringBuilder.toString());
-    }
-
-    public static SymbolName getTypeConverterSymNameWithoutPackage(BType source,
-                                                     BType target) {
-        return new SymbolName("ballerina.lang.convertors:" + "_" + source + "->" + "_" + target);
-    }
-
     public static SymbolName getConnectorSymName(String identifier, String pkgPath) {
         String prefix;
         if (pkgPath == null) {

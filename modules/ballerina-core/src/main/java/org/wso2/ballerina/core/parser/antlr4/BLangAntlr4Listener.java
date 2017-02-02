@@ -310,10 +310,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
             if (identifier != null) {
                 String fileName = identifier.getSymbol().getInputStream().getSourceName();
                 int lineNo = identifier.getSymbol().getLine();
-                Position functionLocation = new Position(fileName, lineNo);
-                String typeConverterName = "_" + ctx.typeConvertorInput().typeConvertorType().getText() + "->" + "_" +
-                        ctx.typeConvertorType().getText();
-                modelBuilder.createTypeConverter(typeConverterName, isPublic, functionLocation, childPosition);
+                Position typeconvertorLocation = new Position(fileName, lineNo);
+                modelBuilder.createTypeConverter(ctx.typeConvertorInput().typeConvertorType().getText()
+                        , ctx.typeConvertorType().getText(), isPublic, typeconvertorLocation, childPosition);
                 childPosition++;
             }
         }
@@ -384,10 +383,20 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startWorkerUnit();
+            modelBuilder.startCallableUnitBody();
+        }
     }
 
     @Override
     public void exitWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx) {
+        if (ctx.exception == null && ctx.Identifier() != null) {
+            modelBuilder.createSymbolName(ctx.Identifier().getText());
+            modelBuilder.endCallableUnitBody();
+            modelBuilder.createWorker(ctx.Identifier().getText(), getCurrentLocation(ctx));
+        }
+
     }
 
     @Override
@@ -397,7 +406,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitWorkerInputParameter(BallerinaParser.WorkerInputParameterContext ctx) {
-
+        if (ctx.exception == null) {
+            modelBuilder.createParam(ctx.Identifier().getText(), getCurrentLocation(ctx));
+        }
     }
 
     @Override
@@ -897,6 +908,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitWorkerInteractionStatement(BallerinaParser.WorkerInteractionStatementContext ctx) {
+
     }
 
     @Override
@@ -905,6 +917,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitTriggerWorker(BallerinaParser.TriggerWorkerContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.createWorkerInvocationStmt(ctx.Identifier(0).getText(), getCurrentLocation(ctx));
+        }
     }
 
     @Override
@@ -913,6 +928,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitWorkerReply(BallerinaParser.WorkerReplyContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.createWorkerReplyStmt(ctx.Identifier(0).getText(), ctx.Identifier(1).getText(),
+                    getCurrentLocation(ctx));
+        }
     }
 
     @Override

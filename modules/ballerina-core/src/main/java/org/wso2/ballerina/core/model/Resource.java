@@ -22,9 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,7 +49,6 @@ public class Resource implements Node, CallableUnit {
 
     // TODO Refactor
     private Map<String, Annotation> annotationMap = new HashMap<>();
-    private List<Worker> workerList = new ArrayList<>();
     private String name;
     private int stackFrameSize;
 
@@ -161,26 +158,8 @@ public class Resource implements Node, CallableUnit {
      *
      * @return list of Workers
      */
-    public List<Worker> getWorkers() {
-        return workerList;
-    }
-
-    /**
-     * Assign Workers to the Resource.
-     *
-     * @param workers list of all the Workers
-     */
-    public void setWorkers(List<Worker> workers) {
-        this.workerList = workers;
-    }
-
-    /**
-     * Add a {@code Worker} to the Resource.
-     *
-     * @param worker Worker to be added to the Resource
-     */
-    public void addWorker(Worker worker) {
-        workerList.add(worker);
+    public Worker[] getWorkers() {
+        return workers;
     }
 
     /**

@@ -68,12 +68,12 @@ public class BTypes {
     }
 
     public static boolean isValueType(BType type) {
-        if (type == BTypes.INT_TYPE ||
-                type == BTypes.STRING_TYPE ||
-                type == BTypes.LONG_TYPE ||
-                type == BTypes.FLOAT_TYPE ||
-                type == BTypes.DOUBLE_TYPE ||
-                type == BTypes.BOOLEAN_TYPE) {
+        if ((type != null) && (type.equals(BTypes.INT_TYPE) ||
+                type.equals(BTypes.STRING_TYPE) ||
+                type.equals(BTypes.LONG_TYPE) ||
+                type.equals(BTypes.FLOAT_TYPE) ||
+                type.equals(BTypes.DOUBLE_TYPE) ||
+                type.equals(BTypes.BOOLEAN_TYPE))) {
             return true;
         }
 

@@ -31,6 +31,7 @@ public class TypeConstants {
     static final String BOOLEAN_TNAME = "boolean";
     static final String STRING_TNAME = "string";
     static final String ARRAY_TNAME = "[]";
+    static final String NATIVE_PACKAGE = "ballerina.lang.typeconvertor";
 
     // TODO Correct the name
     static final String MAP_TNAME = "map";

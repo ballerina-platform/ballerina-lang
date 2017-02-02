@@ -18,10 +18,12 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.model.statements.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.values.BValue;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.Future;
 
 /**
  * A {@code worker} is a thread of execution that the integration developer programs as a lifeline.
@@ -39,111 +41,186 @@ import java.util.List;
  *  @since 0.8.0
  */
 @SuppressWarnings("unused")
-public class Worker implements Node {
+public class Worker implements Node, CallableUnit  {
 
-    private List<ConnectorDcl> connectorDcls;
-    private List<VariableDcl> variables;
-    private List<Statement> statements;
+    private static final Logger LOG = LoggerFactory.getLogger(Worker.class);
 
-    public Worker(List<VariableDcl> variables, List<Statement> statements) {
-        this.variables = variables;
-        this.statements = statements;
+    private String name;
+    private int stackFrameSize;
+
+    private Parameter[] parameters;
+    private ConnectorDcl[] connectorDcls;
+    private VariableDcl[] variableDcls;
+    private BlockStmt workerBody;
+    private SymbolName workerName;
+    private Position position;
+
+    private Future<BValue> resultFuture;
+
+    public Worker(String name) {
+        this.name = name;
+    }
+
+    public Worker(SymbolName name,
+                    Position position,
+                    Parameter[] parameters,
+                    ConnectorDcl[] connectorDcls,
+                    VariableDcl[] variableDcls,
+                    BlockStmt workerBody) {
+
+        this.workerName = name;
+        this.position = position;
+        this.parameters = parameters;
+        this.connectorDcls = connectorDcls;
+        this.variableDcls = variableDcls;
+        this.workerBody = workerBody;
     }
 
     public Worker(){}
 
+    @Override
+    public void accept(NodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
     /**
-     * Get all Connections declared within the Worker.
+     * Returns the name of the callable unit.
      *
-     * @return list of all the Connections belongs to the Worker
+     * @return the name
      */
-    public List<ConnectorDcl> getConnectorDcls() {
+    @Override
+    public String getName() {
+        return this.name;
+    }
+
+    /**
+     * Returns the symbol name of the callable unit.
+     *
+     * @return the symbol name
+     */
+    @Override
+    public SymbolName getSymbolName() {
+        return this.workerName;
+    }
+
+    /**
+     * Replaces the symbol name of this callable unit with the specified symbol name.
+     *
+     * @param symbolName name of the symbol.
+     */
+    @Override
+    public void setSymbolName(SymbolName symbolName) {
+        this.workerName = symbolName;
+
+    }
+
+    /**
+     * Returns the package name of this callable unit.
+     *
+     * @return the package name
+     */
+    @Override
+    public String getPackageName() {
+        return workerName.getPkgName();
+    }
+
+    /**
+     * Returns an array of annotations attached this callable unit.
+     *
+     * @return an array of annotations
+     */
+    @Override
+    public Annotation[] getAnnotations() {
+        return new Annotation[0];
+    }
+
+    /**
+     * Returns an array of parameters of this callable unit.
+     *
+     * @return an array of parameters
+     */
+    @Override
+    public Parameter[] getParameters() {
+        return this.parameters;
+    }
+
+    /**
+     * Returns an array of variable declarations of this callable unit.
+     *
+     * @return an array of variable declarations
+     */
+    @Override
+    public VariableDcl[] getVariableDcls() {
+        return this.variableDcls;
+    }
+
+    /**
+     * Get all Connections declared within the BallerinaFunction scope.
+     *
+     * @return list of all the Connections belongs to a BallerinaFunction
+     */
+    public ConnectorDcl[] getConnectorDcls() {
         return connectorDcls;
     }
 
     /**
-     * Assign connections to the Worker.
+     * Returns an array of return parameters (values) of this callable unit.
      *
-     * @param connectorDcls list of connections to be assigned to the Worker
+     * @return an array of return parameters
      */
-    public void setConnectorDcls(List<ConnectorDcl> connectorDcls) {
-        this.connectorDcls = connectorDcls;
-    }
-
-    /**
-     * Add a {@code Connection} to the Worker.
-     *
-     * @param connectorDcl Connection to be added to the Worker
-     */
-    public void addConnection(ConnectorDcl connectorDcl) {
-        if (connectorDcls == null) {
-            connectorDcls = new ArrayList<ConnectorDcl>();
-        }
-        connectorDcls.add(connectorDcl);
-    }
-
-    /**
-     * Get all the variables declared in the Worker.
-     *
-     * @return list of all Worker scoped variables
-     */
-    public List<VariableDcl> getVariables() {
-        return variables;
-    }
-
-    /**
-     * Assign variables to the Worker.
-     *
-     * @param variables list of variables
-     */
-    public void setVariables(List<VariableDcl> variables) {
-        this.variables = variables;
-    }
-
-    /**
-     * Add a {@code Variable} to the Worker.
-     *
-     * @param variable variable to be added the Worker
-     */
-    public void addVariable(VariableDcl variable) {
-        if (variables == null) {
-            variables = new ArrayList<VariableDcl>();
-        }
-        variables.add(variable);
-    }
-
-    /**
-     * Get all the Statements associated with the Worker.
-     *
-     * @return list of Statements associated with the Worker
-     */
-    public List<Statement> getStatements() {
-        return statements;
-    }
-
-    /**
-     * Set Statements to be associated with the Worker.
-     *
-     * @param statements list of Statements
-     */
-    public void setStatements(List<Statement> statements) {
-        this.statements = statements;
-    }
-
-    /**
-     * Add a {@code Statement} to the Worker.
-     *
-     * @param statement a Statement to be added to the Worker
-     */
-    public void addStatement(Statement statement) {
-        if (statements == null) {
-            statements = new ArrayList<Statement>();
-        }
-        statements.add(statement);
-    }
-
     @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
+    public Parameter[] getReturnParameters() {
+        return new Parameter[0];
+    }
+
+
+    /**
+     * Returns size of the stack frame which should be allocated for each invocations.
+     *
+     * @return size of the stack frame
+     */
+    @Override
+    public int getStackFrameSize() {
+        return this.stackFrameSize;
+    }
+
+    /**
+     * Replaces the size of the current stack frame with the specified size.
+     *
+     * @param frameSize size of the stack frame
+     */
+    @Override
+    public void setStackFrameSize(int frameSize) {
+        this.stackFrameSize = frameSize;
+    }
+
+    /**
+     * Returns the body of the callable unit as a {@code BlockStmt}.
+     *
+     * @return body of the callable unit
+     */
+    @Override
+    public BlockStmt getCallableUnitBody() {
+        return this.workerBody;
+    }
+
+    /**
+     * Get the location of this function in the ballerina source file.
+     * Returns the ballerina file and line number of the function.
+     *
+     * @return location of this function in the ballerina source file
+     */
+    @Override
+    public Position getLocation() {
+        return this.position;
+    }
+
+
+    public Future<BValue> getResultFuture() {
+        return resultFuture;
+    }
+
+    public void setResultFuture(Future<BValue> resultFuture) {
+        this.resultFuture = resultFuture;
     }
 }

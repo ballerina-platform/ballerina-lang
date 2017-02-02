@@ -76,6 +76,8 @@ import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.statements.WorkerInvocationStmt;
+import org.wso2.ballerina.core.model.statements.WorkerReplyStmt;
 import org.wso2.ballerina.core.model.types.BTypes;
 
 import java.util.Stack;
@@ -261,6 +263,16 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
+    public void visit(WorkerInvocationStmt workerInvocationStmt) {
+
+    }
+
+    @Override
+    public void visit(WorkerReplyStmt workerReplyStmt) {
+
+    }
+
+    @Override
     public void visit(ReplyStmt replyStmt) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
@@ -335,7 +347,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     public void visit(BasicLiteral basicLiteral) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
-        if(basicLiteral.getType() == BTypes.STRING_TYPE) {
+        if(basicLiteral.getType().equals(BTypes.STRING_TYPE)) {
             buffer.append("\"").append(basicLiteral.getBValue().stringValue()).append("\"");
         } else {
             buffer.append(basicLiteral.getBValue().stringValue());
@@ -624,6 +636,11 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     @Override
     public void visit(StructFieldAccessExpr structFieldAccessExpr) {
         //TODO
+    }
+
+    @Override
+    public void visit(WorkerVarLocation workerVarLocation) {
+
     }
 
 }

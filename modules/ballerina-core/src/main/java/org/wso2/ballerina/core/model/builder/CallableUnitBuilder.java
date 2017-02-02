@@ -131,4 +131,11 @@ class CallableUnitBuilder {
                 variableDclList.toArray(new VariableDcl[variableDclList.size()]),
                 workerList.toArray(new Worker[workerList.size()]), body);
     }
+
+    Worker buildWorker() {
+        return new Worker(name, position,
+                parameterList.toArray(new Parameter[parameterList.size()]),
+                connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
+                variableDclList.toArray(new VariableDcl[variableDclList.size()]), body);
+    }
 }
