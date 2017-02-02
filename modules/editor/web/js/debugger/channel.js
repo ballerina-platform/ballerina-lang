@@ -21,15 +21,20 @@ define(['lodash', 'event_channel', 'log'],
 
         var Channel = function(args){
             _.assign(this, args);
-            var websocket = new WebSocket(args.debuggerServiceUrl);
-            websocket.onopen = function () {
-                log.debug('debugger connected');
-            };
-            websocket.onerror = function (e) {
-                log.error('debugger error', e);
-            };
-            websocket.onmessage = this.parseMessage;
-            this.websocket = websocket;
+            var self = this;
+            if(args.endpoint != undefined){
+                var websocket = new WebSocket(args.endpoint);
+                websocket.onopen = function () {
+                    self.debugger.trigger("connected");
+                };
+                websocket.onerror = function (e) {
+                    log.error('debugger error', e);
+                };
+                websocket.onmessage = this.parseMessage;
+                this.websocket = websocket;
+            }else{
+                console.log("Invalid debug URL" + endpoint);
+            }
             var self = this;
         };
 
@@ -37,26 +42,15 @@ define(['lodash', 'event_channel', 'log'],
 
         Channel.prototype.constructor = Channel;
 
-
         Channel.prototype.parseMessage = function (strMessage) {
-            var message = JSON.parse(strMessage);
-            if(message.command === "DEBUG_HIT") {
-                this.trigger('debug-hit', message.executionPoint);
-            }
-        };
-
-        Channel.prototype.updateBreakPoints = function (filePath, breakPoints) {
-            var message = {
-                ADD_BREAK_POINTS: {
-                    breakPoints: breakPoints,
-                    fileId: filePath
-                }
-            };
-            this.sendMessage(message);
+            var message = JSON.parse(strMessage.data);
+            this.debugger.processMesssage(message);
         };
 
         Channel.prototype.sendMessage = function (message) {
+            console.log(JSON.stringify(message));
             this.websocket.send(JSON.stringify(message))
         };
+
         return Channel;
     });
