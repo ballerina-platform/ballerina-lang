@@ -109,6 +109,10 @@ public class IfElseStmt extends AbstractStatement {
         private List<ElseIfBlock> elseIfBlockList = new ArrayList<>();
         private Statement elseBody;
 
+        public NodeLocation getLocation() {
+            return location;
+        }
+
         public void setNodeLocation(NodeLocation location) {
             this.location = location;
         }

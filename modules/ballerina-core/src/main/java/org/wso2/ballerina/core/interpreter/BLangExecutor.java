@@ -44,8 +44,8 @@ import org.wso2.ballerina.core.model.expressions.CallableUnitInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
-import org.wso2.ballerina.core.model.expressions.KeyValueExpression;
-import org.wso2.ballerina.core.model.expressions.MapInitExpr;
+import org.wso2.ballerina.core.model.expressions.MapStructInitKeyValueExpr;
+import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
@@ -460,13 +460,13 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     @Override
-    public BValue visit(MapInitExpr mapInitExpr) {
-        Expression[] argExprs = mapInitExpr.getArgExprs();
+    public BValue visit(RefTypeInitExpr refTypeInitExpr) {
+        Expression[] argExprs = refTypeInitExpr.getArgExprs();
         // Creating a new map
         BMap<BString, BValue> bMap = new BMap<>();
 
         for (int i = 0; i < argExprs.length; i++) {
-            KeyValueExpression expr = (KeyValueExpression) argExprs[i];
+            MapStructInitKeyValueExpr expr = (MapStructInitKeyValueExpr) argExprs[i];
             BString key = new BString(expr.getKey());
             Expression expression = expr.getValueExpr();
             BValue value = expression.execute(this);
@@ -497,7 +497,7 @@ public class BLangExecutor implements NodeExecutor {
     public BValue visit(TypeCastExpression typeCastExpression) {
         // Check for native type casting
         if (typeCastExpression.getEvalFunc() != null) {
-            BValueType result = (BValueType) typeCastExpression.getSourceExpression().execute(this);
+            BValueType result = (BValueType) typeCastExpression.getRExpr().execute(this);
             return typeCastExpression.getEvalFunc().apply(result);
         } else {
             TypeConvertor typeConvertor = typeCastExpression.getCallableUnit();

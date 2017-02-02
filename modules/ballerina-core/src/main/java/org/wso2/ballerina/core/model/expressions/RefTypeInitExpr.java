@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code MapInitExpr} represents a map initializer expression.
+ * {@code RefTypeInitExpr} represents a reference type initializer expression.
  * <p>
  * e.g.  map a;
  * a = {"name":"wso2", "employees":"500"}
@@ -32,10 +32,10 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
-public class MapInitExpr extends NaryExpression {
+public class RefTypeInitExpr extends NaryExpression {
 
-    public MapInitExpr(NodeLocation location, Expression[] argExprs) {
-        super(location, null, null, argExprs);
+    public RefTypeInitExpr(NodeLocation location, Expression[] argExprs) {
+        super(location, argExprs);
     }
 
     @Override
