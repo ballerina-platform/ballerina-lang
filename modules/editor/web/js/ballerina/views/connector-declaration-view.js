@@ -55,7 +55,7 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
         ConnectorDeclarationView.prototype.constructor = ConnectorDeclaration;
 
         ConnectorDeclarationView.prototype.init = function () {
-            this.on('remove-view', this.removeViewCallback, this);
+            this._model.on('before-remove', this.onBeforeModelRemove, this);
             this.listenTo(this._parentView, 'resourceHeightChangedEvent', this.resourceHeightChangedCallback);
         };
 
@@ -182,18 +182,6 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
             d3Element.attr("fill-opacity", 0.2);
             d3Element.attr("fill", '#008000');
             d3Element.attr("stroke-width", 0);
-        };
-
-        /**
-         * Unplug the view from the current context
-         * @param {object} options
-         * @param {ASTNode} parent - parent node
-         * @param {ASTNode} child - child node
-         */
-        ConnectorDeclarationView.prototype.unplugView = function (options, parent, child) {
-            // resize the bounding box in order to the other objects to resize
-            this.getBoundingBox().move(-this._LifeLineCenterGap);
-            parent.removeChild(child);
         };
 
         return ConnectorDeclarationView;
