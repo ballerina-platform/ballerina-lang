@@ -16,8 +16,8 @@
  * under the License.
  */
 define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/file', 'ballerina/diagram-render/diagram-render-context',
-        'ballerina/views/backend', 'ballerina/ast/ballerina-ast-deserializer'],
-    function (require, log, $, _, Tab, Ballerina, File, DiagramRenderContext, Backend, BallerinaASTDeserializer) {
+        'ballerina/views/backend', 'ballerina/ast/ballerina-ast-deserializer', '../debugger/debug-manager'],
+    function (require, log, $, _, Tab, Ballerina, File, DiagramRenderContext, Backend, BallerinaASTDeserializer, DebugManager) {
     var FileTab;
 
     FileTab = Tab.extend({
@@ -82,7 +82,8 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
             var fileEditor = new Ballerina.views.BallerinaFileEditor({
                 model: astRoot,
                 container: this.$el.get(0),
-                viewOptions: ballerinaEditorOptions
+                viewOptions: ballerinaEditorOptions,
+                debugger: DebugManager
             });
 
             // change tab header class to match look and feel of source view
@@ -92,9 +93,14 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
             fileEditor.on('design-view-activated', function(){
                 this.getHeader().toggleClass('inverse');
             }, this);
+
             fileEditor.on('add-breakpoint', function(row){
-                self.app.debugger.addBreakPoint(row, self);
+                DebugManager.addBreakPoint(row, this._file.getName());
             }, this);
+
+            fileEditor.on('remove-breakpoint', function(row){
+                DebugManager.removeBreakPoint(row, this._file.getName());
+            }, this);            
 
             this._fileEditor = fileEditor;
             fileEditor.render(diagramRenderingContext);
@@ -145,7 +151,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
 
         getBallerinaFileEditor: function () {
             return this._fileEditor;
-        }
+        },
 
     });
 

@@ -15,8 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../utils/ace-mode', 'beautify', 'ace/ext/language_tools'],
-    function(require, log, _, $, EventChannel, ace, BallerinaMode, Beautify) {
+define(['require' 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../utils/ace-mode', 'beautify', 'ace/ext/language_tools','ace/range',
+    ],
+    function(require , log, _, $, EventChannel, ace, BallerinaMode, Beautify, language_tools, Range) {
 
     /**
      * @class SourceView
@@ -34,6 +35,8 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
         }
         this._container = _.get(args, 'container');
         this._content = _.get(args, 'content');
+        this._debugger = _.get(args, 'debugger', undefined);
+        this._markers = {};
     };
 
     SourceView.prototype = Object.create(EventChannel.prototype);
@@ -57,19 +60,6 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
             }
         });
 
-        this._editor.on("gutterdblclick", function(e){
-            var row = e.getDocumentPosition().row;
-            var breakpointsArray = e.editor.session.getBreakpoints();
-            if(!(row in breakpointsArray)){
-                e.editor.session.setBreakpoint(row);
-                self.trigger('add-breakpoint', row, e.editor.session.getBreakpoints());
-            }else{
-                e.editor.session.clearBreakpoint(row);
-                self.trigger('remove-breakpoint', row);
-            }
-            e.stop();
-        });
-
         this._editor.getSession().setValue(this._content);
         this._editor.getSession().setMode(_.get(this._options, 'mode'));
         this._editor.renderer.setScrollMargin(_.get(this._options, 'scroll_margin'), _.get(this._options, 'scroll_margin'));
@@ -77,7 +67,12 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
             fontSize: _.get(this._options, 'font_size')
         });
 
+        //register actions
+        if(this._debugger != undefined && this._debugger.isEnabled()){
+            this._editor.on("guttermousedown", _.bind(this.toggleDebugPoints, this));
+        }
     };
+
 
     /**
      * Set the content of text editor.
@@ -105,6 +100,35 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
     SourceView.prototype.isVisible = function(){
        return  $(this._container).is(':visible')
     };
+
+    SourceView.prototype.toggleDebugPoints = function(e){
+        var target = e.domEvent.target; 
+        if (target.className.indexOf("ace_gutter-cell") == -1)
+            return; 
+        if (!this._editor.isFocused()) 
+            return; 
+        if (e.clientX > 25 + target.getBoundingClientRect().left) 
+            return; 
+
+
+        var breakpoints = e.editor.session.getBreakpoints(row, 0);
+        var row = e.getDocumentPosition().row;        
+        if(typeof breakpoints[row] === typeof undefined){
+            this._markers[row] = this._editor.getSession().addMarker(new Range.Range(row, 0, row, 2000), "debug-point", "line", true);
+            e.editor.session.setBreakpoint(row);
+            this.trigger('add-breakpoint', row );
+        }
+        else{
+            this._editor.getSession().removeMarker(this._markers[row]);
+            delete this._markers[row];
+            this.trigger('remove-breakpoint', row );
+            e.editor.session.clearBreakpoint(row);
+        }
+        e.stop();
+    };    
+
+    //dbeugger related functions. 
+
 
     return SourceView;
 });

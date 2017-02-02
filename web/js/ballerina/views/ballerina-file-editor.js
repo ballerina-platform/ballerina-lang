@@ -36,6 +36,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         var BallerinaFileEditor = function (args) {
             BallerinaView.call(this, args);
             this._canvasList = _.get(args, 'canvasList', []);
+            this._debugger = _.get(args, 'debugger', undefined); 
             this._id = _.get(args, "id", "Ballerina File Editor");
 
             if (_.isNil(this._model) || !(this._model instanceof BallerinaASTRoot)) {
@@ -287,10 +288,18 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var sourceViewOpts = _.clone(_.get(this._viewOptions, 'source_view'));
             _.set(sourceViewOpts, 'container', aceEditorContainer.get(0));
             _.set(sourceViewOpts, 'content', "");
+            _.set(sourceViewOpts, 'debugger', this._debugger);
             this._sourceView = new SourceView(sourceViewOpts);
+
             this._sourceView.on('add-breakpoint', function (row) {
                 self.trigger('add-breakpoint', row);
             });
+
+            this._sourceView.on('remove-breakpoint', function (row) {
+                self.trigger('remove-breakpoint', row);
+            });            
+
+
             this._sourceView.render();
 
             var sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
