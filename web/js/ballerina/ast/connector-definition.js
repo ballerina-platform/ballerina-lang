@@ -90,7 +90,13 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
      * @param {string} name - Connector Name
      */
     ConnectorDefinition.prototype.setConnectorName = function (name) {
-        this.connector_name = name;
+        if (!_.isNil(name) && ASTNode.isValidIdentifier(name)) {
+            this.connector_name = name;
+        } else {
+            var errorString = "Invalid connector name: " + name;
+            log.error(errorString);
+            throw errorString;
+        }
     };
 
     /**
