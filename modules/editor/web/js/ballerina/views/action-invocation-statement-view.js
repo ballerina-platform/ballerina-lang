@@ -179,12 +179,14 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             });
 
             this.processorConnectPoint.on("mouseover", function () {
-                processorConnectorPoint.style("fill", "red").style("fill-opacity", 0.5)
+                processorConnectorPoint
+                    .style("fill", "#444")
+                    .style("fill-opacity", 0.5)
                     .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
             });
 
             this.processorConnectPoint.on("mouseout", function () {
-                processorConnectorPoint.style("fill", "#2c3e50").style("fill-opacity", 0.01);
+                processorConnectorPoint.style("fill-opacity", 0.01);
             });
 
             this.getBoundingBox().on('top-edge-moved', function(dy){
@@ -247,6 +249,49 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                     var transformY = this._arrowGroup.node().transform.baseVal.consolidate().matrix.f;
                     this._arrowGroup.node().transform.baseVal.getItem(0).setTranslate(transformX + offset.dx, transformY + offset.dy);
                 }, this);
+
+                this.processorConnectPoint.style("display", "none");
+
+                var arrowHeadEnd = D3Utils.circle(Math.round(connectorCenterPointX) - 5, Math.round(startPoint.y()), 10, parent);
+                arrowHeadEnd
+                    .attr("fill-opacity", 0.01)
+                    .style("fill", "#444");
+
+                this.arrowHeadEndPoint = arrowHeadEnd;
+
+                var self = this;
+
+                this.arrowHeadEndPoint.on("mousedown", function () {
+                    d3.event.preventDefault();
+                    d3.event.stopPropagation();
+
+                    var x =  parseFloat(self.arrowHeadEndPoint.attr('cx'));
+                    var y =  parseFloat(self.arrowHeadEndPoint.attr('cy'));
+                    var x1 =  parseFloat(self._processorConnector.attr('x1'));
+                    var y1 =  parseFloat(self._processorConnector.attr('y1'));
+
+                    var sourcePoint = self.toGlobalCoordinates(new Point(x, y));
+                    var connectorPoint = self.toGlobalCoordinates(new Point(x1, y1));
+
+                    self.messageManager.startDrawMessage(actionInvocationModel, sourcePoint, connectorPoint);
+                    self.messageManager.setTypeBeingDragged(true);
+
+                    self._forwardArrowHead.remove();
+                    self._processorConnector.remove();
+                    self._processorConnector2.remove();
+                    self._backArrowHead.remove();
+                    self.arrowHeadEndPoint.remove();
+                });
+
+                this.arrowHeadEndPoint.on("mouseover", function () {
+                    arrowHeadEnd
+                        .style("fill-opacity", 0.5)
+                        .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
+                });
+
+                this.arrowHeadEndPoint.on("mouseout", function () {
+                    arrowHeadEnd.style("fill-opacity", 0.01);
+                });
             }
         };
 
