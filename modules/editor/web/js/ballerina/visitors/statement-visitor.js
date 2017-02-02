@@ -114,6 +114,16 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.endVisitReturnStatement = function (statement) {
     };
 
+    StatementVisitor.prototype.canVisitActionInvocationStatement = function (statement) {
+        return false;
+    };
+    StatementVisitor.prototype.beginVisitActionInvocationStatement = function (statement) {
+    };
+    StatementVisitor.prototype.visitActionInvocationStatement = function (statement) {
+    };
+    StatementVisitor.prototype.endVisitActionInvocationStatement = function (statement) {
+    };
+
     StatementVisitor.prototype.canVisitExpression = function (statement) {
         return false;
     };
@@ -259,6 +269,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.canVisitAssignmentStatement(node);
         }  else if (node instanceof AST.Assignment) {
             return this.canVisitAssignment(node);
+        } else if (node instanceof AST.ActionInvocationStatement) {
+            return this.canVisitActionInvocationStatement(node);
         } else if (node instanceof AST.Expression) {
             return this.canVisitExpression(node);
         } else if (node instanceof AST.ReplyStatement) {
@@ -300,6 +312,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.beginVisitAssignmentStatement(node);
         }  else if (node instanceof AST.Assignment) {
             return this.beginVisitAssignment(node);
+        } else if (node instanceof AST.ActionInvocationStatement) {
+                return this.beginVisitActionInvocationStatement(node);
         } else if (node instanceof AST.Expression) {
             return this.beginVisitExpression(node);
         } else if (node instanceof AST.ReplyStatement) {
@@ -341,6 +355,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.endVisitAssignmentStatement(node);
         }  else if (node instanceof AST.Assignment) {
             return this.endVisitAssignment(node);
+        } else if (node instanceof AST.ActionInvocationStatement) {
+            return this.endVisitActionInvocationStatement(node);
         } else if (node instanceof AST.Expression) {
             return this.endVisitExpression(node);
         } else if (node instanceof AST.ReplyStatement) {
