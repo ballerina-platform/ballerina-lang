@@ -20,6 +20,7 @@ package org.wso2.carbon.transport.http.netty.listener;
 
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.ServerConnectorProvider;
+import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
@@ -33,8 +34,8 @@ import java.util.Set;
  */
 public class HTTPServerConnectorProvider extends ServerConnectorProvider {
 
-    public HTTPServerConnectorProvider(String protocol) {
-        super(protocol);
+    public HTTPServerConnectorProvider() {
+        super(Constants.PROTOCOL_NAME);
     }
 
     @Override
