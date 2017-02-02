@@ -96,3 +96,6 @@ li.menu-item-disabled > a {
     color: #f47b20;
     text-transform: capitalize;
 }
+.btn{
+    border: 0;
+}
