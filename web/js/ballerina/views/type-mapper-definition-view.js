@@ -89,7 +89,6 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
                 if (!self._model.getSelectedStructNameForSource()) {
                     self._model.setSelectedStructNameForSource(selectedStructNameForSource);
                 }
-
                 var leftTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
                 leftTypeStructDef.setTypeStructName(schema.getStructName());
                 leftTypeStructDef.setSelectedStructName(self._model.getSelectedStructNameForSource());
@@ -109,7 +108,6 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         });
 
         $(currentContainer).find("#" + targetId).change(function () {
-
             var selectedArrayIndex = $("#" + targetId + " option:selected").val();
             var selectedStructNameForTarget = $("#" + targetId + " option:selected").text();
             self._model.removeTypeStructDefinition("TARGET");
@@ -169,6 +167,16 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         });
 
         this.setServiceContainerWidth(this._container.width());
+
+        if (this._model.getSelectedStructNameForSource()) {
+            $(currentContainer).find("#" + sourceId)[0][this._model.getSelectedStructIndex(predefinedStructs,
+                this._model.getSelectedStructNameForSource()) + 1].selected = true;
+        }
+
+        if (this._model.getSelectedStructNameForTarget()) {
+            $(currentContainer).find("#" + targetId)[0][this._model.getSelectedStructIndex(predefinedStructs,
+                this._model.getSelectedStructNameForTarget()) + 1].selected = true;
+        }
     };
 
     TypeMapperDefinitionView.prototype.getChildContainer = function () {
@@ -178,7 +186,6 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
     TypeMapperDefinitionView.prototype.loadSchemasToComboBox = function (parentId, selectId, schemaArray) {
         for (var i = 0; i < schemaArray.length; i++) {
             $(parentId).find(selectId).append('<option value="' + i + '">' + schemaArray[i].getStructName() + '</option>');
-
         }
     };
 
@@ -202,7 +209,6 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
      * @param connection object
      */
     TypeMapperDefinitionView.prototype.onAttributesConnect = function (connection) {
-
         var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
         var leftOp = BallerinaASTFactory.createLeftOperandExpression();
         var leftOperandExpression = "x." + connection.targetProperty;
@@ -220,7 +226,6 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             return connection.targetReference.getParent().BallerinaASTFactory.isVariableDeclaration(child);
         });
         connection.targetReference.getParent().addChild(assignmentStmt, index + 1);
-
     };
 
 
@@ -229,7 +234,6 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
      * @param connection object
      */
     TypeMapperDefinitionView.prototype.onAttributesDisConnect = function (connection) {
-
         connection.targetReference.getParent().removeAssignmentDefinition(connection.sourceProperty,
             connection.targetProperty);
     };
