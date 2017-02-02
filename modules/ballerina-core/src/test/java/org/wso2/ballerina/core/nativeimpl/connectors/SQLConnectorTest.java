@@ -20,7 +20,6 @@ package org.wso2.ballerina.core.nativeimpl.connectors;
 
 import org.h2.tools.DeleteDbFiles;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

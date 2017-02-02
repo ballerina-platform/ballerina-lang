@@ -2,7 +2,7 @@ import ballerina.lang.message;
 import ballerina.net.http;
 import ballerina.lang.system;
 import ballerina.lang.string;
-import ballerina.lang.dataframe;
+import ballerina.lang.datatable;
 import ballerina.data.sql;
 
 @BasePath ("/invoke")
@@ -79,13 +79,13 @@ service SQLConnectorTestService {
     resource passthrough (message m) {
 	sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:h2:file:./TEST_SERV_SAMP_DB2", "driverClassName":"org.h2.Driver", "username":"root", "password":"root", "maximumPoolSize":1});
 
-    dataframe df;
+	datatable df;
 	message response;
 	string firstName;
 	
 	df = sql:Connector.select(testDB, "SELECT  FirstName from Customers where registrationID = 1");
-	while (dataframe:next(df)) {
-	    firstName = dataframe:getString(df, 1);
+	while (datatable:next(df)) {
+	    firstName = datatable:getString(df, 1);
 	}
 
     response = new message;
