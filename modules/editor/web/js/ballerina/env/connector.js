@@ -72,7 +72,8 @@ define(['log', 'lodash', 'require'],
             this.setTitle(jsonNode.title);
 
             _.each(jsonNode.actions, function (actionNode) {
-                var action = self.BallerinaEnvFactory.createConnectorAction(actionNode);
+                var action = self.BallerinaEnvFactory.createConnectorAction();
+                action.initFromJson(actionNode);
                 self.addAction(action);
             });
         };
