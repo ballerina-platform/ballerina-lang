@@ -50,8 +50,6 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                 return new FunctionInvocationStatementView(args);
             } else if (statement instanceof AST.WhileStatement) {
                 return new WhileStatementView(args);
-            } else if (statement instanceof AST.ActionInvocationStatement) {
-                return new ActionInvocationStatementView(args);
             } else if (statement instanceof AST.ReplyStatement) {
                 return new ReplyStatementView(args);
             } else if (statement instanceof AST.LogicalExpression) {
@@ -63,40 +61,40 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
             } else if (statement instanceof AST.AssignmentStatement){
                 // TODO : This logic needs to be refactored.
                 var children  = _.get(statement, "children");
-                var assignmenStatement = undefined;
+                var assignmentStatement = undefined;
                 _.each(children, function (statementChild) {
                     if(AST.BallerinaASTFactory.isRightOperandExpression(statementChild)) {
                         var operands  = _.get(statementChild, "children");
                         _.each(operands, function (child) {
                             if (AST.BallerinaASTFactory.isActionInvocationExpression(child)) {
                                 _.set(args, 'model', statement);
-                                assignmenStatement = new ActionInvocationStatementView(args);
-                            } else if (AST.BallerinaASTFactory.isAssignment(child)) {
-                                _.set(args, 'model', child);
-                                assignmenStatement = new AssignmentStatementView(args);
-                            } else if (AST.BallerinaASTFactory.isVariableReferenceExpression(child)) {
-                                _.set(args, 'model', child);
-                                assignmenStatement = new AssignmentStatementView(args);
-                            } else if (AST.BallerinaASTFactory.isInstanceCreationExpression(child)){
-                                _.set(args, 'model', child);
-                                assignmenStatement = new AssignmentStatementView(args);
-                            } else if(AST.BallerinaASTFactory.isBasicLiteralExpression(child)){
-                                _.set(args, 'model', child);
-                                assignmenStatement = new AssignmentStatementView(args);
-                            } else if (AST.BallerinaASTFactory.isFunctionInvocationExpression(child)){
-                                _.set(args, 'model', child);
-                                assignmenStatement = new AssignmentStatementView(args);
+                                assignmentStatement = new ActionInvocationStatementView(args);
+                            // } else if (AST.BallerinaASTFactory.isAssignment(child)) {
+                            //     _.set(args, 'model', child);
+                            //     assignmentStatement = new AssignmentStatementView(args);
+                            // } else if (AST.BallerinaASTFactory.isVariableReferenceExpression(child)) {
+                            //     _.set(args, 'model', child);
+                            //     assignmentStatement = new AssignmentStatementView(args);
+                            // } else if (AST.BallerinaASTFactory.isInstanceCreationExpression(child)){
+                            //     _.set(args, 'model', child);
+                            //     assignmentStatement = new AssignmentStatementView(args);
+                            // } else if(AST.BallerinaASTFactory.isBasicLiteralExpression(child)){
+                            //     _.set(args, 'model', child);
+                            //     assignmentStatement = new AssignmentStatementView(args);
+                            // } else if (AST.BallerinaASTFactory.isFunctionInvocationExpression(child)){
+                            //     _.set(args, 'model', child);
+                            //     assignmentStatement = new AssignmentStatementView(args);
                             }
                         });
                     }
                 });
-                if (_.isUndefined(assignmenStatement)) {
+                if (_.isUndefined(assignmentStatement)) {
                     _.set(args, 'model', statement);
-                    _.get(args, 'model').setExpression(children[0].getLeftOperandExpressionString()+ " = "
+                    _.get(args, 'model').setStatementString(children[0].getLeftOperandExpressionString()+ " = "
                         + children[1].getRightOperandExpressionString());
-                    assignmenStatement = new AssignmentStatementView(args);
+                    assignmentStatement = new AssignmentStatementView(args);
                 }
-                return assignmenStatement;
+                return assignmentStatement;
             }
         };
 

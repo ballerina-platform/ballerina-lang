@@ -81,20 +81,9 @@ define(['lodash', './expression', './function-invocation'], function (_, Express
 
         for (var itr = 0; itr < jsonNode.children.length; itr++) {
             var childJsonNode = jsonNode.children[itr];
-            if (childJsonNode.type == "basic_literal_expression") {
-                if(childJsonNode.basic_literal_type == "string") {
-                    // Adding double quotes if it is a string.
-                    argsString += "\"" + childJsonNode.basic_literal_value + "\"";
-                } else {
-                    argsString += childJsonNode.basic_literal_value;
-                }
-            } else if (childJsonNode.type == "variable_reference_expression") {
-                argsString += childJsonNode.variable_reference_name;
-            } else {
-                var child = self.getFactory().createFromJson(childJsonNode);
-                child.initFromJson(childJsonNode);
-                argsString += child.getExpression();
-            }
+            var child = self.getFactory().createFromJson(childJsonNode);
+            child.initFromJson(childJsonNode);
+            argsString += child.getExpression();
 
             if (itr !== jsonNode.children.length - 1) {
                 argsString += ' , ';
