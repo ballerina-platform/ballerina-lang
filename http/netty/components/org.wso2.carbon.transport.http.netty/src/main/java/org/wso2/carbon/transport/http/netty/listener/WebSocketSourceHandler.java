@@ -30,17 +30,19 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.BinaryCarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.CloseCarbonMessage;
-import org.wso2.carbon.messaging.PongCarbonMessage;
+import org.wso2.carbon.messaging.ControlCarbonMessage;
+import org.wso2.carbon.messaging.StatusCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.internal.WebSocketSessionImpl;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import javax.websocket.Session;
 
 /**
  * {@link SourceHandler} only handles the HTTP requests.
@@ -55,31 +57,28 @@ public class WebSocketSourceHandler extends SourceHandler {
     private final String uri;
     private CarbonMessage cMsg;
     private final String channelId;
+    private final boolean isSecured;
 
     public WebSocketSourceHandler(String channelId,
                                   ConnectionManager connectionManager,
                                   ListenerConfiguration listenerConfiguration,
-                                  String uri) throws Exception {
+                                  String uri,
+                                  boolean isSecured,
+                                  ChannelHandlerContext ctx) throws Exception {
         super(connectionManager, listenerConfiguration);
         this.uri = uri;
         this.channelId = channelId;
+        this.isSecured = isSecured;
+        sendOnOpenMessage(ctx, isSecured, uri);
     }
 
-    /**
-     * Read the channel for incoming {@link io.netty.handler.codec.http.websocketx.WebSocketFrame}.
-     * @param ctx {@link ChannelHandlerContext} for the given channel.
-     * @param msg Incoming message object.
-     * @throws UnknownWebSocketFrameTypeException when incoming WebSocket frame cannot be identified.
-     */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws UnknownWebSocketFrameTypeException {
         cMsg = null;
-        //TODO : Ping
         if (!(msg instanceof WebSocketFrame)) {
             LOGGER.error("Expecting WebSocketFrame. Unknown type.");
             throw new UnknownWebSocketFrameTypeException("Expecting WebSocketFrame. Unknown type.");
         }
-
         if (msg instanceof TextWebSocketFrame) {
             TextWebSocketFrame textWebSocketFrame = (TextWebSocketFrame) msg;
             String text = textWebSocketFrame.text();
@@ -96,16 +95,17 @@ public class WebSocketSourceHandler extends SourceHandler {
             CloseWebSocketFrame closeWebSocketFrame = (CloseWebSocketFrame) msg;
             String reasonText = closeWebSocketFrame.reasonText();
             int statusCode = closeWebSocketFrame.statusCode();
-            cMsg = new CloseCarbonMessage(statusCode, reasonText);
+            cMsg = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_CLOSE, statusCode, reasonText);
+
         } else if (msg instanceof PongWebSocketFrame) {
+            //Control message for WebSocket is Pong Message
             PongWebSocketFrame pongWebSocketFrame = (PongWebSocketFrame) msg;
             boolean finalFragment = pongWebSocketFrame.isFinalFragment();
             ByteBuf byteBuf = pongWebSocketFrame.content();
             ByteBuffer byteBuffer = byteBuf.nioBuffer();
-            cMsg = new PongCarbonMessage(byteBuffer, finalFragment);
+            cMsg = new ControlCarbonMessage(byteBuffer, finalFragment);
         }
-
-        setupBasicCarbonMessageProperties(ctx);
+        setupCarbonMessage(ctx);
         publishToMessageProcessor(cMsg);
     }
 
@@ -114,7 +114,8 @@ public class WebSocketSourceHandler extends SourceHandler {
     Carbon Message is published to registered message processor
     Message Processor should return transport thread immediately
      */
-    private void publishToMessageProcessor(CarbonMessage cMsg) {
+    @Override
+    protected void publishToMessageProcessor(CarbonMessage cMsg) {
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
         }
@@ -133,7 +134,16 @@ public class WebSocketSourceHandler extends SourceHandler {
 
     }
 
-
+    private void sendOnOpenMessage(ChannelHandlerContext ctx, boolean isSecured, String uri) {
+        cMsg = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_OPEN, 0, null);
+        setupCarbonMessage(ctx);
+        Session session = new WebSocketSessionImpl(ctx, isSecured, uri);
+        cMsg.setProperty(Constants.WEBSOCKET_SESSION, session);
+        cMsg.setProperty(Constants.CHANNEL_ID, channelId);
+        cMsg.setProperty(Constants.CONNECTION, "Upgrade");
+        cMsg.setProperty(Constants.UPGRADE, "websocket");
+        publishToMessageProcessor(cMsg);
+    }
 
     /*
      Extract all the necessary properties from ChannelHandlerContext
@@ -142,7 +152,7 @@ public class WebSocketSourceHandler extends SourceHandler {
      Adding other custom details should be done separately
      @return basic CarbonMessage with necessary details
      */
-    private void setupBasicCarbonMessageProperties(ChannelHandlerContext ctx) {
+    private void setupCarbonMessage(ChannelHandlerContext ctx) {
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
         }

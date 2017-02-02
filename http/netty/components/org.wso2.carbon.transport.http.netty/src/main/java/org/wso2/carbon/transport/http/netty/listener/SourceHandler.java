@@ -42,7 +42,6 @@ import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
-import org.wso2.carbon.transport.http.netty.internal.WebSocketSessionImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
@@ -51,7 +50,6 @@ import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
-import javax.websocket.Session;
 
 /**
  * A Class responsible for handle  incoming message through netty inbound pipeline.
@@ -113,8 +111,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             Checks whether the given connection is a WebSocketUpgrade and add necessary components to it.
              */
             HttpRequest httpRequest = (HttpRequest) msg;
-            cMsg = (HTTPCarbonMessage) setupCarbonMessage(httpRequest);
-
             HttpHeaders headers = httpRequest.headers();
             String connection = headers.get(Constants.CONNECTION);
             String upgrade = headers.get(Constants.UPGRADE);
@@ -126,6 +122,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
                         try {
                             handleWebSocketHandshake(ctx, httpRequest);
+                            boolean isSecuredConnection = false;
+                            if (listenerConfiguration.getSslConfig() != null) {
+                                isSecuredConnection = true;
+                            }
 
                             //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
                             ChannelPipeline pipeline = ctx.pipeline();
@@ -133,16 +133,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                                              new WebSocketSourceHandler(generateWebSocketChannelID(),
                                                                         this.connectionManager,
                                                                         this.listenerConfiguration,
-                                                                        httpRequest.getUri()));
+                                                                        httpRequest.getUri(),
+                                                                        isSecuredConnection,
+                                                                        ctx));
+
                             pipeline.remove(this);
-                            Session session = new WebSocketSessionImpl(ctx,
-                                                                       (Boolean) cMsg.getProperty
-                                                                               (Constants.IS_SECURED_CONNECTION),
-                                                                       httpRequest.getUri());
-                            cMsg.setProperty(Constants.WEBSOCKET_SESSION, session);
-                            cMsg.setProperty(Constants.CHANNEL_ID, generateWebSocketChannelID());
-                            cMsg.setProperty(Constants.CONNECTION, headers.get("Connection"));
-                            cMsg.setProperty(Constants.UPGRADE, headers.get("Upgrade"));
 
                         } catch (Exception e) {
                             ctx.channel().close();
@@ -151,9 +146,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
                 }
 
+            } else {
+                cMsg = (HTTPCarbonMessage) setupCarbonMessage(httpRequest);
+                publishToMessageProcessor(cMsg);
             }
             //Publish message to CarbonMessageProcessor
-            publishToMessageProcessor(cMsg);
         } else {
             if (cMsg != null) {
                 if (msg instanceof HttpContent) {
@@ -195,7 +192,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     //Carbon Message is published to registered message processor and Message Processor should return transport thread
     //immediately
-    private void publishToMessageProcessor(CarbonMessage cMsg) throws URISyntaxException {
+    protected void publishToMessageProcessor(CarbonMessage cMsg) throws URISyntaxException {
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
         }
@@ -310,4 +307,5 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     protected String generateWebSocketChannelID() {
         return ctx.channel().toString();
     }
+
 }
