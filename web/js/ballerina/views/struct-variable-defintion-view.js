@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/variable-declaration', '../utils/bootstrap-dropdown'],
-    function (_, $, log, Alerts, BallerinaView, VariableDeclaration, BootstrapDropdown) {
+define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/variable-declaration', '../utils/dropdown'],
+    function (_, $, log, Alerts, BallerinaView, VariableDeclaration, Dropdown) {
 
         /**
          * Arguments for creating a constant definition view.
@@ -91,7 +91,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
             var self = this;
 
             $(this._typeWrapper).empty();
-            var typeDropdown = new BootstrapDropdown({
+            var typeDropdown = new Dropdown({
                 class: {mainWrapper: "struct-variable-type-dropdown-wrapper"},
                 onSelectCallBackFunction: function(key, value) {
                     self.getModel().setType(key)
