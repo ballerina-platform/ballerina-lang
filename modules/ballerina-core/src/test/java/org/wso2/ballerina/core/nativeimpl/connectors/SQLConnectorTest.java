@@ -1,0 +1,113 @@
+/*
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package org.wso2.ballerina.core.nativeimpl.connectors;
+
+import org.h2.tools.DeleteDbFiles;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import org.wso2.ballerina.core.EnvironmentInitializer;
+import org.wso2.ballerina.core.interpreter.SymScope;
+import org.wso2.ballerina.core.message.StringDataSource;
+import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.values.BJSON;
+import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
+import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
+import org.wso2.ballerina.core.utils.MessageUtils;
+import org.wso2.ballerina.core.utils.XMLUtils;
+import org.wso2.ballerina.lang.util.Services;
+import org.wso2.carbon.messaging.CarbonMessage;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+/**
+ * Test Class for SQL Connector.
+ */
+public class SQLConnectorTest {
+    @BeforeClass()
+    public void setup() {
+        SymScope symScope = GlobalScopeHolder.getInstance().getScope();
+        if (symScope.lookup(new SymbolName("ballerina.lang.message:setStringPayload_message_string")) == null) {
+            BuiltInNativeConstructLoader.loadConstructs();
+        }
+        EnvironmentInitializer.initialize("lang/connectors/sqlconnector.bal");
+        initDatabase();
+    }
+
+    @Test(description = "Test Create Table")
+    public void testActionCreateTable() {
+
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/actionCreateTable", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+
+        Assert.assertEquals(stringDataSource.getValue(), "0");
+    }
+
+    @Test(description = "Test Select Data")
+    public void testActionSelectData() {
+
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/actionSelectData", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        BJSON bjson = (BJSON) response.getMessageDataSource();
+        Assert.assertNotNull(bjson);
+
+        Assert.assertEquals(bjson.stringValue(), "[{\"FIRSTNAME\":\"Peter\"}]");
+    }
+
+    private void initDatabase() {
+        Connection connection = null;
+        Statement st = null;
+        try {
+            Class.forName("org.h2.Driver");
+            connection = DriverManager.getConnection("jdbc:h2:file:./TEST_SERV_SAMP_DB2", "root", "root");
+            String sql = XMLUtils.readFileToString("datafiles/SQLConnetorDataFile.sql");
+            String[] sqlQuery = sql.split(";");
+            st = connection.createStatement();
+            for (String query : sqlQuery) {
+                st.executeUpdate(query.trim());
+            }
+        } catch (ClassNotFoundException e) {
+            //Do nothing
+        } catch (SQLException e) {
+            //Do nothing
+        } finally {
+            try {
+                st.close();
+                connection.close();
+            } catch (SQLException e) {
+                //Do nothing
+            }
+        }
+    }
+
+    @AfterClass
+    public void cleanup() {
+        DeleteDbFiles.execute("./", null, true);
+    }
+}
