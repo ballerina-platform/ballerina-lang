@@ -21,10 +21,14 @@ package org.wso2.carbon.transport.http.netty.contentaware;
 import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
+import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
+import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
+import org.wso2.carbon.transport.http.netty.passthrough.PassthroughMessageProcessor;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
 
@@ -33,7 +37,6 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
 
 /**
  * A test case for echo message from MessageProcessor level
@@ -43,26 +46,20 @@ public class ContentAwareMessageProcessorTestCase {
 
     private HTTPTransportListener httpTransportListener;
 
-    private ListenerConfiguration listenerConfiguration;
-
-    private SenderConfiguration senderConfiguration;
+    private TransportsConfiguration configuration;
 
     private HTTPServer httpServer;
     private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", 8490));
 
-//    @BeforeClass(groups = "contentaware")
+    @BeforeClass
     public void setUp() {
-//        listenerConfiguration = new ListenerConfiguration();
-//        listenerConfiguration.setHost(TestUtil.TEST_HOST);
-//        listenerConfiguration.setId("test-listener");
-//        listenerConfiguration.setPort(TestUtil.TEST_ESB_PORT);
-//        senderConfiguration = new SenderConfiguration("passthrough-sender");
-//        httpTransportListener = TestUtil
-//         .startCarbonTransport(listenerConfiguration, senderConfiguration, new MessageEchoingMessageProcessor());
+        configuration = YAMLTransportConfigurationBuilder
+                .build("src/test/resources/simple-test-config/netty-transports.yml");
+        httpTransportListener = TestUtil.startCarbonTransport(configuration, new PassthroughMessageProcessor());
         httpServer = TestUtil.startHTTPServer(TestUtil.TEST_SERVER_PORT);
     }
 
-//    @Test(groups = "contentaware")
+    @Test
     public void messageEchoingFromProcessorTestCase() {
         String testValue = "Test Message";
         try {
@@ -73,13 +70,12 @@ public class ContentAwareMessageProcessorTestCase {
             assertEquals(testValue, content);
             urlConn.disconnect();
         } catch (IOException e) {
-            log.error("IO Exception occurred", e);
-            assertTrue(false);
+            log.error("Error while running the test", e);
         }
 
     }
 
-    //@Test(groups = "contentaware", dependsOnMethods = "messageEchoingFromProcessorTestCase")
+    @Test
     public void requestResponseTransformFromProcessorTestCase() {
 
         String requestValue = "XXXXXXXX";
@@ -87,7 +83,7 @@ public class ContentAwareMessageProcessorTestCase {
         String expectedValue = responseValue + ":" + requestValue;
         try {
             CarbonMessageProcessor carbonMessageProcessor = new RequestResponseTransformProcessor(responseValue);
-            TestUtil.updateMessageProcessor(carbonMessageProcessor, senderConfiguration, listenerConfiguration);
+            TestUtil.updateMessageProcessor(carbonMessageProcessor, configuration);
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
             TestUtil.writeContent(urlConn, requestValue);
             assertEquals(200, urlConn.getResponseCode());
@@ -95,12 +91,11 @@ public class ContentAwareMessageProcessorTestCase {
             assertEquals(expectedValue, content);
             urlConn.disconnect();
         } catch (IOException e) {
-            log.error("IO Exception occurred", e);
-            assertTrue(false);
+            log.error("Error while running the test", e);
         }
     }
 
-    //@Test(groups = "contentaware", dependsOnMethods = "requestResponseTransformFromProcessorTestCase")
+    @Test
     public void requestResponseCreationFromProcessorTestCase() {
 
         String requestValue = "XXXXXXXX";
@@ -108,7 +103,7 @@ public class ContentAwareMessageProcessorTestCase {
         String expectedValue = responseValue + ":" + requestValue;
         try {
             CarbonMessageProcessor carbonMessageProcessor = new RequestResponseCreationProcessor(responseValue);
-            TestUtil.updateMessageProcessor(carbonMessageProcessor, senderConfiguration, listenerConfiguration);
+            TestUtil.updateMessageProcessor(carbonMessageProcessor, configuration);
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
             TestUtil.writeContent(urlConn, requestValue);
             assertEquals(200, urlConn.getResponseCode());
@@ -116,19 +111,18 @@ public class ContentAwareMessageProcessorTestCase {
             assertEquals(expectedValue, content);
             urlConn.disconnect();
         } catch (IOException e) {
-            log.error("IO Exception occurred", e);
-            assertTrue(false);
+            log.error("Error while running the test", e);
         }
 
     }
 
-    //@Test(groups = "contentaware", dependsOnMethods = "requestResponseCreationFromProcessorTestCase")
+    @Test
     public void requestResponseStreamingFromProcessorTestCase() {
 
         String requestValue = "<A><B><C>Test Message</C></B></A>";
         try {
             CarbonMessageProcessor carbonMessageProcessor = new RequestResponseCreationStreamingProcessor();
-            TestUtil.updateMessageProcessor(carbonMessageProcessor, senderConfiguration, listenerConfiguration);
+            TestUtil.updateMessageProcessor(carbonMessageProcessor, configuration);
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
             TestUtil.writeContent(urlConn, requestValue);
             assertEquals(200, urlConn.getResponseCode());
@@ -136,19 +130,18 @@ public class ContentAwareMessageProcessorTestCase {
             assertEquals(requestValue, content);
             urlConn.disconnect();
         } catch (IOException e) {
-            log.error("IO Exception occurred", e);
-            assertTrue(false);
+            log.error("Error while running the test", e);
         }
 
     }
 
-    //@Test(groups = "contentaware", dependsOnMethods = "requestResponseStreamingFromProcessorTestCase")
+    @Test
     public void requestResponseTransformStreamingFromProcessorTestCase() {
 
         String requestValue = "<A><B><C>Test Message</C></B></A>";
         try {
             CarbonMessageProcessor carbonMessageProcessor = new RequestResponseTransformStreamingProcessor();
-            TestUtil.updateMessageProcessor(carbonMessageProcessor, senderConfiguration, listenerConfiguration);
+            TestUtil.updateMessageProcessor(carbonMessageProcessor, configuration);
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
             TestUtil.writeContent(urlConn, requestValue);
             assertEquals(200, urlConn.getResponseCode());
@@ -156,19 +149,18 @@ public class ContentAwareMessageProcessorTestCase {
             assertEquals(requestValue, content);
             urlConn.disconnect();
         } catch (IOException e) {
-            log.error("IO Exception occurred", e);
-            assertTrue(false);
+            log.error("Error while running the test", e);
         }
 
     }
 
-    //@Test(groups = "contentaware",  dependsOnMethods = "requestResponseTransformStreamingFromProcessorTestCase")
+    @Test
     public void responseStreamingWithoutBufferingTestCase() {
 
         String requestValue = "<A><B><C>Test Message</C></B></A>";
         try {
             CarbonMessageProcessor carbonMessageProcessor = new ResponseStreamingWithoutBufferingProcessor();
-            TestUtil.updateMessageProcessor(carbonMessageProcessor, senderConfiguration, listenerConfiguration);
+            TestUtil.updateMessageProcessor(carbonMessageProcessor, configuration);
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
             TestUtil.writeContent(urlConn, requestValue);
             assertEquals(200, urlConn.getResponseCode());
@@ -176,13 +168,12 @@ public class ContentAwareMessageProcessorTestCase {
             assertEquals(requestValue, content);
             urlConn.disconnect();
         } catch (IOException e) {
-            log.error("IO Exception occurred", e);
-            assertTrue(false);
+            log.error("Error while running the test", e);
         }
 
     }
 
-    //@AfterClass(groups = "contentaware", alwaysRun = true)
+    @AfterClass
     public void cleanUp() {
         TestUtil.cleanUp(httpTransportListener, httpServer);
     }

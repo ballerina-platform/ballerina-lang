@@ -36,8 +36,8 @@ import java.util.concurrent.Executors;
 /**
  * A Message processor which echos the incoming message
  */
-public class MessageEchoingMessageProcessor implements CarbonMessageProcessor {
-    private static final Logger logger = LoggerFactory.getLogger(MessageEchoingMessageProcessor.class);
+public class EchoMessageProcessor implements CarbonMessageProcessor {
+    private static final Logger logger = LoggerFactory.getLogger(EchoMessageProcessor.class);
 
     private TransportSender transportSender;
 

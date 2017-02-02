@@ -63,16 +63,14 @@ public class TestUtil {
         try {
             Thread.sleep(TestUtil.SERVERS_SHUTDOWN_WAIT_TIME);
         } catch (InterruptedException e) {
-
+            log.error("Thread Interrupted while sleeping ", e);
         }
-        if (httpTransportListener != null) {
-            httpTransportListener.stop();
-        }
+        httpTransportListener.stop();
         httpServer.shutdown();
         try {
             Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
         } catch (InterruptedException e) {
-
+            log.error("Thread Interrupted while sleeping ", e);
         }
     }
 
@@ -218,12 +216,12 @@ public class TestUtil {
     }
 
     public static void updateMessageProcessor(CarbonMessageProcessor carbonMessageProcessor,
-            SenderConfiguration senderConfiguration, ListenerConfiguration listenerConfiguration) {
-        Set<SenderConfiguration> senderConfigurationSet = new HashSet<>();
-        senderConfigurationSet.add(senderConfiguration);
-        Set<TransportProperty> transportProperties = new HashSet<>();
-        TransportSender transportSender = new HTTPSender(senderConfigurationSet, transportProperties);
-        carbonMessageProcessor.setTransportSender(transportSender);
+            TransportsConfiguration transportsConfiguration) {
+
+        HTTPSender httpSender = new HTTPSender(transportsConfiguration.getSenderConfigurations(),
+                transportsConfiguration.getTransportProperties());
+
+        carbonMessageProcessor.setTransportSender(httpSender);
         HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
     }
 
