@@ -65,9 +65,10 @@ public class BalProgramExecutor {
     public static void execute(CarbonMessage cMsg, CarbonCallback callback, Resource resource, Service service,
                                Context balContext) {
 
+
         SymbolName symbolName = service.getSymbolName();
         balContext.setServiceInfo(
-            new CallableUnitInfo(symbolName.getName(), symbolName.getPkgName(), service.getServiceLocation()));
+                new CallableUnitInfo(symbolName.getName(), symbolName.getPkgName(), service.getServiceLocation()));
 
         balContext.setBalCallback(new DefaultBalCallback(callback));
         Expression[] exprs = new Expression[resource.getParameters().length];
@@ -117,6 +118,7 @@ public class BalProgramExecutor {
         balContext.getControlStack().pushFrame(currentStackFrame);
         new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
         balContext.getControlStack().popFrame();
+
     }
 
     /**
