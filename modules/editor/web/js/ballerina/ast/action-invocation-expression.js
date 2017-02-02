@@ -88,7 +88,7 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
      * @param {string} connectorVariableReference
      */
     ActionInvocationExpression.prototype.setConnectorVariableReference = function (connectorVariableReference) {
-        this._connectorVariableReference = connectorVariableReference;
+        this.setAttribute('_connectorVariableReference', connectorVariableReference);
     };
     /**
      * Get Connector variable reference
@@ -103,7 +103,7 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
      * @param {string} path
      */
     ActionInvocationExpression.prototype.setPath = function (path) {
-        this._path = path;
+        this.setAttribute('_path', path);
     };
     /**
      * Get Path

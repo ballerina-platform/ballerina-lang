@@ -32,15 +32,15 @@ define(['lodash', './statement'], function (_, Statement) {
     FunctionInvocation.prototype.constructor = FunctionInvocation;
 
     FunctionInvocation.prototype.setPackageName = function (packageName) {
-        this._packageName = packageName;
+        this.setAttribute('_packageName', packageName);
     };
 
     FunctionInvocation.prototype.setFunctionName = function (functionName) {
-        this._functionName = functionName;
+        this.setAttribute('_functionName', functionName);
     };
 
     FunctionInvocation.prototype.setParams = function (params) {
-        this._params = params;
+        this.setAttribute('_params', params);
     };
 
     FunctionInvocation.prototype.getPackageName = function () {
