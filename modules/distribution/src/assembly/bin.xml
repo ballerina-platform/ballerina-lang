@@ -171,6 +171,9 @@
                 <include>org.apache.commons:commons-lang3</include>
                 <include>com.zaxxer:HikariCP</include>
                 <include>org.mongodb:mongo-java-driver</include>
+                <include>com.datastax.cassandra:cassandra-driver-core</include>
+                <include>io.dropwizard.metrics:metrics-core</include>
+                <include>com.google.guava:guava</include>
                 <include>org.wso2.carbon:org.wso2.carbon.core:jar</include>
             </includes>
         </dependencySet>

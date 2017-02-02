@@ -224,11 +224,6 @@
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.zaxxer</groupId>
-                <artifactId>HikariCP</artifactId>
-                <version>${com.zaxxer.hikaricp.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.beust</groupId>
                 <artifactId>jcommander</artifactId>
                 <version>${jcommander.version}</version>
@@ -273,6 +268,39 @@
                 <groupId>org.wso2.orbit.org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>${org.snakeyaml.version}</version>
+            </dependency>
+
+            <!-- Data Services dependencies -->
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>${com.zaxxer.hikaricp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongo-java-driver</artifactId>
+                <version>${mongodb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.datastax.cassandra</groupId>
+                <artifactId>cassandra-driver-core</artifactId>
+                <version>${cassandra.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-core</artifactId>
+                <version>${metrics.core.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -406,10 +434,6 @@
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.deployment.export.version>5.0.0</carbon.deployment.export.version>
 
-
-        <com.zaxxer.hikaricp.version>2.5.1</com.zaxxer.hikaricp.version>
-        <com.zaxxer.hikari.import.version.range>[2.5.0,2.6.0)</com.zaxxer.hikari.import.version.range>
-
         <slf4j.version>1.7.22</slf4j.version>
         <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)
         </slf4j.logging.package.import.version.range>
@@ -454,6 +478,15 @@
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <jcommander.version>1.60</jcommander.version>
+
+        <!--data services dependencies -->
+        <com.zaxxer.hikaricp.version>2.5.1</com.zaxxer.hikaricp.version>
+        <com.zaxxer.hikari.import.version.range>[2.5.0,2.6.0)</com.zaxxer.hikari.import.version.range>
+        <h2.version>1.4.193</h2.version>
+        <mongodb.version>3.4.1</mongodb.version>
+        <cassandra.version>3.1.3</cassandra.version>
+        <guava.version>19.0</guava.version>
+        <metrics.core.version>3.1.2</metrics.core.version>
 
     </properties>
 
