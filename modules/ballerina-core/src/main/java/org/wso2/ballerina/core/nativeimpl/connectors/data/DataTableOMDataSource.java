@@ -19,13 +19,13 @@
 package org.wso2.ballerina.core.nativeimpl.connectors.data;
 
 import org.apache.axiom.om.ds.AbstractPushOMDataSource;
-import org.wso2.ballerina.core.model.values.BDataframe;
+import org.wso2.ballerina.core.model.values.BDataTable;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * This will provide custom OMDataSource implementation by wrapping BDataframe.
+ * This will provide custom OMDataSource implementation by wrapping BDataTable.
  * This will use to convert result set into XML stream.
  */
 public class DataTableOMDataSource extends AbstractPushOMDataSource {
@@ -33,11 +33,11 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
     private static final String XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance";
     private static final String XSI_PREFIX = "xsi";
 
-    private BDataframe dataframe;
+    private BDataTable dataframe;
     private String rootWrapper;
     private String rowWrapper;
 
-    public DataTableOMDataSource(BDataframe dataframe, String rootWrapper, String rowWrapper) {
+    public DataTableOMDataSource(BDataTable dataframe, String rootWrapper, String rowWrapper) {
         this.dataframe = dataframe;
         this.rootWrapper = rootWrapper;
         this.rowWrapper = rowWrapper;
@@ -48,7 +48,7 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
         xmlStreamWriter.writeStartElement(this.rootWrapper != null ? this.rootWrapper : "results");
         while (dataframe.next()) {
             xmlStreamWriter.writeStartElement(this.rowWrapper != null ? this.rowWrapper : "result");
-            for (BDataframe.ColumnDefinition col : dataframe.getColumnDefs()) {
+            for (BDataTable.ColumnDefinition col : dataframe.getColumnDefs()) {
                 xmlStreamWriter.writeStartElement(col.getName());
                 String value = null;
                 boolean processed = false;
@@ -96,7 +96,7 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
         xmlStreamWriter.flush();
     }
 
-    private void processArray(XMLStreamWriter xmlStreamWriter, BDataframe.ColumnDefinition col)
+    private void processArray(XMLStreamWriter xmlStreamWriter, BDataTable.ColumnDefinition col)
             throws XMLStreamException {
         switch (col.getElementType()) {
         case BOOLEAN:

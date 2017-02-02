@@ -45,7 +45,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.SQLConnector;
                 @Argument(name = "optionalProperties",
                           type = TypeEnum.MAP)*/
         },
-        returnType = { TypeEnum.DATAFRAME })
+        returnType = { TypeEnum.DATATABLE })
 @Component(
         name = "action.data.sql.call",
         immediate = true,

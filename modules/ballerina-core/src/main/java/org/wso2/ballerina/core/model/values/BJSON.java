@@ -213,7 +213,7 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     @Override
     public String stringValue() {
         try {
-            return OBJECT_MAPPER.writeValueAsString(this.value);
+            return OBJECT_MAPPER.writeValueAsString(this.value());
         } catch (JsonProcessingException e) {
             throw new BallerinaException("Error in converting JsonNode to String", e);
         }

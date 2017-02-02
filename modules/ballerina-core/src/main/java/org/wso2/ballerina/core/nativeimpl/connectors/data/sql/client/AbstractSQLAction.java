@@ -24,7 +24,7 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BArray;
-import org.wso2.ballerina.core.model.values.BDataframe;
+import org.wso2.ballerina.core.model.values.BDataTable;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
@@ -65,7 +65,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
 
-            BDataframe dataframe = new BDataframe(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
+            BDataTable dataframe = new BDataTable(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
                     getColumnDefinitions(rs));
             context.getControlStack().setReturnValue(0, dataframe);
         } catch (SQLException e) {
@@ -158,7 +158,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             boolean hasResult = stmt.execute();
             if (hasResult) {
                 rs = stmt.getResultSet(); //TODO:How to return next result sets
-                BDataframe dataframe = new BDataframe(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
+                BDataTable dataframe = new BDataTable(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
                         getColumnDefinitions(rs));
                 context.getControlStack().setReturnValue(0, dataframe);
             }
@@ -168,15 +168,15 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         }
     }
 
-    private ArrayList<BDataframe.ColumnDefinition> getColumnDefinitions(ResultSet rs) throws SQLException {
-        ArrayList<BDataframe.ColumnDefinition> columnDefs = new ArrayList<BDataframe.ColumnDefinition>();
+    private ArrayList<BDataTable.ColumnDefinition> getColumnDefinitions(ResultSet rs) throws SQLException {
+        ArrayList<BDataTable.ColumnDefinition> columnDefs = new ArrayList<BDataTable.ColumnDefinition>();
         ResultSetMetaData rsMetaData = rs.getMetaData();
         int cols = rsMetaData.getColumnCount();
         for (int i = 1; i <= cols; i++) {
             String colName = rsMetaData.getColumnName(i);
             int colType = rsMetaData.getColumnType(i);
             TypeEnum mappedType = getColumnType(colType);
-            columnDefs.add(new BDataframe.ColumnDefinition(colName, mappedType));
+            columnDefs.add(new BDataTable.ColumnDefinition(colName, mappedType));
         }
         return columnDefs;
     }

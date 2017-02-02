@@ -27,8 +27,8 @@ import com.datastax.driver.core.Session;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.values.BDataframe;
-import org.wso2.ballerina.core.model.values.BDataframe.ColumnDefinition;
+import org.wso2.ballerina.core.model.values.BDataTable;
+import org.wso2.ballerina.core.model.values.BDataTable.ColumnDefinition;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -111,9 +111,9 @@ public class CassandraConnector extends AbstractNativeConnector {
         return new CassandraConnector();
     }
     
-    public BDataframe execute(String query, Object[] args) {
+    public BDataTable execute(String query, Object[] args) {
         ResultSet rs = this.session.execute(query, args);
-        return new BDataframe(new CassandraDataIterator(rs), new HashMap<>(), this.extractColumnDefs(rs));
+        return new BDataTable(new CassandraDataIterator(rs), new HashMap<>(), this.extractColumnDefs(rs));
     }
     
     private List<ColumnDefinition> extractColumnDefs(ResultSet rs) {

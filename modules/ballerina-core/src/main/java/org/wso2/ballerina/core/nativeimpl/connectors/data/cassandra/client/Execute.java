@@ -40,7 +40,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.data.cassandra.CassandraCon
                         type = TypeEnum.CONNECTOR),
                 @Argument(name = "query", type = TypeEnum.STRING)
         },
-        returnType = {TypeEnum.DATAFRAME})
+        returnType = {TypeEnum.DATATABLE })
 @Component(
         name = "action.data.cassandra.execute",
         immediate = true,

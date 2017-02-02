@@ -132,14 +132,16 @@ public class SQLConnectorTest {
             for (String query : sqlQuery) {
                 st.executeUpdate(query.trim());
             }
-        } catch (ClassNotFoundException e) {
-            //Do nothing
-        } catch (SQLException e) {
+        } catch (ClassNotFoundException | SQLException e) {
             //Do nothing
         } finally {
             try {
-                st.close();
-                connection.close();
+                if (st != null) {
+                    st.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
             } catch (SQLException e) {
                 //Do nothing
             }

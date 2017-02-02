@@ -23,8 +23,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import org.wso2.ballerina.core.model.values.BDataframe;
-import org.wso2.ballerina.core.model.values.BDataframe.ColumnDefinition;
+import org.wso2.ballerina.core.model.values.BDataTable;
+import org.wso2.ballerina.core.model.values.BDataTable.ColumnDefinition;
 import org.wso2.ballerina.core.model.values.BJSON.JSONDataSource;
 
 import java.io.IOException;
@@ -34,15 +34,15 @@ import java.io.IOException;
  */
 public class DataTableJSONDataSource implements JSONDataSource {
     
-    private BDataframe df;
+    private BDataTable df;
     
     private JSONObjectGenerator objGen;
     
-    public DataTableJSONDataSource(BDataframe df) {
+    public DataTableJSONDataSource(BDataTable df) {
         this (df, new DefaultJSONObjectGenerator());
     }
     
-    public DataTableJSONDataSource(BDataframe df, JSONObjectGenerator objGen) {
+    public DataTableJSONDataSource(BDataTable df, JSONObjectGenerator objGen) {
         this.df = df;
         this.objGen = objGen;
     }
@@ -57,12 +57,12 @@ public class DataTableJSONDataSource implements JSONDataSource {
     }
     
     /**
-     * Default {@link JSONObjectGenerator} implementation based on the dataframe's in-built column definition.
+     * Default {@link JSONObjectGenerator} implementation based on the datatable's in-built column definition.
      */
     private static class DefaultJSONObjectGenerator implements JSONObjectGenerator {
 
         @Override
-        public JsonNode transform(BDataframe df) throws IOException {
+        public JsonNode transform(BDataTable df) throws IOException {
             JsonNodeFactory fac = JsonNodeFactory.instance;
             ObjectNode objNode = fac.objectNode();
             String name;
@@ -117,12 +117,12 @@ public class DataTableJSONDataSource implements JSONDataSource {
     public static interface JSONObjectGenerator {
         
         /**
-         * Converts the current position of the given dataframe to a JSON object.
-         * @param dataframe The dataframe that should be used in the current position
+         * Converts the current position of the given datatable to a JSON object.
+         * @param dataframe The datatable that should be used in the current position
          * @return The generated JSON object
          * @throws IOException
          */
-        JsonNode transform(BDataframe dataframe) throws IOException;
+        JsonNode transform(BDataTable dataframe) throws IOException;
         
     }
     

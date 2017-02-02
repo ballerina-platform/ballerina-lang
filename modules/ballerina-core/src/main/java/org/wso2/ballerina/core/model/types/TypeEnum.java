@@ -35,7 +35,7 @@ public enum TypeEnum {
     MAP("map"),
     ARRAY("array"),
     CONNECTOR("connector"),
-    DATAFRAME("dataframe"),
+    DATATABLE("datatable"),
     EMPTY("");
 
     private String name;
