@@ -267,10 +267,15 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
         return _.isUndefined(identifier) ? false : /^[a-zA-Z$_][a-zA-Z0-9$_]*$/.test(identifier);
     };
 
-    ASTNode.prototype.remove = function() {
+    /**
+     * Removes node from the tree.
+     * @param [options] {object}
+     * @param [options.ignoreTreeModifiedEvent=false] {boolean} a flag to prevent tree-modified event being fired
+     */
+    ASTNode.prototype.remove = function(options) {
         if(!_.isNil(this.getParent())){
             this.trigger('before-remove');
-            this.getParent().removeChild(this);
+            this.getParent().removeChild(this, _.get(options, 'ignoreTreeModifiedEvent'));
             this.trigger('after-remove');
         }
     };
