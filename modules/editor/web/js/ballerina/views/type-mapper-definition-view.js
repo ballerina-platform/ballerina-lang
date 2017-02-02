@@ -82,7 +82,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         $(currentContainer).find("#" + sourceId).change(function () {
             var selectedArrayIndex = $("#" + sourceId + " option:selected").val();
             var selectedStructNameForSource = $("#" + sourceId + " option:selected").text();
-            // self._model.removeTypeStructDefinition("SOURCE");
+            self._model.removeTypeStructDefinition("SOURCE");
             var schema = predefinedStructs[selectedArrayIndex];
 
             if (selectedStructNameForSource != self._model.getSelectedStructNameForTarget()) {
@@ -112,7 +112,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
 
             var selectedArrayIndex = $("#" + targetId + " option:selected").val();
             var selectedStructNameForTarget = $("#" + targetId + " option:selected").text();
-            // self._model.removeTypeStructDefinition("TARGET");
+            self._model.removeTypeStructDefinition("TARGET");
             var schema = predefinedStructs[selectedArrayIndex];
 
             if (self._model.getSelectedStructNameForSource() != selectedStructNameForTarget) {
