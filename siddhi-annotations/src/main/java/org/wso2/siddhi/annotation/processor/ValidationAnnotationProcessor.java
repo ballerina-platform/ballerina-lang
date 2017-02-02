@@ -17,13 +17,8 @@
  */
 package org.wso2.siddhi.annotation.processor;
 
-import org.wso2.siddhi.annotation.AdditionalAttribute;
-import org.wso2.siddhi.annotation.Description;
-import org.wso2.siddhi.annotation.Example;
-import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.Parameters;
-import org.wso2.siddhi.annotation.Return;
-import org.wso2.siddhi.annotation.ReturnEvent;
+import org.wso2.siddhi.annotation.*;
+import org.wso2.siddhi.annotation.ReturnAttribute;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
@@ -61,55 +56,51 @@ public class ValidationAnnotationProcessor extends AbstractProcessor {
 
         // Populating the supported annotations class
         annotationsClasses = new ArrayList<>();
-        annotationsClasses.add(AdditionalAttribute.class);
-        annotationsClasses.add(Description.class);
+        annotationsClasses.add(ReturnAttribute.class);
         annotationsClasses.add(Example.class);
         annotationsClasses.add(Parameter.class);
-        annotationsClasses.add(Parameters.class);
-        annotationsClasses.add(Return.class);
-        annotationsClasses.add(ReturnEvent.class);
     }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         // Looping the annotation classes in the annotation classes list
-        for (Class<? extends Annotation> annotationClass : annotationsClasses) {
-            // Looping the elements annotated with the annotation classes
-            for (Element element : roundEnv.getElementsAnnotatedWith(annotationClass)) {
-                if (element.getKind() == ElementKind.CLASS) {
-                    // Throw error if @AdditionalAttribute or @ReturnEvent is applied to any class not extending StreamProcessor
-                    if (annotationClass.equals(ReturnEvent.class)) {
-                        validateSuperClassInheritance(
-                                element, new String[]{STREAM_PROCESSOR_SUPER_CLASS}
-                        );
-                    }
-
-                    // Throw error if @AdditionalAttribute is directly applied to classes
-                    if (annotationClass.equals(AdditionalAttribute.class)) {
-                        showBuildError(
-                                element, "%s should not be directly annotated with %s. Use %s instead.",
-                                element.getSimpleName(),
-                                AdditionalAttribute.class.getCanonicalName(),
-                                ReturnEvent.class.getCanonicalName()
-                        );
-                    }
-
-                    // Throw error if @Return is applied to classes extending StreamProcessor, WindowProcessor & StreamFunction
-                    if (annotationClass.equals(Return.class)) {
-                        validateSuperClassInheritance(
-                                element, new String[]{
-                                        FUNCTION_EXECUTOR_SUPER_CLASS, ATTRIBUTE_AGGREGATOR_SUPER_CLASS
-                                }
-                        );
-                    }
-                } else {
-                    showBuildError(
-                            element, "Only classes can be annotated with @%s",
-                            annotationClass.getCanonicalName()
-                    );
-                }
-            }
-        }
+//        for (Class<? extends Annotation> annotationClass : annotationsClasses) {
+//            // Looping the elements annotated with the annotation classes
+//            for (Element element : roundEnv.getElementsAnnotatedWith(annotationClass)) {
+//                if (element.getKind() == ElementKind.CLASS) {
+//                    // Throw error if @ReturnAttribute or @ReturnEvent is applied to any class not extending StreamProcessor
+//                    if (annotationClass.equals(ReturnEvent.class)) {
+//                        validateSuperClassInheritance(
+//                                element, new String[]{STREAM_PROCESSOR_SUPER_CLASS}
+//                        );
+//                    }
+//
+//                    // Throw error if @ReturnAttribute is directly applied to classes
+//                    if (annotationClass.equals(ReturnAttribute.class)) {
+//                        showBuildError(
+//                                element, "%s should not be directly annotated with %s. Use %s instead.",
+//                                element.getSimpleName(),
+//                                ReturnAttribute.class.getCanonicalName(),
+//                                ReturnEvent.class.getCanonicalName()
+//                        );
+//                    }
+//
+//                    // Throw error if @Return is applied to classes extending StreamProcessor, WindowProcessor & StreamFunction
+//                    if (annotationClass.equals(Return.class)) {
+//                        validateSuperClassInheritance(
+//                                element, new String[]{
+//                                        FUNCTION_EXECUTOR_SUPER_CLASS, ATTRIBUTE_AGGREGATOR_SUPER_CLASS
+//                                }
+//                        );
+//                    }
+//                } else {
+//                    showBuildError(
+//                            element, "Only classes can be annotated with @%s",
+//                            annotationClass.getCanonicalName()
+//                    );
+//                }
+//            }
+//        }
         return false;   // Returning false since this processor only validates
     }
 

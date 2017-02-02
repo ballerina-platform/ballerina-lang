@@ -18,10 +18,7 @@
 
 package org.wso2.siddhi.core.query.processor.stream.window;
 
-import org.wso2.siddhi.annotation.Description;
-import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.Parameters;
-import org.wso2.siddhi.annotation.util.DataType;
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -51,15 +48,21 @@ import java.util.*;
  * The arguments following the size of the window are optional.
  * If neither "asc" nor "desc" is given for a certain attribute, order defaults to "asc"
  */
-@Description("This window holds a batch of events that equal the number specified " +
-        "as the windowLength and sorts them in the given order.")
-@Parameters({
-        @Parameter(name = "windowLength", type = {DataType.INT}),
-        @Parameter(name = "attribute1", type = {DataType.STRING}, optional = true),
-        @Parameter(name = "order1", type = {DataType.STRING}, optional = true),
-        @Parameter(name = "attribute2", type = {DataType.STRING}, optional = true),
-        @Parameter(name = "order2", type = {DataType.STRING}, optional = true)
-})
+//@Description("This window holds a batch of events that equal the number specified " +
+//        "as the windowLength and sorts them in the given order.")
+//@Parameters({
+//        @Parameter(name = "windowLength", type = {DataType.INT}),
+//        @Parameter(name = "attribute1", type = {DataType.STRING}, optional = true),
+//        @Parameter(name = "order1", type = {DataType.STRING}, optional = true),
+//        @Parameter(name = "attribute2", type = {DataType.STRING}, optional = true),
+//        @Parameter(name = "order2", type = {DataType.STRING}, optional = true)
+//})
+@Extension(
+        name = "sort",
+        namespace = "",
+        description = "",
+        parameters = {}
+)
 public class SortWindowProcessor extends WindowProcessor implements FindableProcessor {
     private static final String ASC = "asc";
     private static final String DESC = "desc";

@@ -184,7 +184,7 @@ public class OutputParser {
                 }
 
                 @Override
-                public String getFunction() {
+                public String getName() {
                     return ((PublishStream) outStream).getTransport().getType();
                 }
             };
@@ -198,7 +198,7 @@ public class OutputParser {
                 }
 
                 @Override
-                public String getFunction() {
+                public String getName() {
                     return ((PublishStream) outStream).getMapping().getFormat();
                 }
             };

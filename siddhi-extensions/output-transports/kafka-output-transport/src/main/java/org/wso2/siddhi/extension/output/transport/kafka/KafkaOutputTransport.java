@@ -21,9 +21,8 @@ package org.wso2.siddhi.extension.output.transport.kafka;
 import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.annotation.SiddhiExtension;
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.exception.OutputTransportException;
 import org.wso2.siddhi.core.exception.TestConnectionNotSupportedException;
@@ -40,9 +39,11 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-@SiddhiExtension(
+@Extension(
         name = "kafka",
-        namespace = "outputtransport")
+        namespace = "outputtransport",
+        description = ""
+)
 public class KafkaOutputTransport extends OutputTransport {
 
     public static final int ADAPTER_MIN_THREAD_POOL_SIZE = 8;
@@ -133,7 +134,7 @@ public class KafkaOutputTransport extends OutputTransport {
     @Override
     public void publish(Object event, Map<String, String> dynamicOptions) throws ConnectionUnavailableException {
         String topic;
-        if(this.topic == null) {
+        if (this.topic == null) {
             topic = dynamicOptions.get(ADAPTOR_PUBLISH_TOPIC);
         } else {
             topic = this.topic;

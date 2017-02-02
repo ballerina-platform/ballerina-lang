@@ -18,16 +18,17 @@
 
 package org.wso2.siddhi.extension.output.mapper.text;
 
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.publisher.OutputMapper;
-import org.wso2.siddhi.annotation.SiddhiExtension;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.Map;
 
-@SiddhiExtension(
+@Extension(
         name = "text",
-        namespace = "outputmapper"
+        namespace = "outputmapper",
+        description = ""
 )
 public class TextOutputMapper extends OutputMapper {
     private StreamDefinition streamDefinition;

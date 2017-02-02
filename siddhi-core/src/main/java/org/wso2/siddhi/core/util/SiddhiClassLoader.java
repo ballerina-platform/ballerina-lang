@@ -24,21 +24,6 @@ import org.wso2.siddhi.query.api.extension.Extension;
 
 public class SiddhiClassLoader {
 
-    private static Object loadClass(String name) throws CannotLoadClassException {
-        try {
-            return Class.forName(name).newInstance();
-        } catch (InstantiationException e) {
-            throw new CannotLoadClassException("Cannot restore class: " + name, e);
-        } catch (IllegalAccessException e) {
-            throw new CannotLoadClassException("Cannot restore class: " + name, e);
-        } catch (ClassNotFoundException e) {
-            throw new CannotLoadClassException("Cannot restore class: " + name, e);
-        } catch (NoClassDefFoundError e) {
-            throw new CannotLoadClassException("Cannot restore class: " + name, e);
-        }
-
-    }
-
     private static Object loadClass(Class clazz) throws CannotLoadClassException {
         try {
             return clazz.newInstance();
@@ -49,22 +34,11 @@ public class SiddhiClassLoader {
         }
     }
 
-
-    public static Object loadSiddhiImplementation(String name, Class interfaze) {
-        try {
-            return SiddhiClassLoader.loadClass(interfaze.getPackage().getName() +
-                    "." + name.substring(0, 1).toUpperCase() +
-                    name.substring(1) + interfaze.getSimpleName());
-        } catch (CannotLoadClassException e) {
-            throw new ExecutionPlanCreationException(name + " does not exist in type " + interfaze.getSimpleName(), e, true);
-        }
-    }
-
     public static Object loadExtensionImplementation(Extension extension,
                                                      AbstractExtensionHolder extensionHolder) {
-        Class clazz = extensionHolder.getExtension(extension.getNamespace(), extension.getFunction());
+        Class clazz = extensionHolder.getExtension(extension.getNamespace(), extension.getName());
         if (clazz == null) {
-            throw new ExecutionPlanCreationException("No extension exist for " + extension.getNamespace() + ":" + extension.getFunction() , true);
+            throw new ExecutionPlanCreationException("No extension exist for " + extension.getNamespace() + ":" + extension.getName() , true);
         }
         try {
             return SiddhiClassLoader.loadClass(clazz);

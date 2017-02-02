@@ -20,6 +20,7 @@
 package org.wso2.siddhi.extension.eventtable;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -32,7 +33,6 @@ import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.annotation.SiddhiExtension;
 import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
@@ -61,9 +61,10 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-@SiddhiExtension(
+@Extension(
         name = "rdbms",
-        namespace = "eventtable"
+        namespace = "eventtable",
+        description = ""
 )
 public class RDBMSEventTable implements EventTable {
 

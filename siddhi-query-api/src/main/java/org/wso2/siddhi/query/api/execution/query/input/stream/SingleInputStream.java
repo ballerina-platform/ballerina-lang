@@ -17,7 +17,10 @@
  */
 package org.wso2.siddhi.query.api.execution.query.input.stream;
 
-import org.wso2.siddhi.query.api.execution.query.input.handler.*;
+import org.wso2.siddhi.query.api.execution.query.input.handler.Filter;
+import org.wso2.siddhi.query.api.execution.query.input.handler.StreamFunction;
+import org.wso2.siddhi.query.api.execution.query.input.handler.StreamHandler;
+import org.wso2.siddhi.query.api.execution.query.input.handler.Window;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.util.SiddhiConstants;
 
@@ -109,9 +112,9 @@ public class SingleInputStream extends InputStream {
         return this;
     }
 
-    public SingleInputStream function(String extensionName, String functionName,
+    public SingleInputStream function(String extensionNamespace, String functionName,
                                       Expression... parameters) {
-        streamHandlers.add(new StreamFunctionExtension(extensionName, functionName, parameters));
+        streamHandlers.add(new StreamFunction(extensionNamespace, functionName, parameters));
         return this;
     }
 

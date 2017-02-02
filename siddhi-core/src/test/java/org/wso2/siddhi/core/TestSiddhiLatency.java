@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class testSiddhiLatency {
-    private static final Logger log = Logger.getLogger(testSiddhiLatency.class);
+public class TestSiddhiLatency {
+    private static final Logger log = Logger.getLogger(TestSiddhiLatency.class);
     private static InputHandler eligibilityStreamInputHandler;
     private static Map<String, ResultContainer> resultMap = new ConcurrentHashMap<String, ResultContainer>();
     private static Map<String, InputHandler> requestStreamInputHandlerMap = new ConcurrentHashMap<String, InputHandler>();

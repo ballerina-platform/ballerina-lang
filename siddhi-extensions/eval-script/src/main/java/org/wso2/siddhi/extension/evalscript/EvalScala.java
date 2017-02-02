@@ -18,16 +18,17 @@
 
 package org.wso2.siddhi.extension.evalscript;
 
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.function.EvalScript;
-import org.wso2.siddhi.annotation.SiddhiExtension;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import scala.Function1;
 
-@SiddhiExtension(
+@Extension(
         name = "scala",
-        namespace = "evalscript"
+        namespace = "evalscript",
+        description = ""
 )
 public class EvalScala implements EvalScript {
 

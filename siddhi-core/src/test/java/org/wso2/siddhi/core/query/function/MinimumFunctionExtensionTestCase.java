@@ -42,7 +42,6 @@ public class MinimumFunctionExtensionTestCase {
         eventArrived = false;
     }
 
-
     @Test
     public void testMinFunctionExtension1() throws InterruptedException {
         log.info("MinimumFunctionExecutor TestCase 1");

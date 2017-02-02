@@ -19,7 +19,7 @@
 package org.wso2.siddhi.extension.input.mapper.map;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.annotation.SiddhiExtension;
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
@@ -32,7 +32,6 @@ import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.subscription.InputMapper;
 import org.wso2.siddhi.core.subscription.InputTransport;
 import org.wso2.siddhi.core.util.AttributeConverter;
-import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.execution.io.map.AttributeMapping;
@@ -44,9 +43,10 @@ import java.util.Map;
 /**
  * This mapper converts hashmap input to {@link ComplexEventChunk}.
  */
-@SiddhiExtension(
+@Extension(
         name = "map",
-        namespace = "inputmapper"
+        namespace = "inputmapper",
+        description = ""
 )
 public class MapInputMapper implements InputMapper {
 

@@ -18,10 +18,9 @@
 package org.wso2.siddhi.core.executor.function;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.annotation.Description;
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.Parameters;
-import org.wso2.siddhi.annotation.Return;
+import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
@@ -31,17 +30,26 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.Map;
 
-@Description("Returns the the value of the arg1 parameter if the condition parameter is set to true, or returns " +
-        "the value of the arg2 parameter if the condition parameter is set to false.")
-@Parameters({
-        @Parameter(name = "condition", type = {DataType.BOOL}),
-        @Parameter(name = "arg1", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
-                DataType.STRING, DataType.BOOL, DataType.OBJECT}),
-        @Parameter(name = "arg2", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
-                DataType.STRING, DataType.BOOL, DataType.OBJECT})
-})
-@Return(type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT, DataType.STRING,
-        DataType.BOOL, DataType.OBJECT})
+@Extension(
+        name = "ifThenElse",
+        namespace = "",
+        description = "Evaluates the 'condition' parameter and returns value of the 'ifExpression' parameter if the condition " +
+                "is true, or returns value of the 'elseExpression' parameter if the condition is false. Here both 'ifExpression' " +
+                "and 'elseExpression' should be of the same type",
+        parameters = {
+                @Parameter(name = "condition", type = {DataType.BOOL}),
+                @Parameter(name = "ifExpression",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                                DataType.STRING, DataType.BOOL, DataType.OBJECT}),
+                @Parameter(name = "elseExpression",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                                DataType.STRING, DataType.BOOL, DataType.OBJECT})
+        },
+        returnAttributes = @ReturnAttribute(type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                DataType.STRING, DataType.BOOL, DataType.OBJECT},
+                description = "Returned type will be same as the 'ifExpression' and 'elseExpression' type")
+
+)
 public class IfThenElseFunctionExecutor extends FunctionExecutor {
     private static final Logger log = Logger.getLogger(IfThenElseFunctionExecutor.class);
     Attribute.Type returnType;

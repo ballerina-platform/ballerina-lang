@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,35 +15,48 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.api.expression.function;
+package org.wso2.siddhi.query.api.expression;
 
-import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.extension.Extension;
 
 import java.util.Arrays;
 
-public class AttributeFunctionExtension extends AttributeFunction implements Extension {
+public class AttributeFunction extends Expression implements Extension {
 
-    private String extensionName;
+    private String functionName;
+    private Expression[] parameters;
+    private String extensionNamespace;
 
-    public AttributeFunctionExtension(String extensionName, String functionName, Expression... parameters) {
-        super(functionName, parameters);
-        this.extensionName = extensionName;
+    public AttributeFunction(String extensionNamespace, String functionName, Expression... parameters) {
+        this.functionName = functionName;
+        this.parameters = parameters;
+        this.extensionNamespace = extensionNamespace;
     }
 
     public String getNamespace() {
-        return extensionName;
+        return extensionNamespace;
+    }
+
+    public String getName() {
+        return functionName;
+    }
+
+    public void setParameters(Expression[] parameters) {
+        this.parameters = parameters;
+    }
+
+    public Expression[] getParameters() {
+        return parameters;
     }
 
     @Override
     public String toString() {
         return "AttributeFunction{" +
-                "extensionName='" + extensionName + '\'' +
+                "extensionNamespace='" + extensionNamespace + '\'' +
                 ", functionName='" + functionName + '\'' +
                 ", parameters=" + Arrays.toString(parameters) +
                 '}';
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -54,9 +67,9 @@ public class AttributeFunctionExtension extends AttributeFunction implements Ext
             return false;
         }
 
-        AttributeFunctionExtension that = (AttributeFunctionExtension) o;
+        AttributeFunction that = (AttributeFunction) o;
 
-        if (extensionName != null ? !extensionName.equals(that.extensionName) : that.extensionName != null) {
+        if (extensionNamespace != null ? !extensionNamespace.equals(that.extensionNamespace) : that.extensionNamespace != null) {
             return false;
         }
         if (functionName != null ? !functionName.equals(that.functionName) : that.functionName != null) {
@@ -71,7 +84,7 @@ public class AttributeFunctionExtension extends AttributeFunction implements Ext
 
     @Override
     public int hashCode() {
-        int result = extensionName != null ? extensionName.hashCode() : 0;
+        int result = extensionNamespace != null ? extensionNamespace.hashCode() : 0;
         result = 31 * result + (functionName != null ? functionName.hashCode() : 0);
         result = 31 * result + (parameters != null ? Arrays.hashCode(parameters) : 0);
         return result;

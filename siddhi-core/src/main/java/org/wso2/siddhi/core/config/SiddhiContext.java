@@ -42,7 +42,7 @@ public class SiddhiContext {
     private ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap;
 
     public SiddhiContext() {
-        new SiddhiExtensionLoader().loadSiddhiExtensions(siddhiExtensions);
+        SiddhiExtensionLoader.loadSiddhiExtensions(siddhiExtensions);
         siddhiDataSources = new ConcurrentHashMap<String, DataSource>();
         statisticsConfiguration = new StatisticsConfiguration(new SiddhiMetricsFactory());
         extensionHolderMap = new ConcurrentHashMap<Class, AbstractExtensionHolder>();

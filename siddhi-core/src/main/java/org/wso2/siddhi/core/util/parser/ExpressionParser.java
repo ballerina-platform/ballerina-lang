@@ -75,8 +75,7 @@ import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 import org.wso2.siddhi.query.api.expression.condition.*;
 import org.wso2.siddhi.query.api.expression.constant.*;
-import org.wso2.siddhi.query.api.expression.function.AttributeFunction;
-import org.wso2.siddhi.query.api.expression.function.AttributeFunctionExtension;
+import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.math.*;
 
 import java.util.ArrayList;
@@ -239,22 +238,21 @@ public class ExpressionParser {
                 default: //Will not happen. Handled in parseArithmeticOperationResultType()
             }
 
-        } else if (expression instanceof AttributeFunctionExtension) {
+        } else if (expression instanceof AttributeFunction) {
             //extensions
             Object executor;
             try {
-                executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunctionExtension) expression, FunctionExecutorExtensionHolder.getInstance(executionPlanContext));
+                executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunction) expression, FunctionExecutorExtensionHolder.getInstance(executionPlanContext));
             } catch (ExecutionPlanCreationException ex) {
                 try {
-                    executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunctionExtension) expression, AttributeAggregatorExtensionHolder.getInstance(executionPlanContext));
-                    SelectorParser.getContainsAggregatorThreadLocal().set("true");
+                    executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunction) expression, AttributeAggregatorExtensionHolder.getInstance(executionPlanContext));
                 } catch (ExecutionPlanCreationException e) {
-                    throw new ExecutionPlanCreationException("'" + ((AttributeFunctionExtension) expression).getFunction() + "' is neither a function extension nor an aggregated attribute extension");
+                    throw new ExecutionPlanCreationException("'" + ((AttributeFunction) expression).getName() + "' is neither a function extension nor an aggregated attribute extension");
                 }
             }
             if (executor instanceof FunctionExecutor) {
                 FunctionExecutor expressionExecutor = (FunctionExecutor) executor;
-                Expression[] innerExpressions = ((AttributeFunctionExtension) expression).getParameters();
+                Expression[] innerExpressions = ((AttributeFunction) expression).getParameters();
                 ExpressionExecutor[] innerExpressionExecutors = parseInnerExpression(innerExpressions, metaEvent, currentState, eventTableMap, executorList,
                         executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
                 expressionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext, queryName);
@@ -264,7 +262,7 @@ public class ExpressionParser {
                 return expressionExecutor;
             } else {
                 AttributeAggregator attributeAggregator = (AttributeAggregator) executor;
-                Expression[] innerExpressions = ((AttributeFunctionExtension) expression).getParameters();
+                Expression[] innerExpressions = ((AttributeFunction) expression).getParameters();
                 ExpressionExecutor[] innerExpressionExecutors = parseInnerExpression(innerExpressions, metaEvent, currentState, eventTableMap, executorList,
                         executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
                 attributeAggregator.initAggregator(innerExpressionExecutors, executionPlanContext);
@@ -276,50 +274,6 @@ public class ExpressionParser {
                 }
                 SelectorParser.getContainsAggregatorThreadLocal().set("true");
                 return aggregationAttributeProcessor;
-            }
-        } else if (expression instanceof AttributeFunction) {
-            Object executor;
-            try {
-                executor = SiddhiClassLoader.loadSiddhiImplementation(((AttributeFunction) expression).getFunction(), AttributeAggregator.class);
-            } catch (ExecutionPlanCreationException ex) {
-                try {
-                    if (executionPlanContext.isFunctionExist(((AttributeFunction) expression).getFunction())) {
-                        executor = new ScriptFunctionExecutor(((AttributeFunction) expression).getFunction());
-                    } else {
-                        try {
-                            executor = SiddhiClassLoader.loadSiddhiImplementation(((AttributeFunction) expression).getFunction(), FunctionExecutor.class);
-                        } catch (ExecutionPlanCreationException e) {
-                            throw new ExecutionPlanCreationException(e.getMessage(), e);
-                        }
-                    }
-                } catch (ExecutionPlanCreationException e) {
-                    throw new ExecutionPlanCreationException(((AttributeFunction) expression).getFunction() + " is neither a function nor an aggregated attribute");
-                }
-            }
-
-            if (executor instanceof AttributeAggregator) {
-                Expression[] innerExpressions = ((AttributeFunction) expression).getParameters();
-                ExpressionExecutor[] innerExpressionExecutors = parseInnerExpression(innerExpressions, metaEvent, currentState, eventTableMap, executorList,
-                        executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
-                ((AttributeAggregator) executor).initAggregator(innerExpressionExecutors, executionPlanContext);
-                AbstractAggregationAttributeExecutor aggregationAttributeProcessor;
-                if (groupBy) {
-                    aggregationAttributeProcessor = new GroupByAggregationAttributeExecutor((AttributeAggregator) executor, innerExpressionExecutors, executionPlanContext, queryName);
-                } else {
-                    aggregationAttributeProcessor = new AggregationAttributeExecutor((AttributeAggregator) executor, innerExpressionExecutors, executionPlanContext, queryName);
-                }
-                SelectorParser.getContainsAggregatorThreadLocal().set("true");
-                return aggregationAttributeProcessor;
-            } else {
-                FunctionExecutor functionExecutor = (FunctionExecutor) executor;
-                Expression[] innerExpressions = ((AttributeFunction) expression).getParameters();
-                ExpressionExecutor[] innerExpressionExecutors = parseInnerExpression(innerExpressions, metaEvent, currentState, eventTableMap, executorList,
-                        executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
-                functionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext, queryName);
-                if (functionExecutor.getReturnType() == Attribute.Type.BOOL) {
-                    return new BoolConditionExpressionExecutor(functionExecutor);
-                }
-                return functionExecutor;
             }
         } else if (expression instanceof In) {
 

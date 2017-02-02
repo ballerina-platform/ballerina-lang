@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.processor.stream;
 
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -38,6 +39,12 @@ import java.util.Map;
 /**
  * Input attributes to log is (priority (String), logMessage (String), isEventLogged (Bool))
  */
+@Extension(
+        name = "log",
+        namespace = "",
+        description = "",
+        parameters = {}
+)
 public class LogStreamProcessor extends StreamProcessor {
 
     enum LogPriority {INFO, DEBUG, WARN, FATAL, ERROR, OFF, TRACE}

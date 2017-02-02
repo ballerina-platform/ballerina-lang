@@ -18,11 +18,7 @@
 
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
-import org.wso2.siddhi.annotation.Description;
-import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.Parameters;
-import org.wso2.siddhi.annotation.Return;
-import org.wso2.siddhi.annotation.util.DataType;
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -32,13 +28,19 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-@Description("Returns the calculated standard deviation for all the events.")
-@Parameters({
-        @Parameter(name = "attribute", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
-})
-@Return(type = {DataType.DOUBLE})
-public class StddevAttributeAggregator extends AttributeAggregator {
-    private StddevAttributeAggregator stddevOutputAttributeAggregator;
+//@Description("Returns the calculated standard deviation for all the events.")
+//@Parameters({
+//        @Parameter(name = "attribute", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+//})
+//@Return(type = {DataType.DOUBLE})
+@Extension(
+        name = "stdDev",
+        namespace = "",
+        description = "",
+        parameters = {}
+)
+public class StdDevAttributeAggregator extends AttributeAggregator {
+    private StdDevAttributeAggregator stdDevOutputAttributeAggregator;
 
     /**
      * The initialization method for FunctionExecutor
@@ -49,7 +51,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
-            throw new OperationNotSupportedException("Stddev aggregator has to have exactly 1 parameter, currently " +
+            throw new OperationNotSupportedException("stdDev aggregator has to have exactly 1 parameter, currently " +
                     attributeExpressionExecutors.length + " parameters provided");
         }
 
@@ -57,55 +59,55 @@ public class StddevAttributeAggregator extends AttributeAggregator {
 
         switch (type) {
             case INT:
-                stddevOutputAttributeAggregator = new StddevAttributeAggregatorInt();
+                stdDevOutputAttributeAggregator = new stdDevAttributeAggregatorInt();
                 break;
             case LONG:
-                stddevOutputAttributeAggregator = new StddevAttributeAggregatorLong();
+                stdDevOutputAttributeAggregator = new stdDevAttributeAggregatorLong();
                 break;
             case FLOAT:
-                stddevOutputAttributeAggregator = new StddevAttributeAggregatorFloat();
+                stdDevOutputAttributeAggregator = new stdDevAttributeAggregatorFloat();
                 break;
             case DOUBLE:
-                stddevOutputAttributeAggregator = new StddevAttributeAggregatorDouble();
+                stdDevOutputAttributeAggregator = new stdDevAttributeAggregatorDouble();
                 break;
             default:
-                throw new OperationNotSupportedException("Stddev not supported for " + type);
+                throw new OperationNotSupportedException("stdDev not supported for " + type);
         }
     }
 
     @Override
     public Attribute.Type getReturnType() {
-        return stddevOutputAttributeAggregator.getReturnType();
+        return stdDevOutputAttributeAggregator.getReturnType();
     }
 
     @Override
     public Object processAdd(Object data) {
-        return stddevOutputAttributeAggregator.processAdd(data);
+        return stdDevOutputAttributeAggregator.processAdd(data);
     }
 
     @Override
     public Object processAdd(Object[] data) {
-        return new IllegalStateException("Stddev cannot process data array, but found " + Arrays.deepToString(data));
+        return new IllegalStateException("stdDev cannot process data array, but found " + Arrays.deepToString(data));
     }
 
     @Override
     public Object processRemove(Object data) {
-        return stddevOutputAttributeAggregator.processRemove(data);
+        return stdDevOutputAttributeAggregator.processRemove(data);
     }
 
     @Override
     public Object processRemove(Object[] data) {
-        return new IllegalStateException("Stddev cannot process data array, but found " + Arrays.deepToString(data));
+        return new IllegalStateException("stdDev cannot process data array, but found " + Arrays.deepToString(data));
     }
 
     @Override
     public Object reset() {
-        return stddevOutputAttributeAggregator.reset();
+        return stdDevOutputAttributeAggregator.reset();
     }
 
     @Override
     public Map<String, Object> currentState() {
-        return stddevOutputAttributeAggregator.currentState();
+        return stdDevOutputAttributeAggregator.currentState();
     }
 
     @Override
@@ -118,10 +120,10 @@ public class StddevAttributeAggregator extends AttributeAggregator {
 
     @Override
     public void restoreState(Map<String, Object> state) {
-        stddevOutputAttributeAggregator.restoreState(state);
+        stdDevOutputAttributeAggregator.restoreState(state);
     }
 
-    private class StddevAttributeAggregatorDouble extends StddevAttributeAggregator {
+    private class stdDevAttributeAggregatorDouble extends StdDevAttributeAggregator {
         private final Attribute.Type type = Attribute.Type.DOUBLE;
         private double mean, oldMean, stdDeviation, sum;
         private int count = 0;
@@ -188,7 +190,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             state.put("Sum", sum);
             state.put("Mean", mean);
             state.put("OldMean", oldMean);
-            state.put("StdDeviation", stdDeviation);
+            state.put("stdDeviation", stdDeviation);
             state.put("Count", count);
             return state;
         }
@@ -198,12 +200,12 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             sum = (Long) state.get("Sum");
             mean = (Long) state.get("Mean");
             oldMean = (Long) state.get("OldMean");
-            stdDeviation = (Long) state.get("StdDeviation");
+            stdDeviation = (Long) state.get("stdDeviation");
             count = (int) state.get("Count");
         }
     }
 
-    private class StddevAttributeAggregatorFloat extends StddevAttributeAggregator {
+    private class stdDevAttributeAggregatorFloat extends StdDevAttributeAggregator {
         private final Attribute.Type type = Attribute.Type.DOUBLE;
         private double mean, oldMean, stdDeviation, sum;
         private int count = 0;
@@ -270,7 +272,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             state.put("Sum", sum);
             state.put("Mean", mean);
             state.put("OldMean", oldMean);
-            state.put("StdDeviation", stdDeviation);
+            state.put("stdDeviation", stdDeviation);
             state.put("Count", count);
             return state;
         }
@@ -280,12 +282,12 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             sum = (Long) state.get("Sum");
             mean = (Long) state.get("Mean");
             oldMean = (Long) state.get("OldMean");
-            stdDeviation = (Long) state.get("StdDeviation");
+            stdDeviation = (Long) state.get("stdDeviation");
             count = (int) state.get("Count");
         }
     }
 
-    private class StddevAttributeAggregatorInt extends StddevAttributeAggregator {
+    private class stdDevAttributeAggregatorInt extends StdDevAttributeAggregator {
         private final Attribute.Type type = Attribute.Type.DOUBLE;
         private double mean, oldMean, stdDeviation, sum;
         private int count = 0;
@@ -352,7 +354,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             state.put("Sum", sum);
             state.put("Mean", mean);
             state.put("OldMean", oldMean);
-            state.put("StdDeviation", stdDeviation);
+            state.put("stdDeviation", stdDeviation);
             state.put("Count", count);
             return state;
         }
@@ -362,12 +364,12 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             sum = (Long) state.get("Sum");
             mean = (Long) state.get("Mean");
             oldMean = (Long) state.get("OldMean");
-            stdDeviation = (Long) state.get("StdDeviation");
+            stdDeviation = (Long) state.get("stdDeviation");
             count = (int) state.get("Count");
         }
     }
 
-    private class StddevAttributeAggregatorLong extends StddevAttributeAggregator {
+    private class stdDevAttributeAggregatorLong extends StdDevAttributeAggregator {
         private final Attribute.Type type = Attribute.Type.DOUBLE;
         private double mean, oldMean, stdDeviation, sum;
         private int count = 0;
@@ -434,7 +436,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             state.put("Sum", sum);
             state.put("Mean", mean);
             state.put("OldMean", oldMean);
-            state.put("StdDeviation", stdDeviation);
+            state.put("stdDeviation", stdDeviation);
             state.put("Count", count);
             return state;
         }
@@ -444,7 +446,7 @@ public class StddevAttributeAggregator extends AttributeAggregator {
             sum = (Long) state.get("Sum");
             mean = (Long) state.get("Mean");
             oldMean = (Long) state.get("OldMean");
-            stdDeviation = (Long) state.get("StdDeviation");
+            stdDeviation = (Long) state.get("stdDeviation");
             count = (int) state.get("Count");
         }
     }

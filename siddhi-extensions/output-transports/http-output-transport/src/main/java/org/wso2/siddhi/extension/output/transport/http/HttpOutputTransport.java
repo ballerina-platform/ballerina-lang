@@ -18,17 +18,13 @@
 
 package org.wso2.siddhi.extension.output.transport.http;
 
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpConnectionManager;
-import org.apache.commons.httpclient.HttpHost;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.annotation.SiddhiExtension;
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.exception.OutputTransportException;
 import org.wso2.siddhi.core.exception.TestConnectionNotSupportedException;
@@ -43,15 +39,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
-@SiddhiExtension(
+@Extension(
         name = "http",
-        namespace = "outputtransport")
+        namespace = "outputtransport",
+        description = ""
+)
 public class HttpOutputTransport extends OutputTransport {
     public static final String ADAPTER_TYPE_HTTP = "http";
     public static final String ADAPTER_MESSAGE_URL = "http.url";

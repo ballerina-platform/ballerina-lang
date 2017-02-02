@@ -17,10 +17,9 @@
  */
 package org.wso2.siddhi.core.executor.function;
 
-import org.wso2.siddhi.annotation.Description;
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.Parameters;
-import org.wso2.siddhi.annotation.Return;
+import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
@@ -30,12 +29,25 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.Map;
 
-@Description("Converts the first input parameter according to the convertedTo parameter.")
-@Parameters({
-        @Parameter(name = "arg", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
-                DataType.STRING, DataType.BOOL})
-})
-@Return(type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT, DataType.STRING, DataType.BOOL})
+@Extension(
+        name = "convert",
+        namespace = "",
+        description = "Converts the first input parameter according to the convertedTo parameter.",
+        parameters = {
+                @Parameter(name = "toBeConverted",
+                        description = "To be converted parameter",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT, DataType.STRING,
+                                DataType.BOOL}),
+                @Parameter(name = "convertedTo",
+                        description = "A string constant parameter to which type the attribute need to be converted " +
+                                " using one of the following strings values: 'int', 'long', 'float', 'double', 'string'," +
+                                " 'bool'.",
+                        type = DataType.STRING)
+        },
+        returnAttributes = @ReturnAttribute(
+                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT, DataType.STRING, DataType.BOOL},
+                description = "Based on the given convertedTo parameter")
+)
 public class ConvertFunctionExecutor extends FunctionExecutor {
 
     private Attribute.Type returnType;

@@ -20,16 +20,17 @@ package org.wso2.siddhi.extension.output.mapper.json;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.wso2.siddhi.annotation.SiddhiExtension;
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.publisher.OutputMapper;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.Map;
 
-@SiddhiExtension(
+@Extension(
         name = "json",
-        namespace = "outputmapper"
+        namespace = "outputmapper",
+        description = ""
 )
 public class JSONOutputMapper extends OutputMapper {
     private StreamDefinition streamDefinition;

@@ -32,7 +32,6 @@ public class SimpleQueryValidatorTestCase {
         siddhiContext = new SiddhiContext();
     }
 
-
     @Test(expected = ExecutionPlanValidationException.class)
     public void testQueryWithNotExistingAttributes() throws InterruptedException {
 

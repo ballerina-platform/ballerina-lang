@@ -18,10 +18,9 @@
 
 package org.wso2.siddhi.core.executor.function;
 
-import org.wso2.siddhi.annotation.Description;
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.Parameters;
-import org.wso2.siddhi.annotation.Return;
+import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
@@ -31,22 +30,23 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.Map;
 
-/**
- * cast(Object value, String type)
- * Returns the value cast to the type specified
- * Accept Type(s): Object , String
- * Return Type(s): (Int,Long,Float,Double,String,Bool)
- */
-@Description("Converts the first parameter according to the castTo parameter. Incompatible arguments cause Class " +
-        "Cast exceptions if further processed. This function is used with map extension that returns attributes " +
-        "of the object type. You can use this function to cast the object to an accurate and concrete type.")
-@Parameters({
-        @Parameter(name = "toBeCaster", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
-                DataType.STRING, DataType.BOOL, DataType.OBJECT}),
-        @Parameter(name = "castTo", type = {DataType.STRING})
-})
-@Return(type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT, DataType.STRING, DataType.BOOL,
-        DataType.OBJECT})
+
+@Extension(
+        name = "cast",
+        namespace = "",
+        description = "Converts the first parameter according to the castTo parameter. Incompatible arguments cause " +
+                "Class Cast exceptions if further processed. This function is used with map extension that returns " +
+                "attributes of the object type. You can use this function to cast the object to an accurate and " +
+                "concrete type.",
+        parameters = {
+                @Parameter(name = "toBeCaster", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                        DataType.STRING, DataType.BOOL, DataType.OBJECT}),
+                @Parameter(name = "castTo", type = {DataType.STRING})
+        },
+        returnAttributes = @ReturnAttribute(type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                DataType.STRING, DataType.BOOL, DataType.OBJECT})
+
+)
 public class CastFunctionExecutor extends FunctionExecutor {
     private Attribute.Type returnType = Attribute.Type.OBJECT;
 

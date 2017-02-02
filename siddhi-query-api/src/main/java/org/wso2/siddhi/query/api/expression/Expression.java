@@ -20,8 +20,6 @@ package org.wso2.siddhi.query.api.expression;
 
 import org.wso2.siddhi.query.api.expression.condition.*;
 import org.wso2.siddhi.query.api.expression.constant.*;
-import org.wso2.siddhi.query.api.expression.function.AttributeFunction;
-import org.wso2.siddhi.query.api.expression.function.AttributeFunctionExtension;
 import org.wso2.siddhi.query.api.expression.math.*;
 
 public abstract class Expression {
@@ -76,11 +74,11 @@ public abstract class Expression {
 
     public static Expression function(String extensionNamespace, String extensionFunctionName,
                                       Expression... expressions) {
-        return new AttributeFunctionExtension(extensionNamespace, extensionFunctionName, expressions);
+        return new AttributeFunction(extensionNamespace, extensionFunctionName, expressions);
     }
 
     public static Expression function(String functionName, Expression... expressions) {
-        return new AttributeFunction(functionName, expressions);
+        return new AttributeFunction("",functionName, expressions);
     }
 
     public static Expression compare(Expression leftExpression, Compare.Operator operator,

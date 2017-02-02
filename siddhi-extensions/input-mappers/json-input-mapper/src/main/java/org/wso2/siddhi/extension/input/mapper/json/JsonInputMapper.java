@@ -20,7 +20,7 @@ package org.wso2.siddhi.extension.input.mapper.json;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.annotation.SiddhiExtension;
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
@@ -49,9 +49,10 @@ import java.util.Map;
  * If custom mapping is given like <pre>{@code subscription.map(Mapping.format("json").map("$.country").map("$
  * .price").map("$.volume", "volume"));}</pre>, it will select the user defined attributes only.
  */
-@SiddhiExtension(
+@Extension(
         name = "json",
-        namespace = "inputmapper"
+        namespace = "inputmapper",
+        description = ""
 )
 public class JsonInputMapper implements InputMapper {
 

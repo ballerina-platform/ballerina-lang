@@ -119,7 +119,7 @@ public class DefinitionParserHelper {
                     }
 
                     @Override
-                    public String getFunction() {
+                    public String getName() {
                         return evenTableType;
                     }
                 };
@@ -133,7 +133,7 @@ public class DefinitionParserHelper {
                     }
 
                     @Override
-                    public String getFunction() {
+                    public String getName() {
                         return evenTableType;
                     }
                 };
@@ -162,7 +162,7 @@ public class DefinitionParserHelper {
                     }
 
                     @Override
-                    public String getFunction() {
+                    public String getName() {
                         return functionDefinition.getLanguage().toLowerCase();
                     }
                 }, EvalScriptExtensionHolder.getInstance(executionPlanContext));

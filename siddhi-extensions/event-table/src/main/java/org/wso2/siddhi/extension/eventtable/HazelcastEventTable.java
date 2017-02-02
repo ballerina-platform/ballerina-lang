@@ -25,6 +25,7 @@ import com.hazelcast.config.JoinConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -37,7 +38,6 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.table.holder.EventHolder;
-import org.wso2.siddhi.annotation.SiddhiExtension;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
@@ -62,9 +62,10 @@ import java.util.Map;
 /**
  * Hazelcast event table implementation of SiddhiQL.
  */
-@SiddhiExtension(
+@Extension(
         name = "hazelcast",
-        namespace = "eventtable"
+        namespace = "eventtable",
+        description = ""
 )
 public class HazelcastEventTable implements EventTable {
     private static final Logger logger = Logger.getLogger(HazelcastEventTable.class);

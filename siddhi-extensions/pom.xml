@@ -31,7 +31,7 @@
     <name>Siddhi Extensions</name>
 
     <modules>
-        <module>eval-script</module>
+        <!--<module>eval-script</module>-->
         <module>event-table</module>
         <module>output-transports/test-output-transport</module>
         <module>output-transports/http-output-transport</module>
