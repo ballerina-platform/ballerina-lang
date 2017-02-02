@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './node'], function (_, log, ASTNode) {
+define(['lodash', 'log', './node','constants'], function (_, log, ASTNode,constants) {
     var StructDefinition = function (args) {
         ASTNode.call(this, 'StructDefinition');
         this._structName = _.get(args, 'structName', 'newStruct');
@@ -121,6 +121,34 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
             self.addChild(child);
             child.initFromJson(childNode);
         });
+    };
+
+    /**
+     * Validates possible immediate child types.
+     * @override
+     * @param node
+     * @return {boolean}
+     */
+    StructDefinition.prototype.canBeParentOf = function (node) {
+        return this.BallerinaASTFactory.isVariableDeclaration(node)
+    };
+
+    /**
+     * return attributes list as a json object
+     * @returns {Object} attributes array
+     */
+    StructDefinition.prototype.getAttributesArray = function () {
+        var attributesArray = {};
+        attributesArray[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_NAME] = this.getStructName();
+        attributesArray[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTIES]= [];
+        _.each(this.getVariableDeclarations(), function(variableDeclaration) {
+            var tempAttr = {};
+            tempAttr[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_NAME] = variableDeclaration._identifier;
+            tempAttr[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_TYPE] = variableDeclaration._type;
+            attributesArray[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTIES].push(tempAttr);
+        });
+        return attributesArray;
+
     };
 
     return StructDefinition;
