@@ -110,6 +110,10 @@
             <groupId>org.wso2.staxon</groupId>
             <artifactId>staxon-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>javax.websocket</groupId>
+            <artifactId>javax.websocket-api</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -213,6 +217,10 @@
                                 <bundle>
                                     <symbolicName>staxon-core</symbolicName>
                                     <version>${staxon.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>javax.websocket-api</symbolicName>
+                                    <version>${javax.websocket.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>

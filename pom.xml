@@ -195,6 +195,11 @@
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons.lang3.version}</version>
             </dependency>
+            <dependency>
+                <groupId>javax.websocket</groupId>
+                <artifactId>javax.websocket-api</artifactId>
+                <version>${javax.websocket.version}</version>
+            </dependency>
 
             <!-- JSON dependencies -->
             <dependency>
@@ -392,10 +397,10 @@
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.pax.version>5.2.0-m2</carbon.kernel.pax.version>
 
-        <carbon.transport.version>3.0.4</carbon.transport.version>
+        <carbon.transport.version>3.0.5-SNAPSHOT</carbon.transport.version>
         <carbon.transport.package.import.version.range>[3.0.0, 3.1.0)</carbon.transport.package.import.version.range>
 
-        <carbon.messaging.version>1.0.11</carbon.messaging.version>
+        <carbon.messaging.version>1.1.1-SNAPSHOT</carbon.messaging.version>
         <carbon.messaging.package.import.version.range>[0.0.0, 2.0.0)</carbon.messaging.package.import.version.range>
 
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
@@ -407,6 +412,8 @@
 
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
         <commons.lang3.version>3.5</commons.lang3.version>
+
+        <javax.websocket.version>1.1</javax.websocket.version>
         
         <!-- json dependencies -->
         <gson.version>2.7</gson.version>

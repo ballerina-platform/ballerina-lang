@@ -36,6 +36,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.http.client.HTTPConnector;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Patch;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Post;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Put;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.websocket.server.WebSocketConnector;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayCopyOf;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayLength;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayRangeCopy;
@@ -167,6 +168,7 @@ import org.wso2.ballerina.core.nativeimpl.net.http.ConvertToResponse;
 import org.wso2.ballerina.core.nativeimpl.net.http.GetContentLength;
 import org.wso2.ballerina.core.nativeimpl.net.http.GetMethod;
 import org.wso2.ballerina.core.nativeimpl.net.http.GetStatusCode;
+import org.wso2.ballerina.core.nativeimpl.net.http.SendText;
 import org.wso2.ballerina.core.nativeimpl.net.http.SetContentLength;
 import org.wso2.ballerina.core.nativeimpl.net.http.SetReasonPhrase;
 import org.wso2.ballerina.core.nativeimpl.net.http.SetStatusCode;
@@ -372,6 +374,12 @@ public class BuiltInNativeConstructLoader {
         registerAction(scope, new Execute());
         registerAction(scope, new Patch());
 
+        //WebSocket
+        registerFunction(scope, new SendText());
+
+        registerConnector(scope, new WebSocketConnector());
+
+        registerAction(scope, new org.wso2.ballerina.core.nativeimpl.connectors.http.websocket.server.SendText());
     }
 
     /**
