@@ -75,6 +75,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
         },
 
         renderAST: function(astRoot){
+            var self = this;
             var ballerinaEditorOptions = _.get(this.options, 'ballerina_editor');
             var diagramRenderingContext = new DiagramRenderContext();
 
@@ -90,6 +91,9 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
             }, this);
             fileEditor.on('design-view-activated', function(){
                 this.getHeader().toggleClass('inverse');
+            }, this);
+            fileEditor.on('add-breakpoint', function(row){
+                self.app.debugger.addBreakPoint(row, self);
             }, this);
 
             this._fileEditor = fileEditor;
