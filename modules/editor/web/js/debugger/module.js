@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['jquery', 'backbone', 'lodash', 'log', './channel','./variable-tree'], function ($, Backbone, _, log, Channel, VariableTree) {
+define(['jquery', 'backbone', 'lodash', 'log','./variable-tree'], function ($, Backbone, _, log, VariableTree) {
     var Debugger = Backbone.View.extend({
         initialize: function(config) {
             var errMsg;
@@ -47,14 +47,6 @@ define(['jquery', 'backbone', 'lodash', 'log', './channel','./variable-tree'], f
             this._verticalSeparator = $(_.get(this._options, 'separator'));
             this._containerToAdjust = $(_.get(this._options, 'containerToAdjust'));
             this.initPanels();
-            this.channel = new Channel({debuggerServiceUrl: this.debuggerServiceUrl, debugger: this});
-            this.channel.on("debug-hit", function (executionPoint) {
-                // TODO use FileTab 's instance to hightLight
-               var currentTab = self.application.tabController.getActiveTab();
-               if(currentTab) {
-                   currentTab._fileEditor.highlightExecutionPoint(executionPoint);
-               }
-            });
 
             // register command
             this.application.commandManager.registerCommand(config.command.id, {shortcuts: config.command.shortcuts});
