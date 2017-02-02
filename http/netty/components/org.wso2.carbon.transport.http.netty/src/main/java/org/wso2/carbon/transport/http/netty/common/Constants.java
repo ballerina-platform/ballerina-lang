@@ -183,6 +183,11 @@ public final class Constants {
 
     public static final String LOCALHOST = "localhost";
 
+    // HTTP2 Related Parameters
+    public static final String UPGRADE_RESPONSE_HEADER = "http-to-http2-upgrade";
+    public static final String HTTP2_VERSION = "HTTP/2.0";
+    public static final String STREAM_ID = "STREAM_ID";
+
     private Constants() {
     }
 
