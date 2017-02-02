@@ -1,29 +1,32 @@
-<!--Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.-->
+<!--
+~   Copyright (c) 2016, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+~
+~   Licensed under the Apache License, Version 2.0 (the "License");
+~   you may not use this file except in compliance with the License.
+~   You may obtain a copy of the License at
+~
+~        http://www.apache.org/licenses/LICENSE-2.0
+~
+~   Unless required by applicable law or agreed to in writing, software
+~   distributed under the License is distributed on an "AS IS" BASIS,
+~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~   See the License for the specific language governing permissions and
+~   limitations under the License.
+-->
 
-<!--WSO2 Inc. licenses this file to you under the Apache License,-->
-<!--Version 2.0 (the "License"); you may not use this file except-->
-<!--in compliance with the License.-->
-<!--You may obtain a copy of the License at-->
-
-<!--http://www.apache.org/licenses/LICENSE-2.0-->
-
-<!--Unless required by applicable law or agreed to in writing,-->
-<!--software distributed under the License is distributed on an-->
-<!--"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY-->
-<!--KIND, either express or implied. See the License for the-->
-<!--specific language governing permissions and limitations-->
-<!--under the License.-->
-
-<html lang="en" class=" webkit chrome mac js gr__localhost">
+<html lang="en" class="webkit chrome mac js gr__localhost">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>Ballerina Editor</title>
 
     <!-- Favion -->
     <link href="images/favicon.png" rel="icon" type="image/png" sizes="16x16" />
 
     <script src="lib/css-browser-selector_0.4.0/css_browser_selector.js"></script>
+    
     <link href="lib/font-wso2-1.2.1/css/font-wso2.min.css" rel="stylesheet" type="text/css"/>
     <link href="lib/theme-wso2-2.0.0/css/theme-wso2.css" rel="stylesheet" type="text/css"/>
     <link href="lib/jquery-ui_v1.12.1/jquery-ui.css" rel="stylesheet" type="text/css"/>
@@ -36,22 +39,24 @@
     <link href="css/fileDialog.css" rel="stylesheet" type="text/css"/>
     <link href="lib/nanoscroller_0.8.7/nanoscroller.css" rel="stylesheet" type="text/css"/>
     <link href="lib/mCustomScrollbar_v3.1.5/css/jquery.mCustomScrollbar.css" rel="stylesheet" type="text/css"/>
+    <link href="lib/context-menu_v2.4.2/jquery.contextMenu.min.css" rel="stylesheet" type="text/css"/>
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-    <script src="lib/html5shiv_3.7.2/html5shiv.min.js"></script>
-    <script src="lib/respond_1.4.2/respond.min.js"></script>
-    <![endif]-->
     <link rel="stylesheet" type="text/css" href="css/sequence_diagram/sequenced-styles.css"/>
     <link rel="stylesheet" type="text/css" href="css/ballerina-file-editor.css"/>
     <link rel="stylesheet" type="text/css" href="css/menu-bar.css"/>
     <link rel="stylesheet" type="text/css" href="css/tool-palette.css"/>
     <link rel="stylesheet" type="text/css" href="css/workspace-explorer.css"/>
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
-    <title>Ballerina Editor</title>
-</head>
+    <link rel="stylesheet" type="text/css" href="css/debugger.css"/>
+    <link rel="stylesheet" type="text/css" href="css/left-tool-bar.css"/>
 
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="lib/html5shiv_3.7.2/html5shiv.min.js"></script>
+    <script src="lib/respond_1.4.2/respond.min.js"></script>
+    <![endif]--> 
+</head>
 <body class="sticky-footer">
 
 <!-- Start: header -->
@@ -91,11 +96,22 @@
                 <div class="left-container">
                     <!-- Start: left tool bar -->
                     <div class="left-tool-bar" data-toggle="tooltip">
-                        <i class="fw fw-file-browse fw-lg workspace-explorer-activate-btn"></i>
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li>
+                                <a href="#workspace-explorer" role="tab" data-toggle="tab" class="workspace-explorer-activate-btn">
+                                    <i class="fw fw-file-browse fw-lg"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#debugger" role="tab" data-toggle="tab" class="debugger-activate-btn">
+                                    <i class="fw fw-bug fw-lg"></i>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                     <!-- End: left tool bar -->
                     <!-- Start: left side-bar -->
-                    <div class="sidebar-left nano">
+                    <div class="sidebar-left nano tab-content">
                     </div>
                     <div class="sidebar-left-separator"  draggable="true"></div>
                     <!-- End: left side-bar -->
@@ -519,7 +535,8 @@
             alerts: "js/utils/alerts",
             breadcrumbs: "js/breadcrumbs/breadcrumbs",
             property_pane_utils: "js/property-pane/property-pane-utils",
-            expression_editor_utils: "js/expression-editor/expression-editor-utils"
+            debugger: "js/debugger/debugger",
+			expression_editor_utils: "js/expression-editor/expression-editor-utils"
         },
         shim: {
             "bootstrap": {"deps": ['jquery']}
@@ -566,6 +583,11 @@
                 name: 'dialogs',
                 location: 'js/dialog',
                 main: 'module'
+            },
+            {
+                name: 'debugger',
+                location: 'js/debugger',
+                main: 'module'
             }
         ]
     });
@@ -600,6 +622,9 @@
                 },
                 parser:  {
                     endpoint: "http://localhost:8289/ballerina/model/content"
+                },
+                debugger: {
+                    endpoint: "ws://localhost:5009/debug"
                 }
             },
             alerts: {
@@ -706,7 +731,7 @@
                             cssClass:{
                                 text_editor_class: 'text-editor',
                                 outer_box: 'outer-box',
-                                service_container: 'service-container',
+                                svg_container: 'svg-container',
                                 outer_div: 'panel panel-default container-outer-div',
                                 panel_title: 'panel-title',
                                 panel_icon: 'panel-icon',
@@ -714,10 +739,11 @@
                                 struct_icon: 'fw fw-dgm-service fw-inverse',
                                 connector_icon:'fw fw-connector fw-inverse',
                                 function_icon:'fw fw-function fw-inverse',
-                                title_link:'collapsed',
-                                panel_right_icon:'fw fw-down pull-right right-icon-clickable collapser hoverable',
+                                title_link:'collapsed canvas-title',
+                                panel_right_icon:'fw fw-up pull-right right-icon-clickable collapser hoverable',
+                                head_div: 'canvas-heading',
                                 body_div:'panel-collapse collapse',
-                                canvas: 'panel-body',
+                                canvas: 'panel-body collapse in',
                                 design_view_drop: 'design-view-hover',
                                 canvas_container: 'canvas-container',
                                 panel_delete_icon: 'fw fw-delete pull-right right-icon-clickable delete-icon hoverable',
@@ -763,8 +789,9 @@
                     minX: 200,
                     maxX: 800
                 },
+                containerId: 'workspace-explorer',
                 cssClass: {
-                    container: 'workspace-explorer-container',
+                    container: 'workspace-explorer-container tab-pane',
                     openFolderButton: 'btn  btn-default open-folder-button'
                 }
             },
@@ -783,6 +810,36 @@
                 errors_container: ".errors-container",
                 location_input: ".location-input",
                 submit_button: ".open-button"
+            },
+            debugger : {
+                container: ".sidebar-left",
+                activateBtn: '.debugger-activate-btn',
+                separator: '.sidebar-left-separator',
+                containerToAdjust: ".right-container",
+                leftOffset: 40,
+                separatorOffset: 5,
+                defaultWidth: 250,
+                resizeLimits:{
+                    minX: 200,
+                    maxX: 800
+                },
+                containerId: "debugger",
+                cssClass: {
+                    container: 'debugger-container tab-pane'
+                },
+                command: {
+                    id: "toggle-debugger",
+                    shortcuts: {
+                        mac: {
+                            key: "command+shift+d",
+                            label: "\u2318\u21E7d"
+                        },
+                        other: {
+                            key: "ctrl+shift+d",
+                            label: "Ctrl+Shift+d"
+                        }
+                    }
+                }
             }
         };
         app = new Application(config);
@@ -792,5 +849,4 @@
 
 </script>
 </body>
-
 </html>
