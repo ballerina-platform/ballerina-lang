@@ -92,9 +92,8 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             this.setStatementGroup(ifElseGroup);
             var self = this;
 
-            var editableProperties = [];
+            var editableProperty = {};
             _.forEach(this._model.getChildren(), function(child, index){
-                var editableProperty = {};
                 if (child instanceof IfStatement) {
                     editableProperty = {
                         propertyType: "text",
@@ -103,8 +102,6 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
                         getterMethod: child.getCondition,
                         setterMethod: child.setCondition
                     };
-
-                    editableProperties.push(editableProperty);
                 } else if(child instanceof IfElseStatement) {
                     editableProperty = {
                         propertyType: "text",
@@ -113,15 +110,13 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
                         getterMethod: child.getCondition,
                         setterMethod: child.setCondition
                     };
-
-                    editableProperties.push(editableProperty);
                 }
             });
             // Creating property pane
             this._createPropertyPane({
                 model:this._model,
                 statementGroup:ifElseGroup,
-                editableProperties: editableProperties
+                editableProperties: editableProperty
             });
 
             // If the top-edge-moved event triggered we only move the First child statement (If Statement).
