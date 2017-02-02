@@ -317,20 +317,11 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
 
         /**
          * Remove statement view callback
-         * @param {ASTNode} parent - Parent model
-         * @param {ASTNode} child - child model
          */
-        ActionInvocationStatementView.prototype.removeViewCallback = function (parent, child) {
+        ActionInvocationStatementView.prototype.onBeforeModelRemove = function () {
             d3.select("#_" +this._model.id).remove();
             this.removeArrows();
-            // We directly don not use the provided parent and the child, since the Assignment statement
-            // node structure is different (Aggregated Action Invocation node)
-            this.getDiagramRenderingContext().getViewOfModel(parent.getParent().getParent()).getStatementContainer().removeInnerDropZone(parent.getParent());
-            this.unplugView(
-                {
-                    w: 0,
-                    h: 0
-                }, parent.getParent().getParent(), parent.getParent());
+            this.getBoundingBox().w(0).h(0);
         };
 
         return ActionInvocationStatementView;
