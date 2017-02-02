@@ -32,7 +32,7 @@ define(['lodash', 'jquery'], function (_, $) {
      * @param {function} [args.onSelectCallBackFunction] - A call back function when an item is selected.
      * @constructor
      */
-    var BootstrapDropdown = function (args) {
+    var Dropdown = function (args) {
         this.args = args;
         this.onSelectCallBackFunction = _.get(args, "onSelectCallBackFunction");
         this.dropdownMainWrapper = $("<div/>").addClass("input-group-btn").addClass(_.get(args, "class.mainWrapper", ""));
@@ -103,13 +103,13 @@ define(['lodash', 'jquery'], function (_, $) {
         });
     };
 
-    BootstrapDropdown.prototype.constructor = BootstrapDropdown;
+    Dropdown.prototype.constructor = Dropdown;
 
     /**
      * Gets the main element which the dropdown is created upon.
      * @return {HTMLElement} - The html wrapper.
      */
-    BootstrapDropdown.prototype.getElement = function () {
+    Dropdown.prototype.getElement = function () {
         return this.dropdownMainWrapper;
     };
 
@@ -117,7 +117,7 @@ define(['lodash', 'jquery'], function (_, $) {
      * Gets the selected value of the dropdown.
      * @return {string|undefined} - The selected value. Undefined if nothing is selected.
      */
-    BootstrapDropdown.prototype.getSelectedValue = function () {
+    Dropdown.prototype.getSelectedValue = function () {
         var selectedItem = this.dropdownButton.text();
         if (selectedItem === _.get(this.args, "emptyValue", "")) {
             return undefined;
@@ -130,7 +130,7 @@ define(['lodash', 'jquery'], function (_, $) {
      * Removes an item from the dropdown.
      * @param {string} itemName - The value of the item.
      */
-    BootstrapDropdown.prototype.removeItem = function (itemName) {
+    Dropdown.prototype.removeItem = function (itemName) {
         var self = this;
         $(self.dropdownItemWrapper).find("li a:contains('" + itemName + "')").remove();
 
@@ -145,7 +145,7 @@ define(['lodash', 'jquery'], function (_, $) {
      * @param {string} item.key - The key of the item.
      * @param {string} item.value - The value of the item.
      */
-    BootstrapDropdown.prototype.addItem = function (item) {
+    Dropdown.prototype.addItem = function (item) {
         var self = this;
         var dropdownItem = $("<li><a href='#' data-key='" + item.key + "'>" + item.value.trim() + "</a><li/>")
             .appendTo(self.dropdownItemWrapper);
@@ -167,7 +167,7 @@ define(['lodash', 'jquery'], function (_, $) {
      * @param {string} items[].key - The key of the item.
      * @param {string} items[].value - The value of the item.
      */
-    BootstrapDropdown.prototype.addItems = function (items) {
+    Dropdown.prototype.addItems = function (items) {
         var self = this;
         _.forEach(items, function (item) {
             var dropdownItem = $("<li><a href='#' data-key='" + item.key + "'>" + item.value.trim() + "</a><li/>")
@@ -189,7 +189,7 @@ define(['lodash', 'jquery'], function (_, $) {
      * Gets all the items of the dropdown as a string array.
      * @return {Object[]} - Array of items.
      */
-    BootstrapDropdown.prototype.getAllItems = function () {
+    Dropdown.prototype.getAllItems = function () {
         var self = this;
         var items = [];
         $(self.dropdownItemWrapper).find("li a").each(function () {
@@ -202,7 +202,7 @@ define(['lodash', 'jquery'], function (_, $) {
     /**
      * Removes all the items of the dropdown.
      */
-    BootstrapDropdown.prototype.removeAllItems = function () {
+    Dropdown.prototype.removeAllItems = function () {
         var self = this;
         $(self.dropdownItemWrapper).find("li").remove();
         self.setSelectedValue(_.get(self.args, "emptyValue", ""));
@@ -214,9 +214,9 @@ define(['lodash', 'jquery'], function (_, $) {
      * Sets the selected value of the dropdown.
      * @param {string} value - The value for the selected item.
      */
-    BootstrapDropdown.prototype.setSelectedValue = function (value) {
+    Dropdown.prototype.setSelectedValue = function (value) {
         this.dropdownButtonText.text(value);
     };
 
-    return BootstrapDropdown;
+    return Dropdown;
 });

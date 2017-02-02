@@ -90,7 +90,7 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
      * @param {string} name - Connector Name
      */
     ConnectorDefinition.prototype.setConnectorName = function (name) {
-        if (!_.isNil(name) && ConnectorDefinition.isValidConnectorName(name)) {
+        if (!_.isNil(name) && ASTNode.isValidIdentifier(name)) {
             this.connector_name = name;
         } else {
             var errorString = "Invalid connector name: " + name;
@@ -192,16 +192,6 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
             self.addChild(child);
             child.initFromJson(childNode);
         });
-    };
-
-    /**
-     * Checks whether the a connector name is valid.
-     * @param {string} connectorName - The connector name.
-     * @return {boolean} - True if valid identifier, else false.
-     * @static
-     */
-    ConnectorDefinition.isValidConnectorName = function (connectorName) {
-        return connectorName === undefined ? false : /^[a-zA-Z$_][a-zA-Z0-9$_]*$/.test(connectorName);
     };
 
     /**

@@ -23,7 +23,7 @@ define(['lodash', 'log', './node'], function(_, log, ASTNode){
         this._identifier = _.get(args, "identifier");
 
         // Validating the identifier.
-        if (!_.isUndefined(this.identifier) && !VariableDeclaration.isValidIdentifier(this.identifier)) {
+        if (!_.isUndefined(this.identifier) && !ASTNode.isValidIdentifier(this.identifier)) {
             var exceptionString = "Invalid identifier: \'" + this.identifier + "\'. An identifier must match the " +
                 "regex ^[a-zA-Z$_][a-zA-Z0-9$_]*$";
             log.error(exceptionString);
@@ -49,7 +49,7 @@ define(['lodash', 'log', './node'], function(_, log, ASTNode){
     };
 
     VariableDeclaration.prototype.setIdentifier = function (identifier) {
-        if (!_.isNil(identifier) && VariableDeclaration.isValidIdentifier(identifier)) {
+        if (!_.isNil(identifier) && ASTNode.isValidIdentifier(identifier)) {
             this._identifier = identifier;
         } else {
             var exceptionString = "Invalid identifier: \'" + identifier + "\'. An identifier must match the regex " +
@@ -80,16 +80,6 @@ define(['lodash', 'log', './node'], function(_, log, ASTNode){
     VariableDeclaration.prototype.initFromJson = function (jsonNode) {
         this.setType(jsonNode.variable_type);
         this.setIdentifier(jsonNode.variable_name);
-    };
-
-    /**
-     * Checks whether the identifier is valid or not.
-     * @param {string} identifier - The identifier
-     * @return {boolean} - True if valid identifier, else false.
-     * @static
-     */
-    VariableDeclaration.isValidIdentifier = function (identifier) {
-        return identifier === undefined ? false : /^[a-zA-Z$_][a-zA-Z0-9$_]*$/.test(identifier);
     };
 
     return VariableDeclaration;
