@@ -231,20 +231,13 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
 
         /**
          * Override Remove view callback for the if-else-statement
-         * @param {ASTNode} parent - parent node
-         * @param {ASTNode} child - child node
          */
-        IfElseStatementView.prototype.removeViewCallback = function (parent, child) {
+        IfElseStatementView.prototype.onBeforeModelRemove = function () {
             _.forEach(this.getChildrenViewsList(), function (childrenView) {
                 childrenView.stopListening();
             });
             d3.select("#_" +this._model.id).remove();
-            this.getDiagramRenderingContext().getViewOfModel(parent).getStatementContainer().removeInnerDropZone(child);
-            this.unplugView(
-                {
-                    w: 0,
-                    h: 0
-                }, parent, child);
+            this.getBoundingBox().w(0).h(0);
         };
 
         return IfElseStatementView;

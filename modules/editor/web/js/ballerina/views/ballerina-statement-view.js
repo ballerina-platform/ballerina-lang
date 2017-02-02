@@ -51,7 +51,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         //Registering event listeners
         this._parent.on('changeStatementMetricsEvent', this.changeMetricsCallback, this);
         this._model.on('child-removed', this.childRemovedCallback, this);
-        this.on('remove-view', this.removeViewCallback, this);
+        this._model.on('before-remove', this.onBeforeModelRemove, this);
     };
 
     /**
@@ -59,14 +59,13 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
      * @param {ASTNode} parent - Parent model
      * @param {ASTNode} child - child model
      */
-    BallerinaStatementView.prototype.removeViewCallback = function (parent, child) {
+    BallerinaStatementView.prototype.onBeforeModelRemove = function () {
         d3.select("#_" +this._model.id).remove();
-        this.getDiagramRenderingContext().getViewOfModel(parent).getStatementContainer().removeInnerDropZone(child);
-        this.unplugView(
-            {
-                w: 0,
-                h: 0
-            }, parent, child);
+        this.getDiagramRenderingContext().getViewOfModel(this._model.getParent()).getStatementContainer()
+                                    .removeInnerDropZone(this._model);
+        // resize the bounding box in order to the other objects to resize
+        var moveOffset = -this.getBoundingBox().h() - 30;
+        this.getBoundingBox().move(0, moveOffset);
     };
 
     /**
@@ -131,9 +130,6 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
             var self = this;
             // Adding click event for 'statement' group.
             $(statementGroup.node()).click(function (statementView, event) {
-                var statementInstance = self;
-                var diagramRenderingContext = self.getDiagramRenderingContext();
-                log.debug("Clicked statement group");
 
                 event.stopPropagation();
                 $(window).trigger('click');
@@ -259,23 +255,16 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
 
                         $(this).unbind('click');
                     }
+                });
 
-                $(deleteButtonRect.node()).click(statementInstance, function(event){
-                    var statementViewInstance = event.data;
-                    var parentView = statementViewInstance.getParent();
-                    log.debug("Clicked delete button");
-
+                $(deleteButtonRect.node()).click(function(event){
                     event.stopPropagation();
-
+                    model.remove();
                     // Hiding property button pane.
                     $(propertyPaneWrapper).remove();
                     $(deleteButtonPaneGroup.node()).remove();
                     $(propertyButtonPaneGroup.node()).remove();
                     $(smallArrow.node()).remove();
-
-                    var child = model;
-                    var parent = child.parent;
-                    statementViewInstance.trigger("remove-view", parent, child);
                 });
 
             }.bind(statementGroup.node(), this));
@@ -321,19 +310,6 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
      */
     BallerinaStatementView.prototype.setDiagramRenderingContext = function (diagramRenderingContext) {
         this._diagramRenderingContext = diagramRenderingContext;
-    };
-
-    /**
-     * Unplug the view from the current context
-     * @param {object} options
-     * @param {ASTNode} parent - parent node
-     * @param {ASTNode} child - child node
-     */
-    BallerinaStatementView.prototype.unplugView = function (options, parent, child) {
-        // resize the bounding box in order to the other objects to resize
-        var moveOffset = -this.getBoundingBox().h() - 30;
-        this.getBoundingBox().move(0, moveOffset);
-        parent.removeChild(child);
     };
 
     return BallerinaStatementView;
