@@ -32,7 +32,7 @@ define(['lodash', './expression', './function-invocation'], function (_, Express
     FunctionInvocationExpression.prototype.constructor = FunctionInvocationExpression;
 
     FunctionInvocationExpression.prototype.setFunctionName = function (functionName) {
-        this._functionName = functionName;
+        this.setAttribute('_functionName', functionName);
     };
 
     FunctionInvocationExpression.prototype.getFunctionName = function () {
@@ -49,9 +49,8 @@ define(['lodash', './expression', './function-invocation'], function (_, Express
      */
     FunctionInvocationExpression.prototype.initFromJson = function (jsonNode) {
         var functionNameSplit = jsonNode.function_name.split(":");
-        var argsString = "";
         this.setFunctionName(jsonNode.function_name);
-        argsString += this._generateArgsString(jsonNode, argsString, ", ");
+        var argsString = this._generateArgsString(jsonNode);
 
         // TODO : need to remove following if/else by delegating this logic to parent(FunctionInvocation)
         if( this.getParent() instanceof FunctionInvocation){
@@ -66,7 +65,6 @@ define(['lodash', './expression', './function-invocation'], function (_, Express
         }else{
             this.setExpression(jsonNode.function_name + '(' + argsString +')');
         }
-
     };
 
     /**
@@ -77,8 +75,9 @@ define(['lodash', './expression', './function-invocation'], function (_, Express
      * @return {string} - Arguments as a string.
      * @private
      */
-    FunctionInvocationExpression.prototype._generateArgsString = function (jsonNode, argsString, separator) {
+    FunctionInvocationExpression.prototype._generateArgsString = function (jsonNode) {
         var self = this;
+        var argsString = "";
 
         for (var itr = 0; itr < jsonNode.children.length; itr++) {
             var childJsonNode = jsonNode.children[itr];
@@ -91,18 +90,14 @@ define(['lodash', './expression', './function-invocation'], function (_, Express
                 }
             } else if (childJsonNode.type == "variable_reference_expression") {
                 argsString += childJsonNode.variable_reference_name;
-            } else if (childJsonNode.type == "add_expression") {
-                argsString += self._generateArgsString(childJsonNode, argsString, " + ");
-            } else if (childJsonNode.type == "subtract_expression") {
-                argsString += self._generateArgsString(childJsonNode, argsString, " - ");
-            } else if (childJsonNode.type == "function_invocation_expression") {
+            } else {
                 var child = self.getFactory().createFromJson(childJsonNode);
                 child.initFromJson(childJsonNode);
-                argsString += self._generateArgsString(childJsonNode, child.getExpression(), " - ");
+                argsString += child.getExpression();
             }
 
             if (itr !== jsonNode.children.length - 1) {
-                argsString += separator;
+                argsString += ' , ';
             }
         }
         return argsString;
