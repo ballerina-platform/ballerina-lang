@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.transport.http.netty.contentaware.test;
+package org.wso2.carbon.transport.http.netty.contentaware;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,11 +24,11 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.MessageProcessorException;
-import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -36,19 +36,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * A Message Processor which creates Request and Response
+ * Transform message in request and response path
  */
-public class RequestResponseCreationProcessor implements CarbonMessageProcessor {
-
-    private Logger logger = LoggerFactory.getLogger(RequestMessageTransformProcessor.class);
+public class RequestResponseTransformProcessor implements CarbonMessageProcessor {
+    private static final Logger logger = LoggerFactory.getLogger(RequestResponseTransformProcessor.class);
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private String responseValue;
 
     private TransportSender transportSender;
 
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
-
-    public RequestResponseCreationProcessor(String responseValue) {
+    public RequestResponseTransformProcessor(String responseValue) {
         this.responseValue = responseValue;
     }
 
@@ -66,32 +64,32 @@ public class RequestResponseCreationProcessor implements CarbonMessageProcessor 
                     } else {
                         int length = carbonMessage.getFullMessageLength();
                         List<ByteBuffer> byteBufferList = carbonMessage.getFullMessageBody();
-                        ByteBuffer byteBuffer = ByteBuffer.allocate(length);
-                        byteBufferList.forEach(buf -> byteBuffer.put(buf));
-                        String requestValue = new String(byteBuffer.array());
-                        byte[] arry = responseValue.getBytes("UTF-8");
-                        CarbonMessage newMsg = MessageUtil.cloneCarbonMessageWithOutData(carbonMessage);
-                        if (newMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
-                            newMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(arry.length));
+
+                        ByteBuffer byteBuff = ByteBuffer.allocate(length);
+                        byteBufferList.forEach(buf -> byteBuff.put(buf));
+                        String requestValue = new String(byteBuff.array());
+
+                        carbonMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
+                        carbonMessage.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
+
+                        if (responseValue != null) {
+                            byte[] array = responseValue.getBytes("UTF-8");
+                            ByteBuffer byteBuffer = ByteBuffer.allocate(array.length);
+                            byteBuffer.put(array);
+                            carbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
+                            byteBuffer.flip();
+                            carbonMessage.addMessageBody(byteBuffer);
+                            carbonMessage.setEndOfMsgAdded(true);
+                            EngineCallBack engineCallBack = new EngineCallBack(requestValue, carbonCallback);
+                            transportSender.send(carbonMessage, engineCallBack);
                         }
-                        ByteBuffer byteBuffer1 = ByteBuffer.allocate(arry.length);
-                        byteBuffer1.put(arry);
-                        byteBuffer1.flip();
-                        newMsg.addMessageBody(byteBuffer1);
-                        newMsg.setEndOfMsgAdded(true);
-                        newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-                        newMsg.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
-                        EngineCallBack engineCallBack = new EngineCallBack(requestValue, carbonCallback);
-                        transportSender.send(newMsg, engineCallBack);
                     }
-                } catch (UnsupportedEncodingException e) {
-                    logger.error("Encoding is not supported", e);
+                } catch (IOException e) {
+                    logger.error("Error while reading stream", e);
                 } catch (MessageProcessorException e) {
                     logger.error("MessageProcessor is not supported ", e);
-                } finally {
                 }
             }
-
         });
 
         return false;
@@ -104,7 +102,7 @@ public class RequestResponseCreationProcessor implements CarbonMessageProcessor 
 
     @Override
     public String getId() {
-        return "RequestResponseCreationProcessor";
+        return null;
     }
 
     private class EngineCallBack implements CarbonCallback {
@@ -134,12 +132,8 @@ public class RequestResponseCreationProcessor implements CarbonMessageProcessor 
                 }
                 ByteBuffer byteBuff = ByteBuffer.allocate(array.length);
                 byteBuff.put(array);
+                carbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
                 byteBuff.flip();
-                carbonMessage = MessageUtil.cloneCarbonMessageWithOutData(carbonMessage);
-                if (carbonMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
-                    carbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(array.length));
-                }
-
                 carbonMessage.addMessageBody(byteBuff);
                 carbonMessage.setEndOfMsgAdded(true);
                 requestCallBack.done(carbonMessage);

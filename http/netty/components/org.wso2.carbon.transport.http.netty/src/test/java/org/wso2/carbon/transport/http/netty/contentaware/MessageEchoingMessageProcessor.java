@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.transport.http.netty.contentaware.test;
+package org.wso2.carbon.transport.http.netty.contentaware;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import org.slf4j.Logger;
@@ -28,18 +28,23 @@ import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 
+import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * A Message Processor which respond in streaming manner without buffering.
+ * A Message processor which echos the incoming message
  */
-public class ResponseStreamingWithoutBufferingProcessor implements CarbonMessageProcessor {
-    private static final Logger logger = LoggerFactory.getLogger(RequestResponseTransformStreamingProcessor.class);
+public class MessageEchoingMessageProcessor implements CarbonMessageProcessor {
+    private static final Logger logger = LoggerFactory.getLogger(MessageEchoingMessageProcessor.class);
+
+    private TransportSender transportSender;
+
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
-    public boolean receive(CarbonMessage carbonMessage, CarbonCallback callback) throws Exception {
+    public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
         executor.execute(new Runnable() {
             @Override
             public void run() {
@@ -47,32 +52,35 @@ public class ResponseStreamingWithoutBufferingProcessor implements CarbonMessage
                         .getProperty(org.wso2.carbon.messaging.Constants.DIRECTION)
                         .equals(org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE)) {
 
-                    callback.done(carbonMessage);
+                    carbonCallback.done(carbonMessage);
                 } else {
-                    CarbonMessage cMsg = new DefaultCarbonMessage(false);
+                    int length = carbonMessage.getFullMessageLength();
+                    List<ByteBuffer> fullMessage = carbonMessage.getFullMessageBody();
+                    ByteBuffer byteBuffer = ByteBuffer.allocate(length);
+                    fullMessage.forEach(buffer -> byteBuffer.put(buffer));
+                    CarbonMessage cMsg = new DefaultCarbonMessage();
                     cMsg.setHeader(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-                    cMsg.setHeader(HttpHeaders.Names.TRANSFER_ENCODING, HttpHeaders.Values.CHUNKED);
+                    cMsg.setHeader(HttpHeaders.Names.CONTENT_LENGTH, String.valueOf(length));
                     cMsg.setHeader(HttpHeaders.Names.CONTENT_TYPE, Constants.TEXT_PLAIN);
                     cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
-                    callback.done(cMsg);
-                    while (!(carbonMessage.isEmpty() && carbonMessage.isEndOfMsgAdded())) {
-                        cMsg.addMessageBody(carbonMessage.getMessageBody());
-                    }
+                    byteBuffer.flip();
+                    cMsg.addMessageBody(byteBuffer);
                     cMsg.setEndOfMsgAdded(true);
+                    carbonCallback.done(cMsg);
                 }
+
             }
         });
-
         return false;
     }
 
     @Override
-    public void setTransportSender(TransportSender sender) {
-
+    public void setTransportSender(TransportSender transportSender) {
+        this.transportSender = transportSender;
     }
 
     @Override
     public String getId() {
-        return "ResponseWritingWithoutBufferingProcessor";
+        return "message-echo-processor";
     }
 }

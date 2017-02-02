@@ -30,6 +30,7 @@ import io.netty.handler.codec.http.HttpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.config.RequestSizeValidationConfiguration;
 
 import java.nio.charset.Charset;
 import java.util.Iterator;

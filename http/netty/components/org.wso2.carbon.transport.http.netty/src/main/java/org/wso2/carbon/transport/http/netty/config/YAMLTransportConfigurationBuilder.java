@@ -15,6 +15,8 @@
  */
 package org.wso2.carbon.transport.http.netty.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.introspector.BeanAccess;
 
@@ -30,31 +32,44 @@ import java.nio.charset.StandardCharsets;
  */
 public class YAMLTransportConfigurationBuilder {
 
-    public static final String NETTY_TRANSPORT_CONF = "transports.netty.conf";
+    private static final String NETTY_TRANSPORT_CONF = "transports.netty.conf";
+
+    private static TransportsConfiguration transportsConfiguration;
+
+    private static final Logger log = LoggerFactory.getLogger(YAMLTransportConfigurationBuilder.class);
 
     /**
      * Parses &amp; creates the object model for the Netty transport yaml configuration file.
      *
      * @return TransportsConfiguration
      */
-    public static TransportsConfiguration build() {
-        TransportsConfiguration transportsConfiguration;
-        String nettyTransportsConfigFile =
-                System.getProperty(NETTY_TRANSPORT_CONF,
-                        "conf" + File.separator + "transports" + File.separator + "netty-transports.yml");
+    public static synchronized TransportsConfiguration build() {
+        if (transportsConfiguration == null) {
+            String nettyTransportsConfigFile = System.getProperty(NETTY_TRANSPORT_CONF,
+                    "conf" + File.separator + "transports" + File.separator + "netty-transports.yml");
+            transportsConfiguration = build(nettyTransportsConfigFile);
+        }
 
-        File file = new File(nettyTransportsConfigFile);
-        if (file.exists()) {
-            try (Reader in = new InputStreamReader(new FileInputStream(file), StandardCharsets.ISO_8859_1)) {
-                Yaml yaml = new Yaml();
-                yaml.setBeanAccess(BeanAccess.FIELD);
-                transportsConfiguration = yaml.loadAs(in, TransportsConfiguration.class);
-            } catch (IOException e) {
-                String msg = "Error while loading " + nettyTransportsConfigFile + " configuration file";
-                throw new RuntimeException(msg, e);
+        return transportsConfiguration;
+    }
+
+    public  static synchronized TransportsConfiguration build(String nettyTransportsConfigFile) {
+        if (transportsConfiguration == null) {
+
+            File file = new File(nettyTransportsConfigFile);
+            if (file.exists()) {
+                try (Reader in = new InputStreamReader(new FileInputStream(file), StandardCharsets.ISO_8859_1)) {
+                    Yaml yaml = new Yaml();
+                    yaml.setBeanAccess(BeanAccess.FIELD);
+                    transportsConfiguration = yaml.loadAs(in, TransportsConfiguration.class);
+                } catch (IOException e) {
+                    String msg = "Error while loading " + nettyTransportsConfigFile + " configuration file";
+                    throw new RuntimeException(msg, e);
+                }
+            } else { // return a default config
+                log.warn("Netty transport configuration file not found in: " + nettyTransportsConfigFile);
+                transportsConfiguration = TransportsConfiguration.getDefault();
             }
-        } else { // return a default config
-            transportsConfiguration = TransportsConfiguration.getDefault();
         }
         return transportsConfiguration;
     }

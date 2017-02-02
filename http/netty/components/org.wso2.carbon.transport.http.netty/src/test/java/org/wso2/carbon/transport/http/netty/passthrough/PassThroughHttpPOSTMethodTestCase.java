@@ -16,15 +16,11 @@
  * under the License.
  */
 
-package org.wso2.carbon.transport.http.netty.passthrough.test;
+package org.wso2.carbon.transport.http.netty.passthrough;
 
 import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
@@ -41,13 +37,11 @@ import static org.testng.AssertJUnit.assertTrue;
 /**
  * A test class for passthrough transport
  */
-public class PassThroughHttpGetMethodTestCase {
+public class PassThroughHttpPOSTMethodTestCase {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(PassThroughHttpGetMethodTestCase.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(PassThroughHttpPOSTMethodTestCase.class);
 
     private HTTPTransportListener httpTransportListener;
-
-    private static final String testValue = "Test Message";
 
     private HTTPServer httpServer;
 
@@ -57,7 +51,7 @@ public class PassThroughHttpGetMethodTestCase {
 
     private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", 8490));
 
-    @BeforeClass(groups = "passthroughGET")
+    //@BeforeClass(groups = "passthroughPost",                        dependsOnGroups = "passthroughGET")
     public void setUp() {
         listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost(TestUtil.TEST_HOST);
@@ -66,14 +60,19 @@ public class PassThroughHttpGetMethodTestCase {
         senderConfiguration = new SenderConfiguration("passthrough-sender");
         httpTransportListener = TestUtil
                 .startCarbonTransport(listenerConfiguration, senderConfiguration, new PassthroughMessageProcessor());
-        httpServer = TestUtil.startHTTPServer(TestUtil.TEST_SERVER_PORT, testValue, Constants.TEXT_PLAIN);
+        httpServer = TestUtil.startHTTPServer(TestUtil.TEST_SERVER_PORT);
     }
 
-    @Test(groups = "passthroughGET")
-    public void passthrougGetTestCase() {
-        Object lock = new Object();
+    public PassThroughHttpPOSTMethodTestCase() {
+        super();
+    }
+
+    //@Test(groups = "passthroughPost",  dependsOnGroups = "passthroughGET")
+    public void passthroughPOSTTestCase() {
+        String testValue = "Test Message";
         try {
-            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.GET.name(), true);
+            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
+            TestUtil.writeContent(urlConn, testValue);
             String content = TestUtil.getContent(urlConn);
             assertEquals(testValue, content);
             urlConn.disconnect();
@@ -81,14 +80,10 @@ public class PassThroughHttpGetMethodTestCase {
             LOGGER.error("IO Exception occurred", e);
             assertTrue(false);
         }
+
     }
-
-    public PassThroughHttpGetMethodTestCase() {
-        super();
-    }
-
-
-    @AfterClass(groups = "passthroughGET")
+    
+    //@AfterClass(groups = "passthroughPost", dependsOnGroups = "passthroughGET")
     public void cleanUp() {
         TestUtil.cleanUp(httpTransportListener, httpServer);
     }

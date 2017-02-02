@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.transport.http.netty.passthrough.test;
+package org.wso2.carbon.transport.http.netty.passthrough;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,6 @@ public class PassthroughMessageProcessor implements CarbonMessageProcessor {
 
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
-        logger.info("CarbonCallBack " + carbonCallback);
         executor.execute(new Runnable() {
             @Override
             public void run() {
@@ -50,11 +49,8 @@ public class PassthroughMessageProcessor implements CarbonMessageProcessor {
                     if (carbonMessage.getProperty(org.wso2.carbon.messaging.Constants.DIRECTION) != null
                             && carbonMessage.getProperty(org.wso2.carbon.messaging.Constants.DIRECTION)
                             .equals(org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE)) {
-                        logger.info("CarbonCallBack " + carbonCallback);
-
                         carbonCallback.done(carbonMessage);
                     } else {
-                        logger.info("Sending CarbonCallBack " + carbonCallback);
                         carbonMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
                         carbonMessage.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
                         transportSender.send(carbonMessage, carbonCallback);
