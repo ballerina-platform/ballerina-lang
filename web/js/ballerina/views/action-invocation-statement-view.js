@@ -148,19 +148,18 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             actionInvocationModel.accept(this);
 
             // Creating property pane
-            var editableProperties = [
-                {
+            var editableProperty = {
                     propertyType: "text",
                     key: "Action Invocation",
                     model: this._model,
                     getterMethod: this._model.getStatementString,
                     setterMethod: this._model.setStatementString
-                }
-            ];
+            };
+
             this._createPropertyPane({
                 model: actionInvocationModel,
                 statementGroup: assignmentStatementGroup,
-                editableProperties: editableProperties
+                editableProperties: editableProperty
             });
 
             this.parentContainer = d3.select(parentGroup);
