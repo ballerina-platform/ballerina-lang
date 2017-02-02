@@ -228,6 +228,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.visitAssignmentStatement(node);
         } else if (node instanceof AST.Assignment) {
             return this.visitAssignment(node);
+        } else if (node instanceof AST.ActionInvocationStatement) {
+            return this.visitActionInvocationStatement(node);
         } else if (node instanceof AST.Expression) {
             return this.visitExpression(node);
         } else if (node instanceof AST.ReplyStatement) {
@@ -313,7 +315,7 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         }  else if (node instanceof AST.Assignment) {
             return this.beginVisitAssignment(node);
         } else if (node instanceof AST.ActionInvocationStatement) {
-                return this.beginVisitActionInvocationStatement(node);
+            return this.beginVisitActionInvocationStatement(node);
         } else if (node instanceof AST.Expression) {
             return this.beginVisitExpression(node);
         } else if (node instanceof AST.ReplyStatement) {
