@@ -21,8 +21,8 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
+import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.docgen.docs.DocumentWriter;
-import org.wso2.ballerina.docgen.docs.model.BallerinaPackageDoc;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +37,6 @@ public class HtmlDocumentWriter implements DocumentWriter {
 
     private static PrintStream out = System.out;
 
-    public static final String FILE_RESOURCE_LOADER_PATH_KEY = "file.resource.loader.path";
     public static final String PACKAGE_TEMPLATE_FILE_KEY = "package.template.filename";
     public static final String HTML_OUTPUT_PATH_KEY = "html.output.path";
     public static final String TEMPLATES_FOLDER_PATH_KEY = "templates.folder.path";
@@ -56,35 +55,35 @@ public class HtmlDocumentWriter implements DocumentWriter {
     }
 
     @Override
-    public void write(Collection<BallerinaPackageDoc> ballerinaPackageDocs) {
-        if (ballerinaPackageDocs == null || ballerinaPackageDocs.size() == 0) {
+    public void write(Collection<Package> packages) {
+        if (packages == null || packages.size() == 0) {
             out.println("No package definitions found!");
             return;
         }
 
         out.println("Generating HTML API documentation...");
-        for (BallerinaPackageDoc ballerinaPackageDoc : ballerinaPackageDocs) {
-            writeHtmlDocument(ballerinaPackageDoc);
+        for (Package balPackage : packages) {
+            writeHtmlDocument(balPackage);
         }
     }
 
     /**
      * Write HTML document for a given ballerina package
-     * @param ballerinaPackageDoc Ballerina package document object
+     * @param balPackage Ballerina package object
      */
-    private void writeHtmlDocument(BallerinaPackageDoc ballerinaPackageDoc) {
+    private void writeHtmlDocument(Package balPackage) {
         PrintWriter writer = null;
         try {
             TemplateLoader templateLoader = new FileTemplateLoader(templatesFolderPath);
             Handlebars handlebars = new Handlebars(templateLoader);
             Template template = handlebars.compile(packageTemplateFileName);
 
-            String filePath = outputFilePath + File.separator + ballerinaPackageDoc.getName() + ".html";
+            String filePath = outputFilePath + File.separator + balPackage.getFullyQualifiedName() + ".html";
             writer = new PrintWriter(filePath, "UTF-8");
-            writer.println(template.apply(ballerinaPackageDoc));
+            writer.println(template.apply(balPackage));
             out.println("HTML file written: " + filePath);
         } catch (IOException e) {
-            out.println("Docerina: Could not write HTML file of package " + ballerinaPackageDoc.getName() +
+            out.println("Docerina: Could not write HTML file of package " + balPackage.getFullyQualifiedName() +
                     System.lineSeparator() + e.getMessage());
         } finally {
             if (writer != null) {

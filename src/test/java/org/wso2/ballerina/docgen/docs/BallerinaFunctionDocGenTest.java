@@ -21,11 +21,12 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.docgen.docs.model.BallerinaPackageDoc;
+import org.wso2.ballerina.core.model.Function;
+import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocGenTestUtils;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 public class BallerinaFunctionDocGenTest {
@@ -39,19 +40,19 @@ public class BallerinaFunctionDocGenTest {
     @Test(description = "Test a Bal file with one Function")
     public void testABalWithOneFunction() {
         try {
-            Map<String, BallerinaPackageDoc> docsMap =
+            Map<String, Package> docsMap =
                     BallerinaDocGeneratorMain.generatePackageDocsFromBallerina(resources + "helloWorld.bal");
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
             BallerinaDocGenTestUtils.printDocMap(docsMap);
             
-            BallerinaPackageDoc doc = docsMap.get("a.b");
-            List<BallerinaFunction> function = doc.getFunctions();
-            Assert.assertEquals(function.size(), 1);
-            BallerinaFunction funcDoc = function.get(0);
-            Assert.assertEquals(funcDoc.getParameters().length, 1);
-            Assert.assertEquals(funcDoc.getReturnParameters().length, 1);
-            //Assert.assertEquals(funcDoc.getThrownExceptions().size(), 0);
+            Package doc = docsMap.get("a.b");
+            Collection<Function> functions = doc.getPublicFunctions().values();
+            Assert.assertEquals(functions.size(), 1);
+
+            BallerinaFunction function = (BallerinaFunction) functions.iterator().next();
+            Assert.assertEquals(function.getParameters().length, 1);
+            Assert.assertEquals(function.getReturnParameters().length, 1);
         } catch (IOException e) {
             Assert.fail();
         } finally {
@@ -62,22 +63,23 @@ public class BallerinaFunctionDocGenTest {
     @Test(description = "Test a Bal file with multiple Functions")
     public void testABalWithMultipleFunctions() {
         try {
-            Map<String, BallerinaPackageDoc> docsMap =
+            Map<String, Package> docsMap =
                     BallerinaDocGeneratorMain.generatePackageDocsFromBallerina(resources + "balWith2Functions.bal");
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
             BallerinaDocGenTestUtils.printDocMap(docsMap);
             
-            BallerinaPackageDoc doc = docsMap.get("a.b");
-            List<BallerinaFunction> functions = doc.getFunctions();
+            Package doc = docsMap.get("a.b");
+            Collection<Function> functions = doc.getPublicFunctions().values();
             Assert.assertEquals(functions.size(), 2);
-            BallerinaFunction function = functions.get(0);
+
+            BallerinaFunction function = (BallerinaFunction) functions.iterator().next();
             Assert.assertEquals(function.getParameters().length, 1);
             Assert.assertEquals(function.getReturnParameters().length, 1);
 
-            BallerinaFunction function1 = functions.get(1);
-            Assert.assertEquals(function1.getParameters().length, 2);
-            Assert.assertEquals(function1.getReturnParameters().length, 0);
+            BallerinaFunction function1 = (BallerinaFunction) functions.iterator().next();
+            Assert.assertEquals(function1.getParameters().length, 1);
+            Assert.assertEquals(function1.getReturnParameters().length, 1);
         } catch (IOException e) {
             Assert.fail();
         } finally {
@@ -88,7 +90,7 @@ public class BallerinaFunctionDocGenTest {
     // @Test(description = "Test a bal file with native functions")
     // public void testABalWithNativeFunctions() {
     //     try {
-    //         Map<String, BallerinaPackageDoc> docsMap =
+    //         Map<String, Package> docsMap =
     //            BallerinaDocGeneratorMain.generatePackageDocsFromBallerina(resources + "balWithNativeFunctions.bal");
     //         Assert.assertNotNull(docsMap);
     //         Assert.assertEquals(docsMap.size(), 1);

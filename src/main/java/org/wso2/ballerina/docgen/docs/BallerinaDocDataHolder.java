@@ -18,7 +18,7 @@
 
 package org.wso2.ballerina.docgen.docs;
 
-import org.wso2.ballerina.docgen.docs.model.BallerinaPackageDoc;
+import org.wso2.ballerina.core.model.Package;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,19 +35,19 @@ public class BallerinaDocDataHolder {
     }
     /**
      * Key - package name
-     * Value - {@link BallerinaPackageDoc}
+     * Value - {@link Package}
      */
-    private Map<String, BallerinaPackageDoc> ballerinaPackageDocsMap;
+    private Map<String, Package> packageMap;
 
     protected BallerinaDocDataHolder() {
-        ballerinaPackageDocsMap = new HashMap<String, BallerinaPackageDoc>();
+        packageMap = new HashMap<String, Package>();
     }
 
-    public Map<String, BallerinaPackageDoc> getBallerinaPackageDocsMap() {
-        return ballerinaPackageDocsMap;
+    public Map<String, Package> getPackageMap() {
+        return packageMap;
     }
 
-    public void setBallerinaPackageDocsMap(Map<String, BallerinaPackageDoc> ballerinaPackageDocsMap) {
-        this.ballerinaPackageDocsMap = ballerinaPackageDocsMap;
+    public void setPackageMap(Map<String, Package> packageMap) {
+        this.packageMap = packageMap;
     }
 }
