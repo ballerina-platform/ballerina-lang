@@ -136,6 +136,11 @@ public class BallerinaAction implements Action, Node {
         return connectorDcls;
     }
 
+    public Worker[] getWorkers() {
+        return workers;
+    }
+
+
     /**
      * {@inheritDoc}
      */

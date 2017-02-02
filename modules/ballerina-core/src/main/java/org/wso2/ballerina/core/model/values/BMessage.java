@@ -211,4 +211,12 @@ public final class BMessage implements BRefType<CarbonMessage> {
 
         return MessageUtils.getStringFromInputStream(this.value.getInputStream());
     }
+
+    public BMessage clone() {
+        BMessage clonedMessage = new BMessage();
+        clonedMessage.setBuiltPayload(this.builtPayload);
+        clonedMessage.setValue(this.value);
+        clonedMessage.setHeaderList(this.getHeaders());
+        return clonedMessage;
+    }
 }

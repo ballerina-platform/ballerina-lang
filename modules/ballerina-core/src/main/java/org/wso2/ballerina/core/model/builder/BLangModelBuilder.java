@@ -38,6 +38,7 @@ import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
@@ -76,6 +77,8 @@ import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.statements.WorkerInvocationStmt;
+import org.wso2.ballerina.core.model.statements.WorkerReplyStmt;
 import org.wso2.ballerina.core.model.types.BStructType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
@@ -113,6 +116,9 @@ public class BLangModelBuilder {
 
     // Builds functions, actions and resources.
     private CallableUnitBuilder currentCUBuilder;
+
+    // Keep the parent CUBuilder for worker
+    private CallableUnitBuilder parentCUBuilder;
     
     // Builds user defined structs.
     private BallerinaStruct.StructBuilder structBuilder;
@@ -597,6 +603,13 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
+    public void startWorkerUnit() {
+        if (currentCUBuilder != null) {
+            parentCUBuilder = currentCUBuilder;
+        }
+        currentCUBuilder = new CallableUnitBuilder();
+    }
+
     public void createFunction(String name, boolean isPublic, Position sourceLocation, int position) {
         currentCUBuilder.setName(new SymbolName(name, pkgName));
         currentCUBuilder.setPublic(isPublic);
@@ -639,6 +652,23 @@ public class BLangModelBuilder {
         currentCUGroupBuilder.addResource(resource);
 
         currentCUBuilder = null;
+    }
+
+    public void createWorker(String name, Position sourceLocation) {
+        currentCUBuilder.setName(new SymbolName(name, pkgName));
+        currentCUBuilder.setPosition(sourceLocation);
+
+        Worker worker = currentCUBuilder.buildWorker();
+        parentCUBuilder.addWorker(worker);
+
+        currentCUBuilder = parentCUBuilder;
+        parentCUBuilder = null;
+//        // Take the function body and set that as the CUBuilder body
+//        if (!blockStmtBuilderStack.empty()) {
+//            BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+//            BlockStmt blockStmt = blockStmtBuilder.build();
+//            currentCUBuilder.setBody(blockStmt);
+//        }
     }
 
     public void createAction(String name, Position sourceLocation) {
@@ -802,6 +832,21 @@ public class BLangModelBuilder {
         FunctionInvocationStmt functionInvocationStmt = stmtBuilder.build();
 
         blockStmtBuilderStack.peek().addStmt(functionInvocationStmt);
+    }
+
+    public void createWorkerInvocationStmt(String receivingMsgRef, Position sourceLocation) {
+        VariableRefExpr variableRefExpr = new VariableRefExpr(new SymbolName(receivingMsgRef));
+        WorkerInvocationStmt workerInvocationStmt = new WorkerInvocationStmt(symbolNameStack.pop());
+        workerInvocationStmt.setLocation(sourceLocation);
+        workerInvocationStmt.setInMsg(variableRefExpr);
+        blockStmtBuilderStack.peek().addStmt(workerInvocationStmt);
+    }
+
+    public void createWorkerReplyStmt(String receivingMsgRef, String workerName, Position sourceLocation) {
+        VariableRefExpr variableRefExpr = new VariableRefExpr(new SymbolName(receivingMsgRef));
+        WorkerReplyStmt workerReplyStmt = new WorkerReplyStmt(variableRefExpr, workerName);
+        workerReplyStmt.setLocation(sourceLocation);
+        blockStmtBuilderStack.peek().addStmt(workerReplyStmt);
     }
 
     public void createActionInvocationStmt(Position sourceLocation) {

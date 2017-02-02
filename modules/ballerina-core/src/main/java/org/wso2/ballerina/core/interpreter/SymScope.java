@@ -94,6 +94,7 @@ public class SymScope {
         FUNCTION("_function"),
         RESOURCE("_resource"),
         ACTION("_action"),
+        WORKER("_worker"),
         STRUCT("_struct"),
         TYPECONVERTOR("_typeconvertor");
 

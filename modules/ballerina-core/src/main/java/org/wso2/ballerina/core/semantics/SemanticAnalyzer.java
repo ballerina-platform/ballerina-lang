@@ -27,6 +27,7 @@ import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.interpreter.SymTable;
+import org.wso2.ballerina.core.interpreter.WorkerVarLocation;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BTypeConvertor;
@@ -95,6 +96,8 @@ import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.statements.WorkerInvocationStmt;
+import org.wso2.ballerina.core.model.statements.WorkerReplyStmt;
 import org.wso2.ballerina.core.model.types.BArrayType;
 import org.wso2.ballerina.core.model.types.BMapType;
 import org.wso2.ballerina.core.model.types.BStructType;
@@ -124,10 +127,12 @@ public class SemanticAnalyzer implements NodeVisitor {
     private int staticMemAddrOffset = -1;
     private int connectorMemAddrOffset = -1;
     private int structMemAddrOffset = -1;
+    private int workerMemAddrOffset = -1;
     private SymTable symbolTable;
     private String currentPkg;
     private TypeLattice packageTypeLattice;
     private CallableUnit currentCallableUnit = null;
+    private CallableUnit parentCallableUnit = null;
     // following pattern matches ${anyString} or ${anyString[int]} or ${anyString["anyString"]}
     private static final String patternString = "\\$\\{((\\w+)(\\[(\\d+|\\\"(\\w+)\\\")\\])?)\\}";
     private static final Pattern compiledPattern = Pattern.compile(patternString);
@@ -320,6 +325,11 @@ public class SemanticAnalyzer implements NodeVisitor {
             stackFrameOffset++;
             visit(variableDcl);
         }
+
+        for (Worker worker : resource.getWorkers()) {
+            stackFrameOffset++;
+            visit(worker);
+        }
         
         BlockStmt blockStmt = resource.getResourceBody();
         blockStmt.accept(this);
@@ -356,6 +366,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (VariableDcl variableDcl : function.getVariableDcls()) {
             stackFrameOffset++;
             visit(variableDcl);
+        }
+
+        for (Worker worker : function.getWorkers()) {
+            visit(worker);
+            addWorkerSymbol(worker);
         }
         
         for (Parameter parameter : function.getReturnParameters()) {
@@ -462,7 +477,12 @@ public class SemanticAnalyzer implements NodeVisitor {
             stackFrameOffset++;
             visit(variableDcl);
         }
-        
+
+        for (Worker worker : action.getWorkers()) {
+            stackFrameOffset++;
+            visit(worker);
+        }
+
         for (Parameter parameter : action.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
@@ -495,7 +515,58 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(Worker worker) {
+        // Open a new symbol scope
+        openScope(SymScope.Name.WORKER);
+        parentCallableUnit = currentCallableUnit;
+        currentCallableUnit = worker;
 
+        // Check whether the return statement is missing. Ignore if the function does not return anything.
+        // TODO Define proper error message codes
+        //checkForMissingReturnStmt(action, "missing return statement at end of action");
+
+        for (Parameter parameter : worker.getParameters()) {
+            workerMemAddrOffset++;
+            visit(parameter);
+        }
+
+        for (ConnectorDcl connectorDcl : worker.getConnectorDcls()) {
+            workerMemAddrOffset++;
+            visit(connectorDcl);
+        }
+
+        for (VariableDcl variableDcl : worker.getVariableDcls()) {
+            workerMemAddrOffset++;
+            visit(variableDcl);
+        }
+
+        BlockStmt blockStmt = worker.getCallableUnitBody();
+        blockStmt.accept(this);
+
+        // Here we need to calculate size of the BValue array which will be created in the stack frame
+        // Values in the stack frame are stored in the following order.
+        // -- Parameter values --
+        // -- Local var values --
+        // -- Temp values      --
+        // -- Return values    --
+        // These temp values are results of intermediate expression evaluations.
+        int sizeOfStackFrame = workerMemAddrOffset + 1;
+        worker.setStackFrameSize(sizeOfStackFrame);
+
+        // Close the symbol scope
+        workerMemAddrOffset = -1;
+        currentCallableUnit = parentCallableUnit;
+        closeScope();
+    }
+
+    private void addWorkerSymbol(Worker worker) {
+        SymbolName symName = worker.getSymbolName();
+        Symbol symbol = symbolTable.lookup(symName);
+        if (symbol != null && isSymbolInCurrentScope(symbol)) {
+            throw new SemanticException(getLocationStr(worker.getLocation()) + "Duplicate variable '" +
+                    symName.getName() + "'.");
+        }
+        symbol = new Symbol(worker);
+        symbolTable.insert(symName, symbol);
     }
 
     @Override
@@ -520,8 +591,9 @@ public class SemanticAnalyzer implements NodeVisitor {
                 isInScope(SymScope.Name.RESOURCE) ||
                 isInScope(SymScope.Name.ACTION) ||
                 isInScope(SymScope.Name.TYPECONVERTOR)) {
-
             location = new LocalVarLocation(stackFrameOffset);
+        } else if (isInScope(SymScope.Name.WORKER)) {
+            location = new WorkerVarLocation(workerMemAddrOffset);
         } else {
             // This error should not be thrown
             throw new IllegalStateException("Parameter declaration is invalid");
@@ -557,6 +629,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             location = new LocalVarLocation(stackFrameOffset);
         } else if (isInScope(SymScope.Name.PACKAGE)) {
             location = new StructVarLocation(structMemAddrOffset);
+        } else if (isInScope(SymScope.Name.WORKER)) {
+            location = new WorkerVarLocation(workerMemAddrOffset);
         } else {
             // This error should not be thrown
             throw new IllegalStateException("Variable declaration is invalid");
@@ -607,8 +681,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (isInScope(SymScope.Name.FUNCTION) ||
                 isInScope(SymScope.Name.RESOURCE) ||
                 isInScope(SymScope.Name.ACTION)) {
-
             location = new LocalVarLocation(stackFrameOffset);
+        } else if (isInScope(SymScope.Name.WORKER)) {
+            location = new WorkerVarLocation(workerMemAddrOffset);
         } else {
             // This error should not be thrown
             throw new IllegalStateException("Connector declaration is invalid");
@@ -777,6 +852,33 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(ActionInvocationStmt actionInvocationStmt) {
         actionInvocationStmt.getActionInvocationExpr().accept(this);
+    }
+
+    @Override
+    public void visit(WorkerInvocationStmt workerInvocationStmt) {
+        VariableRefExpr variableRefExpr = workerInvocationStmt.getInMsg();
+        variableRefExpr.accept(this);
+
+        linkWorker(workerInvocationStmt);
+
+        //Find the return types of this function invocation expression.
+        Parameter[] returnParams = workerInvocationStmt.getCallableUnit().getReturnParameters();
+        BType[] returnTypes = new BType[returnParams.length];
+        for (int i = 0; i < returnParams.length; i++) {
+            returnTypes[i] = returnParams[i].getType();
+        }
+        workerInvocationStmt.setTypes(returnTypes);
+    }
+
+    @Override
+    public void visit(WorkerReplyStmt workerReplyStmt) {
+        String workerName = workerReplyStmt.getWorkerName();
+        SymbolName workerSymbol = new SymbolName(workerName);
+        VariableRefExpr variableRefExpr = workerReplyStmt.getReceiveExpr();
+        variableRefExpr.accept(this);
+        Symbol workerSym = symbolTable.lookup(workerSymbol);
+        Worker worker = workerSym.getWorker();
+        workerReplyStmt.setWorker(worker);
     }
 
     @Override
@@ -1803,6 +1905,32 @@ public class SemanticAnalyzer implements NodeVisitor {
                 action.getReturnParameters()[0].getType() : null);
     }
 
+    private void linkWorker(WorkerInvocationStmt workerInvocationStmt) {
+
+        SymbolName workerName = workerInvocationStmt.getCallableUnitName();
+        String pkgPath = getPackagePath(workerName);
+        workerName.setPkgName(pkgPath);
+
+        Symbol symbol = symbolTable.lookup(workerName);
+        if (symbol == null) {
+            throw new LinkerException(workerInvocationStmt.getLocation().getFileName() + ":" +
+                    workerInvocationStmt.getLocation().getLine() +
+                    ": undefined worker '" + workerInvocationStmt.getCallableUnitName().getName() + "'");
+        }
+
+        // Package name null means the function is defined in the same bal file.
+        // Hence set the package name of the bal file as the function's package name.
+        // TODO: Do this in a better way
+        if (workerName.getPkgName() == null) {
+            String fullPackageName = getPackagePath(new SymbolName(workerName.getName(), currentPkg));
+            workerName.setPkgName(fullPackageName);
+        }
+
+        // Link
+        Worker worker = symbol.getWorker();
+        workerInvocationStmt.setCallableUnit(worker);
+    }
+
     private String getLocationStr(Position location) {
         return location.getFileName() + ":" +  location.getLine() + ": ";
     }
@@ -1926,6 +2054,12 @@ public class SemanticAnalyzer implements NodeVisitor {
             fieldExpr.accept(this);
         }
     }
+
+    @Override
+    public void visit(WorkerVarLocation workerVarLocation) {
+
+    }
+
     /**
      * Set the memory location for a expression.
      * 
