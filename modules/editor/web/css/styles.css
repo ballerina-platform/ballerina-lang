@@ -552,7 +552,7 @@ button.variable-list {
 }
 
 .property-pane-form-body-property-wrapper {
-    /*padding: 7px 7px 2px 7px;*/
+    padding: 7px 7px 2px 7px;
 }
 
 .expression-editor-form-body-property-wrapper {
