@@ -27,7 +27,6 @@ import org.wso2.ballerina.core.EnvironmentInitializer;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.message.StringDataSource;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.MessageUtils;
@@ -54,6 +53,7 @@ public class SQLConnectorTest {
         initDatabase();
     }
 
+    //Update Action Tests
     @Test(description = "Test Create Table")
     public void testActionCreateTable() {
 
@@ -67,6 +67,46 @@ public class SQLConnectorTest {
         Assert.assertEquals(stringDataSource.getValue(), "0");
     }
 
+    @Test(description = "Test Insert Data")
+    public void testActionInsertData() {
+
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/actionInsertData", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+
+        Assert.assertEquals(stringDataSource.getValue(), "1");
+    }
+
+    @Test(description = "Test Update Data")
+    public void testActionUpdateData() {
+
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/actionUpdateData", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+
+        Assert.assertEquals(stringDataSource.getValue(), "1");
+    }
+
+    @Test(description = "Test Insert Data with Generated Keys")
+    public void testActionInsertDataWithKeys() {
+
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/actionInsertDataWithKeys", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        int generatedKey = Integer.parseInt(stringDataSource.getValue());
+
+        Assert.assertTrue(generatedKey > 0);
+    }
+
     @Test(description = "Test Select Data")
     public void testActionSelectData() {
 
@@ -74,10 +114,10 @@ public class SQLConnectorTest {
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
 
-        BJSON bjson = (BJSON) response.getMessageDataSource();
-        Assert.assertNotNull(bjson);
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
 
-        Assert.assertEquals(bjson.stringValue(), "[{\"FIRSTNAME\":\"Peter\"}]");
+        Assert.assertEquals(stringDataSource.getValue(), "Peter");
     }
 
     private void initDatabase() {

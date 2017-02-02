@@ -46,7 +46,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.SQLConnector;
                           type = TypeEnum.STRING),
                 @Argument(name = "keyColumns",
                           type = TypeEnum.ARRAY,
-                          elementType = TypeEnum.STRING) /*, //TODO:Add Parameter [],String[]
+                          elementType = TypeEnum.STRING) /*, //TODO:Add Parameter []
                 @Argument(name = "optionalProperties",
                           type = TypeEnum.MAP)*/
         },
