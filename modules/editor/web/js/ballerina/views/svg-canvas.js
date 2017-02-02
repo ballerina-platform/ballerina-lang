@@ -40,25 +40,37 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './canvas'],
              * @private
              */
             this._rootGroup = undefined;
+
+            /**
+             * Minimum height of the SVG
+             * @type {number} - Height
+             * @private
+             */
+            this._minSVGHeight = 400;
         };
 
         SVGCanvas.prototype = Object.create(Canvas.prototype);
         SVGCanvas.prototype.constructor = SVGCanvas;
 
+        /**
+         * Draws the main body of the model
+         * @param {Object} options - Options for modifying the canvas
+         * @param {string} id - The ID of the model.
+         * @param {string} name - The type of model.
+         * @param {string} title - The identifier of the model.
+         * @override
+         */
         SVGCanvas.prototype.drawAccordionCanvas = function (options, id, name, title) {
             Canvas.prototype.drawAccordionCanvas.call(this, options, id, name, title);
 
             //// Creating the SVG.
-
-            // Wrapper for the SVG
-
             this._svg = $("<svg class='" + _.get(options, "cssClass.svg_container", "") + "'></svg>")
                 .appendTo(this.getBodyWrapper());
 
             this._rootGroup = D3Utils.group(d3.select(this._svg.get(0)));
 
             // Setting initial height of the SVG.
-            this.setSVGHeight(300);
+            this.setSVGHeight(this._minSVGHeight);
 
             $(this.getBodyWrapper()).mCustomScrollbar({
                 theme: "dark",
@@ -73,16 +85,18 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './canvas'],
 
         /**
          * Set canvas container height
-         * @param newHeight
+         * @param {number} newHeight - Height
          */
         SVGCanvas.prototype.setSVGHeight = function (newHeight) {
-            this._svg.attr('height', newHeight);
-            this.getBoundingBox().h(newHeight);
+            var dn = newHeight < this._minHeight ? this._minHeight : newHeight;
+            this._svg.attr('height', dn);
+            this.getBoundingBox().h(dn);
 
             // If service container's height is lesser than the height of the svg
             // Increase the height of the service container and the inner div
             if ($(this._container).closest("svg").attr('height')) {
-                if ($(this._container).closest(".panel-body").height() < $(this._container).closest("svg").attr('height')) {
+                if ($(this._container).closest(".panel-body").height() < $(this._container).closest("svg")
+                        .attr('height')) {
                     $(this._container).closest(".panel-body").height($(this._container).closest("svg").attr("height"));
                     $(this._container).closest(".panel-body").find("#" + $(this._container).closest(".panel-body")
                             .attr("id")).height($(this._container).closest("svg").attr('height'));
@@ -98,7 +112,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './canvas'],
 
         /**
          * Set canvas container width
-         * @param {number} newWidth
+         * @param {number} newWidth - The width.
          */
         SVGCanvas.prototype.setSVGWidth = function (newWidth) {
             this._svg.attr('width', newWidth);
