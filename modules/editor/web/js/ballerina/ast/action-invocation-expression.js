@@ -96,7 +96,7 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
             // update the expression when modifying connector variable
             this.setExpression(insertConnectorVariableToExpression(false, connectorVariableReference, this.getExpression()));
         }
-        this._connectorVariableReference = connectorVariableReference;
+        this.setAttribute('_connectorVariableReference', connectorVariableReference);
     };
     /**
      * Get Connector variable reference
@@ -112,7 +112,7 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
 
     ActionInvocationExpression.prototype.setConnector = function(connector){
         if(!_.isNil(connector)){
-            this._connector = connector;
+            this.setAttribute("_connector", connector);
         }
     };
 
@@ -127,7 +127,6 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
         this.setActionName(jsonNode.action_name);
         this.setActionPackageName(jsonNode.action_pkg_name);
         this.setActionConnectorName(jsonNode.action_connector_name);
-
         if(!_.isUndefined(this.getConnector())) {
             //if connector is available, arguments needs to be added from second in children
             var argStartIndex = 1;
@@ -137,7 +136,7 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
         }
 
         var self = this;
-
+        
         _.each(_.slice(jsonNode.children, argStartIndex), function (argNode) {
             var arg = self.getFactory().createFromJson(argNode);
             arg.initFromJson(argNode);
@@ -156,7 +155,6 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
     };
 
     ActionInvocationExpression.prototype.getInvocationConnector = function (connectorVariable) {
-        //TODO : Need to refactor the whole method
         var parent = this.getParent();
         var factory = this.getFactory();
         while (!factory.isBallerinaAstRoot(parent)) {

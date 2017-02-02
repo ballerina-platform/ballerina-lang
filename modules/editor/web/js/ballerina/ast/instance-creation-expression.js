@@ -33,7 +33,7 @@ define(['lodash', './expression'], function (_, Expression) {
     InstanceCreationExpression.prototype.constructor = InstanceCreationExpression;
 
     InstanceCreationExpression.prototype.setTypeName = function (typeName) {
-        this._typeName = typeName;
+        this.setAttribute('_typeName', typeName);
     };
 
     InstanceCreationExpression.prototype.getTypeName = function () {
