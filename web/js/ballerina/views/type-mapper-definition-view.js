@@ -27,7 +27,6 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         this._viewOptions.panelIcon = _.get(args.viewOptions, "cssClass.type_mapper_icon");
         //set initial height for the type mapper container svg
         this._totalHeight = 30;
-
         if (_.isNil(this._model) || !(BallerinaASTFactory.isTypeMapperDefinition(this._model))) {
             log.error("Type Mapper definition is undefined or is of different type." + this._model);
             throw "Type Mapper definition is undefined or is of different type." + this._model;
@@ -62,7 +61,8 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
 
         console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         //todo get current package name dynamically
-        var predefinedStructs = diagramRenderingContext.getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
+        this._package = diagramRenderingContext.getPackagedScopedEnvironment().getCurrentPackage();
+        var predefinedStructs = this._package.getStructDefinitions();
         console.log(predefinedStructs);
 
         var dataMapperContainerId = "data-mapper-container-" + this._model.id;
@@ -82,7 +82,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         $(currentContainer).find("#" + sourceId).change(function () {
             var selectedArrayIndex = $("#" + sourceId + " option:selected").val();
             var selectedStructNameForSource = $("#" + sourceId + " option:selected").text();
-            // self._model.removeTypeStructDefinition("SOURCE");
+            self._model.removeTypeStructDefinition("SOURCE");
             var schema = predefinedStructs[selectedArrayIndex];
 
             if (selectedStructNameForSource != self._model.getSelectedStructNameForTarget()) {
@@ -112,7 +112,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
 
             var selectedArrayIndex = $("#" + targetId + " option:selected").val();
             var selectedStructNameForTarget = $("#" + targetId + " option:selected").text();
-            // self._model.removeTypeStructDefinition("TARGET");
+            self._model.removeTypeStructDefinition("TARGET");
             var schema = predefinedStructs[selectedArrayIndex];
 
             if (self._model.getSelectedStructNameForSource() != selectedStructNameForTarget) {
@@ -209,6 +209,9 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         leftOp.setLeftOperandExpressionString(leftOperandExpression);
         var rightOp = BallerinaASTFactory.createRightOperandExpression();
         var rightOperandExpression = "y." + connection.sourceProperty;
+        if (connection.isComplexMapping) {
+            rightOperandExpression = "(" + connection.complexMapperName + ":" + connection.targetType + ")" + rightOperandExpression;
+        }
         rightOp.setRightOperandExpressionString(rightOperandExpression);
         assignmentStmt.addChild(leftOp);
         assignmentStmt.addChild(rightOp);
