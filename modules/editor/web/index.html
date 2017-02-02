@@ -47,6 +47,8 @@
     <link rel="stylesheet" type="text/css" href="css/tool-palette.css"/>
     <link rel="stylesheet" type="text/css" href="css/workspace-explorer.css"/>
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
+    <link rel="stylesheet" type="text/css" href="css/debugger.css"/>
+    <link rel="stylesheet" type="text/css" href="css/left-tool-bar.css"/>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -94,11 +96,22 @@
                 <div class="left-container">
                     <!-- Start: left tool bar -->
                     <div class="left-tool-bar" data-toggle="tooltip">
-                        <i class="fw fw-file-browse fw-lg workspace-explorer-activate-btn"></i>
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li>
+                                <a href="#workspace-explorer" role="tab" data-toggle="tab" class="workspace-explorer-activate-btn">
+                                    <i class="fw fw-file-browse fw-lg"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#debugger" role="tab" data-toggle="tab" class="debugger-activate-btn">
+                                    <i class="fw fw-bug fw-lg"></i>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                     <!-- End: left tool bar -->
                     <!-- Start: left side-bar -->
-                    <div class="sidebar-left nano">
+                    <div class="sidebar-left nano tab-content">
                     </div>
                     <div class="sidebar-left-separator"  draggable="true"></div>
                     <!-- End: left side-bar -->
@@ -521,7 +534,8 @@
             tool_bar: "js/tool-bar/tool-bar",
             alerts: "js/utils/alerts",
             breadcrumbs: "js/breadcrumbs/breadcrumbs",
-            property_pane_utils: "js/property-pane/property-pane-utils"
+            property_pane_utils: "js/property-pane/property-pane-utils",
+            debugger: "js/debugger/debugger"
         },
         shim: {
             "bootstrap": {"deps": ['jquery']}
@@ -568,6 +582,11 @@
                 name: 'dialogs',
                 location: 'js/dialog',
                 main: 'module'
+            },
+            {
+                name: 'debugger',
+                location: 'js/debugger',
+                main: 'module'
             }
         ]
     });
@@ -602,6 +621,9 @@
                 },
                 parser:  {
                     endpoint: "http://localhost:8289/ballerina/model/content"
+                },
+                debugger: {
+                    endpoint: "ws://localhost:5009/debug"
                 }
             },
             alerts: {
@@ -708,7 +730,7 @@
                             cssClass:{
                                 text_editor_class: 'text-editor',
                                 outer_box: 'outer-box',
-                                service_container: 'service-container',
+                                svg_container: 'svg-container',
                                 outer_div: 'panel panel-default container-outer-div',
                                 panel_title: 'panel-title',
                                 panel_icon: 'panel-icon',
@@ -716,10 +738,11 @@
                                 struct_icon: 'fw fw-dgm-service fw-inverse',
                                 connector_icon:'fw fw-connector fw-inverse',
                                 function_icon:'fw fw-function fw-inverse',
-                                title_link:'collapsed',
+                                title_link:'collapsed canvas-title',
                                 panel_right_icon:'fw fw-up pull-right right-icon-clickable collapser hoverable',
+                                head_div: 'canvas-heading',
                                 body_div:'panel-collapse collapse',
-                                canvas: 'panel-body',
+                                canvas: 'panel-body collapse in',
                                 design_view_drop: 'design-view-hover',
                                 canvas_container: 'canvas-container',
                                 panel_delete_icon: 'fw fw-delete pull-right right-icon-clickable delete-icon hoverable',
@@ -765,8 +788,10 @@
                     minX: 200,
                     maxX: 800
                 },
+                containerId: 'workspace-explorer',
                 cssClass: {
-                    container: 'workspace-explorer-container',
+
+                    container: 'workspace-explorer-container tab-pane',
                     openFolderButton: 'btn  btn-default open-folder-button'
                 }
             },
@@ -785,6 +810,36 @@
                 errors_container: ".errors-container",
                 location_input: ".location-input",
                 submit_button: ".open-button"
+            },
+            debugger : {
+                container: ".sidebar-left",
+                activateBtn: '.debugger-activate-btn',
+                separator: '.sidebar-left-separator',
+                containerToAdjust: ".right-container",
+                leftOffset: 40,
+                separatorOffset: 5,
+                defaultWidth: 250,
+                resizeLimits:{
+                    minX: 200,
+                    maxX: 800
+                },
+                containerId: "debugger",
+                cssClass: {
+                    container: 'debugger-container tab-pane'
+                },
+                command: {
+                    id: "toggle-debugger",
+                    shortcuts: {
+                        mac: {
+                            key: "command+shift+d",
+                            label: "\u2318\u21E7d"
+                        },
+                        other: {
+                            key: "ctrl+shift+d",
+                            label: "Ctrl+Shift+d"
+                        }
+                    }
+                }
             }
         };
         app = new Application(config);
