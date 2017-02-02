@@ -267,6 +267,14 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
         return _.isUndefined(identifier) ? false : /^[a-zA-Z$_][a-zA-Z0-9$_]*$/.test(identifier);
     };
 
+    ASTNode.prototype.remove = function() {
+        if(!_.isNil(this.getParent())){
+            this.trigger('before-remove');
+            this.getParent().removeChild(this);
+            this.trigger('after-remove');
+        }
+    };
+
     return ASTNode;
 
 });
