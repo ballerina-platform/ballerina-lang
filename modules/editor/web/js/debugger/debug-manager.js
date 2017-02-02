@@ -29,9 +29,9 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
         this.on("connected",_.bind(this.hideModal, this));
 
         this.connectionDialog = $("#modalDebugConnection");
-        Mousetrap.bind('d+c', _.bindKey(this, 'showConnectionDialog'));
-        Mousetrap.bind('s+o', _.bindKey(this, 'stepOver'));
-        Mousetrap.bind('s+r', _.bindKey(this, 'resume'));
+        Mousetrap.bind('alt+c', _.bindKey(this, 'showConnectionDialog'));
+        Mousetrap.bind('alt+o', _.bindKey(this, 'stepOver'));
+        Mousetrap.bind('alt+r', _.bindKey(this, 'resume'));
 
         $('.debug-connect-button').on("click", _.bindKey(this, 'connect'));
     };
@@ -45,13 +45,28 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
         this.startDebug();
     },
 
+    DebugManager.prototype.stepOver = function(){
+        var message = { "command": "STEP_OVER" };
+        this.channel.sendMessage(message);
+        this.trigger("resume-execution");
+    },
+
+    DebugManager.prototype.resume = function(){
+        var message = { "command": "RESUME" };
+        this.channel.sendMessage(message);
+        this.trigger("resume-execution");
+    },
+
     DebugManager.prototype.startDebug = function(){
         var message = { "command": "START" };
         this.channel.sendMessage(message);
+        this.trigger("resume-execution");
     },
 
     DebugManager.prototype.processMesssage = function(message){
-        console.log(message);
+        if(message.code == "DEBUG_HIT"){
+            this.trigger("debug-hit", message.position);
+        }
     },
 
     DebugManager.prototype.connect = function(){
@@ -63,14 +78,6 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
 
     DebugManager.prototype.showConnectionDialog = function(){
         this.connectionDialog.modal(); 
-    },
-
-    DebugManager.prototype.stepOver = function(){
-        alert('stepOver');
-    },
-
-    DebugManager.prototype.resume = function(){
-        alert('resume');
     },
 
     DebugManager.prototype.init = function(options){

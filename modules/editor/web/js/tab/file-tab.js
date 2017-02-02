@@ -100,7 +100,13 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
 
             fileEditor.on('remove-breakpoint', function(row){
                 DebugManager.removeBreakPoint(row, this._file.getName());
-            }, this);            
+            }, this);
+
+            DebugManager.on('debug-hit', function(position){
+                if(position.fileName == this._file.getName()){
+                    fileEditor.debugHit(position);
+                }
+            }, this);
 
             this._fileEditor = fileEditor;
             fileEditor.render(diagramRenderingContext);
