@@ -1,0 +1,23 @@
+.debugger-container {
+    color: #dedede;
+}
+
+.debugger-container .panel-heading{
+    padding: 2px 1px;
+    background: whitesmoke;
+    border-bottom: 1px solid #e4e4e4;
+    background: #8a8a8a;
+}
+
+.debugger-container .panel-heading a {
+    color: #dadada;
+}
+
+.source-view-container .ace_gutter-cell.ace_breakpoint {
+    background-color: #be0016;
+}
+
+/*TODO remove this when feature is done*/
+.left-tool-bar .debugger-activate-btn, .left-tool-bar .debugger-activate-btn i{
+    display: none;
+}
