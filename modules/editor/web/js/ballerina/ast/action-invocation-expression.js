@@ -73,7 +73,7 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
      * @param {string} actionConnectorName
      */
     ActionInvocationExpression.prototype.setActionConnectorName = function (actionConnectorName) {
-        this.setAttribute('_actionPackageName', actionConnectorName);
+        this.setAttribute('_actionConnectorName', actionConnectorName);
     };
     /**
      * Get action connector Name
