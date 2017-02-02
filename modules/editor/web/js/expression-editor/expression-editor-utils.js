@@ -26,7 +26,6 @@ define(['require', 'lodash', 'jquery'], function (require, _, $) {
         $(propertyInputValue).val(propertyValue);
         $(propertyInputValue).on("change paste keyup", function () {
             property.setterMethod.call(property.model, $(this).val());
-            //var textValToUpdate = (($(this).val().length) > 11 ? ($(this).val().substring(0,11) + '...') : $(this).val());
             property.model.trigger('update-property-text', $(this).val(), property.key);
         });
     };
