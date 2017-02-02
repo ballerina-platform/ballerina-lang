@@ -81,9 +81,9 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                             // } else if(AST.BallerinaASTFactory.isBasicLiteralExpression(child)){
                             //     _.set(args, 'model', child);
                             //     assignmentStatement = new AssignmentStatementView(args);
-                            } else if (AST.BallerinaASTFactory.isFunctionInvocationExpression(child)){
-                                _.set(args, 'model', child);
-                                assignmentStatement = new AssignmentStatementView(args);
+                            // } else if (AST.BallerinaASTFactory.isFunctionInvocationExpression(child)){
+                            //     _.set(args, 'model', child);
+                            //     assignmentStatement = new AssignmentStatementView(args);
                             }
                         });
                     }
