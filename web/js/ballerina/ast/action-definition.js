@@ -28,7 +28,7 @@ define(['lodash', './callable-definition'], function (_, CallableDefinition) {
 
     ActionDefinition.prototype.setArgs = function(args){
         if(!_.isNil(args)){
-            this.args = args;
+            this.setAttribute('args', args);
         }
     };
 

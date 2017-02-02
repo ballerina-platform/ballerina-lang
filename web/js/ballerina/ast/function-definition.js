@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './callable-definition'],
-    function (_, log, CallableDefinition) {
+define(['lodash', 'log', './node', './callable-definition'],
+    function (_, log, ASTNode, CallableDefinition) {
 
     /**
      * Constructor for FunctionDefinition
@@ -50,8 +50,12 @@ define(['lodash', 'log', './callable-definition'],
     }
 
     FunctionDefinition.prototype.setFunctionName = function(name){
-        if(!_.isNil(name)){
+        if (!_.isNil(name) && ASTNode.isValidIdentifier(name)) {
             this._functionName = name;
+        } else {
+            var errorString = "Invalid function name: " + name;
+            log.error(errorString);
+            throw errorString;
         }
     };
 

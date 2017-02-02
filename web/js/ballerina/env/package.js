@@ -16,9 +16,11 @@
  * under the License.
  */
 define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definition', './../ast/function-definition',
-        './../ast/type-definition', './../ast/type-mapper-definition', './../ast/constant-definition','./../ast/struct-definition'],
-    function(log, _, require, EventChannel, ServiceDefinition, FunctionDefinition, TypeDefinition,
-             TypeMapperDefinition, ConstantDefinition,StructDefinition){
+        './../ast/type-definition', './../ast/type-converter-definition', './../ast/constant-definition',
+        './../ast/struct-definition'],
+    function(log, _, require, EventChannel, ServiceDefinition, FunctionDefinition,
+             TypeDefinition, TypeConverterDefinition, ConstantDefinition,
+             StructDefinition){
 
         /**
          * @class Package
@@ -30,10 +32,9 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
             this.setName(_.get(args, 'name', ''));
             this.addServiceDefinitions(_.get(args, 'serviceDefinitions', []));
             this.addFunctionDefinitions(_.get(args, 'functionDefinitions', []));
-            this.addStructDefinitions(_.get(args, 'structDefinitions', []));
             this._connectors = _.get(args, 'connectors', []);
             this.addTypeDefinitions(_.get(args, 'typeDefinitions', []));
-            this.addTypeMapperDefinitions(_.get(args, 'typeMapperDefinitions', []));
+            this.addTypeConverterDefinitions(_.get(args, 'typeConverterDefinitions', []));
             this.addConstantDefinitions(_.get(args, 'constantDefinitions', []));
             this.BallerinaEnvFactory = require('./ballerina-env-factory');
         };
@@ -105,54 +106,54 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
         };
 
         /**
-         * Add type mapper defs
-         * @param typeMapperDefinitions - can be an array of typeDefinitions or a single typeDefinition
-         * @fires Package#type--mapper-defs-added
+         * Add type converter defs
+         * @param typeConverterDefinitions - can be an array of typeDefinitions or a single typeDefinition
+         * @fires Package#type--converter-defs-added
          */
-        Package.prototype.addTypeMapperDefinitions = function(typeMapperDefinitions){
+        Package.prototype.addTypeConverterDefinitions = function(typeConverterDefinitions){
             var err;
-            if(!_.isArray(typeMapperDefinitions) && !(typeMapperDefinitions instanceof  TypeMapperDefinition)){
-                err = "Adding type mapper def failed. Not an instance of TypeMapperDefinition" + typeMapperDefinitions;
+            if(!_.isArray(typeConverterDefinitions) && !(typeConverterDefinitions instanceof  TypeConverterDefinition)){
+                err = "Adding type converter def failed. Not an instance of TypeConverterDefinition" + typeConverterDefinitions;
                 log.error(err);
                 throw err;
             }
-            if(_.isArray(typeMapperDefinitions)){
-                if(!_.isEmpty(typeMapperDefinitions)){
-                    _.each(typeMapperDefinitions, function(typeMapperDefinition){
-                        if(!(typeMapperDefinition instanceof  TypeMapperDefinition)){
-                            err = "Adding type mapper def failed. Not an instance of TypeMapperDefinition" + typeMapperDefinition;
+            if(_.isArray(typeConverterDefinitions)){
+                if(!_.isEmpty(typeConverterDefinitions)){
+                    _.each(typeConverterDefinitions, function(typeConverterDefinition){
+                        if(!(typeConverterDefinition instanceof  TypeConverterDefinition)){
+                            err = "Adding type converter def failed. Not an instance of TypeConverterDefinition" + typeConverterDefinition;
                             log.error(err);
                             throw err;
                         }
                     });
                 }
             }
-            this._typeMapperDefinitions = this._typeMapperDefinitions || [];
-            this._typeMapperDefinitions = _.concat(this._typeMapperDefinitions , typeMapperDefinitions);
+            this._typeConverterDefinitions = this._typeConverterDefinitions || [];
+            this._typeConverterDefinitions = _.concat(this._typeConverterDefinitions , typeConverterDefinitions);
             /**
-             * fired when new type mapper defs are added to the package.
-             * @event Package#type-mapper-defs-added
-             * @type {[TypeMapperDefinition]}
+             * fired when new type converter defs are added to the package.
+             * @event Package#type-converter-defs-added
+             * @type {[TypeConverterDefinition]}
              */
-            this.trigger("type-mapper-defs-added", typeMapperDefinitions);
+            this.trigger("type-converter-defs-added", typeConverterDefinitions);
         };
 
         /**
-         * Set type mapper defs
+         * Set type converter defs
          *
-         * @param typeMapperDefs
+         * @param typeConverterDefs
          */
-        Package.prototype.setTypeMapperDefinitions = function(typeMapperDefs){
-            this._typeMapperDefinitions = null;
-            this.addTypeMapperDefinitions(typeMapperDefs);
+        Package.prototype.setTypeConverterDefinitions = function(typeConverterDefs){
+            this._typeConverterDefinitions = null;
+            this.addTypeConverterDefinitions(typeConverterDefs);
         };
 
         /**
          *
-         * @returns {[TypeMapperDefinition]}
+         * @returns {[TypeConverterDefinition]}
          */
-        Package.prototype.getTypeMapperDefinitions = function() {
-            return this._typeMapperDefinitions;
+        Package.prototype.getTypeConverterDefinitions = function() {
+            return this._typeConverterDefinitions;
         };
 
         /**
@@ -303,8 +304,9 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
          * @param functionDefinitions - can be an array of functionDefinitions or a single functionDefinition
          */
         Package.prototype.addFunctionDefinitions = function(functionDefinitions){
+            var self = this;
             var err;
-            if(!_.isArray(functionDefinitions) && !(functionDefinitions instanceof  FunctionDefinition)){
+            if(!_.isArray(functionDefinitions) && !(self.BallerinaEnvFactory.isFunction(functionDefinitions))){
                 err = "Adding function def failed. Not an instance of FunctionDefinition" + functionDefinitions;
                 log.error(err);
                 throw err;
@@ -349,13 +351,13 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
         };
 
         /**
-         * Add struct defs
-         * @param structDefinitions - can be an array of structDefinitions or a single structDefinition
+         * Add struct definition(s) to the package.
+         * @param {StructDefinition[]|StructDefinition} structDefinitions - The struct definition(s).
          */
         Package.prototype.addStructDefinitions = function(structDefinitions){
             var err;
-            if(!_.isArray(structDefinitions) && !(structDefinitions instanceof  StructDefinition)){
-                err = "Adding struct def failed. Not an instance of StructDefinition" + structDefinitions;
+            if(!_.isArray(structDefinitions) && !(structDefinitions instanceof StructDefinition)){
+                err = "Adding struct def failed. Not an instance of StructDefinition: " + structDefinitions;
                 log.error(err);
                 throw err;
             }
@@ -363,7 +365,7 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
                 if(!_.isEmpty(structDefinitions)){
                     _.each(structDefinitions, function(structDefinition){
                         if(!(structDefinition instanceof  StructDefinition)){
-                            err = "Adding struct def failed. Not an instance of StructDefinition" + structDefinition;
+                            err = "Adding struct def failed. Not an instance of StructDefinition: " + structDefinition;
                             log.error(err);
                             throw err;
                         }
@@ -373,26 +375,26 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
             this._structDefinitions = this._structDefinitions || [];
             this._structDefinitions = _.concat(this._structDefinitions , structDefinitions);
             /**
-             * fired when new struct defs are added to the package.
+             * Fired when new struct defs are added to the package.
              * @event Package#struct-defs-added
-             * @type {[StructDefinition]}
+             * @type {FunctionDefinition}
              */
             this.trigger("struct-defs-added", structDefinitions);
         };
 
         /**
-         * Set struct defs
+         * Set struct definitions.
          *
-         * @param structDefs
+         * @param {StructDefinition[]} structDefinitions
          */
-        Package.prototype.setStructDefinitions = function(structDefs){
+        Package.prototype.setStructDefinitions = function(structDefinitions){
             this._structDefinitions = null;
-            this.addStructDefinitions(structDefs);
+            this.addStructDefinitions(structDefinitions);
         };
 
         /**
-         *
-         * @returns {[StructDefinition]}
+         * Gets the struct definitions in the package.
+         * @return {StructDefinition[]} - The struct definitions.
          */
         Package.prototype.getStructDefinitions = function() {
             return this._structDefinitions;
@@ -403,8 +405,15 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
             this.setName(jsonNode.name);
 
             _.each(jsonNode.connectors, function (connectorNode) {
-                var connector = self.BallerinaEnvFactory.createConnector(connectorNode);
+                var connector = self.BallerinaEnvFactory.createConnector();
+                connector.initFromJson(connectorNode);
                 self.addConnectors(connector);
+            });
+
+            _.each(jsonNode.functions, function(functionNode){
+                var functionDef = self.BallerinaEnvFactory.createFunction();
+                functionDef.initFromJson(functionNode);
+                self.addFunctionDefinitions(functionDef);
             });
         };
 
