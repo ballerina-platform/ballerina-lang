@@ -123,15 +123,26 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
         this.typeBeingDragged = undefined;
     };
 
-    MessageManager.prototype.startDrawMessage = function(source, sourcePoint){
+    MessageManager.prototype.startDrawMessage = function(source, sourcePoint, connectorPoint){
+        var connectorStartPoint,
+            connectorEndPoint;
+
+        if(connectorPoint){
+            connectorStartPoint = connectorPoint.x();
+            connectorEndPoint = connectorPoint.y();
+        }
+        else{
+            connectorStartPoint = sourcePoint.x();
+            connectorEndPoint = sourcePoint.y();
+        }
         this.setMessageSource(source);
         var self = this,
             container = d3.select(this._canvas.getSVG().get(0));
         var tempLine = container.append("line")
-            .attr("x1", sourcePoint.x() )
-            .attr("y1",sourcePoint.y())
+            .attr("x1",connectorStartPoint )
+            .attr("y1",connectorEndPoint )
             .attr("x2",sourcePoint.x() )
-            .attr("y2", sourcePoint.y() )
+            .attr("y2",sourcePoint.y() )
             .attr("stroke","#9d9d9d");
         var points = "" +  sourcePoint.x() + "," + (sourcePoint.y() - 5) + " " + ( sourcePoint.x() + 5) + ","
             + (sourcePoint.y()) + " " + sourcePoint.x() + "," + (sourcePoint.y() + 5);
