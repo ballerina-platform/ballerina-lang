@@ -66,6 +66,78 @@
                                 </div>
                             {{/each}}
 						<p></p>
+                        <br>
+                        <h2>Connectors of {{fullyQualifiedName}} package</h2>
+                        {{#each files}}
+                            {{#each connectorList}}
+                                <h3>
+                                    connector {{#with this}}{{this.name}} ({{#each parameters}}<a
+                                        href="">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/with}}
+                                </h3>
+
+                                <p>
+                                    <b>Parameters:</b>
+                                <table>
+                                    <tr>
+                                        <th>Parameter Name</th>
+                                        <th>Data Type</th>
+                                        <th>Description</th>
+                                    </tr>
+                                    {{#each parameters}}
+                                        <tr>
+                                            <td>{{name}}</td>
+                                            <td><a href="">{{type}}</a></td>
+                                            <td>{{description}}</td>
+                                        </tr>
+                                    {{/each}}
+                                </table>
+                                </p>
+
+                                <b>Actions:</b><br><br>
+                                {{#each actions}}
+
+                                    <h3>action {{this.name}}({{#each parameters}}<a
+                                            href="">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}
+                                        )</h3>
+                                    <p>
+                                        <b>Parameters:</b>
+                                    <table>
+                                        <tr>
+                                            <th>Parameter Name</th>
+                                            <th>Data Type</th>
+                                            <th>Description</th>
+                                        </tr>
+                                        {{#each parameters}}
+                                            <tr>
+                                                <td>{{name}}</td>
+                                                <td><a href="">{{type}}</a></td>
+                                                <td>{{description}}</td>
+                                            </tr>
+                                        {{/each}}
+                                    </table>
+                                    </p>
+                                    {{#if returnParameters}}
+                                        <p>
+                                            <b>Return Parameters:</b>
+                                        <table>
+                                            <tr>
+                                                <th>Return Variable</th>
+                                                <th>Data Type</th>
+                                                <th>Description</th>
+                                            </tr>
+                                            {{#each returnParameters}}
+                                                <tr>
+                                                    <td>{{name}}</td>
+                                                    <td><a href="">{{type}}</a></td>
+                                                    <td>{{description}}</td>
+                                                </tr>
+                                            {{/each}}
+                                        </table>
+                                        </p>
+                                    {{/if}}
+                                {{/each}}
+                            {{/each}}
+                        {{/each}}
 					</div>
 				</section>
 			</div>
