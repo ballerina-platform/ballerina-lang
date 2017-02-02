@@ -25,13 +25,20 @@ import org.wso2.ballerina.core.model.NodeVisitor;
  *
  * @since 0.8.0
  */
-public class KeyValueExpression extends AbstractExpression {
+public class MapStructInitKeyValueExpr extends AbstractExpression {
     private String key;
+    private Expression keyExpr;
     private Expression valueExpr;
 
-    public KeyValueExpression(NodeLocation location, String key, Expression valueExpr) {
+    public MapStructInitKeyValueExpr(NodeLocation location, String key, Expression valueExpr) {
         super(location);
         this.key = key;
+        this.valueExpr = valueExpr;
+    }
+
+    public MapStructInitKeyValueExpr(NodeLocation location, Expression keyExpr, Expression valueExpr) {
+        super(location);
+        this.keyExpr = keyExpr;
         this.valueExpr = valueExpr;
     }
 
@@ -42,6 +49,10 @@ public class KeyValueExpression extends AbstractExpression {
 
     public String getKey() {
         return key;
+    }
+
+    public Expression getKeyExpr() {
+        return keyExpr;
     }
 
     public Expression getValueExpr() {

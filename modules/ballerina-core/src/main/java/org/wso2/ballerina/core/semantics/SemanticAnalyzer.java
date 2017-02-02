@@ -72,13 +72,13 @@ import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.GreaterEqualExpression;
 import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
-import org.wso2.ballerina.core.model.expressions.KeyValueExpression;
 import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
 import org.wso2.ballerina.core.model.expressions.LessThanExpression;
-import org.wso2.ballerina.core.model.expressions.MapInitExpr;
+import org.wso2.ballerina.core.model.expressions.MapStructInitKeyValueExpr;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
+import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
 import org.wso2.ballerina.core.model.expressions.ReferenceExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
@@ -117,6 +117,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.wso2.ballerina.core.model.util.LangModelUtils.getNodeLocationStr;
 
 /**
  * {@code SemanticAnalyzer} analyzes semantic properties of a Ballerina program.
@@ -1279,13 +1281,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(MapInitExpr mapInitExpr) {
-        Expression[] argExprs = mapInitExpr.getArgExprs();
+    public void visit(RefTypeInitExpr refTypeInitExpr) {
+        Expression[] argExprs = refTypeInitExpr.getArgExprs();
 
         if (argExprs.length == 0) {
             throw new SemanticException("Map initializer should have at least one argument" + " in "
-                    + mapInitExpr.getNodeLocation().getFileName() + ":" +
-                    mapInitExpr.getNodeLocation().getLineNumber());
+                    + refTypeInitExpr.getNodeLocation().getFileName() + ":" +
+                    refTypeInitExpr.getNodeLocation().getLineNumber());
         }
 
         for (int i = 0; i < argExprs.length; i++) {
@@ -1293,7 +1295,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // Type of this expression is map and internal data type cannot be identifier from declaration
-        mapInitExpr.setType(BTypes.typeMap);
+        refTypeInitExpr.setType(BTypes.typeMap);
     }
 
     @Override
@@ -1323,7 +1325,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(KeyValueExpression keyValueExpr) {
+    public void visit(MapStructInitKeyValueExpr keyValueExpr) {
 
     }
 
@@ -1406,8 +1408,8 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(TypeCastExpression typeCastExpression) {
         // Evaluate the expression and set the type
-        typeCastExpression.getSourceExpression().accept(this);
-        BType sourceType = typeCastExpression.getSourceExpression().getType();
+        typeCastExpression.getRExpr().accept(this);
+        BType sourceType = typeCastExpression.getRExpr().getType();
         BType targetType = typeCastExpression.getTargetType();
         // Check whether this is a native conversion
         if (BTypes.isValueType(sourceType) &&
@@ -1854,9 +1856,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         actionIExpr.setCallableUnit(action);
     }
 
-    private String getNodeLocationStr(NodeLocation nodeLocation) {
-        return nodeLocation.getFileName() + ":" + nodeLocation.getLineNumber() + ": ";
-    }
     
     /*
      * Struct related methods

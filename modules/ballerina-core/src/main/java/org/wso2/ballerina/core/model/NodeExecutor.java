@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
-import org.wso2.ballerina.core.model.expressions.MapInitExpr;
+import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
@@ -89,7 +89,7 @@ public interface NodeExecutor {
 
     BValue visit(ArrayInitExpr arrayInitExpr);
 
-    BValue visit(MapInitExpr mapInitExpr);
+    BValue visit(RefTypeInitExpr refTypeInitExpr);
 
     BValue visit(BacktickExpr backtickExpr);
 

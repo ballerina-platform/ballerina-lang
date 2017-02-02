@@ -35,7 +35,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 public class ArrayInitExpr extends NaryExpression {
 
     public ArrayInitExpr(NodeLocation location, Expression[] argExprs) {
-        super(location, null, null, argExprs);
+        super(location, argExprs);
     }
 
     @Override

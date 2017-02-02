@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.util;
 
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.types.BType;
@@ -122,5 +123,9 @@ public class LangModelUtils {
             types[i] = parameterDefs[i].getType();
         }
         return types;
+    }
+
+    public static String getNodeLocationStr(NodeLocation nodeLocation) {
+        return nodeLocation.getFileName() + ":" + nodeLocation.getLineNumber() + ": ";
     }
 }
