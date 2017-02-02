@@ -26,7 +26,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './type-converter-definition', './type-definition', './type-element', './variable-declaration',
         './package-definition', './import-declaration', './resource-parameter', './assignment', './assignment-statement',
         './function-invocation', './function-invocation-expression', './variable-reference-expression',
-        './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
+        './arithmetic-expression', './logical-expression', './action-invocation-expression',
         './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression',
         './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
         './if-condition', './array-map-access-expression', './binary-expression', './connector-action', './struct-definition',
@@ -36,7 +36,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
               whileStatement, returnStatement, typeConverterDefinition, typeDefinition, typeElement, variableDeclaration,
               packageDefinition, importDeclaration, resourceParameter, assignment, assignmentStatement, functionInvocation,
-              functionInvocationExpression, variableReferenceExpression, actionInvocationStatement, arithmeticExpression,
+              functionInvocationExpression, variableReferenceExpression, arithmeticExpression,
               logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
               thenBody, ifCondition, arrayMapAccessExpression, binaryExpression, connectorAction, structDefinition,
@@ -80,14 +80,14 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @param args
          */
         BallerinaASTFactory.createMainFunctionDefinition = function (args) {
-            var functionDefinition = BallerinaASTFactory.createFunctionDefinition();
+            var functionDefinition = BallerinaASTFactory.createFunctionDefinition(args);
             functionDefinition.setFunctionName("main");
             functionDefinition.addArgument("string[]", "args");
-            var printHelloWorldStatement = BallerinaASTFactory.createFunctionInvocationStatement();
+            var printHelloWorldStatement = BallerinaASTFactory.createFunctionInvocationStatement(args);
             printHelloWorldStatement.setPackageName("system");
             printHelloWorldStatement.setFunctionName("println");
             printHelloWorldStatement.setParams('"Hello world"');
-            var functionInvocationExpr = BallerinaASTFactory.createFunctionInvocationExpression();
+            var functionInvocationExpr = BallerinaASTFactory.createFunctionInvocationExpression(args);
             printHelloWorldStatement.addChild(functionInvocationExpr);
             functionDefinition.addChild(printHelloWorldStatement);
             return functionDefinition;
@@ -181,10 +181,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
             return new expression(args);
         };
 
-        BallerinaASTFactory.createActionInvocationStatement = function(args) {
-            return new actionInvocationStatement(args);
-        };
-
         BallerinaASTFactory.createActionInvocationExpression = function(args) {
             return new actionInvocationExpression(args);
         };
@@ -204,11 +200,12 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @returns {AssignmentStatement}
          */
         BallerinaASTFactory.createAggregatedActionInvocationExpression = function(args) {
-            var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
-            var leftOp = BallerinaASTFactory.createLeftOperandExpression();
-            var rightOp = BallerinaASTFactory.createRightOperandExpression();
+            var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
+            var leftOp = BallerinaASTFactory.createLeftOperandExpression(args);
+            var rightOp = BallerinaASTFactory.createRightOperandExpression(args);
             var actionInExp = BallerinaASTFactory.createActionInvocationExpression(args);
             rightOp.addChild(actionInExp);
+            rightOp.setRightOperandExpressionString(actionInExp.getExpression());
             assignmentStmt.addChild(leftOp);
             assignmentStmt.addChild(rightOp);
             return assignmentStmt;
@@ -272,10 +269,10 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @returns {AssignmentStatement}
          */
         BallerinaASTFactory.createAggregatedAssignmentStatement = function (args) {
-            var assignmentStmt = new assignmentStatement(args);
-            var leftOperand = BallerinaASTFactory.createLeftOperandExpression();
+            var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
+            var leftOperand = BallerinaASTFactory.createLeftOperandExpression(args);
             leftOperand.setLeftOperandExpressionString("a");
-            var rightOperand = BallerinaASTFactory.createRightOperandExpression();
+            var rightOperand = BallerinaASTFactory.createRightOperandExpression(args);
             rightOperand.setRightOperandExpressionString("b");
             assignmentStmt.addChild(leftOperand);
             assignmentStmt.addChild(rightOperand);
@@ -316,7 +313,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @returns {FunctionInvocationExpression}
          */
         BallerinaASTFactory.createFunctionInvocationExpression = function (args) {
-            return new functionInvocationExpression();
+            return new functionInvocationExpression(args);
         }
 
         /**
@@ -325,7 +322,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @returns {VariableReferenceExpression}
          */
         BallerinaASTFactory.createVariableReferenceExpression = function (args) {
-            return new variableReferenceExpression();
+            return new variableReferenceExpression(args);
         }
 
         /**
@@ -747,17 +744,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.isResourceParameter = function (child) {
             return child instanceof resourceParameter;
-        };
-
-        /**
-         * instanceof check for ActionInvocationStatement
-         * @param child - Object for instanceof check
-         * @returns {boolean} - true if same type, else false
-         */
-        BallerinaASTFactory.isActionInvocationStatement = function(statement){
-            if (statement instanceof actionInvocationStatement){
-                return true;
-            }
         };
 
         /**
