@@ -102,18 +102,6 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         return this._diagramRenderingContext;
     };
 
-    BallerinaStatementView.prototype.visitExpression = function (statement) {
-        var ExpressionViewFactory = require('./expression-view-factory');
-        var expressionViewFactory = new ExpressionViewFactory();
-        var args = {model: statement, container: this._statementGroup.node(), viewOptions: {}, parent:this};
-        var expressionView = expressionViewFactory.getExpressionView(args);
-        this._diagramRenderingContext.getViewModelMap()[statement.id] = expressionView;
-        this._childrenViewsList.push(expressionView);
-        expressionView.setXPosition(this.getXPosition());
-        expressionView.setYPosition(this.getYPosition() + 30);
-        expressionView.render(this._diagramRenderingContext);
-    };
-
         BallerinaStatementView.prototype._createPropertyPane = function (args) {
             var model = _.get(args, "model", {});
             var viewOptions = _.get(args, "viewOptions", {});

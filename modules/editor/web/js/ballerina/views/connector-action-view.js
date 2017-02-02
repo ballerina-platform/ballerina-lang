@@ -17,13 +17,13 @@
  */
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/connector-action',
         './default-worker', './point', './connector-declaration-view', './statement-view-factory',
-        'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message', './statement-container',
+        'ballerina/ast/ballerina-ast-factory','./message', './statement-container',
         './../ast/variable-declaration', './variables-view', './annotation-view',
         './function-arguments-view', './return-types-pane-view'],
     function (_, log, d3, $, D3utils, BallerinaView, ConnectorAction,
               DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory,
               BallerinaASTFactory, ExpressionViewFactory, MessageView, StatementContainer,
-              VariableDeclaration, VariablesView, AnnotationView,
+              VariableDeclaration, AnnotationView,
               ArgumentsView, ReturnTypesPaneView) {
 
         /**
