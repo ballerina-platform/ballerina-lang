@@ -26,5 +26,5 @@ import java.util.Collection;
  */
 public interface DocumentWriter {
 
-    public void write(Collection<Package> balPackage);
+    void write(Collection<Package> balPackage);
 }
