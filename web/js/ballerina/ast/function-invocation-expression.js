@@ -32,7 +32,7 @@ define(['lodash', './expression', './function-invocation'], function (_, Express
     FunctionInvocationExpression.prototype.constructor = FunctionInvocationExpression;
 
     FunctionInvocationExpression.prototype.setFunctionName = function (functionName) {
-        this._functionName = functionName;
+        this.setAttribute('_functionName', functionName);
     };
 
     FunctionInvocationExpression.prototype.getFunctionName = function () {

@@ -43,7 +43,7 @@ define(['lodash', './statement'], function(_, Statement){
      * @param {string} rightOperandExpStr - The expression
      */
     RightOperandExpression.prototype.setRightOperandExpressionString = function (rightOperandExpStr) {
-        this._right_operand_expression_string = rightOperandExpStr;
+        this.setAttribute('_right_operand_expression_string', rightOperandExpStr);
     };
 
     /**
