@@ -107,19 +107,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          */
         ConnectorActionView.prototype.init = function(){
             this.listenTo(this._model, 'child-removed', this.childRemovedCallback, this);
-            this.on('remove-view', this.removeViewCallback, this);
+            this._model.on('before-remove', this.onBeforeModelRemove, this);
         };
 
-        ConnectorActionView.prototype.removeViewCallback = function (parent, child) {
+        ConnectorActionView.prototype.onBeforeModelRemove = function () {
             d3.select("#_" +this._model.id).remove();
             $(this._nameDiv).remove();
-            this.unplugView(
-                {
-                    x: this._viewOptions.topLeft.x(),
-                    y: this._viewOptions.topLeft.y(),
-                    w: 0,
-                    h: 0
-                }, parent, child);
+            this.getBoundingBox().w(0, 0);
         };
 
         /**
@@ -556,9 +550,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             // On click of delete icon
             headingDeleteIcon.on("click", function () {
                 log.debug("Clicked delete button");
-                var child = self._model;
-                var parent = child.parent;
-                self.trigger("remove-view", parent, child);
+                self._model.remove();
             });
 
             this.getBoundingBox().on("height-changed", function(dh){
