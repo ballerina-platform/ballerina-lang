@@ -409,6 +409,12 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
                 connector.initFromJson(connectorNode);
                 self.addConnectors(connector);
             });
+
+            _.each(jsonNode.functions, function(functionNode){
+                var functionDef = self.BallerinaEnvFactory.createFunction();
+                functionDef.initFromJson(functionNode);
+                self.addFunctionDefinitions(functionDef);
+            });
         };
 
         return Package;
