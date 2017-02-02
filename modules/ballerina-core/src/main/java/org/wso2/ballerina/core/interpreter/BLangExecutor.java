@@ -83,7 +83,7 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
-import org.wso2.ballerina.core.runtime.threadpool.WorkerCallback;
+import org.wso2.ballerina.core.runtime.worker.WorkerCallback;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
