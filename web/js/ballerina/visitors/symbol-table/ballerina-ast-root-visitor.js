@@ -55,6 +55,9 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
 
         BallerinaASTRootVisitor.prototype.visitFunctionDefinition = function (functionDefinition) {
             var functionDef = BallerinaEnvFactory.createFunction();
+            functionDef.setName(functionDefinition.getFunctionName());
+            functionDef.setTitle(functionDefinition.getFunctionName());
+            functionDef.setId(functionDefinition.getFunctionName());
             this.getPackage().addFunctionDefinitions(functionDef);
         };
 
