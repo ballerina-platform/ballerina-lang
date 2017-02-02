@@ -17,13 +17,11 @@
  */
 package org.wso2.ballerina.core.model.values;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import org.apache.axiom.om.OMAbstractFactory;
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMFactory;
+import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
 import org.wso2.ballerina.core.model.DataIterator;
+import org.wso2.ballerina.core.model.DataTableJSONDataSource;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.DataTableOMDataSource;
 
 import java.util.List;
 import java.util.Map;
@@ -168,6 +166,14 @@ public class BDataframe implements BRefType<Object> {
         return iterator.get(columnName, type);
     }
 
+    public String getObjectAsString(int index) {
+        return iterator.getObjectAsString(index);
+    }
+
+    public String getObjectAsString(String columnName) {
+        return iterator.getObjectAsString(columnName);
+    }
+
     public String[] getAvailableProprtyNames() {
         return properties.keySet().toArray(new String[properties.keySet().size()]);
     }
@@ -177,103 +183,7 @@ public class BDataframe implements BRefType<Object> {
     }
     
     public BJSON toJSON() {
-        JsonArray jsonArray = new JsonArray();
-        JsonObject jsonObj;
-        while (this.next()) {
-            jsonObj = new JsonObject();
-            for (ColumnDefinition col : this.columnDefs) {
-                if (col.getType().equals(TypeEnum.STRING)) {
-                    jsonObj.addProperty(col.getName(), this.getString(col.getName()));
-                } else if (col.getType().equals(TypeEnum.ARRAY)) {
-                    //TODO: get array
-                    jsonObj.add(col.getName(), this.createJsonArray(col.getElementType(), null));
-                } else if (col.getType().equals(TypeEnum.BOOLEAN)) {
-                    jsonObj.addProperty(col.getName(), this.getBoolean(col.getName()));
-                } else if (col.getType().equals(TypeEnum.BOOLEAN)) {
-                    jsonObj.addProperty(col.getName(), this.getBoolean(col.getName()));
-                } else if (col.getType().equals(TypeEnum.DOUBLE)) {
-                    jsonObj.addProperty(col.getName(), this.getDouble(col.getName()));
-                } else if (col.getType().equals(TypeEnum.FLOAT)) {
-                    jsonObj.addProperty(col.getName(), this.getFloat(col.getName()));
-                } else if (col.getType().equals(TypeEnum.INT)) {
-                    jsonObj.addProperty(col.getName(), this.getInt(col.getName()));
-                } else if (col.getType().equals(TypeEnum.LONG)) {
-                    jsonObj.addProperty(col.getName(), this.getLong(col.getName()));
-                } else if (col.getType().equals(TypeEnum.JSON)) {
-                    //TODO: get JSON
-                    jsonObj.addProperty(col.getName(), 1);
-                } else if (col.getType().equals(TypeEnum.XML)) {
-                    //TODO: get XML
-                    jsonObj.addProperty(col.getName(), 1);
-                } else if (col.getType().equals(TypeEnum.MAP)) {
-                    jsonObj.add(col.getName(), this.createJsonObject(null));
-                }
-            }
-            jsonArray.add(jsonObj);
-        }
-        this.close();
-        return new BJSON(jsonArray);
-    }
-        
-    @SuppressWarnings("unchecked")
-    private JsonArray createJsonArray(TypeEnum elementType, BArray<BValue> arrayValue) {
-        JsonArray result = new JsonArray();
-        int count = arrayValue.size();
-        BValue value;
-        for (int i = 0; i < count; i++) {
-            value = arrayValue.get(i);
-            if (elementType.equals(TypeEnum.STRING)) {
-                result.add(value.stringValue());
-            } else if (elementType.equals(TypeEnum.BOOLEAN)) {
-                result.add(((BBoolean) value).booleanValue());
-            } else if (elementType.equals(TypeEnum.DOUBLE)) {
-                result.add(((BDouble) value).doubleValue());
-            } else if (elementType.equals(TypeEnum.FLOAT)) {
-                result.add(((BFloat) value).floatValue());
-            } else if (elementType.equals(TypeEnum.INT)) {
-                result.add(((BInteger) value).intValue());
-            } else if (elementType.equals(TypeEnum.LONG)) {
-                result.add(((BLong) value).longValue());
-            } else if (elementType.equals(TypeEnum.MAP)) {
-                result.add(this.createJsonObject((BMap<BString, BValue>) value));
-            } else if (elementType.equals(TypeEnum.JSON)) {
-                result.add(((BJSON) value).value());
-            } else if (elementType.equals(TypeEnum.XML)) {
-                result.add(((BXML) value).stringValue());
-            }
-        }
-        return result;
-    }
-    
-    @SuppressWarnings("unchecked")
-    private JsonObject createJsonObject(BMap<BString, BValue> map) {
-        JsonObject result = new JsonObject();
-        BValue value;
-        String keyStr;
-        for (BString key : map.keySet()) {
-            value = map.get(key);
-            keyStr = key.stringValue();
-            if (value instanceof BString) {
-                result.addProperty(keyStr, value.stringValue());
-            } else if (value instanceof BJSON) {
-                result.add(keyStr, ((BJSON) value).value());
-            } else if (value instanceof BXML) {
-                result.addProperty(keyStr, ((BXML) value).stringValue());
-            } else if (value instanceof BInteger) {
-                result.addProperty(keyStr, ((BInteger) value).intValue());
-            } else if (value instanceof BLong) {
-                result.addProperty(keyStr, ((BLong) value).longValue());
-            } else if (value instanceof BFloat) {
-                result.addProperty(keyStr, ((BFloat) value).floatValue());
-            } else if (value instanceof BDouble) {
-                result.addProperty(keyStr, ((BDouble) value).doubleValue());
-            } else if (value instanceof BBoolean) {
-                result.addProperty(keyStr, ((BBoolean) value).booleanValue());
-            } else if (value instanceof BMap) {
-                result.add(keyStr, this.createJsonObject((BMap<BString, BValue>) value));
-            } 
-        }
-        return result;
+        return new BJSON(new DataTableJSONDataSource(this));
     }
     
     /**
@@ -308,44 +218,15 @@ public class BDataframe implements BRefType<Object> {
         public TypeEnum getElementType() {
             return elementType;
         }
-        
     }
 
-    public BXML toXML() {
-        OMFactory factory = OMAbstractFactory.getOMFactory();
-        OMElement root = factory.createOMElement("results", null);
-        while (this.next()) {
-            OMElement resultElement = factory.createOMElement("result", null);
-            for (ColumnDefinition col : this.columnDefs) {
-                String value = null;
-                switch (col.getType()) {
-                case BOOLEAN:
-                    value = String.valueOf(this.getBoolean(col.getName()));
-                    break;
-                case STRING:
-                    value = this.getString(col.getName());
-                    break;
-                case INT:
-                    value = String.valueOf(this.getInt(col.getName()));
-                    break;
-                case LONG:
-                    value = String.valueOf(this.getLong(col.getName()));
-                    break;
-                case FLOAT:
-                    value = String.valueOf(this.getFloat(col.getName()));
-                    break;
-                case DOUBLE:
-                    value = String.valueOf(this.getDouble(col.getName()));
-                    break;
-                }
-                OMElement element = factory.createOMElement(col.getName(), null);
-                element.addChild(factory.createOMText(value));
-                resultElement.addChild(element);
-            }
-            root.addChild(resultElement);
-        }
-        this.close();
-        return new BXML(root);
+    public BXML toXML(String rootWrapper, String rowWrapper) {
+        OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
+        omSourcedElement.init(new DataTableOMDataSource(this, rootWrapper, rowWrapper));
+        return new BXML(omSourcedElement);
     }
-    
+
+    public List<ColumnDefinition> getColumnDefs() {
+        return columnDefs;
+    }
 }

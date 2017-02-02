@@ -191,17 +191,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         case Types.NCHAR:
         case Types.NVARCHAR:
         case Types.LONGNVARCHAR:
-        case Types.DATE:
-        case Types.TIME:
-        case Types.TIMESTAMP:
-        case Types.TIME_WITH_TIMEZONE:
-        case Types.TIMESTAMP_WITH_TIMEZONE:
         case Types.CLOB:
-        case Types.BLOB:
         case Types.NCLOB:
-        case Types.BINARY:
-        case Types.VARBINARY:
-        case Types.LONGVARBINARY:
             return TypeEnum.STRING;
         case Types.TINYINT:
         case Types.SMALLINT:
@@ -219,6 +210,16 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         case Types.FLOAT:
         case Types.DOUBLE:
             return TypeEnum.DOUBLE;
+        case Types.DATE:
+        case Types.TIME:
+        case Types.TIMESTAMP:
+        case Types.TIME_WITH_TIMEZONE:
+        case Types.TIMESTAMP_WITH_TIMEZONE:
+        case Types.BLOB:
+        case Types.BINARY:
+        case Types.VARBINARY:
+        case Types.LONGVARBINARY:
+            return TypeEnum.EMPTY;
         default:
             return TypeEnum.EMPTY;
         }

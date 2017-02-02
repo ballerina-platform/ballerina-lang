@@ -43,7 +43,6 @@ import java.util.List;
 /**
  * Cassandra data connector.
  */
-@SuppressWarnings("rawtypes")
 @BallerinaConnector(
         packageName = "ballerina.data.cassandra",
         connectorName = CassandraConnector.CONNECTOR_NAME,

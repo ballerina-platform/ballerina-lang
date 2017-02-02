@@ -17,56 +17,55 @@
 */
 package org.wso2.ballerina.core.model.values;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonWriter;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser.Feature;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 
 /**
  * {@code BJSON} represents a JSON value in Ballerina.
  *
  * @since 0.8.0
  */
-public final class BJSON extends BallerinaMessageDataSource implements BRefType<JsonElement> {
+public final class BJSON extends BallerinaMessageDataSource implements BRefType<JsonNode> {
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    
+    static {
+        OBJECT_MAPPER.configure(Feature.ALLOW_SINGLE_QUOTES, true);
+    }
+    
+    private static final JsonFactory JSON_FAC = new JsonFactory();
+    
+    // The streaming JSON data source object
+    private JSONDataSource datasource;
+    
     // GSON json object model associated with this JSONType object
-    private JsonElement value;
+    private JsonNode value;
 
     // Schema of this JSONType object model
-    private JsonElement schema;
+    private JsonNode schema;
 
     // Output stream to write message out to the socket
     private OutputStream outputStream;
     
-    // The datasource object to be used for streaming
-    private JSONDataSource datasource;
-
     /**
      * Initialize a {@link BJSON} from a {@link com.google.gson.JsonElement} object.
      *
      * @param json json object
      */
-    public BJSON(JsonElement json) {
+    public BJSON(JsonNode json) {
         this.value = json;
-    }
-    
-    /**
-     * Initialize a {@link BJSON} with a {@link JSONDataSource} object.
-     * @param datasource The {@link JSONDataSource} object
-     */
-    public BJSON(JSONDataSource datasource) {
-        this.datasource = datasource;
     }
 
     /**
@@ -77,6 +76,14 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     public BJSON(String jsonString) {
         this(jsonString, null);
     }
+    
+    /**
+     * Initialize a {@link BJSON} from a streaming datasource.
+     * @param datasource
+     */
+    public BJSON(JSONDataSource datasource) {
+        this.datasource = datasource;
+    }
 
     /**
      * Initialize a {@link BJSON} from a string, with a specified schema.
@@ -86,14 +93,18 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
      * @param schema     Schema of the provided JSON, as a string
      */
     public BJSON(String jsonString, String schema) {
-        JsonParser parser = new JsonParser();
-        if (jsonString != null && !jsonString.isEmpty()) {
-            this.value = parser.parse(jsonString);
-        } else {
-            throw new IllegalArgumentException("Cannot parse an empty string to json.");
-        }
-        if (schema != null) {
-            this.schema = parser.parse(schema);
+        try {
+            if (jsonString != null && !jsonString.isEmpty()) {
+                this.value = OBJECT_MAPPER.readTree(jsonString);
+            } else {
+                throw new IllegalArgumentException("Cannot parse an empty string to json.");
+            }
+            if (schema != null) {
+                this.schema = OBJECT_MAPPER.readTree(schema);
+            }
+        } catch (IOException e) {
+            throw new BallerinaException("Error in creating JSON content: " + 
+                    jsonString + " - " + schema, e);
         }
     }
 
@@ -112,10 +123,13 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
      * @param in InputStream
      */
     public BJSON(InputStream in, String schema) {
-        JsonParser parser = new JsonParser();
-        this.value = parser.parse(new InputStreamReader(in, StandardCharsets.UTF_8));
-        if (schema != null) {
-            this.schema = parser.parse(schema);
+        try {
+            this.value = OBJECT_MAPPER.readTree(in);
+            if (schema != null) {
+                this.schema = OBJECT_MAPPER.readTree(schema);
+            }
+        } catch (IOException e) {
+            throw new BallerinaException("Error in creating JSON content: " + schema, e);
         }
     }
 
@@ -123,7 +137,7 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
      * Return the string representation of this json object.
      */
     public String toString() {
-        return this.value.toString();
+        return this.stringValue();
     }
 
     /**
@@ -131,7 +145,7 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
      *
      * @param value Value associated with this {@link BJSON} object.
      */
-    public void setValue(JsonElement value) {
+    public void setValue(JsonNode value) {
         this.value = value;
     }
 
@@ -140,7 +154,7 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
      *
      * @return Schema associated with this {@link BJSON} object
      */
-    public JsonElement getSchema() {
+    public JsonNode getSchema() {
         return this.schema;
     }
 
@@ -149,20 +163,22 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
      *
      * @param schema Schema associated with this {@link BJSON} object.
      */
-    public void setSchema(JsonElement schema) {
+    public void setSchema(JsonNode schema) {
         this.schema = schema;
     }
 
     @Override
     public void serializeData() {
         try {
+            JsonGenerator gen = JSON_FAC.createGenerator(this.outputStream);
+            /* the below order is important, where if the value is generated from a streaming data source,
+             * it should be able to serialize the data out again using the value */
             if (this.value != null) {
-                this.outputStream.write(this.value.toString().getBytes());
+                this.value.serialize(gen, null);
             } else {
-                JsonWriter writer = new JsonWriter(new OutputStreamWriter(this.outputStream));
-                this.datasource.serialize(writer);
-                writer.flush();
+                this.datasource.serialize(gen);
             }
+            gen.flush();
         } catch (IOException e) {
             throw new BallerinaException("Error occurred during writing the message to the output stream", e);
         }
@@ -179,26 +195,28 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
      * @return JSON object associated with this {@link BJSON} object
      */
     @Override
-    public JsonElement value() {
+    public JsonNode value() {
         if (this.value == null) {
+            ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
             try {
-                /* the streaming data source is converted to a normal JsonElement */
-                ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-                JsonWriter writer = new JsonWriter(new OutputStreamWriter(byteOut));
-                this.datasource.serialize(writer);
-                writer.close();
-                this.value = new JsonParser().parse(new InputStreamReader(
-                        new ByteArrayInputStream(byteOut.toByteArray())));
+                JsonGenerator gen = JSON_FAC.createGenerator(byteOut);
+                this.datasource.serialize(gen);
+                gen.close();
+                this.value = OBJECT_MAPPER.readTree(byteOut.toByteArray());
             } catch (IOException e) {
-                throw new BallerinaException("Error in generating the JSON value", e);
+                throw new BallerinaException("Error in building JSON node", e);
             }
         }
-        return value;
+        return this.value;
     }
     
     @Override
     public String stringValue() {
-        return this.value.toString();
+        try {
+            return OBJECT_MAPPER.writeValueAsString(this.value);
+        } catch (JsonProcessingException e) {
+            throw new BallerinaException("Error in converting JsonNode to String", e);
+        }
     }
     
     /**
@@ -208,11 +226,11 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     public static interface JSONDataSource {
         
         /**
-         * Serializes the current representation of the JSON data source to the given {@link JsonWriter}.
-         * @param writer The {@link JsonWriter} object to write the data to
+         * Serializes the current representation of the JSON data source to the given {@link JsonGenerator}.
+         * @param gen The {@link JsonGenerator} object to write the data to
          * @throws IOException Error occurs while serializing
          */
-        void serialize(JsonWriter writer) throws IOException;
+        void serialize(JsonGenerator gen) throws IOException;
         
     }
 

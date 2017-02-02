@@ -24,14 +24,21 @@ import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.Base64;
 
 /**
@@ -86,7 +93,7 @@ public class SQLDataIterator implements DataIterator {
             Array array = rs.getArray(columnIndex);
             return (String[]) array.getArray();
         } catch (SQLException e) {
-            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+            throw new BallerinaException("Unable to perform getStringArray: " + e.getMessage(), e);
         }
     }
 
@@ -96,7 +103,7 @@ public class SQLDataIterator implements DataIterator {
             Array array = rs.getArray(columnName);
             return (String[]) array.getArray();
         } catch (SQLException e) {
-            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+            throw new BallerinaException("Unable to perform getStringArray: " + e.getMessage(), e);
         }
     }
 
@@ -123,7 +130,7 @@ public class SQLDataIterator implements DataIterator {
             Array array = rs.getArray(columnIndex);
             return (long[]) array.getArray();
         } catch (SQLException e) {
-            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+            throw new BallerinaException("Unable to perform getLongArray: " + e.getMessage(), e);
         }
     }
 
@@ -133,7 +140,7 @@ public class SQLDataIterator implements DataIterator {
             Array array = rs.getArray(columnName);
             return (long[]) array.getArray();
         } catch (SQLException e) {
-            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+            throw new BallerinaException("Unable to perform getLongArray: " + e.getMessage(), e);
         }
     }
 
@@ -160,7 +167,7 @@ public class SQLDataIterator implements DataIterator {
             Array array = rs.getArray(columnIndex);
             return (int[]) array.getArray();
         } catch (SQLException e) {
-            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+            throw new BallerinaException("Unable to perform getIntArray: " + e.getMessage(), e);
         }
     }
 
@@ -170,7 +177,7 @@ public class SQLDataIterator implements DataIterator {
             Array array = rs.getArray(columnName);
             return (int[]) array.getArray();
         } catch (SQLException e) {
-            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+            throw new BallerinaException("Unable to perform getIntArray: " + e.getMessage(), e);
         }
     }
 
@@ -197,7 +204,7 @@ public class SQLDataIterator implements DataIterator {
             Array array = rs.getArray(columnIndex);
             return (float[]) array.getArray();
         } catch (SQLException e) {
-            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+            throw new BallerinaException("Unable to perform getFloatArray: " + e.getMessage(), e);
         }
     }
 
@@ -207,7 +214,7 @@ public class SQLDataIterator implements DataIterator {
             Array array = rs.getArray(columnName);
             return (float[]) array.getArray();
         } catch (SQLException e) {
-            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+            throw new BallerinaException("Unable to perform getFloatArray: " + e.getMessage(), e);
         }
     }
 
@@ -234,7 +241,7 @@ public class SQLDataIterator implements DataIterator {
             Array array = rs.getArray(columnIndex);
             return (double[]) array.getArray();
         } catch (SQLException e) {
-            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+            throw new BallerinaException("Unable to perform getDoubleArray: " + e.getMessage(), e);
         }
     }
 
@@ -244,7 +251,7 @@ public class SQLDataIterator implements DataIterator {
             Array array = rs.getArray(columnName);
             return (double[]) array.getArray();
         } catch (SQLException e) {
-            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+            throw new BallerinaException("Unable to perform getDoubleArray: " + e.getMessage(), e);
         }
     }
 
@@ -271,7 +278,7 @@ public class SQLDataIterator implements DataIterator {
             Array array = rs.getArray(columnIndex);
             return (boolean[]) array.getArray();
         } catch (SQLException e) {
-            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+            throw new BallerinaException("Unable to perform getBooleanArray: " + e.getMessage(), e);
         }
     }
 
@@ -281,7 +288,53 @@ public class SQLDataIterator implements DataIterator {
             Array array = rs.getArray(columnName);
             return (boolean[]) array.getArray();
         } catch (SQLException e) {
-            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+            throw new BallerinaException("Unable to perform getBooleanArray: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public String getObjectAsString(int columnIndex) {
+        try {
+            Object object = rs.getObject(columnIndex);
+            if (object != null) {
+                return getString(object);
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException("Unable to perform getObjectAsString: " + e.getMessage(), e);
+        }
+    }
+
+    private String getString(Object object) throws SQLException {
+        String value;
+        if (object instanceof Blob) {
+            value = getBString((Blob) object).stringValue();
+        } else if (object instanceof Timestamp) {
+            value = String.valueOf(((Timestamp) object).getTime());
+        } else if (object instanceof Date) {
+            value = String.valueOf(((Date) object).getTime());
+        } else if (object instanceof Time) {
+            value = String.valueOf(((Time) object).getTime());
+        } else if (object instanceof InputStream) {
+            value = getBString((InputStream) object).stringValue();
+        } else {
+            value = String.valueOf(object);
+        }
+        return value;
+    }
+
+    @Override
+    public String getObjectAsString(String columnName) {
+        try {
+            Object object = rs.getObject(columnName);
+            if (object != null) {
+                return getString(object);
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException("Unable to perform getObjectAsString: " + e.getMessage(), e);
         }
     }
 
@@ -289,8 +342,6 @@ public class SQLDataIterator implements DataIterator {
     @Override
     public BValue get(int columnIndex, String type) {
         try {
-            // Directly allocating full length array for decode byte array since anyway we are building
-            // new String in memory.
             switch (type) {
             case "blob":
                 return getBString(rs.getBlob(columnIndex));
@@ -300,8 +351,12 @@ public class SQLDataIterator implements DataIterator {
                 return getBString(rs.getNClob(columnIndex));
             case "date":
                 return new BLong(rs.getDate(columnIndex).getTime());
+            case "time":
+                return new BLong(rs.getTime(columnIndex).getTime());
             case "timestamp":
                 return new BLong(rs.getTimestamp(columnIndex).getTime());
+            case "binary":
+                return getBString(rs.getBinaryStream(columnIndex));
             }
         } catch (SQLException e) {
             throw new BallerinaException("Unable to get given column as " + type + ": " + e.getMessage(), e);
@@ -322,8 +377,12 @@ public class SQLDataIterator implements DataIterator {
                 return getBString(rs.getNClob(columnName));
             case "date":
                 return new BLong(rs.getDate(columnName).getTime());
+            case "time":
+                return new BLong(rs.getTime(columnName).getTime());
             case "timestamp":
                 return new BLong(rs.getTimestamp(columnName).getTime());
+            case "binary":
+                return getBString(rs.getBinaryStream(columnName));
             }
         } catch (SQLException e) {
             throw new BallerinaException("Unable to get given column as " + type + ": " + e.getMessage(), e);
@@ -332,18 +391,40 @@ public class SQLDataIterator implements DataIterator {
     }
 
     private BValue getBString(Clob clob) throws SQLException {
-        byte[] decode;
-        decode = getBase64Decode(clob.getSubString(0, (int) clob.length()));
-        return new BString(new String(decode, Charset.defaultCharset()));
+        // Directly allocating full length array for decode byte array since anyway we are building
+        // new String in memory.
+        byte[] encode = getBase64Encode(clob.getSubString(0, (int) clob.length()));
+        return new BString(new String(encode, Charset.defaultCharset()));
+    }
+
+    private BValue getBString(InputStream inputStream) throws SQLException {
+        String value = getStringFromInputStream(inputStream);
+        byte[] encode = getBase64Encode(value);
+        return new BString(new String(encode, Charset.defaultCharset()));
     }
 
     private BValue getBString(Blob blob) throws SQLException {
-        byte[] decode = getBase64Decode(new String(blob.getBytes(1L, (int) blob.length()), Charset.defaultCharset()));
-        return new BString(new String(decode, Charset.defaultCharset()));
+        // Directly allocating full length array for decode byte array since anyway we are building
+        // new String in memory.
+        byte[] encode = getBase64Encode(new String(blob.getBytes(1L, (int) blob.length()), Charset.defaultCharset()));
+        return new BString(new String(encode, Charset.defaultCharset()));
     }
 
-    private byte[] getBase64Decode(String st) {
-        return Base64.getDecoder().decode(st.getBytes(Charset.defaultCharset()));
+    private static String getStringFromInputStream(InputStream is) {
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(is, Charset.defaultCharset()))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (IOException e) {
+            throw new BallerinaException("Unable to read binary column as a String: " + e.getMessage(), e);
+        }
+        return sb.toString();
+    }
+
+    private byte[] getBase64Encode(String st) {
+        return Base64.getEncoder().encode(st.getBytes(Charset.defaultCharset()));
     }
 
     @Override

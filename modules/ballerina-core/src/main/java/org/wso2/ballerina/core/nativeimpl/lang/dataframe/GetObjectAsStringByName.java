@@ -21,6 +21,7 @@ package org.wso2.ballerina.core.nativeimpl.lang.dataframe;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BDataframe;
+import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
@@ -28,24 +29,22 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
- * Native function to get the XML representation of the dataframe.
- * ballerina.lang.dataframe:toXml(dataframe, string, string)
+ * Native function to get any object in their native toString in a given a given column name.
+ * ballerina.lang.dataframe:getObjectAsString(dataframe, string)
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.dataframe",
-        functionName = "toXml",
+        functionName = "getObjectAsString",
         args = {@Argument(name = "dataframe", type = TypeEnum.DATAFRAME),
-                @Argument(name = "rootWrapper", type = TypeEnum.STRING),
-                @Argument(name = "rowWrapper", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.XML)},
+                @Argument(name = "name", type = TypeEnum.STRING)},
+        returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
-public class ToXML extends AbstractNativeFunction {
+public class GetObjectAsStringByName extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataframe dataframe = (BDataframe) getArgument(ctx, 0);
-        String rootWrapper = getArgument(ctx, 1).stringValue();
-        String rowWrapper = getArgument(ctx, 2).stringValue();
-        return getBValues(dataframe.toXML(rootWrapper, rowWrapper));
+        String columnName = (getArgument(ctx, 1)).stringValue();
+        return getBValues(new BString(dataframe.getObjectAsString(columnName)));
     }
 }

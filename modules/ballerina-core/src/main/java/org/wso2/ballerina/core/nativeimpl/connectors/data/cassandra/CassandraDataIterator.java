@@ -192,13 +192,27 @@ public class CassandraDataIterator implements DataIterator {
     }
 
     @Override
+    public String getObjectAsString(int columnIndex) {
+        this.checkCurrentRow();
+        return this.current.getObject(columnIndex).toString();
+    }
+
+    @Override
+    public String getObjectAsString(String columnName) {
+        this.checkCurrentRow();
+        return this.current.getObject(columnName).toString();
+    }
+
+    @Override
     public BValue get(int columnIndex, String type) {
+        this.checkCurrentRow();
         return null;
     }
 
     @Override
     public BValue get(String columnName, String type) {
+        this.checkCurrentRow();
         return null;
     }
-
+    
 }
