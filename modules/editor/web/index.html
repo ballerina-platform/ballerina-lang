@@ -19,14 +19,14 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
+
     <title>Ballerina Editor</title>
 
     <!-- Favion -->
     <link href="images/favicon.png" rel="icon" type="image/png" sizes="16x16" />
 
     <script src="lib/css-browser-selector_0.4.0/css_browser_selector.js"></script>
-    
+
     <link href="lib/font-wso2-1.2.1/css/font-wso2.min.css" rel="stylesheet" type="text/css"/>
     <link href="lib/theme-wso2-2.0.0/css/theme-wso2.css" rel="stylesheet" type="text/css"/>
     <link href="lib/jquery-ui_v1.12.1/jquery-ui.css" rel="stylesheet" type="text/css"/>
@@ -55,7 +55,7 @@
     <!--[if lt IE 9]>
     <script src="lib/html5shiv_3.7.2/html5shiv.min.js"></script>
     <script src="lib/respond_1.4.2/respond.min.js"></script>
-    <![endif]--> 
+    <![endif]-->
 </head>
 <body class="sticky-footer">
 
@@ -208,6 +208,9 @@
                 <div class="view-source-btn btn-icon" data-toggle="tooltip" title="Source View">
                     <i class="fw fw-lg fw-code fw-inverse fw-helper fw-helper-circle"></i>
                 </div>
+                <div class="view-swagger-btn btn-icon" data-toggle="tooltip" title="Swagger view">
+                    <i class="fw fw-lg fw-swagger fw-helper"></i>
+                </div>
             </div>
             <!-- End: BottomRight Controls Container  -->
         </div>
@@ -219,10 +222,26 @@
                 <div class="view-design-btn btn-icon" data-toggle="tooltip" title="Design view">
                     <i class="fw fw-lg fw-design-view fw-helper"></i>
                 </div>
+                <div class="view-swagger-btn btn-icon" data-toggle="tooltip" title="Swagger view">
+                    <i class="fw fw-lg fw-swagger fw-helper"></i>
+                </div>
             </div>
             <!-- End: BottomRight Controls Container  -->
         </div>
         <!-- End source view container  -->
+        <!-- Start: swagger view container -->
+        <div class="swagger-view-container" id="swagger-container-id">
+            <!-- Start: BottomRight Controls Container -->
+            <div id="swaggerEditor" data-editor-url="/lib/swagger-editor/#/" style="height:91%; width:100%">
+            </div>
+            <div class="bottom-right-controls-container" data-toggle="tooltip" title="Design view">
+                <div class="view-design-btn btn-icon">
+                    <i class="fw fw-lg fw-design-view fw-inverse fw-helper fw-helper-circle"></i>
+                </div>
+            </div>
+            <!-- End: BottomRight Controls Container  -->
+        </div>
+        <!-- End swagger view container  -->
         <!-- Start: Preview Container -->
         <div class="preview-container">
         </div>
@@ -620,6 +639,9 @@
                 workspace:  {
                     endpoint: "http://localhost:8289/service/workspace"
                 },
+                packages:  {
+                    endpoint: "http://localhost:8289/ballerina/editor/packages"
+                },
                 parser:  {
                     endpoint: "http://localhost:8289/ballerina/model/content"
                 },
@@ -724,9 +746,18 @@
                                 scroll_margin: '20',
                                 mode: 'ace/mode/ballerina'
                             },
+                            swagger_view: {
+                                // relative selector within container for a tab
+                                container: '.swagger-view-container',
+                                theme: 'ace/theme/tomorrow_night',
+                                font_size: '12pt',
+                                scroll_margin: '20',
+                                mode: 'ace/mode/ballerina'
+                            },
                             controls: {
                                 view_source_btn: '.view-source-btn',
-                                view_design_btn: '.view-design-btn'
+                                view_design_btn: '.view-design-btn',
+                                view_swagger_btn: '.view-swagger-btn'
                             },
                             cssClass:{
                                 text_editor_class: 'text-editor',
