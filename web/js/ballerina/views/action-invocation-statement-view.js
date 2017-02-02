@@ -122,8 +122,23 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             var leftOperandModel = this._model.getChildren()[0];
             var connectorModel =  actionInvocationModel.getConnector();
 
+            var self = this;
+
             if(!_.isUndefined(connectorModel)) {
                 this.connector = this.getDiagramRenderingContext().getViewOfModel(connectorModel);
+            }
+            else {
+                for(var i = 0; i < this._parent._model.children.length; i++) {
+                    if (this._parent._model.children[i].type == 'ConnectorDeclaration') {
+                        var connectorReference = this._parent._model.children[i];
+
+                        actionInvocationModel._connector = connectorReference;
+                        self.messageManager.setMessageSource(actionInvocationModel);
+                        self.messageManager.updateActivatedTarget(connectorReference);
+
+                        break;
+                    }
+                }
             }
 
             var assignmentStatementGroup = D3Utils.group(d3.select(this._container));
@@ -180,7 +195,9 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             this.parentContainer = d3.select(parentGroup);
             //Drawing the message.
             this.DrawArrow(this.getDiagramRenderingContext());
-            var self = this;
+
+            self = this;
+
             this.processorConnectPoint.on("mousedown", function () {
                 d3.event.preventDefault();
                 d3.event.stopPropagation();
@@ -313,7 +330,8 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
          * Remove the forward and the backward arrow heads
          */
         ActionInvocationStatementView.prototype.removeArrows = function () {
-            if (!_.isNil(this._arrowGroup) && !_.isNil(this._arrowGroup.node)()) {
+
+            if (!_.isNil(this._arrowGroup) && !_.isNil(this._arrowGroup.node)) {
                 d3.select(this._arrowGroup).node().remove();
             }
         };
