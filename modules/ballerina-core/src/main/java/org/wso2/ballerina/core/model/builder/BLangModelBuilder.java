@@ -202,13 +202,12 @@ public class BLangModelBuilder {
     }
 
     public void createAnnotationKeyValue(String key) {
-        //        // Assuming the annotation value is a string literal
-        //        String value = exprStack.pop().getBValueRef().getString();
-        //
-        //        Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.peek();
-        //        annotationBuilder.addKeyValuePair(new Identifier(key), value);
-
-        log.warn("Warning: Key/Value pairs in annotations are not supported");
+        Expression expr = exprStack.peek();
+        if (expr instanceof BasicLiteral && expr.getType() == BTypes.STRING_TYPE) {
+            String value = ((BasicLiteral) expr).getBValue().stringValue();
+            Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.peek();
+            annotationBuilder.addKeyValuePair(new SymbolName(key), value);
+        }
     }
 
     public void endAnnotation(String name, boolean valueAvailable, Position sourceLocation) {
