@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'],
-    function (_, ASTNode) {
+define(['lodash', './node', 'log'],
+    function (_, ASTNode, log) {
 
     /**
      * Constructor for ServiceDefinition
@@ -67,8 +67,12 @@ define(['lodash', './node'],
     ServiceDefinition.prototype.constructor = ServiceDefinition;
 
     ServiceDefinition.prototype.setServiceName = function (serviceName) {
-        if(!_.isNil(serviceName)){
+        if (!_.isNil(serviceName) && ASTNode.isValidIdentifier(serviceName)) {
             this._serviceName = serviceName;
+        } else {
+            var errorString = "Invalid name for the service name: " + serviceName;
+            log.error(errorString);
+            throw errorString;
         }
     };
 

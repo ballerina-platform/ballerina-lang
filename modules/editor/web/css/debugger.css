@@ -13,6 +13,10 @@
     color: #dadada;
 }
 
+.source-view-container .ace_gutter-cell.ace_breakpoint {
+    background-color: #be0016;
+}
+
 /*TODO remove this when feature is done*/
 .left-tool-bar .debugger-activate-btn, .left-tool-bar .debugger-activate-btn i{
     display: none;
