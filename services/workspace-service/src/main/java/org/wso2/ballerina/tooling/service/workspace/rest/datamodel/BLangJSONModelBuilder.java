@@ -55,10 +55,10 @@ import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.GreaterEqualExpression;
 import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
-import org.wso2.ballerina.core.model.expressions.KeyValueExpression;
+import org.wso2.ballerina.core.model.expressions.MapStructInitKeyValueExpr;
 import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
 import org.wso2.ballerina.core.model.expressions.LessThanExpression;
-import org.wso2.ballerina.core.model.expressions.MapInitExpr;
+import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
@@ -943,7 +943,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(MapInitExpr mapInitExpr) {
+    public void visit(RefTypeInitExpr refTypeInitExpr) {
         //TODO
     }
 
@@ -997,7 +997,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(KeyValueExpression arrayMapAccessExpr) {
+    public void visit(MapStructInitKeyValueExpr arrayMapAccessExpr) {
         //TODO
     }
     
