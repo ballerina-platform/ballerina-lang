@@ -39,27 +39,11 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
     ActionInvocationExpression.prototype.constructor = ActionInvocationExpression;
 
     /**
-     * Set variable accessor
-     * @param {string} accessor
-     */
-    ActionInvocationExpression.prototype.setVariableAccessor = function (accessor) {
-        this._variableAccessor = accessor;
-    };
-
-    /**
-     * Get the variable accessor
-     * @returns {string}
-     */
-    ActionInvocationExpression.prototype.getVariableAccessor = function () {
-        return this._variableAccessor;
-    };
-
-    /**
      * Set action name
      * @param {string} actionName
      */
     ActionInvocationExpression.prototype.setActionName = function (actionName) {
-        this._actionName = actionName;
+        this.setAttribute('_actionName', actionName);
     };
     /**
      * Get action name
@@ -74,7 +58,7 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
      * @param {string} actionPackageName
      */
     ActionInvocationExpression.prototype.setActionPackageName = function (actionPackageName) {
-        this._actionPackageName = actionPackageName;
+        this.setAttribute('_actionPackageName', actionPackageName);
     };
     /**
      * Get Action Package Name
@@ -89,7 +73,7 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
      * @param {string} actionConnectorName
      */
     ActionInvocationExpression.prototype.setActionConnectorName = function (actionConnectorName) {
-        this._actionConnectorName = actionConnectorName;
+        this.setAttribute('_actionPackageName', actionConnectorName);
     };
     /**
      * Get action connector Name
@@ -134,7 +118,7 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
      * @param {string} messageVariableReference
      */
     ActionInvocationExpression.prototype.setMessageVariableReference = function (messageVariableReference) {
-        this._messageVariableReference = messageVariableReference;
+        this.setAttribute('_messageVariableReference', messageVariableReference);
     };
 
     /**
