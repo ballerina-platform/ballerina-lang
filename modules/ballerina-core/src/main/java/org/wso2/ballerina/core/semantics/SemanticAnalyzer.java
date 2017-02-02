@@ -327,8 +327,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         for (Worker worker : resource.getWorkers()) {
-            stackFrameOffset++;
             visit(worker);
+            addWorkerSymbol(worker);
         }
         
         BlockStmt blockStmt = resource.getResourceBody();
@@ -479,8 +479,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         for (Worker worker : action.getWorkers()) {
-            stackFrameOffset++;
             visit(worker);
+            addWorkerSymbol(worker);
         }
 
         for (Parameter parameter : action.getReturnParameters()) {

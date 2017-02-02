@@ -20,30 +20,32 @@ package org.wso2.ballerina.lang.statements;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.interpreter.SymScope;
+import org.wso2.ballerina.core.EnvironmentInitializer;
 import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.values.BMessage;
-import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
-import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.core.utils.MessageUtils;
+import org.wso2.ballerina.lang.util.Services;
+import org.wso2.carbon.messaging.CarbonMessage;
 
-public class WorkerDeclarationTest {
+import java.nio.ByteBuffer;
+
+public class WorkerInResourceTest {
     private BallerinaFile bFile;
 
     @BeforeClass
     public void setup() {
-        BuiltInNativeConstructLoader.loadConstructs();
-        SymScope globalSymScope = GlobalScopeHolder.getInstance().getScope();
-        bFile = ParserUtils.parseBalFile("lang/statements/worker-declaration-stmt.bal", globalSymScope);
+//        BuiltInNativeConstructLoader.loadConstructs();
+//        SymScope globalSymScope = GlobalScopeHolder.getInstance().getScope();
+//        bFile = ParserUtils.parseBalFile("lang/statements/worker-in-resource.bal", globalSymScope);
+        EnvironmentInitializer.initialize("lang/statements/worker-in-resource.bal");
     }
 
     @Test(description = "Test worker declaration")
-    public void testWorkerDeclaration() {
-        BValue[] args = {new BMessage()};
-        BValue[] returns = Functions.invoke(bFile, "testworker", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BMessage);
+    public void testWorkerInResource() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/passthrough/test", "POST");
+        cMsg.addMessageBody(ByteBuffer.wrap("hello".getBytes()));
+        cMsg.setEndOfMsgAdded(true);
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response);
     }
 }

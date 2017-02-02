@@ -214,7 +214,9 @@ public final class BMessage implements BRefType<CarbonMessage> {
 
     public BMessage clone() {
         BMessage clonedMessage = new BMessage();
-        clonedMessage.setBuiltPayload(this.builtPayload);
+        if (this.builtPayload != null) {
+            clonedMessage.setBuiltPayload(this.builtPayload);
+        }
         clonedMessage.setValue(this.value);
         clonedMessage.setHeaderList(this.getHeaders());
         return clonedMessage;

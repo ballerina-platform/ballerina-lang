@@ -281,12 +281,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             }
         }
         if (resource.getWorkers() != null) {
-            resource.getWorkers().forEach(new Consumer<Worker>() {
-                @Override
-                public void accept(Worker worker) {
-                    worker.accept(BLangJSONModelBuilder.this);
-                }
-            });
+            for (Worker worker : resource.getWorkers()) {
+                worker.accept(BLangJSONModelBuilder.this);
+            }
         }
         if (resource.getConnectorDcls() != null) {
             for (ConnectorDcl connectDcl : resource.getConnectorDcls()) {
