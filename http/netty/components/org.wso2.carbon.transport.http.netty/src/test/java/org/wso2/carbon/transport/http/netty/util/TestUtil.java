@@ -215,6 +215,10 @@ public class TestUtil {
         return urlConn;
     }
 
+    public static void setHeader(HttpURLConnection urlConnection, String key, String value) {
+        urlConnection.setRequestProperty(key, value);
+    }
+
     public static void updateMessageProcessor(CarbonMessageProcessor carbonMessageProcessor,
             TransportsConfiguration transportsConfiguration) {
 
