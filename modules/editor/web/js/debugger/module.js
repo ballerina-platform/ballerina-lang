@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['jquery', 'backbone', 'lodash', 'log','./variable-tree'], function ($, Backbone, _, log, VariableTree) {
+define(['jquery', 'backbone', 'lodash', 'log','./variable-tree', './tools', './frames'], function ($, Backbone, _, log, VariableTree, Tools, Frames) {
     var Debugger = Backbone.View.extend({
         initialize: function(config) {
             var errMsg;
@@ -46,16 +46,21 @@ define(['jquery', 'backbone', 'lodash', 'log','./variable-tree'], function ($, B
             this._lastWidth = undefined;
             this._verticalSeparator = $(_.get(this._options, 'separator'));
             this._containerToAdjust = $(_.get(this._options, 'containerToAdjust'));
-            this.initPanels();
+
+            // Channel.on("debug-hit", function (executionPoint, variableTree) {
+            //     // TODO use FileTab 's instance to hightLight
+            //    var currentTab = self.application.tabController.getActiveTab();
+            //    if(currentTab) {
+            //        currentTab._fileEditor.highlightExecutionPoint(executionPoint);
+            //    }
+            //    VariableTree.updateVariableTree(variableTree);
+            // });
+
 
             // register command
             this.application.commandManager.registerCommand(config.command.id, {shortcuts: config.command.shortcuts});
             this.application.commandManager.registerHandler(config.command.id, this.toggleDebugger, this);
 
-        },
-        initPanels: function () {
-            var variableTreeOpts = this._options;
-            this.variableTreePanel = new VariableTree(variableTreeOpts, this);
         },
         isActive: function(){
             return this._activateBtn.parent('li').hasClass('active');
@@ -128,7 +133,10 @@ define(['jquery', 'backbone', 'lodash', 'log','./variable-tree'], function ($, B
             debuggerContainer.addClass(_.get(this._options, 'cssClass.container'));
             debuggerContainer.attr('id', _.get(this._options, ('containerId')));
             this._$parent_el.append(debuggerContainer);
-            this.variableTreePanel.render();
+
+            Tools.render(debuggerContainer);
+            VariableTree.render(debuggerContainer);
+            Frames.render(debuggerContainer);
 
             this._debuggerContainer = debuggerContainer;
             debuggerContainer.mCustomScrollbar({
