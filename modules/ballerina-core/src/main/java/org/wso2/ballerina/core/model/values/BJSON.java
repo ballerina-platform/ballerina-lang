@@ -165,4 +165,9 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     public String stringValue() {
         return this.value.toString();
     }
+
+    @Override
+    public String getMessageAsString() {
+        return this.value.toString();
+    }
 }
