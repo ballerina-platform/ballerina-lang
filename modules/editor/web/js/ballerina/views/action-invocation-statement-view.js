@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-invocation-expression','./point', 'd3utils'],
-    function (_, d3, log, BallerinaStatementView, ActionInvocationExpression, Point, D3Utils) {
+define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-invocation-expression', './point', 'd3utils', './../ast/ballerina-ast-factory'],
+    function (_, d3, log, BallerinaStatementView, ActionInvocationExpression, Point, D3Utils, BallerinaASTFactory) {
 
         var ActionInvocationStatementView = function (args) {
             BallerinaStatementView.call(this, args);
@@ -128,9 +128,10 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                 this.connector = this.getDiagramRenderingContext().getViewOfModel(connectorModel);
             }
             else {
-                _.some(this._parent._model.children, function (key, i) {
-                    if (self._parent._model.children[i].type == 'ConnectorDeclaration') {
-                        var connectorReference = self._parent._model.children[i];
+                var siblingConnectors = this._parent._model.children;
+                _.some(siblingConnectors, function (key, i) {
+                    if (BallerinaASTFactory.isConnectorDeclaration(siblingConnectors[i])) {
+                        var connectorReference = siblingConnectors[i];
 
                         actionInvocationModel._connector = connectorReference;
                         self.messageManager.setMessageSource(actionInvocationModel);
@@ -214,13 +215,13 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                     self.processorConnector.attr('y1', parseFloat(self.processorConnector.attr('y1')) + dy);
                     self.processorConnector2.attr('y1', parseFloat(self.processorConnector2.attr('y1')) + dy);
 
-                    var x=  parseFloat(self.processorConnector.attr('x2')) - 5;
+                    var x =  parseFloat(self.processorConnector.attr('x2')) - 5;
                     var y = parseFloat(self.processorConnector.attr('y2')) + dy;
                     var arrowHeadPoints = "" + x + "," + (y - 5) + " " + (x + 5) + "," + (y) + " " + x + "," + (y + 5);
                     self.arrowHead.attr("points", arrowHeadPoints);
 
-                    x= parseFloat(self.processorConnector2.attr('x1'));
-                    var y = parseFloat(self.processorConnector2.attr('y2')) + dy;
+                    x = parseFloat(self.processorConnector2.attr('x1'));
+                    y = parseFloat(self.processorConnector2.attr('y2')) + dy;
                     var backArrowHeadPoints = "" + x + "," + y + " " + (x + 5) + "," + (y - 5) + " " + (x + 5) + "," + (y + 5);
                     self.backArrowHead.attr("points", backArrowHeadPoints);
 
