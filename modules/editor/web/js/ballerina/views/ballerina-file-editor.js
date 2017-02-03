@@ -15,15 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view',  './function-definition-view', './../ast/ballerina-ast-root',
-        './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view',
-        './../visitors/source-gen/ballerina-ast-root-visitor','./../visitors/symbol-table/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
-        './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer', './connector-definition-view', './struct-definition-view',
-        './../env/package', './../env/package-scoped-environment', './../env/environment', './constant-definitions-pane-view', './../item-provider/tool-palette-item-provider','./type-mapper-definition-view'],
+define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view', './function-definition-view',
+        './../ast/ballerina-ast-root', './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view',
+        './../visitors/source-gen/ballerina-ast-root-visitor', './../visitors/symbol-table/ballerina-ast-root-visitor',
+        './../tool-palette/tool-palette', './../undo-manager/undo-manager', './backend', './../ast/ballerina-ast-deserializer',
+        './connector-definition-view', './struct-definition-view', './../env/package', './../env/package-scoped-environment',
+        './../env/environment', './constant-definitions-pane-view', './../item-provider/tool-palette-item-provider',
+        './type-mapper-definition-view'],
     function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory,
-              PackageDefinition, SourceView, SourceGenVisitor, SymbolTableGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer,
-              ConnectorDefinitionView, StructDefinitionView, Package, PackageScopedEnvironment, BallerinaEnvironment,
-              ConstantsDefinitionsPaneView, ToolPaletteItemProvider,TypeMapperDefinitionView) {
+              PackageDefinition, SourceView, SourceGenVisitor, SymbolTableGenVisitor, ToolPalette, UndoManager, Backend,
+              BallerinaASTDeserializer, ConnectorDefinitionView, StructDefinitionView, Package, PackageScopedEnvironment,
+              BallerinaEnvironment, ConstantsDefinitionsPaneView, ToolPaletteItemProvider, TypeMapperDefinitionView) {
 
         /**
          * The view to represent a ballerina file editor which is an AST visitor.
@@ -197,6 +199,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             functionDefinitionView.render(this.diagramRenderingContext);
         };
 
+        /**
+         * Creates a StructDefinition view for a Struct Definition model and calls it's render.
+         * @param structDefinition
+         */
         BallerinaFileEditor.prototype.visitStructDefinition = function (structDefinition) {
             var structDefinitionView = new StructDefinitionView({
                 viewOptions: this._viewOptions,
@@ -209,6 +215,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             structDefinitionView.render(this.diagramRenderingContext);
         };
 
+        /**
+         * Creates a TypeMapperDefinition view for a TypeMapper Definition model and calls it's render.
+         * @param typeMapperDefinition
+         */
         BallerinaFileEditor.prototype.visitTypeMapperDefinition = function (typeMapperDefinition) {
             var typeMapperDefinitionView = new TypeMapperDefinitionView({
                 viewOptions: this._viewOptions,
@@ -410,20 +420,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._model.accept(sourceGenVisitor);
             return sourceGenVisitor.getGeneratedSource();
         };
-
-        BallerinaFileEditor.prototype.childViewRemovedCallback = function (child) {
-            log.debug("[Eventing] Child element view removed. ");
-            //TODO: remove canvas container for each delete click
-            $(this._$canvasContainer)[0].remove();
-
-            var self = this;
-            self.reDraw({
-                model: self._model,
-                container: self._container,
-                viewOptions: self._viewOptions
-            });
-        };
-
+        
         /**
          * Creating the package view of a ballerina-file-editor.
          * @param canvasContainer - The canvas container.
