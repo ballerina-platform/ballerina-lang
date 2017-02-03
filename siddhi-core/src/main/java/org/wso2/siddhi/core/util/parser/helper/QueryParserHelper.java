@@ -75,45 +75,19 @@ public class QueryParserHelper {
      * @param metaStreamEvent MetaStreamEvent
      */
     private static synchronized void reduceStreamAttributes(MetaStreamEvent metaStreamEvent) {
-        Set<Attribute> duplicateFinder = new HashSet<Attribute>();
-        for (Iterator<Attribute> iterator = metaStreamEvent.getOutputData().iterator(); iterator.hasNext(); ) {
-            Attribute attribute = iterator.next();
-            if (attribute != null) {
-                if (duplicateFinder.add(attribute)) {
-                    if (metaStreamEvent.getBeforeWindowData().contains(attribute)) {
-                        metaStreamEvent.getBeforeWindowData().remove(attribute);
-                    }
-                    if (metaStreamEvent.getOnAfterWindowData().contains(attribute)) {
-                        metaStreamEvent.getOnAfterWindowData().remove(attribute);
-                    }
-                } else {
-                    iterator.remove();
-                }
+        for (Attribute attribute : metaStreamEvent.getOutputData()) {
+            if (metaStreamEvent.getBeforeWindowData().contains(attribute)) {
+                metaStreamEvent.getBeforeWindowData().remove(attribute);
+            }
+            if (metaStreamEvent.getOnAfterWindowData().contains(attribute)) {
+                metaStreamEvent.getOnAfterWindowData().remove(attribute);
             }
         }
-        Set<Attribute> duplicateFinder = new HashSet<Attribute>();
-        for (Iterator<Attribute> iterator = metaStreamEvent.getOnAfterWindowData().iterator(); iterator.hasNext(); ) {
-            Attribute attribute = iterator.next();
-            if (attribute != null) {
-                if (duplicateFinder.add(attribute)) {
-                    if (metaStreamEvent.getBeforeWindowData().contains(attribute)) {
-                        metaStreamEvent.getBeforeWindowData().remove(attribute);
-                    }
-                } else {
-                    iterator.remove();
-                }
+        for (Attribute attribute : metaStreamEvent.getOnAfterWindowData()) {
+            if (metaStreamEvent.getBeforeWindowData().contains(attribute)) {
+                metaStreamEvent.getBeforeWindowData().remove(attribute);
             }
         }
-
-        for (Iterator<Attribute> iterator = metaStreamEvent.getBeforeWindowData().iterator(); iterator.hasNext(); ) {
-            Attribute attribute = iterator.next();
-            if (attribute != null) {
-                if (!duplicateFinder.add(attribute)) {
-                    iterator.remove();
-                }
-            }
-        }
-
     }
 
     public static void updateVariablePosition(MetaComplexEvent metaComplexEvent, List<VariableExpressionExecutor> variableExpressionExecutorList) {

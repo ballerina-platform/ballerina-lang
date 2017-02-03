@@ -44,40 +44,12 @@ public class OperatorParser {
                                              ExecutionPlanContext executionPlanContext,
                                              List<VariableExpressionExecutor> variableExpressionExecutors,
                                              Map<String, EventTable> eventTableMap, String queryName) {
-        if (candidateEvents instanceof PrimaryKeyEventHolder) {
-            if (expression instanceof Compare && ((Compare) expression).getOperator() == Compare.Operator.EQUAL) {
-                Compare compare = (Compare) expression;
-                if ((compare.getLeftExpression() instanceof Variable || compare.getLeftExpression() instanceof Constant)
-                        && (compare.getRightExpression() instanceof Variable || compare.getRightExpression() instanceof Constant)) {
-
-                    boolean leftSideIndexed = false;
-                    boolean rightSideIndexed = false;
-
-                    if (isTableIndexVariable(matchingMetaStateHolder, compare.getLeftExpression(), ((PrimaryKeyEventHolder) candidateEvents).getIndexAttribute())) {
-                        leftSideIndexed = true;
-                    }
-
-                    if (isTableIndexVariable(matchingMetaStateHolder, compare.getRightExpression(), ((PrimaryKeyEventHolder) candidateEvents).getIndexAttribute())) {
-                        rightSideIndexed = true;
-                    }
-
-                    if (leftSideIndexed && !rightSideIndexed) {
-                        ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(compare.getRightExpression(),
-                                matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
-                        return new PrimaryKeyOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex(), ((PrimaryKeyEventHolder) candidateEvents).getIndexPosition());
-
-                    } else if (!leftSideIndexed && rightSideIndexed) {
-                        ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(compare.getLeftExpression(),
-                                matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
-                        return new PrimaryKeyOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex(), ((PrimaryKeyEventHolder) candidateEvents).getIndexPosition());
-
-                    }
-                }
-            }
-            //fallback to not using primary key
-            ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
-            return new MapOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex());
+        if (candidateEvents instanceof IndexedEventHolder) {
+            CollectionExpression collectionExpression = CollectionExpressionParser.parseCollectionExpression(expression,
+                    matchingMetaStateHolder, (IndexedEventHolder) candidateEvents);
+            CollectionExecutor collectionExecutor = CollectionExpressionParser.buildCollectionExecutor(collectionExpression,
+                    matchingMetaStateHolder, variableExpressionExecutors, eventTableMap, executionPlanContext, true, queryName);
+            return new IndexOperator(collectionExecutor);
         } else if (candidateEvents instanceof ComplexEventChunk) {
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
                     matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);

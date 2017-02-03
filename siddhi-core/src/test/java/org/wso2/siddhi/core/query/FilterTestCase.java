@@ -4338,7 +4338,10 @@ public class FilterTestCase {
 
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream[150 > volume] select symbol,price , symbol as sym1 insert into outputStream ;";
+        String query = "@info(name = 'query1') " +
+                "from cseEventStream[150 > volume] " +
+                "select symbol,price , symbol as sym1 " +
+                "insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
