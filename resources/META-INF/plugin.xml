@@ -37,7 +37,7 @@
         <!-- file type -->
         <fileTypeFactory implementation="org.ballerinalang.plugins.idea.BallerinaFileTypeFactory"/>
 
-        <!-- parser -->
+         <!--parser-->
         <lang.parserDefinition language="Ballerina"
                                implementationClass="org.ballerinalang.plugins.idea.BallerinaParserDefinition"/>
 
@@ -47,13 +47,13 @@
         <!-- highlighting -->
         <lang.syntaxHighlighterFactory language="Ballerina"
                                        implementationClass="org.ballerinalang.plugins.idea.highlighter.BallerinaSyntaxHighlighterFactory"/>
-        <colorSettingsPage implementation="org.ballerinalang.plugins.idea.highlighter.BallerinaColorSettingsPage"/>
+        <!--<colorSettingsPage implementation="org.ballerinalang.plugins.idea.highlighter.BallerinaColorSettingsPage"/>-->
 
-        <annotator language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.highlighter.BallerinaAnnotator"/>
+        <!--<annotator language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.highlighter.BallerinaAnnotator"/>-->
 
         <!-- formatter -->
-        <lang.formatter language="Ballerina"
-                        implementationClass="org.ballerinalang.plugins.idea.formatter.BallerinaFormattingModelBuilder"/>
+        <!--<lang.formatter language="Ballerina"-->
+                        <!--implementationClass="org.ballerinalang.plugins.idea.formatter.BallerinaFormattingModelBuilder"/>-->
 
         <!-- templates -->
         <internalFileTemplate name="Ballerina Application"/>
