@@ -333,6 +333,7 @@ text-anchor: start;
 
 .client-life-line text{
     cursor: pointer;
+    font-weight: 400;
 }
 
 .client-life-line polygon{
@@ -349,6 +350,7 @@ text-anchor: start;
 }
 .default-worker-life-line text{
     cursor: pointer;
+    font-weight: 400;
 }
 
 .default-worker-life-line rect{
@@ -368,6 +370,7 @@ text-anchor: start;
 
 .connector-life-line text {
     cursor: pointer;
+    font-weight: 400;
 }
 
 .connector-life-line-top-polygon {
@@ -392,6 +395,7 @@ text-anchor: start;
 .start-action text{
     fill: black;
     stroke-opacity: 0;
+    font-weight: 400;
 }
 
 .statement-container .main-drop-zone{
