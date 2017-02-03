@@ -36,7 +36,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ListenerConfiguration {
 
-    public static final String DEFAULT_KEY = "netty";
+    public static final String DEFAULT_KEY = "default";
 
     public static ListenerConfiguration getDefault() {
         ListenerConfiguration defaultConfig;

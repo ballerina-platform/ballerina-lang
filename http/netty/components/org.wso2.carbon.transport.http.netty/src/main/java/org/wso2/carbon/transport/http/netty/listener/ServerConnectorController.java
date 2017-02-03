@@ -49,17 +49,11 @@ public class ServerConnectorController {
 
     private HTTPServerChannelInitializer handler;
 
-    private static ServerConnectorController instance = new ServerConnectorController();
-
     private boolean initialized = false;
 
     private static PrintStream outStream = System.out;
 
-    public static ServerConnectorController getInstance() {
-        return instance;
-    }
-
-    public void init(TransportsConfiguration trpConfig) {
+    public ServerConnectorController (TransportsConfiguration trpConfig) {
 
         Set<TransportProperty> transportProperties = trpConfig.getTransportProperties();
 
