@@ -235,6 +235,22 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         };
 
         /**
+         * Creates a TypeMapperDefinition view for a TypeMapper Definition model and calls it's render.
+         * @param typeMapperDefinition
+         */
+        BallerinaFileEditor.prototype.visitTypeMapperDefinition = function (typeMapperDefinition) {
+            var typeMapperDefinitionView = new TypeMapperDefinitionView({
+                viewOptions: this._viewOptions,
+                container: this._$canvasContainer,
+                model: typeMapperDefinition,
+                parentView: this,
+                toolPalette: this.toolPalette
+            });
+            this.diagramRenderingContext.getViewModelMap()[typeMapperDefinition.id] = TypeMapperDefinitionView;
+            typeMapperDefinitionView.render(this.diagramRenderingContext);
+        };
+
+        /**
          * Adds the service definitions, function definitions and connector definitions to
          * {@link BallerinaFileEditor#_canvasList} and calls {@link BallerinaFileEditor#render}.
          */
@@ -285,6 +301,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this.diagramRenderingContext = diagramRenderingContext;
             //TODO remove this for adding filecontext to the map
             this.diagramRenderingContext.ballerinaFileEditor = this;
+            this.diagramRenderingContext.packagedScopedEnvironemnt = this._environment;
 
             var symbolTableGenVisitor = new SymbolTableGenVisitor(this._package, this._model);
             this._model.accept(symbolTableGenVisitor);
