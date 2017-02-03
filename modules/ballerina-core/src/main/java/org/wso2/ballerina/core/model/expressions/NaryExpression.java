@@ -29,7 +29,7 @@ import org.wso2.ballerina.core.model.NodeLocation;
  */
 public class NaryExpression extends UnaryExpression {
 
-    private Expression[] argExprs;
+    protected Expression[] argExprs;
 
     public NaryExpression(NodeLocation location, Expression[] argExprs) {
         super(location, null, null);

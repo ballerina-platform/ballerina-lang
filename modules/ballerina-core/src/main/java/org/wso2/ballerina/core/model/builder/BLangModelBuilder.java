@@ -19,7 +19,6 @@ package org.wso2.ballerina.core.model.builder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
@@ -76,9 +75,9 @@ import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
-import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
+import org.wso2.ballerina.core.model.types.TypeConstants;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -865,12 +864,13 @@ public class BLangModelBuilder {
         }
 
         SimpleTypeName typeName = typeNameStack.pop();
+        VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);
 
         VariableDef variableDef = new VariableDef(location, varName, typeName, symbolName, currentScope);
         currentScope.define(symbolName, variableDef);
 
         Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
-        VariableDefStmt variableDefStmt = new VariableDefStmt(location, variableDef, rhsExpr);
+        VariableDefStmt variableDefStmt = new VariableDefStmt(location, variableDef, variableRefExpr, rhsExpr);
         addToBlockStmt(variableDefStmt);
     }
 
@@ -1061,32 +1061,32 @@ public class BLangModelBuilder {
 
     public void createIntegerLiteral(String value, NodeLocation location) {
         BValueType bValue = new BInteger(Integer.parseInt(value));
-        createLiteral(bValue, BTypes.typeInt, location);
+        createLiteral(location, new SimpleTypeName(TypeConstants.INT_TNAME), bValue);
     }
 
     public void createLongLiteral(String value, NodeLocation location) {
         BValueType bValue = new BLong(Long.parseLong(value));
-        createLiteral(bValue, BTypes.typeLong, location);
+        createLiteral(location, new SimpleTypeName(TypeConstants.LONG_TNAME), bValue);
     }
 
     public void createFloatLiteral(String value, NodeLocation location) {
         BValueType bValue = new BFloat(Float.parseFloat(value));
-        createLiteral(bValue, BTypes.typeFloat, location);
+        createLiteral(location, new SimpleTypeName(TypeConstants.FLOAT_TNAME), bValue);
     }
 
     public void createDoubleLiteral(String value, NodeLocation location) {
         BValueType bValue = new BDouble(Double.parseDouble(value));
-        createLiteral(bValue, BTypes.typeDouble, location);
+        createLiteral(location, new SimpleTypeName(TypeConstants.DOUBLE_TNAME), bValue);
     }
 
     public void createStringLiteral(String value, NodeLocation location) {
         BValueType bValue = new BString(value);
-        createLiteral(bValue, BTypes.typeString, location);
+        createLiteral(location, new SimpleTypeName(TypeConstants.STRING_TNAME), bValue);
     }
 
     public void createBooleanLiteral(String value, NodeLocation location) {
         BValueType bValue = new BBoolean(Boolean.parseBoolean(value));
-        createLiteral(bValue, BTypes.typeBoolean, location);
+        createLiteral(location, new SimpleTypeName(TypeConstants.BOOLEAN_TNAME), bValue);
     }
 
     public void createNullLiteral(String value, NodeLocation location) {
@@ -1102,9 +1102,8 @@ public class BLangModelBuilder {
         blockStmtBuilder.addStmt(stmt);
     }
 
-    private void createLiteral(BValueType bValueType, BType type, NodeLocation location) {
-        BasicLiteral basicLiteral = new BasicLiteral(location, bValueType);
-        basicLiteral.setType(type);
+    private void createLiteral(NodeLocation location, SimpleTypeName typeName, BValueType bValueType) {
+        BasicLiteral basicLiteral = new BasicLiteral(location, typeName, bValueType);
         exprStack.push(basicLiteral);
     }
 

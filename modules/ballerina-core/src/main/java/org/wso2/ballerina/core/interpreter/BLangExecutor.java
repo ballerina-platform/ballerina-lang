@@ -674,7 +674,7 @@ public class BLangExecutor implements NodeExecutor {
 
     private String evaluteBacktickString(BacktickExpr backtickExpr) {
         String varString = "";
-        for (Expression expression : backtickExpr.getExpressionList()) {
+        for (Expression expression : backtickExpr.getArgExprs()) {
             varString = varString + expression.execute(this).stringValue();
         }
         return varString;

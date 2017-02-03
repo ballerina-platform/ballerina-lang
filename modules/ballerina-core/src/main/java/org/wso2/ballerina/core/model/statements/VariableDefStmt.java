@@ -30,16 +30,22 @@ import org.wso2.ballerina.core.model.expressions.Expression;
  */
 public class VariableDefStmt extends AbstractStatement {
     private VariableDef variableDef;
+    private Expression lhrExpr;
     private Expression rhsExpr;
 
-    public VariableDefStmt(NodeLocation location, VariableDef variableDef, Expression rExpr) {
+    public VariableDefStmt(NodeLocation location, VariableDef variableDef, Expression lExpr, Expression rExpr) {
         super(location);
         this.variableDef = variableDef;
+        this.lhrExpr = lExpr;
         this.rhsExpr = rExpr;
     }
 
     public VariableDef getVariableDef() {
         return variableDef;
+    }
+
+    public Expression getLExpr() {
+        return lhrExpr;
     }
 
     public Expression getRExpr() {

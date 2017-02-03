@@ -19,7 +19,6 @@
 package org.wso2.ballerina.core.runtime.internal;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
@@ -401,7 +400,6 @@ public class BuiltInNativeConstructLoader {
     public static void registerAction(SymbolScope symScope, AbstractNativeAction action) {
         String actionName = action.getSymbolName().getName();
         SymbolName symbolName = LangModelUtils.getSymNameWithParams(actionName, action.getParameterDefs());
-        Symbol symbol = new Symbol(action);
 
         symScope.define(symbolName, action);
     }
@@ -410,7 +408,6 @@ public class BuiltInNativeConstructLoader {
         org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector connectorAnnotation =
                 connector.getClass().getAnnotation(
                         org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector.class);
-        Symbol symbol = new Symbol(connector);
 
         SymbolName symbolName = new SymbolName(connectorAnnotation.packageName() + ":" +
                 connectorAnnotation.connectorName());
@@ -444,7 +441,6 @@ public class BuiltInNativeConstructLoader {
         SymbolName symbolName =
                 LangModelUtils.getTypeConverterSymName(typeConvertor.getPackagePath(), typeConvertor.getParameterDefs(),
                         typeConvertor.getReturnParameters());
-        Symbol symbol = new Symbol(typeConvertor);
         symScope.define(symbolName, typeConvertor);
 
     }

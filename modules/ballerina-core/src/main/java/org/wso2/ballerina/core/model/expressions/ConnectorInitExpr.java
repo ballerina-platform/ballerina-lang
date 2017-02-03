@@ -17,27 +17,37 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
+import org.wso2.ballerina.core.model.values.BValue;
 
 /**
  * {@code ConnectorInitExpr} represents a expression which creates a new connector instance.
  *
  * @since 0.8.0
  */
-public class ConnectorInitExpr extends AbstractExpression {
+public class ConnectorInitExpr extends RefTypeInitExpr {
     private SimpleTypeName typeName;
-    private Expression[] argExprs;
 
     public ConnectorInitExpr(NodeLocation location, SimpleTypeName typeName, Expression[] argExprs) {
-        super(location);
+        super(location, argExprs);
         this.typeName = typeName;
-        this.argExprs = argExprs;
+    }
+
+    public SimpleTypeName getTypeName() {
+        return typeName;
     }
 
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public BValue execute(NodeExecutor executor) {
+        return executor.visit(this);
+    }
+
 }

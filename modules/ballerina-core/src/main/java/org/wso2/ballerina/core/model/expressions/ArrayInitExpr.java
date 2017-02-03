@@ -32,7 +32,7 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
-public class ArrayInitExpr extends NaryExpression {
+public class ArrayInitExpr extends RefTypeInitExpr {
 
     public ArrayInitExpr(NodeLocation location, Expression[] argExprs) {
         super(location, argExprs);
@@ -43,6 +43,7 @@ public class ArrayInitExpr extends NaryExpression {
         visitor.visit(this);
     }
 
+    @Override
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this);
     }
