@@ -59,7 +59,6 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
     MessageManager.prototype.updateActivatedTarget = function (target) {
         if (!_.isUndefined(target)) {
             this.getMessageSource().setConnector(target);
-            //this.getMessageSource().setActionName(this.getMessageSource().getActionName());
             this.getMessageSource().setActionPackageName(target.getConnectorPkgName());
             this.getMessageSource().setActionConnectorName(target.getConnectorName());
             this.getMessageSource().setConnectorVariableReference(target.getConnectorVariable());
