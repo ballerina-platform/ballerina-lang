@@ -39,9 +39,9 @@ define(['lodash', './node'], function (_, ASTNode) {
      * @param packageName
      */
     ImportDeclaration.prototype.setPackageName = function (packageName) {
-      if(!_.isNil(packageName)){
-          this._packageName = packageName;
-      }
+        if(!_.isNil(packageName)){
+            this.setAttribute('_packageName', packageName);
+        }
     };
 
     /**
@@ -50,7 +50,7 @@ define(['lodash', './node'], function (_, ASTNode) {
      */
     ImportDeclaration.prototype.setImportVersionNumber = function (importVersionNumber) {
         if(!_.isNil(importVersionNumber)){
-            this._importVersionNumber = importVersionNumber;
+            this.setAttribute('_importVersionNumber', importVersionNumber);
         }
     };
 
@@ -60,7 +60,7 @@ define(['lodash', './node'], function (_, ASTNode) {
      */
     ImportDeclaration.prototype.setIdentifier = function (identifier) {
         if(!_.isNil(identifier)){
-            this._identifier = identifier;
+            this.setAttribute('_identifier', identifier);
         }
     };
 

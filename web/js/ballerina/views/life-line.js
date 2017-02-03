@@ -62,6 +62,10 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
         this._rootGroup = D3Utils.group(this._containerD3)
             .classed(_.get(this._viewOptions, 'cssClass.group'), true);
+        // For the lifelines such as client life line we do not have a model id, although it is valid
+        if (!_.isNil(this._model)) {
+            this._rootGroup.attr('id', "_" + this._model.id);
+        }
 
         this.getBoundingBox()
             .x(this._topCenter.x() -  _.get(this._viewOptions, 'rect.width')/2)
@@ -72,6 +76,16 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
     LifeLineView.prototype = Object.create(BallerinaView.prototype);
     LifeLineView.prototype.constructor = LifeLineView;
+
+    /**
+     * Override remove view callback
+     * @param {ASTNode} parent - parent node
+     * @param {ASTNode} child - child node
+     */
+    LifeLineView.prototype.onBeforeModelRemove = function (parent, child) {
+        d3.select("#_" +this._model.id).remove();
+        this.getBoundingBox().w(0, 0);
+    };
 
     LifeLineView.prototype.position = function (x, y) {
         this._rootGroup.attr("transform", "translate(" + x + "," + y + ")");
@@ -435,17 +449,11 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             });
 
             $(deleteButtonRect.node()).click(function(event){
-                log.debug("Clicked delete button");
-
                 event.stopPropagation();
-
+                model.remove();
                 // Hiding property button pane.
                 $(propertyButtonPaneGroup.node()).remove();
                 $(smallArrow.node()).remove();
-
-                var child = model;
-                var parent = child.parent;
-                parent.removeChild(child);
             });
 
         }.bind(lifeLineGroup.node(), this));

@@ -56,6 +56,10 @@ svg text::selection {
     width: 100%;
 }
 
+.canvas-heading {
+    cursor: pointer;
+}
+
 /** Editor canvas related styles | -> End **/
 /*//////////////////////////////////////////////////*/
 
@@ -488,11 +492,24 @@ button.variable-list {
     fill: #FFFFFF;
 }
 
+.statement-action-button-wrapper {
+    stroke: #000000;
+    stroke-width: 0.5;
+    fill: #FFFFFF;
+}
+
 .property-pane-form-wrapper {
     width: 265px;
     max-height: 250px;
     border: 1px solid #cdcdcd;
     border-top: 2px solid #7b7b7b;
+    background: #FFFFFF;
+    position: absolute;
+}
+
+.expression-editor-form-wrapper{
+    width: 265px;
+    max-height: 250px;
     background: #FFFFFF;
     position: absolute;
 }
@@ -529,12 +546,23 @@ button.variable-list {
 .property-pane-form-body {
 }
 
+.expression-editor-form-body {
+}
+
 .property-pane-form-body-property-wrapper {
     padding: 7px 7px 2px 7px;
 }
 
+.expression-editor-form-body-property-wrapper {
+}
+
 .property-pane-form-body-property-wrapper input {
     width: 100%;
+}
+
+.expression-editor-form-body-property-wrapper input {
+    width: 100%;
+    height: 100%;
 }
 
 .property-pane-form-body-add-button {
@@ -598,7 +626,7 @@ button.variable-list {
 }
 
 .right-icon-clickable {
-    padding: 10px 6px;
+    padding: 4px 6px;
 }
 
 .collapser:hover {
@@ -1057,6 +1085,7 @@ button.variable-list {
 .canvas-operations-wrapper {
     float: right;
     margin-right: 1px;
+    margin-top: 1px;
 }
 
 .annotation-icon {
@@ -1074,9 +1103,9 @@ button.variable-list {
     -ms-transform: scale(1, 2);
     -o-transform: scale(1, 2);
     transform: scale(1, 2);
-    margin-top: 13px;
+    margin-top: 6px;
     color: #d8d8d8;
-    font-size: 11px;
+    font-size: 8px;
 }
 
 .service-annotation-action-icon {
@@ -1234,15 +1263,7 @@ button.variable-list {
     color: #ff7916;
 }
 
-.service-title-text:hover {
-    cursor: text;
-}
-
-.struct-title-text:hover {
-    cursor: text;
-}
-
-.function-title-text:hover {
+.canvas-title:hover {
     cursor: text;
 }
 
@@ -1362,5 +1383,5 @@ ul.list-group {
 }
 
 span.fw-stack.fw-lg{
-    z-index: 1000;
+    z-index: 10;
 }
