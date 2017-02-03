@@ -20,9 +20,9 @@ package org.wso2.ballerina.lang.util;
 import org.wso2.ballerina.core.interpreter.BLangExecutor;
 import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.interpreter.LocalVarLocation;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.StackFrame;
+import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -85,7 +85,7 @@ public class Functions {
             VariableRefExpr variableRefExpr = new VariableRefExpr(function.getNodeLocation(),
                     new SymbolName("arg" + i));
 
-            LocalVarLocation location = new LocalVarLocation(i);
+            StackVarLocation location = new StackVarLocation(i);
             variableRefExpr.setMemoryLocation(location);
             // TODO Set the type
 //            variableRefExpr.setType();

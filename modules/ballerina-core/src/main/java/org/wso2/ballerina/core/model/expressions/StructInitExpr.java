@@ -31,13 +31,16 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 1.0.0
  */
-public class StructInitExpr extends AbstractExpression {
-
+public class StructInitExpr extends RefTypeInitExpr {
     private StructDcl structDcl;
 
     public StructInitExpr(NodeLocation location, StructDcl structDcl) {
-        super(location);
+        super(location, null);
         this.structDcl = structDcl;
+    }
+
+    public StructInitExpr(NodeLocation location, Expression[] argExprs) {
+        super(location, argExprs);
     }
 
     public StructDcl getStructDcl() {

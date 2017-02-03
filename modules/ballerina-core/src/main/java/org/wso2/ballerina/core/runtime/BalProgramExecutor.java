@@ -23,9 +23,9 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.BLangExecutor;
 import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.interpreter.LocalVarLocation;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.StackFrame;
+import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.NodeLocation;
@@ -107,7 +107,7 @@ public class BalProgramExecutor {
 
                 Expression[] exprs = new Expression[1];
                 VariableRefExpr variableRefExpr = new VariableRefExpr(mainFuncLocation, argsName);
-                LocalVarLocation location = new LocalVarLocation(0);
+                StackVarLocation location = new StackVarLocation(0);
                 variableRefExpr.setMemoryLocation(location);
                 variableRefExpr.setType(BTypes.typeString);
                 exprs[0] = variableRefExpr;
