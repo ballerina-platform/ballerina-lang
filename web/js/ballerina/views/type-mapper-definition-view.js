@@ -207,7 +207,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             var typeStructDefinitionView = new TypeStructDefinition({
                 model: typeStructDefinition, parentView: this
             });
-            typeStructDefinitionView.render(this.diagramRenderingContext);
+            typeStructDefinitionView.render(this.diagramRenderingContext, this._typeMapper);
         };
 
         /**
