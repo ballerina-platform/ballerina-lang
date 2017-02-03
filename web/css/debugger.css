@@ -2,11 +2,10 @@
     color: #dedede;
 }
 
-.debugger-container .panel-heading{
+.debugger-container .panel-heading {
     padding: 2px 1px;
-    background: whitesmoke;
+    background: #333333;
     border-bottom: 1px solid #e4e4e4;
-    background: #8a8a8a;
 }
 
 .debugger-container .panel-heading a {
@@ -15,7 +14,7 @@
 
 /*TODO remove this when feature is done*/
 .left-tool-bar .debugger-activate-btn, .left-tool-bar .debugger-activate-btn i{
-    display: none;
+    /*display: none;*/
 }
 
 .ace_gutter-cell.ace_breakpoint{ 
@@ -43,4 +42,9 @@
 .debug-connect-button {
     margin-right: 10px;
     margin-bottom: 10px;
+}
+
+.debugger-container .btn-group button{
+    background-color: #333;
+    color: white;
 }
