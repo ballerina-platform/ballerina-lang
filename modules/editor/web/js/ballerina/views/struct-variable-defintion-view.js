@@ -25,6 +25,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
          */
         var StructVariableDefinitionView = function (args) {
             BallerinaView.call(this, args);
+            this._parentView = _.get(args, "parentView");
             this._structVariableWrapper = undefined;
             this._typeWrapper = undefined;
             this._identifierWrapper = undefined;
@@ -95,6 +96,14 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                 class: {mainWrapper: "struct-variable-type-dropdown-wrapper"},
                 onSelectCallBackFunction: function(key, value) {
                     self.getModel().setType(key)
+                },
+                onDropdownOpen: function() {
+                    self._parentView.getBodyWrapper().css("height", $(self._parentView.getBodyWrapper()).height());
+                    self._parentView.getBodyWrapper().css("overflow-x", "visible");
+                },
+                onDropdownClosed: function() {
+                    self._parentView.getBodyWrapper().css("height", "");
+                    self._parentView.getBodyWrapper().css("overflow-x", "");
                 }
             });
             typeDropdown.getElement().appendTo($(this._typeWrapper));
