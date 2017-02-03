@@ -19,8 +19,8 @@ package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
 import org.wso2.ballerina.core.interpreter.ConstantLocation;
-import org.wso2.ballerina.core.interpreter.LocalVarLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
+import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
@@ -31,6 +31,7 @@ import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.ConnectorInitExpr;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
+import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
@@ -100,13 +101,15 @@ public interface NodeExecutor {
 
     BValue visit(StructInitExpr structInitExpr);
 
+    BValue visit(MapInitExpr mapInitExpr);
+
     BValue visit(VariableRefExpr variableRefExpr);
 
     BValue visit(TypeCastExpression typeCastExpression);
 
     BValue visit(BasicLiteral basicLiteral);
 
-    BValue visit(LocalVarLocation localVarLocation);
+    BValue visit(StackVarLocation stackVarLocation);
 
     BValue visit(ConstantLocation constantLocation);
 

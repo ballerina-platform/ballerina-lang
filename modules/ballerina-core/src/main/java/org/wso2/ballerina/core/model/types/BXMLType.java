@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.model.values.BXML;
  *
  * @since 0.8.0
  */
-class BXMLType extends BType {
+public class BXMLType extends BType {
 
     /**
      * Create a {@code BXMLType} which represents the boolean type.

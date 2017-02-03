@@ -34,7 +34,7 @@ import org.wso2.ballerina.core.model.values.BValue;
  * @since 0.8.0
  */
 public class RefTypeInitExpr extends NaryExpression {
-    private BType inheritedType;
+    protected BType inheritedType;
 
     public RefTypeInitExpr(NodeLocation location, Expression[] argExprs) {
         super(location, argExprs);

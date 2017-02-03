@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.model.*;
 import org.wso2.ballerina.core.model.expressions.*;
 import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
 import org.wso2.ballerina.core.interpreter.ConstantLocation;
-import org.wso2.ballerina.core.interpreter.LocalVarLocation;
+import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BTypeConvertor;
@@ -579,7 +579,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(LocalVarLocation localVarLocation) {
+    public void visit(StackVarLocation stackVarLocation) {
         //TODO
     }
 
@@ -630,6 +630,11 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     @Override
     public void visit(StructInitExpr structInitExpr) {
         //TODO
+    }
+
+    @Override
+    public void visit(MapInitExpr mapInitExpr) {
+
     }
 
     @Override
