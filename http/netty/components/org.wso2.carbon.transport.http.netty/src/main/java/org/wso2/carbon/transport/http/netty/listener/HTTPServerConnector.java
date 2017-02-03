@@ -36,6 +36,8 @@ public class HTTPServerConnector extends ListeningServerConnector {
 
     private ListenerConfiguration listenerConfiguration;
 
+    private ServerConnectorController serverConnectorController;
+
     public HTTPServerConnector(String id) {
         super(id);
     }
@@ -46,19 +48,18 @@ public class HTTPServerConnector extends ListeningServerConnector {
             return false;
         }
 
-        return ServerConnectorController.getInstance().bindInterface(this);
+        return serverConnectorController.bindInterface(this);
     }
 
     @Override
     public boolean unbind() {
-        return ServerConnectorController.getInstance().unBindInterface(this);
+        return serverConnectorController.unBindInterface(this);
     }
 
     @Override
     public void start() {
         log.info("Starting  HTTP Transport Listener");
     }
-
 
     @Override
     public void stop() {
@@ -91,5 +92,10 @@ public class HTTPServerConnector extends ListeningServerConnector {
 
     public void setListenerConfiguration(ListenerConfiguration listenerConfiguration) {
         this.listenerConfiguration = listenerConfiguration;
+    }
+
+    public void setServerConnectorController(
+            ServerConnectorController serverConnectorController) {
+        this.serverConnectorController = serverConnectorController;
     }
 }
