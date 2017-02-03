@@ -36,8 +36,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             log.error("Container for Type Mapper definition is undefined." + this._container);
             throw "Container for Type Mapper definition is undefined." + this._container;
         }
-        this._typeMapper = new TypeMapper(this.onAttributesConnect, this.onAttributesDisConnect, this);
-
+        this._typeMapper;
     };
 
     TypeMapperDefinitionView.prototype = Object.create(SVGCanvas.prototype);
@@ -69,25 +68,25 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             .on("change paste keyup", function () {
                 self.getModel().setTypeMapperName($(this).text());
             }).on("click", function (event) {
+            event.stopPropagation();
+        }).keypress(function (e) {
+            var enteredKey = e.which || e.charCode || e.keyCode;
+            // Disabling enter key
+            if (enteredKey == 13) {
                 event.stopPropagation();
-            }).keypress(function (e) {
-                var enteredKey = e.which || e.charCode || e.keyCode;
-                // Disabling enter key
-                if (enteredKey == 13) {
-                    event.stopPropagation();
-                    return false;
-                }
+                return false;
+            }
 
-                var newTypeMapperName = $(this).val() + String.fromCharCode(enteredKey);
+            var newTypeMapperName = $(this).val() + String.fromCharCode(enteredKey);
 
-                try {
-                    self.getModel().setTypeMapperName(newTypeMapperName);
-                } catch (error) {
-                    Alerts.error(error);
-                    event.stopPropagation();
-                    return false;
-                }
-            });
+            try {
+                self.getModel().setTypeMapperName(newTypeMapperName);
+            } catch (error) {
+                Alerts.error(error);
+                event.stopPropagation();
+                return false;
+            }
+        });
 
 
 //        var divId = this._model.id;
@@ -225,7 +224,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         var typeStructDefinitionView = new TypeStructDefinition({
             model: typeStructDefinition, parentView: this
         });
-        typeStructDefinitionView.render(this.diagramRenderingContext);
+        typeStructDefinitionView.render(this.diagramRenderingContext, this._typeMapper);
     };
 
     /**
@@ -275,7 +274,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
     };
 
     TypeMapperDefinitionView.prototype.getChildContainer = function(){
-        return this._childContainer ;
+        return this._childContainer;
     };
 
     TypeMapperDefinitionView.prototype.setViewOptions = function (viewOptions) {

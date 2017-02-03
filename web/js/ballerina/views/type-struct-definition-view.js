@@ -40,13 +40,15 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerin
      * Rendering the view of the Type struct definition.
      * @param {Object} diagramRenderingContext - the object which is carrying data required for rendering
      */
-    TypeStructDefinitionView.prototype.render = function (diagramRenderingContext) {
+    TypeStructDefinitionView.prototype.render = function (diagramRenderingContext, mapper) {
         this._diagramRenderingContext = diagramRenderingContext;
         var struct = this.getModel().getSchemaPropertyObj();
         var category = this.getModel().getCategory();
         var selectedStructName = this.getModel().getSelectedStructName();
-
-        var mapper = new TypeMapper(this.getModel().getOnConnectInstance(),this.getModel().getOnDisconnectInstance(), this._parentView);
+        if(!mapper) {
+            mapper = new TypeMapper(this.getModel().getOnConnectInstance(), this.getModel().getOnDisconnectInstance(), this._parentView);
+            this._parentView._typeMapper = mapper;
+        }
         mapper.removeStruct(selectedStructName);
         if(category == "SOURCE"){
             mapper.addSourceStruct(struct,this.getModel());
