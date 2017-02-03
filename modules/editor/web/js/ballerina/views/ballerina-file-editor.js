@@ -381,7 +381,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         /**
          * Returns a package object with functions, connectors,
          * actions etc. of the current package
-         * @returns {*}
+         * @returns {Object}
          */
         BallerinaFileEditor.prototype.generateCurrentPackage = function () {
             var symbolTableGenVisitor = new SymbolTableGenVisitor(this._package, this._model);
