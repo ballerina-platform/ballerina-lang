@@ -18,6 +18,10 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+
+import java.util.Map;
+
 /**
  * A {@code Connector} represents a participant in the integration and is used to interact with an external system.
  * Ballerina includes a set of standard Connectors.
@@ -33,64 +37,59 @@ package org.wso2.ballerina.core.model;
  *
  * @since 0.8.0
  */
-public class BallerinaConnector extends PositionAwareNode implements Connector , Node {
+public class BallerinaConnector implements Connector, SymbolScope, BLangSymbol, CompilationUnit {
+    private NodeLocation location;
 
-    private SymbolName name;
+    // BLangSymbol related attributes
+    protected String name;
+    protected String pkgPath;
+    protected boolean isPublic;
+    protected SymbolName symbolName;
+
     private Annotation[] annotations;
-    private Parameter[] parameters;
+    private ParameterDef[] parameterDefs;
     private ConnectorDcl[] connectorDcls;
-    private VariableDcl[] variableDcls;
+    private VariableDef[] variableDefs;
     private BallerinaAction[] actions;
-    private Position connectorLocation;
-
     private int sizeOfConnectorMem;
 
-    public BallerinaConnector(SymbolName serviceName,
-                              Position position,
+    // Scope related variables
+    private SymbolScope enclosingScope;
+    private Map<SymbolName, BLangSymbol> symbolMap;
+
+    public BallerinaConnector(NodeLocation location,
+                              String name,
+                              String pkgPath,
+                              Boolean isPublic,
+                              SymbolName symbolName,
                               Annotation[] annotations,
-                              Parameter[] parameters,
+                              ParameterDef[] parameterDefs,
                               ConnectorDcl[] connectorDcls,
-                              VariableDcl[] variableDcls,
-                              BallerinaAction[] actions) {
-        this.name = serviceName;
-        this.connectorLocation = position;
-        this.parameters = parameters;
+                              VariableDef[] variableDefs,
+                              BallerinaAction[] actions,
+                              SymbolScope enclosingScope,
+                              Map<SymbolName, BLangSymbol> symbolMap) {
+
+        this.location = location;
+        this.name = name;
+        this.pkgPath = pkgPath;
+        this.isPublic = isPublic;
+        this.symbolName = symbolName;
+
+        this.parameterDefs = parameterDefs;
         this.annotations = annotations;
         this.connectorDcls = connectorDcls;
-        this.variableDcls = variableDcls;
+        this.variableDefs = variableDefs;
         this.actions = actions;
 
+        this.enclosingScope = enclosingScope;
+        this.symbolMap = symbolMap;
+
         // Set the connector name for all the actions
-        for (Action action : actions) {
-            action.getSymbolName().setConnectorName(name.getName());
-        }
-    }
-
-    /**
-     * Get the name of the connector.
-     *
-     * @return name of the connector
-     */
-    public String getName() {
-        return name.getName();
-    }
-
-    /**
-     * Get the package qualified name.
-     *
-     * @return package qualified name
-     */
-    public String getPackageQualifiedName() {
-        return name.getPkgName() + ":" + name.getName();
-    }
-
-    /**
-     * Get {@code SymbolName} for Ballerina connector.
-     *
-     * @return Symbol name of Ballerina connector
-     */
-    public SymbolName getConnectorName() {
-        return name;
+        // TODO Figure out a way to handle this
+//        for (Action action : actions) {
+//            action.getSymbolName().setConnectorName(name.getName());
+//        }
     }
 
     /**
@@ -102,9 +101,8 @@ public class BallerinaConnector extends PositionAwareNode implements Connector ,
         return annotations;
     }
 
-    @Override
-    public Parameter[] getParameters() {
-        return parameters;
+    public ParameterDef[] getParameterDefs() {
+        return parameterDefs;
     }
 
     /**
@@ -121,8 +119,8 @@ public class BallerinaConnector extends PositionAwareNode implements Connector ,
      *
      * @return list of all Connector scoped variables
      */
-    public VariableDcl[] getVariableDcls() {
-        return variableDcls;
+    public VariableDef[] getVariableDefs() {
+        return variableDefs;
     }
 
     /**
@@ -142,24 +140,72 @@ public class BallerinaConnector extends PositionAwareNode implements Connector ,
         return sizeOfConnectorMem;
     }
 
+
+    // Methods in Node interface
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public Position getLocation() {
-        return connectorLocation;
+    public NodeLocation getNodeLocation() {
+        return location;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+
+    // Methods in BLangSymbol interface
+
     @Override
-    public void setLocation(Position location) {
-        this.connectorLocation = location;
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return false;
+    }
+
+    @Override
+    public boolean isNative() {
+        return false;
+    }
+
+    @Override
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
+    @Override
+    public SymbolScope getSymbolScope() {
+        return this;
+    }
+
+
+    // Methods in the SymbolScope interface
+
+    @Override
+    public ScopeName getScopeName() {
+        return ScopeName.CONNECTOR;
+    }
+
+    @Override
+    public SymbolScope getEnclosingScope() {
+        return enclosingScope;
+    }
+
+    @Override
+    public void define(SymbolName name, BLangSymbol symbol) {
+        symbolMap.put(name, symbol);
+    }
+
+    @Override
+    public BLangSymbol resolve(SymbolName name) {
+        return resolve(symbolMap, name);
     }
 }

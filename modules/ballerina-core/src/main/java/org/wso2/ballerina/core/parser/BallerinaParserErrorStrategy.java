@@ -38,7 +38,7 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
         int line = missingSymbol.getLine();
         int position = missingSymbol.getCharPositionInLine();
         String mismatchedToken = getTokenErrorDisplay(missingSymbol);
-        String msg = getSourceLocation(parser, line, position) + "Invalid token " + mismatchedToken + ". " +
+        String msg = getSourceLocation(parser, line, position) + "invalid token " + mismatchedToken + ". " +
                 e.getMessage();
         setContextException(parser);
         throw new ParseCancellationException(msg);
@@ -50,7 +50,7 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
         int position = getMissingSymbol(parser).getCharPositionInLine();
         String mismatchedToken = getTokenErrorDisplay(e.getOffendingToken());
         String expectedToken = e.getExpectedTokens().toString(parser.getVocabulary());
-        String msg = getSourceLocation(parser, line, position) + "Mismatched input " + mismatchedToken + 
+        String msg = getSourceLocation(parser, line, position) + "mismatched input " + mismatchedToken +
                 ". Expecting one of " + expectedToken;
         setContextException(parser);
         throw new ParseCancellationException(msg);
@@ -63,7 +63,7 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
         int line = getMissingSymbol(parser).getLine();
         int position = getMissingSymbol(parser).getCharPositionInLine();
         String missingToken = expecting.toString(parser.getVocabulary());
-        String msg = getSourceLocation(parser, line, position) + "Missing " + missingToken + " before " + 
+        String msg = getSourceLocation(parser, line, position) + "missing " + missingToken + " before " +
                 getTokenErrorDisplay(token);
         setContextException(parser);
         throw new ParseCancellationException(msg);
@@ -74,7 +74,7 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
         Token token = parser.getCurrentToken();
         int line = getMissingSymbol(parser).getLine();
         int position = getMissingSymbol(parser).getCharPositionInLine();
-        String msg = getSourceLocation(parser, line, position) + "Invalid identifier " + getTokenErrorDisplay(token);
+        String msg = getSourceLocation(parser, line, position) + "invalid identifier " + getTokenErrorDisplay(token);
         setContextException(parser);
         throw new ParseCancellationException(msg);
     }
@@ -84,7 +84,7 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
         Token token = parser.getCurrentToken();
         int line = getMissingSymbol(parser).getLine();
         int position = getMissingSymbol(parser).getCharPositionInLine();
-        String msg = getSourceLocation(parser, line, position) + "Unwanted token " + getTokenErrorDisplay(token);
+        String msg = getSourceLocation(parser, line, position) + "unwanted token " + getTokenErrorDisplay(token);
         setContextException(parser);
         throw new ParseCancellationException(msg);
     }

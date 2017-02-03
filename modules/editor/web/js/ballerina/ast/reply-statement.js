@@ -33,7 +33,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
 
     ReplyStatement.prototype.setReplyMessage = function (message) {
         if (!_.isNil(message)) {
-            this._message = message;
+            this.setAttribute('_message', message);
         } else {
             log.error("Cannot set undefined to the reply statement.");
         }

@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
-import org.wso2.ballerina.core.model.Operator;
+import org.wso2.ballerina.core.model.NodeLocation;
 
 /**
  * {@code NaryExpr} represents an operation with multiple operands.
@@ -29,10 +29,10 @@ import org.wso2.ballerina.core.model.Operator;
  */
 public class NaryExpression extends UnaryExpression {
 
-    private Expression[] argExprs;
+    protected Expression[] argExprs;
 
-    public NaryExpression(Operator op, Expression rExpr, Expression[] argExprs) {
-        super(op, rExpr);
+    public NaryExpression(NodeLocation location, Expression[] argExprs) {
+        super(location, null, null);
         this.argExprs = argExprs;
     }
 

@@ -18,64 +18,75 @@
 package org.wso2.ballerina.core.model;
 
 /**
- * {@code SymbolName} represents an identifier in Ballerina.
+ * {@code SymbolName} represents a package qualified name of a {@link Symbol} in Ballerina.
  *
  * @since 0.8.0
  */
 public class SymbolName {
+    protected String name;
+    protected String pkgPath;
 
-    private String name;
-    private String pkgName;
+    //TODO Remove this connectorName from here.
     private String connectorName;
 
-    public SymbolName(String name) {
+    public SymbolName(String name, String pkgPath) {
         this.name = name;
+        this.pkgPath = pkgPath;
     }
 
-    public SymbolName(String name, String pkgName) {
-        this.name = name;
-        this.pkgName = pkgName;
+    public SymbolName(String name) {
+        this(name, null);
     }
 
     /**
-     * Get the name of the Identifier.
+     * Returns the name of this {@code SymbolName}.
      *
-     * @return name of the Identifier
+     * @return name of the {@code SymbolName}
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Returns the package name of this symbol name.
+     * Returns the package path of this {@code SymbolName}.
      *
-     * @return package name of this symbol name
+     * @return package path of the {@code SymbolName}
      */
-    public String getPkgName() {
-        return pkgName;
+    public String getPkgPath() {
+        return pkgPath;
     }
+
+
+    // TODO Remove this method from this class
 
     /**
      * Set the package name of this symbol name.
      *
-     * @param pkgName package name of this symbol name
+     * @param pkgPath package name of this symbol name
      */
-    public void setPkgName(String pkgName) {
-        this.pkgName = pkgName;
+    public void setPkgPath(String pkgPath) {
+        this.pkgPath = pkgPath;
     }
 
+    // TODO Remove this method from this class
     public String getConnectorName() {
         return connectorName;
     }
 
+    // TODO Remove this method from this class
     public void setConnectorName(String connectorName) {
         this.connectorName = connectorName;
     }
 
     @Override
     public boolean equals(Object obj) {
+        if (!(obj instanceof SymbolName)) {
+            return false;
+        }
+
         SymbolName other = (SymbolName) obj;
-        return this.name.equals(other.getName());
+        return ((this.pkgPath == null && other.getPkgPath() == null) ||
+                this.pkgPath.equals(other.pkgPath)) && this.name.equals(other.getName());
     }
 
     @Override
@@ -86,6 +97,6 @@ public class SymbolName {
     }
 
     public String toString() {
-        return (pkgName == null) ? name : pkgName + ":" + name;
+        return (pkgPath == null) ? name : pkgPath + ":" + name;
     }
 }

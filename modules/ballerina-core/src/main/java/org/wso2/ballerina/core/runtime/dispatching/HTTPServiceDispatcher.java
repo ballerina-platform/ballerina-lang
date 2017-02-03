@@ -156,7 +156,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         servicesOnInterface.put(basePath, service);
 
         log.info("Service deployed : " +
-                 (service.getSymbolName().getPkgName() != null ?  service.getSymbolName().getPkgName() + ":" : "") +
+                 (service.getSymbolName().getPkgPath() != null ?  service.getSymbolName().getPkgPath() + ":" : "") +
                  service.getSymbolName().getName() +
                  " with context " +  basePath);
 

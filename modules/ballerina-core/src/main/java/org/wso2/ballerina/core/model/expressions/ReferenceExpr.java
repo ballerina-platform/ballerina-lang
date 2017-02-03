@@ -27,6 +27,13 @@ import org.wso2.ballerina.core.model.SymbolName;
 public interface ReferenceExpr extends Expression {
 
     /**
+     * Return the name of the variable reference
+     *
+     * @return  variable name
+     */
+    String getVarName();
+
+    /**
      * Get the symbol name of the reference expression.
      * 
      * @return  Symbolic name

@@ -21,7 +21,7 @@ package org.wso2.ballerina.core.model;
 /**
  * A {@code Connection} represents the instantiation of a struct with a particular configuration.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class StructDcl implements Node {
 
@@ -29,11 +29,12 @@ public class StructDcl implements Node {
     SymbolName structName;
 
     /* Reference to the struct instance which is referred by the declaration */
-    BallerinaStruct struct;
-    
-    protected Position sourceLocation;
+    StructDef structDef;
 
-    public StructDcl(SymbolName structName) {
+    protected NodeLocation location;
+
+    public StructDcl(NodeLocation location, SymbolName structName) {
+        this.location = location;
         this.structName = structName;
     }
 
@@ -49,7 +50,7 @@ public class StructDcl implements Node {
     /**
      * Set the {@code Identifier} of the struct type
      *
-     * @param structName   Identifier of the struct type
+     * @param structName Identifier of the struct type
      */
     public void setStructName(SymbolName structName) {
         this.structName = structName;
@@ -58,10 +59,10 @@ public class StructDcl implements Node {
     /**
      * Set the reference to the struct instance which is referred by the declaration
      *
-     * @param struct reference to the struct instance
+     * @param structDef reference to the struct instance
      */
-    public void setStruct(BallerinaStruct struct) {
-        this.struct = struct;
+    public void setStructDef(StructDef structDef) {
+        this.structDef = structDef;
     }
 
     /**
@@ -69,8 +70,8 @@ public class StructDcl implements Node {
      *
      * @return reference to the struct instance
      */
-    public BallerinaStruct getStruct() {
-        return struct;
+    public StructDef getStructDef() {
+        return structDef;
     }
 
     @Override
@@ -78,38 +79,8 @@ public class StructDcl implements Node {
         visitor.visit(this);
     }
 
-    /**
-     * Builder calls to collect information and build a struct declaration.
-     */
-    public static class StructDclBuilder {
-        private SymbolName structName;
-
-        public void setStructName(SymbolName structName) {
-            this.structName = structName;
-        }
-
-        public StructDcl build() {
-            return new StructDcl(
-                    structName);
-        }
-    }
-    
-    /**
-     * Get the source location of this struct declaration.
-     * Return the source file and the line number of this struct declaration.
-     * 
-     * @return  Source location of this struct declaration
-     */
-    public Position getLocation() {
-        return sourceLocation;
-    }
-
-    /**
-     * Set the source location of this struct declaration.
-     * 
-     * @param location  Source location of this struct declaration.
-     */
-    public void setLocation(Position location) {
-        this.sourceLocation = location;
+    @Override
+    public NodeLocation getNodeLocation() {
+        return location;
     }
 }

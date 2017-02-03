@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -38,8 +39,8 @@ public class BMapType extends BType {
      *
      * @param typeName string name of the type
      */
-    BMapType(String typeName) {
-        super(typeName, BMap.class);
+    BMapType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BMap.class);
     }
 
     @Override

@@ -20,6 +20,9 @@ package org.wso2.ballerina.core.model;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+
+import java.util.Map;
 
 /**
  * A {@code Service} is an HTTP web service described by a Swagger.
@@ -37,44 +40,47 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.8.0
  */
-@SuppressWarnings("unused")
-public class Service extends PositionAwareNode implements Node {
-
+public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
     private static final Logger logger = LoggerFactory.getLogger(Service.class);
 
-    // TODO Refactor
-    private SymbolName symbolName;
-    private Position serviceLocation;
-    private SymbolName name;
+    private NodeLocation location;
+
+    // BLangSymbol related attributes
+    protected String name;
+    protected String pkgPath;
+    protected SymbolName symbolName;
+
     private Annotation[] annotations;
     private ConnectorDcl[] connectorDcls;
-    private VariableDcl[] variableDcls;
+    private VariableDef[] variableDefs;
     private Resource[] resources;
 
-    public Service(SymbolName serviceName, Position serviceLocation, Annotation[] annotations, 
-            ConnectorDcl[] connectorDcls, VariableDcl[] variableDcls, Resource[] resources) {
-        this.name = serviceName;
-        this.serviceLocation = serviceLocation;
+    // Scope related variables
+    private SymbolScope enclosingScope;
+    private Map<SymbolName, BLangSymbol> symbolMap;
+
+    public Service(NodeLocation location,
+                   String name,
+                   String pkgPath,
+                   SymbolName symbolName,
+                   Annotation[] annotations,
+                   ConnectorDcl[] connectorDcls,
+                   VariableDef[] variableDefs,
+                   Resource[] resources,
+                   SymbolScope enclosingScope,
+                   Map<SymbolName, BLangSymbol> symbolMap) {
+
+        this.location = location;
+        this.name = name;
+        this.pkgPath = pkgPath;
+        this.symbolName = symbolName;
         this.annotations = annotations;
         this.connectorDcls = connectorDcls;
-        this.variableDcls = variableDcls;
+        this.variableDefs = variableDefs;
         this.resources = resources;
-    }
 
-    /**
-     * @param symbolName Service Identifier
-     */
-    public Service(SymbolName symbolName) {
-        this.name = symbolName;
-    }
-
-    /**
-     * Get the {@code Identifier} of the Service.
-     *
-     * @return Service Identifier
-     */
-    public SymbolName getSymbolName() {
-        return name;
+        this.enclosingScope = enclosingScope;
+        this.symbolMap = symbolMap;
     }
 
     public Annotation[] getAnnotations() {
@@ -85,8 +91,8 @@ public class Service extends PositionAwareNode implements Node {
         return connectorDcls;
     }
 
-    public VariableDcl[] getVariableDcls() {
-        return variableDcls;
+    public VariableDef[] getVariableDefs() {
+        return variableDefs;
     }
 
     public void setAnnotations(Annotation[] annotations) {
@@ -97,8 +103,8 @@ public class Service extends PositionAwareNode implements Node {
         this.connectorDcls = connectorDcls;
     }
 
-    public void setVariableDcls(VariableDcl[] variableDcls) {
-        this.variableDcls = variableDcls;
+    public void setVariableDefs(VariableDef[] variableDefs) {
+        this.variableDefs = variableDefs;
     }
 
     /**
@@ -119,17 +125,73 @@ public class Service extends PositionAwareNode implements Node {
         this.resources = resources;
     }
 
+
+    // Methods in Node interface
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
-    
-    /**
-     * Get the location of this service in the ballerina source file.
-     * 
-     * @return  Location of this service in the ballerina source file.
-     */
-    public Position getServiceLocation() {
-        return serviceLocation;
+
+    @Override
+    public NodeLocation getNodeLocation() {
+        return location;
     }
+
+
+    // Methods in BLangSymbol interface
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return false;
+    }
+
+    @Override
+    public boolean isNative() {
+        return false;
+    }
+
+    @Override
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
+    @Override
+    public SymbolScope getSymbolScope() {
+        return this;
+    }
+
+
+    // Methods in the SymbolScope interface
+
+    @Override
+    public ScopeName getScopeName() {
+        return ScopeName.SERVICE;
+    }
+
+    @Override
+    public SymbolScope getEnclosingScope() {
+        return enclosingScope;
+    }
+
+    @Override
+    public void define(SymbolName name, BLangSymbol symbol) {
+        symbolMap.put(name, symbol);
+    }
+
+    @Override
+    public BLangSymbol resolve(SymbolName name) {
+        return resolve(symbolMap, name);
+    }
+
 }

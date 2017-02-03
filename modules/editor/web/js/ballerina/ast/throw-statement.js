@@ -32,7 +32,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
 
     ThrowStatement.prototype.setThrowExpression = function (expression) {
         if (!_.isNil(expression)) {
-            this._expression = expression;
+            this.setAttribute('_expression', expression);
         } else {
             log.error("Cannot set undefined to the throw statement.");
         }

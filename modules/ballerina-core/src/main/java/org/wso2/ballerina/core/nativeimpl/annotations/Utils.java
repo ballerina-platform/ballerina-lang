@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.nativeimpl.annotations;
 
-import org.wso2.ballerina.core.model.Const;
+import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
@@ -44,11 +44,11 @@ public class Utils {
      * @return Const instance.
      * @throws MalformedEntryException when Type is not supported or when value conversion fails.
      */
-    public static Const getConst(BallerinaConstant constant) throws MalformedEntryException {
+    public static ConstDef getConst(BallerinaConstant constant) throws MalformedEntryException {
         BValue value = getBValueFromTypeEnum(constant.type(), constant.value());
         SymbolName symbolName = new SymbolName(constant.identifier());
         BType type = BTypes.getType(constant.type().getName());
-        return new Const(type, symbolName, value);
+        return new ConstDef(type, symbolName, value);
     }
 
     /**

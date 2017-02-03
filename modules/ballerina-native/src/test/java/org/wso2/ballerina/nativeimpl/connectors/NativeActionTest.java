@@ -38,7 +38,7 @@ public class NativeActionTest {
 
         PrintlnString printlnFunc = new PrintlnString();
 
-        printlnFunc.getParameters();
+        printlnFunc.getParameterDefs();
 
 
     }

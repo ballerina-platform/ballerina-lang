@@ -18,24 +18,20 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.values.BValue;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * {@code BacktickExpr} represents an xml or a json string wrapped in between backticks/backquotes.
  *
  * @since 0.8.0
  */
-public class BacktickExpr extends AbstractExpression {
-
+public class BacktickExpr extends RefTypeInitExpr {
     private String templateStr;
 
-    List<Expression> expressionList = new ArrayList<>();
-
-    private BacktickExpr(String templateStr) {
+    public BacktickExpr(NodeLocation location, String templateStr) {
+        super(location, new Expression[0]);
         this.templateStr = templateStr;
     }
 
@@ -43,12 +39,8 @@ public class BacktickExpr extends AbstractExpression {
         return templateStr;
     }
 
-    public List<Expression> getExpressionList() {
-        return expressionList;
-    }
-
-    public void addExpression(Expression expression) {
-        expressionList.add(expression);
+    public void setArgsExprs(Expression[] argExprs) {
+        this.argExprs = argExprs;
     }
 
     @Override
@@ -56,25 +48,8 @@ public class BacktickExpr extends AbstractExpression {
         visitor.visit(this);
     }
 
+    @Override
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this);
-    }
-
-    /**
-     *
-     */
-    public static class BacktickExprBuilder {
-        private String templateStr;
-
-        public BacktickExprBuilder() {
-        }
-
-        public void setTemplateStr(String templateStr) {
-            this.templateStr = templateStr;
-        }
-
-        public BacktickExpr build() {
-            return new BacktickExpr(this.templateStr);
-        }
     }
 }

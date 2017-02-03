@@ -28,7 +28,7 @@ define(['lodash', './node'], function(_, ASTNode){
 
     Expression.prototype.setExpression = function (expression) {
         if(!_.isUndefined(expression)){
-            this._expression = expression;
+            this.setAttribute('_expression', expression);
         }
     };
 

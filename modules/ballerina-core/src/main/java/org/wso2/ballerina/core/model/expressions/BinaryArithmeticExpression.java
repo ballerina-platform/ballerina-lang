@@ -17,8 +17,8 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.Operator;
-import org.wso2.ballerina.core.model.Position;
 
 /**
  * {@code BinaryArithmeticExpression} is the base class for any binary arithmetic expression.
@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.model.Position;
  */
 public class BinaryArithmeticExpression extends BinaryExpression {
 
-    public BinaryArithmeticExpression(Expression lExpr, Operator op, Expression rExpr, Position location) {
-        super(lExpr, op, rExpr, location);
+    public BinaryArithmeticExpression(NodeLocation location, Expression lExpr, Operator op, Expression rExpr) {
+        super(location, lExpr, op, rExpr);
     }
 }

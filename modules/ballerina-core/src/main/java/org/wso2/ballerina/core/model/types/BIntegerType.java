@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -32,8 +33,8 @@ class BIntegerType extends BType {
      *
      * @param typeName string name of the type
      */
-    BIntegerType(String typeName) {
-        super(typeName, BInteger.class);
+    BIntegerType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BInteger.class);
     }
 
     @SuppressWarnings("unchecked")

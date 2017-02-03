@@ -85,7 +85,8 @@ define(['lodash', 'log', './../ast/return-statement', './ballerina-statement-vie
          * Rendering the view of the return statement.
          * @returns {Object} - The svg group which the return statement view resides in.
          */
-        ReturnStatementView.prototype.render = function () {
+        ReturnStatementView.prototype.render = function (diagramRenderingContext) {
+            this.setDiagramRenderingContext(diagramRenderingContext);
             var returnStatementGroup = D3Utils.group(d3.select(this._container));
             returnStatementGroup.attr("id","_" +this._model.id);//added attribute 'id' starting with '_' to be compatible with HTML4
             var width = this.getBoundingBox().w();
@@ -105,7 +106,6 @@ define(['lodash', 'log', './../ast/return-statement', './ballerina-statement-vie
             this._model.accept(this);
 
             // Creating property pane
-            var editableProperties = [];
             var editableProperty = {
                 propertyType: "text",
                 key: "Expression",
@@ -113,11 +113,10 @@ define(['lodash', 'log', './../ast/return-statement', './ballerina-statement-vie
                 getterMethod: this._model.getReturnExpression,
                 setterMethod: this._model.setReturnExpression
             };
-            editableProperties.push(editableProperty);
             this._createPropertyPane({
                 model: this._model,
                 statementGroup:returnStatementGroup,
-                editableProperties: editableProperties
+                editableProperties: editableProperty
             });
 
             this.getBoundingBox().on('top-edge-moved', function(dy){
@@ -128,6 +127,7 @@ define(['lodash', 'log', './../ast/return-statement', './ballerina-statement-vie
 
         ReturnStatementView.prototype.updateStatementText = function (updatedText) {
             if (!_.isUndefined(updatedText) && updatedText !== '') {
+                updatedText = ((updatedText.length) > 11 ? (updatedText.substring(0, 11) + '..') : updatedText);
                 this.getStatementGroup().expression_text.node().textContent = updatedText;
             }
         };

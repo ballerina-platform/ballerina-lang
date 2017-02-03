@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -34,7 +35,8 @@ public class StructInitExpr extends AbstractExpression {
 
     private StructDcl structDcl;
 
-    public StructInitExpr(StructDcl structDcl) {
+    public StructInitExpr(NodeLocation location, StructDcl structDcl) {
+        super(location);
         this.structDcl = structDcl;
     }
 
@@ -49,25 +51,5 @@ public class StructInitExpr extends AbstractExpression {
 
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this);
-    }
-
-    /**
-     * {@code StructInitExprBuilder} represents a struct initializer expression builder
-     *
-     * @since 1.0.0
-     */
-    public static class StructInitExprBuilder {
-        StructDcl structDcl;
-
-        public StructInitExprBuilder() {
-        }
-        
-        public void setStructDcl(StructDcl structDcl) {
-            this.structDcl = structDcl;
-        }
-        
-        public StructInitExpr build() {
-            return new StructInitExpr(structDcl);
-        }
     }
 }

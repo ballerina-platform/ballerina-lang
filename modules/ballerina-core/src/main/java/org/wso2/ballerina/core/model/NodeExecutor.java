@@ -28,9 +28,10 @@ import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
+import org.wso2.ballerina.core.model.expressions.ConnectorInitExpr;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
-import org.wso2.ballerina.core.model.expressions.MapInitExpr;
+import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
@@ -44,6 +45,7 @@ import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
+import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -55,6 +57,8 @@ import org.wso2.ballerina.core.model.values.BValue;
 public interface NodeExecutor {
 
     void visit(BlockStmt blockStmt);
+
+    void visit(VariableDefStmt varDefStmt);
 
     void visit(AssignStmt assignStmt);
 
@@ -84,11 +88,17 @@ public interface NodeExecutor {
 
     BValue visit(ArrayMapAccessExpr arrayMapAccessExpr);
 
+    BValue visit(StructFieldAccessExpr structAttributeAccessExpr);
+
     BValue visit(ArrayInitExpr arrayInitExpr);
 
-    BValue visit(MapInitExpr mapInitExpr);
+    BValue visit(RefTypeInitExpr refTypeInitExpr);
+
+    BValue visit(ConnectorInitExpr connectorInitExpr);
 
     BValue visit(BacktickExpr backtickExpr);
+
+    BValue visit(StructInitExpr structInitExpr);
 
     BValue visit(VariableRefExpr variableRefExpr);
 
@@ -105,8 +115,4 @@ public interface NodeExecutor {
     BValue visit(ConnectorVarLocation connectorVarLocation);
 
     BValue visit(StructVarLocation structVarLocation);
-
-    BValue visit(StructInitExpr structInitExpr);
-
-    BValue visit(StructFieldAccessExpr structAttributeAccessExpr);
 }

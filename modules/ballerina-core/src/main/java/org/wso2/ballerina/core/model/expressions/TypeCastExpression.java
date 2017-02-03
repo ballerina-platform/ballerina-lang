@@ -18,10 +18,12 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.TypeConvertor;
 import org.wso2.ballerina.core.model.types.BType;
+import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 
@@ -29,24 +31,31 @@ import java.util.function.Function;
 
 /**
  * Class to hold the data related to type casting expression
+ *
+ * @since 0.8.0
  */
 public class TypeCastExpression extends AbstractExpression implements CallableUnitInvocationExpr<TypeConvertor> {
-
-    private Expression sourceExpression;
+    private String name;
+    private String pkgName;
+    private String pkgPath;
+    private SimpleTypeName typeName;
+    private Expression rExpr;
     private BType targetType;
     private String packageName;
     private SymbolName typeConverterName;
     private TypeConvertor typeConvertor;
     protected Function<BValueType, BValueType> evalFuncNewNew;
 
-    public TypeCastExpression(Expression sourceExpression, BType targetType) {
-        this.sourceExpression = sourceExpression;
+    public TypeCastExpression(NodeLocation location, Expression rExpr, BType targetType) {
+        super(location);
+        this.rExpr = rExpr;
         this.targetType = targetType;
     }
 
-    public TypeCastExpression(String packageName, SymbolName typeConverterName) {
-        this.packageName = packageName;
-        this.typeConverterName = typeConverterName;
+    public TypeCastExpression(NodeLocation location, SimpleTypeName typeName, Expression rExpr) {
+        super(location);
+        this.rExpr = rExpr;
+        this.typeName = typeName;
     }
 
     public Function<BValueType, BValueType> getEvalFunc() {
@@ -57,12 +66,12 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
         this.evalFuncNewNew = evalFuncNewNew;
     }
 
-    public Expression getSourceExpression() {
-        return sourceExpression;
+    public Expression getRExpr() {
+        return rExpr;
     }
 
-    public void setSourceExpression(Expression sourceExpression) {
-        this.sourceExpression = sourceExpression;
+    public SimpleTypeName getTypeName() {
+        return typeName;
     }
 
     @Override
@@ -76,10 +85,6 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
 
     public void setTargetType(BType targetType) {
         this.targetType = targetType;
-    }
-
-    public String getPackageName() {
-        return packageName;
     }
 
     public void setPackageName(String packageName) {
@@ -104,14 +109,19 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
         return executor.visit(this);
     }
 
-    /**
-     * Returns the symbol name of this callable unit invocation expression
-     *
-     * @return the symbol name
-     */
     @Override
-    public SymbolName getCallableUnitName() {
-        return typeConverterName;
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackageName() {
+        return pkgName;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
     }
 
     /**
@@ -121,7 +131,7 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
      */
     @Override
     public Expression[] getArgExprs() {
-        Expression[] expressions = {this.sourceExpression};
+        Expression[] expressions = {this.rExpr};
         return expressions;
     }
 
