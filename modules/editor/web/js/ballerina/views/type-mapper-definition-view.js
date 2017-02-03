@@ -63,7 +63,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
 
             var currentContainer = $('#' + this.getModel().getID());
             this._container = currentContainer;
-            this.getBoundingBox().fromTopLeft(new Point(0, 0), currentContainer.width(), currentContainer.height());
+            // todo verify this.getBoundingBox().fromTopLeft(new Point(0, 0), currentContainer.width(), currentContainer.height());
             var self = this;
 
             $(this.getTitle()).text(this.getModel().getTypeMapperName())
@@ -78,9 +78,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
                     event.stopPropagation();
                     return false;
                 }
-
                 var newTypeMapperName = $(this).val() + String.fromCharCode(enteredKey);
-
                 try {
                     self.getModel().setTypeMapperName(newTypeMapperName);
                 } catch (error) {
@@ -89,6 +87,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
                 }
             });
 
+            //Get all the structs which are defined for current package
             var predefinedStructs = diagramRenderingContext.getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
 
             var dataMapperContainerId = "data-mapper-container-" + this._model.id;
@@ -111,12 +110,10 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
 
             var dataMapperContainer = $('<div id="' + dataMapperContainerId + '" class="data-mapper-container"></div>');
 
-            currentContainer.find('svg').parent().append(selectorContainer);
-            currentContainer.find('svg').parent().append(dataMapperContainer);
+            currentContainer.find('svg').parent().append(selectorContainer).append(dataMapperContainer);
             currentContainer.find('svg').remove();
 
-            this.loadSchemasToComboBox(currentContainer, "#" + sourceId, predefinedStructs);
-            this.loadSchemasToComboBox(currentContainer, "#" + targetId, predefinedStructs);
+            this.loadSchemasToComboBox(currentContainer, "#" + sourceId,"#"+targetId, predefinedStructs);
 
             $(currentContainer).find("#" + sourceId).change(function () {
                 var sourceDropDown = $("#" + sourceId + " option:selected");
@@ -190,9 +187,10 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             });
         };
 
-        TypeMapperDefinitionView.prototype.loadSchemasToComboBox = function (parentId, selectId, schemaArray) {
+        TypeMapperDefinitionView.prototype.loadSchemasToComboBox = function (parentId, selectSourceId,selectTargetId,schemaArray) {
             for (var i = 0; i < schemaArray.length; i++) {
-                $(parentId).find(selectId).append('<option value="' + i + '">' + schemaArray[i].getStructName() + '</option>');
+                $(parentId).find(selectSourceId).append('<option value="' + i + '">' + schemaArray[i].getStructName() + '</option>');
+                $(parentId).find(selectTargetId).append('<option value="' + i + '">' + schemaArray[i].getStructName() + '</option>');
 
             }
         };
