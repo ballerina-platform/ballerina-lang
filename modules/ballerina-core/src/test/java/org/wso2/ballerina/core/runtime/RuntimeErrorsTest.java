@@ -74,8 +74,7 @@ public class RuntimeErrorsTest {
             Assert.assertEquals(ex.getMessage(), "Array index out of range: Index: 24, Size: 0", 
                     "Incorrect error message printed.");
             
-            // removing the first element since we are not invoking a main function
-            bContext.getControlStack().getStack().remove(0);
+
             
             // Check the stack trace
             String stackTrace = ErrorHandlerUtils.getServiceStackTrace(bContext, ex);
@@ -109,9 +108,7 @@ public class RuntimeErrorsTest {
         } finally {
             Assert.assertTrue(ex instanceof StackOverflowError, "Expected a " + StackOverflowError.class.getName() +
                 ", but found: " + ex + ".");
-            
-            // removing the first element since we are not invoking a main function
-            bContext.getControlStack().getStack().remove(0);
+
             
             // Check the stack trace
             String stackTrace = ErrorHandlerUtils.getServiceStackTrace(bContext, ex);

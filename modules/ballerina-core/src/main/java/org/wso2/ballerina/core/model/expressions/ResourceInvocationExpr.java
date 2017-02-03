@@ -33,13 +33,19 @@ import org.wso2.ballerina.core.model.values.BValue;
 public class ResourceInvocationExpr implements Node, ExecutableMultiReturnExpr {
 
     private Resource resource;
+    private Expression[] exprs;
 
-    public ResourceInvocationExpr(Resource resource) {
+    public ResourceInvocationExpr(Resource resource, Expression[] exprs) {
         this.resource = resource;
+        this.exprs = exprs;
     }
 
     public Resource getResource() {
         return resource;
+    }
+
+    public Expression[] getArgExprs() {
+        return exprs;
     }
 
     @Override
