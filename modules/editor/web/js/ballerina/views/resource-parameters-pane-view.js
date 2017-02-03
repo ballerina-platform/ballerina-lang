@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../ast/argument',
+define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../ast/node',
         './../ast/resource-parameter'],
-    function (_, log, $, Alerts, ResourceParameterView, Argument, ResourceParameter) {
+    function (_, log, $, Alerts, ResourceParameterView, ASTNode, ResourceParameter) {
 
         /**
          * Creates the resource parameters pane. This is not a ballerina view. This is simply a pane which is created
@@ -40,7 +40,7 @@ define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../
 
         ResourceParametersPaneView.prototype.constructor = ResourceParametersPaneView;
 
-        ResourceParametersPaneView.prototype.createParametersPane = function (diagramRenderingContext) {
+        ResourceParametersPaneView.prototype.createParametersPane = function () {
             var self = this;
 
             this._resourceParametersEditorWrapper = $("<div/>", {
@@ -99,7 +99,7 @@ define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../
             // Creating parameter type dropdown.
             var parameterTypeDropDown = $("<select/>").appendTo(parameterWrapper);
 
-            this._supportedParameterTypes = diagramRenderingContext.getEnvironment().getTypes();
+            this._supportedParameterTypes = this._viewOfModel.getDiagramRenderingContext().getEnvironment().getTypes();
             // Adding dropdown elements.
             _.forEach(this._supportedParameterTypes, function (type) {
                 // Adding supported parameter types to the type dropdown.
@@ -124,7 +124,7 @@ define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../
                 var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
 
                 // Validation the identifier against grammar.
-                if (!Argument.isValidIdentifier(newIdentifier)) {
+                if (!ASTNode.isValidIdentifier(newIdentifier)) {
                     var errorString = "Invalid identifier for a parameter: " + newIdentifier;
                     log.error(errorString);
                     Alerts.error(errorString);

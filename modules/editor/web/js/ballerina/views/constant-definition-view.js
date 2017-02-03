@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/variable-declaration'],
-    function (_, $, log, Alerts, BallerinaView, VariableDeclaration) {
+define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/node'],
+    function (_, $, log, Alerts, BallerinaView, ASTNode) {
 
         /**
          * Arguments for creating a constant definition view.
@@ -63,7 +63,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                 var newIdentifier = $(this).text() + String.fromCharCode(enteredKey);
 
                 // Validation the identifier against grammar.
-                if (!VariableDeclaration.isValidIdentifier(newIdentifier)) {
+                if (!ASTNode.isValidIdentifier(newIdentifier)) {
                     var errorString = "Invalid identifier for a parameter: " + newIdentifier;
                     Alerts.error(errorString);
                     event.stopPropagation();

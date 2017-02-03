@@ -18,22 +18,37 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.SymbolScope;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A BlockStmt represents a list of statements between balanced braces.
  *
  * @since 0.8.0
  */
-public class BlockStmt extends AbstractStatement {
-
+public class BlockStmt extends AbstractStatement implements SymbolScope {
     private Statement[] statements;
 
-    public BlockStmt(Statement[] statements) {
+    // Scope related variables
+    private SymbolScope enclosingScope;
+    private Map<SymbolName, BLangSymbol> symbolMap;
+
+    private BlockStmt(NodeLocation location,
+              Statement[] statements,
+              SymbolScope enclosingScope,
+              Map<SymbolName, BLangSymbol> symbolMap) {
+        super(location);
         this.statements = statements;
+        this.enclosingScope = enclosingScope;
+        this.symbolMap = symbolMap;
     }
 
     public Statement[] getStatements() {
@@ -50,24 +65,77 @@ public class BlockStmt extends AbstractStatement {
         executor.visit(this);
     }
 
+    @Override
+    public ScopeName getScopeName() {
+        return ScopeName.LOCAL;
+    }
+
+    @Override
+    public SymbolScope getEnclosingScope() {
+        return enclosingScope;
+    }
+
+    @Override
+    public void define(SymbolName name, BLangSymbol symbol) {
+        symbolMap.put(name, symbol);
+    }
+
+    @Override
+    public BLangSymbol resolve(SymbolName name) {
+        return resolve(symbolMap, name);
+    }
+
     /**
      * Builds a {@code BlockStmt}.
      *
      * @since 0.8.0
      */
-    public static class BlockStmtBuilder {
-
+    public static class BlockStmtBuilder implements SymbolScope {
+        private NodeLocation location;
         private List<Statement> statementList = new ArrayList<>();
 
-        public BlockStmtBuilder() {
+        // Scope related variables
+        private SymbolScope enclosingScope;
+        private Map<SymbolName, BLangSymbol> symbolMap = new HashMap<>();
+
+        public BlockStmtBuilder(SymbolScope enclosingScope) {
+            this.enclosingScope = enclosingScope;
+        }
+
+        public void setNodeLocation(NodeLocation location) {
+            this.location = location;
         }
 
         public void addStmt(Statement statement) {
             statementList.add(statement);
         }
 
+        @Override
+        public ScopeName getScopeName() {
+            return ScopeName.LOCAL;
+        }
+
+        @Override
+        public SymbolScope getEnclosingScope() {
+            return enclosingScope;
+        }
+
+        @Override
+        public void define(SymbolName name, BLangSymbol symbol) {
+            symbolMap.put(name, symbol);
+        }
+
+        @Override
+        public BLangSymbol resolve(SymbolName name) {
+            return resolve(symbolMap, name);
+        }
+
         public BlockStmt build() {
-            return new BlockStmt(statementList.toArray(new Statement[statementList.size()]));
+            return new BlockStmt(
+                    location,
+                    statementList.toArray(new Statement[statementList.size()]),
+                    enclosingScope,
+                    symbolMap);
         }
     }
 }

@@ -23,17 +23,17 @@ import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.BallerinaStruct;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeExecutor;
-import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.StructDcl;
+import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.TypeConvertor;
-import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
@@ -41,11 +41,12 @@ import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.CallableUnitInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.ConnectorInitExpr;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
-import org.wso2.ballerina.core.model.expressions.KeyValueExpression;
-import org.wso2.ballerina.core.model.expressions.MapInitExpr;
+import org.wso2.ballerina.core.model.expressions.MapStructInitKeyValueExpr;
+import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
@@ -60,6 +61,7 @@ import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
@@ -108,6 +110,11 @@ public class BLangExecutor implements NodeExecutor {
         for (Statement stmt : stmts) {
             stmt.execute(this);
         }
+    }
+
+    @Override
+    public void visit(VariableDefStmt varDefStmt) {
+
     }
 
     @Override
@@ -232,18 +239,18 @@ public class BLangExecutor implements NodeExecutor {
         int valueCounter = populateArgumentValues(funcIExpr.getArgExprs(), localVals);
 
         // Populate values for Connector declarations
-        if (function instanceof BallerinaFunction) {
-            BallerinaFunction ballerinaFunction = (BallerinaFunction) function;
-            valueCounter = populateConnectorDclValues(ballerinaFunction.getConnectorDcls(), localVals, valueCounter);
-        }
+//        if (function instanceof BallerinaFunction) {
+//            BallerinaFunction ballerinaFunction = (BallerinaFunction) function;
+//            valueCounter = populateConnectorDclValues(ballerinaFunction.getConnectorDcls(), localVals, valueCounter);
+//        }
 
         // Create default values for all declared local variables
-        for (VariableDcl variableDcl : function.getVariableDcls()) {
-            localVals[valueCounter] = variableDcl.getType().getDefaultValue();
-            valueCounter++;
-        }
+//        for (VariableDef variableDef : function.getVariableDefs()) {
+//            localVals[valueCounter] = variableDef.getType().getDefaultValue();
+//            valueCounter++;
+//        }
 
-        for (Parameter returnParam : function.getReturnParameters()) {
+        for (ParameterDef returnParam : function.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
             if (returnParam.getName() == null) {
@@ -259,11 +266,11 @@ public class BLangExecutor implements NodeExecutor {
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
         // return values and function invocation location;
-        SymbolName functionSymbolName = funcIExpr.getCallableUnitName();
+        SymbolName functionSymbolName = funcIExpr.getCallableUnit().getSymbolName();
         CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
-                functionSymbolName.getPkgName(), funcIExpr.getLocation());
+                functionSymbolName.getPkgPath(), funcIExpr.getNodeLocation());
 
-        StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, null);
         controlStack.pushFrame(stackFrame);
 
         // Check whether we are invoking a native function or not.
@@ -298,12 +305,12 @@ public class BLangExecutor implements NodeExecutor {
         }
 
         // Create default values for all declared local variables
-        for (VariableDcl variableDcl : action.getVariableDcls()) {
-            localVals[valueCounter] = variableDcl.getType().getDefaultValue();
+        for (VariableDef variableDef : action.getVariableDefs()) {
+            localVals[valueCounter] = variableDef.getType().getDefaultValue();
             valueCounter++;
         }
 
-        for (Parameter returnParam : action.getReturnParameters()) {
+        for (ParameterDef returnParam : action.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
             if (returnParam.getName() == null) {
@@ -319,9 +326,9 @@ public class BLangExecutor implements NodeExecutor {
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression values and
         // return values;
-        SymbolName actionSymbolName = actionIExpr.getCallableUnitName();
-        CallableUnitInfo actionInfo = new CallableUnitInfo(actionSymbolName.getName(), actionSymbolName.getPkgName(),
-                actionIExpr.getLocation());
+        SymbolName actionSymbolName = actionIExpr.getCallableUnit().getSymbolName();
+        CallableUnitInfo actionInfo = new CallableUnitInfo(actionSymbolName.getName(), actionSymbolName.getPkgPath(),
+                actionIExpr.getNodeLocation());
         StackFrame stackFrame = new StackFrame(localVals, returnVals, actionInfo);
         controlStack.pushFrame(stackFrame);
 
@@ -359,9 +366,9 @@ public class BLangExecutor implements NodeExecutor {
         valueCounter = populateConnectorDclValues(resource.getConnectorDcls(), valueParams, valueCounter);
 
         // Create default values for all declared local variables
-        VariableDcl[] variableDcls = resource.getVariableDcls();
-        for (VariableDcl variableDcl : variableDcls) {
-            valueParams[valueCounter] = variableDcl.getType().getDefaultValue();
+        VariableDef[] variableDefs = resource.getVariableDefs();
+        for (VariableDef variableDef : variableDefs) {
+            valueParams[valueCounter] = variableDef.getType().getDefaultValue();
             valueCounter++;
         }
 
@@ -369,7 +376,7 @@ public class BLangExecutor implements NodeExecutor {
 
         SymbolName resourceSymbolName = resource.getSymbolName();
         CallableUnitInfo resourceInfo = new CallableUnitInfo(resourceSymbolName.getName(),
-                resourceSymbolName.getPkgName(), resource.getLocation());
+                resourceSymbolName.getPkgPath(), resource.getNodeLocation());
 
         StackFrame stackFrame = new StackFrame(valueParams, ret, resourceInfo);
         controlStack.pushFrame(stackFrame);
@@ -417,7 +424,7 @@ public class BLangExecutor implements NodeExecutor {
         // If yes skip setting the value;
         if (!arrayMapAccessExpr.isLHSExpr()) {
 
-            if (arrayMapAccessExpr.getType() != BTypes.MAP_TYPE) {
+            if (arrayMapAccessExpr.getType() != BTypes.typeMap) {
                 // Get the value stored in the index
                 if (collectionValue instanceof BArray) {
                     return ((BArray) collectionValue).get(((BInteger) indexValue).intValue());
@@ -454,15 +461,15 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     @Override
-    public BValue visit(MapInitExpr mapInitExpr) {
-        Expression[] argExprs = mapInitExpr.getArgExprs();
+    public BValue visit(RefTypeInitExpr refTypeInitExpr) {
+        Expression[] argExprs = refTypeInitExpr.getArgExprs();
         // Creating a new map
         BMap<BString, BValue> bMap = new BMap<>();
 
         for (int i = 0; i < argExprs.length; i++) {
-            KeyValueExpression expr = (KeyValueExpression) argExprs[i];
+            MapStructInitKeyValueExpr expr = (MapStructInitKeyValueExpr) argExprs[i];
             BString key = new BString(expr.getKey());
-            Expression expression = expr.getValueExpression();
+            Expression expression = expr.getValueExpr();
             BValue value = expression.execute(this);
             bMap.put(key, value);
         }
@@ -470,10 +477,15 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     @Override
+    public BValue visit(ConnectorInitExpr connectorInitExpr) {
+        return null;
+    }
+
+    @Override
     public BValue visit(BacktickExpr backtickExpr) {
         // Evaluate the variable references before creating objects
         String evaluatedString = evaluteBacktickString(backtickExpr);
-        if (backtickExpr.getType() == BTypes.JSON_TYPE) {
+        if (backtickExpr.getType() == BTypes.typeJSON) {
             return new BJSON(evaluatedString);
 
         } else {
@@ -491,7 +503,7 @@ public class BLangExecutor implements NodeExecutor {
     public BValue visit(TypeCastExpression typeCastExpression) {
         // Check for native type casting
         if (typeCastExpression.getEvalFunc() != null) {
-            BValueType result = (BValueType) typeCastExpression.getSourceExpression().execute(this);
+            BValueType result = (BValueType) typeCastExpression.getRExpr().execute(this);
             return typeCastExpression.getEvalFunc().apply(result);
         } else {
             TypeConvertor typeConvertor = typeCastExpression.getCallableUnit();
@@ -503,12 +515,12 @@ public class BLangExecutor implements NodeExecutor {
             int valueCounter = populateArgumentValues(typeCastExpression.getArgExprs(), localVals);
 
             // Create default values for all declared local variables
-            for (VariableDcl variableDcl : typeConvertor.getVariableDcls()) {
-                localVals[valueCounter] = variableDcl.getType().getDefaultValue();
+            for (VariableDef variableDef : typeConvertor.getVariableDefs()) {
+                localVals[valueCounter] = variableDef.getType().getDefaultValue();
                 valueCounter++;
             }
 
-            for (Parameter returnParam : typeConvertor.getReturnParameters()) {
+            for (ParameterDef returnParam : typeConvertor.getReturnParameters()) {
                 // Check whether these are unnamed set of return types.
                 // If so break the loop. You can't have a mix of unnamed and named returns parameters.
                 if (returnParam.getName() == null) {
@@ -524,9 +536,9 @@ public class BLangExecutor implements NodeExecutor {
 
             // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
             // return values and function invocation location;
-            SymbolName functionSymbolName = typeCastExpression.getCallableUnitName();
+            SymbolName functionSymbolName = typeCastExpression.getCallableUnit().getSymbolName();
             CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
-                    functionSymbolName.getPkgName(), typeCastExpression.getLocation());
+                    functionSymbolName.getPkgPath(), typeCastExpression.getNodeLocation());
 
             StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
             controlStack.pushFrame(stackFrame);
@@ -646,8 +658,8 @@ public class BLangExecutor implements NodeExecutor {
                 // Populate all connector declarations
                 offset = populateConnectorDclValues(ballerinaConnector.getConnectorDcls(), connectorMemBlock, offset);
 
-                for (VariableDcl variableDcl : ballerinaConnector.getVariableDcls()) {
-                    connectorMemBlock[offset] = variableDcl.getType().getDefaultValue();
+                for (VariableDef variableDef : ballerinaConnector.getVariableDefs()) {
+                    connectorMemBlock[offset] = variableDef.getType().getDefaultValue();
                     offset++;
                 }
             }
@@ -662,7 +674,7 @@ public class BLangExecutor implements NodeExecutor {
 
     private String evaluteBacktickString(BacktickExpr backtickExpr) {
         String varString = "";
-        for (Expression expression : backtickExpr.getExpressionList()) {
+        for (Expression expression : backtickExpr.getArgExprs()) {
             varString = varString + expression.execute(this).stringValue();
         }
         return varString;
@@ -670,7 +682,7 @@ public class BLangExecutor implements NodeExecutor {
 
     private void assignValueToArrayMapAccessExpr(BValue rValue, ArrayMapAccessExpr lExpr) {
         ArrayMapAccessExpr accessExpr = lExpr;
-        if (!(accessExpr.getType() == BTypes.MAP_TYPE)) {
+        if (!(accessExpr.getType() == BTypes.typeMap)) {
             BArray arrayVal = (BArray) accessExpr.getRExpr().execute(this);
             BInteger indexVal = (BInteger) accessExpr.getIndexExpr().execute(this);
             arrayVal.add(indexVal.intValue(), rValue);
@@ -714,16 +726,16 @@ public class BLangExecutor implements NodeExecutor {
         StructDcl structDcl = structInitExpr.getStructDcl();
         BValue[] structMemBlock;
         int offset = 0;
-        BallerinaStruct struct = structDcl.getStruct();
-        structMemBlock = new BValue[struct.getStructMemorySize()];
+        StructDef structDef = structDcl.getStructDef();
+        structMemBlock = new BValue[structDef.getStructMemorySize()];
 
         // create a memory block to hold field of the struct, and populate it with default values
-        VariableDcl[] fields = struct.getFields();
-        for (VariableDcl field : fields) {
+        VariableDef[] fields = structDef.getFields();
+        for (VariableDef field : fields) {
             structMemBlock[offset] = field.getType().getDefaultValue();
             offset++;
         }
-        return new BStruct(struct, structMemBlock);
+        return new BStruct(structDef, structMemBlock);
     }
 
     /**
@@ -845,7 +857,7 @@ public class BLangExecutor implements NodeExecutor {
         BValue arrayMapValue = lExprValue.getValue(memoryLocation);
         
         // Set the value to array/map's index location
-        if (fieldExpr.getRefVarType() == BTypes.MAP_TYPE) {
+        if (fieldExpr.getRefVarType() == BTypes.typeMap) {
             ((BMap) arrayMapValue).put(indexValue, rValue);
         } else {
             ((BArray) arrayMapValue).add(((BInteger) indexValue).intValue(), rValue);
@@ -920,7 +932,7 @@ public class BLangExecutor implements NodeExecutor {
         BValue indexValue = indexExpr.execute(this);
         
         // Get the value from array/map's index location
-        if (fieldExpr.getRefVarType() == BTypes.MAP_TYPE) {
+        if (fieldExpr.getRefVarType() == BTypes.typeMap) {
             return ((BMap) currentVal).get(indexValue);
         } else {
             return ((BArray) currentVal).get(((BInteger) indexValue).intValue());

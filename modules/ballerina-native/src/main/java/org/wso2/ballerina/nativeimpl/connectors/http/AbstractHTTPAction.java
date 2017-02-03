@@ -30,11 +30,14 @@ import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
+import org.wso2.carbon.messaging.Headers;
 import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.messaging.MessageProcessorException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import static org.wso2.ballerina.core.runtime.Constants.BALLERINA_VERSION;
 
 /**
  * {@code AbstractHTTPAction} is the base class for all HTTP Connector Actions.
@@ -42,6 +45,17 @@ import java.net.URL;
 public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
+
+    private static final String BALLERINA_USER_AGENT;
+
+    static {
+        String version = System.getProperty(BALLERINA_VERSION);
+        if (version != null) {
+            BALLERINA_USER_AGENT = "ballerina/" + version;
+        } else {
+            BALLERINA_USER_AGENT = "ballerina";
+        }
+    }
 
     protected void prepareRequest(Connector connector, String path, CarbonMessage cMsg) {
 
@@ -54,7 +68,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         try {
             uri = ((HTTPConnector) connector).getServiceUri() + path;
 
-            URL  url = new URL(uri);
+            URL url = new URL(uri);
             String host = url.getHost();
             int port = 80;
             if (url.getPort() != -1) {
@@ -78,12 +92,26 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             } else {
                 cMsg.getHeaders().set(Constants.HOST, host);
             }
+
+            //Set User-Agent Header
+            Object headerObj = cMsg.getProperty(org.wso2.ballerina.core.runtime.Constants.INTERMEDIATE_HEADERS);
+
+            if (headerObj == null) {
+                headerObj = new Headers();
+                cMsg.setProperty(org.wso2.ballerina.core.runtime.Constants.INTERMEDIATE_HEADERS, headerObj);
+            }
+            Headers headers = (Headers) headerObj;
+
+            if (!headers.contains(Constants.USER_AGENT_HEADER)) { // If User-Agent is not already set from program
+                cMsg.setHeader(Constants.USER_AGENT_HEADER, BALLERINA_USER_AGENT);
+            }
+
         } catch (MalformedURLException e) {
             throw new BallerinaException("Malformed url specified. " + e.getMessage());
         } catch (Throwable t) {
             throw new BallerinaException("Failed to prepare request. " + t.getMessage());
         }
-        
+
     }
 
     protected BValue executeAction(Context context, CarbonMessage message) {

@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.types.BType;
@@ -36,46 +37,70 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 1.0.0
  */
-public class StructFieldAccessExpr extends AbstractExpression implements ReferenceExpr {
+public class StructFieldAccessExpr extends UnaryExpression implements ReferenceExpr {
+
+    /**
+     * Name of the variable reference
+     */
+    private String varName;
 
     /**
      * Unique identifier or this expression
      */
     private SymbolName symbolName;
-    
+
     /**
      * Holds a reference to the actual variable, stated in the expression.
      */
     private ReferenceExpr varRefExpr;
-    
+
     /**
      * Expression of the child field of the current expression.
      * Is null for the last child in the chain.
      */
-    private StructFieldAccessExpr fieldExpr;
-    
+    private StructFieldAccessExpr fieldRefExpr;
+
     /**
      * Expression precedes the current expression in the chain.
      * Is null for the root of the chain.
      */
-    private StructFieldAccessExpr parentExpr;
-    
+//    private StructFieldAccessExpr parentExpr;
+
     /**
      * Flag indicating whether the entire expression is a left hand side expression.
      */
     private boolean isLHSExpr;
-    
+
     /**
      * Creates a Struct field access expression.
-     *      
-     * @param symbolName        Symbol Name of the current field
-     * @param structVarRefExpr  Variable reference represented by the current field
+     *
+     * @param symbolName       Symbol Name of the current field
+     * @param structVarRefExpr Variable reference represented by the current field
      */
-    public StructFieldAccessExpr(SymbolName symbolName,  ReferenceExpr structVarRefExpr) {
+    public StructFieldAccessExpr(NodeLocation location, SymbolName symbolName, ReferenceExpr structVarRefExpr) {
+        super(location, null, structVarRefExpr);
         this.symbolName = symbolName;
         this.varRefExpr = structVarRefExpr;
-    }    
-    
+    }
+
+    /**
+     * Creates a Struct field access expression.
+     *
+     * @param location         file name and the line number of the field access expression
+     * @param varRefExpr       Variable reference of the Struct
+     * @param fieldRefExpr       field variable reference of the Struct
+     */
+    public StructFieldAccessExpr(NodeLocation location, ReferenceExpr varRefExpr, StructFieldAccessExpr fieldRefExpr) {
+        super(location, null, fieldRefExpr);
+        this.varRefExpr = varRefExpr;
+        this.fieldRefExpr = fieldRefExpr;
+    }
+
+    @Override
+    public String getVarName() {
+        return null;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -86,17 +111,17 @@ public class StructFieldAccessExpr extends AbstractExpression implements Referen
 
     /**
      * Get the variable reference expression represented by this {@link StructFieldAccessExpr}.
-     * 
-     * @return  Variable reference expression represented by this {@link StructFieldAccessExpr}.
+     *
+     * @return Variable reference expression represented by this {@link StructFieldAccessExpr}.
      */
     public StructFieldAccessExpr getFieldExpr() {
-        return fieldExpr;
+        return fieldRefExpr;
     }
 
     /**
      * Check whether this expression is a left hand side expression in an assignment.
-     * 
-     * @return  Flag indicating whether this expression is a left hand side expression in an assignment.
+     *
+     * @return Flag indicating whether this expression is a left hand side expression in an assignment.
      */
     public boolean isLHSExpr() {
         return isLHSExpr;
@@ -104,53 +129,53 @@ public class StructFieldAccessExpr extends AbstractExpression implements Referen
 
     /**
      * Set the flag indicating whether this expression is a left hand side expression in an assignment.
-     * 
-     * @param isLhsExpr   Flag indicating whether this expression is a left hand side expression in an assignment.
+     *
+     * @param isLhsExpr Flag indicating whether this expression is a left hand side expression in an assignment.
      */
     public void setLHSExpr(boolean isLhsExpr) {
         isLHSExpr = isLhsExpr;
     }
-    
+
     /**
      * Set the parent of this field expression.
-     * 
-     * @param parent    Parent of this field expression.
+     *
+     * @param parent Parent of this field expression.
      */
     public void setParent(StructFieldAccessExpr parent) {
-        this.parentExpr = parent;
+//        this.parentExpr = parent;
     }
-    
+
     /**
      * Set the child field of this field expression.
-     * 
-     * @param fieldAccessExpr    Child field of this field expression.
+     *
+     * @param fieldAccessExpr Child field of this field expression.
      */
     public void setFieldExpr(StructFieldAccessExpr fieldAccessExpr) {
-        this.fieldExpr = fieldAccessExpr;
+        this.fieldRefExpr = fieldAccessExpr;
     }
-    
+
     /**
      * Get the parent of this field expression.
-     * 
-     * @return  Parent of this field expression.
+     *
+     * @return Parent of this field expression.
      */
     public StructFieldAccessExpr getParent() {
-        return parentExpr;
+        return null;
     }
-    
+
     /**
      * Get the variable reference represented by this field expression.
-     * 
-     * @return  Variable reference represented by this field expression.
+     *
+     * @return Variable reference represented by this field expression.
      */
     public ReferenceExpr getVarRef() {
         return varRefExpr;
     }
-    
+
     /**
      * Get the type of the variable represented by this field expression.
-     * 
-     * @return  Type of the variable represented by this field expression .
+     *
+     * @return Type of the variable represented by this field expression .
      */
     public BType getRefVarType() {
         return varRefExpr.getType();
@@ -171,7 +196,7 @@ public class StructFieldAccessExpr extends AbstractExpression implements Referen
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this);
     }
-    
+
     /**
      * Get the type to which this entire expression chain evaluates to.
      * Type of a struct field access expression chain, is the type of the field expression at the chain.
@@ -179,19 +204,19 @@ public class StructFieldAccessExpr extends AbstractExpression implements Referen
     @Override
     public BType getType() {
         // if the current expression has a child field, then get the type of that
-        if (fieldExpr != null) {
-            return fieldExpr.getType();
+        if (fieldRefExpr != null) {
+            return fieldRefExpr.getType();
         }
-        
-        // if the current field is the last child, get the type of the variable that is referenced by 
+
+        // if the current field is the last child, get the type of the variable that is referenced by
         // this field expression
         return varRefExpr.getType();
     }
-    
+
     /**
      * Get the type of the current expression
-     * 
-     * @return  Type of this expression
+     *
+     * @return Type of this expression
      */
     public BType getExpressionType() {
         return this.type;

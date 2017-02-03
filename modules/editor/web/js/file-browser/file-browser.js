@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['jquery', 'backbone', 'lodash', 'tree_view', 'log', /** void module - jquery plugin **/ 'js_tree'], function ($, Backbone, _, log, TreeMod) {
+define(['jquery', 'backbone', 'lodash', 'log', /** void module - jquery plugin **/ 'js_tree'], function ($, Backbone, _, log) {
 
     var FileBrowser = Backbone.View.extend({
 
@@ -130,8 +130,13 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', 'log', /** void module - jq
 
             this._$parent_el.jstree(true).select_node(path);
         },
+
         refresh: function(node){
             this._$parent_el.jstree(true).load_node(node);
+        },
+
+        getNode: function(id){
+            return this._$parent_el.jstree(true).get_node(id);
         },
 
         render: function () {

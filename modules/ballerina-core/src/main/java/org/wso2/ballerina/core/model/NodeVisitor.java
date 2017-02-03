@@ -29,19 +29,20 @@ import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
+import org.wso2.ballerina.core.model.expressions.ConnectorInitExpr;
 import org.wso2.ballerina.core.model.expressions.DivideExpr;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.GreaterEqualExpression;
 import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
-import org.wso2.ballerina.core.model.expressions.KeyValueExpression;
 import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
 import org.wso2.ballerina.core.model.expressions.LessThanExpression;
-import org.wso2.ballerina.core.model.expressions.MapInitExpr;
+import org.wso2.ballerina.core.model.expressions.MapStructInitKeyValueExpr;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
+import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
@@ -58,6 +59,7 @@ import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
+import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 
 /**
@@ -71,7 +73,7 @@ public interface NodeVisitor {
 
     void visit(ImportPackage importPkg);
 
-    void visit(Const constant);
+    void visit(ConstDef constant);
 
     void visit(Service service);
 
@@ -89,17 +91,20 @@ public interface NodeVisitor {
 
     void visit(Annotation annotation);
 
-    void visit(Parameter parameter);
+    void visit(ParameterDef parameterDef);
 
     void visit(ConnectorDcl connectorDcl);
 
-    void visit(VariableDcl variableDcl);
+    void visit(VariableDef variableDef);
     
-    void visit(BallerinaStruct ballerinaStruct);
+    void visit(StructDef structDef);
 
     void visit(StructDcl structDcl);
 
+
     // Statements
+
+    void visit(VariableDefStmt varDefStmt);
 
     void visit(AssignStmt assignStmt);
 
@@ -118,6 +123,7 @@ public interface NodeVisitor {
     void visit(FunctionInvocationStmt functionInvocationStmt);
 
     void visit(ActionInvocationStmt actionInvocationStmt);
+
 
     // Expressions
 
@@ -155,19 +161,26 @@ public interface NodeVisitor {
 
     void visit(UnaryExpression unaryExpression);
 
+    void visit(TypeCastExpression typeCastExpression);
+
     void visit(ArrayMapAccessExpr arrayMapAccessExpr);
 
-    void visit(ArrayInitExpr arrayInitExpr);
-
-    void visit(MapInitExpr mapInitExpr);
-
-    void visit(KeyValueExpression keyValueExpr);
+    void visit(StructFieldAccessExpr structAttributeAccessExpr);
 
     void visit(BacktickExpr backtickExpr);
 
+    void visit(ArrayInitExpr arrayInitExpr);
+
+    void visit(RefTypeInitExpr refTypeInitExpr);
+
+    void visit(ConnectorInitExpr connectorInitExpr);
+
+    void visit(StructInitExpr structInitExpr);
+
+    void visit(MapStructInitKeyValueExpr keyValueExpr);
+
     void visit(VariableRefExpr variableRefExpr);
 
-    void visit(TypeCastExpression typeCastExpression);
 
     void visit(LocalVarLocation localVarLocation);
 
@@ -176,14 +189,10 @@ public interface NodeVisitor {
     void visit(ConnectorVarLocation connectorVarLocation);
 
     void visit(ConstantLocation constantLocation);
-    
+
     void visit(ResourceInvocationExpr resourceIExpr);
 
     void visit(MainInvoker mainInvoker);
 
     void visit(StructVarLocation structVarLocation);
-
-    void visit(StructInitExpr structInitExpr);
-
-    void visit(StructFieldAccessExpr structAttributeAccessExpr);
 }

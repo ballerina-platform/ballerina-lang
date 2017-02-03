@@ -56,8 +56,8 @@ public class EnvironmentInitializer {
         app.setRuntimeEnv(runtimeEnv);
 
         Package aPackage;
-        if (bFile.getPackageName() != null) {
-            aPackage = new Package(bFile.getPackageName());
+        if (bFile.getPackagePath() != null) {
+            aPackage = new Package(bFile.getPackagePath());
         } else {
             aPackage = new Package("default");
         }

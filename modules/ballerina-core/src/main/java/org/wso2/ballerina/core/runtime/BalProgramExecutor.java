@@ -28,8 +28,8 @@ import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.Parameter;
-import org.wso2.ballerina.core.model.Position;
+import org.wso2.ballerina.core.model.NodeLocation;
+import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -60,7 +60,7 @@ public class BalProgramExecutor {
                                Context balContext) {
         SymbolName symbolName = service.getSymbolName();
         balContext.setServiceInfo(
-            new CallableUnitInfo(symbolName.getName(), symbolName.getPkgName(), service.getServiceLocation()));
+                new CallableUnitInfo(symbolName.getName(), symbolName.getPkgPath(), service.getNodeLocation()));
 
         balContext.setBalCallback(new DefaultBalCallback(callback));
 
@@ -80,19 +80,20 @@ public class BalProgramExecutor {
         Context bContext = new Context();
         try {
             SymbolName argsName;
-            BallerinaFunction mainFunction = (BallerinaFunction) balFile.getMainFunction();
-            if (mainFunction != null) {
+            BallerinaFunction mainFun = (BallerinaFunction) balFile.getMainFunction();
+            if (mainFun != null) {
 
                 // TODO Refactor this logic ASAP
-                Parameter[] parameters = mainFunction.getParameters();
-                argsName = parameters[0].getName();
+                ParameterDef[] parameterDefs = mainFun.getParameterDefs();
+                argsName = parameterDefs[0].getSymbolName();
 
 //                if (parameters.length == 1 && parameters[0].getType() == BTypes.getArrayType(BTypes.
-//                        STRING_TYPE.toString())) {
+//                        typeString.toString())) {
 //                } else {
 //                    throw new BallerinaException("Main function does not comply with standard main function in" +
 //                            " ballerina");
 //                }
+                NodeLocation mainFuncLocation = mainFun.getNodeLocation();
 
                 // Read from command line arguments
                 String balArgs = System.getProperty(SYSTEM_PROP_BAL_ARGS);
@@ -105,10 +106,10 @@ public class BalProgramExecutor {
                 }
 
                 Expression[] exprs = new Expression[1];
-                VariableRefExpr variableRefExpr = new VariableRefExpr(argsName);
+                VariableRefExpr variableRefExpr = new VariableRefExpr(mainFuncLocation, argsName);
                 LocalVarLocation location = new LocalVarLocation(0);
                 variableRefExpr.setMemoryLocation(location);
-                variableRefExpr.setType(BTypes.STRING_TYPE);
+                variableRefExpr.setType(BTypes.typeString);
                 exprs[0] = variableRefExpr;
 
                 BArray<BString> arrayArgs = new BArray<>(BString.class);
@@ -118,16 +119,13 @@ public class BalProgramExecutor {
                 BValue[] argValues = {arrayArgs};
 
                 // 3) Create a function invocation expression
-                Position mainFuncLocation = mainFunction.getLocation();
-                FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(
-                        new SymbolName("main", balFile.getPackageName()), exprs);
-                funcIExpr.setOffset(1);
-                funcIExpr.setCallableUnit(mainFunction);
-                funcIExpr.setLocation(mainFuncLocation);
+                FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(mainFuncLocation,
+                        mainFun.getName(), null, mainFun.getPackagePath(), exprs);
+                funcIExpr.setCallableUnit(mainFun);
 
-                SymbolName functionSymbolName = funcIExpr.getCallableUnitName();
+                SymbolName functionSymbolName = funcIExpr.getCallableUnit().getSymbolName();
                 CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
-                        functionSymbolName.getPkgName(), mainFuncLocation);
+                        functionSymbolName.getPkgPath(), mainFuncLocation);
 
                 StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], functionInfo);
                 bContext.getControlStack().pushFrame(currentStackFrame);

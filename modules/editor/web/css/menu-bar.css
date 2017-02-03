@@ -78,3 +78,24 @@ li.menu-item-disabled > a {
     background-color: #444;
 
 }
+
+.context-menu-list{
+    border-radius: 0;
+    background: #333;
+    border: 1px solid #444;
+}
+.context-menu-list>.context-menu-item {
+    background-color: #333;
+    color: #fff;
+    text-transform: capitalize;
+    padding:3px 10px;
+    font-size: 13px;
+}
+.context-menu-list>.context-menu-item:hover {
+    background-color: #333;
+    color: #f47b20;
+    text-transform: capitalize;
+}
+.btn{
+    border: 0;
+}

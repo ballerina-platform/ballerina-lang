@@ -85,7 +85,7 @@ public class BalDeployer {
                 BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
                 ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
 
-                BLangModelBuilder bLangModelBuilder = new BLangModelBuilder();
+                BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(null);
                 BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
                 ballerinaParser.addParseListener(ballerinaBaseListener);
                 ballerinaParser.compilationUnit();
@@ -124,8 +124,8 @@ public class BalDeployer {
                 Package aPackage = app.getPackage(file.getName());
                 if (aPackage == null) {
                     // check if package name is null
-                    if (balFile.getPackageName() != null) {
-                        aPackage = new Package(balFile.getPackageName());
+                    if (balFile.getPackagePath() != null) {
+                        aPackage = new Package(balFile.getPackagePath());
                     } else {
                         aPackage = new Package("default");
                     }

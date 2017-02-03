@@ -19,7 +19,9 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.statements.BlockStmt;
-import org.wso2.ballerina.core.model.types.BType;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+
+import java.util.Map;
 
 /**
  * An {@code Action} is a operation (function) that can be executed against a connector.
@@ -36,51 +38,54 @@ import org.wso2.ballerina.core.model.types.BType;
  *
  * @since 0.8.0
  */
-@SuppressWarnings("unused")
-public class BallerinaAction implements Action, Node {
+public class BallerinaAction implements Action, SymbolScope, Node {
+    private NodeLocation location;
 
-    private SymbolName name;
+    // BLangSymbol related attributes
+    protected String name;
+    protected String pkgPath;
+    protected boolean isPublic;
+    protected SymbolName symbolName;
+
     private Annotation[] annotations;
-    private Parameter[] parameters;
+    private ParameterDef[] parameterDefs;
     private ConnectorDcl[] connectorDcls;
-    private VariableDcl[] variableDcls;
+    private VariableDef[] variableDefs;
     private Worker[] workers;
-    private BType[] returnTypes;
-    private Parameter[] returnParams;
+    private ParameterDef[] returnParams;
     private BlockStmt actionBody;
-    private Position actionLocation;
-
     private int stackFrameSize;
 
-    public BallerinaAction(SymbolName name,
-                           Position location,
-                           Annotation[] annotations,
-                           Parameter[] parameters,
-                           Parameter[] returnParams,
-                           ConnectorDcl[] connectorDcls,
-                           VariableDcl[] variableDcls,
-                           Worker[] workers,
-                           BlockStmt actionBody) {
+    // Scope related variables
+    private SymbolScope enclosingScope;
+    private Map<SymbolName, BLangSymbol> symbolMap;
 
+    public BallerinaAction(NodeLocation location,
+                           String name,
+                           String pkgPath,
+                           Boolean isPublic,
+                           SymbolName symbolName,
+                           Annotation[] annotations,
+                           ParameterDef[] parameterDefs,
+                           ParameterDef[] returnParams,
+                           Worker[] workers,
+                           BlockStmt actionBody,
+                           SymbolScope enclosingScope,
+                           Map<SymbolName, BLangSymbol> symbolMap) {
+
+        this.location = location;
         this.name = name;
-        this.actionLocation = location;
+        this.pkgPath = pkgPath;
+        this.isPublic = isPublic;
+        this.symbolName = symbolName;
         this.annotations = annotations;
-        this.parameters = parameters;
+        this.parameterDefs = parameterDefs;
         this.returnParams = returnParams;
-        this.connectorDcls = connectorDcls;
-        this.variableDcls = variableDcls;
         this.workers = workers;
         this.actionBody = actionBody;
-    }
 
-    @Override
-    public String getName() {
-        return name.getName();
-    }
-
-    @Override
-    public String getPackageName() {
-        return null;
+        this.enclosingScope = enclosingScope;
+        this.symbolMap = symbolMap;
     }
 
     @Override
@@ -88,23 +93,17 @@ public class BallerinaAction implements Action, Node {
         return annotations;
     }
 
-    @Override
-    public Parameter[] getParameters() {
-        return parameters;
-    }
-
-    @Override
-    public SymbolName getSymbolName() {
-        return name;
+    public ParameterDef[] getParameterDefs() {
+        return parameterDefs;
     }
 
     @Override
     public void setSymbolName(SymbolName symbolName) {
-        name = symbolName;
+        this.symbolName = symbolName;
     }
 
     @Override
-    public Parameter[] getReturnParameters() {
+    public ParameterDef[] getReturnParameters() {
         return returnParams;
     }
 
@@ -123,24 +122,79 @@ public class BallerinaAction implements Action, Node {
         return actionBody;
     }
 
-    public VariableDcl[] getVariableDcls() {
-        return variableDcls;
-    }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
+    public VariableDef[] getVariableDefs() {
+        return variableDefs;
     }
 
     public ConnectorDcl[] getConnectorDcls() {
         return connectorDcls;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+
+    // Methods in Node interface
+
     @Override
-    public Position getLocation() {
-        return actionLocation;
+    public void accept(NodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public NodeLocation getNodeLocation() {
+        return location;
+    }
+
+    // Methods in BLangSymbol interface
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    @Override
+    public boolean isNative() {
+        return false;
+    }
+
+    @Override
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
+    @Override
+    public SymbolScope getSymbolScope() {
+        return this;
+    }
+
+
+    // Methods in the SymbolScope interface
+
+    @Override
+    public ScopeName getScopeName() {
+        return ScopeName.LOCAL;
+    }
+
+    @Override
+    public SymbolScope getEnclosingScope() {
+        return enclosingScope;
+    }
+
+    @Override
+    public void define(SymbolName name, BLangSymbol symbol) {
+        symbolMap.put(name, symbol);
+    }
+
+    @Override
+    public BLangSymbol resolve(SymbolName name) {
+        return resolve(symbolMap, name);
     }
 }

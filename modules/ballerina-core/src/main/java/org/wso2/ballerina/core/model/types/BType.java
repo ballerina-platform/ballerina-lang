@@ -17,6 +17,9 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.SymbolScope;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.values.BValue;
 
 import java.util.HashMap;
@@ -32,9 +35,11 @@ import java.util.Map;
  *
  * @since 0.8.0
  */
-public abstract class BType {
-
+public abstract class BType implements BLangSymbol {
     protected String typeName;
+    protected String pkgPath;
+    protected SymbolName symbolName;
+    protected SymbolScope symbolScope;
     protected Class<? extends BValue> valueClass;
 
     //Using a HashMap here, because there won't be any concurrent access
@@ -46,10 +51,19 @@ public abstract class BType {
      *
      * @param typeName string name of the type
      */
-    protected BType(String typeName, Class<? extends BValue> valueClass) {
+//    protected BType(String typeName, Class<? extends BValue> valueClass) {
+//        this.typeName = typeName;
+//        this.valueClass = valueClass;
+////        TYPE_MAP.put(typeName, this);
+//    }
+
+    protected BType(String typeName, String pkgPath, SymbolScope symbolScope, Class<? extends BValue> valueClass) {
         this.typeName = typeName;
+        this.pkgPath = pkgPath;
+        this.symbolName = new SymbolName(typeName, pkgPath);
+        this.symbolScope = symbolScope;
         this.valueClass = valueClass;
-        TYPE_MAP.put(typeName, this);
+//        TYPE_MAP.put(typeName, this);
     }
 
     @SuppressWarnings("unchecked")
@@ -78,5 +92,38 @@ public abstract class BType {
     @SuppressWarnings("unchecked")
     static <T extends BType> T getType(String typeName) {
         return (T) TYPE_MAP.get(typeName);
+    }
+
+
+    // Methods in BLangSymbol interface
+
+    @Override
+    public String getName() {
+        return typeName;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return false;
+    }
+
+    @Override
+    public boolean isNative() {
+        return false;
+    }
+
+    @Override
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
+    @Override
+    public SymbolScope getSymbolScope() {
+        return symbolScope;
     }
 }

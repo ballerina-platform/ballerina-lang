@@ -83,7 +83,7 @@ public class NativeConstructProviderServiceComponent implements RequiredCapabili
     protected void registerNativeFunctions(AbstractNativeFunction nativeFunction) {
         PackageRegistry.getInstance().registerNativeFunction(nativeFunction);
         if (logger.isDebugEnabled()) {
-            logger.debug("Initialized native function {}:{} ", nativeFunction.getPackageName(),
+            logger.debug("Initialized native function {}:{} ", nativeFunction.getPackagePath(),
                     nativeFunction.getName());
         }
     }
@@ -101,7 +101,7 @@ public class NativeConstructProviderServiceComponent implements RequiredCapabili
     protected void registerNativeAction(AbstractNativeAction nativeAction) {
         PackageRegistry.getInstance().registerNativeAction(nativeAction);
         if (logger.isDebugEnabled()) {
-            logger.debug("Initialized native action {}:{} ", nativeAction.getPackageName(), nativeAction.getName());
+            logger.debug("Initialized native action {}:{} ", nativeAction.getPackagePath(), nativeAction.getName());
         }
     }
 
@@ -118,7 +118,7 @@ public class NativeConstructProviderServiceComponent implements RequiredCapabili
     protected void registerNativeConnectors(AbstractNativeConnector connector) {
         PackageRegistry.getInstance().registerNativeConnector(connector);
         if (logger.isDebugEnabled()) {
-            logger.debug("Initialized native action {}:{} ", connector.getPackageName(), connector.getSymbolName());
+            logger.debug("Initialized native action {}:{} ", connector.getPackagePath(), connector.getSymbolName());
         }
     }
 

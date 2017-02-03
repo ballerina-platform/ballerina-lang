@@ -160,18 +160,6 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterConnectorDeclaration(BallerinaParser.ConnectorDeclarationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitConnectorDeclaration(BallerinaParser.ConnectorDeclarationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterStructDefinition(BallerinaParser.StructDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -239,18 +227,6 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterVariableDeclaration(BallerinaParser.VariableDeclarationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitVariableDeclaration(BallerinaParser.VariableDeclarationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -508,18 +484,6 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterQualifiedReference(BallerinaParser.QualifiedReferenceContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitQualifiedReference(BallerinaParser.QualifiedReferenceContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterParameterList(BallerinaParser.ParameterListContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -647,6 +611,18 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitStatement(BallerinaParser.StatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1012,6 +988,18 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterCallableUnitName(BallerinaParser.CallableUnitNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCallableUnitName(BallerinaParser.CallableUnitNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterBacktickString(BallerinaParser.BacktickStringContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1096,18 +1084,6 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterArrayInitializerExpression(BallerinaParser.ArrayInitializerExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitArrayInitializerExpression(BallerinaParser.ArrayInitializerExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterBinaryAndExpression(BallerinaParser.BinaryAndExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1180,13 +1156,13 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterMapInitializerExpression(BallerinaParser.MapInitializerExpressionContext ctx) { }
+	@Override public void enterConnectorInitExpression(BallerinaParser.ConnectorInitExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitMapInitializerExpression(BallerinaParser.MapInitializerExpressionContext ctx) { }
+	@Override public void exitConnectorInitExpression(BallerinaParser.ConnectorInitExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1211,6 +1187,18 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitBinaryEqualExpression(BallerinaParser.BinaryEqualExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterRefTypeInitExpression(BallerinaParser.RefTypeInitExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRefTypeInitExpression(BallerinaParser.RefTypeInitExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1264,13 +1252,13 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterStructInitializeExpression(BallerinaParser.StructInitializeExpressionContext ctx) { }
+	@Override public void enterArrayInitExpression(BallerinaParser.ArrayInitExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitStructInitializeExpression(BallerinaParser.StructInitializeExpressionContext ctx) { }
+	@Override public void exitArrayInitExpression(BallerinaParser.ArrayInitExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1324,25 +1312,25 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterMapInitKeyValueList(BallerinaParser.MapInitKeyValueListContext ctx) { }
+	@Override public void enterMapStructInitKeyValueList(BallerinaParser.MapStructInitKeyValueListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitMapInitKeyValueList(BallerinaParser.MapInitKeyValueListContext ctx) { }
+	@Override public void exitMapStructInitKeyValueList(BallerinaParser.MapStructInitKeyValueListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterMapInitKeyValue(BallerinaParser.MapInitKeyValueContext ctx) { }
+	@Override public void enterMapStructInitKeyValue(BallerinaParser.MapStructInitKeyValueContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitMapInitKeyValue(BallerinaParser.MapInitKeyValueContext ctx) { }
+	@Override public void exitMapStructInitKeyValue(BallerinaParser.MapStructInitKeyValueContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

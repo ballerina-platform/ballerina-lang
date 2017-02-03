@@ -54,6 +54,11 @@ public class WhileStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
+    public static void main(String[] args) {
+        WhileStmtTest whileStmtTest = new WhileStmtTest();
+        whileStmtTest.setup();
+    }
+
     @Test(description = "Test while loop with a condition which evaluates to false")
     public void testWhileStmtConditionFalse() {
         BValue[] args = {new BInteger(10), new BInteger(11)};

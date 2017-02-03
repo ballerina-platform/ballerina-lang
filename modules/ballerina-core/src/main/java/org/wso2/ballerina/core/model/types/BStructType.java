@@ -17,11 +17,12 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.values.BStruct;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code BStructType} represents a user defined {@link org.wso2.ballerina.core.model.BallerinaStruct} in Ballerina
+ * {@code BStructType} represents a user defined {@link org.wso2.ballerina.core.model.StructDef} in Ballerina.
  *
  * @since 1.0.0
  */
@@ -32,8 +33,8 @@ public class BStructType extends BType {
      *
      * @param typeName string name of the type
      */
-    public BStructType(String typeName) {
-        super(typeName, BStruct.class);
+    public BStructType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BStruct.class);
     }
 
     @SuppressWarnings("unchecked")
