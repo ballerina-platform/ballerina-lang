@@ -24,6 +24,7 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.EnvironmentInitializer;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.message.StringDataSource;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -59,7 +60,7 @@ public class SQLConnectorTest {
     @Test(description = "Test Create Table")
     public void testActionCreateTable() {
 
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/actionCreateTable", "GET");
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/createTable", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
 
@@ -72,7 +73,7 @@ public class SQLConnectorTest {
     @Test(description = "Test Insert Data")
     public void testActionInsertData() {
 
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/actionInsertData", "GET");
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/insertData", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
 
@@ -85,7 +86,7 @@ public class SQLConnectorTest {
     @Test(description = "Test Update Data")
     public void testActionUpdateData() {
 
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/actionUpdateData", "GET");
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/rowUpdate", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
 
@@ -98,7 +99,7 @@ public class SQLConnectorTest {
     @Test(description = "Test Insert Data with Generated Keys")
     public void testActionInsertDataWithKeys() {
 
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/actionDataInsertWithKeys", "GET");
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/getGeneratedKeysByColumn", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
 
@@ -112,7 +113,7 @@ public class SQLConnectorTest {
     @Test(description = "Test Insert Data with Generated Keys and Key Columns")
     public void testInsertWithKeyColumns() {
 
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/InsertWithKeyColumns", "GET");
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/generatedKeys", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
 
@@ -126,7 +127,7 @@ public class SQLConnectorTest {
     @Test(description = "Test Select Data")
     public void testActionSelectData() {
 
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/actionSelectData", "GET");
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/dataSelect", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
 
@@ -147,6 +148,40 @@ public class SQLConnectorTest {
         Assert.assertNotNull(stringDataSource);
 
         Assert.assertEquals(stringDataSource.getValue(), "Peter");
+    }
+
+    @Test(description = "Test Connector With Hikari Pool Properties")
+    public void testPoolProperties() {
+
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/poolPropTest", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+
+        Assert.assertEquals(stringDataSource.getValue(), "Peter");
+    }
+
+    @Test(description = "Test for Select Errors",
+          expectedExceptions = {BallerinaException.class})
+    public void testSelectException() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/selectExceptionTest", "GET");
+        Services.invoke(cMsg);
+    }
+
+    @Test(description = "Test for update Errors",
+          expectedExceptions = {BallerinaException.class})
+    public void testUpdateException() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/UpdateExceptionTest", "GET");
+        Services.invoke(cMsg);
+    }
+
+    @Test(description = "Test for update Errors with keys",
+          expectedExceptions = {BallerinaException.class})
+    public void testUpdateKeyException() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/keyUpdateExceptionTest", "GET");
+        Services.invoke(cMsg);
     }
 
     private void initDatabase() {
