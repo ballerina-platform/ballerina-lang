@@ -149,6 +149,17 @@
             <artifactId>jackson-datatype-joda</artifactId>
             <version>${com.fasterxml.jackson.datatype.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-parser</artifactId>
+            <version>${swagger-parser-version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-codegen</artifactId>
+            <version>2.2.2-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
 
@@ -167,8 +178,7 @@
         <servlet-api-version>2.5</servlet-api-version>
         <io.swagger.version>1.5.8</io.swagger.version>
         <com.fasterxml.jackson.datatype.version>2.4.1</com.fasterxml.jackson.datatype.version>
-        <io.swagger.version.range>[1.5.0,1.6.0)</io.swagger.version.range>
         <com.fasterxml.jackson.version>2.7.4</com.fasterxml.jackson.version>
-        <com.fasterxml.jackson.version.range>[2.7.0,2.8.0)</com.fasterxml.jackson.version.range>
+        <swagger-parser-version>1.0.26-SNAPSHOT</swagger-parser-version>
     </properties>
 </project>
