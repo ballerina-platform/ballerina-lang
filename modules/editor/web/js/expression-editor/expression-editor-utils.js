@@ -20,11 +20,14 @@ define(['require', 'lodash', 'jquery'], function (require, _, $) {
             "class": wrapperClass
         }).appendTo(editorWrapper);
 
+        var widthMultiFactor = 8; // Factor used to calculate what should be the width of textbox according to the text.
         var propertyValue = _.isNil(property.getterMethod.call(property.model)) ? "" : property.getterMethod.call(property.model);
         var propertyInputValue = $("<input type='text' value=''>").appendTo(propertyWrapper);
         $(propertyInputValue).focus();
         $(propertyInputValue).val(propertyValue);
+        $(propertyInputValue).css("width",((propertyValue.length + 1) * widthMultiFactor)+"px");
         $(propertyInputValue).on("change paste keyup", function () {
+            $(this).css("width",(($(this).val().length + 1) * widthMultiFactor)+"px");
             property.setterMethod.call(property.model, $(this).val());
             property.model.trigger('update-property-text', $(this).val(), property.key);
         });
