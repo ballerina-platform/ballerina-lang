@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="antlr-4.5.1-complete">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/antlr-4.5.1-complete.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
