@@ -23,7 +23,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 
 /**
- * Test error handler call used with handling server connector error with http related test cases.
+ * Test error handler used with handling server connector error with http related test cases.
  */
 public class TestErrorHandler implements ServerConnectorErrorHandler {
     @Override
