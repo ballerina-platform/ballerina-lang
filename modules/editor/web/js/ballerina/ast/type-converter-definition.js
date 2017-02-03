@@ -30,25 +30,25 @@ define(['lodash', './node'], function (_, ASTNode) {
 
     TypeConverterDefinition.prototype.setSource = function (source) {
         if (!_.isNil(source)) {
-            this.source = source;
+            this.setAttribute('source', source);
         }
     };
 
     TypeConverterDefinition.prototype.setVariableDeclarations = function (variableDeclarations) {
         if (!_.isNil(variableDeclarations)) {
-            this.variableDeclarations = variableDeclarations;
+            this.setAttribute('variableDeclarations', variableDeclarations);
         }
     };
 
     TypeConverterDefinition.prototype.setStatements = function (statements) {
         if (!_.isNil(statements)) {
-            this.statements= statements;
+            this.setAttribute('statements', statements);
         }
     };
 
     TypeConverterDefinition.prototype.setReturnType = function (returnType) {
         if (!_.isNil(returnType)) {
-            this.returnType = returnType;
+            this.setAttribute('returnType', returnType);
         }
     };
 

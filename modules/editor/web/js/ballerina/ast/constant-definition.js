@@ -40,7 +40,7 @@ define(['lodash', 'log', './variable-declaration'], function (_, log, VariableDe
             log.error("A constant requires to have a type.");
             throw "A constant requires to have a type.";
         } else {
-            this._value = value;
+            this.setAttribute('_value', value);
         }
     };
 
