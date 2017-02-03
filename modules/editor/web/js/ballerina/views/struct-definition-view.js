@@ -47,12 +47,6 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
             // Draws the outlying body of the struct definition.
             this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().getType().toLowerCase(), this.getModel().getStructName());
 
-            var structWrapper = $("#_" + this.getModel().getID());
-            // Setting width auto for the struct.
-            structWrapper.css("width", "auto");
-            // Setting padding-right to keep gap between structs.
-            structWrapper.css("padding-right", "25px");
-
             // Setting the styles for the canvas icon.
             this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.struct_icon", ""));
 

@@ -78,7 +78,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
 
             // Removes the value of the argument in the model and rebind the arguments to the arguments view.
             $(deleteButton).click(function () {
-                $(self.getContainer()).remove();
+                $(structVariableDefinitionWrapper).remove();
                 self.getParent().removeVariableDeclaration(self.getModel().getID());
             });
         };
