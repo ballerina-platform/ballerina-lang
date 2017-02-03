@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
-class BStringType extends BType {
+public class BStringType extends BType {
 
     /**
      * Create a {@code BStringType} which represents the boolean type.

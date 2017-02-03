@@ -19,8 +19,8 @@ package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
 import org.wso2.ballerina.core.interpreter.ConstantLocation;
-import org.wso2.ballerina.core.interpreter.LocalVarLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
+import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
@@ -38,6 +38,7 @@ import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
 import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
 import org.wso2.ballerina.core.model.expressions.LessThanExpression;
+import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MapStructInitKeyValueExpr;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
@@ -177,12 +178,14 @@ public interface NodeVisitor {
 
     void visit(StructInitExpr structInitExpr);
 
+    void visit(MapInitExpr mapInitExpr);
+
     void visit(MapStructInitKeyValueExpr keyValueExpr);
 
     void visit(VariableRefExpr variableRefExpr);
 
 
-    void visit(LocalVarLocation localVarLocation);
+    void visit(StackVarLocation stackVarLocation);
 
     void visit(ServiceVarLocation serviceVarLocation);
 

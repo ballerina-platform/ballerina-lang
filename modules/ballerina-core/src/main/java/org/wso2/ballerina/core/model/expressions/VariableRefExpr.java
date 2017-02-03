@@ -22,6 +22,7 @@ import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
@@ -32,12 +33,12 @@ import org.wso2.ballerina.core.model.values.BValue;
 public class VariableRefExpr extends AbstractExpression implements ReferenceExpr {
     private String varName;
     private SymbolName symbolName;
-
-    private MemoryLocation memoryLocation;
+    private VariableDef variableDef;
 
     public VariableRefExpr(NodeLocation location, String varName) {
         super(location);
         this.varName = varName;
+        this.symbolName = new SymbolName(varName);
     }
 
     public VariableRefExpr(NodeLocation location, SymbolName symbolName) {
@@ -55,11 +56,20 @@ public class VariableRefExpr extends AbstractExpression implements ReferenceExpr
     }
 
     public MemoryLocation getMemoryLocation() {
-        return memoryLocation;
+        return variableDef.getMemoryLocation();
     }
 
     public void setMemoryLocation(MemoryLocation location) {
-        this.memoryLocation = location;
+        this.variableDef.setMemoryLocation(location);
+    }
+
+    public VariableDef getVariableDef() {
+        return variableDef;
+    }
+
+    public void setVariableDef(VariableDef variableDef) {
+        this.variableDef = variableDef;
+        this.type = variableDef.getType();
     }
 
     @Override

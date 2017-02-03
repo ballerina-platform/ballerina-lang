@@ -45,6 +45,7 @@ import org.wso2.ballerina.core.model.expressions.ConnectorInitExpr;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
+import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MapStructInitKeyValueExpr;
 import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
@@ -565,8 +566,8 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     @Override
-    public BValue visit(LocalVarLocation localVarLocation) {
-        int offset = localVarLocation.getStackFrameOffset();
+    public BValue visit(StackVarLocation stackVarLocation) {
+        int offset = stackVarLocation.getStackFrameOffset();
         return controlStack.getValue(offset);
     }
 
@@ -699,8 +700,8 @@ public class BLangExecutor implements NodeExecutor {
     private void assignValueToVarRefExpr(BValue rValue, VariableRefExpr lExpr) {
         VariableRefExpr variableRefExpr = lExpr;
         MemoryLocation memoryLocation = variableRefExpr.getMemoryLocation();
-        if (memoryLocation instanceof LocalVarLocation) {
-            int stackFrameOffset = ((LocalVarLocation) memoryLocation).getStackFrameOffset();
+        if (memoryLocation instanceof StackVarLocation) {
+            int stackFrameOffset = ((StackVarLocation) memoryLocation).getStackFrameOffset();
             controlStack.setValue(stackFrameOffset, rValue);
         } else if (memoryLocation instanceof ServiceVarLocation) {
             int staticMemOffset = ((ServiceVarLocation) memoryLocation).getStaticMemAddrOffset();
@@ -736,6 +737,11 @@ public class BLangExecutor implements NodeExecutor {
             offset++;
         }
         return new BStruct(structDef, structMemBlock);
+    }
+
+    @Override
+    public BValue visit(MapInitExpr mapInitExpr) {
+        return null;
     }
 
     /**

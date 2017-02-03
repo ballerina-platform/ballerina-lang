@@ -21,9 +21,9 @@ import org.wso2.ballerina.core.exception.LinkerException;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
 import org.wso2.ballerina.core.interpreter.ConstantLocation;
-import org.wso2.ballerina.core.interpreter.LocalVarLocation;
 import org.wso2.ballerina.core.interpreter.MemoryLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
+import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.interpreter.SymTable;
@@ -75,6 +75,7 @@ import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
 import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
 import org.wso2.ballerina.core.model.expressions.LessThanExpression;
+import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MapStructInitKeyValueExpr;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
@@ -102,10 +103,14 @@ import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.types.BArrayType;
+import org.wso2.ballerina.core.model.types.BConnectorType;
+import org.wso2.ballerina.core.model.types.BJSONType;
 import org.wso2.ballerina.core.model.types.BMapType;
+import org.wso2.ballerina.core.model.types.BMessageType;
 import org.wso2.ballerina.core.model.types.BStructType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
+import org.wso2.ballerina.core.model.types.BXMLType;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -295,7 +300,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         //checkForMissingReplyStmt(resource);
 
         for (ParameterDef parameterDef : resource.getParameterDefs()) {
-            currentMemLocation = new LocalVarLocation(++stackFrameOffset);
+            currentMemLocation = new StackVarLocation(++stackFrameOffset);
             visit(parameterDef);
         }
 
@@ -314,29 +319,31 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(BallerinaFunction function) {
         // Open a new symbol scope
         currentScope = function;
+        currentCallableUnit = function;
 
         // Check whether the return statement is missing. Ignore if the function does not return anything.
         // TODO Define proper error message codes
         //checkForMissingReturnStmt(function, "missing return statement at end of function");
 
         for (ParameterDef parameterDef : function.getParameterDefs()) {
-            currentMemLocation = new LocalVarLocation(++stackFrameOffset);
-            visit(parameterDef);
+            parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            parameterDef.accept(this);
         }
 
         for (ParameterDef parameterDef : function.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
-            if (parameterDef.getName() == null) {
-                break;
+            if (parameterDef.getName() != null) {
+                parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
             }
 
-            currentMemLocation = new LocalVarLocation(++stackFrameOffset);
-            visit(parameterDef);
+            parameterDef.accept(this);
         }
 
         BlockStmt blockStmt = function.getCallableUnitBody();
+        currentScope = blockStmt;
         blockStmt.accept(this);
+        currentScope = blockStmt.getEnclosingScope();
 
         // Here we need to calculate size of the BValue array which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
@@ -351,6 +358,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Close the symbol scope
         stackFrameOffset = -1;
         currentScope = function.getEnclosingScope();
+        currentCallableUnit = null;
     }
 
     @Override
@@ -413,7 +421,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         //checkForMissingReturnStmt(action, "missing return statement at end of action");
 
         for (ParameterDef parameterDef : action.getParameterDefs()) {
-            currentMemLocation = new LocalVarLocation(++stackFrameOffset);
+            currentMemLocation = new StackVarLocation(++stackFrameOffset);
             visit(parameterDef);
         }
 
@@ -424,7 +432,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 break;
             }
 
-            currentMemLocation = new LocalVarLocation(++stackFrameOffset);
+            currentMemLocation = new StackVarLocation(++stackFrameOffset);
             visit(parameterDef);
         }
 
@@ -510,7 +518,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 isInScope(SymScope.Name.RESOURCE) ||
                 isInScope(SymScope.Name.ACTION)) {
 
-            location = new LocalVarLocation(stackFrameOffset);
+            location = new StackVarLocation(stackFrameOffset);
         } else {
             // This error should not be thrown
             throw new IllegalStateException("Connector declaration is invalid");
@@ -542,6 +550,16 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     // Visit statements
 
+    private void setMemoryLocation(VariableDef variableDef) {
+        if (currentScope.getScopeName() == SymbolScope.ScopeName.LOCAL) {
+            variableDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.SERVICE) {
+            variableDef.setMemoryLocation(new ServiceVarLocation(++staticMemAddrOffset));
+        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.CONNECTOR) {
+            variableDef.setMemoryLocation(new ConnectorVarLocation(++connectorMemAddrOffset));
+        }
+    }
+
     @Override
     public void visit(VariableDefStmt varDefStmt) {
         // Resolves the type of the variable
@@ -549,14 +567,30 @@ public class SemanticAnalyzer implements NodeVisitor {
         BType varBType = BTypes.resolveType(varDef.getTypeName(), currentScope, varDef.getNodeLocation());
         varDef.setType(varBType);
 
+        // Set memory location
+        setMemoryLocation(varDef);
+
         Expression rExpr = varDefStmt.getRExpr();
         if (rExpr instanceof RefTypeInitExpr) {
-            ((RefTypeInitExpr) rExpr).setInheritedType(varBType);
+            RefTypeInitExpr refTypeInitExpr = (RefTypeInitExpr) rExpr;
+            refTypeInitExpr.setInheritedType(varBType);
+
+            if (varBType instanceof BMapType) {
+                rExpr = new MapInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
+                varDefStmt.setRExpr(rExpr);
+            } else if (varBType instanceof StructDef) {
+                rExpr = new StructInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
+                varDefStmt.setRExpr(rExpr);
+            }
+
             rExpr.accept(this);
+            return;
         }
 
 
         if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
+            rExpr.accept(this);
+
             CallableUnitInvocationExpr invocationExpr = (CallableUnitInvocationExpr) rExpr;
             BType[] returnTypes = invocationExpr.getTypes();
             if (returnTypes.length != 1) {
@@ -581,19 +615,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             return;
         }
 
+        // TODO Other expression types
 
-        // TODO Implement so many cases here..
-
-        // If the rExpr type is not set, then check whether it is a BacktickExpr
-        if (rExpr instanceof BacktickExpr) {
-            // In this case, type of the lExpr should be either xml or json
-            if (varBType != BTypes.typeJSON && varBType != BTypes.typeXML) {
-                throw new SemanticException(getNodeLocationStr(varDefStmt.getNodeLocation()) +
-                        "incompatible types: expected json or xml");
-            }
-
-            rExpr.setType(varBType);
-        }
     }
 
     @Override
@@ -749,7 +772,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression[] returnArgExprs = returnStmt.getExprs();
 
         // Return parameters of the current function or actions
-        ParameterDef[] returnParamsOfCU = ((CallableUnit) currentScope).getReturnParameters();
+        ParameterDef[] returnParamsOfCU = currentCallableUnit.getReturnParameters();
 
         if (returnArgExprs.length == 0 && returnParamsOfCU.length == 0) {
             // Return stmt has no expressions and function/action does not return anything. Just return.
@@ -1240,20 +1263,22 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(RefTypeInitExpr refTypeInitExpr) {
-        Expression[] argExprs = refTypeInitExpr.getArgExprs();
-
-//        if (argExprs.length == 0) {
-//            throw new SemanticException("Map initializer should have at least one argument" + " in "
-//                    + refTypeInitExpr.getNodeLocation().getFileName() + ":" +
-//                    refTypeInitExpr.getNodeLocation().getLineNumber());
-//        }
-
-        for (int i = 0; i < argExprs.length; i++) {
-            argExprs[i].accept(this);
+        BType inheritedType = refTypeInitExpr.getInheritedType();
+        if (BTypes.isValueType(inheritedType) || inheritedType instanceof BArrayType ||
+                inheritedType instanceof BXMLType || inheritedType instanceof BConnectorType) {
+            throw new SemanticException(getNodeLocationStr(refTypeInitExpr.getNodeLocation()) +
+                    "reference type initializer is not allowed here");
         }
 
-        // Type of this expression is map and internal data type cannot be identifier from declaration
-        refTypeInitExpr.setType(BTypes.typeMap);
+        Expression[] argExprs = refTypeInitExpr.getArgExprs();
+        if (argExprs.length == 0) {
+            refTypeInitExpr.setType(inheritedType);
+
+        } else if (inheritedType instanceof BJSONType || inheritedType instanceof BMessageType) {
+            // If there are arguments, then only Structs and Map types are supported.
+            throw new SemanticException(getNodeLocationStr(refTypeInitExpr.getNodeLocation()) +
+                    "struct/map initializer is not allowed here");
+        }
     }
 
     @Override
@@ -1276,11 +1301,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         BType expectedElementType = ((BArrayType) inheritedType).getElementType();
-
-        // Fail if targetType is not array type
-        // get element type.
-        // Check whether each element in array is of the element type of target array.
-
         for (int i = 0; i < argExprs.length; i++) {
             argExprs[i].accept(this);
 
@@ -1297,13 +1317,45 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
+    /**
+     * Visit and analyze ballerina Struct initializing expression.
+     */
     @Override
-    public void visit(MapStructInitKeyValueExpr keyValueExpr) {
+    public void visit(StructInitExpr structInitExpr) {
+        // Struct type is not known at this stage
+        structInitExpr.setType(BTypes.getType(structInitExpr.getStructDcl().getStructName().getName()));
+        visit(structInitExpr.getStructDcl());
+    }
 
+    @Override
+    public void visit(MapInitExpr mapInitExpr) {
+        mapInitExpr.setType(mapInitExpr.getInheritedType());
+        Expression[] argExprs = mapInitExpr.getArgExprs();
+        if (argExprs.length == 0) {
+            return;
+        }
+
+        for (Expression argExpr : argExprs) {
+            MapStructInitKeyValueExpr keyValueExprs = (MapStructInitKeyValueExpr) argExpr;
+            Expression keyExpr = keyValueExprs.getKeyExpr();
+            keyExpr.accept(this);
+            if (keyExpr.getType() != BTypes.typeString) {
+                throw new SemanticException(getNodeLocationStr(mapInitExpr.getNodeLocation()) +
+                        "invalid type '" + keyExpr.getType() + "' in map index: expected 'string'");
+            }
+        }
     }
 
     @Override
     public void visit(BacktickExpr backtickExpr) {
+        // In this case, type of the backtickExpr should be either xml or json
+        BType inheritedType = backtickExpr.getInheritedType();
+        if (inheritedType != BTypes.typeJSON && inheritedType != BTypes.typeXML) {
+            throw new SemanticException(getNodeLocationStr(backtickExpr.getNodeLocation()) +
+                    "incompatible types: expected json or xml");
+        }
+        backtickExpr.setType(inheritedType);
+
         // Analyze the string and create relevant tokens
         // First check the literals
         String[] literals = backtickExpr.getTemplateStr().split(patternString);
@@ -1315,7 +1367,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             BasicLiteral basicLiteral = new BasicLiteral(backtickExpr.getNodeLocation(), new BString(literals[i]));
             visit(basicLiteral);
             argExprList.add(basicLiteral);
-//            backtickExpr.addExpression(basicLiteral);
             i++;
         }
 
@@ -1372,16 +1423,22 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
+    public void visit(MapStructInitKeyValueExpr keyValueExpr) {
+
+    }
+
+    @Override
     public void visit(VariableRefExpr variableRefExpr) {
-        SymbolName varName = variableRefExpr.getSymbolName();
+        SymbolName symbolName = variableRefExpr.getSymbolName();
 
         // Check whether this symName is declared
-        Symbol symbol = getSymbol(varName, variableRefExpr.getNodeLocation());
+        VariableDef variableDef = (VariableDef) currentScope.resolve(symbolName);
+        if (variableDef == null) {
+            throw new SemanticException(getNodeLocationStr(variableRefExpr.getNodeLocation()) +
+                    ": undeclared variable '" + symbolName + "'");
+        }
 
-        variableRefExpr.setType(symbol.getType());
-//        variableRefExpr.setOffset(symbol.getOffset());
-
-        variableRefExpr.setMemoryLocation(symbol.getLocation());
+        variableRefExpr.setVariableDef(variableDef);
     }
 
     @Override
@@ -1476,7 +1533,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(LocalVarLocation localVarLocation) {
+    public void visit(StackVarLocation stackVarLocation) {
 
     }
 
@@ -1677,18 +1734,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         return pkgPath;
-    }
-
-    private Symbol getSymbol(SymbolName symName, NodeLocation location) {
-        // Check whether this symName is declared
-        Symbol symbol = symbolTable.lookup(symName);
-
-        if (symbol == null) {
-            throw new SemanticException(location.getFileName() + ":" + location.getLineNumber() +
-                    ": undeclared variable '" + symName.getName() + "'");
-        }
-
-        return symbol;
     }
 
     private String getVarNameFromExpression(Expression expr) {
@@ -1902,16 +1947,6 @@ public class SemanticAnalyzer implements NodeVisitor {
                     "' not found.");
         }
         structDcl.setStructDef(structSymbol.getStructDef());
-    }
-
-    /**
-     * Visit and analyze ballerina Struct initializing expression.
-     */
-    @Override
-    public void visit(StructInitExpr structInitExpr) {
-        // Struct type is not known at this stage
-        structInitExpr.setType(BTypes.getType(structInitExpr.getStructDcl().getStructName().getName()));
-        visit(structInitExpr.getStructDcl());
     }
 
     /**
