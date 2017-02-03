@@ -109,14 +109,6 @@
             <artifactId>HikariCP</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.datastax.cassandra</groupId>
-            <artifactId>cassandra-driver-core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>test</scope>
@@ -156,6 +148,45 @@
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
+                    </execution>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <id>check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
+                            <haltOnFailure>true</haltOnFailure>
+                            <rules>
+                                <rule >
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit >
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.76</minimum>
+                                        </limit>
+                                        <limit >
+                                            <counter>BRANCH</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.62</minimum>
+                                        </limit>
+                                    </limits>
+                                    <excludes>
+                                        <exclude>*Test</exclude>
+                                        <exclude>org/wso2/ballerina/core/parser/
+                                            BallerinaBaseListener*</exclude>
+                                        <exclude>org/wso2/ballerina/core/parser/
+                                            BallerinaLexer*</exclude>
+                                        <exclude>org/wso2/ballerina/core/parser/
+                                            BallerinaListener*</exclude>
+                                        <exclude>org/wso2/ballerina/core/parser/
+                                            BallerinaParser*</exclude>
+                                    </excludes>
+                                </rule>
+                            </rules>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>jacoco-site</id>
@@ -244,13 +275,6 @@
                     <formats>
                         <format>html</format>
                     </formats>
-                     <reportSets>
-                         <reportSet>
-                             <reports>
-                                 <report>cobertura</report>
-                             </reports>
-                         </reportSet>
-                     </reportSets>
                 </configuration>
                 <executions>
                     <execution>

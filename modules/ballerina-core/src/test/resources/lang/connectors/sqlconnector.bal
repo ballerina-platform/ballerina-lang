@@ -175,7 +175,7 @@ service SQLConnectorTestService {
         sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:h2:file:./target/TEST_SQL_CONNECTOR",
             "driverClassName":"org.h2.Driver", "username":"root", "password":"root", "maximumPoolSize":1});
 
-        sql:Connector.select(testDB, "SELECT  FirstName from Customers2 where registrationID = 1");
+        sql:Connector.select(testDB, "SELECT  FirstName from StudentData where registrationID = 1");
         }
 
     @GET
@@ -184,7 +184,7 @@ service SQLConnectorTestService {
         sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:h2:file:./target/TEST_SQL_CONNECTOR",
             "driverClassName":"org.h2.Driver", "username":"root", "password":"root", "maximumPoolSize":1});
 
-        sql:Connector.update(testDB, "Update Customers2 set country = 'UK' where registrationID = 1");
+        sql:Connector.update(testDB, "Update StudentData set country = 'UK' where registrationID = 1");
         }
 
     @GET
@@ -194,7 +194,7 @@ service SQLConnectorTestService {
             "driverClassName":"org.h2.Driver", "username":"root", "password":"root", "maximumPoolSize":1});
 
         sql:Connector.updateWithGeneratedKeys(testDB,
-                    "insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
+                    "insert into StudentData (firstName,lastName,registrationID,creditLimit,country)
                     values ('Mary', 'Williams', 3, 5000.75, 'USA')");
         }
 }
