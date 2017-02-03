@@ -20,8 +20,8 @@ define(['lodash', './node'], function (_, ASTNode) {
     var TypeMapperDefinition = function (args) {
         ASTNode.call(this, 'TypeMapperDefinition');
         this._typeMapperName = _.get(args, 'typeMapperName', 'newTypeMapper');
-        this._selectedTypeStructNameForSource;
-        this._selectedTypeStructNameForTarget;
+        this._selectedTypeStructNameForSource = '';
+        this._selectedTypeStructNameForTarget = '';
         this.BallerinaASTFactory = this.getFactory();
     };
 
@@ -90,7 +90,7 @@ define(['lodash', './node'], function (_, ASTNode) {
         });
         this.removeChild(variableDeclarationChild);
     };
-    
+
     /**
      * Gets the return type
      * @return {string} - Return type.
@@ -112,8 +112,8 @@ define(['lodash', './node'], function (_, ASTNode) {
      * @returns {String} argument
      */
     TypeMapperDefinition.prototype.getSourceAndIdentifier = function () {
-       var sourceAndIdentifier = "";
-       var self = this;
+        var sourceAndIdentifier = "";
+        var self = this;
 
         _.forEach(this.getChildren(), function (child) {
             if (self.BallerinaASTFactory.isTypeStructDefinition(child) && child._category === "SOURCE") {
@@ -150,7 +150,7 @@ define(['lodash', './node'], function (_, ASTNode) {
             this._selectedTypeStructNameForTarget = selectedStructNameForTarget;
         }
     };
-    
+
     /**
      * Returns the selected type struct name for target
      * @returns {string} type struct name for target
@@ -178,15 +178,16 @@ define(['lodash', './node'], function (_, ASTNode) {
 
     /**
      * removes the already selected child before adding a new child
-     * @param type
+     * @param sourceProperty
+     * @param targetProperty
      */
     TypeMapperDefinition.prototype.removeAssignmentDefinition = function (sourceProperty, targetProperty) {
-        //TODO: Remove hardcoded x and y
+        //TODO: Get rid of hardcoded x and y
         var self = this;
         if (this.getChildren() != 0) {
             var assignmentStatement = _.find(this.getChildren(), function (child) {
                 return self.BallerinaASTFactory.isAssignmentStatement(child) &&
-                    (('x.' + targetProperty + ' = ' + 'y.' + sourceProperty) === child.getExpression());
+                    (('x.' + targetProperty + ' = ' + 'y.' + sourceProperty) === child.getStatementString());
             });
             if (assignmentStatement) {
                 this.removeChild(assignmentStatement);
@@ -200,10 +201,9 @@ define(['lodash', './node'], function (_, ASTNode) {
      * @param selectedStructName
      */
     TypeMapperDefinition.prototype.getSelectedStructIndex = function (structArray, selectedStructName) {
-        var index = _.findIndex(structArray, function (child) {
+        return _.findIndex(structArray, function (child) {
             return child._structName === selectedStructName;
         });
-        return index;
     };
 
     return TypeMapperDefinition;
