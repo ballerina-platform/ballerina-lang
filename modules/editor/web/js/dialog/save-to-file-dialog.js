@@ -210,7 +210,7 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                                     }
                                 }
                                 app.breadcrumbController.setPath(location.val(), configName.val());
-                                alertSuccess();
+                                log.debug('file saved successfully')
                             } else {
                                 alertError();
                             }
