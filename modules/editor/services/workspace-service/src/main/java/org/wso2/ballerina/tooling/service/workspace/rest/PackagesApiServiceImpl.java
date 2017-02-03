@@ -141,7 +141,6 @@ public class PackagesApiServiceImpl extends PackagesApiService {
         actions.add(createNewAction("get", actionParams, returnParams, annotations));
 
         //adding action POST
-        actions = new ArrayList<>();
         actionParams = new ArrayList<>();
         actionParams.add(createNewParameter("HttpConnector", "h"));
         actionParams.add(createNewParameter("string", "path"));
@@ -153,7 +152,6 @@ public class PackagesApiServiceImpl extends PackagesApiService {
         actions.add(createNewAction("post", actionParams, returnParams, annotations));
 
         //adding action PUT
-        actions = new ArrayList<>();
         actionParams = new ArrayList<>();
         actionParams.add(createNewParameter("HttpConnector", "h"));
         actionParams.add(createNewParameter("string", "path"));
@@ -165,7 +163,6 @@ public class PackagesApiServiceImpl extends PackagesApiService {
         actions.add(createNewAction("put", actionParams, returnParams, annotations));
 
         //adding action DELETE
-        actions = new ArrayList<>();
         actionParams = new ArrayList<>();
         actionParams.add(createNewParameter("HttpConnector", "h"));
         actionParams.add(createNewParameter("string", "path"));
