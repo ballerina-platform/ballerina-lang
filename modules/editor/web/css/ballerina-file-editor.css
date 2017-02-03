@@ -587,3 +587,13 @@
 }
 
 /** End of Struct view CSS **/
+
+#package-name-input{
+    background-color: rgba(0,0,0,0.1);
+    color: #131313;
+    border: none;
+    font-style: italic;
+}
+.package-definition-main-wrapper{
+    margin-bottom: 1em;
+}
