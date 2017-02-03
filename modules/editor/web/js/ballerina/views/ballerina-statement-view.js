@@ -180,9 +180,9 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
                 var smallArrowPoints =
                     // Bottom point of the polygon.
                     " " + centerPointX + "," + centerPointY +
-                        // Left point of the polygon
+                    // Left point of the polygon
                     " " + (centerPointX - 3) + "," + (centerPointY + 3) +
-                        // Right point of the polygon.
+                    // Right point of the polygon.
                     " " + (centerPointX + 3) + "," + (centerPointY + 3);
 
                 var smallArrow = D3Utils.polygon(smallArrowPoints, statementGroup);
