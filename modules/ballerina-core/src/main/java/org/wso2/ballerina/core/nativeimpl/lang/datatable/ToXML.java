@@ -44,8 +44,14 @@ public class ToXML extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataTable dataframe = (BDataTable) getArgument(ctx, 0);
-        String rootWrapper = getArgument(ctx, 1).stringValue();
-        String rowWrapper = getArgument(ctx, 2).stringValue();
+        String rootWrapper = null;
+        String rowWrapper = null;
+        if (getArgument(ctx, 1) != null) {
+            rootWrapper = getArgument(ctx, 1).stringValue();
+        }
+        if (getArgument(ctx, 2) != null) {
+            rowWrapper = getArgument(ctx, 2).stringValue();
+        }
         return getBValues(dataframe.toXML(rootWrapper, rowWrapper));
     }
 }

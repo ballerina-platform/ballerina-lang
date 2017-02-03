@@ -46,3 +46,25 @@ function getXXXByName()(int, long, float, double, boolean, string) {
     datatable:close(df);
     return i, l, f, d, b, s;
 }
+
+
+function toJson()(json) {
+    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:h2:file:./target/TEST_DATA_TABLE_DB2", "driverClassName":"org.h2.Driver", "username":"root", "password":"root", "maximumPoolSize": 1});
+    datatable df;
+    json result;
+
+    df = sql:Connector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type, string_type from DataTable LIMIT 1");
+    result = datatable:toJson(df);
+    return result;
+}
+
+function toXmlWithWrapper()(xml) {
+    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:h2:file:./target/TEST_DATA_TABLE_DB2", "driverClassName":"org.h2.Driver", "username":"root", "password":"root", "maximumPoolSize": 1});
+    datatable df;
+    xml result;
+
+    df = sql:Connector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type, string_type from DataTable LIMIT 1");
+    result = datatable:toXml(df, "types", "type");
+    return result;
+}
+

@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.connectors.data;
+package org.wso2.ballerina.core.model;
 
 import org.apache.axiom.om.ds.AbstractPushOMDataSource;
 import org.wso2.ballerina.core.model.values.BDataTable;

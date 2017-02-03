@@ -30,8 +30,10 @@ import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.ParserUtils;
@@ -62,7 +64,7 @@ public class DataTableTest {
         initDatabase();
     }
 
-    @Test
+    @Test(description = "Check getByIndex methods for primitive types.")
     public void testGetByXXXByIndex() {
         BValue[] returns = Functions.invoke(bFile, "getXXXByIndex");
 
@@ -75,7 +77,7 @@ public class DataTableTest {
         Assert.assertEquals(returns[5].stringValue(), "Hello");
     }
 
-    @Test
+    @Test(description = "Check getByName methods for primitive types.")
     public void testGetByXXXByName() {
         BValue[] returns = Functions.invoke(bFile, "getXXXByName");
 
@@ -86,6 +88,29 @@ public class DataTableTest {
         Assert.assertEquals(((BDouble) returns[3]).doubleValue(), 9223372036854774807.75D);
         Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
         Assert.assertEquals(returns[5].stringValue(), "Hello");
+    }
+
+    @Test(description = "Check toJson methods.")
+    public void toJson() {
+        BValue[] returns = Functions.invoke(bFile, "toJson");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(),
+                "[{\"INT_TYPE\":1,\"LONG_TYPE\":9223372036854774807,\"FLOAT_TYPE\":123.34,"
+                        + "\"DOUBLE_TYPE\":9.2233720368547748E18,\"BOOLEAN_TYPE\":true,\"STRING_TYPE\":\"Hello\"}]");
+    }
+
+    @Test(description = "Check toXml methods with wrapper element.")
+    public void toXmlWithWrapper() {
+        BValue[] returns = Functions.invoke(bFile, "toXmlWithWrapper");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(),
+                "<types><type><INT_TYPE>1</INT_TYPE><LONG_TYPE>9223372036854774807</LONG_TYPE>"
+                        + "<FLOAT_TYPE>123.34</FLOAT_TYPE><DOUBLE_TYPE>9.2233720368547748E18</DOUBLE_TYPE>"
+                        + "<BOOLEAN_TYPE>true</BOOLEAN_TYPE><STRING_TYPE>Hello</STRING_TYPE></type></types>");
     }
 
     @AfterSuite

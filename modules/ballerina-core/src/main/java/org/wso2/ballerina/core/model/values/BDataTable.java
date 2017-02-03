@@ -20,8 +20,8 @@ package org.wso2.ballerina.core.model.values;
 import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
 import org.wso2.ballerina.core.model.DataIterator;
 import org.wso2.ballerina.core.model.DataTableJSONDataSource;
+import org.wso2.ballerina.core.model.DataTableOMDataSource;
 import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.nativeimpl.connectors.data.DataTableOMDataSource;
 
 import java.util.List;
 import java.util.Map;
