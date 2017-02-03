@@ -32,6 +32,7 @@ import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 
+import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.util.Set;
 
@@ -51,6 +52,8 @@ public class ServerConnectorController {
     private static ServerConnectorController instance = new ServerConnectorController();
 
     private boolean initialized = false;
+
+    private static PrintStream outStream = System.out;
 
     public static ServerConnectorController getInstance() {
         return instance;
@@ -139,6 +142,13 @@ public class ServerConnectorController {
             serverConnector.setChannelFuture(future);
 
             if (future.isSuccess()) {
+
+                String msg = "Started listener " +
+                             listenerConfiguration.getScheme() + "-" + listenerConfiguration.getPort();
+
+                outStream.println(msg);
+                log.info(msg);
+
                 if (listenerConfiguration.getSslConfig() == null) {
                     log.info("HTTP Interface " + listenerConfiguration.getId() + " starting on host  " +
                              listenerConfiguration.getHost() + " and port " + listenerConfiguration.getPort());
