@@ -8,6 +8,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 
 import java.io.IOException;
@@ -36,8 +37,10 @@ public class WebSocketConnector extends AbstractNativeConnector {
     public boolean init(BValue[] bValueRefs) {
         if (bValueRefs != null && bValueRefs.length == 1) {
             BMessage bMessage = (BMessage) bValueRefs[0];
-            String sessionId = (String) bMessage.value().getProperty(Constants.CHANNEL_ID);
-            session = SessionManager.getInstance().getSession(sessionId);
+            CarbonMessage cMsg = bMessage.value();
+            String sessionId = (String) cMsg.getProperty(Constants.CHANNEL_ID);
+            String uri = (String) cMsg.getProperty(Constants.TO);
+            session = SessionManager.getInstance().getSession(uri, sessionId);
         }
         return true;
     }

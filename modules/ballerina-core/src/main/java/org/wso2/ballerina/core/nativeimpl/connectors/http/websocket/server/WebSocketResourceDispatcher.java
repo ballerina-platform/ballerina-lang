@@ -31,38 +31,52 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
     public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
             throws BallerinaException {
 
-        mapResources(service);
-        if (cMsg instanceof TextCarbonMessage) {
-            return onTextMessage;
-        } else if (cMsg instanceof BinaryCarbonMessage) {
-            return onBinaryMessage;
-        } else if (cMsg instanceof ControlCarbonMessage) {
-            return onPongMessage;
-        } else if (cMsg instanceof StatusCarbonMessage) {
-            StatusCarbonMessage statusMessage = (StatusCarbonMessage) cMsg;
+        try {
+            mapResources(service);
+            if (cMsg instanceof TextCarbonMessage) {
+                return onTextMessage;
+            } else if (cMsg instanceof BinaryCarbonMessage) {
+                return onBinaryMessage;
+            } else if (cMsg instanceof ControlCarbonMessage) {
+                return onPongMessage;
+            } else if (cMsg instanceof StatusCarbonMessage) {
+                StatusCarbonMessage statusMessage = (StatusCarbonMessage) cMsg;
 
-            if (statusMessage.getStatus().equals(org.wso2.carbon.messaging.Constants.STATUS_CLOSE)) {
-                return onCloseMessage;
-            } else if (statusMessage.getStatus().equals(org.wso2.carbon.messaging.Constants.STATUS_OPEN)) {
-                String connection = (String) cMsg.getProperty(
-                        org.wso2.carbon.transport.http.netty.common.Constants.CONNECTION);
-                String upgrade = (String) cMsg.getProperty(
-                        org.wso2.carbon.transport.http.netty.common.Constants.UPGRADE);
+                if (statusMessage.getStatus().equals(org.wso2.carbon.messaging.Constants.STATUS_CLOSE)) {
+                    String uri =
+                            (String) statusMessage.getProperty(org.wso2.carbon.transport.
+                                                                       http.netty.common.Constants.TO);
+                    String sessionId =
+                            (String) statusMessage.getProperty(org.wso2.carbon.transport.
+                                                                       http.netty.common.Constants.CHANNEL_ID);
+                    SessionManager.getInstance().removeSession(uri, sessionId);
+                    return onCloseMessage;
+                } else if (statusMessage.getStatus().equals(org.wso2.carbon.messaging.Constants.STATUS_OPEN)) {
+                    String connection = (String) cMsg.getProperty(
+                            org.wso2.carbon.transport.http.netty.common.Constants.CONNECTION);
+                    String upgrade = (String) cMsg.getProperty(
+                            org.wso2.carbon.transport.http.netty.common.Constants.UPGRADE);
 
                 /* If the connection is WebSocket upgrade, this block will be executed */
-                if (connection != null && upgrade != null && connection.equalsIgnoreCase("Upgrade") &&
-                        upgrade.equalsIgnoreCase("websocket")) {
-                    SessionManager sessionManager = SessionManager.getInstance();
-                    Session session = (Session) cMsg.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.
-                                                                         WEBSOCKET_SESSION);
-                    sessionManager.add(session);
+                    if (connection != null && upgrade != null && connection.equalsIgnoreCase("Upgrade") &&
+                            upgrade.equalsIgnoreCase("websocket")) {
+                        SessionManager sessionManager = SessionManager.getInstance();
+                        Session session = (Session) cMsg.getProperty(org.wso2.carbon.transport.http.netty.
+                                                                             common.Constants.WEBSOCKET_SESSION);
+                        String uri = (String) cMsg.getProperty(org.wso2.carbon.transport.
+                                                                       http.netty.common.Constants.TO);
+                        sessionManager.add(uri, session);
 
-                    return onOpenMessage;
+                        return onOpenMessage;
+                    }
                 }
             }
+        } catch (Throwable e) {
+            throw new BallerinaException("No matching resource to dispatch.");
         }
 
-        return null;
+        throw new BallerinaException("No matching Resource found for dispatching.");
+
     }
 
     @Override

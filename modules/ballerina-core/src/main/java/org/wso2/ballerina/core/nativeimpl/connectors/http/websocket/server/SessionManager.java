@@ -20,10 +20,13 @@ package org.wso2.ballerina.core.nativeimpl.connectors.http.websocket.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import javax.websocket.Session;
 
 /**
@@ -34,7 +37,7 @@ public class SessionManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionManager.class);
 
     private static SessionManager sessionManager = new SessionManager();
-    private Map<String, Session> sessionMap = new ConcurrentHashMap<>();
+    private Map<String, Map<String, Session>> sessionMap = new ConcurrentHashMap<>();
 
     private SessionManager() {
     }
@@ -46,11 +49,11 @@ public class SessionManager {
     /**
      * @return requested {@link Session} for given channel
      */
-    public Session getSession(String sessionId) {
-        if (sessionMap.containsKey(sessionId)) {
-            return sessionMap.get(sessionId);
+    public Session getSession(String uri, String sessionId) {
+        if (sessionMap.containsKey(uri) && sessionMap.get(uri).containsKey(sessionId)) {
+            return sessionMap.get(uri).get(sessionId);
         } else {
-            throw new NullPointerException("No session found.");
+            throw new BallerinaException("Cannot send message. Error occurred");
         }
     }
 
@@ -59,30 +62,46 @@ public class SessionManager {
      * Here unlike http channel ID was taken as the session ID.
      * @return Created new {@link Session}.
      */
-    public Session add(Session session) {
-        sessionMap.put(session.getId(), session);
-        LOGGER.info("Added session for channel " + session.getId());
+    public Session add(String uri, Session session) {
+        if (sessionMap.containsKey(uri)) {
+            sessionMap.get(uri).put(session.getId(), session);
+        } else {
+            Map<String, Session> sessions = new HashMap<>();
+            sessions.put(session.getId(), session);
+            sessionMap.put(uri, sessions);
+        }
         return session;
+    }
+
+
+    /**
+     * @param uri of the sessions which are mapped.
+     * @return the list of session which are mapped to a specific uri.
+     */
+    public List<Session> getAllSessions(String uri) {
+        Map<String, Session> sessions = sessionMap.get(uri);
+        return sessions.entrySet().stream().
+                map(Map.Entry::getValue).
+                collect(Collectors.toList());
     }
 
     /**
      * Checks whether the session is contained in the session manager.
      * @return true if the session is in the {@link SessionManager}.
      */
-    public boolean containsSession(String sessionId) {
-        return sessionMap.containsKey(sessionId);
+    public boolean containsSession(String uri, String sessionId) {
+        return sessionMap.containsKey(uri) && sessionMap.get(uri).containsKey(sessionId);
     }
 
     /**
      * Close the channel for given session.
      * Remove session from the session manager.
      */
-    public void removeSession(String sessionId) throws IOException {
-        if (sessionMap.containsKey(sessionId)) {
-            sessionMap.remove(sessionId).close();
-            LOGGER.info("Removed session for channel " + sessionId);
-        } else {
-            LOGGER.info("There is no session created to remove for channel " + sessionId);
+    public Session removeSession(String uri, String sessionId) {
+        try {
+            return sessionMap.get(uri).remove(sessionId);
+        } catch (Exception e) {
+            throw new BallerinaException("Error occurred when closing the WebSocket connection.");
         }
     }
 

@@ -113,7 +113,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
 
             return service;
         } catch (Throwable e) {
-            throw new BallerinaException(e.getMessage(), balContext);
+                throw new BallerinaException(e.getMessage(), balContext);
         }
     }
 

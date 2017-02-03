@@ -32,17 +32,22 @@ public class WebSocketServiceDispatcher implements ServiceDispatcher {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Interface id not found on the message, hence using the default interface");
             }
-            interfaceId = Constants.DEFAULT_INTERFACE;
         }
 
         String serviceUri = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
         if (serviceUri == null) {
-            throw new BallerinaException("URI not found in the message");
+            throw new BallerinaException("No service found to dispatch");
         }
 
         serviceUri = refactorUri(serviceUri);
 
-        return services.get(serviceUri);
+        Service service = services.get(serviceUri);
+
+        if (service == null) {
+            throw new BallerinaException("No service found to handle message for " + serviceUri);
+        }
+
+        return service;
     }
 
 
@@ -54,6 +59,21 @@ public class WebSocketServiceDispatcher implements ServiceDispatcher {
 
     @Override
     public void serviceRegistered(Service service) {
+        String websocketUri = findWebSocketPath(service);
+        if (websocketUri != null) {
+            services.put(websocketUri, service);
+        }
+    }
+
+    @Override
+    public void serviceUnregistered(Service service) {
+        String websocketUri = findWebSocketPath(service);
+        if (websocketUri != null) {
+            services.remove(websocketUri);
+        }
+    }
+
+    private String findWebSocketPath(Service service) {
         Annotation websocketUpgradePathAnnotation = null;
         Annotation basePathAnnotation = null;
         Annotation[] annotations = service.getAnnotations();
@@ -72,12 +92,11 @@ public class WebSocketServiceDispatcher implements ServiceDispatcher {
             String basePath = refactorUri(basePathAnnotation.getValue());
             String websocketUpgradePath = refactorUri(websocketUpgradePathAnnotation.getValue());
 
-            String websocketUri = basePath.concat(websocketUpgradePath);
-
-            services.put(websocketUri, service);
+            return basePath.concat(websocketUpgradePath);
         }
-    }
 
+        return null;
+    }
 
     private String refactorUri(String uri) {
         if (uri.startsWith("\"")) {
@@ -91,12 +110,6 @@ public class WebSocketServiceDispatcher implements ServiceDispatcher {
         if (uri.endsWith("/")) {
             uri = uri.substring(0, uri.length() - 1);
         }
-
         return uri;
-    }
-
-    @Override
-    public void serviceUnregistered(Service service) {
-
     }
 }
