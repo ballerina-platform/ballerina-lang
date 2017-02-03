@@ -3,9 +3,9 @@ package a.b;
 import ballerina.lang.system;
 
 @Description("test method")
-@Param("args: arguments")
-@Return("an integer")
-public function main (string[] args) (int) {
+@Param("args: a string argument")
+@Return("response: an integer")
+public function main (string[] args) (int response) {
     system:println("Hello, World! "+args[0]);
     return 5;
 }
