@@ -30,7 +30,7 @@ define(['lodash', './statement'], function (_, Statement) {
     ArithmeticExpression.prototype.constructor = ArithmeticExpression;
 
     ArithmeticExpression.prototype.setExpression = function (expression) {
-        this._expression = expression;
+        this.setAttribute('_expression', expression);
     };
 
     ArithmeticExpression.prototype.getExpression = function () {

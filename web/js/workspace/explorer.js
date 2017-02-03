@@ -44,7 +44,6 @@ define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-cli
             this.application = _.get(config, 'application');
             this._options = config;
             this.workspaceServiceURL = _.get(this._options, 'application.config.services.workspace.endpoint');
-            this._isActive = false;
             this._lastWidth = undefined;
             this._verticalSeparator = $(_.get(this._options, 'separator'));
             this._containerToAdjust = $(_.get(this._options, 'containerToAdjust'));
@@ -113,23 +112,22 @@ define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-cli
         },
 
         isActive: function(){
-              return this._isActive;
+            return this._activateBtn.parent('li').hasClass('active');
         },
 
         toggleExplorer: function(){
-            if(this._isActive){
+            if(this.isActive()){
                 this._$parent_el.parent().width('0px');
                 this._containerToAdjust.css('margin-left', _.get(this._options, 'leftOffset'));
                 this._verticalSeparator.css('left', _.get(this._options, 'leftOffset') - _.get(this._options, 'separatorOffset'));
-                this._isActive = false;
-                this._activateBtn.removeClass('active');
+                this._activateBtn.parent('li').removeClass('active');
+
             } else {
+                this._activateBtn.tab('show');
                 var width = this._lastWidth || _.get(this._options, 'defaultWidth');
                 this._$parent_el.parent().width(width);
                 this._containerToAdjust.css('margin-left', width + _.get(this._options, 'leftOffset'));
                 this._verticalSeparator.css('left',  width + _.get(this._options, 'leftOffset') - _.get(this._options, 'separatorOffset'));
-                this._isActive = true;
-                this._activateBtn.addClass('active');
             }
         },
 
@@ -138,13 +136,17 @@ define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-cli
             var activateBtn = $(_.get(this._options, 'activateBtn'));
             this._activateBtn = activateBtn;
 
-            var explorerContainer = $('<div></div>');
+            var explorerContainer = $('<div role="tabpanel"></div>');
             explorerContainer.addClass(_.get(this._options, 'cssClass.container'));
+            explorerContainer.attr('id', _.get(this._options, ('containerId')));
             this._$parent_el.append(explorerContainer);
 
-            activateBtn.on('click', function(){
+            activateBtn.on('click', function(e){
+                e.preventDefault();
+                e.stopPropagation();
                 self.application.commandManager.dispatch(_.get(self._options, 'command.id'));
             });
+
             if (this.application.isRunningOnMacOS()) {
                 activateBtn.attr("title", "Open file explorer (" + _.get(self._options, 'command.shortcuts.mac.label') + ") ")
             } else {
@@ -187,10 +189,10 @@ define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-cli
                 })
             }
 
-            $(".sidebar-left").mCustomScrollbar({
-                theme: "minimal",
-                scrollInertia: 0
-            });
+            // explorerContainer.mCustomScrollbar({
+            //     theme: "minimal",
+            //     scrollInertia: 0
+            // });
             return this;
         }
     });

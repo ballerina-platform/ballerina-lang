@@ -47,6 +47,8 @@
     <link rel="stylesheet" type="text/css" href="css/tool-palette.css"/>
     <link rel="stylesheet" type="text/css" href="css/workspace-explorer.css"/>
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
+    <link rel="stylesheet" type="text/css" href="css/debugger.css"/>
+    <link rel="stylesheet" type="text/css" href="css/left-tool-bar.css"/>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -94,11 +96,22 @@
                 <div class="left-container">
                     <!-- Start: left tool bar -->
                     <div class="left-tool-bar" data-toggle="tooltip">
-                        <i class="fw fw-file-browse fw-lg workspace-explorer-activate-btn"></i>
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li>
+                                <a href="#workspace-explorer" role="tab" data-toggle="tab" class="workspace-explorer-activate-btn">
+                                    <i class="fw fw-file-browse fw-lg"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#debugger" role="tab" data-toggle="tab" class="debugger-activate-btn">
+                                    <i class="fw fw-bug fw-lg"></i>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                     <!-- End: left tool bar -->
                     <!-- Start: left side-bar -->
-                    <div class="sidebar-left nano">
+                    <div class="sidebar-left nano tab-content">
                     </div>
                     <div class="sidebar-left-separator"  draggable="true"></div>
                     <!-- End: left side-bar -->
@@ -169,11 +182,6 @@
                             </div>
                         </div>
                         <div class="action-content-wrapper-body">
-                            <!--Div for package name-->
-                            <div class="package-name-wrapper">
-                                <span>Package :</span>
-                                <input type="text">
-                            </div>
                             <!--Div for imports-->
                             <div class="imports-wrapper">
                                 <span class="font-bold">Current imports </span>
@@ -182,7 +190,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="package-btn btn-icon" data-toggle="tooltip" title="Package and Imports">
+                <div class="package-btn btn-icon" data-toggle="tooltip" title="Import packages">
                     <span class="fw-stack fw-lg">
                         <i class="fw fw-circle fw-stack-2x"></i>
                         <i class="fw fw-package fw-stack-1x fw-inverse"></i>
@@ -431,6 +439,34 @@
 </div>
 <!--End: Search Modal-->
 
+<!--Start: Debug Modal-->
+<div class="modal fade" id="modalDebugConnection" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content clearfix">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="fw fw-cancel about-dialog-close"></i>
+                </button>
+                <h4 class="modal-title" >Debug Connection</h4>
+            </div>
+            <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
+              <div class="form-group">
+                <label class="sr-only" for="debugUrl">Server URL</label>
+                <div class="input-group">
+                  <div class="input-group-addon">ws://</div>
+                  <input type="text" class="form-control" id="debugUrl" placeholder="localhost:5006" value="localhost:5006" />
+                </div>
+              </div>
+              <div class='form-group'>
+                    <button type='button' class='btn  pull-right btn-file-dialog' data-dismiss='modal'>Cancel</button>
+                    <button type='button' class='btn pull-right btn-file-dialog debug-connect-button'>Connect</button>
+              </div>
+            </div>            
+        </div>
+    </div>
+</div>
+<!--End: Debug Modal-->
+
 <!--Start: Open Folder Modal-->
 <div class='modal fade' id='open-folder-modal' tabindex='-1' role='dialog' aria-hidden='true'>
     <div class='modal-dialog file-dialog' role='document'>
@@ -521,7 +557,9 @@
             tool_bar: "js/tool-bar/tool-bar",
             alerts: "js/utils/alerts",
             breadcrumbs: "js/breadcrumbs/breadcrumbs",
-            property_pane_utils: "js/property-pane/property-pane-utils"
+            property_pane_utils: "js/property-pane/property-pane-utils",
+            debugger: "js/debugger/debugger",
+			expression_editor_utils: "js/expression-editor/expression-editor-utils"
         },
         shim: {
             "bootstrap": {"deps": ['jquery']}
@@ -567,6 +605,11 @@
             {
                 name: 'dialogs',
                 location: 'js/dialog',
+                main: 'module'
+            },
+            {
+                name: 'debugger',
+                location: 'js/debugger',
                 main: 'module'
             }
         ]
@@ -708,7 +751,7 @@
                             cssClass:{
                                 text_editor_class: 'text-editor',
                                 outer_box: 'outer-box',
-                                service_container: 'service-container',
+                                svg_container: 'svg-container',
                                 outer_div: 'panel panel-default container-outer-div',
                                 panel_title: 'panel-title',
                                 panel_icon: 'panel-icon',
@@ -716,10 +759,11 @@
                                 struct_icon: 'fw fw-dgm-service fw-inverse',
                                 connector_icon:'fw fw-connector fw-inverse',
                                 function_icon:'fw fw-function fw-inverse',
-                                title_link:'collapsed',
+                                title_link:'collapsed canvas-title',
                                 panel_right_icon:'fw fw-up pull-right right-icon-clickable collapser hoverable',
+                                head_div: 'canvas-heading',
                                 body_div:'panel-collapse collapse',
-                                canvas: 'panel-body',
+                                canvas: 'panel-body collapse in',
                                 design_view_drop: 'design-view-hover',
                                 canvas_container: 'canvas-container',
                                 panel_delete_icon: 'fw fw-delete pull-right right-icon-clickable delete-icon hoverable',
@@ -765,8 +809,9 @@
                     minX: 200,
                     maxX: 800
                 },
+                containerId: 'workspace-explorer',
                 cssClass: {
-                    container: 'workspace-explorer-container',
+                    container: 'workspace-explorer-container tab-pane',
                     openFolderButton: 'btn  btn-default open-folder-button'
                 }
             },
@@ -785,6 +830,36 @@
                 errors_container: ".errors-container",
                 location_input: ".location-input",
                 submit_button: ".open-button"
+            },
+            debugger : {
+                container: ".sidebar-left",
+                activateBtn: '.debugger-activate-btn',
+                separator: '.sidebar-left-separator',
+                containerToAdjust: ".right-container",
+                leftOffset: 40,
+                separatorOffset: 5,
+                defaultWidth: 250,
+                resizeLimits:{
+                    minX: 200,
+                    maxX: 800
+                },
+                containerId: "debugger",
+                cssClass: {
+                    container: 'debugger-container tab-pane'
+                },
+                command: {
+                    id: "toggle-debugger",
+                    shortcuts: {
+                        mac: {
+                            key: "command+shift+d",
+                            label: "\u2318\u21E7d"
+                        },
+                        other: {
+                            key: "ctrl+shift+d",
+                            label: "Ctrl+Shift+d"
+                        }
+                    }
+                }
             }
         };
         app = new Application(config);
