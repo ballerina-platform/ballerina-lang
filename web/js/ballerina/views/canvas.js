@@ -65,8 +65,8 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
     Canvas.prototype.constructor = Canvas;
 
     Canvas.prototype.bindEvents = function () {
-        this.on('remove-view', this.removeViewCallback, this);
         this._model.on('child-removed', this.childRemovedCallback, this);
+        this._model.on('before-remove', this.onBeforeModelRemove, this);
     };
 
     /**
@@ -201,25 +201,17 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
             log.debug("Clicked delete button");
 
             event.stopPropagation();
-
-            var child = self._model;
-            var parent = child.parent;
-            self.trigger("remove-view", parent, child);
+            self._model.remove();
         });
     };
 
     /**
      * Override the remove view callback
-     * @param {ASTNode} parent - parent node
-     * @param {ASTNode} child - child node
      */
-    Canvas.prototype.removeViewCallback = function (parent, child) {
+    Canvas.prototype.onBeforeModelRemove = function () {
         $("#_" + this.getModel().getID()).remove();
-        this.unplugView(
-            {
-                w: 0,
-                h: 0
-            }, parent, child);
+        // resize the bounding box in order to the other objects to resize
+        this.getBoundingBox().h(0).w(0);
     };
 
     Canvas.prototype.getOperationsPane = function () {

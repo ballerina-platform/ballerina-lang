@@ -103,7 +103,7 @@ define(['lodash', 'log', './node','constants'], function (_, log, ASTNode,consta
             return self.BallerinaASTFactory.isVariableDeclaration(child)
                 && child.getID() === modelID;
         });
-        this.removeChild(variableDeclarationChild)
+        this.removeChild(variableDeclarationChild);
     };
 
     /**
