@@ -130,7 +130,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         ResourceDefinitionView.prototype.onBeforeModelRemove = function (parent, child) {
             d3.select("#_" +this._model.id).remove();
             $(this._nameDiv).remove();
-            this.getBoundingBox().w(0, 0);
+            this.getBoundingBox().w(0).h(0);
         };
 
         /**
