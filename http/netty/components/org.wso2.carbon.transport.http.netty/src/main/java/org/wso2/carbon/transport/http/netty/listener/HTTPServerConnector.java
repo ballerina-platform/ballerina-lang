@@ -42,6 +42,10 @@ public class HTTPServerConnector extends ListeningServerConnector {
 
     @Override
     public boolean bind() {
+        if (listenerConfiguration.isBindOnStartup()) { // Already bind at the startup, hence skipping
+            return false;
+        }
+
         return ServerConnectorController.getInstance().bindInterface(this);
     }
 
