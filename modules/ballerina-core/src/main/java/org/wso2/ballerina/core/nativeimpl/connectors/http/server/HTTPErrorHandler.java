@@ -42,8 +42,8 @@ public class HTTPErrorHandler implements ServerConnectorErrorHandler {
     private static final Logger log = LoggerFactory.getLogger(HTTPErrorHandler.class);
 
     @Override
-    public void handleError(Exception ex, CarbonMessage cMsg, CarbonCallback callback) {
-        callback.done(createErrorMessage(ex.getMessage(), 500));
+    public void handleError(Throwable throwable, CarbonMessage cMsg, CarbonCallback callback) {
+        callback.done(createErrorMessage(throwable.getMessage(), 500));
     }
 
     @Override

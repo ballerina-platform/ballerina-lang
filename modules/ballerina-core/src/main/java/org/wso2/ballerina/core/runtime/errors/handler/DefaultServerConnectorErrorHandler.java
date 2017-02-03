@@ -41,8 +41,8 @@ public class DefaultServerConnectorErrorHandler implements ServerConnectorErrorH
     }
 
     @Override
-    public void handleError(Exception ex, CarbonMessage cMsg, CarbonCallback callback) {
-        throw new BallerinaException(ex);
+    public void handleError(Throwable throwable, CarbonMessage cMsg, CarbonCallback callback) {
+        throw new BallerinaException(throwable);
     }
 
     @Override
