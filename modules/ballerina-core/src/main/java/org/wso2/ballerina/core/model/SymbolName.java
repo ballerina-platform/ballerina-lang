@@ -23,8 +23,8 @@ package org.wso2.ballerina.core.model;
  * @since 0.8.0
  */
 public class SymbolName {
-    private String name;
-    private String pkgPath;
+    protected String name;
+    protected String pkgPath;
 
     //TODO Remove this connectorName from here.
     private String connectorName;

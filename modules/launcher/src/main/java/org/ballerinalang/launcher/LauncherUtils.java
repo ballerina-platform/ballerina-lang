@@ -22,15 +22,17 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.wso2.ballerina.core.exception.LinkerException;
 import org.wso2.ballerina.core.exception.SemanticException;
-import org.wso2.ballerina.core.interpreter.SymScope;
+import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.GlobalScope;
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
+import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
-import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 
 import java.io.BufferedReader;
@@ -69,14 +71,17 @@ public class LauncherUtils {
             BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
             ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
 
-            BLangModelBuilder bLangModelBuilder = new BLangModelBuilder();
+            GlobalScope globalScope = new GlobalScope();
+            loadGlobalSymbols(globalScope);
+            BLangPackage bLangPackage = new BLangPackage(globalScope);
+
+            BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(bLangPackage);
             BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
             ballerinaParser.addParseListener(ballerinaBaseListener);
             ballerinaParser.compilationUnit();
             BallerinaFile balFile = bLangModelBuilder.build();
 
-            BuiltInNativeConstructLoader.loadConstructs();
-            SymScope globalScope = GlobalScopeHolder.getInstance().getScope();
+            BuiltInNativeConstructLoader.loadConstructs(globalScope);
 
             SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(balFile, globalScope);
             balFile.accept(semanticAnalyzer);
@@ -101,6 +106,10 @@ public class LauncherUtils {
         BLauncherException launcherException = new BLauncherException();
         launcherException.addMessage(errorMsg);
         return launcherException;
+    }
+
+    private static void loadGlobalSymbols(SymbolScope symbolScope) {
+        BTypes.loadBuiltInTypes(symbolScope);
     }
 
     private static ANTLRInputStream getAntlrInputStream(Path sourceFilePath) {
