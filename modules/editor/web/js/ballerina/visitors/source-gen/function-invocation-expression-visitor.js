@@ -40,13 +40,8 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
                 source += functionInvocation.getParent().getPackageName() + ':';
             }
             source += functionInvocation.getParent().getFunctionName() + '(';
-            var params = functionInvocation.getParent().getParams();
-            for (var id = 0; id < params.length; id ++) {
-                if (id > 0) {
-                    source += ',' + params[id];
-                } else {
-                    source += params[id];
-                }
+            if (!_.isNil(functionInvocation.getParent().getParams()) && functionInvocation.getParent().getParams() !== "") {
+                source += functionInvocation.getParent().getParams();
             }
             source += ')';
             this.appendSource(source);

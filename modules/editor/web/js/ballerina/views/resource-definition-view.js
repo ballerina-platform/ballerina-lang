@@ -17,12 +17,12 @@
  */
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/resource-definition',
         './default-worker', './point', './connector-declaration-view', './statement-view-factory',
-        'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message', './statement-container',
+        'ballerina/ast/ballerina-ast-factory','./message', './statement-container',
         './../ast/variable-declaration', './variables-view', './client-life-line', './annotation-view',
         './resource-parameters-pane-view'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
               DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory,
-              BallerinaASTFactory, ExpressionViewFactory, MessageView, StatementContainer,
+              BallerinaASTFactory, MessageView, StatementContainer,
               VariableDeclaration, VariablesView, ClientLifeLine, AnnotationView,
               ResourceParametersPaneView) {
 
@@ -119,7 +119,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
         ResourceDefinitionView.prototype.init = function(){
             this._model.on('child-removed', this.childRemovedCallback, this);
-            this.on('remove-view', this.removeViewCallback, this);
+            this._model.on('before-remove', this.onBeforeModelRemove, this);
         };
 
         /**
@@ -127,16 +127,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          * @param {ASTNode} parent - parent node
          * @param {ASTNode} child - child node
          */
-        ResourceDefinitionView.prototype.removeViewCallback = function (parent, child) {
+        ResourceDefinitionView.prototype.onBeforeModelRemove = function (parent, child) {
             d3.select("#_" +this._model.id).remove();
             $(this._nameDiv).remove();
-            this.unplugView(
-                {
-                    x: this._viewOptions.topLeft.x(),
-                    y: this._viewOptions.topLeft.y(),
-                    w: 0,
-                    h: 0
-                }, parent, child);
+            this.getBoundingBox().w(0, 0);
         };
 
         /**
@@ -580,9 +574,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             // On click of delete icon
             headingDeleteIcon.on("click", function () {
                 log.debug("Clicked delete button");
-                var child = self._model;
-                var parent = child.parent;
-                self.trigger("remove-view", parent, child);
+                self._model.remove();
             });
 
             this.getBoundingBox().on("height-changed", function(dh){
