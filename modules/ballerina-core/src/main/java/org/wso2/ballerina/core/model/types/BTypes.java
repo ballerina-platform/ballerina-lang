@@ -83,7 +83,7 @@ public class BTypes {
     public static <T extends BType> T getType(String typeName) {
         return BType.getType(typeName);
     }
-    
+
     public static void addStructType(String structName) {
         new BStructType(structName);
     }

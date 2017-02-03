@@ -18,8 +18,7 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.json;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.JsonPathException;
@@ -62,14 +61,13 @@ public class GetBoolean extends AbstractJSONFunction {
             
             // Getting the value from JSON
             ReadContext jsonCtx = JsonPath.parse(json.value());
-            JsonElement element = jsonCtx.read(jsonPath);
+            JsonNode element = jsonCtx.read(jsonPath);
             if (element == null) {
                 throw new BallerinaException("No matching element found for jsonpath: " + jsonPath);
-            } else if (element.isJsonPrimitive()) {
+            } else if (element.isValueNode()) {
                 // if the resulting value is a primitive, return the respective primitive value object
-                JsonPrimitive value = element.getAsJsonPrimitive();
-                if (value.isBoolean()) {
-                    result = new BBoolean(value.getAsBoolean());
+                if (element.isBoolean()) {
+                    result = new BBoolean(element.asBoolean());
                 } else {
                     throw new BallerinaException("The element matching path: " + jsonPath + " is not a Boolean.");
                 }
