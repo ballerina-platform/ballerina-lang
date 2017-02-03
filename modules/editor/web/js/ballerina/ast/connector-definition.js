@@ -90,7 +90,13 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
      * @param {string} name - Connector Name
      */
     ConnectorDefinition.prototype.setConnectorName = function (name) {
-        this.connector_name = name;
+        if (!_.isNil(name) && ASTNode.isValidIdentifier(name)) {
+            this.setAttribute('connector_name', name);
+        } else {
+            var errorString = "Invalid connector name: " + name;
+            log.error(errorString);
+            throw errorString;
+        }
     };
 
     /**
@@ -99,7 +105,7 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
      */
     ConnectorDefinition.prototype.setAnnotations = function (annotations) {
         if (!_.isNil(annotations)) {
-            this.annotations = annotations;
+            this.setAttribute('annotations', annotations);
         } else {
             log.warn('Trying to set a null or undefined array to annotations');
         }
@@ -111,7 +117,7 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
      */
     ConnectorDefinition.prototype.setArguments = function (arguments) {
         if (!_.isNil(arguments)) {
-            this.arguments = arguments;
+            this.setAttribute('arguments', arguments);
         } else {
             log.warn('Trying to set a null or undefined array to arguments');
         }
