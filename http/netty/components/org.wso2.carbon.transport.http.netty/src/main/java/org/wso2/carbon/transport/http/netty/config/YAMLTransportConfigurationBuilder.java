@@ -34,8 +34,6 @@ public class YAMLTransportConfigurationBuilder {
 
     private static final String NETTY_TRANSPORT_CONF = "transports.netty.conf";
 
-    private static TransportsConfiguration transportsConfiguration;
-
     private static final Logger log = LoggerFactory.getLogger(YAMLTransportConfigurationBuilder.class);
 
     /**
@@ -43,34 +41,29 @@ public class YAMLTransportConfigurationBuilder {
      *
      * @return TransportsConfiguration
      */
-    public static synchronized TransportsConfiguration build() {
-        if (transportsConfiguration == null) {
-            String nettyTransportsConfigFile = System.getProperty(NETTY_TRANSPORT_CONF,
-                    "conf" + File.separator + "transports" + File.separator + "netty-transports.yml");
-            transportsConfiguration = build(nettyTransportsConfigFile);
-        }
-
-        return transportsConfiguration;
+    public static TransportsConfiguration build() {
+        String nettyTransportsConfigFile = System.getProperty(NETTY_TRANSPORT_CONF,
+                "conf" + File.separator + "transports" + File.separator + "netty-transports.yml");
+        return build(nettyTransportsConfigFile);
     }
 
-    public  static synchronized TransportsConfiguration build(String nettyTransportsConfigFile) {
-        if (transportsConfiguration == null) {
-
-            File file = new File(nettyTransportsConfigFile);
-            if (file.exists()) {
-                try (Reader in = new InputStreamReader(new FileInputStream(file), StandardCharsets.ISO_8859_1)) {
-                    Yaml yaml = new Yaml();
-                    yaml.setBeanAccess(BeanAccess.FIELD);
-                    transportsConfiguration = yaml.loadAs(in, TransportsConfiguration.class);
-                } catch (IOException e) {
-                    String msg = "Error while loading " + nettyTransportsConfigFile + " configuration file";
-                    throw new RuntimeException(msg, e);
-                }
-            } else { // return a default config
-                log.warn("Netty transport configuration file not found in: " + nettyTransportsConfigFile);
-                transportsConfiguration = TransportsConfiguration.getDefault();
+    public static TransportsConfiguration build(String nettyTransportsConfigFile) {
+        TransportsConfiguration transportsConfiguration;
+        File file = new File(nettyTransportsConfigFile);
+        if (file.exists()) {
+            try (Reader in = new InputStreamReader(new FileInputStream(file), StandardCharsets.ISO_8859_1)) {
+                Yaml yaml = new Yaml();
+                yaml.setBeanAccess(BeanAccess.FIELD);
+                transportsConfiguration = yaml.loadAs(in, TransportsConfiguration.class);
+            } catch (IOException e) {
+                String msg = "Error while loading " + nettyTransportsConfigFile + " configuration file";
+                throw new RuntimeException(msg, e);
             }
+        } else { // return a default config
+            log.warn("Netty transport configuration file not found in: " + nettyTransportsConfigFile);
+            transportsConfiguration = TransportsConfiguration.getDefault();
         }
+
         return transportsConfiguration;
     }
 }
