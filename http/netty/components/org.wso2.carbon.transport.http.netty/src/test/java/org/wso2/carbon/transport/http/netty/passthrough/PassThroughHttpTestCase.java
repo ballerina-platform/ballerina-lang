@@ -27,13 +27,14 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
-import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
+import org.wso2.carbon.transport.http.netty.listener.HTTPServerConnector;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.util.List;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -44,7 +45,7 @@ public class PassThroughHttpTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(PassThroughHttpTestCase.class);
 
-    private HTTPTransportListener httpTransportListener;
+    private List<HTTPServerConnector> serverConnectors;
 
     private static final String testValue = "Test Message";
 
@@ -56,7 +57,7 @@ public class PassThroughHttpTestCase {
     public void setUp() {
         TransportsConfiguration configuration = YAMLTransportConfigurationBuilder
                 .build("src/test/resources/simple-test-config/netty-transports.yml");
-        httpTransportListener = TestUtil.startCarbonTransport(configuration, new PassthroughMessageProcessor());
+        serverConnectors = TestUtil.startConnectors(configuration, new PassthroughMessageProcessor());
         httpServer = TestUtil.startHTTPServer(TestUtil.TEST_SERVER_PORT, testValue, Constants.TEXT_PLAIN);
     }
 
@@ -68,7 +69,7 @@ public class PassThroughHttpTestCase {
             assertEquals(testValue, content);
             urlConn.disconnect();
         } catch (IOException e) {
-            log.error("Error while running passthroughGetTest ", e);
+            TestUtil.handleException("IOException occurred while running passthroughGetTest", e);
         }
     }
 
@@ -80,13 +81,13 @@ public class PassThroughHttpTestCase {
             assertEquals(testValue, content);
             urlConn.disconnect();
         } catch (IOException e) {
-            log.error("Error while running passthroughPostTest ", e);
+            TestUtil.handleException("IOException occurred while running passthroughPostTest", e);
         }
     }
 
     @AfterClass
     public void cleanUp() {
-        TestUtil.cleanUp(httpTransportListener, httpServer);
+        TestUtil.cleanUp(serverConnectors, httpServer);
     }
 
 }

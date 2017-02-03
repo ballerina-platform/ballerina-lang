@@ -46,6 +46,8 @@ public class HTTPServerConnectorProvider extends ServerConnectorProvider {
         TransportsConfiguration trpConfig = YAMLTransportConfigurationBuilder.build();
         ServerConnectorController serverConnectorController = new ServerConnectorController(trpConfig);
 
+        serverConnectorController.start();
+
         Set<ListenerConfiguration> listenerConfigurationSet = trpConfig.getListenerConfigurations();
 
         listenerConfigurationSet.forEach(config -> {

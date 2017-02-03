@@ -49,13 +49,19 @@ public class ServerConnectorController {
 
     private HTTPServerChannelInitializer handler;
 
+    private TransportsConfiguration transportsConfiguration;
+
     private boolean initialized = false;
 
     private static PrintStream outStream = System.out;
 
-    public ServerConnectorController (TransportsConfiguration trpConfig) {
+    public ServerConnectorController(TransportsConfiguration transportsConfiguration) {
+        this.transportsConfiguration = transportsConfiguration;
+    }
 
-        Set<TransportProperty> transportProperties = trpConfig.getTransportProperties();
+    public void start() {
+
+        Set<TransportProperty> transportProperties = transportsConfiguration.getTransportProperties();
 
         // Thread Pool configurations
         int bossGroupSize = 0, workerGroupSize = 0;
@@ -116,7 +122,28 @@ public class ServerConnectorController {
         log.debug("Netty Server Socket SO_SNDBUF " + serverBootstrapConfiguration.getSendBufferSize());
 
         initialized = true;
+    }
 
+    public void stop() {
+        shutdownEventLoops();
+    }
+
+    private void shutdownEventLoops() {
+        try {
+            EventLoopGroup bossGroup = HTTPTransportContextHolder.getInstance().getBossGroup();
+            if (bossGroup != null) {
+                bossGroup.shutdownGracefully().sync();
+                HTTPTransportContextHolder.getInstance().setBossGroup(null);
+            }
+            EventLoopGroup workerGroup = HTTPTransportContextHolder.getInstance().getWorkerGroup();
+            if (workerGroup != null) {
+                workerGroup.shutdownGracefully().sync();
+                HTTPTransportContextHolder.getInstance().setWorkerGroup(null);
+            }
+            log.info("HTTP transport event loops stopped successfully");
+        } catch (InterruptedException e) {
+            log.error("Error while shutting down event loops " + e.getMessage());
+        }
     }
 
     public boolean bindInterface(HTTPServerConnector serverConnector) {
