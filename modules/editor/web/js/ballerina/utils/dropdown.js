@@ -30,11 +30,15 @@ define(['lodash', 'jquery'], function (_, $) {
      * @param {string} [args.defaultValue=""] - The default selected value.
      * @param {string} [args.emptyValue=""] - Value to be shown when empty.
      * @param {function} [args.onSelectCallBackFunction] - A call back function when an item is selected.
+     * @param {function} [args.onDropdownOpen] - A call back function when the dropdown is opened.
+     * @param {function} [args.onDropdownClosed] - A call back function when the dropdown is closed.
      * @constructor
      */
     var Dropdown = function (args) {
         this.args = args;
         this.onSelectCallBackFunction = _.get(args, "onSelectCallBackFunction");
+        this.onDropdownOpen = _.get(args, "onDropdownOpen");
+        this.onDropdownClosed = _.get(args, "onDropdownClosed");
         this.dropdownMainWrapper = $("<div/>").addClass("input-group-btn").addClass(_.get(args, "class.mainWrapper", ""));
         this.dropdownButton = $("<button/>").addClass("btn").addClass("btn-default")
             .addClass(_.get(args, "class.button", "")).appendTo(this.dropdownMainWrapper);
@@ -52,6 +56,10 @@ define(['lodash', 'jquery'], function (_, $) {
             dropdownItem.appendTo(self.dropdownItemWrapper);
             dropdownItem.click(function() {
                 $(self.dropdownMainWrapper).removeClass("open");
+                if (!_.isNil(self.onDropdownClosed)) {
+                    self.onDropdownClosed();
+                }
+
                 if (!_.isNil(self.onSelectCallBackFunction)) {
                     self.onSelectCallBackFunction(item.key, item.value.trim());
                 }
@@ -67,9 +75,15 @@ define(['lodash', 'jquery'], function (_, $) {
         $(self.dropdownButton).click(function (e) {
             if ($(self.dropdownMainWrapper).hasClass("open")) {
                 $(self.dropdownMainWrapper).removeClass("open");
+                if (!_.isNil(self.onDropdownClosed)) {
+                    self.onDropdownClosed();
+                }
             } else {
                 if ($(self.dropdownMainWrapper).find("li").length != 0) {
                     $(self.dropdownMainWrapper).addClass("open");
+                    if (!_.isNil(self.onDropdownOpen)) {
+                        self.onDropdownOpen();
+                    }
                 }
             }
 
@@ -84,6 +98,9 @@ define(['lodash', 'jquery'], function (_, $) {
                 self.setSelectedValue($(this).text().trim());
                 // Closing the dropdown.
                 $(self.dropdownMainWrapper).removeClass("open");
+                if (!_.isNil(self.onDropdownClosed)) {
+                    self.onDropdownClosed();
+                }
             });
         });
 
@@ -99,6 +116,9 @@ define(['lodash', 'jquery'], function (_, $) {
         $(window).click(function () {
             if ($(self.dropdownMainWrapper).hasClass("open")) {
                 $(self.dropdownMainWrapper).removeClass("open");
+                if (!_.isNil(self.onDropdownClosed)) {
+                    self.onDropdownClosed();
+                }
             }
         });
     };
@@ -151,6 +171,10 @@ define(['lodash', 'jquery'], function (_, $) {
             .appendTo(self.dropdownItemWrapper);
         dropdownItem.click(function() {
             $(self.dropdownMainWrapper).removeClass("open");
+            if (!_.isNil(self.onDropdownClosed)) {
+                self.onDropdownClosed();
+            }
+
             if (!_.isNil(self.onSelectCallBackFunction)) {
                 self.onSelectCallBackFunction(item.key, item.value.trim());
             }
@@ -174,6 +198,10 @@ define(['lodash', 'jquery'], function (_, $) {
                 .appendTo(self.dropdownItemWrapper);
             dropdownItem.click(function() {
                 $(self.dropdownMainWrapper).removeClass("open");
+                if (!_.isNil(self.onDropdownClosed)) {
+                    self.onDropdownClosed();
+                }
+
                 if (!_.isNil(self.onSelectCallBackFunction)) {
                     self.onSelectCallBackFunction(item.key, item.value.trim());
                 }
