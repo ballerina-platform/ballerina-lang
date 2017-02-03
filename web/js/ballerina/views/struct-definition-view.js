@@ -51,7 +51,7 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
             // Setting width auto for the struct.
             structWrapper.css("width", "auto");
             // Setting padding-right to keep gap between structs.
-            structWrapper.css("padding-right", "25px");
+            structWrapper.css("margin-right", "25px");
 
             // Setting the styles for the canvas icon.
             this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.struct_icon", ""));
