@@ -26,19 +26,20 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
-import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
+import org.wso2.carbon.transport.http.netty.listener.HTTPServerConnector;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.util.List;
 
 import static org.testng.AssertJUnit.assertEquals;
 
 public class ContentEncodingTestCase {
 
-    private HTTPTransportListener httpTransportListener;
+    private List<HTTPServerConnector> serverConnectors;
 
     private TransportsConfiguration configuration;
 
@@ -51,7 +52,7 @@ public class ContentEncodingTestCase {
     public void setup() {
         configuration = YAMLTransportConfigurationBuilder
                 .build("src/test/resources/simple-test-config/netty-transports.yml");
-        httpTransportListener = TestUtil.startCarbonTransport(configuration, new ContentReadingProcessor());
+        serverConnectors = TestUtil.startConnectors(configuration, new ContentReadingProcessor());
         httpServer = TestUtil.startHTTPServer(TestUtil.TEST_SERVER_PORT);
     }
 
@@ -66,13 +67,13 @@ public class ContentEncodingTestCase {
             String content = TestUtil.getContent(urlConn);
             urlConn.disconnect();
         } catch (IOException e) {
-            log.error("Error while running the test", e);
+            TestUtil.handleException("IOException occurred while running the messageEchoingFromProcessorTestCase", e);
         }
 
     }
 
     @AfterClass
     public void cleanUp() {
-        TestUtil.cleanUp(httpTransportListener, httpServer);
+        TestUtil.cleanUp(serverConnectors, httpServer);
     }
 }

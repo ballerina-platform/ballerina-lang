@@ -98,4 +98,8 @@ public class HTTPServerConnector extends ListeningServerConnector {
             ServerConnectorController serverConnectorController) {
         this.serverConnectorController = serverConnectorController;
     }
+
+    public ServerConnectorController getServerConnectorController() {
+        return serverConnectorController;
+    }
 }
