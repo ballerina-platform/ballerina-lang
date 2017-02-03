@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _, $, jsPlumb, dagre) {
+define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (require, _, $, jsPlumb, dagre, alerts) {
 
     var TypeMapperRenderer = function (onConnectionCallback, onDisconnectCallback, typeConverterView) {
         this.references = [];
@@ -196,7 +196,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
         }
 
         this.addSourceProperty(funcContent, "output", func.returnType);
-        this.dagrePosition(this.placeHolderName,  this.jsPlumbInstance);
+        this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
 
     };
 
@@ -284,6 +284,9 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
                         connection.isComplexMapping = true;
                         connection.complexMapperName = compatibleTypeConverters[0];
                         callback(connection);
+                    } else {
+                        alerts.error("There is no valid type mapper existing to covert from : " + connection.sourceType
+                            + " to: " + connection.targetType);
                     }
                 }
                 return isValidTypes;
@@ -317,7 +320,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
 
             for (var i = 0; i < nodes.length; i++) {
                 var n = nodes[i];
-                var nodeContent =  $("#" + n.id);
+                var nodeContent = $("#" + n.id);
 
                 if (maxTypeHeight < nodeContent.width()) {
                     maxTypeHeight = nodeContent.width();
