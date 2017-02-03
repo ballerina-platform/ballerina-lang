@@ -88,6 +88,7 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
         this._editor.session.setValue(content);
         var fomatter = require('ballerina').utils.AceFormatter;
         fomatter.beautify(this._editor.getSession());
+        this.markClean();
     };
 
     SourceView.prototype.getContent = function(){
