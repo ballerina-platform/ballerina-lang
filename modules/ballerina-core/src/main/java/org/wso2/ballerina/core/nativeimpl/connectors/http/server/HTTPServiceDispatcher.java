@@ -160,10 +160,8 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
                 }
                 ((ListeningServerConnector) connector).bind();
             } else {
-                log.warn("ServerConnector interface not registered for : " + listenerInterface);
-                ///TODO: Should we throw an exception ?
-                //throw new BallerinaException(
-                //        "ServerConnector interface not registered for : " + listenerInterface);
+                throw new BallerinaException(
+                        "ServerConnector interface not registered for : " + listenerInterface);
             }
         }
         if (servicesOnInterface.containsKey(basePath)) {
