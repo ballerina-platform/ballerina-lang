@@ -138,6 +138,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
                     self.getModel().addChild(leftTypeStructDef);
                     self.getModel().setSelectedStructNameForSource(selectedStructNameForSource);
                 } else {
+                    //todo set the selectedvalue directly ro combobox using name without iterating
                     $("#" + sourceId).val(self.getModel().getSelectedStructIndex(predefinedStructs,
                         self.getModel().getSelectedStructNameForSource()));
                 }
