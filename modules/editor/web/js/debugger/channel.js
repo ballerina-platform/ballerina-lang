@@ -33,7 +33,7 @@ define(['lodash', 'event_channel', 'log'],
                 websocket.onmessage = _.bindKey(this, 'parseMessage');
                 this.websocket = websocket;
             }else{
-                console.log("Invalid debug URL" + endpoint);
+                //@todo need to handle error.
             }
             var self = this;
         };
@@ -44,13 +44,10 @@ define(['lodash', 'event_channel', 'log'],
 
         Channel.prototype.parseMessage = function (strMessage) {            
             var message = JSON.parse(strMessage.data);
-            console.log(message);
             this.debugger.processMesssage(message);
         };
 
         Channel.prototype.sendMessage = function (message) {
-            console.log(message);
-            console.log(JSON.stringify(message));
             this.websocket.send(JSON.stringify(message))
         };
 
