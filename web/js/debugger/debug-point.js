@@ -20,9 +20,7 @@ define(['log', 'lodash', 'require'],
 
         /**
          * @class DebugPoint
-         * @augments
-         * @param args {Object} - args.name: name of the package
-         * @constructor
+         * @args
          */
         var DebugPoint = function (args) {
             this.fileName = _.get(args, 'fileName', '');
