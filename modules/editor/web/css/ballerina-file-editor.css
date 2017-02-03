@@ -606,4 +606,11 @@
 .package-definition-main-wrapper{
     margin-bottom: 1em;
 }
+.tooltip-inner {
+    white-space:nowrap;
+    max-width:none;
+}
 
+.tooltip.bottom {
+    margin-top: -3px;
+}
