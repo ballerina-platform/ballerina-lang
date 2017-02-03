@@ -12,6 +12,5 @@
 hs_err_pid*
 
 /out/
-/.idea/
-/ballerina-idea-plugin.iml
 *.*~
+/.idea/workspace.xml
