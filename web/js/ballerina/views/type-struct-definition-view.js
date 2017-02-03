@@ -16,11 +16,11 @@
  * under the License.
  */
 define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerina/ast/ballerina-ast-factory', 'typeMapper',
-        './svg-canvas'],
-    function (_, log, d3, BallerinaView, VariablesView, BallerinaASTFactory, TypeMapper, SVGCanvas) {
+        './ballerina-view'],
+    function (_, log, d3, BallerinaView, VariablesView, BallerinaASTFactory, TypeMapper, BallerinaView) {
 
         var TypeStructDefinitionView = function (args) {
-            SVGCanvas.call(this, args);
+            BallerinaView.call(this, args);
             this._parentView = _.get(args, "parentView");
 
             if (_.isNil(this.getModel()) || !(BallerinaASTFactory.isTypeStructDefinition(this.getModel()))) {
@@ -30,7 +30,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerin
 
         };
 
-        TypeStructDefinitionView.prototype = Object.create(SVGCanvas.prototype);
+        TypeStructDefinitionView.prototype = Object.create(BallerinaView.prototype);
         TypeStructDefinitionView.prototype.constructor = TypeStructDefinitionView;
 
         TypeStructDefinitionView.prototype.canVisitTypeStructDefinition = function (typeStructDefinition) {
