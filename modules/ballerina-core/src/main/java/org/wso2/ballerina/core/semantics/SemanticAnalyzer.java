@@ -112,9 +112,11 @@ import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.nativeimpl.lang.convertors.NativeCastConvertor;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -193,7 +195,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(ConstDef constDef) {
         SimpleTypeName typeName = constDef.getTypeName();
-        BType bType = resolveType(typeName, constDef.getNodeLocation());
+        BType bType = BTypes.resolveType(typeName, currentScope, constDef.getNodeLocation());
         constDef.setType(bType);
         if (!BTypes.isValueType(bType)) {
             throw new SemanticException(getNodeLocationStr(constDef.getNodeLocation()) +
@@ -444,7 +446,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ParameterDef paramDef) {
-        BType bType = resolveType(paramDef.getTypeName(), paramDef.getNodeLocation());
+        BType bType = BTypes.resolveType(paramDef.getTypeName(), currentScope, paramDef.getNodeLocation());
         paramDef.setType(bType);
 
         paramDef.setMemoryLocation(currentMemLocation);
@@ -532,11 +534,15 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(VariableDefStmt varDefStmt) {
         // Resolves the type of the variable
         VariableDef varDef = varDefStmt.getVariableDef();
-        BType varBType = resolveType(varDef.getTypeName(), varDef.getNodeLocation());
+        BType varBType = BTypes.resolveType(varDef.getTypeName(), currentScope, varDef.getNodeLocation());
         varDef.setType(varBType);
 
         Expression rExpr = varDefStmt.getRExpr();
-        rExpr.accept(this);
+        if (rExpr instanceof RefTypeInitExpr) {
+            ((RefTypeInitExpr) rExpr).setInheritedType(varBType);
+            rExpr.accept(this);
+        }
+
 
         if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
             CallableUnitInvocationExpr invocationExpr = (CallableUnitInvocationExpr) rExpr;
@@ -563,11 +569,11 @@ public class SemanticAnalyzer implements NodeVisitor {
             return;
         }
 
+
         // TODO Implement so many cases here..
 
         // If the rExpr type is not set, then check whether it is a BacktickExpr
         if (rExpr instanceof BacktickExpr) {
-
             // In this case, type of the lExpr should be either xml or json
             if (varBType != BTypes.typeJSON && varBType != BTypes.typeXML) {
                 throw new SemanticException(getNodeLocationStr(varDefStmt.getNodeLocation()) +
@@ -576,19 +582,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             rExpr.setType(varBType);
         }
-
-        if (rExpr instanceof ArrayInitExpr) {
-
-        }
-
-        if (rExpr instanceof RefTypeInitExpr) {
-
-        }
-
-//        if(rExpr instanceof ConnectorInitExpr){
-//
-//        }
-
     }
 
     @Override
@@ -734,7 +727,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ReturnStmt returnStmt) {
-        if (currentCallableUnit instanceof Resource) {
+        if (currentScope instanceof Resource) {
             throw new SemanticException(returnStmt.getNodeLocation().getFileName() + ":" +
                     returnStmt.getNodeLocation().getLineNumber() +
                     ": return statement cannot be used in a resource definition");
@@ -908,6 +901,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BasicLiteral basicLiteral) {
+        BType bType = BTypes.resolveType(basicLiteral.getTypeName(), currentScope, basicLiteral.getNodeLocation());
+        basicLiteral.setType(bType);
     }
 
     @Override
@@ -1235,11 +1230,11 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(RefTypeInitExpr refTypeInitExpr) {
         Expression[] argExprs = refTypeInitExpr.getArgExprs();
 
-        if (argExprs.length == 0) {
-            throw new SemanticException("Map initializer should have at least one argument" + " in "
-                    + refTypeInitExpr.getNodeLocation().getFileName() + ":" +
-                    refTypeInitExpr.getNodeLocation().getLineNumber());
-        }
+//        if (argExprs.length == 0) {
+//            throw new SemanticException("Map initializer should have at least one argument" + " in "
+//                    + refTypeInitExpr.getNodeLocation().getFileName() + ":" +
+//                    refTypeInitExpr.getNodeLocation().getLineNumber());
+//        }
 
         for (int i = 0; i < argExprs.length; i++) {
             argExprs[i].accept(this);
@@ -1256,28 +1251,38 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ArrayInitExpr arrayInitExpr) {
-        Expression[] argExprs = arrayInitExpr.getArgExprs();
-
-        if (argExprs.length == 0) {
-            throw new SemanticException("Array initializer should have at least one argument" + " in "
-                    + arrayInitExpr.getNodeLocation().getFileName() + ":" +
-                    arrayInitExpr.getNodeLocation().getLineNumber());
+        BType inheritedType = arrayInitExpr.getInheritedType();
+        if (!(inheritedType instanceof BArrayType)) {
+            throw new SemanticException(getNodeLocationStr(arrayInitExpr.getNodeLocation()) +
+                    "array initializer is not allowed here");
         }
 
-        argExprs[0].accept(this);
-        BType typeOfArray = argExprs[0].getType();
+        arrayInitExpr.setType(inheritedType);
+        Expression[] argExprs = arrayInitExpr.getArgExprs();
+        if (argExprs.length == 0) {
+            return;
+        }
 
-        for (int i = 1; i < argExprs.length; i++) {
+        BType expectedElementType = ((BArrayType) inheritedType).getElementType();
+
+        // Fail if targetType is not array type
+        // get element type.
+        // Check whether each element in array is of the element type of target array.
+
+        for (int i = 0; i < argExprs.length; i++) {
             argExprs[i].accept(this);
 
-            if (argExprs[i].getType() != typeOfArray) {
-                throw new SemanticException("Incompatible types used in array initializer. All arguments must have " +
-                        "the same type." + " in " + arrayInitExpr.getNodeLocation().getFileName() + ":" +
-                        arrayInitExpr.getNodeLocation().getLineNumber());
+            // Types are defined only once, hence the following object equal should work.
+            if (argExprs[i].getType() != expectedElementType) {
+                TypeCastExpression typeCastExpr = checkWideningPossibleForAssign(expectedElementType, argExprs[i]);
+                if (typeCastExpr == null) {
+                    throw new SemanticException(getNodeLocationStr(arrayInitExpr.getNodeLocation()) +
+                            "incompatible types: '" + argExprs[i].getType() +
+                            "' cannot be converted to '" + expectedElementType + "'");
+                }
+                argExprs[i] = typeCastExpr;
             }
         }
-
-        arrayInitExpr.setType(BTypes.getArrayType(typeOfArray.toString()));
     }
 
     @Override
@@ -1290,14 +1295,18 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Analyze the string and create relevant tokens
         // First check the literals
         String[] literals = backtickExpr.getTemplateStr().split(patternString);
+        List<Expression> argExprList = new ArrayList<>();
+
         // Split will always have at least one matching literal
         int i = 0;
         if (literals.length > i) {
             BasicLiteral basicLiteral = new BasicLiteral(backtickExpr.getNodeLocation(), new BString(literals[i]));
             visit(basicLiteral);
-            backtickExpr.addExpression(basicLiteral);
+            argExprList.add(basicLiteral);
+//            backtickExpr.addExpression(basicLiteral);
             i++;
         }
+
         // Then get the variable references
         // ${var} --> group0: ${var}, group1: var, group2: var
         // ${arr[10]} --> group0: ${arr[10]}, group1: arr[10], group2: arr, group3: [10], group4: 10
@@ -1330,20 +1339,22 @@ public class SemanticAnalyzer implements NodeVisitor {
                 builder.setIndexExpr(indexExpr);
                 ArrayMapAccessExpr arrayMapAccessExpr = builder.build();
                 visit(arrayMapAccessExpr);
-                backtickExpr.addExpression(arrayMapAccessExpr);
+                argExprList.add(arrayMapAccessExpr);
             } else {
                 VariableRefExpr variableRefExpr = new VariableRefExpr(backtickExpr.getNodeLocation(),
                         new SymbolName(m.group(1)));
                 visit(variableRefExpr);
-                backtickExpr.addExpression(variableRefExpr);
+                argExprList.add(variableRefExpr);
             }
             if (literals.length > i) {
                 BasicLiteral basicLiteral = new BasicLiteral(backtickExpr.getNodeLocation(), new BString(literals[i]));
                 visit(basicLiteral);
-                backtickExpr.addExpression(basicLiteral);
+                argExprList.add(basicLiteral);
                 i++;
             }
         }
+
+        backtickExpr.setArgsExprs(argExprList.toArray(new Expression[argExprList.size()]));
         // TODO If the type is not set then just return
         visitExpr(backtickExpr);
     }
@@ -2108,14 +2119,5 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         return newExpr;
-    }
-
-    private BType resolveType(SimpleTypeName typeName, NodeLocation location) {
-        BType bType = (BType) currentScope.resolve(typeName.getSymbolName());
-        if (bType == null) {
-            throw new SemanticException(getNodeLocationStr(location) +
-                    ": undefined type '" + typeName + "'");
-        }
-        return bType;
     }
 }

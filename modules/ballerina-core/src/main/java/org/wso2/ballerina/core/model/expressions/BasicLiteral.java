@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.model.expressions;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 
@@ -31,15 +32,26 @@ import org.wso2.ballerina.core.model.values.BValueType;
  * @since 0.8.0
  */
 public class BasicLiteral extends AbstractExpression {
-    private BValueType bValueType;
+    private SimpleTypeName typeName;
+    private BValueType bValue;
 
     public BasicLiteral(NodeLocation location, BValueType bValueType) {
         super(location);
-        this.bValueType = bValueType;
+        this.bValue = bValueType;
+    }
+
+    public BasicLiteral(NodeLocation location, SimpleTypeName typeName, BValueType bValue) {
+        super(location);
+        this.bValue = bValue;
+        this.typeName = typeName;
+    }
+
+    public SimpleTypeName getTypeName() {
+        return typeName;
     }
 
     public BValueType getBValue() {
-        return bValueType;
+        return bValue;
     }
 
     @Override

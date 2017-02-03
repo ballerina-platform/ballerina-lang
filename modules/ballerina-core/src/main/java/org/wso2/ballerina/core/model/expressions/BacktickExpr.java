@@ -22,20 +22,16 @@ import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.values.BValue;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * {@code BacktickExpr} represents an xml or a json string wrapped in between backticks/backquotes.
  *
  * @since 0.8.0
  */
-public class BacktickExpr extends AbstractExpression {
+public class BacktickExpr extends RefTypeInitExpr {
     private String templateStr;
-    private List<Expression> expressionList = new ArrayList<>();
 
     public BacktickExpr(NodeLocation location, String templateStr) {
-        super(location);
+        super(location, new Expression[0]);
         this.templateStr = templateStr;
     }
 
@@ -43,12 +39,8 @@ public class BacktickExpr extends AbstractExpression {
         return templateStr;
     }
 
-    public List<Expression> getExpressionList() {
-        return expressionList;
-    }
-
-    public void addExpression(Expression expression) {
-        expressionList.add(expression);
+    public void setArgsExprs(Expression[] argExprs) {
+        this.argExprs = argExprs;
     }
 
     @Override
@@ -56,6 +48,7 @@ public class BacktickExpr extends AbstractExpression {
         visitor.visit(this);
     }
 
+    @Override
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this);
     }

@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.model.expressions;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
@@ -33,9 +34,18 @@ import org.wso2.ballerina.core.model.values.BValue;
  * @since 0.8.0
  */
 public class RefTypeInitExpr extends NaryExpression {
+    private BType inheritedType;
 
     public RefTypeInitExpr(NodeLocation location, Expression[] argExprs) {
         super(location, argExprs);
+    }
+
+    public BType getInheritedType() {
+        return inheritedType;
+    }
+
+    public void setInheritedType(BType inheritedType) {
+        this.inheritedType = inheritedType;
     }
 
     @Override
@@ -43,6 +53,7 @@ public class RefTypeInitExpr extends NaryExpression {
         visitor.visit(this);
     }
 
+    @Override
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this);
     }

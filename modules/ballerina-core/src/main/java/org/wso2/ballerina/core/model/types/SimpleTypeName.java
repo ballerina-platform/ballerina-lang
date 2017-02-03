@@ -19,6 +19,8 @@ package org.wso2.ballerina.core.model.types;
 
 import org.wso2.ballerina.core.model.SymbolName;
 
+import static org.wso2.ballerina.core.model.types.TypeConstants.ARRAY_TNAME;
+
 /**
  * {@code SimpleTypeName} represents a simple type name(int, boolean, json, Person..) in Ballerina.
  *
@@ -35,7 +37,6 @@ public class SimpleTypeName {
         this.name = name;
         this.pkgName = pkgName;
         this.pkgPath = pkgPath;
-        this.symbolName = new SymbolName(getNameWithArray(name), pkgPath);
     }
 
     public SimpleTypeName(String name) {
@@ -55,6 +56,10 @@ public class SimpleTypeName {
     }
 
     public SymbolName getSymbolName() {
+        if (symbolName == null) {
+            this.symbolName = new SymbolName(getNameWithArray(name), pkgPath);
+        }
+
         return symbolName;
     }
 
@@ -66,12 +71,12 @@ public class SimpleTypeName {
         this.isArrayType = isArrayType;
     }
 
-    protected String getNameWithPkg() {
+    public String getNameWithPkg() {
         return (pkgName == null || pkgName.equals("")) ? name : pkgName + ":" + name;
     }
 
     protected String getNameWithArray(String name) {
-        return isArrayType ? name + "[]" : name;
+        return isArrayType ? name + ARRAY_TNAME : name;
     }
 
     @Override
