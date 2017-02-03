@@ -18,11 +18,11 @@
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/connector-action',
         './default-worker', './point', './connector-declaration-view', './statement-view-factory',
         'ballerina/ast/ballerina-ast-factory','./message', './statement-container',
-        './../ast/variable-declaration', './variables-view', './annotation-view',
+        './../ast/variable-declaration', './annotation-view',
         './function-arguments-view', './return-types-pane-view'],
     function (_, log, d3, $, D3utils, BallerinaView, ConnectorAction,
               DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory,
-              BallerinaASTFactory, ExpressionViewFactory, MessageView, StatementContainer,
+              BallerinaASTFactory, MessageView, StatementContainer,
               VariableDeclaration, AnnotationView,
               ArgumentsView, ReturnTypesPaneView) {
 
@@ -721,6 +721,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             _.set(statementContainerOpts, 'width', this._defaultWorker.width());
             _.set(statementContainerOpts, 'container', this._defaultWorker.getContentArea().node());
             _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
+            _.set(statementContainerOpts, 'offset', {top: 40, bottom: 40});
             this._statementContainer = new StatementContainer(statementContainerOpts);
             this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy){
                 this._defaultWorker.getBottomCenter().y(this._statementContainer.getBoundingBox().getBottom());
