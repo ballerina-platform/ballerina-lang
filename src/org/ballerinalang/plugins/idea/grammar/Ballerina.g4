@@ -202,6 +202,14 @@ packageName
     :   Identifier ('.' Identifier)*
     ;
 
+//packageName
+//    :   packageUnit ('.' packageUnit)*
+//    ;
+//
+//packageUnit
+//    :   Identifier
+//    ;
+
 literalValue
     :   IntegerLiteral
     |   FloatingPointLiteral

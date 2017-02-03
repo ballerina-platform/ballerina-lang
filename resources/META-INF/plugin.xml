@@ -59,6 +59,8 @@
         <lang.psiStructureViewFactory language="Ballerina"
                                       implementationClass="org.ballerinalang.plugins.idea.structureview.BallerinaStructureViewFactory"/>
 
+        <lang.ast.factory language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.BallerinaASTFactory"/>
+
         <!-- templates -->
         <internalFileTemplate name="Ballerina Application"/>
         <internalFileTemplate name="Ballerina File"/>
