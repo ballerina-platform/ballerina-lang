@@ -148,6 +148,12 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 connector.accept(this);
             }
         }
+    
+        if (bFile.getStructDefs() != null) {
+            for (StructDef struct : bFile.getStructDefs()) {
+                struct.accept(this);
+            }
+        }
 
 //        Collections.sort(rootElements, new Comparator<PositionAwareNode>() {
 //            @Override
@@ -1023,8 +1029,19 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(StructDef structDef) {
-        // TODO
+    public void visit(StructDef ballerinaStruct) {
+        JsonObject structObj = new JsonObject();
+        structObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.STRUCT_DEFINITION);
+        structObj.addProperty(BLangJSONModelConstants.STRUCT_NAME, ballerinaStruct.getSymbolName().getName());
+        tempJsonArrayRef.push(new JsonArray());
+        if (ballerinaStruct.getFields() != null) {
+            for (VariableDef variableDef : ballerinaStruct.getFields()) {
+                variableDef.accept(this);
+            }
+        }
+        structObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(structObj);
     }
 
     @Override

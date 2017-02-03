@@ -15,14 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-definition', './default-worker', 'd3utils', '' +
-        'd3', './worker-declaration-view', './statement-view-factory', './point', './axis',
+define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/function-definition', './default-worker',
+        'd3utils', 'd3', './worker-declaration-view', './statement-view-factory', './point', './axis',
         './connector-declaration-view', './statement-container', './variables-view', './function-arguments-view',
-        './return-types-pane-view'],
-    function (_, log, EventChannel, Canvas, FunctionDefinition, DefaultWorkerView, D3Utils,
-              d3, WorkerDeclarationView, StatementViewFactory, Point, Axis,
+        './return-types-pane-view', 'ballerina/ast/ballerina-ast-factory'],
+    function (_, log, EventChannel, Alerts, SVGCanvas, FunctionDefinition, DefaultWorkerView,
+              D3Utils, d3, WorkerDeclarationView, StatementViewFactory, Point, Axis,
               ConnectorDeclarationView, StatementContainer, VariablesView, ArgumentsView,
-              ReturnTypePaneView) {
+              ReturnTypePaneView, BallerinaASTFactory) {
 
         /**
          * The view to represent a function definition which is an AST visitor.
@@ -31,9 +31,10 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
          * @param {Object} args.container - The HTML container to which the view should be added to.
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
          * @constructor
+         * @augments SVGCanvas
          */
         var FunctionDefinitionView = function (args) {
-            Canvas.call(this, args);
+            SVGCanvas.call(this, args);
             //set initial connector margin for the service
             this._lifelineMargin = new Axis(210, false);
             this._statementExpressionViewList = [];
@@ -58,11 +59,48 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 log.error("Container for function definition is undefined." + this._container);
                 throw "Container for function definition is undefined." + this._container;
             }
-
         };
 
-        FunctionDefinitionView.prototype = Object.create(Canvas.prototype);
+        FunctionDefinitionView.prototype = Object.create(SVGCanvas.prototype);
         FunctionDefinitionView.prototype.constructor = FunctionDefinitionView;
+
+        /**
+         * Child remove callback
+         * @param {ASTNode} child - removed child
+         */
+        FunctionDefinitionView.prototype.childRemovedCallback = function (child) {
+            var self = this;
+            if (BallerinaASTFactory.isStatement(child)) {
+                this.getStatementContainer().childStatementRemovedCallback(child);
+            } else if (BallerinaASTFactory.isConnectorDeclaration(child) || BallerinaASTFactory.isWorkerDeclaration(child)) {
+                var childViewIndex = _.findIndex(this._workerAndConnectorViews, function (view) {
+                    return view.getModel().id === child.id;
+                });
+
+                if (childViewIndex === 0) {
+                    // Deleted the first connector/worker in the list (Addresses both first element scenario and the only element scenario
+                    if (!_.isNil(this._workerAndConnectorViews[childViewIndex + 1])) {
+                        // Unregister the listening event of the second element on the first element
+                        this._workerAndConnectorViews[childViewIndex + 1].stopListening(this._workerAndConnectorViews[childViewIndex].getBoundingBox());
+                    }
+                } else if (childViewIndex === this._workerAndConnectorViews.length - 1) {
+                    // Deleted the last connector/worker when there are more than one worker/ connector
+                    this._workerAndConnectorViews[childViewIndex].stopListening(this._workerAndConnectorViews[childViewIndex - 1].getBoundingBox());
+                } else {
+                    // Deleted connector is in between two other connectors/ workers
+                    // Connector being deleted, stop listening to it's previous connector
+                    this._workerAndConnectorViews[childViewIndex].stopListening(this._workerAndConnectorViews[childViewIndex - 1].getBoundingBox());
+                    this._workerAndConnectorViews[childViewIndex + 1].stopListening(this._workerAndConnectorViews[childViewIndex].getBoundingBox());
+                    this._workerAndConnectorViews[childViewIndex + 1].listenTo(this._workerAndConnectorViews[childViewIndex - 1].getBoundingBox(), 'right-edge-moved', function (offset) {
+                        self.moveFunctionDefinitionLevelConnector(this, offset);
+                    });
+                }
+                this._workerAndConnectorViews[childViewIndex] = null;
+                this._workerAndConnectorViews.splice(childViewIndex, 1);
+            }
+            // Remove the connector/ worker from the diagram rendering context
+            delete this.diagramRenderingContext.getViewModelMap()[child.id];
+        };
 
         FunctionDefinitionView.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof FunctionDefinition) {
@@ -130,7 +168,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
 
         /**
          * Calls the render method for a worker declaration.
-         * @param {WorkerDeclaration} workerDeclaration - The resource definition model.
+         * @param {WorkerDeclaration} workerDeclaration - The worker declaration model.
          */
         FunctionDefinitionView.prototype.visitWorkerDeclaration = function (workerDeclaration) {
             var workerDeclarationOptions = {
@@ -148,24 +186,42 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
          * @returns {group} The svg group which contains the elements of the function definition view.
          */
         FunctionDefinitionView.prototype.render = function (diagramRenderingContext) {
-            this.diagramRenderingContext = diagramRenderingContext;
-            this.drawAccordionCanvas(this._container, this._viewOptions, this._model.id, this._model.type.toLowerCase(), undefined);
-            var divId = this._model.id;
-            var currentContainer = $('#'+ divId);
+            this.setDiagramRenderingContext(diagramRenderingContext);
+
+            // Draws the outlying body of the function.
+            this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().type.toLowerCase(), this.getModel().getFunctionName());
+
+            // Setting the styles for the canvas icon.
+            this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.function_icon", ""));
+
+            var currentContainer = $('#' + this.getModel().getID());
             this._container = currentContainer;
+            this.getBoundingBox().fromTopLeft(new Point(0, 0), currentContainer.width(), currentContainer.height());
             var self = this;
 
-            $("#title-" + this._model.id).addClass("function-title-text").text(this._model.getFunctionName())
-                .on("change paste keyup", function (e) {
-                    self._model.setFunctionName($(this).text());
+            $(this.getTitle()).text(this.getModel().getFunctionName())
+                .on("change paste keyup", function () {
+                    self.getModel().setFunctionName($(this).text());
                 }).on("click", function (event) {
+                event.stopPropagation();
+            }).keypress(function (e) {
+                var enteredKey = e.which || e.charCode || e.keyCode;
+                // Disabling enter key
+                if (enteredKey == 13) {
                     event.stopPropagation();
-                }).on("keydown", function (e) {
-                    // Check whether the Enter key has been pressed. If so return false. Won't type the character
-                    if (e.keyCode === 13) {
-                        return false;
-                    }
-                });
+                    return false;
+                }
+
+                var newServiceName = $(this).text() + String.fromCharCode(enteredKey);
+
+                try {
+                    self.getModel().setFunctionName(newServiceName);
+                } catch (error) {
+                    Alerts.error(error);
+                    event.stopPropagation();
+                    return false;
+                }
+            });
 
             // Creating default worker
             var defaultWorkerOpts = {};
@@ -179,38 +235,20 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             }
             this._defaultWorkerLifeLine.render();
             this._totalHeight = this._defaultWorkerLifeLine.getBoundingBox().h() + 85;
-            this.setServiceContainerHeight(this._totalHeight);
+            this.setSVGHeight(this._totalHeight);
             this.renderStatementContainer();
-            this.init();
             this.getModel().accept(this);
             //Removing all the registered 'child-added' event listeners for this model.
             //This is needed because we are not unregistering registered event while the diagram element deletion.
             //Due to that, sometimes we are having two or more view elements listening to the 'child-added' event of same model.
-            this._model.off('child-added');
-            this._model.on('child-added', function (child) {
+            this.getModel().off('child-added');
+            this.getModel().on('child-added', function (child) {
                 self.visit(child);
-                self._model.trigger("child-visited", child);
+                self.getModel().trigger("child-visited", child);
 
                 // Show/Hide scrolls.
                 self._showHideScrolls(self._container, self.getChildContainer().node().ownerSVGElement);
             });
-
-            var variableButton = VariablesView.createVariableButton(this.getChildContainer().node(), 14, 10);
-
-            var variableProperties = {
-                model: this._model,
-                activatorElement: variableButton,
-                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
-                viewOptions: {
-                    position: {
-                        x: parseInt(this.getChildContainer().attr("x")) + 17,
-                        y: parseInt(this.getChildContainer().attr("y")) + 6
-                    },
-                    width: $(this.getChildContainer().node().ownerSVGElement.parentElement).width() - (2 * $(variableButton).width())
-                }
-            };
-
-            VariablesView.createVariablePane(variableProperties, diagramRenderingContext);
 
             var operationsPane = this.getOperationsPane();
 
@@ -218,8 +256,9 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
 
             // Creating arguments icon.
             var panelArgumentsIcon = $("<i/>", {
-                class: "fw fw-import pull-right right-icon-clickable hoverable"
-            }).appendTo(operationsPane);
+                class: "fw fw-import pull-right right-icon-clickable hoverable",
+                title: "Arguments"
+            }).appendTo(operationsPane).tooltip();
 
             $(panelArgumentsIcon).click(function (event) {
                 event.stopPropagation();
@@ -245,12 +284,13 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             // Creating arguments pane.
             ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
 
-            this.setServiceContainerWidth(this._container.width());
+            this.setSVGWidth(this._container.width());
 
             // Creating return type icon.
             var panelReturnTypeIcon = $("<i/>", {
-                class: "fw fw-export pull-right right-icon-clickable hoverable"
-            }).appendTo(operationsPane);
+                class: "fw fw-export pull-right right-icon-clickable hoverable",
+                title: "Return types"
+            }).appendTo(operationsPane).tooltip();
 
             $(panelReturnTypeIcon).click(function (event) {
                 event.stopPropagation();
@@ -332,11 +372,6 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             }
         };
 
-        FunctionDefinitionView.prototype.init = function(){
-            //Registering event listeners
-            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
-        };
-
         /**
          * Render statement container
          */
@@ -358,7 +393,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             this._defaultWorkerLifeLine.getBottomCenter().y(this._statementContainer.getBoundingBox().getBottom());
             this.getBoundingBox().h(this.getBoundingBox().h() + dy);
             this._totalHeight = this._totalHeight + dy;
-            this.setServiceContainerHeight(this._totalHeight);
+            this.setSVGHeight(this._totalHeight);
         };
 
         /**
@@ -394,6 +429,8 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 center;
 
             var startX = 0;
+            var self = this;
+
             if (!_.isEmpty(this._workerAndConnectorViews)) {
                 startX = _.last(this._workerAndConnectorViews).getBoundingBox().getRight() + _.last(this._workerAndConnectorViews).getBoundingBox().w()/2 + offsetBetweenLifeLines;
             } else {
@@ -404,9 +441,17 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             _.set(connectorOpts, 'centerPoint', center);
             connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
-            this._workerAndConnectorViews.push(connectorDeclarationView);
 
             connectorDeclarationView.render();
+
+            if (this._workerAndConnectorViews.length > 0) {
+                // There are already added resource level connectors
+                // New resource level connector listens to the current last resource level connector
+                var lastConnector = _.last(this._workerAndConnectorViews);
+                connectorDeclarationView.listenTo(lastConnector.getBoundingBox(), 'right-edge-moved', function (offset) {
+                    self.moveFunctionDefinitionLevelConnector(this, offset);
+                });
+            }
 
             // Creating property pane
             var editableProperties = [
@@ -431,7 +476,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 editableProperties: editableProperties
             });
             connectorDeclarationView.setParent(this);
-
+            this._workerAndConnectorViews.push(connectorDeclarationView);
             this.getBoundingBox().on("bottom-edge-moved", function (dy) {
                 this.getBoundingBox().h(this.getBoundingBox().h() + dy);
 
@@ -457,11 +502,23 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
         };
 
         FunctionDefinitionView.prototype.getChildContainer = function () {
-            return this._rootGroup;
+            return this.getRootGroup();
         };
 
         FunctionDefinitionView.prototype.getLifeLineMargin = function () {
             return this._lifelineMargin;
+        };
+
+        /**
+         * Return statement container
+         * @return {StatementContainerView}
+         */
+        FunctionDefinitionView.prototype.getStatementContainer = function () {
+            return this._statementContainer;
+        };
+
+        FunctionDefinitionView.prototype.moveFunctionDefinitionLevelConnector = function (connectorView, offset) {
+            connectorView.getBoundingBox().move(offset, 0);
         };
 
         return FunctionDefinitionView;

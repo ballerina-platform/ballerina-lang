@@ -48,7 +48,6 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
 
             // Initialize the bounding box
             this.getBoundingBox().fromTopCenter(this.getTopCenter(), 120, 0);
-            this.init();
 
         };
 
@@ -57,9 +56,6 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
 
         IfElseStatementView.prototype.canVisitIfElseStatement = function(){
             return true;
-        };
-
-        IfElseStatementView.prototype.init = function () {
         };
 
         /**
@@ -96,9 +92,8 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             this.setStatementGroup(ifElseGroup);
             var self = this;
 
-            var editableProperties = [];
+            var editableProperty = {};
             _.forEach(this._model.getChildren(), function(child, index){
-                var editableProperty = {};
                 if (child instanceof IfStatement) {
                     editableProperty = {
                         propertyType: "text",
@@ -107,8 +102,6 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
                         getterMethod: child.getCondition,
                         setterMethod: child.setCondition
                     };
-
-                    editableProperties.push(editableProperty);
                 } else if(child instanceof IfElseStatement) {
                     editableProperty = {
                         propertyType: "text",
@@ -117,15 +110,13 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
                         getterMethod: child.getCondition,
                         setterMethod: child.setCondition
                     };
-
-                    editableProperties.push(editableProperty);
                 }
             });
             // Creating property pane
             this._createPropertyPane({
                 model:this._model,
                 statementGroup:ifElseGroup,
-                editableProperties: editableProperties
+                editableProperties: editableProperty
             });
 
             // If the top-edge-moved event triggered we only move the First child statement (If Statement).
@@ -236,6 +227,17 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
 
         IfElseStatementView.prototype.getLastElseIf = function () {
             return this._elseIfViews[this._elseIfViews.length - 1];
+        };
+
+        /**
+         * Override Remove view callback for the if-else-statement
+         */
+        IfElseStatementView.prototype.onBeforeModelRemove = function () {
+            _.forEach(this.getChildrenViewsList(), function (childrenView) {
+                childrenView.stopListening();
+            });
+            d3.select("#_" +this._model.id).remove();
+            this.getBoundingBox().w(0).h(0);
         };
 
         return IfElseStatementView;

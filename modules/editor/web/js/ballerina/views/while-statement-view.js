@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './../ast/while-statement', 'd3utils', 'd3'],
-    function (require, _, $, log, BallerinaStatementView, WhileStatement, D3Utils, d3) {
+define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './../ast/while-statement', 'd3utils', 'd3', 'ballerina/ast/ballerina-ast-factory'],
+    function (require, _, $, log, BallerinaStatementView, WhileStatement, D3Utils, d3, BallerinaASTFactory) {
 
         /**
          * The view to represent a If statement which is an AST visitor.
@@ -35,18 +35,35 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             // Initialize the bounding box
             this.getBoundingBox().fromTopCenter(this.getTopCenter(),
                 _.get(this._viewOptions, 'width'),  _.get(this._viewOptions, 'height'));
-            this.init();
+            this._statementContainer = undefined;
         };
 
         WhileStatementView.prototype = Object.create(BallerinaStatementView.prototype);
         WhileStatementView.prototype.constructor = WhileStatementView;
 
-        WhileStatementView.prototype.init = function () {
-            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
-        };
-
         WhileStatementView.prototype.canVisitWhileStatement = function(){
             return true;
+        };
+
+        /**
+         * Remove View callback
+         * @param {ASTNode} parent - parent node
+         * @param {ASTNode} child - child node
+         */
+        WhileStatementView.prototype.onBeforeModelRemove = function () {
+            this._statementContainer.getBoundingBox().off('bottom-edge-moved');
+            d3.select("#_" +this._model.id).remove();
+            this.getBoundingBox().w(0).h(0);
+        };
+
+        /**
+         * Override Child remove callback
+         * @param {ASTNode} child - removed child
+         */
+        WhileStatementView.prototype.childRemovedCallback = function (child) {
+            if (BallerinaASTFactory.isStatement(child)) {
+                this.getStatementContainer().childStatementRemovedCallback(child);
+            }
         };
 
         /**
@@ -97,7 +114,6 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             });
 
             // Creating property pane
-            var editableProperties = [];
             var editableProperty = {
                 propertyType: "text",
                 key: "Condition",
@@ -105,11 +121,10 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
                 getterMethod: this._model.getCondition,
                 setterMethod: this._model.setCondition
             };
-            editableProperties.push(editableProperty);
             this._createPropertyPane({
                 model: this._model,
                 statementGroup:whileGroup,
-                editableProperties: editableProperties
+                editableProperties: editableProperty
             });
 
             this.getBoundingBox().on('height-changed', function(dh){
@@ -156,9 +171,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             var StatementContainer = require('./statement-container');
             this._statementContainer = new StatementContainer(statementContainerOpts);
             this.listenTo(this._statementContainer.getBoundingBox(), 'height-changed', function(dh){
-                if(this.getBoundingBox().getBottom() < this._statementContainer.getBoundingBox().getBottom()){
-                    this.getBoundingBox().h(this.getBoundingBox().h() + dh);
-                }
+                this.getBoundingBox().h(this.getBoundingBox().h() + dh);
             });
             this.getBoundingBox().on('top-edge-moved', function (dy) {
                 this._statementContainer.isOnWholeContainerMove = true;
@@ -212,6 +225,14 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
 
         WhileStatementView.prototype.getViewOptions = function () {
             return this._viewOptions;
+        };
+
+        /**
+         * Get the statement container
+         * @return {StatementContainer} - statement container
+         */
+        WhileStatementView.prototype.getStatementContainer = function () {
+            return this._statementContainer;
         };
 
         return WhileStatementView;
