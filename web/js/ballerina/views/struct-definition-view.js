@@ -89,7 +89,15 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
 
             var typeDropdown = new Dropdown({
                 class: {mainWrapper: "struct-type-dropdown-wrapper"},
-                emptyValue: "Type"
+                emptyValue: "Type",
+                onDropdownOpen: function() {
+                    self.getBodyWrapper().css("height", $(self.getBodyWrapper()).height());
+                    self.getBodyWrapper().css("overflow-x", "visible");
+                },
+                onDropdownClosed: function() {
+                    self.getBodyWrapper().css("height", "");
+                    self.getBodyWrapper().css("overflow-x", "");
+                }
             });
             typeDropdown.getElement().appendTo(structOperationsWrapper);
 
