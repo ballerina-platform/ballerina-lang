@@ -38,6 +38,10 @@ public class Constants {
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
     public static final String HTTP_REASON_PHRASE = "HTTP_REASON_PHRASE";
     public static final String HTTP_CONTENT_LENGTH = "Content-Length";
+    public static final String HTTP_CONTENT_TYPE = "Content-Type";
+    public static final String CONTENT_TYPE_TEXT_PLAIN = "text/plain";
+    public static final String HTTP_CONNECTION = "Connection";
+    public static final String KEEP_ALIVE = "keep-alive";
     public static final String USER_AGENT_HEADER = "User-Agent";
     public static final String PROTOCOL = "PROTOCOL";
     public static final String HOST = "HOST";

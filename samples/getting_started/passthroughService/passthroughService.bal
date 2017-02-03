@@ -1,4 +1,6 @@
+import ballerina.lang.json;
 import ballerina.lang.message;
+import ballerina.lang.system;
 import ballerina.net.http;
 
 @BasePath ("/passthrough")
@@ -8,8 +10,14 @@ service passthrough {
     resource passthrough (message m) {
         http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090");
         message response;
+        json jsonPayload;
+        string s;
 
         response = http:HTTPConnector.get(nyseEP, "/nyseStock", m);
+
+        jsonPayload = message:getJsonPayload(response);
+        s = json:getString(jsonPayload, "$.name");
+        system:println(s);
 
         reply response;
     }
