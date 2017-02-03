@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core.query.processor.stream.window;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -29,16 +30,30 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+//@Description("A sliding time window based on external time. It holds events " +
+//        "that arrived during the last windowTime period from the external timestamp, " +
+//        "and gets updated on every monotonically increasing timestamp.")
+//@Parameters({
+//        @Parameter(name = "timestamp", type = {DataType.LONG}),
+//        @Parameter(name = "windowTime", type = {DataType.INT, DataType.LONG, DataType.TIME})
+//})
+@Extension(
+        name = "externalTime",
+        namespace = "",
+        description = "",
+        parameters = {}
+)
 public class ExternalTimeWindowProcessor extends WindowProcessor implements FindableProcessor {
     static final Logger log = Logger.getLogger(ExternalTimeWindowProcessor.class);
     private long timeToKeep;
@@ -72,14 +87,14 @@ public class ExternalTimeWindowProcessor extends WindowProcessor implements Find
             while (streamEventChunk.hasNext()) {
 
                 StreamEvent streamEvent = streamEventChunk.next();
-                long currentTime = (Long) streamEvent.getAttribute(timeStampVariableExpressionExecutor.getPosition());
+                long currentTime = (Long) timeStampVariableExpressionExecutor.execute(streamEvent);
 
                 StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
                 clonedEvent.setType(StreamEvent.Type.EXPIRED);
 
                 while (expiredEventChunk.hasNext()) {
                     StreamEvent expiredEvent = expiredEventChunk.next();
-                    long expiredEventTime = (Long) expiredEvent.getAttribute(timeStampVariableExpressionExecutor.getPosition());
+                    long expiredEventTime = (Long) timeStampVariableExpressionExecutor.execute(expiredEvent);
                     long timeDiff = expiredEventTime - currentTime + timeToKeep;
                     if (timeDiff <= 0) {
                         expiredEventChunk.remove();
@@ -111,14 +126,16 @@ public class ExternalTimeWindowProcessor extends WindowProcessor implements Find
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{expiredEventChunk.getFirst()};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("ExpiredEventChunk", expiredEventChunk.getFirst());
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> state) {
         expiredEventChunk.clear();
-        expiredEventChunk.add((StreamEvent) state[0]);
+        expiredEventChunk.add((StreamEvent) state.get("ExpiredEventChunk"));
     }
 
     @Override
@@ -129,6 +146,6 @@ public class ExternalTimeWindowProcessor extends WindowProcessor implements Find
     @Override
     public Finder constructFinder(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext,
                                   List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
-        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaStateHolder,executionPlanContext,variableExpressionExecutors,eventTableMap);
+        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
     }
 }

@@ -25,6 +25,7 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.GroupedComplexEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.util.Scheduler;
+import org.wso2.siddhi.core.util.parser.SchedulerParser;
 
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
@@ -36,9 +37,11 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
     private Map<String, LastEventHolder> groupByKeyEvents = new LinkedHashMap<String, LastEventHolder>();
     private Scheduler scheduler;
     private long scheduledTime;
+    String queryName;
 
-    public AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter, ExecutionPlanContext executionPlanContext) {
+    public AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter, ExecutionPlanContext executionPlanContext, String queryName) {
         super(wrappedSnapshotOutputRateLimiter, executionPlanContext);
+        this.queryName = queryName;
         this.id = id;
         this.value = value;
         this.scheduledExecutorService = scheduledExecutorService;
@@ -46,7 +49,7 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
 
     @Override
     public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter) {
-        return new AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, wrappedSnapshotOutputRateLimiter, executionPlanContext);
+        return new AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
     }
 
     @Override
@@ -71,7 +74,7 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
                         lastEventHolder.addLastInEvent(groupedComplexEvent.getComplexEvent());
                     } else if (groupedComplexEvent.getType() == ComplexEvent.Type.EXPIRED) {
                         lastEventHolder.removeLastInEvent(groupedComplexEvent.getComplexEvent());
-                    }else if (groupedComplexEvent.getType() == ComplexEvent.Type.RESET) {
+                    } else if (groupedComplexEvent.getType() == ComplexEvent.Type.RESET) {
                         groupByKeyEvents.clear();
                     }
                 }
@@ -93,7 +96,7 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
                 lastEventHolderEntry.getValue().checkAndClearLastInEvent();
                 if (lastEventHolderEntry.getValue().lastEvent == null) {
                     iterator.remove();
-                }else {
+                } else {
                     outputEventChunk.add(cloneComplexEvent(lastEventHolderEntry.getValue().lastEvent));
                 }
             }
@@ -105,9 +108,9 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
 
     @Override
     public void start() {
-        scheduler = new Scheduler(scheduledExecutorService, this, executionPlanContext);
+        scheduler = SchedulerParser.parse(scheduledExecutorService, this, executionPlanContext);
         scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
-        scheduler.init(queryLock);
+        scheduler.init(lockWrapper, queryName);
         long currentTime = System.currentTimeMillis();
         scheduledTime = currentTime + value;
         scheduler.notifyAt(scheduledTime);
@@ -119,13 +122,15 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{groupByKeyEvents};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("GroupByKeyEvents", groupByKeyEvents);
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        groupByKeyEvents = (Map<String, LastEventHolder>) state[0];
+    public void restoreState(Map<String, Object> state) {
+        groupByKeyEvents = (Map<String, LastEventHolder>) state.get("GroupByKeyEvents");
     }
 
     private class LastEventHolder {

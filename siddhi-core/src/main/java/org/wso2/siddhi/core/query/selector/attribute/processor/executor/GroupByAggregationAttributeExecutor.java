@@ -32,8 +32,8 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
 
     public GroupByAggregationAttributeExecutor(AttributeAggregator attributeAggregator,
                                                ExpressionExecutor[] attributeExpressionExecutors,
-                                               ExecutionPlanContext executionPlanContext) {
-        super(attributeAggregator, attributeExpressionExecutors, executionPlanContext);
+                                               ExecutionPlanContext executionPlanContext, String queryName) {
+        super(attributeAggregator, attributeExpressionExecutors, executionPlanContext, queryName);
     }
 
     @Override
@@ -57,24 +57,25 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
     }
 
     public ExpressionExecutor cloneExecutor(String key) {
-        return new GroupByAggregationAttributeExecutor(attributeAggregator.cloneAggregator(key), attributeExpressionExecutors, executionPlanContext);
+        return new GroupByAggregationAttributeExecutor(attributeAggregator.cloneAggregator(key), attributeExpressionExecutors, executionPlanContext, queryName);
     }
 
-
     @Override
-    public Object[] currentState() {
-        HashMap<String, Object[]> data = new HashMap<String, Object[]>();
+    public Map<String, Object> currentState() {
+        HashMap<String, Map<String, Object>> data = new HashMap<>();
         for (Map.Entry<String, AttributeAggregator> entry : aggregatorMap.entrySet()) {
             data.put(entry.getKey(), entry.getValue().currentState());
         }
-        return new Object[]{data};
+        Map<String, Object> state = new HashMap<>();
+        state.put("Data", data);
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        HashMap<String, Object[]> data = (HashMap<String, Object[]>) state[0];
+    public void restoreState(Map<String, Object> state) {
+        HashMap<String, Map<String, Object>> data = (HashMap<String, Map<String, Object>>) state.get("Data");
 
-        for (Map.Entry<String, Object[]> entry : data.entrySet()) {
+        for (Map.Entry<String, Map<String, Object>> entry : data.entrySet()) {
             String key = entry.getKey();
             AttributeAggregator aAttributeAggregator = attributeAggregator.cloneAggregator(key);
             aAttributeAggregator.initAggregator(attributeExpressionExecutors, executionPlanContext);

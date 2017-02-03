@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class AnnotationHelper {
 
-
+    // TODO: 1/28/17 update helper methods to work with nested annotations.
     public static Annotation getAnnotation(String annotationName, List<Annotation> annotationList) {
         Annotation annotation = null;
         for (Annotation aAnnotation : annotationList) {
@@ -44,6 +44,7 @@ public class AnnotationHelper {
         return annotation;
     }
 
+    // TODO: 1/28/17 update helper methods to work with nested annotations.
     public static Element getAnnotationElement(String annotationName, String elementName, List<Annotation> annotationList) {
         Annotation annotation = getAnnotation(annotationName, annotationList);
         if (annotation != null) {

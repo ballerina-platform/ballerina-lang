@@ -17,16 +17,25 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 
+//@Description("Returns the maximum value for all the events.")
+//@Parameters({
+//        @Parameter(name = "attribute", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+//})
+//@Return(type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+@Extension(
+        name = "max",
+        namespace = "",
+        description = "",
+        parameters = {}
+)
 public class MaxAttributeAggregator extends AttributeAggregator {
 
     private MaxAttributeAggregator maxOutputAttributeAggregator;
@@ -104,12 +113,12 @@ public class MaxAttributeAggregator extends AttributeAggregator {
     }
 
     @Override
-    public Object[] currentState() {
+    public Map<String, Object> currentState() {
         return maxOutputAttributeAggregator.currentState();
     }
 
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> state) {
         maxOutputAttributeAggregator.restoreState(state);
     }
 
@@ -155,16 +164,18 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{maxDeque, maxValue};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("MaxValue", maxValue);
+            state.put("MaxDeque", maxDeque);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            maxDeque = (Deque<Double>) state[0];
-            maxValue = (Double) state[1];
+        public void restoreState(Map<String, Object> state) {
+            maxValue = (Double) state.get("MaxValue");
+            maxDeque = (Deque<Double>) state.get("MaxDeque");
         }
-
     }
 
     class MaxAttributeAggregatorFloat extends MaxAttributeAggregator {
@@ -209,14 +220,17 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{maxDeque, maxValue};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("MaxValue", maxValue);
+            state.put("MaxDeque", maxDeque);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            maxDeque = (Deque<Float>) state[0];
-            maxValue = (Float) state[1];
+        public void restoreState(Map<String, Object> state) {
+            maxValue = (Float) state.get("MaxValue");
+            maxDeque = (Deque<Float>) state.get("MaxDeque");
         }
 
     }
@@ -263,14 +277,17 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{maxDeque, maxValue};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("MaxValue", maxValue);
+            state.put("MaxDeque", maxDeque);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            maxDeque = (Deque<Integer>) state[0];
-            maxValue = (Integer) state[1];
+        public void restoreState(Map<String, Object> state) {
+            maxValue = (Integer) state.get("MaxValue");
+            maxDeque = (Deque<Integer>) state.get("MaxDeque");
         }
 
     }
@@ -317,14 +334,17 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{maxDeque, maxValue};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("MaxValue", maxValue);
+            state.put("MaxDeque", maxDeque);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            maxDeque = (Deque<Long>) state[0];
-            maxValue = (Long) state[1];
+        public void restoreState(Map<String, Object> state) {
+            maxValue = (Long) state.get("MaxValue");
+            maxDeque = (Deque<Long>) state.get("MaxDeque");
         }
 
     }

@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -27,15 +28,27 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+//@Description("A sliding length window that holds the last windowLength events" +
+//        " at a given time, and gets updated for each arrival and expiry.")
+//@Parameters({
+//        @Parameter(name = "windowLength", type = {DataType.INT})
+//})
+@Extension(
+        name = "length",
+        namespace = "",
+        description = "",
+        parameters = {}
+)
 public class LengthWindowProcessor extends WindowProcessor implements FindableProcessor {
 
     private int length;
@@ -94,7 +107,7 @@ public class LengthWindowProcessor extends WindowProcessor implements FindablePr
     @Override
     public Finder constructFinder(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext,
                                   List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
-        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaStateHolder,executionPlanContext,variableExpressionExecutors,eventTableMap);
+        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
     }
 
     @Override
@@ -107,15 +120,20 @@ public class LengthWindowProcessor extends WindowProcessor implements FindablePr
         //Do nothing
     }
 
-    @Override
-    public Object[] currentState() {
-        return new Object[]{expiredEventChunk.getFirst(), count};
-    }
 
     @Override
-    public void restoreState(Object[] state) {
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("Count", count);
+        state.put("ExpiredEventChunk", expiredEventChunk.getFirst());
+        return state;
+    }
+
+
+    @Override
+    public void restoreState(Map<String, Object> state) {
+        count = (int) state.get("Count");
         expiredEventChunk.clear();
-        expiredEventChunk.add((StreamEvent) state[0]);
-        count = (Integer) state[1];
+        expiredEventChunk.add((StreamEvent) state.get("ExpiredEventChunk"));
     }
 }

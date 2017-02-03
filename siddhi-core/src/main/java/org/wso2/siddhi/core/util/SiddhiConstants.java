@@ -19,6 +19,14 @@
 package org.wso2.siddhi.core.util;
 
 public final class SiddhiConstants {
+
+    public static final String EVENT_TABLE = "eventtable";
+    public static final String INPUT_TRANSPORT = "inputtransport";
+    public static final String INPUT_MAPPER = "inputmapper";
+
+    public static final String OUTPUT_TRANSPORT = "outputtransport";
+    public static final String OUTPUT_MAPPER = "outputmapper";
+
     public static final int BEFORE_WINDOW_DATA_INDEX = 0;
     public static final int ON_AFTER_WINDOW_DATA_INDEX = 1;
     public static final int OUTPUT_DATA_INDEX = 2;
@@ -39,6 +47,8 @@ public final class SiddhiConstants {
     public static final String ANNOTATION_PRIMARY_KEY = "PrimaryKey";
     public static final String ANNOTATION_FROM = "from";
     public static final String ANNOTATION_BUFFER_SIZE = "BufferSize";
+    public static final String ANNOTATION_IDLE_TIME = "IdleTime";
+    public static final String ANNOTATION_INCREMENT = "Increment";
 
     public static final String TRUE = "true";
     public static final String TRIGGER_START = "start";
@@ -53,6 +63,8 @@ public final class SiddhiConstants {
     public static final String METRIC_INFIX_STREAMS = "Streams";
     public static final String METRIC_INFIX_SIDDHI = "Siddhi";
     public static final String METRIC_INFIX_QUERIES = "Queries";
+    public static final String METRIC_INFIX_WINDOWS = "Windows";
     public static final String METRIC_DELIMITER = ".";
     public static final String METRIC_AGGREGATE_ANNOTATION = "[+]";
+    public static final String EXTENSION_SEPARATOR = ":";
 }

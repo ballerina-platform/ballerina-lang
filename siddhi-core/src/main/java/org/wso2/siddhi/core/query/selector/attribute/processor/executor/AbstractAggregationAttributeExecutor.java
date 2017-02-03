@@ -29,18 +29,20 @@ public abstract class AbstractAggregationAttributeExecutor implements Expression
     protected ExpressionExecutor[] attributeExpressionExecutors;
     protected ExecutionPlanContext executionPlanContext;
     protected int size;
+    protected String queryName;
 
     public AbstractAggregationAttributeExecutor(AttributeAggregator attributeAggregator,
                                                 ExpressionExecutor[] attributeExpressionExecutors,
-                                                ExecutionPlanContext executionPlanContext) {
+                                                ExecutionPlanContext executionPlanContext, String queryName) {
         this.executionPlanContext = executionPlanContext;
         this.attributeExpressionExecutors = attributeExpressionExecutors;
         this.attributeAggregator = attributeAggregator;
         this.size = attributeExpressionExecutors.length;
+        this.queryName = queryName;
         if (elementId == null) {
-            elementId = executionPlanContext.getElementIdGenerator().createNewId();
+            elementId = "AbstractAggregationAttributeExecutor-" + executionPlanContext.getElementIdGenerator().createNewId();
         }
-        executionPlanContext.getSnapshotService().addSnapshotable(this);
+        executionPlanContext.getSnapshotService().addSnapshotable(queryName, this);
     }
 
     @Override

@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -30,16 +31,31 @@ import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.Scheduler;
-import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+//@Description("A batch (tumbling) time window that holds events that arrive during windowTime periods, and gets updated for each windowTime.")
+//@Parameters({
+//        @Parameter(name = "windowTime", type = {DataType.INT, DataType.LONG, DataType.TIME},
+//                description = "The batch time period for which the window should hold events"),
+//        @Parameter(name = "startTime", type = {DataType.INT}, optional = true,
+//                description = "This specifies an offset in milliseconds in order to start the " +
+//                        "window at a time different to the standard time")
+//})
+@Extension(
+        name = "timeBatch",
+        namespace = "",
+        description = "",
+        parameters = {}
+)
 public class TimeBatchWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
 
     private long timeInMilliSeconds;
@@ -57,13 +73,13 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     }
 
     @Override
-    public void setScheduler(Scheduler scheduler) {
-        this.scheduler = scheduler;
+    public Scheduler getScheduler() {
+        return scheduler;
     }
 
     @Override
-    public Scheduler getScheduler() {
-        return scheduler;
+    public void setScheduler(Scheduler scheduler) {
+        this.scheduler = scheduler;
     }
 
     @Override
@@ -207,27 +223,23 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     }
 
     @Override
-    public Object[] currentState() {
-        if (expiredEventChunk != null) {
-            return new Object[]{currentEventChunk.getFirst(), expiredEventChunk.getFirst(), resetEvent};
-        } else {
-            return new Object[]{currentEventChunk.getFirst(), resetEvent};
-        }
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("CurrentEventChunk", currentEventChunk.getFirst());
+        state.put("ExpiredEventChunk", expiredEventChunk != null ? expiredEventChunk.getFirst() : null);
+        state.put("ResetEvent", resetEvent);
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        if (state.length > 2) {
-            currentEventChunk.clear();
-            currentEventChunk.add((StreamEvent) state[0]);
+    public void restoreState(Map<String, Object> state) {
+        if (expiredEventChunk != null) {
             expiredEventChunk.clear();
-            expiredEventChunk.add((StreamEvent) state[1]);
-            resetEvent = (StreamEvent) state[2];
-        } else {
-            currentEventChunk.clear();
-            currentEventChunk.add((StreamEvent) state[0]);
-            resetEvent = (StreamEvent) state[1];
+            expiredEventChunk.add((StreamEvent) state.get("ExpiredEventChunk"));
         }
+        currentEventChunk.clear();
+        currentEventChunk.add((StreamEvent) state.get("CurrentEventChunk"));
+        resetEvent = (StreamEvent) state.get("ResetEvent");
     }
 
     @Override
@@ -241,6 +253,6 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
         if (expiredEventChunk == null) {
             expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
         }
-        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap);
+        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
     }
 }

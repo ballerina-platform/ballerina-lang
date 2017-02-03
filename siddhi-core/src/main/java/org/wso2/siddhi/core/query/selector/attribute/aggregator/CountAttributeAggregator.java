@@ -17,14 +17,26 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+import java.util.HashMap;
+import java.util.Map;
+
+//@Description("Returns the count of all the events.")
+//@Return(type = {DataType.LONG})
+@Extension(
+        name = "count",
+        namespace = "",
+        description = "",
+        parameters = {}
+)
 public class CountAttributeAggregator extends AttributeAggregator {
 
     private static Attribute.Type type = Attribute.Type.LONG;
-    private long value = 0l;
+    private long count = 0l;
 
     /**
      * The initialization method for FunctionExecutor
@@ -43,32 +55,32 @@ public class CountAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object processAdd(Object data) {
-        value++;
-        return value;
+        count++;
+        return count;
     }
 
     @Override
     public Object processAdd(Object[] data) {
-        value++;
-        return value;
+        count++;
+        return count;
     }
 
     @Override
     public Object processRemove(Object data) {
-        value--;
-        return value;
+        count--;
+        return count;
     }
 
     @Override
     public Object processRemove(Object[] data) {
-        value--;
-        return value;
+        count--;
+        return count;
     }
 
     @Override
     public Object reset() {
-        value = 0l;
-        return value;
+        count = 0l;
+        return count;
     }
 
     @Override
@@ -82,12 +94,14 @@ public class CountAttributeAggregator extends AttributeAggregator {
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{value};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("Count", count);
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        value = (Long) state[0];
+    public void restoreState(Map<String, Object> state) {
+        count = (int) state.get("Count");
     }
 }

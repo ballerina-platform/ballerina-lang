@@ -18,12 +18,20 @@
 
 package org.wso2.siddhi.core.query.extension.util;
 
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
 import org.wso2.siddhi.query.api.definition.Attribute.Type;
 
+import java.util.HashMap;
+import java.util.Map;
 
+@Extension(
+        name = "getAll",
+        namespace = "custom",
+        description = ""
+)
 public class StringConcatAggregatorString extends AttributeAggregator {
     private static final long serialVersionUID = 1358667438272544590L;
     private String aggregatedStringValue = "";
@@ -92,12 +100,15 @@ public class StringConcatAggregatorString extends AttributeAggregator {
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{aggregatedStringValue};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("AggregatedStringValue", aggregatedStringValue);
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        aggregatedStringValue = (String) state[0];
+    public void restoreState(Map<String, Object> state) {
+        aggregatedStringValue = (String) state.get("AggregatedStringValue");
     }
+
 }

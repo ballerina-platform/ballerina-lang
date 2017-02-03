@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -28,50 +29,47 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.*;
 
-/*
-* Sample Query:
-* from inputStream#window.sort(5, attribute1, "asc", attribute2, "desc")
-* select attribute1, attribute2
-* insert into outputStream;
-*
-* Description:
-* In the example query given, 5 is the size of the window.
-* The arguments following the size of the window are optional.
-* If neither "asc" nor "desc" is given for a certain attribute, order defaults to "asc"
-* */
+/**
+ * Sample Query:
+ * from inputStream#window.sort(5, attribute1, "asc", attribute2, "desc")
+ * select attribute1, attribute2
+ * insert into outputStream;
+ * <p>
+ * Description:
+ * In the example query given, 5 is the size of the window.
+ * The arguments following the size of the window are optional.
+ * If neither "asc" nor "desc" is given for a certain attribute, order defaults to "asc"
+ */
+//@Description("This window holds a batch of events that equal the number specified " +
+//        "as the windowLength and sorts them in the given order.")
+//@Parameters({
+//        @Parameter(name = "windowLength", type = {DataType.INT}),
+//        @Parameter(name = "attribute1", type = {DataType.STRING}, optional = true),
+//        @Parameter(name = "order1", type = {DataType.STRING}, optional = true),
+//        @Parameter(name = "attribute2", type = {DataType.STRING}, optional = true),
+//        @Parameter(name = "order2", type = {DataType.STRING}, optional = true)
+//})
+@Extension(
+        name = "sort",
+        namespace = "",
+        description = "",
+        parameters = {}
+)
 public class SortWindowProcessor extends WindowProcessor implements FindableProcessor {
+    private static final String ASC = "asc";
+    private static final String DESC = "desc";
     private int lengthToKeep;
     private ArrayList<StreamEvent> sortedWindow = new ArrayList<StreamEvent>();
     private ArrayList<Object[]> parameterInfo;
     private EventComparator eventComparator;
-
-    private static final String ASC = "asc";
-    private static final String DESC = "desc";
-
-    private class EventComparator implements Comparator<StreamEvent> {
-        @Override
-        public int compare(StreamEvent e1, StreamEvent e2) {
-            int comparisonResult;
-            for (Object[] listItem : parameterInfo) {
-                int[] variablePosition = ((VariableExpressionExecutor) listItem[0]).getPosition();
-                Comparable comparableVariable1 = (Comparable) e1.getAttribute(variablePosition);
-                Comparable comparableVariable2 = (Comparable) e2.getAttribute(variablePosition);
-                comparisonResult = comparableVariable1.compareTo(comparableVariable2);
-                if (comparisonResult != 0) {
-                    return ((Integer) listItem[1]) * comparisonResult;
-                }
-            }
-            return 0;
-        }
-    }
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
@@ -150,13 +148,16 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{sortedWindow};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("SortedWindow", sortedWindow);
+        return state;
     }
 
+
     @Override
-    public void restoreState(Object[] state) {
-        sortedWindow = (ArrayList<StreamEvent>) state[0];
+    public void restoreState(Map<String, Object> state) {
+        sortedWindow = (ArrayList<StreamEvent>) state.get("SortedWindow");
     }
 
     @Override
@@ -167,6 +168,23 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
     @Override
     public Finder constructFinder(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext,
                                   List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
-        return OperatorParser.constructOperator(sortedWindow, expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap);
+        return OperatorParser.constructOperator(sortedWindow, expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
+    }
+
+    private class EventComparator implements Comparator<StreamEvent> {
+        @Override
+        public int compare(StreamEvent e1, StreamEvent e2) {
+            int comparisonResult;
+            for (Object[] listItem : parameterInfo) {
+                int[] variablePosition = ((VariableExpressionExecutor) listItem[0]).getPosition();
+                Comparable comparableVariable1 = (Comparable) e1.getAttribute(variablePosition);
+                Comparable comparableVariable2 = (Comparable) e2.getAttribute(variablePosition);
+                comparisonResult = comparableVariable1.compareTo(comparableVariable2);
+                if (comparisonResult != 0) {
+                    return ((Integer) listItem[1]) * comparisonResult;
+                }
+            }
+            return 0;
+        }
     }
 }

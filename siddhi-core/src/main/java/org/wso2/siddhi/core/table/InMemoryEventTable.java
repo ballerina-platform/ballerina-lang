@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core.table;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
@@ -38,10 +39,11 @@ import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.expression.Expression;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * In-memory event table implementation of SiddhiQL.
@@ -65,9 +67,9 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
         eventHolder = EventHolderPasser.parse(tableDefinition, tableStreamEventPool);
 
         if (elementId == null) {
-            elementId = executionPlanContext.getElementIdGenerator().createNewId();
+            elementId = "InMemoryEventTable-" + executionPlanContext.getElementIdGenerator().createNewId();
         }
-        executionPlanContext.getSnapshotService().addSnapshotable(this);
+        executionPlanContext.getSnapshotService().addSnapshotable(tableDefinition.getId(), this);
     }
 
     @Override
@@ -151,7 +153,7 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
                                   List<VariableExpressionExecutor> variableExpressionExecutors,
                                   Map<String, EventTable> eventTableMap) {
         return OperatorParser.constructOperator(eventHolder, expression, matchingMetaStateHolder,
-                executionPlanContext, variableExpressionExecutors, eventTableMap);
+                executionPlanContext, variableExpressionExecutors, eventTableMap, tableDefinition.getId());
     }
 
 
@@ -161,18 +163,20 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
                                       List<VariableExpressionExecutor> variableExpressionExecutors,
                                       Map<String, EventTable> eventTableMap) {
         return OperatorParser.constructOperator(eventHolder, expression, matchingMetaStateHolder,
-                executionPlanContext, variableExpressionExecutors, eventTableMap);
+                executionPlanContext, variableExpressionExecutors, eventTableMap, tableDefinition.getId());
     }
 
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{eventHolder};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+                state.put("EventHolder", eventHolder);
+                return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        eventHolder = (EventHolder) state[0];
+    public void restoreState(Map<String, Object> state) {
+        eventHolder = (EventHolder) state.get("EventHolder");
     }
 
     @Override

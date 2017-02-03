@@ -22,43 +22,47 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
+import org.wso2.siddhi.core.query.output.callback.PublishStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
+import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
 
 
 public abstract class OutputRateLimiter implements EternalReferencedHolder, Snapshotable {
 
     protected List<QueryCallback> queryCallbacks = new ArrayList<QueryCallback>();
     protected OutputCallback outputCallback = null;
-    private boolean hasCallBack = false;
-    private String elementId;
     protected ExecutionPlanContext executionPlanContext;
     protected LatencyTracker latencyTracker;
-    protected ReentrantLock queryLock;
+    protected LockWrapper lockWrapper;
+    protected String queryName;
+    private boolean hasCallBack = false;
+    private String elementId;
 
-    public void init(ExecutionPlanContext executionPlanContext, ReentrantLock queryLock) {
+    public void init(ExecutionPlanContext executionPlanContext, LockWrapper lockWrapper, String queryName) {
         this.executionPlanContext = executionPlanContext;
-        if (outputCallback != null && outputCallback instanceof InsertIntoStreamCallback) {
-            this.queryLock = queryLock;
+        this.queryName = queryName;
+        if (outputCallback != null && (outputCallback instanceof InsertIntoStreamCallback ||
+                outputCallback instanceof PublishStreamCallback)) {
+            this.lockWrapper = lockWrapper;
         }
         if (elementId == null) {
-            elementId = executionPlanContext.getElementIdGenerator().createNewId();
+            elementId = "OutputRateLimiter-" + executionPlanContext.getElementIdGenerator().createNewId();
         }
-        executionPlanContext.getSnapshotService().addSnapshotable(this);
+        executionPlanContext.getSnapshotService().addSnapshotable(queryName, this);
     }
 
     protected void sendToCallBacks(ComplexEventChunk complexEventChunk) {
         if (latencyTracker != null) {
             latencyTracker.markOut();
         }
-        if (queryLock != null && queryLock.isHeldByCurrentThread()) {
-            queryLock.unlock();
+        if (lockWrapper != null) {
+            lockWrapper.unlock();
         }
         if (!queryCallbacks.isEmpty()) {
             for (QueryCallback callback : queryCallbacks) {
@@ -85,17 +89,17 @@ public abstract class OutputRateLimiter implements EternalReferencedHolder, Snap
         hasCallBack = true;
     }
 
+    public abstract void process(ComplexEventChunk complexEventChunk);
+
+    public OutputCallback getOutputCallback() {
+        return outputCallback;
+    }
+
     public void setOutputCallback(OutputCallback outputCallback) {
         this.outputCallback = outputCallback;
         if (outputCallback != null) {
             hasCallBack = true;
         }
-    }
-
-    public abstract void process(ComplexEventChunk complexEventChunk);
-
-    public OutputCallback getOutputCallback() {
-        return outputCallback;
     }
 
     public boolean hasCallBack() {

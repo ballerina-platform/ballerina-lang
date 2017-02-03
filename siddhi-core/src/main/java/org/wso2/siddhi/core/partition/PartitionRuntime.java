@@ -18,6 +18,7 @@
 package org.wso2.siddhi.core.partition;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
@@ -43,12 +44,12 @@ import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PartitionRuntime implements Snapshotable {
 
@@ -78,7 +79,7 @@ public class PartitionRuntime implements Snapshotable {
         if (partitionId == null) {
             this.partitionId = UUID.randomUUID().toString();
         }
-        elementId = executionPlanContext.getElementIdGenerator().createNewId();
+        elementId = "PartitionRuntime-" + executionPlanContext.getElementIdGenerator().createNewId();
         this.partition = partition;
         this.streamDefinitionMap = streamDefinitionMap;
         this.streamJunctionMap = streamJunctionMap;
@@ -128,7 +129,7 @@ public class PartitionRuntime implements Snapshotable {
     public void addPartitionReceiver(QueryRuntime queryRuntime, List<VariableExpressionExecutor> executors, MetaStateEvent metaEvent) {
         Query query = queryRuntime.getQuery();
         List<List<PartitionExecutor>> partitionExecutors = new StreamPartitioner(query.getInputStream(), partition, metaEvent,
-                executors, executionPlanContext).getPartitionExecutorLists();
+                executors, executionPlanContext, null).getPartitionExecutorLists();
         if (queryRuntime.getStreamRuntime() instanceof SingleStreamRuntime) {
             SingleInputStream singleInputStream = (SingleInputStream) query.getInputStream();
             addPartitionReceiver(singleInputStream.getStreamId(), singleInputStream.isInnerStream(), metaEvent.getMetaStreamEvent(0), partitionExecutors.get(0));
@@ -162,7 +163,7 @@ public class PartitionRuntime implements Snapshotable {
     }
 
     private void addPartitionReceiver(String streamId, boolean isInnerStream, MetaStreamEvent metaStreamEvent, List<PartitionExecutor> partitionExecutors) {
-        if (!partitionStreamReceivers.containsKey(streamId) && !isInnerStream && !metaStreamEvent.isTableEvent()) {
+        if (!partitionStreamReceivers.containsKey(streamId) && !isInnerStream && !metaStreamEvent.isTableEvent() && !metaStreamEvent.isWindowEvent()) {
             PartitionStreamReceiver partitionStreamReceiver = new PartitionStreamReceiver(executionPlanContext, metaStreamEvent,
                     (StreamDefinition) streamDefinitionMap.get(streamId), partitionExecutors, this);
             partitionStreamReceivers.put(partitionStreamReceiver.getStreamId(), partitionStreamReceiver);
@@ -254,14 +255,15 @@ public class PartitionRuntime implements Snapshotable {
     }
 
     @Override
-    public Object[] currentState() {
-        List<String> partitionKeys = new ArrayList<String>(partitionInstanceRuntimeMap.keySet());
-        return new Object[]{partitionKeys};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+                state.put("PartitionKeys", partitionInstanceRuntimeMap.keySet());
+                return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        List<String> partitionKeys = (List<String>) state[0];
+    public void restoreState(Map<String, Object> state) {
+        List<String> partitionKeys  = (List<String>) state.get("PartitionKeys");
         for (String key : partitionKeys) {
             clonePartition(key);
         }

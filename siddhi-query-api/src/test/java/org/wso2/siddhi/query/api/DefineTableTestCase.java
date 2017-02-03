@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.definition.io.Store;
 import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
 
 public class DefineTableTestCase {
@@ -39,8 +40,20 @@ public class DefineTableTestCase {
 
     @Test
     public void testCreatingSQLTableDefinition() {
-        TableDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.FLOAT).annotation(Annotation.annotation("From").element("datasource.id", "cepDataSource"));
+        TableDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.FLOAT).annotation(Annotation.create("From").element("datasource.id", "cepDataSource"));
     }
 
+    @Test
+    public void testCreatingTableWithStoreDefinition() {
+        /*define table FooTable (time long, data string)
+        store rdbms options (url “http://localhost:8900”,
+        username “test”) ;*/
+        Store store = Store.store("rdbms").
+                option("url", "http://localhost:8900").
+                option("username", "test");
 
+        TableDefinition.id("FooTable").
+                attribute("time", Attribute.Type.STRING).
+                attribute("data", Attribute.Type.STRING).store(store);
+    }
 }

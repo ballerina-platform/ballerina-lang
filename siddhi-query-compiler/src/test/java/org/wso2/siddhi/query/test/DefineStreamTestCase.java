@@ -80,7 +80,116 @@ public class DefineStreamTestCase {
                         id("cseStream").
                         attribute("symbol", Attribute.Type.STRING).
                         attribute("price", Attribute.Type.INT).
-                        attribute("volume", Attribute.Type.FLOAT).annotation(Annotation.annotation("Foo").element("name", "bar").element("Custom")),
+                        attribute("volume", Attribute.Type.FLOAT).annotation(Annotation.create("Foo").element("name", "bar").element("Custom")),
+                streamDefinition);
+    }
+
+    @Test
+    public void testNestedAnnotations() throws SiddhiParserException {
+        StreamDefinition streamDefinition = SiddhiCompiler.parseStreamDefinition("" +
+                "@source(" +
+                "   @attributes(" +
+                "       a = '//h:time', " +
+                "       b= '//h:data'" +
+                "   ), " +
+                "   type=\"http\", " +
+                "   context=\"/test\", " +
+                "   transport=\"http,https\", " +
+                "   @map(" +
+                "       type=\"xml\", " +
+                "       namespace = \"h=uri, a=uri\"" +
+                "   )" +
+                ") " +
+                "define stream fooStream (id int, name string);");
+
+        Assert.assertEquals(
+                StreamDefinition
+                        .id("fooStream")
+                        .attribute("id", Attribute.Type.INT)
+                        .attribute("name", Attribute.Type.STRING)
+                        .annotation(Annotation.create("source")
+                                .annotation(Annotation.create("attributes")
+                                        .element("a", "//h:time")
+                                        .element("b", "//h:data")
+                                )
+                                .element("type", "http")
+                                .element("context", "/test")
+                                .element("transport", "http,https")
+                                .annotation(Annotation.create("map")
+                                        .element("type", "xml")
+                                        .element("namespace", "h=uri, a=uri")
+                                )
+                        ),
+                streamDefinition);
+    }
+
+    @Test
+    public void testMultilevelNestedAnnotations1() throws SiddhiParserException {
+        StreamDefinition streamDefinition = SiddhiCompiler.parseStreamDefinition("" +
+                "@sink( url='http://foo.com/test/{{data}}', " +
+                "   @map(type='xml', body=\"\"\"" +
+                "       <test>\n" +
+                "           <time>{{time}}</time>\n" +
+                "           <data>{{data}}</data>\n" +
+                "           </test>\"\"\"" +
+                "   )" +
+                ") " +
+                "define stream fooStream (id int, name string);");
+
+        Assert.assertEquals(
+                StreamDefinition
+                        .id("fooStream")
+                        .attribute("id", Attribute.Type.INT)
+                        .attribute("name", Attribute.Type.STRING)
+                        .annotation(Annotation.create("sink")
+                                .element("url", "http://foo.com/test/{{data}}")
+                                .annotation(Annotation.create("map")
+                                        .element("type", "xml")
+                                        .element("body", "       <test>\n" +
+                                                "           <time>{{time}}</time>\n" +
+                                                "           <data>{{data}}</data>\n" +
+                                                "           </test>")
+                                )
+                        ),
+                streamDefinition);
+    }
+
+    @Test
+    public void testMultilevelNestedAnnotations2() throws SiddhiParserException {
+        StreamDefinition streamDefinition = SiddhiCompiler.parseStreamDefinition("" +
+                "@source(" +
+                "   type='http', " +
+                "   context='/test', " +
+                "   transport='http,https', " +
+                "   @map(" +
+                "       type='xml', " +
+                "       namespace = \"h=uri, a=uri\", " +
+                "       @attributes(" +
+                "           a = '//h:time', " +
+                "           b= '//h:data'" +
+                "       )" +
+                "   )" +
+                ") " +
+                "define stream fooStream (id int, name string);");
+
+        Assert.assertEquals(
+                StreamDefinition
+                        .id("fooStream")
+                        .attribute("id", Attribute.Type.INT)
+                        .attribute("name", Attribute.Type.STRING)
+                        .annotation(Annotation.create("source")
+                                .element("type", "http")
+                                .element("context", "/test")
+                                .element("transport", "http,https")
+                                .annotation(Annotation.create("map")
+                                        .element("type", "xml")
+                                        .element("namespace", "h=uri, a=uri")
+                                        .annotation(Annotation.create("attributes")
+                                                .element("a", "//h:time")
+                                                .element("b", "//h:data")
+                                        )
+                                )
+                        ),
                 streamDefinition);
     }
 }

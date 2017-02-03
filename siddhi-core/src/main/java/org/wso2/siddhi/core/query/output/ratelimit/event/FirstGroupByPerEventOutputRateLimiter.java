@@ -24,7 +24,9 @@ import org.wso2.siddhi.core.event.GroupedComplexEvent;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class FirstGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
@@ -94,15 +96,20 @@ public class FirstGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{allComplexEventChunk, groupByKeys, counter};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("Counter", counter);
+        state.put("GroupByKeys", groupByKeys);
+        state.put("AllComplexEventChunk", allComplexEventChunk.getFirst());
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        allComplexEventChunk = (ComplexEventChunk<ComplexEvent>) state[0];
-        groupByKeys = (List<String>) state[1];
-        counter = (Integer) state[2];
+    public void restoreState(Map<String, Object> state) {
+        counter = (int) state.get("Counter");
+        groupByKeys = (List<String>) state.get("GroupByKeys");
+        allComplexEventChunk.clear();
+        allComplexEventChunk.add((ComplexEvent) state.get("AllComplexEventChunk"));
     }
 
 }

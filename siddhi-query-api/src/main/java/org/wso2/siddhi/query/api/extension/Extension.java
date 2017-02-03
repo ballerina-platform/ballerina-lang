@@ -23,5 +23,5 @@ public interface Extension extends Serializable {
 
     public String getNamespace();
 
-    public String getFunction();
+    public String getName();
 }

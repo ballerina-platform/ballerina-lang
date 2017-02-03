@@ -24,6 +24,8 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.function.EvalScript;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+import java.util.Map;
+
 public class ScriptFunctionExecutor extends FunctionExecutor {
 
     static final Logger log = Logger.getLogger(ScriptFunctionExecutor.class);
@@ -68,12 +70,12 @@ public class ScriptFunctionExecutor extends FunctionExecutor {
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[0];
+    public Map<String, Object> currentState() {
+        return null;
     }
 
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> state) {
 
     }
 }

@@ -24,6 +24,8 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+import java.util.Map;
+
 public class CustomFunctionExtension extends FunctionExecutor {
 
     private Attribute.Type returnType;
@@ -124,8 +126,8 @@ public class CustomFunctionExtension extends FunctionExecutor {
      * @return stateful objects of the processing element as an array
      */
     @Override
-    public Object[] currentState() {
-        return new Object[0];
+    public Map<String, Object> currentState() {
+        return null;
     }
 
     /**
@@ -136,7 +138,7 @@ public class CustomFunctionExtension extends FunctionExecutor {
      *              the same order provided by currentState().
      */
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> state) {
 
     }
 

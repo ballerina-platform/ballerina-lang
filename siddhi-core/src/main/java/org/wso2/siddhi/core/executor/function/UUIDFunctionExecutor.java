@@ -18,20 +18,30 @@
 
 package org.wso2.siddhi.core.executor.function;
 
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+import java.util.Map;
 import java.util.UUID;
 
-public class UUIDFunctionExecutor extends FunctionExecutor{
+//@Description("Generates a UUID (Universally Unique Identifier).")
+//@Return(type = {DataType.STRING})
+@Extension(
+        name = "UUID",
+        namespace = "",
+        description = "",
+        parameters = {},
+        returnAttributes = {}
+)
+public class UUIDFunctionExecutor extends FunctionExecutor {
 
     Attribute.Type returnType = Attribute.Type.STRING;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
-            ExecutionPlanContext executionPlanContext) {
-
+                        ExecutionPlanContext executionPlanContext) {
         //Nothing to be done.
     }
 
@@ -61,12 +71,12 @@ public class UUIDFunctionExecutor extends FunctionExecutor{
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[0]; //No need to maintain a state.
+    public Map<String, Object> currentState() {
+        return null; //No need to maintain a state.
     }
 
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> state) {
         //Since there's no need to maintain a state, nothing needs to be done here.
     }
 }

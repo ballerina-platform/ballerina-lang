@@ -19,23 +19,24 @@ package org.wso2.siddhi.core;
 
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.StatisticsConfiguration;
 import org.wso2.siddhi.core.util.ExecutionPlanRuntimeBuilder;
 import org.wso2.siddhi.core.util.parser.ExecutionPlanParser;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
-import org.wso2.siddhi.core.config.StatisticsConfiguration;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
  * This is the main interface class of Siddhi where users will interact when using Siddhi as a library.
  */
-public class SiddhiManager {
+public class SiddhiManager implements SiddhiManagerService {
 
     private static final Logger log = Logger.getLogger(SiddhiManager.class);
     private SiddhiContext siddhiContext;
@@ -49,12 +50,7 @@ public class SiddhiManager {
         siddhiContext = new SiddhiContext();
     }
 
-    /**
-     * Method to add stream definitions, partitions and queries of an execution plan
-     *
-     * @param executionPlan executionPlan which contains stream definitions,queries and partitions
-     * @return executionPlanRuntime corresponding to the given executionPlan
-     */
+    @Override
     public ExecutionPlanRuntime createExecutionPlanRuntime(ExecutionPlan executionPlan) {
         ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder = ExecutionPlanParser.parse(executionPlan, siddhiContext);
         executionPlanRuntimeBuilder.setExecutionPlanRuntimeMap(executionPlanRuntimeMap);
@@ -63,18 +59,14 @@ public class SiddhiManager {
         return executionPlanRuntime;
     }
 
-    /**
-     * Method to add execution plan in the form of a string. You can add valid set of Siddhi queries as a String to
-     * this method and receive {@link ExecutionPlanRuntime} object representing the queries.
-     * @param executionPlan String representation of Siddhi queries
-     * @return Execution Plan Runtime
-     */
+    @Override
     public ExecutionPlanRuntime createExecutionPlanRuntime(String executionPlan) {
         return createExecutionPlanRuntime(SiddhiCompiler.parse(executionPlan));
     }
 
     /**
      * Method to retrieve already submitted execution plan by providing the name.
+     *
      * @param executionPlanName Name of the required Execution Plan
      * @return Execution Plan Runtime representing the provided name
      */
@@ -82,24 +74,14 @@ public class SiddhiManager {
         return executionPlanRuntimeMap.get(executionPlanName);
     }
 
-    /**
-     * Method to validate provided {@link ExecutionPlan} object. Method will throw
-     * {@link org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException} if submitted Execution Plan has
-     * errors.
-     * @param executionPlan Execution plan to be validated.
-     */
+    @Override
     public void validateExecutionPlan(ExecutionPlan executionPlan) {
         final ExecutionPlanRuntime executionPlanRuntime = ExecutionPlanParser.parse(executionPlan, siddhiContext).build();
         executionPlanRuntime.start();
         executionPlanRuntime.shutdown();
     }
 
-    /**
-     * Method to validate provided String representation of Execution Plan. Method will throw
-     * {@link org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException} if submitted Siddhi queries have
-     * errors.
-     * @param executionPlan execution plan
-     */
+    @Override
     public void validateExecutionPlan(String executionPlan) {
         validateExecutionPlan(SiddhiCompiler.parse(executionPlan));
     }
@@ -108,6 +90,7 @@ public class SiddhiManager {
      * Method to set persistence for the Siddhi Manager instance.
      * {@link org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore} is the default persistence store
      * implementation users can utilize.
+     *
      * @param persistenceStore Persistence Store implementation to be used.
      */
     public void setPersistenceStore(PersistenceStore persistenceStore) {
@@ -116,7 +99,8 @@ public class SiddhiManager {
 
     /**
      * Method used to register extensions to the Siddhi Manager. But extension classes should be present in classpath.
-     * @param name Name of the extension as mentioned in .siddhiext
+     *
+     * @param name  Name of the extension as mentioned in the annotation.
      * @param clazz Class name of the implementation
      */
     public void setExtension(String name, Class clazz) {
@@ -124,9 +108,27 @@ public class SiddhiManager {
     }
 
     /**
+     * Method used to get the extensions registered in the siddhi manager.
+     *
+     * @return Extension name to class map
+     */
+    public Map<String, Class> getExtensions() {
+        return siddhiContext.getSiddhiExtensions();
+    }
+
+    /**
+     * Method used to remove the extensions registered in the siddhi manager.
+     * @param name Name of the extension as given in the annotation.
+     */
+    public void removeExtension(String name){
+        siddhiContext.getSiddhiExtensions().remove(name);
+    }
+
+    /**
      * Method used to add Carbon DataSources to Siddhi Manager to utilize them for event tables.
+     *
      * @param dataSourceName Name of the DataSource
-     * @param dataSource Object representing DataSource
+     * @param dataSource     Object representing DataSource
      */
     public void setDataSource(String dataSourceName, DataSource dataSource) {
         siddhiContext.addSiddhiDataSource(dataSourceName, dataSource);
@@ -134,9 +136,10 @@ public class SiddhiManager {
 
     /**
      * Method to integrate Carbon Metrics into Siddhi
+     *
      * @param statisticsConfiguration statistics configuration
      */
-    public void setStatisticsConfiguration(StatisticsConfiguration statisticsConfiguration){
+    public void setStatisticsConfiguration(StatisticsConfiguration statisticsConfiguration) {
         siddhiContext.setStatisticsConfiguration(statisticsConfiguration);
     }
 

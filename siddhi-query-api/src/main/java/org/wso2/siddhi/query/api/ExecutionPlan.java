@@ -23,6 +23,7 @@ import org.wso2.siddhi.query.api.definition.*;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.execution.ExecutionElement;
+import org.wso2.siddhi.query.api.execution.Subscription;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
@@ -37,6 +38,7 @@ public class ExecutionPlan {
 
     private Map<String, StreamDefinition> streamDefinitionMap = new HashMap<String, StreamDefinition>();
     private Map<String, TableDefinition> tableDefinitionMap = new HashMap<String, TableDefinition>();
+    private Map<String, WindowDefinition> windowDefinitionMap = new HashMap<String, WindowDefinition>();
     private Map<String, TriggerDefinition> triggerDefinitionMap = new HashMap<String, TriggerDefinition>();
     private List<ExecutionElement> executionElementList = new ArrayList<ExecutionElement>();
     private List<String> executionElementNameList = new ArrayList<String>();
@@ -49,7 +51,7 @@ public class ExecutionPlan {
     private Map<String, FunctionDefinition> functionDefinitionMap = new HashMap<String, FunctionDefinition>();
 
     public ExecutionPlan(String name) {
-        annotations.add(Annotation.annotation("info").element("name", name));
+        annotations.add(Annotation.create("info").element("name", name));
     }
 
     public ExecutionPlan(List<Annotation> annotations) {
@@ -89,6 +91,17 @@ public class ExecutionPlan {
         return this;
     }
 
+    public ExecutionPlan defineWindow(WindowDefinition windowDefinition) {
+        if (windowDefinition == null) {
+            throw new ExecutionPlanValidationException("Window Definition should not be null");
+        } else if (windowDefinition.getId() == null) {
+            throw new ExecutionPlanValidationException("Window Id should not be null for Window Definition");
+        }
+        checkDuplicateDefinition(windowDefinition);
+        this.windowDefinitionMap.put(windowDefinition.getId(), windowDefinition);
+        return this;
+    }
+
     public ExecutionPlan defineTrigger(TriggerDefinition triggerDefinition) {
         if (triggerDefinition == null) {
             throw new ExecutionPlanValidationException("Trigger Definition should not be null");
@@ -124,6 +137,12 @@ public class ExecutionPlan {
                     definition.getId() + "' already exist : " + existingStreamDefinition +
                     ", hence cannot add " + definition);
         }
+        WindowDefinition existingWindowDefinition = windowDefinitionMap.get(definition.getId());
+        if (existingWindowDefinition != null && (!existingWindowDefinition.equals(definition) || definition instanceof WindowDefinition)) {
+            throw new DuplicateDefinitionException("Stream Definition with same Window Id '" +
+                    definition.getId() + "' already exist : " + existingWindowDefinition +
+                    ", hence cannot add " + definition);
+        }
     }
 
     public ExecutionPlan addQuery(Query query) {
@@ -140,6 +159,23 @@ public class ExecutionPlan {
         }
         executionElementNameList.add(name);
         this.executionElementList.add(query);
+        return this;
+    }
+
+    public ExecutionPlan addSubscription(Subscription subscription) {
+        if (subscription == null) {
+            throw new ExecutionPlanValidationException("Subscription should not be null");
+        }
+        String name = null;
+        Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_INFO, SiddhiConstants.ANNOTATION_ELEMENT_NAME, subscription.getAnnotations());
+        if (element != null) {
+            name = element.getValue();
+        }
+        if (name != null && executionElementNameList.contains(name)) {
+            throw new ExecutionPlanValidationException("Cannot add Subscription as another Execution Element already uses its name=" + name);
+        }
+        executionElementNameList.add(name);
+        this.executionElementList.add(subscription);
         return this;
     }
 
@@ -185,11 +221,17 @@ public class ExecutionPlan {
         return triggerDefinitionMap;
     }
 
+    public Map<String, WindowDefinition> getWindowDefinitionMap() {
+        return windowDefinitionMap;
+    }
+
+
     @Override
     public String toString() {
         return "ExecutionPlan{" +
                 "streamDefinitionMap=" + streamDefinitionMap +
                 ", tableDefinitionMap=" + tableDefinitionMap +
+                ", windowDefinitionMap=" + windowDefinitionMap +
                 ", executionElementList=" + executionElementList +
                 ", executionElementNameList=" + executionElementNameList +
                 ", annotations=" + annotations +

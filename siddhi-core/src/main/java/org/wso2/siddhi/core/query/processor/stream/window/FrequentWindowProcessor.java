@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -28,12 +29,13 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,6 +44,20 @@ import java.util.concurrent.ConcurrentHashMap;
  * This is the implementation of a counting algorithm based on
  * Misra-Gries counting algorithm
  */
+//@Description("This window returns the latest events with the most frequently " +
+//        "occurred value for a given attribute(s). Frequency calculation for this " +
+//        "window processor is based on Misra-Gries counting algorithm.")
+//@Parameters({
+//        @Parameter(name = "eventCount", type = {DataType.INT}),
+//        @Parameter(name = "attribute1", type = {DataType.STRING}, optional = true),
+//        @Parameter(name = "attribute2", type = {DataType.STRING}, optional = true)
+//})
+@Extension(
+        name = "frequent",
+        namespace = "",
+        description = "",
+        parameters = {}
+)
 public class FrequentWindowProcessor extends WindowProcessor implements FindableProcessor {
     private ConcurrentHashMap<String, Integer> countMap = new ConcurrentHashMap<String, Integer>();
     private ConcurrentHashMap<String, StreamEvent> map = new ConcurrentHashMap<String, StreamEvent>();
@@ -125,13 +141,15 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{countMap};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("CountMap", countMap);
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        countMap = (ConcurrentHashMap<String, Integer>) state[0];
+    public void restoreState(Map<String, Object> state) {
+        countMap = (ConcurrentHashMap<String, Integer>) state.get("CountMap");
     }
 
     private String generateKey(StreamEvent event) {      // for performance reason if its all attribute we don't do the attribute list check
@@ -156,6 +174,6 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
     @Override
     public Finder constructFinder(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext,
                                   List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
-        return OperatorParser.constructOperator(map.values(), expression, matchingMetaStateHolder,executionPlanContext,variableExpressionExecutors,eventTableMap);
+        return OperatorParser.constructOperator(map.values(), expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
     }
 }

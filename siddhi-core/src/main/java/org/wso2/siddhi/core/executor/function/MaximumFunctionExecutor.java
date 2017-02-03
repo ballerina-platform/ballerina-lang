@@ -18,12 +18,29 @@
 
 package org.wso2.siddhi.core.executor.function;
 
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
+import java.util.Map;
 
+//@Description("Returns the maximum value of the input parameters.")
+//@Parameters({
+//        @Parameter(name = "arg", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+//})
+//
+//@Return(type = {
+//        DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT
+//})
+@Extension(
+        name = "maximum",
+        namespace = "",
+        description = "",
+        parameters = {},
+        returnAttributes = {}
+)
 public class MaximumFunctionExecutor extends FunctionExecutor {
 
     private Attribute.Type returnType;
@@ -118,12 +135,12 @@ public class MaximumFunctionExecutor extends FunctionExecutor {
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[0];
+    public Map<String, Object> currentState() {
+        return null;
     }
 
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> state) {
 
     }
 }

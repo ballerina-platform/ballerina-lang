@@ -17,13 +17,27 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
+//@Description("Returns the sum for all the events.")
+//@Parameters({
+//        @Parameter(name = "attribute", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+//})
+//@Return(type = {DataType.LONG, DataType.DOUBLE})
+@Extension(
+        name = "sum",
+        namespace = "",
+        description = "",
+        parameters = {}
+)
 public class SumAttributeAggregator extends AttributeAggregator {
 
     private SumAttributeAggregator sumOutputAttributeAggregator;
@@ -102,19 +116,19 @@ public class SumAttributeAggregator extends AttributeAggregator {
     }
 
     @Override
-    public Object[] currentState() {
+    public Map<String, Object> currentState() {
         return sumOutputAttributeAggregator.currentState();
     }
 
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> state) {
         sumOutputAttributeAggregator.restoreState(state);
     }
 
     class SumAttributeAggregatorDouble extends SumAttributeAggregator {
 
         private final Attribute.Type type = Attribute.Type.DOUBLE;
-        private double value = 0.0;
+        private double sum = 0.0;
 
         public Attribute.Type getReturnType() {
             return type;
@@ -122,30 +136,32 @@ public class SumAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object processAdd(Object data) {
-            value += (Double) data;
-            return value;
+            sum += (Double) data;
+            return sum;
         }
 
         @Override
         public Object processRemove(Object data) {
-            value -= (Double) data;
-            return value;
+            sum -= (Double) data;
+            return sum;
         }
 
         @Override
         public Object reset() {
-            value = 0.0;
-            return value;
+            sum = 0.0;
+            return sum;
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{value};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("Sum", sum);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            value = (Double) state[0];
+        public void restoreState(Map<String, Object> state) {
+            sum = (double) state.get("Sum");
         }
 
     }
@@ -153,7 +169,7 @@ public class SumAttributeAggregator extends AttributeAggregator {
     class SumAttributeAggregatorFloat extends SumAttributeAggregator {
 
         private final Attribute.Type type = Attribute.Type.DOUBLE;
-        private double value = 0.0;
+        private double sum = 0.0;
 
         public Attribute.Type getReturnType() {
             return type;
@@ -161,29 +177,31 @@ public class SumAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object processAdd(Object data) {
-            value += ((Float) data).doubleValue();
-            return value;
+            sum += ((Float) data).doubleValue();
+            return sum;
         }
 
         @Override
         public Object processRemove(Object data) {
-            value -= ((Float) data).doubleValue();
-            return value;
+            sum -= ((Float) data).doubleValue();
+            return sum;
         }
 
         public Object reset() {
-            value = 0.0;
-            return value;
+            sum = 0.0;
+            return sum;
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{value};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("Sum", sum);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            value = (Double) state[0];
+        public void restoreState(Map<String, Object> state) {
+            sum = (double) state.get("Sum");
         }
 
     }
@@ -191,7 +209,7 @@ public class SumAttributeAggregator extends AttributeAggregator {
     class SumAttributeAggregatorInt extends SumAttributeAggregator {
 
         private final Attribute.Type type = Attribute.Type.LONG;
-        private long value = 0L;
+        private long sum = 0L;
 
         public Attribute.Type getReturnType() {
             return type;
@@ -199,29 +217,31 @@ public class SumAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object processAdd(Object data) {
-            value += ((Integer) data).longValue();
-            return value;
+            sum += ((Integer) data).longValue();
+            return sum;
         }
 
         @Override
         public Object processRemove(Object data) {
-            value -= ((Integer) data).longValue();
-            return value;
+            sum -= ((Integer) data).longValue();
+            return sum;
         }
 
         public Object reset() {
-            value = 0L;
-            return value;
+            sum = 0L;
+            return sum;
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{value};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("Sum", sum);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            value = (Long) state[0];
+        public void restoreState(Map<String, Object> state) {
+            sum = (long) state.get("Sum");
         }
 
     }
@@ -229,7 +249,7 @@ public class SumAttributeAggregator extends AttributeAggregator {
     class SumAttributeAggregatorLong extends SumAttributeAggregator {
 
         private final Attribute.Type type = Attribute.Type.LONG;
-        private long value = 0L;
+        private long sum = 0L;
 
         public Attribute.Type getReturnType() {
             return type;
@@ -237,29 +257,31 @@ public class SumAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object processAdd(Object data) {
-            value += (Long) data;
-            return value;
+            sum += (Long) data;
+            return sum;
         }
 
         @Override
         public Object processRemove(Object data) {
-            value -= (Long) data;
-            return value;
+            sum -= (Long) data;
+            return sum;
         }
 
         public Object reset() {
-            value = 0L;
-            return value;
+            sum = 0L;
+            return sum;
         }
 
         @Override
-        public Object[] currentState() {
-            return new Object[]{value};
+        public Map<String, Object> currentState() {
+            Map<String, Object> state = new HashMap<>();
+            state.put("Sum", sum);
+            return state;
         }
 
         @Override
-        public void restoreState(Object[] state) {
-            value = (Long) state[0];
+        public void restoreState(Map<String, Object> state) {
+            sum = (long) state.get("Sum");
         }
 
     }

@@ -92,7 +92,6 @@ public class QuerySelector implements Processor {
     private void processNoGroupBy(ComplexEventChunk complexEventChunk) {
         complexEventChunk.reset();
         synchronized (this) {
-
             while (complexEventChunk.hasNext()) {
                 ComplexEvent event = complexEventChunk.next();
                 switch (event.getType()) {

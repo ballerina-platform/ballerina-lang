@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -28,16 +29,31 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+//@Description("This window identifies and returns all the events of which the current " +
+//        "frequency exceeds the value specified for the supportThreshold parameter.")
+//@Parameters({
+//        @Parameter(name = "supportThreshold", type = {DataType.DOUBLE}),
+//        @Parameter(name = "errorBound", type = {DataType.DOUBLE}),
+//        @Parameter(name = "attribute1", type = {DataType.STRING}, optional = true),
+//        @Parameter(name = "attribute2", type = {DataType.STRING}, optional = true)
+//})
+@Extension(
+        name = "lossyFrequent",
+        namespace = "",
+        description = "",
+        parameters = {}
+)
 public class LossyFrequentWindowProcessor extends WindowProcessor implements FindableProcessor {
 
     private ConcurrentHashMap<String, LossyCount> countMap = new ConcurrentHashMap<String, LossyCount>();
@@ -144,14 +160,18 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
         //Do nothing
     }
 
-    @Override
-    public Object[] currentState() {
-        return new Object[]{countMap};
-    }
 
     @Override
-    public void restoreState(Object[] state) {
-        countMap = (ConcurrentHashMap<String, LossyCount>) state[0];
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("CountMap", countMap);
+        return state;
+    }
+
+
+    @Override
+    public void restoreState(Map<String, Object> state) {
+        countMap = (ConcurrentHashMap<String, LossyCount>) state.get("CountMap");
     }
 
     private String generateKey(StreamEvent event) {      // for performance reason if its all attribute we don't do the attribute list check
@@ -176,7 +196,7 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
     @Override
     public Finder constructFinder(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext,
                                   List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
-        return OperatorParser.constructOperator(map.values(), expression, matchingMetaStateHolder,executionPlanContext,variableExpressionExecutors,eventTableMap);
+        return OperatorParser.constructOperator(map.values(), expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
     }
 
     public class LossyCount {

@@ -22,6 +22,7 @@ import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
@@ -74,8 +75,8 @@ public class SingleInputStreamParser {
      */
     public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, ExecutionPlanContext executionPlanContext,
                                                        List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, AbstractDefinition> streamDefinitionMap,
-                                                       Map<String, AbstractDefinition> tableDefinitionMap, Map<String, EventTable> eventTableMap, MetaComplexEvent metaComplexEvent,
-                                                       ProcessStreamReceiver processStreamReceiver, boolean supportsBatchProcessing, boolean outputExpectsExpiredEvents) {
+                                                       Map<String, AbstractDefinition> tableDefinitionMap, Map<String, AbstractDefinition> windowDefinitionMap, Map<String, EventTable> eventTableMap, MetaComplexEvent metaComplexEvent,
+                                                       ProcessStreamReceiver processStreamReceiver, boolean supportsBatchProcessing, boolean outputExpectsExpiredEvents, String queryName) {
         Processor processor = null;
         EntryValveProcessor entryValveProcessor = null;
         boolean first = true;
@@ -83,14 +84,24 @@ public class SingleInputStreamParser {
         if (metaComplexEvent instanceof MetaStateEvent) {
             metaStreamEvent = new MetaStreamEvent();
             ((MetaStateEvent) metaComplexEvent).addEvent(metaStreamEvent);
-            initMetaStreamEvent(inputStream, streamDefinitionMap, tableDefinitionMap, metaStreamEvent);
+            initMetaStreamEvent(inputStream, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, metaStreamEvent);
         } else {
             metaStreamEvent = (MetaStreamEvent) metaComplexEvent;
-            initMetaStreamEvent(inputStream, streamDefinitionMap, tableDefinitionMap, metaStreamEvent);
+            initMetaStreamEvent(inputStream, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, metaStreamEvent);
         }
+
+        // A window cannot be defined for a window stream
+        if (!inputStream.getStreamHandlers().isEmpty() && windowDefinitionMap != null && windowDefinitionMap.containsKey(inputStream.getStreamId())) {
+            for (StreamHandler handler : inputStream.getStreamHandlers()) {
+                if (handler instanceof Window) {
+                    throw new OperationNotSupportedException("Cannot create " + ((Window) handler).getName() + " window for the window stream " + inputStream.getStreamId());
+                }
+            }
+        }
+
         if (!inputStream.getStreamHandlers().isEmpty()) {
             for (StreamHandler handler : inputStream.getStreamHandlers()) {
-                Processor currentProcessor = generateProcessor(handler, metaComplexEvent, variableExpressionExecutors, executionPlanContext, eventTableMap, supportsBatchProcessing, outputExpectsExpiredEvents);
+                Processor currentProcessor = generateProcessor(handler, metaComplexEvent, variableExpressionExecutors, executionPlanContext, eventTableMap, supportsBatchProcessing, outputExpectsExpiredEvents, queryName);
                 if (currentProcessor instanceof SchedulingProcessor) {
                     if (entryValveProcessor == null) {
 
@@ -102,7 +113,7 @@ public class SingleInputStreamParser {
                             processor.setToLast(entryValveProcessor);
                         }
                     }
-                    Scheduler scheduler = new Scheduler(executionPlanContext.getScheduledExecutorService(), entryValveProcessor, executionPlanContext);
+                    Scheduler scheduler = SchedulerParser.parse(executionPlanContext.getScheduledExecutorService(), entryValveProcessor, executionPlanContext);
                     ((SchedulingProcessor) currentProcessor).setScheduler(scheduler);
                 }
                 if (first) {
@@ -120,7 +131,7 @@ public class SingleInputStreamParser {
     }
 
 
-    private static Processor generateProcessor(StreamHandler streamHandler, MetaComplexEvent metaEvent, List<VariableExpressionExecutor> variableExpressionExecutors, ExecutionPlanContext executionPlanContext, Map<String, EventTable> eventTableMap, boolean supportsBatchProcessing, boolean outputExpectsExpiredEvents) {
+    public static Processor generateProcessor(StreamHandler streamHandler, MetaComplexEvent metaEvent, List<VariableExpressionExecutor> variableExpressionExecutors, ExecutionPlanContext executionPlanContext, Map<String, EventTable> eventTableMap, boolean supportsBatchProcessing, boolean outputExpectsExpiredEvents, String queryName) {
         Expression[] parameters = streamHandler.getParameters();
         MetaStreamEvent metaStreamEvent;
         int stateIndex = SiddhiConstants.UNKNOWN_STATE;
@@ -137,7 +148,7 @@ public class SingleInputStreamParser {
                 attributeExpressionExecutors = new ExpressionExecutor[parameters.length];
                 for (int i = 0, parametersLength = parameters.length; i < parametersLength; i++) {
                     attributeExpressionExecutors[i] = ExpressionParser.parseExpression(parameters[i], metaEvent, stateIndex, eventTableMap, variableExpressionExecutors,
-                            executionPlanContext, false, SiddhiConstants.CURRENT);
+                            executionPlanContext, false, SiddhiConstants.CURRENT, queryName);
                 }
             } else {
                 List<Attribute> attributeList = metaStreamEvent.getLastInputDefinition().getAttributeList();
@@ -145,7 +156,7 @@ public class SingleInputStreamParser {
                 attributeExpressionExecutors = new ExpressionExecutor[parameterSize];
                 for (int i = 0; i < parameterSize; i++) {
                     attributeExpressionExecutors[i] = ExpressionParser.parseExpression(new Variable(attributeList.get(i).getName()), metaEvent, stateIndex, eventTableMap, variableExpressionExecutors,
-                            executionPlanContext, false, SiddhiConstants.CURRENT);
+                            executionPlanContext, false, SiddhiConstants.CURRENT, queryName);
                 }
             }
         } else {
@@ -156,30 +167,19 @@ public class SingleInputStreamParser {
             return new FilterProcessor(attributeExpressionExecutors[0]);
 
         } else if (streamHandler instanceof Window) {
-            WindowProcessor windowProcessor;
-            if (streamHandler instanceof Extension) {
-                windowProcessor = (WindowProcessor) SiddhiClassLoader.loadExtensionImplementation((Extension) streamHandler,
-                        WindowProcessorExtensionHolder.getInstance(executionPlanContext));
-            } else {
-                windowProcessor = (WindowProcessor) SiddhiClassLoader.loadSiddhiImplementation(((Window) streamHandler).getFunction(),
-                        WindowProcessor.class);
-            }
-            windowProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(), attributeExpressionExecutors, executionPlanContext, outputExpectsExpiredEvents);
+            WindowProcessor windowProcessor = (WindowProcessor) SiddhiClassLoader.loadExtensionImplementation((Extension) streamHandler,
+                    WindowProcessorExtensionHolder.getInstance(executionPlanContext));
+            windowProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(), attributeExpressionExecutors, executionPlanContext, outputExpectsExpiredEvents, queryName);
             return windowProcessor;
 
         } else if (streamHandler instanceof StreamFunction) {
             AbstractStreamProcessor abstractStreamProcessor;
             if (supportsBatchProcessing) {
                 try {
-                    if (streamHandler instanceof Extension) {
-                        abstractStreamProcessor = (StreamProcessor) SiddhiClassLoader.loadExtensionImplementation((Extension) streamHandler,
-                                StreamProcessorExtensionHolder.getInstance(executionPlanContext));
-                    } else {
-                        abstractStreamProcessor = (StreamProcessor) SiddhiClassLoader.loadSiddhiImplementation(
-                                ((StreamFunction) streamHandler).getFunction(), StreamProcessor.class);
-                    }
+                    abstractStreamProcessor = (StreamProcessor) SiddhiClassLoader.loadExtensionImplementation((Extension) streamHandler,
+                            StreamProcessorExtensionHolder.getInstance(executionPlanContext));
                     metaStreamEvent.addInputDefinition(abstractStreamProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(),
-                            attributeExpressionExecutors, executionPlanContext, outputExpectsExpiredEvents));
+                            attributeExpressionExecutors, executionPlanContext, outputExpectsExpiredEvents, queryName));
                     return abstractStreamProcessor;
                 } catch (ExecutionPlanCreationException e) {
                     if (!e.isClassLoadingIssue()) {
@@ -187,15 +187,10 @@ public class SingleInputStreamParser {
                     }
                 }
             }
-            if (streamHandler instanceof Extension) {
-                abstractStreamProcessor = (StreamFunctionProcessor) SiddhiClassLoader.loadExtensionImplementation((Extension) streamHandler,
-                        StreamFunctionProcessorExtensionHolder.getInstance(executionPlanContext));
-            } else {
-                abstractStreamProcessor = (StreamFunctionProcessor) SiddhiClassLoader.loadSiddhiImplementation(
-                        ((StreamFunction) streamHandler).getFunction(), StreamFunctionProcessor.class);
-            }
+            abstractStreamProcessor = (StreamFunctionProcessor) SiddhiClassLoader.loadExtensionImplementation((Extension) streamHandler,
+                    StreamFunctionProcessorExtensionHolder.getInstance(executionPlanContext));
             metaStreamEvent.addInputDefinition(abstractStreamProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(),
-                    attributeExpressionExecutors, executionPlanContext, outputExpectsExpiredEvents));
+                    attributeExpressionExecutors, executionPlanContext, outputExpectsExpiredEvents, queryName));
             return abstractStreamProcessor;
         } else {
             throw new IllegalStateException(streamHandler.getClass().getName() + " is not supported");
@@ -212,11 +207,16 @@ public class SingleInputStreamParser {
      * @param metaStreamEvent     MetaStreamEvent
      */
     private static void initMetaStreamEvent(SingleInputStream inputStream, Map<String,
-            AbstractDefinition> streamDefinitionMap, Map<String, AbstractDefinition> tableDefinitionMap, MetaStreamEvent metaStreamEvent) {
+            AbstractDefinition> streamDefinitionMap, Map<String, AbstractDefinition> tableDefinitionMap, Map<String, AbstractDefinition> windowDefinitionMap, MetaStreamEvent metaStreamEvent) {
 
         String streamId = inputStream.getStreamId();
 
-        if (streamDefinitionMap != null && streamDefinitionMap.containsKey(streamId)) {
+        if (!inputStream.isInnerStream() && windowDefinitionMap != null && windowDefinitionMap.containsKey(streamId)) {
+            AbstractDefinition inputDefinition = windowDefinitionMap.get(streamId);
+            if (!metaStreamEvent.getInputDefinitions().contains(inputDefinition)) {
+                metaStreamEvent.addInputDefinition(inputDefinition);
+            }
+        } else if (streamDefinitionMap != null && streamDefinitionMap.containsKey(streamId)) {
             AbstractDefinition inputDefinition = streamDefinitionMap.get(streamId);
             metaStreamEvent.addInputDefinition(inputDefinition);
         } else if (!inputStream.isInnerStream() && tableDefinitionMap != null && tableDefinitionMap.containsKey(streamId)) {

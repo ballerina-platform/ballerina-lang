@@ -27,8 +27,9 @@ import org.wso2.siddhi.core.event.state.StateEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.util.Schedulable;
+import org.wso2.siddhi.core.util.lock.LockWrapper;
 
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.Map;
 
 public abstract class SnapshotOutputRateLimiter implements Schedulable {
     static final Logger log = Logger.getLogger(SnapshotOutputRateLimiter.class);
@@ -37,7 +38,7 @@ public abstract class SnapshotOutputRateLimiter implements Schedulable {
     protected StreamEventCloner streamEventCloner;
     protected StateEventCloner stateEventCloner;
     private boolean receiveStreamEvent;
-    protected ReentrantLock queryLock;
+    protected LockWrapper lockWrapper;
 
     protected SnapshotOutputRateLimiter(WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter, ExecutionPlanContext executionPlanContext) {
         this.wrappedSnapshotOutputRateLimiter = wrappedSnapshotOutputRateLimiter;
@@ -64,11 +65,12 @@ public abstract class SnapshotOutputRateLimiter implements Schedulable {
 
     /**
      * Clones a given complex event.
+     *
      * @param complexEvent Complex event to be cloned
      * @return Cloned complex event
      */
-    protected ComplexEvent cloneComplexEvent(ComplexEvent complexEvent){
-        if(receiveStreamEvent){
+    protected ComplexEvent cloneComplexEvent(ComplexEvent complexEvent) {
+        if (receiveStreamEvent) {
             return streamEventCloner.copyStreamEvent((StreamEvent) complexEvent);
         } else {
             return stateEventCloner.copyStateEvent((StateEvent) complexEvent);
@@ -79,11 +81,11 @@ public abstract class SnapshotOutputRateLimiter implements Schedulable {
 
     public abstract void stop();
 
-    public abstract Object[] currentState();
+    public abstract Map<String, Object> currentState();
 
-    public abstract void restoreState(Object[] state);
+    public abstract void restoreState(Map<String, Object> state);
 
-    public void setQueryLock(ReentrantLock queryLock) {
-        this.queryLock = queryLock;
+    public void setQueryLock(LockWrapper lockWrapper) {
+        this.lockWrapper = lockWrapper;
     }
 }

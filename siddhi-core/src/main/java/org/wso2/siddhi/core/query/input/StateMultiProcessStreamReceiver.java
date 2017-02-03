@@ -29,8 +29,8 @@ public class StateMultiProcessStreamReceiver extends MultiProcessStreamReceiver 
 
     private QuerySelector querySelector;
 
-    public StateMultiProcessStreamReceiver(String streamId, int processCount, LatencyTracker latencyTracker) {
-        super(streamId, processCount, latencyTracker);
+    public StateMultiProcessStreamReceiver(String streamId, int processCount, LatencyTracker latencyTracker, String queryName) {
+        super(streamId, processCount, latencyTracker, queryName);
     }
 
     public void setNext(Processor next) {
@@ -39,12 +39,12 @@ public class StateMultiProcessStreamReceiver extends MultiProcessStreamReceiver 
     }
 
     public StateMultiProcessStreamReceiver clone(String key) {
-        return new StateMultiProcessStreamReceiver(streamId + key, processCount, latencyTracker);
+        return new StateMultiProcessStreamReceiver(streamId + key, processCount, latencyTracker, queryName);
     }
 
     protected void processAndClear(int processIndex, StreamEvent streamEvent) {
-        ComplexEventChunk<StateEvent> retEventChunk =  new ComplexEventChunk<StateEvent>(false);
-        ComplexEventChunk<StreamEvent> currentStreamEventChunk = new ComplexEventChunk<StreamEvent>(streamEvent, streamEvent, false);
+        ComplexEventChunk<StateEvent> retEventChunk =  new ComplexEventChunk<StateEvent>(batchProcessingAllowed);
+        ComplexEventChunk<StreamEvent> currentStreamEventChunk = new ComplexEventChunk<StreamEvent>(streamEvent, streamEvent, batchProcessingAllowed);
 
         ComplexEventChunk<StateEvent> eventChunk = ((StreamPreStateProcessor) nextProcessors[processIndex]).processAndReturn(currentStreamEventChunk);
         if(eventChunk.getFirst() != null){
@@ -56,7 +56,7 @@ public class StateMultiProcessStreamReceiver extends MultiProcessStreamReceiver 
             while (retEventChunk.hasNext()) {
                 StateEvent stateEvent = retEventChunk.next();
                 retEventChunk.remove();
-                querySelector.process(new ComplexEventChunk<StateEvent>(stateEvent,stateEvent, false));
+                querySelector.process(new ComplexEventChunk<StateEvent>(stateEvent,stateEvent, batchProcessingAllowed));
             }
         }
 

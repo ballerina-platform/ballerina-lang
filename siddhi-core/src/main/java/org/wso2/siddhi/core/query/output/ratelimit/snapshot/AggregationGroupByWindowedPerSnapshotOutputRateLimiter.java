@@ -29,9 +29,11 @@ import java.util.concurrent.ScheduledExecutorService;
 public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends AggregationWindowedPerSnapshotOutputRateLimiter {
     private Map<String, Map<Integer, Object>> groupByAggregateAttributeValueMap;
     protected LinkedList<GroupedComplexEvent> eventList;
+    protected String queryName;
 
-    protected AggregationGroupByWindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, List<Integer> aggregateAttributePositionList, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter, ExecutionPlanContext executionPlanContext) {
-        super(id, value, scheduledExecutorService, aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter, executionPlanContext);
+    protected AggregationGroupByWindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, List<Integer> aggregateAttributePositionList, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter, ExecutionPlanContext executionPlanContext, String queryName) {
+        super(id, value, scheduledExecutorService, aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
+        this.queryName = queryName;
         groupByAggregateAttributeValueMap = new HashMap<String, Map<Integer, Object>>();
         eventList = new LinkedList<GroupedComplexEvent>();
     }
@@ -76,7 +78,7 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends Aggr
                                 break;
                             }
                         }
-                    }else if (groupedComplexEvent.getType() == ComplexEvent.Type.RESET) {
+                    } else if (groupedComplexEvent.getType() == ComplexEvent.Type.RESET) {
                         eventList.clear();
                         groupByAggregateAttributeValueMap.clear();
                     }
@@ -111,18 +113,21 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends Aggr
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{eventList, groupByAggregateAttributeValueMap};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("EventList", eventList);
+        state.put("GroupByAggregateAttributeValueMap", groupByAggregateAttributeValueMap);
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        eventList = (LinkedList<GroupedComplexEvent>) state[0];
-        groupByAggregateAttributeValueMap = (Map<String, Map<Integer, Object>>) state[1];
+    public void restoreState(Map<String, Object> state) {
+        eventList = (LinkedList<GroupedComplexEvent>) state.get("EventList");
+        groupByAggregateAttributeValueMap = (Map<String, Map<Integer, Object>>) state.get("GroupByAggregateAttributeValueMap");
     }
 
     @Override
     public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter) {
-        return new AggregationGroupByWindowedPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter, executionPlanContext);
+        return new AggregationGroupByWindowedPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
     }
 }

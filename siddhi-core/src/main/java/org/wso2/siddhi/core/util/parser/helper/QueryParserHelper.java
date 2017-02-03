@@ -35,6 +35,7 @@ import org.wso2.siddhi.core.query.input.stream.state.StreamPreStateProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.query.processor.stream.AbstractStreamProcessor;
+import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.HashSet;
@@ -90,7 +91,7 @@ public class QueryParserHelper {
                 }
             }
         }
-        duplicateFinder = new HashSet<Attribute>();
+        Set<Attribute> duplicateFinder = new HashSet<Attribute>();
         for (Iterator<Attribute> iterator = metaStreamEvent.getOnAfterWindowData().iterator(); iterator.hasNext(); ) {
             Attribute attribute = iterator.next();
             if (attribute != null) {
@@ -161,23 +162,23 @@ public class QueryParserHelper {
         }
     }
 
-    public static void initStreamRuntime(StreamRuntime runtime, MetaComplexEvent metaComplexEvent, ReentrantLock queryLock) {
+    public static void initStreamRuntime(StreamRuntime runtime, MetaComplexEvent metaComplexEvent, LockWrapper lockWrapper, String queryName) {
 
         if (runtime instanceof SingleStreamRuntime) {
-            initSingleStreamRuntime((SingleStreamRuntime) runtime, 0, metaComplexEvent, null, queryLock);
+            initSingleStreamRuntime((SingleStreamRuntime) runtime, 0, metaComplexEvent, null, lockWrapper, queryName);
         } else {
             MetaStateEvent metaStateEvent = (MetaStateEvent) metaComplexEvent;
             StateEventPool stateEventPool = new StateEventPool(metaStateEvent, 5);
             MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
             for (int i = 0, metaStreamEventsLength = metaStreamEvents.length; i < metaStreamEventsLength; i++) {
                 initSingleStreamRuntime(runtime.getSingleStreamRuntimes().get(i),
-                        i, metaStateEvent, stateEventPool, queryLock);
+                        i, metaStateEvent, stateEventPool, lockWrapper, queryName);
             }
         }
     }
 
     private static void initSingleStreamRuntime(SingleStreamRuntime singleStreamRuntime, int streamEventChainIndex,
-                                                MetaComplexEvent metaComplexEvent, StateEventPool stateEventPool, ReentrantLock queryLock) {
+                                                MetaComplexEvent metaComplexEvent, StateEventPool stateEventPool, LockWrapper lockWrapper, String queryName) {
         MetaStreamEvent metaStreamEvent;
 
         if (metaComplexEvent instanceof MetaStateEvent) {
@@ -189,13 +190,13 @@ public class QueryParserHelper {
         ProcessStreamReceiver processStreamReceiver = singleStreamRuntime.getProcessStreamReceiver();
         processStreamReceiver.setMetaStreamEvent(metaStreamEvent);
         processStreamReceiver.setStreamEventPool(streamEventPool);
-        processStreamReceiver.setQueryLock(queryLock);
+        processStreamReceiver.setLockWrapper(lockWrapper);
         processStreamReceiver.init();
         Processor processor = singleStreamRuntime.getProcessorChain();
         while (processor != null) {
             if (processor instanceof SchedulingProcessor) {
                 ((SchedulingProcessor) processor).getScheduler().setStreamEventPool(streamEventPool);
-                ((SchedulingProcessor) processor).getScheduler().init(queryLock);
+                ((SchedulingProcessor) processor).getScheduler().init(lockWrapper, queryName);
             }
             if (processor instanceof AbstractStreamProcessor) {
                 ((AbstractStreamProcessor) processor).setStreamEventCloner(new StreamEventCloner(metaStreamEvent,
@@ -204,6 +205,7 @@ public class QueryParserHelper {
             }
             if (stateEventPool != null && processor instanceof JoinProcessor) {
                 ((JoinProcessor) processor).setStateEventPool(stateEventPool);
+                ((JoinProcessor) processor).setJoinLock(lockWrapper);
             }
             if (stateEventPool != null && processor instanceof StreamPreStateProcessor) {
                 ((StreamPreStateProcessor) processor).setStateEventPool(stateEventPool);

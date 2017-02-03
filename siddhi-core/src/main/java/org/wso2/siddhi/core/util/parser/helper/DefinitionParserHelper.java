@@ -34,11 +34,12 @@ import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.extension.holder.EvalScriptExtensionHolder;
 import org.wso2.siddhi.core.util.extension.holder.EventTableExtensionHolder;
+import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.*;
+import org.wso2.siddhi.query.api.definition.io.Store;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
-import org.wso2.siddhi.query.api.expression.function.AttributeFunctionExtension;
 import org.wso2.siddhi.query.api.extension.Extension;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
@@ -51,7 +52,8 @@ import java.util.concurrent.ConcurrentMap;
 public class DefinitionParserHelper {
 
 
-    public static void validateDefinition(AbstractDefinition definition, ConcurrentMap<String, AbstractDefinition> streamDefinitionMap, ConcurrentMap<String, AbstractDefinition> tableDefinitionMap) {
+    public static void validateDefinition(AbstractDefinition definition, ConcurrentMap<String, AbstractDefinition> streamDefinitionMap,
+                                          ConcurrentMap<String, AbstractDefinition> tableDefinitionMap, ConcurrentMap<String, AbstractDefinition> windowDefinitionMap) {
         AbstractDefinition existingTableDefinition = tableDefinitionMap.get(definition.getId());
         if (existingTableDefinition != null && (!existingTableDefinition.equals(definition) || definition instanceof StreamDefinition)) {
             throw new DuplicateDefinitionException("Table Definition with same Stream Id '" +
@@ -62,6 +64,12 @@ public class DefinitionParserHelper {
         if (existingStreamDefinition != null && (!existingStreamDefinition.equals(definition) || definition instanceof TableDefinition)) {
             throw new DuplicateDefinitionException("Stream Definition with same Stream Id '" +
                     definition.getId() + "' already exist : " + existingStreamDefinition +
+                    ", hence cannot add " + definition);
+        }
+        AbstractDefinition existingWindowDefinition = windowDefinitionMap.get(definition.getId());
+        if (existingWindowDefinition != null && (!existingWindowDefinition.equals(definition) || definition instanceof WindowDefinition)) {
+            throw new DuplicateDefinitionException("Window Definition with same Window Id '" +
+                    definition.getId() + "' already exist : " + existingWindowDefinition +
                     ", hence cannot add " + definition);
         }
     }
@@ -97,18 +105,51 @@ public class DefinitionParserHelper {
             StreamEventCloner tableStreamEventCloner = new StreamEventCloner(tableMetaStreamEvent, tableStreamEventPool);
 
             Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM,
-                    tableDefinition.getAnnotations());
+                    tableDefinition.getAnnotations()); //// TODO: 12/5/16 this must be removed
+            
+            Store store = tableDefinition.getStore();
 
             EventTable eventTable;
             if (annotation != null) {
-                String evenTableType = annotation.getElement("eventtable");
-                Extension extension = new AttributeFunctionExtension("eventtable", evenTableType);
+                final String evenTableType = annotation.getElement(SiddhiConstants.EVENT_TABLE);
+                Extension extension = new Extension() {
+                    @Override
+                    public String getNamespace() {
+                        return SiddhiConstants.EVENT_TABLE;
+                    }
+
+                    @Override
+                    public String getName() {
+                        return evenTableType;
+                    }
+                };
+                eventTable = (EventTable) SiddhiClassLoader.loadExtensionImplementation(extension, EventTableExtensionHolder.getInstance(executionPlanContext));
+            } else if (store != null) {
+                final String evenTableType = store.getType();
+                Extension extension = new Extension() { //// TODO: 12/5/16 check this
+                    @Override
+                    public String getNamespace() {
+                        return SiddhiConstants.EVENT_TABLE;
+                    }
+
+                    @Override
+                    public String getName() {
+                        return evenTableType;
+                    }
+                };
                 eventTable = (EventTable) SiddhiClassLoader.loadExtensionImplementation(extension, EventTableExtensionHolder.getInstance(executionPlanContext));
             } else {
                 eventTable = new InMemoryEventTable();
             }
             eventTable.init(tableDefinition, tableMetaStreamEvent, tableStreamEventPool, tableStreamEventCloner, executionPlanContext);
             eventTableMap.putIfAbsent(tableDefinition.getId(), eventTable);
+        }
+    }
+
+    public static void addWindow(WindowDefinition windowDefinition, ConcurrentMap<String, EventWindow> eventWindowMap, ExecutionPlanContext executionPlanContext) {
+        if (!eventWindowMap.containsKey(windowDefinition.getId())) {
+            EventWindow eventTable = new EventWindow(windowDefinition, executionPlanContext);
+            eventWindowMap.putIfAbsent(windowDefinition.getId(), eventTable);
         }
     }
 
@@ -121,7 +162,7 @@ public class DefinitionParserHelper {
                     }
 
                     @Override
-                    public String getFunction() {
+                    public String getName() {
                         return functionDefinition.getLanguage().toLowerCase();
                     }
                 }, EvalScriptExtensionHolder.getInstance(executionPlanContext));
@@ -166,7 +207,7 @@ public class DefinitionParserHelper {
             }
             StreamJunction streamJunction = streamJunctionMap.get(triggerDefinition.getId());
             eventTrigger.init(triggerDefinition, executionPlanContext, streamJunction);
-            executionPlanContext.getEternalReferencedHolders().add(eventTrigger);
+            executionPlanContext.addEternalReferencedHolder(eventTrigger);
             eventTriggerMap.putIfAbsent(eventTrigger.getId(), eventTrigger);
         }
     }

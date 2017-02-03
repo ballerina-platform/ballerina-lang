@@ -97,6 +97,31 @@ public class StateEvent implements ComplexEvent {
         }
     }
 
+    @Override
+    public void setAttribute(Object object, int[] position) {
+        if (position[STREAM_ATTRIBUTE_TYPE_INDEX] == STATE_OUTPUT_DATA_INDEX) {
+            outputData[position[STREAM_ATTRIBUTE_INDEX]] = object;
+        } else {
+            StreamEvent streamEvent = getStreamEvent(position);
+            if (streamEvent == null) {
+                return;
+            }
+            switch (position[STREAM_ATTRIBUTE_TYPE_INDEX]) {
+                case BEFORE_WINDOW_DATA_INDEX:
+                    streamEvent.getBeforeWindowData()[position[STREAM_ATTRIBUTE_INDEX]] = object;
+                    break;
+                case OUTPUT_DATA_INDEX:
+                    streamEvent.getOutputData()[position[STREAM_ATTRIBUTE_INDEX]] = object;
+                    break;
+                case ON_AFTER_WINDOW_DATA_INDEX:
+                    streamEvent.getOnAfterWindowData()[position[STREAM_ATTRIBUTE_INDEX]] = object;
+                    break;
+                default:
+                    throw new IllegalStateException("STREAM_ATTRIBUTE_TYPE_INDEX cannot be " + position[STREAM_ATTRIBUTE_TYPE_INDEX]);
+            }
+        }
+    }
+
     public StreamEvent getStreamEvent(int[] position) {
         StreamEvent streamEvent = streamEvents[position[STREAM_EVENT_CHAIN_INDEX]];
         if (streamEvent == null) {

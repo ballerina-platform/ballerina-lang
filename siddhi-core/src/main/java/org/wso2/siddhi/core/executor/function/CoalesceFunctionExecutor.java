@@ -17,11 +17,32 @@
  */
 package org.wso2.siddhi.core.executor.function;
 
+import org.wso2.siddhi.annotation.*;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
+import java.util.Map;
+
+@Extension(
+        name = "coalesce",
+        namespace = "",
+        description = "Returns the value of the first input parameter that is not null, and all input parameters have to" +
+                " be on the same type",
+        parameters = {
+                @Parameter(name = "arg1", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                        DataType.STRING, DataType.BOOL, DataType.OBJECT}),
+                @Parameter(name = "arg2", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                        DataType.STRING, DataType.BOOL, DataType.OBJECT}),
+                @Parameter(name = "argN", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                        DataType.STRING, DataType.BOOL, DataType.OBJECT})
+        },
+        returnAttributes = @ReturnAttribute(type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                DataType.STRING, DataType.BOOL, DataType.OBJECT})
+
+)
 public class CoalesceFunctionExecutor extends FunctionExecutor {
 
     private Attribute.Type returnType;
@@ -71,13 +92,13 @@ public class CoalesceFunctionExecutor extends FunctionExecutor {
     }
 
     @Override
-    public Object[] currentState() {
+    public Map<String, Object> currentState() {
         //No states
         return null;
     }
 
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> state) {
         //Nothing to be done
     }
 }

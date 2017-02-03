@@ -21,10 +21,14 @@ package org.wso2.siddhi.core;
 import com.lmax.disruptor.ExceptionHandler;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.debugger.SiddhiDebugger;
 import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.QueryNotExistException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
+import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
+import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
+import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputHandler;
@@ -36,6 +40,9 @@ import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -56,6 +63,7 @@ public class ExecutionPlanRuntime {
     private ExecutionPlanContext executionPlanContext;
     private ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap;
     private MemoryUsageTracker memoryUsageTracker;
+    private SiddhiDebugger siddhiDebugger;
 
     public ExecutionPlanRuntime(ConcurrentMap<String, AbstractDefinition> streamDefinitionMap,
                                 ConcurrentMap<String, AbstractDefinition> tableDefinitionMap, InputManager inputManager,
@@ -82,6 +90,7 @@ public class ExecutionPlanRuntime {
                     .createMemoryUsageTracker(executionPlanContext.getStatisticsManager());
             monitorQueryMemoryUsage();
         }
+        siddhiDebugger = new SiddhiDebugger(executionPlanContext);
     }
 
     public String getName() {
@@ -90,6 +99,14 @@ public class ExecutionPlanRuntime {
 
     public Map<String, AbstractDefinition> getStreamDefinitionMap() {
         return streamDefinitionMap;
+    }
+
+    public Map<String, Map<String, AbstractDefinition>> getPartitionedInnerStreamDefinitionMap() {
+        Map<String, Map<String, AbstractDefinition>> innerStreams = new HashMap<>();
+        for (PartitionRuntime partition : partitionMap.values()) {
+            innerStreams.put(partition.getElementId(), partition.getLocalStreamDefinitionMap());
+        }
+        return innerStreams;
     }
 
     public void addCallback(String streamId, StreamCallback streamCallback) {
@@ -170,6 +187,26 @@ public class ExecutionPlanRuntime {
         for (StreamJunction streamJunction : streamJunctionMap.values()) {
             streamJunction.startProcessing();
         }
+    }
+
+    public synchronized SiddhiDebugger debug() {
+        List<StreamRuntime> streamRuntime = new ArrayList<StreamRuntime>();
+        List<InsertIntoStreamCallback> streamCallbacks = new ArrayList<InsertIntoStreamCallback>();
+        for (QueryRuntime queryRuntime : queryProcessorMap.values()) {
+            streamRuntime.add(queryRuntime.getStreamRuntime());
+            streamCallbacks.add((InsertIntoStreamCallback) queryRuntime.getOutputCallback());
+        }
+        for (StreamRuntime streamRuntime1 : streamRuntime) {
+            for (SingleStreamRuntime singleStreamRuntime : streamRuntime1.getSingleStreamRuntimes()) {
+                singleStreamRuntime.getProcessStreamReceiver().setSiddhiDebugger(siddhiDebugger);
+            }
+        }
+        for (InsertIntoStreamCallback insertedCallbacks : streamCallbacks) {
+            insertedCallbacks.setSiddhiDebugger(siddhiDebugger);
+        }
+        start();
+
+        return siddhiDebugger;
     }
 
     public String persist() {

@@ -34,6 +34,7 @@ import org.wso2.siddhi.core.stream.input.InputProcessor;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
+import org.wso2.siddhi.core.util.timestamp.EventTimeBasedMillisTimestampGenerator;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
@@ -43,7 +44,6 @@ import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class StreamJunction {
     private static final Logger log = Logger.getLogger(StreamJunction.class);
@@ -198,6 +198,10 @@ public class StreamJunction {
     }
 
     private void sendData(long timeStamp, Object[] data) {
+        // Set timestamp to system if Siddhi is in playback mode
+        if (executionPlanContext.isPlayback()) {
+            ((EventTimeBasedMillisTimestampGenerator) this.executionPlanContext.getTimestampGenerator()).setCurrentTimestamp(timeStamp);
+        }
         if (throughputTracker != null) {
             throughputTracker.eventIn();
         }
@@ -225,12 +229,7 @@ public class StreamJunction {
         if (!receivers.isEmpty() && async) {
             for (Constructor constructor : Disruptor.class.getConstructors()) {
                 if (constructor.getParameterTypes().length == 5) {      // If new disruptor classes available
-                    ProducerType producerType = ProducerType.SINGLE;
-
-                    if (publishers.size() > 1) {
-                        producerType = ProducerType.MULTI;
-                    }
-
+                    ProducerType producerType = ProducerType.MULTI;
                     disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()),
                             bufferSize, executorService, producerType, new BlockingWaitStrategy());
                     disruptor.handleExceptionsWith(executionPlanContext.getDisruptorExceptionHandler());

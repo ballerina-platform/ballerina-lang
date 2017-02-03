@@ -25,9 +25,12 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.util.Schedulable;
 import org.wso2.siddhi.core.util.Scheduler;
+import org.wso2.siddhi.core.util.parser.SchedulerParser;
 
-import java.util.ArrayList;
+import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
 
@@ -37,19 +40,21 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
     private Scheduler scheduler;
     private ComplexEventChunk<ComplexEvent> allComplexEventChunk;
     private long scheduledTime;
+    private String queryName;
 
     static final Logger log = Logger.getLogger(AllPerTimeOutputRateLimiter.class);
 
-    public AllPerTimeOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService) {
+    public AllPerTimeOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, String queryName) {
         this.id = id;
         this.value = value;
+        this.queryName = queryName;
         this.scheduledExecutorService = scheduledExecutorService;
         allComplexEventChunk = new ComplexEventChunk<ComplexEvent>(false);
     }
 
     @Override
     public OutputRateLimiter clone(String key) {
-        AllPerTimeOutputRateLimiter instance = new AllPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService);
+        AllPerTimeOutputRateLimiter instance = new AllPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService, queryName);
         instance.setLatencyTracker(latencyTracker);
         return instance;
     }
@@ -87,9 +92,9 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
 
     @Override
     public void start() {
-        scheduler = new Scheduler(scheduledExecutorService, this, executionPlanContext);
+        scheduler = SchedulerParser.parse(scheduledExecutorService, this, executionPlanContext);
         scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
-        scheduler.init(queryLock);
+        scheduler.init(lockWrapper, queryName);
         long currentTime = System.currentTimeMillis();
         scheduledTime = currentTime + value;
         scheduler.notifyAt(scheduledTime);
@@ -101,14 +106,16 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{allComplexEventChunk};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("AllComplexEventChunk", allComplexEventChunk.getFirst());
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        allComplexEventChunk = (ComplexEventChunk<ComplexEvent>) state[0];
+    public void restoreState(Map<String, Object> state) {
+        allComplexEventChunk.clear();
+        allComplexEventChunk.add((ComplexEvent) state.get("AllComplexEventChunk"));
     }
-
 
 }

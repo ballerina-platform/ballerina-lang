@@ -48,7 +48,11 @@ public class PartitionParser {
             combinedStreamMap.putAll(streamDefinitionMap);
             combinedStreamMap.putAll(partitionRuntime.getLocalStreamDefinitionMap());
             QueryRuntime queryRuntime = QueryParser.parse(query, executionPlanContext, combinedStreamMap,
-                    executionPlanRuntimeBuilder.getTableDefinitionMap(), executionPlanRuntimeBuilder.getEventTableMap());
+                    executionPlanRuntimeBuilder.getTableDefinitionMap(),
+                    executionPlanRuntimeBuilder.getWindowDefinitionMap(),
+                    executionPlanRuntimeBuilder.getEventTableMap(),
+                    executionPlanRuntimeBuilder.getEventWindowMap(),
+                    executionPlanRuntimeBuilder.getLockSynchronizer());
             MetaStateEvent metaStateEvent = createMetaEventForPartitioner(queryRuntime.getMetaComplexEvent());
             partitionRuntime.addQuery(queryRuntime);
             partitionRuntime.addPartitionReceiver(queryRuntime, executors, metaStateEvent);

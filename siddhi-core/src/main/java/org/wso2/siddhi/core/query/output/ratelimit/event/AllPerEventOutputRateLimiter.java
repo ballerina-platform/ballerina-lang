@@ -23,6 +23,8 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class AllPerEventOutputRateLimiter extends OutputRateLimiter {
@@ -83,14 +85,18 @@ public class AllPerEventOutputRateLimiter extends OutputRateLimiter {
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{allComplexEventChunk, counter};
+    public Map<String, Object> currentState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("Counter", counter);
+        state.put("AllComplexEventChunk", allComplexEventChunk.getFirst());
+        return state;
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        allComplexEventChunk = (ComplexEventChunk<ComplexEvent>) state[0];
-        counter = (Integer) state[1];
+    public void restoreState(Map<String, Object> state) {
+        allComplexEventChunk.clear();
+        allComplexEventChunk.add((ComplexEvent) state.get("AllComplexEventChunk"));
+        counter = (int) state.get("Counter");
     }
 
 }

@@ -18,13 +18,26 @@
 package org.wso2.siddhi.query.api.execution.query.input.handler;
 
 import org.wso2.siddhi.query.api.expression.Expression;
+import org.wso2.siddhi.query.api.extension.Extension;
 
 import java.util.Arrays;
 
-public class StreamFunction implements StreamHandler {
+public class StreamFunction implements StreamHandler, Extension {
 
+    private String namespace = "";
     private String function;
     private Expression[] parameters;
+
+    public StreamFunction(String namespace, String function, Expression[] parameters) {
+        this.namespace = namespace;
+        this.function = function;
+        this.parameters = parameters;
+    }
+
+    public StreamFunction(String namespace, String function) {
+        this.namespace = namespace;
+        this.function = function;
+    }
 
     public StreamFunction(String function, Expression[] parameters) {
         this.function = function;
@@ -35,7 +48,12 @@ public class StreamFunction implements StreamHandler {
         this.function = function;
     }
 
-    public String getFunction() {
+    @Override
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public String getName() {
         return function;
     }
 
@@ -46,7 +64,8 @@ public class StreamFunction implements StreamHandler {
     @Override
     public String toString() {
         return "StreamFunction{" +
-                "function='" + function + '\'' +
+                "namespace='" + namespace + '\'' +
+                ", function='" + function + '\'' +
                 ", parameters=" + Arrays.toString(parameters) +
                 '}';
     }
@@ -54,20 +73,21 @@ public class StreamFunction implements StreamHandler {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof StreamFunction)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         StreamFunction that = (StreamFunction) o;
 
-        if (!function.equals(that.function)) return false;
-        if (!Arrays.equals(parameters, that.parameters)) return false;
-
-        return true;
+        if (namespace != null ? !namespace.equals(that.namespace) : that.namespace != null) return false;
+        if (function != null ? !function.equals(that.function) : that.function != null) return false;
+        // Probably incorrect - comparing Object[] arrays with Arrays.equals
+        return Arrays.equals(parameters, that.parameters);
     }
 
     @Override
     public int hashCode() {
-        int result = function.hashCode();
-        result = 31 * result + (parameters != null ? Arrays.hashCode(parameters) : 0);
+        int result = namespace != null ? namespace.hashCode() : 0;
+        result = 31 * result + (function != null ? function.hashCode() : 0);
+        result = 31 * result + Arrays.hashCode(parameters);
         return result;
     }
 }
