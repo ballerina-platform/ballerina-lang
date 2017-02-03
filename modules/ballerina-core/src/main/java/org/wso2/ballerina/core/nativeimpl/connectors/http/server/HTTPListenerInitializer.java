@@ -34,6 +34,7 @@ import java.util.Set;
 /**
  * {@code HTTPListenerInitializer} is responsible for initializing http transport listener side configuration
  */
+@Deprecated
 public class HTTPListenerInitializer {
 
     private static PrintStream outStream = System.out;

@@ -31,6 +31,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * <p>
  * This is the bridge between transport listener and source of the {@code Service} for deployment tasks.
  */
+@Deprecated
 public class HTTPListenerManager implements TransportListenerManager {
 
     private volatile TransportListener transportListener;
