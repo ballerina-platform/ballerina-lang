@@ -24,7 +24,6 @@ import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPListenerInitializer;
 import org.wso2.ballerina.core.runtime.MessageProcessor;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
 
@@ -54,7 +53,7 @@ class BServiceRunner {
         }
 
         // Starting http transport listener
-        HTTPListenerInitializer.initialize();
+        //HTTPListenerInitializer.initialize();
 
         // TODO
         //outStream.println("ballerina: server startup in 500 ms");
