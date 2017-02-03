@@ -139,6 +139,35 @@
                             {{/each}}
                         {{/each}}
                         {{/hasConnectors}}
+                        <br>
+                        {{#hasStructs}}
+                        {{#each files}}
+                            {{#each structs}}
+                                    {{#public}}
+                                        <h2>Structs of {{fullyQualifiedName}} package</h2>
+                                        <h3 id="{{symbolName.name}}">
+                                            struct {{symbolName.name}}({{#each fields}}<a
+                                                href="">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}
+                                            )</h3>
+                                        <p>
+                                            <b>Variables:</b>
+                                        <table>
+                                            <tr>
+                                                <th>Variable Name</th>
+                                                <th>Data Type</th>
+                                            </tr>
+                                            {{#each fields}}
+                                                <tr>
+                                                    <td>{{name}}</td>
+                                                    <td><a href="">{{type}}</a></td>
+                                                </tr>
+                                            {{/each}}
+                                        </table>
+                                        </p>
+                                    {{/public}}
+                            {{/each}}
+                        {{/each}}
+                        {{/hasStructs}}
 					</div>
 				</section>
 			</div>
@@ -175,6 +204,16 @@
                                 </li>{{/each}}{{/each}}
                             </ul>
                         </li>{{/hasConnectors}}
+                        {{#hasStructs}}<li>
+                            <span class="opener">Structs</span>
+                            <ul>
+                                {{#each files}}{{#each structs}}<li>
+                                    <a href="#{{symbolName.name}} ">{{symbolName.name}} ({{#each fields}}
+                                        {{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}})</a>
+                                </li>{{/each}}
+                                {{/each}}
+                            </ul>
+                        </li>{{/hasStructs}}
 					</ul>
 				</nav>
 
