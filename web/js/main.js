@@ -74,7 +74,6 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
             _.set(debuggerOpts, 'application', this);            
             this.debugger = new Debugger(debuggerOpts);       
 
-            console.log(debuggerOpts);
             var debuggerManager = DebugManager.init(debuggerOpts);
         },
 
