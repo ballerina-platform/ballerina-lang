@@ -37,25 +37,26 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerin
             return true;
         };
 
-        /**
-         * Rendering the view of the Type struct definition.
-         * @param {Object} diagramRenderingContext - the object which is carrying data required for rendering
-         */
-        TypeStructDefinitionView.prototype.render = function (diagramRenderingContext) {
-            this._diagramRenderingContext = diagramRenderingContext;
-            var struct = this.getModel().getSchemaPropertyObj();
-            var category = this.getModel().getCategory();
-            var selectedStructName = this.getModel().getSelectedStructName();
-
-            var mapper = new TypeMapper(this.getModel().getOnConnectInstance(), this.getModel().getOnDisconnectInstance(),
-                this._parentView);
-            mapper.removeStruct(selectedStructName);
-            if (category === "SOURCE") {
-                mapper.addSourceStruct(struct, this.getModel());
-            } else {
-                mapper.addTargetStruct(struct, this.getModel());
-            }
-        };
+    /**
+     * Rendering the view of the Type struct definition.
+     * @param {Object} diagramRenderingContext - the object which is carrying data required for rendering
+     */
+    TypeStructDefinitionView.prototype.render = function (diagramRenderingContext, mapper) {
+        this._diagramRenderingContext = diagramRenderingContext;
+        var struct = this.getModel().getSchemaPropertyObj();
+        var category = this.getModel().getCategory();
+        var selectedStructName = this.getModel().getSelectedStructName();
+        if(!mapper) {
+            mapper = new TypeMapper(this.getModel().getOnConnectInstance(), this.getModel().getOnDisconnectInstance(), this._parentView);
+            this._parentView._typeMapper = mapper;
+        }
+        mapper.removeStruct(selectedStructName);
+        if (category == "SOURCE"){
+            mapper.addSourceStruct(struct,this.getModel());
+        } else{
+            mapper.addTargetStruct(struct,this.getModel());
+        }
+    };
 
         TypeStructDefinitionView.prototype.getModel = function () {
             return this._model;
