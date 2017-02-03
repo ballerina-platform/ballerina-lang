@@ -47,6 +47,8 @@ public class BallerinaConnectorManager {
 
     private MessageProcessor messageProcessor;
 
+    private boolean connectorsInitialized = false;
+
     private BallerinaConnectorManager() {
     }
 
@@ -103,21 +105,27 @@ public class BallerinaConnectorManager {
     }
 
     public void initializeServerConnectors(MessageProcessor messageProcessor) {
+
+        if (connectorsInitialized) {
+            return;
+        }
+
         this.messageProcessor = messageProcessor;
+
         //1. Loading server connector providers
         ServiceLoader<ServerConnectorProvider> serverConnectorProviderLoader =
                 ServiceLoader.load(ServerConnectorProvider.class);
         serverConnectorProviderLoader.
                 forEach(serverConnectorProvider -> {
+                    this.registerServerConnectorProvider(serverConnectorProvider);
                     List<ServerConnector> serverConnectors = serverConnectorProvider.initializeConnectors();
                     if (serverConnectors == null || serverConnectors.isEmpty()) {
                         return;
                     }
                     serverConnectors.forEach(serverConnector -> {
                         serverConnector.setMessageProcessor(messageProcessor);
-                        registerServerConnector(serverConnector);
+                        this.registerServerConnector(serverConnector);
                     });
-                    registerServerConnectorProvider(serverConnectorProvider);
                 });
 
         //2. Loading transport listener error handlers
@@ -130,6 +138,8 @@ public class BallerinaConnectorManager {
 
         //4. Should we start all the connectors now?
         startServerConnectors();
+
+        connectorsInitialized = true;
     }
 
     private void loadDispatchers() {

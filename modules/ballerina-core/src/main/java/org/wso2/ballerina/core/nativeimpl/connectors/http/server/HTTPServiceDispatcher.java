@@ -25,10 +25,13 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.ListeningServerConnector;
+import org.wso2.carbon.messaging.ServerConnector;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -148,7 +151,20 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             // Assumption : this is always sequential, no two simultaneous calls can get here
             servicesOnInterface = new HashMap<>();
             services.put(listenerInterface, servicesOnInterface);
-            HTTPListenerManager.getInstance().bindInterface(listenerInterface);
+            ServerConnector connector = BallerinaConnectorManager.getInstance().getServerConnector(listenerInterface);
+            if (connector != null) {
+                if (!(connector instanceof ListeningServerConnector)) {
+                    throw new BallerinaException(
+                            "ServerConnector interface registered for : " + listenerInterface  +
+                            " is not a ListeningServerConnector");
+                }
+                ((ListeningServerConnector) connector).bind();
+            } else {
+                log.warn("ServerConnector interface not registered for : " + listenerInterface);
+                ///TODO: Should we throw an exception ?
+                //throw new BallerinaException(
+                //        "ServerConnector interface not registered for : " + listenerInterface);
+            }
         }
         if (servicesOnInterface.containsKey(basePath)) {
             throw new BallerinaException(
@@ -196,7 +212,11 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             servicesOnInterface.remove(basePath);
             if (servicesOnInterface.isEmpty()) {
                 services.remove(listenerInterface);
-                HTTPListenerManager.getInstance().unbindInterface(listenerInterface);
+                ServerConnector connector =
+                        BallerinaConnectorManager.getInstance().getServerConnector(listenerInterface);
+                if (connector != null && connector instanceof ListeningServerConnector) {
+                    ((ListeningServerConnector) connector).unbind();
+                }
             }
         }
     }
