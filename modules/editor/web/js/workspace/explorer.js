@@ -147,10 +147,12 @@ define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-cli
                 self.application.commandManager.dispatch(_.get(self._options, 'command.id'));
             });
 
+            activateBtn.attr("data-placement", "bottom").attr("data-container", "body");
+
             if (this.application.isRunningOnMacOS()) {
-                activateBtn.attr("title", "Open file explorer (" + _.get(self._options, 'command.shortcuts.mac.label') + ") ")
+                activateBtn.attr("title", "Open file explorer (" + _.get(self._options, 'command.shortcuts.mac.label') + ") ").tooltip();
             } else {
-                activateBtn.attr("title", "Open file explorer  (" + _.get(self._options, 'command.shortcuts.other.label') + ") ")
+                activateBtn.attr("title", "Open file explorer  (" + _.get(self._options, 'command.shortcuts.other.label') + ") ").tooltip();
             }
 
             this._verticalSeparator.on('drag', function(event){
