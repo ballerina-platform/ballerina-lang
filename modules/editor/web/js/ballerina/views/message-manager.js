@@ -59,10 +59,16 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
     MessageManager.prototype.updateActivatedTarget = function (target) {
         if (!_.isUndefined(target)) {
             this.getMessageSource().setConnector(target);
-            this.getMessageSource().setActionName(this.getMessageSource().getActionName());
+            //this.getMessageSource().setActionName(this.getMessageSource().getActionName());
             this.getMessageSource().setActionPackageName(target.getConnectorPkgName());
             this.getMessageSource().setActionConnectorName(target.getConnectorName());
             this.getMessageSource().setConnectorVariableReference(target.getConnectorVariable());
+            //set the right hand expression to set the statement string of the assignment-statement containing the
+            //action invocation expression. This is to keep action invocation statement UI and source-gen in sync
+            //when action invocation is configured
+            if (BallerinaASTFactory.isRightOperandExpression(rightOp = this.getMessageSource().getParent())){
+                rightOp.setRightOperandExpressionString(this.getMessageSource().getExpression());
+            }
         }
     };
 

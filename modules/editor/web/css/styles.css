@@ -492,11 +492,24 @@ button.variable-list {
     fill: #FFFFFF;
 }
 
+.statement-action-button-wrapper {
+    stroke: #000000;
+    stroke-width: 0.5;
+    fill: #FFFFFF;
+}
+
 .property-pane-form-wrapper {
     width: 265px;
     max-height: 250px;
     border: 1px solid #cdcdcd;
     border-top: 2px solid #7b7b7b;
+    background: #FFFFFF;
+    position: absolute;
+}
+
+.expression-editor-form-wrapper{
+    width: 265px;
+    max-height: 250px;
     background: #FFFFFF;
     position: absolute;
 }
@@ -533,12 +546,25 @@ button.variable-list {
 .property-pane-form-body {
 }
 
+.expression-editor-form-body {
+}
+
 .property-pane-form-body-property-wrapper {
     padding: 7px 7px 2px 7px;
 }
 
+.expression-editor-form-body-property-wrapper {
+}
+
 .property-pane-form-body-property-wrapper input {
     width: 100%;
+}
+
+.expression-editor-form-body-property-wrapper input {
+    width: 100%;
+    height: 100%;
+    min-width: 100%;
+    max-width: 250px;
 }
 
 .property-pane-form-body-add-button {
@@ -602,7 +628,7 @@ button.variable-list {
 }
 
 .right-icon-clickable {
-    padding: 4px 6px;
+    padding: 5px 7px;
 }
 
 .collapser:hover {
@@ -713,6 +739,16 @@ button.variable-list {
 
 .service-annotation-wrapper-heading {
     background-color: #3d3d3d
+}
+
+.service-annotation-wrapper-heading[disabled] {
+    border-left: 1px solid #000;
+}
+
+.service-annotation-wrapper-heading[disabled] , .service-annotation-wrapper-heading[disabled] * {
+    background-color: #eeeeee;
+    opacity: 1;
+    cursor: not-allowed;
 }
 
 .service-annotation-wrapper-heading input[type=text] {
@@ -1061,7 +1097,6 @@ button.variable-list {
 .canvas-operations-wrapper {
     float: right;
     margin-right: 1px;
-    margin-top: 1px;
 }
 
 .annotation-icon {
