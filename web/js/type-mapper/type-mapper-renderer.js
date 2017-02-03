@@ -57,7 +57,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
         var refObjects = this.references;
         var viewId  = this.placeHolderName;
 
-        jsPlumb.bind('dblclick', function (connection, e) {
+        jsPlumb.bind('dblclick', function (connection) {
             var sourceParts = connection.sourceId.split(separator);
             var targetParts = connection.targetId.split(separator);
             var sourceId = sourceParts.slice(0, 6).join(separator);
@@ -90,7 +90,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
             onDisconnectCallback(PropertyConnection);
         });
 
-        jsPlumb.bind('connection', function (info, ev) {
+        jsPlumb.bind('connection', function () {
             positionFunc(viewId);
         });
     };
@@ -172,9 +172,6 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
         });
 
         $("#" + this.placeHolderName).append(newStruct);
-        // jsPlumb.draggable(newStruct, {
-        //     containment: 'parent'
-        // });
     };
 
     TypeMapper.prototype.addFunction = function (func, reference) {
@@ -191,11 +188,12 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
 
         $("#" + this.placeHolderName).append(newFunc);
 
+        var funcContent = $('#' + func.name);
         for (var i = 0; i < func.parameters.length; i++) {
-            this.addTargetProperty($('#' + func.name), func.parameters[i].name, func.parameters[i].type);
+            this.addTargetProperty(funcContent, func.parameters[i].name, func.parameters[i].type);
         }
 
-        this.addSourceProperty($('#' + func.name), "output", func.returnType);
+        this.addSourceProperty(funcContent, "output", func.returnType);
         this.dagrePosition(this.placeHolderName);
 
     };
@@ -226,7 +224,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
         var refObjects = this.references;
         var seperator = this.idNameSeperator;
         var typeConverterObj = this.typeConverterView;
-        var placeHolderName = this.placeHolderName
+        var placeHolderName = this.placeHolderName;
+        var positionFunction = this.dagrePosition;
 
         jsPlumb.makeTarget(this.makeProperty(parentId, name, type), {
             maxConnections: 1,
@@ -289,7 +288,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
             },
 
             onDrop: function () {
-                this.dagrePosition(placeHolderName);
+                positionFunction(placeHolderName);
             }
         });
     };
@@ -314,12 +313,13 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
 
             for (var i = 0; i < nodes.length; i++) {
                 var n = nodes[i];
+                var nodeContent =  $("#" + n.id);
 
-                if (maxTypeHeight < $("#" + n.id).width()) {
-                    maxTypeHeight = $("#" + n.id).width();
+                if (maxTypeHeight < nodeContent.width()) {
+                    maxTypeHeight = nodeContent.width();
                 }
 
-                g.setNode(n.id, {width: $("#" + n.id).width() , height: $("#" + n.id).height()});
+                g.setNode(n.id, {width: nodeContent.width() , height: nodeContent.height()});
             }
             var edges = jsPlumb.getAllConnections();
             for (var i = 0; i < edges.length; i++) {
@@ -330,14 +330,16 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
             // calculate the layout (i.e. node positions)
             dagre.layout(g);
 
-
             var maxYPosition = 0;
 
             // Applying the calculated layout
             g.nodes().forEach(function(v) {
-                if ($("#" + v).attr('class') == "func") {
-                    $("#" + v).css("left", g.node(v).x + "px");
-                    $("#" + v).css("top", g.node(v).y + "px");
+
+                var node = $("#" + v);
+
+                if (node.attr('class') == "func") {
+                    node.css("left", g.node(v).x + "px");
+                    node.css("top", g.node(v).y + "px");
                 }
 
                 if (g.node(v) != null && g.node(v).y  > maxYPosition) {
@@ -346,7 +348,6 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
             });
 
             $("#" + viewId).height(maxTypeHeight + maxYPosition);
-           // jsPlumb.repaintEverything();
         }
 
 
