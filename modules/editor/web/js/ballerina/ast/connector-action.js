@@ -23,7 +23,7 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
      * @constructor
      */
     var ConnectorAction = function(args) {
-        ASTNode.call(this, "ConnectorDefinition");
+        ASTNode.call(this, "ConnectorAction");
         this.BallerinaASTFactory = this.getFactory();
         this.action_name = _.get(args, 'action_name', 'newAction');
         this.annotations = _.get(args, 'annotations', []);

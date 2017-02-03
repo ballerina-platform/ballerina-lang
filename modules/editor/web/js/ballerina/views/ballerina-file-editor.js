@@ -15,17 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view', './function-definition-view',
-        './../ast/ballerina-ast-root', './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view',
-        './../visitors/source-gen/ballerina-ast-root-visitor', './../visitors/symbol-table/ballerina-ast-root-visitor',
-        './../tool-palette/tool-palette', './../undo-manager/undo-manager', './backend', './../ast/ballerina-ast-deserializer',
-        './connector-definition-view', './struct-definition-view', './../env/package', './../env/package-scoped-environment',
-        './../env/environment', './constant-definitions-pane-view', './../item-provider/tool-palette-item-provider',
-        './type-mapper-definition-view'],
+define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view',  './function-definition-view', './../ast/ballerina-ast-root',
+        './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view',
+        './../visitors/source-gen/ballerina-ast-root-visitor','./../visitors/symbol-table/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
+        './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer', './connector-definition-view', './struct-definition-view',
+        './../env/package', './../env/package-scoped-environment', './../env/environment', './constant-definitions-pane-view', './../item-provider/tool-palette-item-provider',
+        './package-definition-pane-view','./type-mapper-definition-view'],
     function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory,
-              PackageDefinition, SourceView, SourceGenVisitor, SymbolTableGenVisitor, ToolPalette, UndoManager, Backend,
-              BallerinaASTDeserializer, ConnectorDefinitionView, StructDefinitionView, Package, PackageScopedEnvironment,
-              BallerinaEnvironment, ConstantsDefinitionsPaneView, ToolPaletteItemProvider, TypeMapperDefinitionView) {
+              PackageDefinition, SourceView, SourceGenVisitor, SymbolTableGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer,
+              ConnectorDefinitionView, StructDefinitionView, Package, PackageScopedEnvironment, BallerinaEnvironment,
+              ConstantsDefinitionsPaneView, ToolPaletteItemProvider, PackageDefinitionView,TypeMapperDefinitionView) {
 
         /**
          * The view to represent a ballerina file editor which is an AST visitor.
@@ -38,6 +37,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         var BallerinaFileEditor = function (args) {
             BallerinaView.call(this, args);
             this._canvasList = _.get(args, 'canvasList', []);
+            this._debugger = _.get(args, 'debugger'); 
             this._id = _.get(args, "id", "Ballerina File Editor");
 
             if (_.isNil(this._model) || !(this._model instanceof BallerinaASTRoot)) {
@@ -87,9 +87,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             if (!_.isNil(model) && model instanceof BallerinaASTRoot) {
                 this._model = model;
                 //Registering event listeners
-                this._model.on('child-removed', this.childViewRemovedCallback, this);
                 this._model.on('child-added', function(child){
-                    this.visit(child);
+                     this.visit(child);
                 }, this);
                 // make undo-manager capture all tree modifications after initial rendering
                 this._model.on('tree-modified', function(event){
@@ -150,6 +149,30 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             return false;
         };
 
+        BallerinaFileEditor.prototype.canVisitPackageDefinition = function (packageDefinition) {
+            return false;
+        };
+
+        BallerinaFileEditor.prototype.visitPackageDefinition = function (packageDefinition) {
+            return true;
+        };
+
+        /**
+         * Creates a packge definition view for a package definition model and calls it's render.
+         * @param packageDefinition
+         */
+        BallerinaFileEditor.prototype.visitPackageDefinition = function (packageDefinition) {
+            var packageDefinitionView = new PackageDefinitionView({
+                viewOptions: this._viewOptions,
+                container: this._$canvasContainer,
+                model: packageDefinition,
+                parentView: this,
+                toolPalette: this.toolPalette
+            });
+            this.diagramRenderingContext.getViewModelMap()[packageDefinition.id] = packageDefinitionView;
+            packageDefinitionView.render(this.diagramRenderingContext);
+        };
+
         /**
          * Creates a service definition view for a service definition model and calls it's render.
          * @param serviceDefinition
@@ -199,10 +222,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             functionDefinitionView.render(this.diagramRenderingContext);
         };
 
-        /**
-         * Creates a StructDefinition view for a Struct Definition model and calls it's render.
-         * @param structDefinition
-         */
         BallerinaFileEditor.prototype.visitStructDefinition = function (structDefinition) {
             var structDefinitionView = new StructDefinitionView({
                 viewOptions: this._viewOptions,
@@ -213,22 +232,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             });
             this.diagramRenderingContext.getViewModelMap()[structDefinition.id] = structDefinitionView;
             structDefinitionView.render(this.diagramRenderingContext);
-        };
-
-        /**
-         * Creates a TypeMapperDefinition view for a TypeMapper Definition model and calls it's render.
-         * @param typeMapperDefinition
-         */
-        BallerinaFileEditor.prototype.visitTypeMapperDefinition = function (typeMapperDefinition) {
-            var typeMapperDefinitionView = new TypeMapperDefinitionView({
-                viewOptions: this._viewOptions,
-                container: this._$canvasContainer,
-                model: typeMapperDefinition,
-                parentView: this,
-                toolPalette: this.toolPalette
-            });
-            this.diagramRenderingContext.getViewModelMap()[typeMapperDefinition.id] = TypeMapperDefinitionView;
-            typeMapperDefinitionView.render(this.diagramRenderingContext);
         };
 
         /**
@@ -282,7 +285,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this.diagramRenderingContext = diagramRenderingContext;
             //TODO remove this for adding filecontext to the map
             this.diagramRenderingContext.ballerinaFileEditor = this;
-            this.diagramRenderingContext.packagedScopedEnvironemnt = this._environment;
 
             var symbolTableGenVisitor = new SymbolTableGenVisitor(this._package, this._model);
             this._model.accept(symbolTableGenVisitor);
@@ -311,10 +313,18 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var sourceViewOpts = _.clone(_.get(this._viewOptions, 'source_view'));
             _.set(sourceViewOpts, 'container', aceEditorContainer.get(0));
             _.set(sourceViewOpts, 'content', "");
+            _.set(sourceViewOpts, 'debugger', this._debugger);
             this._sourceView = new SourceView(sourceViewOpts);
+
             this._sourceView.on('add-breakpoint', function (row) {
                 self.trigger('add-breakpoint', row);
             });
+
+            this._sourceView.on('remove-breakpoint', function (row) {
+                self.trigger('remove-breakpoint', row);
+            });            
+
+
             this._sourceView.render();
 
             var sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
@@ -335,7 +345,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var designViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
             designViewBtn.click(function () {
                 // re-parse if there are modifications to source
-                var isSourceChanged = !self._sourceView._editor.getSession().getUndoManager().isClean();
+                var isSourceChanged = !self._sourceView.isClean();
                 if (isSourceChanged) {
                     var source = self._sourceView.getContent();
                     var response = self.backend.parse(source);
@@ -350,7 +360,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     var root = self.deserializer.getASTModel(response);
                     self.setModel(root);
                     // reset source editor delta stack
-                    self._sourceView._editor.getSession().getUndoManager().markClean();
+                    self._sourceView.markClean();
                 }
                 //canvas should be visible before you can call reDraw. drawing dependednt on attr:offsetWidth
                 self.toolPalette.show();
@@ -369,46 +379,46 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             designViewBtn.hide();
             sourceViewContainer.hide();
             this.initDropTarget();
-        };
+    };
 
-        BallerinaFileEditor.prototype.initDropTarget = function() {
-            var self = this,
-                dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop');
+    BallerinaFileEditor.prototype.initDropTarget = function() {
+        var self = this,
+            dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop');
 
-            // on hover over canvas area
-            this._$canvasContainer
-                .mouseover(function(event){
+        // on hover over canvas area
+        this._$canvasContainer
+            .mouseover(function(event){
 
-                    //if someone is dragging a tool from tool-palette
-                    if(self.toolPalette.dragDropManager.isOnDrag()){
+            //if someone is dragging a tool from tool-palette
+            if(self.toolPalette.dragDropManager.isOnDrag()){
 
-                        if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self)){
-                            return;
-                        }
+                if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self)){
+                    return;
+                }
 
-                        // register this as a drop target and validate possible types of nodes to drop - second arg is a call back to validate
-                        // tool view will use this to provide feedback on impossible drop zones
-                        self.toolPalette.dragDropManager.setActivatedDropTarget(self._model);
+                // register this as a drop target and validate possible types of nodes to drop - second arg is a call back to validate
+                // tool view will use this to provide feedback on impossible drop zones
+                self.toolPalette.dragDropManager.setActivatedDropTarget(self._model);
 
-                        // indicate drop area
-                        self._$canvasContainer.addClass(dropActiveClass);
+                // indicate drop area
+                self._$canvasContainer.addClass(dropActiveClass);
 
-                        // reset ui feed back on drop target change
-                        self.toolPalette.dragDropManager.once("drop-target-changed", function(){
-                            self._$canvasContainer.removeClass(dropActiveClass);
-                        });
-                    }
-                    event.stopPropagation();
-                }).mouseout(function(event){
-                    // reset ui feed back on hover out
-                    if(self.toolPalette.dragDropManager.isOnDrag()){
-                        if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self._model)){
-                            self.toolPalette.dragDropManager.clearActivatedDropTarget();
-                        }
-                    }
-                    event.stopPropagation();
-                })
-        };
+                // reset ui feed back on drop target change
+                self.toolPalette.dragDropManager.once("drop-target-changed", function(){
+                    self._$canvasContainer.removeClass(dropActiveClass);
+                });
+            }
+            event.stopPropagation();
+        }).mouseout(function(event){
+            // reset ui feed back on hover out
+            if(self.toolPalette.dragDropManager.isOnDrag()){
+                if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self._model)){
+                    self.toolPalette.dragDropManager.clearActivatedDropTarget();
+                }
+            }
+            event.stopPropagation();
+        })
+    };
 
         /**
          * generate Ballerina source for this editor page
@@ -420,7 +430,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._model.accept(sourceGenVisitor);
             return sourceGenVisitor.getGeneratedSource();
         };
-        
+
         /**
          * Creating the package view of a ballerina-file-editor.
          * @param canvasContainer - The canvas container.
@@ -488,28 +498,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
                 $(importPackageTextBox).focus();
 
-                // Getting package name text box.
-                var packageTextBox = propertyPane.find(".package-name-wrapper input[type=text]");
-
-                // Setting package name to text box.
-                packageTextBox.val((!_.isUndefined(currentASTRoot.getPackageDefinition())) ?
-                    currentASTRoot.getPackageDefinition().getPackageName() : "");
-
-                // Updating model along with text change on package text box.
-                // @todo: need to bring the for loop out of the event.
-                packageTextBox.on("change", function () {
-                    log.debug("Saving package name : " + $(packageTextBox).val());
-
-                    //TODO - this for loop needs to be replaced to get the package definition
-                    var childrenArray = currentASTRoot.getChildren();
-                    for (var child in childrenArray) {
-                        if (BallerinaASTFactory.isPackageDefinition(childrenArray[child])) {
-                            childrenArray[child].setPackageName($(this).val());
-                            break;
-                        }
-                    }
-                });
-
                 var importsWrapper = propertyPane.find(".imports-wrapper");
 
                 // Adding current imports to view.
@@ -522,9 +510,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
                     // Unbinding all events.
                     $(this).unbind("click");
-                    $(packageTextBox).unbind("change");
-                    $(packageTextBox).unbind("keyup");
-                    $(packageTextBox).unbind("input");
                     $(addImportButton).unbind("click");
                     $(propertyPane).unbind("click");
 
@@ -625,5 +610,11 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._sourceView._editor.selection.selectLine();
         };
 
+
+        BallerinaFileEditor.prototype.debugHit = function (position) {
+            this._sourceView.debugHit(position);
+        };        
+
         return BallerinaFileEditor;
     });
+

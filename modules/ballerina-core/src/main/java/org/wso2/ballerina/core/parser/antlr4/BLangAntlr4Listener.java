@@ -391,16 +391,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterWorkerInputParameter(BallerinaParser.WorkerInputParameterContext ctx) {
-
-    }
-
-    @Override
-    public void exitWorkerInputParameter(BallerinaParser.WorkerInputParameterContext ctx) {
-
-    }
-
-    @Override
     public void enterReturnParameters(BallerinaParser.ReturnParametersContext ctx) {
 
     }
