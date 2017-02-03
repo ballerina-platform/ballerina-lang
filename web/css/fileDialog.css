@@ -37,7 +37,7 @@
 
 .folder-dialog-form-btn{
     float: right;
-    margin-right: 100px;
+    margin-right: 43px;
 }
 
 .errors-container{
@@ -63,6 +63,7 @@ hr.style1 {
 .file-dialog-label{
     margin-top: 8px;
     margin-left: 20px;
+    font-weight: 300;
 }
 
 .divider{
