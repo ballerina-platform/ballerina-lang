@@ -85,8 +85,16 @@ public class SymbolName {
         }
 
         SymbolName other = (SymbolName) obj;
-        return ((this.pkgPath == null && other.getPkgPath() == null) ||
-                this.pkgPath.equals(other.pkgPath)) && this.name.equals(other.getName());
+        boolean namesEqual = this.name.equals(other.getName());
+
+        // If both package paths are null, then check their names
+        if (this.pkgPath == null && other.getPkgPath() == null) {
+            return namesEqual;
+        } else if (this.pkgPath != null && other.getPkgPath() != null) {
+            return namesEqual;
+        }
+
+        return false;
     }
 
     @Override
