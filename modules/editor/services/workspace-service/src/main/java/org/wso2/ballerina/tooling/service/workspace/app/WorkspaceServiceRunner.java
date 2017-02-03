@@ -19,6 +19,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.tooling.service.workspace.api.PackagesApi;
 import org.wso2.ballerina.tooling.service.workspace.Constants;
 import org.wso2.ballerina.tooling.service.workspace.rest.FileServer;
 import org.wso2.ballerina.tooling.service.workspace.rest.WorkspaceService;
@@ -71,6 +72,7 @@ public class WorkspaceServiceRunner {
         new MicroservicesRunner(Integer.getInteger(Constants.SYS_WORKSPACE_PORT, Constants.DEFAULT_WORKSPACE_PORT))
                 .deploy(injector.getInstance(WorkspaceService.class))
                 .deploy(new BLangFileRestService())
+                .deploy(new PackagesApi())
                 .start();
 
         int port = Integer.getInteger(Constants.SYS_FILE_WEB_PORT, Constants.DEFAULT_FILE_WEB_PORT);
