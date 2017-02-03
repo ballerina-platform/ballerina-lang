@@ -91,8 +91,8 @@ define(['log', 'lodash', 'event_channel'],
          */
         Function.prototype.initFromJson = function (jsonNode) {
             this.setName(jsonNode.name);
-            this.setId(jsonNode.id);
-            this.setTitle(jsonNode.title);
+            this.setId(jsonNode.name);
+            this.setTitle(jsonNode.name);
         };
 
         return Function;

@@ -10,7 +10,7 @@
     padding-left: 200px;
     padding-top: 0;
     overflow-y: scroll;
-    height: 100vh;
+    height: 100%;
 }
 
 .canvas-container{
@@ -456,6 +456,11 @@
 .outer-box .mCustomScrollBox {
     height: auto;
 }
+
+.tooltip {
+    position: fixed;
+}
+
 /** End of Return type CSS **/
 
 /** Struct view CSS **/
@@ -586,6 +591,10 @@
     line-height:20px;
 }
 
+.jstree-anchor {
+    padding: 2px 4px 0 1px;
+}
+
 /** End of Struct view CSS **/
 
 #package-name-input{
@@ -596,4 +605,12 @@
 }
 .package-definition-main-wrapper{
     margin-bottom: 1em;
+}
+.tooltip-inner {
+    white-space:nowrap;
+    max-width:none;
+}
+
+.tooltip.bottom {
+    margin-top: -3px;
 }
