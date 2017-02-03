@@ -37,13 +37,6 @@ import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.FindOne
 import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.FindWithQuery;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.Insert;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.InsertBatch;
-//import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.MongoDBConnector;
-//import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.Find;
-//import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.FindOne;
-//import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.FindOneWithQuery;
-//import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.FindWithQuery;
-//import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.Insert;
-//import org.wso2.ballerina.core.nativeimpl.connectors.data.mongodb.client.InsertBatch;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.SQLConnector;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client.Call;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client.Select;
@@ -92,8 +85,10 @@ import org.wso2.ballerina.core.nativeimpl.lang.datatable.GetBooleanArrayByIndex;
 import org.wso2.ballerina.core.nativeimpl.lang.datatable.GetBooleanArrayByName;
 import org.wso2.ballerina.core.nativeimpl.lang.datatable.GetBooleanByIndex;
 import org.wso2.ballerina.core.nativeimpl.lang.datatable.GetBooleanByName;
-import org.wso2.ballerina.core.nativeimpl.lang.datatable.GetByIndex;
-import org.wso2.ballerina.core.nativeimpl.lang.datatable.GetByName;
+import org.wso2.ballerina.core.nativeimpl.lang.datatable.GetByIndexLongReturn;
+import org.wso2.ballerina.core.nativeimpl.lang.datatable.GetByIndexStringReturn;
+import org.wso2.ballerina.core.nativeimpl.lang.datatable.GetByNameLongReturn;
+import org.wso2.ballerina.core.nativeimpl.lang.datatable.GetByNameStringReturn;
 import org.wso2.ballerina.core.nativeimpl.lang.datatable.GetDoubleArrayByIndex;
 import org.wso2.ballerina.core.nativeimpl.lang.datatable.GetDoubleArrayByName;
 import org.wso2.ballerina.core.nativeimpl.lang.datatable.GetDoubleByIndex;
@@ -446,8 +441,10 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new Close());
         registerFunction(scope, new ToJSON());
         registerFunction(scope, new ToXML());
-        registerFunction(scope, new GetByIndex());
-        registerFunction(scope, new GetByName());
+        registerFunction(scope, new GetByIndexStringReturn());
+        registerFunction(scope, new GetByNameStringReturn());
+        registerFunction(scope, new GetByIndexLongReturn());
+        registerFunction(scope, new GetByNameLongReturn());
 
         // SQL Connector
         registerConnector(scope, new SQLConnector());
@@ -473,10 +470,6 @@ public class BuiltInNativeConstructLoader {
         registerConnector(scope, new CassandraConnector());
         registerAction(scope, new org.wso2.ballerina.core.nativeimpl.connectors.data.cassandra.client.Execute());
         registerAction(scope, new org.wso2.ballerina.core.nativeimpl.connectors.data.cassandra.client.Close());
-
-        registerConnector(scope, new CassandraConnector());
-        registerAction(scope, new org.wso2.ballerina.core.nativeimpl.connectors.data.cassandra.client.Close());
-        registerAction(scope, new org.wso2.ballerina.core.nativeimpl.connectors.data.cassandra.client.Execute());
 
         registerConnector(scope, new HTTPConnector());
 

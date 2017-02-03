@@ -20,9 +20,8 @@ package org.wso2.ballerina.core.nativeimpl.lang.datatable;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BDataTable;
-import org.wso2.ballerina.core.model.values.BLong;
+import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
@@ -30,27 +29,24 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
- * Native function to get long array value of a given column name.
- * ballerina.lang.datatable:getLongArray(datatable, int)
+ * Native function to get some special type to ballerina supported types. Eg:- Blob, Clob, NClob, Date, Timestamp
+ * ballerina.lang.datatable:getLong(datatable, int, string)
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.datatable",
-        functionName = "getLongArray",
+        functionName = "getLong",
         args = {@Argument(name = "datatable", type = TypeEnum.DATATABLE),
-                @Argument(name = "name", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.LONG)},
+                @Argument(name = "index", type = TypeEnum.INT),
+                @Argument(name = "type", type = TypeEnum.STRING)},
+        returnType = {@ReturnType(type = TypeEnum.LONG)},
         isPublic = true
 )
-public class GetLongArrayByName extends AbstractNativeFunction {
+public class GetByIndexLongReturn extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataTable dataframe = (BDataTable) getArgument(ctx, 0);
-        String columnName = (getArgument(ctx, 1)).stringValue();
-        BArray<BLong> array = new BArray<>(BLong.class);
-        long[] longArray = dataframe.getLongArray(columnName);
-        for (int i = 0; i < longArray.length; i++) {
-            array.add(i, new BLong(longArray[i]));
-        }
-        return getBValues(array);
+        int index = ((BInteger) getArgument(ctx, 1)).intValue();
+        String type = (getArgument(ctx, 2)).stringValue();
+        return getBValues(dataframe.get(index, type));
     }
 }

@@ -21,7 +21,6 @@ package org.wso2.ballerina.core.nativeimpl.lang.datatable;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BDataTable;
-import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
@@ -30,23 +29,23 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
  * Native function to get some special type to ballerina supported types. Eg:- Blob, Clob, NClob, Date, Timestamp
- * ballerina.lang.datatable:get(datatable, int, string)
+ * ballerina.lang.datatable:getLong(datatable, string, string)
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.datatable",
-        functionName = "get",
+        functionName = "getLong",
         args = {@Argument(name = "datatable", type = TypeEnum.DATATABLE),
-                @Argument(name = "index", type = TypeEnum.INT),
+                @Argument(name = "string", type = TypeEnum.STRING),
                 @Argument(name = "type", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.BOOLEAN)},
+        returnType = {@ReturnType(type = TypeEnum.LONG)},
         isPublic = true
 )
-public class GetByIndex extends AbstractNativeFunction {
+public class GetByNameLongReturn extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataTable dataframe = (BDataTable) getArgument(ctx, 0);
-        int index = ((BInteger) getArgument(ctx, 1)).intValue();
+        String columnName = (getArgument(ctx, 1)).stringValue();
         String type = (getArgument(ctx, 2)).stringValue();
-        return getBValues(dataframe.get(index, type));
+        return getBValues(dataframe.get(columnName, type));
     }
 }

@@ -29,18 +29,18 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
  * Native function to get some special type to ballerina supported types. Eg:- Blob, Clob, NClob, Date, Timestamp
- * ballerina.lang.datatable:get(datatable, string, string)
+ * ballerina.lang.datatable:getString(datatable, string, string)
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.datatable",
-        functionName = "get",
+        functionName = "getString",
         args = {@Argument(name = "datatable", type = TypeEnum.DATATABLE),
                 @Argument(name = "string", type = TypeEnum.STRING),
                 @Argument(name = "type", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.BOOLEAN)},
+        returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
-public class GetByName extends AbstractNativeFunction {
+public class GetByNameStringReturn extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataTable dataframe = (BDataTable) getArgument(ctx, 0);
