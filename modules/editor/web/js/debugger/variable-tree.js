@@ -78,15 +78,6 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', /** void module 
     };
 
     VariableTree.prototype.updateVariableTree = function(variableTree) {
-        /* format needed for jstree
-         https://www.jstree.com/docs/json/
-        var newData = [
-            { "id" : "ajson1", "parent" : "#", "text" : "Simple root node" },
-            { "id" : "ajson2", "parent" : "#", "text" : "Root node 2" },
-            { "id" : "ajson3", "parent" : "ajson2", "text" : "Child 1" },
-            { "id" : "ajson4", "parent" : "ajson2", "text" : "Child 2" },
-        ];
-        */
         var newData = _.flatMapDeep(variableTree, function (value, key) {
 
         });
