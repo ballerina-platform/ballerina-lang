@@ -26,6 +26,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.messaging.handler.HandlerExecutor;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
@@ -92,6 +93,8 @@ public class ServerConnectorController {
                     workerGroupSize != 0 ? workerGroupSize : Runtime.getRuntime().availableProcessors() * 2);
             HTTPTransportContextHolder.getInstance().setWorkerGroup(workerGroup);
         }
+        // Set Handler Executor
+        HTTPTransportContextHolder.getInstance().setHandlerExecutor(new HandlerExecutor());
 
         bootstrap = new ServerBootstrap();
         bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
