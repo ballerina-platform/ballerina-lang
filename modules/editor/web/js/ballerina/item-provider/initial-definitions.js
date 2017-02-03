@@ -80,7 +80,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
         var createStructsDefTool = {
             id: "struct",
             name: "Struct",
-            icon: "images/tool-icons/assign.svg",
+            icon: "images/tool-icons/struct.svg",
             title: "Struct",
             nodeFactoryMethod: BallerinaASTFactory.createStructDefinition
         };
