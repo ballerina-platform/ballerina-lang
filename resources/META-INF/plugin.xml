@@ -37,7 +37,7 @@
         <!-- file type -->
         <fileTypeFactory implementation="org.ballerinalang.plugins.idea.BallerinaFileTypeFactory"/>
 
-         <!--parser-->
+        <!--parser-->
         <lang.parserDefinition language="Ballerina"
                                implementationClass="org.ballerinalang.plugins.idea.BallerinaParserDefinition"/>
 
@@ -53,7 +53,11 @@
 
         <!-- formatter -->
         <!--<lang.formatter language="Ballerina"-->
-                        <!--implementationClass="org.ballerinalang.plugins.idea.formatter.BallerinaFormattingModelBuilder"/>-->
+        <!--implementationClass="org.ballerinalang.plugins.idea.formatter.BallerinaFormattingModelBuilder"/>-->
+
+        <!--structure view-->
+        <lang.psiStructureViewFactory language="Ballerina"
+                                      implementationClass="org.ballerinalang.plugins.idea.structureview.BallerinaStructureViewFactory"/>
 
         <!-- templates -->
         <internalFileTemplate name="Ballerina Application"/>
