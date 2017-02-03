@@ -82,13 +82,9 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
      * @param {ASTNode} parent - parent node
      * @param {ASTNode} child - child node
      */
-    LifeLineView.prototype.removeViewCallback = function (parent, child) {
+    LifeLineView.prototype.onBeforeModelRemove = function (parent, child) {
         d3.select("#_" +this._model.id).remove();
-        this.unplugView(
-            {
-                w: 0,
-                h: 0
-            }, parent, child);
+        this.getBoundingBox().w(0, 0);
     };
 
     LifeLineView.prototype.position = function (x, y) {
@@ -453,18 +449,11 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             });
 
             $(deleteButtonRect.node()).click(function(event){
-                log.debug("Clicked delete button");
-
                 event.stopPropagation();
-
+                model.remove();
                 // Hiding property button pane.
                 $(propertyButtonPaneGroup.node()).remove();
                 $(smallArrow.node()).remove();
-
-                var child = model;
-                var parent = child.parent;
-                self.trigger("remove-view", parent, child);
-                // parent.removeChild(child);
             });
 
         }.bind(lifeLineGroup.node(), this));
