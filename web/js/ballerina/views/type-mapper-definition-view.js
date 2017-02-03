@@ -36,7 +36,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
                 log.error("Container for Type Mapper definition is undefined." + this._container);
                 throw "Container for Type Mapper definition is undefined." + this._container;
             }
-            this._typeMapper = new TypeMapper(this.onAttributesConnect, this.onAttributesDisConnect, this);
+            this._typeMapper;
 
         };
 
@@ -205,7 +205,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             var typeStructDefinitionView = new TypeStructDefinition({
                 model: typeStructDefinition, parentView: this
             });
-            typeStructDefinitionView.render(this.diagramRenderingContext);
+            typeStructDefinitionView.render(this.diagramRenderingContext, this._typeMapper);
         };
 
         /**
