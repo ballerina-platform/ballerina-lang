@@ -46,17 +46,7 @@ define(['jquery', 'backbone', 'lodash', 'log','./variable-tree', './tools', './f
             this._lastWidth = undefined;
             this._verticalSeparator = $(_.get(this._options, 'separator'));
             this._containerToAdjust = $(_.get(this._options, 'containerToAdjust'));
-
-            // Channel.on("debug-hit", function (executionPoint, variableTree) {
-            //     // TODO use FileTab 's instance to hightLight
-            //    var currentTab = self.application.tabController.getActiveTab();
-            //    if(currentTab) {
-            //        currentTab._fileEditor.highlightExecutionPoint(executionPoint);
-            //    }
-            //    VariableTree.updateVariableTree(variableTree);
-            // });
-
-
+            
             // register command
             this.application.commandManager.registerCommand(config.command.id, {shortcuts: config.command.shortcuts});
             this.application.commandManager.registerHandler(config.command.id, this.toggleDebugger, this);
