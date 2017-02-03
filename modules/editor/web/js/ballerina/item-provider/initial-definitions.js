@@ -124,7 +124,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             id: "FunctionInvocation",
             name: "FunctionInvocation",
             icon: "images/tool-icons/function-invoke.svg",
-            title: "FunctionInvocation",
+            title: "Function Invocation",
             nodeFactoryMethod: BallerinaASTFactory.createAggregatedFunctionInvocationStatement
         };
 
