@@ -220,15 +220,15 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
                     var propertyPaneWrapper = $("<div/>", {
                     class: viewOptions.propertyForm.wrapper.class,
                         css : {
-                        "width": statementBoundingBox.w(),
-                        "height": 30/*statementBoundingBox.h()*/
+                        "width": (statementBoundingBox.w() + 1), // Making the text box bit bigger than the statement box
+                        "height": 32 // Height for the expression editor box.
                         },
                         click : function(event){
                             event.stopPropagation();
                         }
                 }).offset({
-                    top: statementBoundingBox.y(),
-                    left: statementBoundingBox.x()
+                    top: (statementBoundingBox.y() - 1), // Adding the textbox bit bigger than the statement box.
+                    left: (statementBoundingBox.x() - 1)
                 }).appendTo(parentSVG.parentElement);
 
                     // When the outside of the propertyPaneWrapper is clicked.
