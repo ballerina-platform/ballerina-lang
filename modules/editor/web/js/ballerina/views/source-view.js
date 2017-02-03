@@ -101,6 +101,8 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
     SourceView.prototype.isVisible = function(){
        return  $(this._container).is(':visible')
     };
+    
+    //dbeugger related functions. 
 
     SourceView.prototype.toggleDebugPoints = function(e){
         var target = e.domEvent.target; 
@@ -114,7 +116,7 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
 
         var breakpoints = e.editor.session.getBreakpoints(row, 0);
         var row = e.getDocumentPosition().row;        
-        if(typeof breakpoints[row] === typeof undefined){
+        if(_.isUndefined(breakpoints[row])){
             this._markers[row] = this._editor.getSession().addMarker(new Range.Range(row, 0, row, 2000), "debug-point", "line", true);
             e.editor.session.setBreakpoint(row);
             this.trigger('add-breakpoint', row + 1);
@@ -137,9 +139,6 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
             this._editor.getSession().removeMarker(this.debugPointMarker);
         }
     }    
-
-    //dbeugger related functions. 
-
 
     return SourceView;
 });
