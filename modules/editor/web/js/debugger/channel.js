@@ -16,8 +16,8 @@
  * under the License.
  */
 
-define(['lodash', 'event_channel', 'log'],
-    function (_, EventChannel, log){
+define(['lodash', 'event_channel', 'log', './tools'],
+    function (_, EventChannel, log, Tools){
 
         var Channel = function(args){
             _.assign(this, args);
@@ -36,6 +36,10 @@ define(['lodash', 'event_channel', 'log'],
                 //@todo need to handle error.
             }
             var self = this;
+
+            Tools.on('execute-action', function (action) {
+                self.sendMessage({command: action});
+            });
         };
 
         Channel.prototype = Object.create(EventChannel.prototype);
