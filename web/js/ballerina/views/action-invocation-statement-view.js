@@ -128,17 +128,17 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                 this.connector = this.getDiagramRenderingContext().getViewOfModel(connectorModel);
             }
             else {
-                for(var i = 0; i < this._parent._model.children.length; i++) {
-                    if (this._parent._model.children[i].type == 'ConnectorDeclaration') {
-                        var connectorReference = this._parent._model.children[i];
+                _.some(this._parent._model.children, function (key, i) {
+                    if (self._parent._model.children[i].type == 'ConnectorDeclaration') {
+                        var connectorReference = self._parent._model.children[i];
 
                         actionInvocationModel._connector = connectorReference;
                         self.messageManager.setMessageSource(actionInvocationModel);
                         self.messageManager.updateActivatedTarget(connectorReference);
 
-                        break;
+                        return true;
                     }
-                }
+                });
             }
 
             var assignmentStatementGroup = D3Utils.group(d3.select(this._container));
