@@ -54,7 +54,7 @@ public class ListenerConfiguration {
     private int port;
 
     @XmlAttribute
-    private boolean bindOnStartup = true;
+    private boolean bindOnStartup = false;
 
     @XmlAttribute
     private String scheme = "http";
