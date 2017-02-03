@@ -34,7 +34,10 @@ define(['lodash', './node'], function (_, ASTNode) {
      */
     TypeMapperDefinition.prototype.setTypeMapperName = function (typeMapperName) {
         if (!_.isNil(typeMapperName)) {
-            this._typeMapperName = typeMapperName;
+            this.setAttribute('_typeMapperName', typeMapperName);
+        } else {
+            log.error('Invalid Type Mapper name [' + typeMapperName + '] Provided');
+            throw 'Invalid Type Mapper name [' + typeMapperName + '] Provided';
         }
     };
 
@@ -129,7 +132,10 @@ define(['lodash', './node'], function (_, ASTNode) {
      */
     TypeMapperDefinition.prototype.setSelectedStructNameForSource = function (selectedStructNameForSource) {
         if (!_.isNil(selectedStructNameForSource)) {
-            this._selectedTypeStructNameForSource = selectedStructNameForSource;
+            this.setAttribute('_selectedTypeStructNameForSource', selectedStructNameForSource);
+        } else {
+            log.error('Invalid TypeStructName [' + selectedStructNameForSource + '] Provided');
+            throw 'Invalid TypeStructName [' + selectedStructNameForSource + '] Provided';
         }
     };
 
@@ -147,7 +153,10 @@ define(['lodash', './node'], function (_, ASTNode) {
      */
     TypeMapperDefinition.prototype.setSelectedStructNameForTarget = function (selectedStructNameForTarget) {
         if (!_.isNil(selectedStructNameForTarget)) {
-            this._selectedTypeStructNameForTarget = selectedStructNameForTarget;
+            this.setAttribute('_selectedTypeStructNameForTarget', selectedStructNameForTarget);
+        } else {
+            log.error('Invalid TypeStructName [' + selectedStructNameForTarget + '] Provided');
+            throw 'Invalid TypeStructName [' + selectedStructNameForTarget + '] Provided';
         }
     };
 
