@@ -168,7 +168,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/argum
             // Creating parameter type dropdown.
             var parameterTypeDropDown = $("<select/>").appendTo(parameterWrapper);
 
-            this._supportedParameterTypes = diagramRenderingContext.getEnvironment().getTypes();
+            this._supportedParameterTypes = this.getDiagramRenderingContext().getEnvironment().getTypes();
             // Adding dropdown elements.
             _.forEach(this._supportedParameterTypes, function (type) {
                 // Adding supported parameter types to the type dropdown.

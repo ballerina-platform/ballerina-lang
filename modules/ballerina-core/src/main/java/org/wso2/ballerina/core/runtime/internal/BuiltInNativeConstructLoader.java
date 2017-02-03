@@ -122,6 +122,7 @@ import org.wso2.ballerina.core.nativeimpl.lang.string.Replace;
 import org.wso2.ballerina.core.nativeimpl.lang.string.ReplaceAll;
 import org.wso2.ballerina.core.nativeimpl.lang.string.ReplaceFirst;
 import org.wso2.ballerina.core.nativeimpl.lang.string.StringValueOf;
+import org.wso2.ballerina.core.nativeimpl.lang.string.SubString;
 import org.wso2.ballerina.core.nativeimpl.lang.string.ToLowerCase;
 import org.wso2.ballerina.core.nativeimpl.lang.string.ToUpperCase;
 import org.wso2.ballerina.core.nativeimpl.lang.string.Trim;
@@ -170,6 +171,8 @@ import org.wso2.ballerina.core.nativeimpl.net.http.SetReasonPhrase;
 import org.wso2.ballerina.core.nativeimpl.net.http.SetStatusCode;
 import org.wso2.ballerina.core.nativeimpl.net.uri.Encode;
 import org.wso2.ballerina.core.nativeimpl.net.uri.GetQueryParam;
+import org.wso2.ballerina.core.nativeimpl.util.Base64Decode;
+import org.wso2.ballerina.core.nativeimpl.util.Base64Encode;
 import org.wso2.ballerina.core.nativeimpl.util.GetHmac;
 import org.wso2.ballerina.core.nativeimpl.util.GetRandomString;
 
@@ -287,6 +290,7 @@ public class BuiltInNativeConstructLoader {
         registerFunction(globalScope, new ReplaceAll());
         registerFunction(globalScope, new ReplaceFirst());
         registerFunction(globalScope, new StringValueOf());
+        registerFunction(globalScope, new SubString());
         registerFunction(globalScope, new ToLowerCase());
         registerFunction(globalScope, new ToUpperCase());
         registerFunction(globalScope, new Trim());
@@ -340,6 +344,8 @@ public class BuiltInNativeConstructLoader {
 
         // lang.util
         registerFunction(globalScope, new GetHmac());
+        registerFunction(globalScope, new Base64Encode());
+        registerFunction(globalScope, new Base64Decode());
 
         // net.uri
         registerFunction(globalScope, new Encode());

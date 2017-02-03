@@ -88,7 +88,7 @@ define(['require', 'log', 'jquery', 'd3', 'backbone', './tool-view'], function (
                 _.set(toolOptions, 'toolPalette', self.toolPalette);
                 _.set(toolOptions, 'model', tool);
                 var toolView = new ToolView(toolOptions);
-                toolView.render(self._$toolGroupBody);
+                toolView.render(self._$toolGroupBody, true);
             }
         }
     });

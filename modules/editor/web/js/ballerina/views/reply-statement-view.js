@@ -87,39 +87,39 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/reply-statement
          * Rendering the view for reply statement.
          * @returns {group} The svg group which contains the elements of the reply statement view.
          */
-        ReplyStatementView.prototype.render = function () {
+        ReplyStatementView.prototype.render = function (diagramRenderingContext) {
+            this.setDiagramRenderingContext(diagramRenderingContext);
             var width =  this._viewOptions.width;
             var height = this._viewOptions.height;
 
-            var startActionGroup = D3Utils.group(d3.select(this._container));
+            var replyGroup = D3Utils.group(d3.select(this._container))
+                .attr('id', "_" + this.getModel().id);
             var line_start = new Point(this.getBoundingBox().x(), this.getBoundingBox().y() + height/2);
 
             var distanceToClient = this._viewOptions.distanceToClient - this.getBoundingBox().w()/2;
             var line_end = new Point(this.getBoundingBox().x() - distanceToClient, this.getBoundingBox().y() + height/2);
-            var reply_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), width, height, 0, 0, startActionGroup).classed('statement-rect', true);
-            var reply_text = D3Utils.textElement(this.getBoundingBox().x() + width/2, this.getBoundingBox().y() + height/2, 'Reply', startActionGroup).classed('statement-text', true);
-            var reply_line = D3Utils.lineFromPoints(line_start,line_end, startActionGroup)
+            var reply_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), width, height, 0, 0, replyGroup).classed('statement-rect', true);
+            var reply_text = D3Utils.textElement(this.getBoundingBox().x() + width/2, this.getBoundingBox().y() + height/2, 'Reply', replyGroup).classed('statement-text', true);
+            var reply_line = D3Utils.lineFromPoints(line_start,line_end, replyGroup)
                 .classed('message', true);
             var arrowHeadWidth = 5;
-            var reply_arrow_head = D3Utils.outputTriangle(line_end.x(), line_end.y(), startActionGroup).classed("action-arrow", true);
+            var reply_arrow_head = D3Utils.outputTriangle(line_end.x(), line_end.y(), replyGroup).classed("action-arrow", true);
 
             log.debug("Rendering the Reply Statement.");
 
             // Creating property pane
-            var editableProperties = [
-                {
-                    propertyType: "text",
-                    key: "Response Message",
-                    model: this._model,
-                    getterMethod: this._model.getReplyMessage,
-                    setterMethod: this._model.setReplyMessage
-                }
-            ];
+            var editableProperty = {
+                propertyType: "text",
+                key: "Response Message",
+                model: this._model,
+                getterMethod: this._model.getReplyMessage,
+                setterMethod: this._model.setReplyMessage
+            };
 
             this._createPropertyPane({
                 model: this._model,
-                statementGroup:startActionGroup,
-                editableProperties: editableProperties
+                statementGroup:replyGroup,
+                editableProperties: editableProperty
             });
 
             var self = this;
@@ -132,9 +132,9 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/reply-statement
                 line_end = new Point(self.getBoundingBox().x() - distanceToClient, self.getBoundingBox().y() + height/2);
 
                 reply_arrow_head.remove();
-                reply_arrow_head = D3Utils.outputTriangle(line_end.x(), line_end.y(), startActionGroup).classed("action-arrow", true);
+                reply_arrow_head = D3Utils.outputTriangle(line_end.x(), line_end.y(), replyGroup).classed("action-arrow", true);
             });
-            return startActionGroup;
+            return replyGroup;
         };
 
         return ReplyStatementView;

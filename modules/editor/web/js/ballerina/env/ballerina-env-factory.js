@@ -19,8 +19,8 @@
 /**
  * A module representing the factory for Ballerina Env
  */
-define(['./package', './connector', './connector-action'],
-    function (Package, Connector, ConnectorAction ) {
+define(['./package', './connector', './connector-action', './function'],
+    function (Package, Connector, ConnectorAction, Function ) {
 
         /**
          * @class BallerinaEnvFactory
@@ -28,37 +28,47 @@ define(['./package', './connector', './connector-action'],
         var BallerinaEnvFactory = {};
 
         /**
-         * creates Package from json
+         * creates Package
          * @param args
          */
-        BallerinaEnvFactory.createPackage = function (jsonNode) {
-            var package = new Package();
-            package.initFromJson(jsonNode);
+        BallerinaEnvFactory.createPackage = function (args) {
+            var package = new Package(args);
             return package;
         };
 
         /**
-         * creates Connector from json
+         * creates Connector
          * @param args
          */
-        BallerinaEnvFactory.createConnector = function (jsonNode) {
-            var connector = new Connector();
-            connector.initFromJson(jsonNode);
+        BallerinaEnvFactory.createConnector = function (args) {
+            var connector = new Connector(args);
             return connector;
         };
   
         /**
-         * creates ConnectorAction from json
+         * creates ConnectorAction
          * @param args
          */
-        BallerinaEnvFactory.createConnectorAction = function (jsonNode) {
-            var action = new ConnectorAction();
-            action.initFromJson(jsonNode);
+        BallerinaEnvFactory.createConnectorAction = function (args) {
+            var action = new ConnectorAction(args);
             return action;
+        };
+
+        /**
+         * creates Function
+         * @param jsonNode
+         */
+        BallerinaEnvFactory.createFunction = function (args) {
+            var functionDef = new Function(args);
+            return functionDef;
         };
 
         BallerinaEnvFactory.isConnector = function (connector) {
             return (connector instanceof Connector);
+        };
+
+        BallerinaEnvFactory.isFunction = function (functionDef) {
+            return (functionDef instanceof Function);
         };
 
         return BallerinaEnvFactory;

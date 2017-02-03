@@ -35,19 +35,10 @@ import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.runtime.MessageProcessor;
 import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
-import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
-import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
-import org.wso2.carbon.transport.http.netty.config.TransportProperty;
-import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
-import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
-import org.wso2.carbon.transport.http.netty.sender.HTTPSender;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Executes the main function of a Ballerina program
@@ -57,30 +48,19 @@ import java.util.Set;
 class BMainRunner {
 
     static void runMain(Path sourceFilePath, List<String> args) {
-        BallerinaFile bFile = Utils.buildLangModel(sourceFilePath);
+        BallerinaFile bFile = LauncherUtils.buildLangModel(sourceFilePath);
 
         // Check whether there is a main function
         BallerinaFunction function = (BallerinaFunction) bFile.getMainFunction();
         if (function == null) {
             String pkgString = (bFile.getPackagePath() != null) ? "in package " + bFile.getPackagePath() : "";
-            pkgString = (pkgString.equals("")) ? "in file '" + Utils.getFileName(sourceFilePath) + "'" : "";
+            pkgString = (pkgString.equals("")) ? "in file '" + LauncherUtils.getFileName(sourceFilePath) + "'" : "";
             String errorMsg = "ballerina: main method not found " + pkgString + "";
-            throw Utils.createLauncherException(errorMsg);
+            throw LauncherUtils.createLauncherException(errorMsg);
         }
 
-        // Initializing HttpSender.
-        // TODO Remove this once the sender initialization is moved HTTPConnector
-        HTTPTransportContextHolder nettyTransportContextHolder = HTTPTransportContextHolder.getInstance();
-        nettyTransportContextHolder.setMessageProcessor(new MessageProcessor());
-        TransportsConfiguration trpConfig = YAMLTransportConfigurationBuilder.build();
-        Set<SenderConfiguration> senderConfigurations = trpConfig.getSenderConfigurations();
-        Set<TransportProperty> transportProperties = trpConfig.getTransportProperties();
-        HTTPSender sender = new HTTPSender(senderConfigurations, transportProperties);
-        ServiceContextHolder.getInstance().addTransportSender(sender);
-
         execute(bFile, args);
-        // TODO Remove this ASAP. Without this, JVM hangs. Figure out why.
-        Runtime.getRuntime().exit(1);
+        Runtime.getRuntime().exit(0);
     }
 
     private static void execute(BallerinaFile balFile, List<String> args) {
@@ -126,7 +106,7 @@ class BMainRunner {
         } catch (Throwable ex) {
             String errorMsg = ErrorHandlerUtils.getErrorMessage(ex);
             String stacktrace = ErrorHandlerUtils.getMainFuncStackTrace(bContext, ex);
-            throw Utils.createLauncherException(errorMsg + "\n" + stacktrace);
+            throw LauncherUtils.createLauncherException(errorMsg + "\n" + stacktrace);
         }
     }
 }
