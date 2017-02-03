@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Util class for read xml files.
@@ -31,11 +32,12 @@ import java.net.URL;
 public class XMLUtils {
     public static String readFileToString(String path) {
         InputStream is = null;
+        BufferedReader buf = null;
         String fileAsString = null;
         URL fileResource = ParserUtils.class.getClassLoader().getResource(path);
         try {
             is = new FileInputStream(fileResource.getFile());
-            BufferedReader buf = new BufferedReader(new InputStreamReader(is));
+            buf = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
             String line = buf.readLine();
             StringBuilder sb = new StringBuilder();
             while (line != null) {
@@ -47,8 +49,15 @@ public class XMLUtils {
             // Ignore here
         } catch (IOException e) {
             // Ignore here
+        } finally {
+            try {
+                if (buf != null) {
+                    buf.close();
+                }
+            } catch (IOException e) {
+                // Ignore here
+            }
         }
-
         return fileAsString;
     }
 }

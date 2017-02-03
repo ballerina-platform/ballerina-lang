@@ -16,9 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core;
-
-import org.wso2.ballerina.core.runtime.BalCallback;
+package org.wso2.ballerina.core.runtime;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core;
+package org.wso2.ballerina.core.runtime;
 
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.SymScope;

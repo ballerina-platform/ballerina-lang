@@ -21,7 +21,6 @@ package org.wso2.ballerina.core.runtime;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.EnvironmentInitializer;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.SymScope;
@@ -32,10 +31,10 @@ import org.wso2.ballerina.core.nativeimpl.lang.json.GetString;
 import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.runtime.registry.PackageRegistry;
+import org.wso2.ballerina.core.utils.Functions;
 import org.wso2.ballerina.core.utils.MessageUtils;
 import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
-import org.wso2.ballerina.lang.util.Services;
+import org.wso2.ballerina.core.utils.Services;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**

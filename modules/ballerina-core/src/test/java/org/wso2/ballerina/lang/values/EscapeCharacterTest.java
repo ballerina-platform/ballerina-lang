@@ -24,8 +24,8 @@ import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintString;
 import org.wso2.ballerina.core.utils.FunctionUtils;
+import org.wso2.ballerina.core.utils.Functions;
 import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
 
 import java.io.IOException;
 
