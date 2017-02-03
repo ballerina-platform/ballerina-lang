@@ -56,7 +56,8 @@ define(['lodash', 'log', 'file_browser', 'event_channel', 'context_menu', 'theme
         header.attr('title', this.path);
         header.tooltip({
             'delay': { show: 1000, hide: 0 },
-            'placement': 'bottom'
+            'placement': 'bottom',
+            'container': 'body'
         });
 
         body.on('show.bs.collapse', function(){
