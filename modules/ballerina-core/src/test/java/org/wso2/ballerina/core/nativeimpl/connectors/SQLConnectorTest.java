@@ -43,6 +43,7 @@ import java.sql.Statement;
  * Test Class for SQL Connector.
  */
 public class SQLConnectorTest {
+
     @BeforeClass()
     public void setup() {
         SymScope symScope = GlobalScopeHolder.getInstance().getScope();
@@ -50,7 +51,7 @@ public class SQLConnectorTest {
             BuiltInNativeConstructLoader.loadConstructs();
         }
         EnvironmentInitializer.initialize("lang/connectors/sqlconnector.bal");
-        DeleteDbFiles.execute("./", null, true);
+        DeleteDbFiles.execute("./target/", "TEST_SQL_CONNECTOR", true);
         initDatabase();
     }
 
@@ -97,7 +98,21 @@ public class SQLConnectorTest {
     @Test(description = "Test Insert Data with Generated Keys")
     public void testActionInsertDataWithKeys() {
 
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/actionInsertDataWithKeys", "GET");
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/actionDataInsertWithKeys", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        int generatedKey = Integer.parseInt(stringDataSource.getValue());
+
+        Assert.assertTrue(generatedKey > 0);
+    }
+
+    @Test(description = "Test Insert Data with Generated Keys and Key Columns")
+    public void testInsertWithKeyColumns() {
+
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/InsertWithKeyColumns", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
 
@@ -121,12 +136,25 @@ public class SQLConnectorTest {
         Assert.assertEquals(stringDataSource.getValue(), "Peter");
     }
 
+    @Test(description = "Test Connector With Data Source")
+    public void testConnectorWithDataSource() {
+
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/connectorWithDataSource", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+
+        Assert.assertEquals(stringDataSource.getValue(), "Peter");
+    }
+
     private void initDatabase() {
         Connection connection = null;
         Statement st = null;
         try {
             Class.forName("org.h2.Driver");
-            connection = DriverManager.getConnection("jdbc:h2:file:./TEST_SERV_SAMP_DB2", "root", "root");
+            connection = DriverManager.getConnection("jdbc:h2:file:./target/TEST_SQL_CONNECTOR", "root", "root");
             String sql = XMLUtils.readFileToString("datafiles/SQLConnetorDataFile.sql");
             String[] sqlQuery = sql.split(";");
             st = connection.createStatement();
@@ -151,6 +179,6 @@ public class SQLConnectorTest {
 
     @AfterSuite
     public void cleanup() {
-        DeleteDbFiles.execute("./", null, true);
+        DeleteDbFiles.execute("./target/", "TEST_SQL_CONNECTOR", true);
     }
 }
