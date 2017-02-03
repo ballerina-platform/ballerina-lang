@@ -27,7 +27,7 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel'], function ($, Ba
             '<button type="button" class="btn btn-default btn-action hidden" data-action="StepIn"><i class="fw fw-down-arrow"></i></button>' +
             '<button type="button" class="btn btn-default btn-action hidden" data-action="StepOut"><i class="fw fw-right-arrow"></i></button>' +
             '<button type="button" class="btn btn-default btn-action hidden" data-action="Resume"><i class="fw fw-refresh"></i></button>' +
-            '<button type="button" class="btn btn-default btn-action hidden" data-action="Stop"><i class="fw fw-circle"></i></button>' +
+            '<button type="button" class="btn btn-default btn-action hidden" data-action="Stop"><i class="fw fw-square"></i></button>' +
             '</div>');
     };
 
