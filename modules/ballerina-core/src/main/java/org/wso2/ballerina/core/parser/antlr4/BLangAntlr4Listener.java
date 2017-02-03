@@ -587,10 +587,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterParameterList(BallerinaParser.ParameterListContext ctx) {
+        modelBuilder.startParamList();
     }
 
     @Override
     public void exitParameterList(BallerinaParser.ParameterListContext ctx) {
+        modelBuilder.endParamList();
     }
 
     @Override
