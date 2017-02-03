@@ -304,8 +304,9 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
          * @param functionDefinitions - can be an array of functionDefinitions or a single functionDefinition
          */
         Package.prototype.addFunctionDefinitions = function(functionDefinitions){
+            var self = this;
             var err;
-            if(!_.isArray(functionDefinitions) && !(functionDefinitions instanceof  FunctionDefinition)){
+            if(!_.isArray(functionDefinitions) && !(self.BallerinaEnvFactory.isFunction(functionDefinitions))){
                 err = "Adding function def failed. Not an instance of FunctionDefinition" + functionDefinitions;
                 log.error(err);
                 throw err;
@@ -404,8 +405,15 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
             this.setName(jsonNode.name);
 
             _.each(jsonNode.connectors, function (connectorNode) {
-                var connector = self.BallerinaEnvFactory.createConnector(connectorNode);
+                var connector = self.BallerinaEnvFactory.createConnector();
+                connector.initFromJson(connectorNode);
                 self.addConnectors(connector);
+            });
+
+            _.each(jsonNode.functions, function(functionNode){
+                var functionDef = self.BallerinaEnvFactory.createFunction();
+                functionDef.initFromJson(functionNode);
+                self.addFunctionDefinitions(functionDef);
             });
         };
 

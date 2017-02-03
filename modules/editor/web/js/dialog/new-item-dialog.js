@@ -60,13 +60,16 @@ define(['require', 'jquery', 'lodash', './modal-dialog', 'alerts'], function (re
         body.empty();
         this.getSubmitBtn().unbind('click');
         this.clearError();
-        var modalBody = $("<div class='container-fluid'>" +
+        var modalBody = $("<hr class='file-dialog-hr'>"+
+                            "<div class='container-fluid'>" +
+                            "<form class='form-horizontal'>" +
                                 "<div class='form-group'>" +
-                                    "<label for='item-name' class='col-sm-2 file-dialog-label'>Enter Name</label>" +
-                                    "<div class='col-sm-9'>" +
+                                    "<label for='item-name' class='col-sm-2 file-dialog-form-label'>Enter Name</label>" +
+                                    "<div class='file-dialog-input-field'>" +
                                           "<input type='text' id='item-name' class='file-dialog-form-control item-name' placeholder='name'>" +
                                     "</div>" +
                                 "</div>"+
+                            "</form>"+
                            "</div>" );
         body.append(modalBody);
         this.show();
