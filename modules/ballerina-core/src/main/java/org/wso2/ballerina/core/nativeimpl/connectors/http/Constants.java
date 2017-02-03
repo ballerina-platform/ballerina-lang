@@ -27,6 +27,7 @@ public class Constants {
 
     public static final String BASE_PATH = "BASE_PATH";
     public static final String SUB_PATH = "SUB_PATH";
+    public static final String QUERY_STR = "QUERY_STR";
 
     public static final String DEFAULT_INTERFACE = "default";
     public static final String DEFAULT_BASE_PATH = "/";

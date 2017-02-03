@@ -320,8 +320,12 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
          */
         ActionInvocationStatementView.prototype.onBeforeModelRemove = function () {
             d3.select("#_" +this._model.id).remove();
+            this.getDiagramRenderingContext().getViewOfModel(this._model.getParent()).getStatementContainer()
+                .removeInnerDropZone(this._model);
             this.removeArrows();
-            this.getBoundingBox().w(0).h(0);
+            // resize the bounding box in order to the other objects to resize
+            var moveOffset = -this.getBoundingBox().h() - 30;
+            this.getBoundingBox().move(0, moveOffset);
         };
 
         return ActionInvocationStatementView;
