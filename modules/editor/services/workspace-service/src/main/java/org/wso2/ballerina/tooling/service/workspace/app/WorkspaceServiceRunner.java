@@ -23,6 +23,8 @@ import org.wso2.ballerina.tooling.service.workspace.Constants;
 import org.wso2.ballerina.tooling.service.workspace.rest.FileServer;
 import org.wso2.ballerina.tooling.service.workspace.rest.WorkspaceService;
 import org.wso2.ballerina.tooling.service.workspace.rest.datamodel.BLangFileRestService;
+import org.wso2.ballerina.tooling.service.workspace.swagger.factories.ServicesApiServiceFactory;
+import org.wso2.ballerina.tooling.service.workspace.swagger.impl.ServicesApiServiceImpl;
 import org.wso2.msf4j.MicroservicesRunner;
 
 import java.nio.file.Paths;
@@ -71,6 +73,7 @@ public class WorkspaceServiceRunner {
         new MicroservicesRunner(Integer.getInteger(Constants.SYS_WORKSPACE_PORT, Constants.DEFAULT_WORKSPACE_PORT))
                 .deploy(injector.getInstance(WorkspaceService.class))
                 .deploy(new BLangFileRestService())
+                .deploy(ServicesApiServiceFactory.getServicesApi())
                 .start();
 
         int port = Integer.getInteger(Constants.SYS_FILE_WEB_PORT, Constants.DEFAULT_FILE_WEB_PORT);
