@@ -53,7 +53,7 @@ public class HTTPServerConnectorProvider extends ServerConnectorProvider {
             connector.setListenerConfiguration(config);
 
             if (config.isBindOnStartup()) {
-                connector.bind();
+                ServerConnectorController.getInstance().bindInterface(connector);
             }
             connectors.add(connector);
         });
