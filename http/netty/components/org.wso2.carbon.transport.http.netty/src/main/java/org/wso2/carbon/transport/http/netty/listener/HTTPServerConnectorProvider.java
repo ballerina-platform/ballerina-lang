@@ -38,14 +38,11 @@ public class HTTPServerConnectorProvider extends ServerConnectorProvider {
         super(Constants.PROTOCOL_NAME);
     }
 
-    @Override
-    public List<ServerConnector> initializeConnectors() {
+    public List<ServerConnector> initializeConnectors(TransportsConfiguration trpConfig) {
 
         List<ServerConnector> connectors = new ArrayList<>();
 
-        TransportsConfiguration trpConfig = YAMLTransportConfigurationBuilder.build();
         ServerConnectorController serverConnectorController = new ServerConnectorController(trpConfig);
-
         serverConnectorController.start();
 
         Set<ListenerConfiguration> listenerConfigurationSet = trpConfig.getListenerConfigurations();
@@ -61,6 +58,11 @@ public class HTTPServerConnectorProvider extends ServerConnectorProvider {
         });
 
         return connectors;
+    }
+
+    @Override
+    public List<ServerConnector> initializeConnectors() {
+        return initializeConnectors(YAMLTransportConfigurationBuilder.build());
     }
 
     @Override
