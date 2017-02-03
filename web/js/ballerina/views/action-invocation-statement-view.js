@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-invocation-expression','./point', 'd3utils'],
-    function (_, d3, log, BallerinaStatementView, ActionInvocationExpression, Point, D3Utils) {
+define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-invocation-expression', './point', 'd3utils', './../ast/ballerina-ast-factory'],
+    function (_, d3, log, BallerinaStatementView, ActionInvocationExpression, Point, D3Utils, BallerinaASTFactory) {
 
         var ActionInvocationStatementView = function (args) {
             BallerinaStatementView.call(this, args);
@@ -122,8 +122,24 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             var leftOperandModel = this._model.getChildren()[0];
             var connectorModel =  actionInvocationModel.getConnector();
 
+            var self = this;
+
             if(!_.isUndefined(connectorModel)) {
                 this.connector = this.getDiagramRenderingContext().getViewOfModel(connectorModel);
+            }
+            else {
+                var siblingConnectors = this._parent._model.children;
+                _.some(siblingConnectors, function (key, i) {
+                    if (BallerinaASTFactory.isConnectorDeclaration(siblingConnectors[i])) {
+                        var connectorReference = siblingConnectors[i];
+
+                        actionInvocationModel._connector = connectorReference;
+                        self.messageManager.setMessageSource(actionInvocationModel);
+                        self.messageManager.updateActivatedTarget(connectorReference);
+
+                        return true;
+                    }
+                });
             }
 
             var assignmentStatementGroup = D3Utils.group(d3.select(this._container));
@@ -148,39 +164,26 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             actionInvocationModel.accept(this);
 
             // Creating property pane
-            var editableProperties = [
-                {
+            var editableProperty = {
                     propertyType: "text",
-                    key: "Assign To",
-                    model: leftOperandModel,
-                    getterMethod: leftOperandModel.getLeftOperandExpressionString,
-                    setterMethod: leftOperandModel.setLeftOperandExpressionString
-                },
-                {
-                    propertyType: "text",
-                    key: "Path Parameter",
-                    model: actionInvocationModel,
-                    getterMethod: actionInvocationModel.getPath,
-                    setterMethod: actionInvocationModel.setPath
-                },
-                {
-                    propertyType: "text",
-                    key: "Message Parameter",
-                    model: actionInvocationModel,
-                    getterMethod: actionInvocationModel.getMessageVariableReference,
-                    setterMethod: actionInvocationModel.setMessageVariableReference
-                }
-            ];
+                    key: "Action Invocation",
+                    model: this._model,
+                    getterMethod: this._model.getStatementString,
+                    setterMethod: this._model.setStatementString
+            };
+
             this._createPropertyPane({
-                model: actionInvocationModel,
+                model: this._model,
                 statementGroup: assignmentStatementGroup,
-                editableProperties: editableProperties
+                editableProperties: editableProperty
             });
 
             this.parentContainer = d3.select(parentGroup);
             //Drawing the message.
             this.DrawArrow(this.getDiagramRenderingContext());
-            var self = this;
+
+            self = this;
+
             this.processorConnectPoint.on("mousedown", function () {
                 d3.event.preventDefault();
                 d3.event.stopPropagation();
@@ -193,12 +196,14 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             });
 
             this.processorConnectPoint.on("mouseover", function () {
-                processorConnectorPoint.style("fill", "red").style("fill-opacity", 0.5)
+                processorConnectorPoint
+                    .style("fill", "#444")
+                    .style("fill-opacity", 0.5)
                     .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
             });
 
             this.processorConnectPoint.on("mouseout", function () {
-                processorConnectorPoint.style("fill", "#2c3e50").style("fill-opacity", 0.01);
+                processorConnectorPoint.style("fill-opacity", 0.01);
             });
 
             this.getBoundingBox().on('top-edge-moved', function(dy){
@@ -210,13 +215,13 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                     self.processorConnector.attr('y1', parseFloat(self.processorConnector.attr('y1')) + dy);
                     self.processorConnector2.attr('y1', parseFloat(self.processorConnector2.attr('y1')) + dy);
 
-                    var x=  parseFloat(self.processorConnector.attr('x2')) - 5;
+                    var x =  parseFloat(self.processorConnector.attr('x2')) - 5;
                     var y = parseFloat(self.processorConnector.attr('y2')) + dy;
                     var arrowHeadPoints = "" + x + "," + (y - 5) + " " + (x + 5) + "," + (y) + " " + x + "," + (y + 5);
                     self.arrowHead.attr("points", arrowHeadPoints);
 
-                    x= parseFloat(self.processorConnector2.attr('x1'));
-                    var y = parseFloat(self.processorConnector2.attr('y2')) + dy;
+                    x = parseFloat(self.processorConnector2.attr('x1'));
+                    y = parseFloat(self.processorConnector2.attr('y2')) + dy;
                     var backArrowHeadPoints = "" + x + "," + y + " " + (x + 5) + "," + (y - 5) + " " + (x + 5) + "," + (y + 5);
                     self.backArrowHead.attr("points", backArrowHeadPoints);
 
@@ -261,6 +266,49 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                     var transformY = this._arrowGroup.node().transform.baseVal.consolidate().matrix.f;
                     this._arrowGroup.node().transform.baseVal.getItem(0).setTranslate(transformX + offset.dx, transformY + offset.dy);
                 }, this);
+
+                this.processorConnectPoint.style("display", "none");
+
+                var arrowHeadEnd = D3Utils.circle(Math.round(connectorCenterPointX) - 5, Math.round(startPoint.y()), 10, parent);
+                arrowHeadEnd
+                    .attr("fill-opacity", 0.01)
+                    .style("fill", "#444");
+
+                this.arrowHeadEndPoint = arrowHeadEnd;
+
+                var self = this;
+
+                this.arrowHeadEndPoint.on("mousedown", function () {
+                    d3.event.preventDefault();
+                    d3.event.stopPropagation();
+
+                    var x =  parseFloat(self.arrowHeadEndPoint.attr('cx'));
+                    var y =  parseFloat(self.arrowHeadEndPoint.attr('cy'));
+                    var x1 =  parseFloat(self._processorConnector.attr('x1'));
+                    var y1 =  parseFloat(self._processorConnector.attr('y1'));
+
+                    var sourcePoint = self.toGlobalCoordinates(new Point(x, y));
+                    var connectorPoint = self.toGlobalCoordinates(new Point(x1, y1));
+
+                    self.messageManager.startDrawMessage(actionInvocationModel, sourcePoint, connectorPoint);
+                    self.messageManager.setTypeBeingDragged(true);
+
+                    self._forwardArrowHead.remove();
+                    self._processorConnector.remove();
+                    self._processorConnector2.remove();
+                    self._backArrowHead.remove();
+                    self.arrowHeadEndPoint.remove();
+                });
+
+                this.arrowHeadEndPoint.on("mouseover", function () {
+                    arrowHeadEnd
+                        .style("fill-opacity", 0.5)
+                        .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
+                });
+
+                this.arrowHeadEndPoint.on("mouseout", function () {
+                    arrowHeadEnd.style("fill-opacity", 0.01);
+                });
             }
         };
 
@@ -268,7 +316,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
          * Remove the forward and the backward arrow heads
          */
         ActionInvocationStatementView.prototype.removeArrows = function () {
-            if (!_.isNil(this._arrowGroup) && !_.isNil(this._arrowGroup.node)()) {
+            if (!_.isNil(this._arrowGroup) && !_.isNil(this._arrowGroup.node())) {
                 d3.select(this._arrowGroup).node().remove();
             }
         };
@@ -287,20 +335,11 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
 
         /**
          * Remove statement view callback
-         * @param {ASTNode} parent - Parent model
-         * @param {ASTNode} child - child model
          */
-        ActionInvocationStatementView.prototype.removeViewCallback = function (parent, child) {
+        ActionInvocationStatementView.prototype.onBeforeModelRemove = function () {
             d3.select("#_" +this._model.id).remove();
             this.removeArrows();
-            // We directly don not use the provided parent and the child, since the Assignment statement
-            // node structure is different (Aggregated Action Invocation node)
-            this.getDiagramRenderingContext().getViewOfModel(parent.getParent().getParent()).getStatementContainer().removeInnerDropZone(parent.getParent());
-            this.unplugView(
-                {
-                    w: 0,
-                    h: 0
-                }, parent.getParent().getParent(), parent.getParent());
+            this.getBoundingBox().w(0).h(0);
         };
 
         return ActionInvocationStatementView;

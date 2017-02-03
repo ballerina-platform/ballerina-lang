@@ -16,47 +16,44 @@
  * under the License.
  */
 
-define(['lodash', 'event_channel', 'log'],
-    function (_, EventChannel, log){
+define(['lodash', 'event_channel', 'log', './tools'],
+    function (_, EventChannel, log, Tools){
 
         var Channel = function(args){
             _.assign(this, args);
-            var websocket = new WebSocket(args.debuggerServiceUrl);
-            websocket.onopen = function () {
-                log.debug('debugger connected');
-            };
-            websocket.onerror = function (e) {
-                log.error('debugger error', e);
-            };
-            websocket.onmessage = this.parseMessage;
-            this.websocket = websocket;
             var self = this;
+            if(args.endpoint != undefined){
+                var websocket = new WebSocket(args.endpoint);
+                websocket.onopen = function () {
+                    self.debugger.trigger("connected");
+                };
+                websocket.onerror = function (e) {
+                    log.error('debugger error', e);
+                };
+                websocket.onmessage = _.bindKey(this, 'parseMessage');
+                this.websocket = websocket;
+            }else{
+                //@todo need to handle error.
+            }
+            var self = this;
+
+            Tools.on('execute-action', function (action) {
+                self.sendMessage({command: action});
+            });
         };
 
         Channel.prototype = Object.create(EventChannel.prototype);
 
         Channel.prototype.constructor = Channel;
 
-
-        Channel.prototype.parseMessage = function (strMessage) {
-            var message = JSON.parse(strMessage);
-            if(message.command === "DEBUG_HIT") {
-                this.trigger('debug-hit', message.executionPoint);
-            }
-        };
-
-        Channel.prototype.updateBreakPoints = function (filePath, breakPoints) {
-            var message = {
-                ADD_BREAK_POINTS: {
-                    breakPoints: breakPoints,
-                    fileId: filePath
-                }
-            };
-            this.sendMessage(message);
+        Channel.prototype.parseMessage = function (strMessage) {            
+            var message = JSON.parse(strMessage.data);
+            this.debugger.processMesssage(message);
         };
 
         Channel.prototype.sendMessage = function (message) {
             this.websocket.send(JSON.stringify(message))
         };
+
         return Channel;
     });

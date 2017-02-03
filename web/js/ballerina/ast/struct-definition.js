@@ -30,7 +30,7 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
      * @param structName - name of the struct
      */
     StructDefinition.prototype.setStructName = function (structName) {
-        this._structName = structName;
+        this.setAttribute('_structName', structName);
     };
 
     /**
@@ -103,7 +103,7 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
             return self.BallerinaASTFactory.isVariableDeclaration(child)
                 && child.getID() === modelID;
         });
-        this.removeChild(variableDeclarationChild)
+        this.removeChild(variableDeclarationChild);
     };
 
     /**

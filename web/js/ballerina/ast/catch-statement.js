@@ -34,7 +34,7 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
 
     CatchStatement.prototype.setExceptionType = function(exceptionType){
         if(!_.isNil(exceptionType)){
-            this._exceptionType = exceptionType;
+            this.setAttribute('_exceptionType', exceptionType);
         }
     };
 
