@@ -157,7 +157,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             };
 
             this._createPropertyPane({
-                model: actionInvocationModel,
+                model: this._model,
                 statementGroup: assignmentStatementGroup,
                 editableProperties: editableProperty
             });
@@ -298,7 +298,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
          * Remove the forward and the backward arrow heads
          */
         ActionInvocationStatementView.prototype.removeArrows = function () {
-            if (!_.isNil(this._arrowGroup) && !_.isNil(this._arrowGroup.node)()) {
+            if (!_.isNil(this._arrowGroup) && !_.isNil(this._arrowGroup.node())) {
                 d3.select(this._arrowGroup).node().remove();
             }
         };
