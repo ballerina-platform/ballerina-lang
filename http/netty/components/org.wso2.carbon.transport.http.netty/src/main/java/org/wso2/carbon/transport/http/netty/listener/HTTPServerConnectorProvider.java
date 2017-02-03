@@ -44,16 +44,16 @@ public class HTTPServerConnectorProvider extends ServerConnectorProvider {
         List<ServerConnector> connectors = new ArrayList<>();
 
         TransportsConfiguration trpConfig = YAMLTransportConfigurationBuilder.build();
-        ServerConnectorController.getInstance().init(trpConfig);
+        ServerConnectorController serverConnectorController = new ServerConnectorController(trpConfig);
 
         Set<ListenerConfiguration> listenerConfigurationSet = trpConfig.getListenerConfigurations();
 
         listenerConfigurationSet.forEach(config -> {
             HTTPServerConnector connector = new HTTPServerConnector(config.getId());
             connector.setListenerConfiguration(config);
-
+            connector.setServerConnectorController(serverConnectorController);
             if (config.isBindOnStartup()) {
-                ServerConnectorController.getInstance().bindInterface(connector);
+                serverConnectorController.bindInterface(connector);
             }
             connectors.add(connector);
         });
