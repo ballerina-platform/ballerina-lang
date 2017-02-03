@@ -110,6 +110,13 @@ public class HtmlDocumentWriter implements DocumentWriter {
                         }
                         return options.inverse(null);
                     })
+                    .registerHelper("hasStructs", (Helper<Package>) (balPackage, options) -> {
+                        if ((balPackage.getFiles().stream().filter(
+                                p -> p.getStructs().length > 0).count() > 0)) {
+                            return options.fn(this);
+                        }
+                        return options.inverse(null);
+                    })
                     // usage: {{currentObject this}}
                     .registerHelper("currentObject", (Helper<Object>) (obj, options) -> {
                         dataHolder.setCurrentObject(obj);

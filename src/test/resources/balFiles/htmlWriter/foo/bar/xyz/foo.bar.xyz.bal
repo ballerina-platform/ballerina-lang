@@ -10,3 +10,9 @@ import ballerina.lang.json;
 public function removeHeader (message m, string key) {
     system:println("invoked");
 }
+
+public type Argument {
+    string text;
+    int argumentId;
+    int sentiment;
+}
