@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -50,7 +51,6 @@ import java.sql.Statement;
  */
 public class DataTableTest {
     private BallerinaFile bFile;
-    private static final String s1 = "WSO2 Inc.";
 
     @BeforeClass
     public void setup() {
@@ -65,7 +65,7 @@ public class DataTableTest {
     }
 
     @Test(description = "Check getByIndex methods for primitive types.")
-    public void testGetByXXXByIndex() {
+    public void testGetXXXByIndex() {
         BValue[] returns = Functions.invoke(bFile, "getXXXByIndex");
 
         Assert.assertEquals(returns.length, 6);
@@ -78,7 +78,7 @@ public class DataTableTest {
     }
 
     @Test(description = "Check getByName methods for primitive types.")
-    public void testGetByXXXByName() {
+    public void testGetXXXByName() {
         BValue[] returns = Functions.invoke(bFile, "getXXXByName");
 
         Assert.assertEquals(returns.length, 6);
@@ -112,6 +112,61 @@ public class DataTableTest {
                         + "<FLOAT_TYPE>123.34</FLOAT_TYPE><DOUBLE_TYPE>9.2233720368547748E18</DOUBLE_TYPE>"
                         + "<BOOLEAN_TYPE>true</BOOLEAN_TYPE><STRING_TYPE>Hello</STRING_TYPE></type></types>");
     }
+
+    @Test(description = "Check getByName methods for complex types.")
+    public void testGetByName() {
+        BValue[] returns = Functions.invoke(bFile, "getByName");
+
+        Assert.assertEquals(returns.length, 5);
+        Assert.assertEquals((returns[0]).stringValue(), "AHQAZQBzAHQAIAB2AGEAbAB1AGU=");
+        //        Assert.assertEquals(( returns[1]).stringValue(), "very long text");
+        Assert.assertEquals(((BLong) returns[2]).longValue(), 21945000);
+        Assert.assertEquals(((BLong) returns[3]).longValue(), 1486060200000L);
+        Assert.assertEquals(((BLong) returns[4]).longValue(), 1486102980000L);
+    }
+
+    @Test(description = "Check getByName methods for complex types.")
+    public void testGetByIndex() {
+        BValue[] returns = Functions.invoke(bFile, "getByIndex");
+
+        Assert.assertEquals(returns.length, 5);
+        Assert.assertEquals((returns[0]).stringValue(), "AHQAZQBzAHQAIAB2AGEAbAB1AGU=");
+        //        Assert.assertEquals(( returns[1]).stringValue(), "very long text");
+        Assert.assertEquals(((BLong) returns[2]).longValue(), 21945000);
+        Assert.assertEquals(((BLong) returns[3]).longValue(), 1486060200000L);
+        Assert.assertEquals(((BLong) returns[4]).longValue(), 1486102980000L);
+    }
+
+    @Test(description = "Check getObjectAsStringByName methods for complex types.")
+    public void getObjectAsStringByName() {
+        BValue[] returns = Functions.invoke(bFile, "getObjectAsStringByName");
+
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals((returns[0]).stringValue(), "AHQAZQBzAHQAIAB2AGEAbAB1AGU=");
+        Assert.assertEquals(returns[1].stringValue(), "21945000");
+        Assert.assertEquals(returns[2].stringValue(), "1486060200000");
+        Assert.assertEquals(returns[3].stringValue(), "1486102980000");
+    }
+
+    @Test(description = "Check getObjectAsStringByIndex methods for complex types.")
+    public void getObjectAsStringByIndex() {
+        BValue[] returns = Functions.invoke(bFile, "getObjectAsStringByIndex");
+
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals((returns[0]).stringValue(), "AHQAZQBzAHQAIAB2AGEAbAB1AGU=");
+        Assert.assertEquals(returns[1].stringValue(), "21945000");
+        Assert.assertEquals(returns[2].stringValue(), "1486060200000");
+        Assert.assertEquals(returns[3].stringValue(), "1486102980000");
+    }
+
+//    @Test(description = "Check getObjectAsStringByIndex methods for complex types.")
+    public void getArrayByName() {
+        BValue[] returns = Functions.invoke(bFile, "getArray");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BArray);
+    }
+
 
     @AfterSuite
     public void cleanup() {

@@ -173,14 +173,6 @@ public class BDataTable implements BRefType<Object> {
     public String getObjectAsString(String columnName) {
         return iterator.getObjectAsString(columnName);
     }
-
-    public String[] getAvailableProprtyNames() {
-        return properties.keySet().toArray(new String[properties.keySet().size()]);
-    }
-
-    public Object getProperty(String key) {
-        return properties.get(key);
-    }
     
     public BJSON toJSON() {
         return new BJSON(new DataTableJSONDataSource(this));
