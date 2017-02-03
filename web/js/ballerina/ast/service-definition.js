@@ -68,7 +68,7 @@ define(['lodash', './node', 'log'],
 
     ServiceDefinition.prototype.setServiceName = function (serviceName) {
         if (!_.isNil(serviceName) && ASTNode.isValidIdentifier(serviceName)) {
-            this._serviceName = serviceName;
+            this.setAttribute('_serviceName', serviceName);
         } else {
             var errorString = "Invalid name for the service name: " + serviceName;
             log.error(errorString);

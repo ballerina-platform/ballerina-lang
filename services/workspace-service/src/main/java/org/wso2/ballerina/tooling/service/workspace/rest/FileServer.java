@@ -51,6 +51,11 @@ public class FileServer {
         String rawUri = request.getUri();
         String rawUriPath;
 
+        //handling requests like http://localhost:9091/swagger-editor/
+        if(rawUri.endsWith("/")){
+            rawUri += "index.html";
+        }
+
         if (rawUri == null || rawUri.trim().length() == 0 || "/".equals(rawUri)) {
             rawUriPath = "/index.html";
         } else {

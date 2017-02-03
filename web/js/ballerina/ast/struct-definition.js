@@ -30,7 +30,7 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
      * @param structName - name of the struct
      */
     StructDefinition.prototype.setStructName = function (structName) {
-        this._structName = structName;
+        this.setAttribute('_structName', structName);
     };
 
     /**
