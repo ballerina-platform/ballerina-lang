@@ -106,7 +106,6 @@ define(['lodash', 'log', './../ast/return-statement', './ballerina-statement-vie
             this._model.accept(this);
 
             // Creating property pane
-            var editableProperties = [];
             var editableProperty = {
                 propertyType: "text",
                 key: "Expression",
@@ -114,11 +113,10 @@ define(['lodash', 'log', './../ast/return-statement', './ballerina-statement-vie
                 getterMethod: this._model.getReturnExpression,
                 setterMethod: this._model.setReturnExpression
             };
-            editableProperties.push(editableProperty);
             this._createPropertyPane({
                 model: this._model,
                 statementGroup:returnStatementGroup,
-                editableProperties: editableProperties
+                editableProperties: editableProperty
             });
 
             this.getBoundingBox().on('top-edge-moved', function(dy){
@@ -129,6 +127,7 @@ define(['lodash', 'log', './../ast/return-statement', './ballerina-statement-vie
 
         ReturnStatementView.prototype.updateStatementText = function (updatedText) {
             if (!_.isUndefined(updatedText) && updatedText !== '') {
+                updatedText = ((updatedText.length) > 11 ? (updatedText.substring(0, 11) + '..') : updatedText);
                 this.getStatementGroup().expression_text.node().textContent = updatedText;
             }
         };
