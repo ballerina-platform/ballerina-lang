@@ -41,7 +41,7 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 public class EnvironmentInitializer {
 
     public static void initialize(String sourcePath) {
-
+        // Initialize server connectors before starting the test cases
         BallerinaConnectorManager.getInstance().initializeServerConnectors(new MessageProcessor());
         BallerinaConnectorManager.getInstance().registerServerConnectorErrorHandler(new TestErrorHandler());
         // Resister HTTP Dispatchers
