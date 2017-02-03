@@ -49,7 +49,10 @@ define(['lodash', 'require', 'log', './node'],
          */
         TypeStructDefinition.prototype.setTypeStructName = function (typeStructName) {
             if (!_.isNil(typeStructName)) {
-                this._typeStructName = typeStructName;
+                this.setAttribute('_typeStructName', typeStructName);
+            } else {
+                log.error('Invalid Type Struct Name [' + typeStructName + '] Provided');
+                throw 'Invalid Type Struct Name [' + typeStructName + '] Provided';
             }
         };
 
@@ -67,8 +70,12 @@ define(['lodash', 'require', 'log', './node'],
          */
         TypeStructDefinition.prototype.setSchema = function (schema) {
             if (!_.isNil(schema)) {
-                this._schema = schema;
+                this.setAttribute('_schema', schema);
+            } else {
+                log.error('Invalid schema [' + schema + '] Provided');
+                throw 'Invalid schema [' + schema + '] Provided';
             }
+
         };
 
         /**
@@ -85,7 +92,10 @@ define(['lodash', 'require', 'log', './node'],
          */
         TypeStructDefinition.prototype.setCategory = function (category) {
             if (!_.isNil(category)) {
-                this._category = category;
+                this.setAttribute('_category', category);
+            } else {
+                log.error('Invalid category [' + category + '] Provided');
+                throw 'Invalid category [' + category + '] Provided';
             }
         };
 
@@ -102,8 +112,11 @@ define(['lodash', 'require', 'log', './node'],
          * @param identifier
          */
         TypeStructDefinition.prototype.setIdentifier = function (identifier) {
-            if(!_.isUndefined(identifier)){
-                this._identifier = identifier;
+            if (!_.isNil(identifier)) {
+                this.setAttribute('_identifier', identifier);
+            } else {
+                log.error('Invalid identifier [' + identifier + '] Provided');
+                throw 'Invalid identifier [' + identifier + '] Provided';
             }
         };
 
@@ -128,8 +141,11 @@ define(['lodash', 'require', 'log', './node'],
          * @param onConnectInstance
          */
         TypeStructDefinition.prototype.setOnConnectInstance = function (onConnectInstance) {
-            if(!_.isUndefined(onConnectInstance)){
-                this._onConnectInstance = onConnectInstance;
+            if (!_.isNil(onConnectInstance)) {
+                this.setAttribute('_onConnectInstance', onConnectInstance);
+            } else {
+                log.error('Invalid onConnectInstance [' + onConnectInstance + '] Provided');
+                throw 'Invalid onConnectInstance [' + onConnectInstance + '] Provided';
             }
         };
 
@@ -146,8 +162,11 @@ define(['lodash', 'require', 'log', './node'],
          * @param onDisconnectInstance
          */
         TypeStructDefinition.prototype.setOnDisconnectInstance = function (onDisconnectInstance) {
-            if(!_.isUndefined(onDisconnectInstance)){
-                this._onDisconnectInstance = onDisconnectInstance;
+            if (!_.isNil(onDisconnectInstance)) {
+                this.setAttribute('_onDisconnectInstance', onDisconnectInstance);
+            } else {
+                log.error('Invalid onDisconnectInstance [' + onDisconnectInstance + '] Provided');
+                throw 'Invalid onDisconnectInstance [' + onDisconnectInstance + '] Provided';
             }
         };
 
@@ -157,7 +176,10 @@ define(['lodash', 'require', 'log', './node'],
          */
         TypeStructDefinition.prototype.setSelectedStructName = function (selectedStructName) {
             if (!_.isNil(selectedStructName)) {
-                this._selectedStructName = selectedStructName;
+                this.setAttribute('_selectedStructName', selectedStructName);
+            } else {
+                log.error('Invalid selectedStructName [' + selectedStructName + '] Provided');
+                throw 'Invalid selectedStructName [' + selectedStructName + '] Provided';
             }
         };
 
