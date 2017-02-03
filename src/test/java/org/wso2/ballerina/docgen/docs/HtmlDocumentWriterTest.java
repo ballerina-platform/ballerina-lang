@@ -79,6 +79,28 @@ public class HtmlDocumentWriterTest {
             Assert.assertTrue(content1.contains("Functions"));
             Assert.assertTrue(content1.contains("Connectors"));
 
+            // asserting function @description
+            Assert.assertTrue(content1.contains("<p>Get HTTP header from the message</p>"));
+            // asserting function @param description
+            Assert.assertTrue(content1.contains("<td>key</td><td><a href=\"\">string</a></td><td>HTTP header key</td>")
+                    );
+            // asserting function @return description
+            Assert.assertTrue(content1
+                    .contains("<td>value</td><td><a href=\"\">string</a></td><td>HTTP header value</td>"));
+            // asserting connector @description
+            Assert.assertTrue(content1.contains("<p>Test connector</p>"));
+            // asserting connector @param description
+            Assert.assertTrue(content1
+                    .contains("<td>consumerKey</td><td><a href=\"\">string</a></td><td>consumer key</td>"));
+            // asserting action @description
+            Assert.assertTrue(content1.contains("<p>test connector action</p>"));
+            // asserting action @param description
+            Assert.assertTrue(content1
+                    .contains("<td>t</td><td><a href=\"\">string</a></td><td>a string argument</td>"));
+            // asserting action @return description
+            Assert.assertTrue(content1
+                    .contains("<td>response</td><td><a href=\"\">message</a></td><td>response object</td>"));
+
             // Assert function and connector exclusion logic
             String content2 = new Scanner(htmlFile2).useDelimiter("\\Z").next();
             Assert.assertTrue(content2.contains("Functions"));
