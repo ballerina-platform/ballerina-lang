@@ -37,6 +37,7 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
         this._content = _.get(args, 'content');
         this._debugger = _.get(args, 'debugger', undefined);
         this._markers = {};
+        this._gutter = 25;
     };
 
     SourceView.prototype = Object.create(EventChannel.prototype);
@@ -152,7 +153,7 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
             return; 
         if (!this._editor.isFocused()) 
             return; 
-        if (e.clientX > 25 + target.getBoundingClientRect().left) 
+        if (e.clientX > this._gutter + target.getBoundingClientRect().left) 
             return; 
 
 
