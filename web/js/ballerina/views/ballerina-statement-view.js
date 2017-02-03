@@ -255,8 +255,6 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
 
                         $(this).unbind('click');
                     }
-                });
-
                 $(deleteButtonRect.node()).click(function(event){
                     event.stopPropagation();
                     model.remove();
