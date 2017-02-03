@@ -393,8 +393,8 @@ public class BuiltInNativeConstructLoader {
         }
 
         SymbolName symbolName =
-                LangModelUtils.getSymNameWithParams(function.getPackagePath() + ":" +
-                        functionNameAnnotation.functionName(), function.getParameterDefs());
+                LangModelUtils.getSymNameWithParams(functionNameAnnotation.functionName(), function.getPackagePath(),
+                        function.getParameterDefs());
         symScope.define(symbolName, function);
     }
 
@@ -434,7 +434,7 @@ public class BuiltInNativeConstructLoader {
     /**
      * Add Native TypeConvertor instance to given SymScope.
      *
-     * @param symScope SymScope instance.
+     * @param symScope      SymScope instance.
      * @param typeConvertor TypeConvertor instance.
      */
     private static void registerTypeConverter(SymbolScope symScope, AbstractNativeTypeConvertor typeConvertor) {

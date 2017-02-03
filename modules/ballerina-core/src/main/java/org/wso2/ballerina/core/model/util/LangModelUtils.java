@@ -30,32 +30,33 @@ public class LangModelUtils {
     public static SymbolName getSymNameWithParams(String identifier, ParameterDef[] parameterDefs) {
         StringBuilder stringBuilder = new StringBuilder(identifier);
         for (ParameterDef param : parameterDefs) {
-            stringBuilder.append("_").append(param.getType());
+            stringBuilder.append(".").append(param.getType());
         }
         return new SymbolName(stringBuilder.toString());
     }
 
+    public static SymbolName getSymNameWithParams(String identifier, String pkgPath, ParameterDef[] parameterDefs) {
+        StringBuilder stringBuilder = new StringBuilder(identifier);
+        for (ParameterDef param : parameterDefs) {
+            stringBuilder.append(".").append(param.getType());
+        }
+        return new SymbolName(stringBuilder.toString(), pkgPath);
+    }
+
     public static SymbolName getSymNameWithParams(String identifier, String pkgPath, BType[] types) {
-        String prefix;
-        if (pkgPath == null) {
-            prefix = identifier;
-        } else {
-            prefix = pkgPath + ":" + identifier;
-        }
-
-        StringBuilder sBuilder = new StringBuilder(prefix);
+        StringBuilder sBuilder = new StringBuilder(identifier);
         for (BType type : types) {
-            sBuilder.append("_").append(type);
+            sBuilder.append(".").append(type);
         }
 
-        return new SymbolName(sBuilder.toString());
+        return new SymbolName(sBuilder.toString(), pkgPath);
     }
 
     public static SymbolName getTypeConverterSymName(String pkgName, ParameterDef[] parameterDefs,
                                                      ParameterDef[] returnParams) {
         StringBuilder stringBuilder = new StringBuilder(pkgName + ":");
         for (ParameterDef param : parameterDefs) {
-            stringBuilder.append("_").append(param.getType());
+            stringBuilder.append(".").append(param.getType());
         }
         stringBuilder.append("->");
         for (ParameterDef param : returnParams) {

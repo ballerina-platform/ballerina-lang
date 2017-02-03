@@ -154,6 +154,18 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         currentPkg = bFile.getPackagePath();
         importPkgMap = bFile.getImportPackageMap();
+
+        // TODO Re-visit these definitions with the new implementation
+//        Arrays.asList(bFile.getFunctions()).forEach(this::addFuncSymbol);
+
+        defineFunctions(bFile.getFunctions());
+
+//        bFile.getConnectorList().forEach(connector -> {
+//            addConnectorSymbol(connector);
+//            Arrays.asList(connector.getActions()).forEach(this::addActionSymbol);
+//        });
+//
+//        Arrays.asList(bFile.getTypeConvertors()).forEach(this::addTypeConverterSymbol);
     }
 
     public SemanticAnalyzer(BallerinaFile bFile, SymScope globalScope) {
@@ -2119,5 +2131,32 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         return newExpr;
+    }
+
+    private void defineFunctions(Function[] functions) {
+        for (Function function : functions) {
+
+            ParameterDef[] paramDefArray = function.getParameterDefs();
+            BType[] paramTypes = new BType[paramDefArray.length];
+            for (int i = 0; i < paramDefArray.length; i++) {
+                ParameterDef paramDef = paramDefArray[i];
+                BType bType = BTypes.resolveType(paramDef.getTypeName(), currentScope, paramDef.getNodeLocation());
+                paramDef.setType(bType);
+                paramTypes[i] = bType;
+            }
+
+            SymbolName symbolName = LangModelUtils.getSymNameWithParams(function.getName(),
+                    function.getPackagePath(),
+                    paramTypes);
+            function.setSymbolName(symbolName);
+
+            if (currentScope.resolve(symbolName) != null) {
+                throw new SemanticException(function.getNodeLocation().getFileName() + ":" +
+                        function.getNodeLocation().getLineNumber() +
+                        ": duplicate function '" + function.getName() + "'");
+            }
+
+            currentScope.define(symbolName, function);
+        }
     }
 }
