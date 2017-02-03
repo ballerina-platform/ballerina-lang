@@ -142,7 +142,6 @@ define(["require", "ace/token_iterator"],
                  tab = '\t';
 
             while (token !== null) {
-                console.log(token);
 
                 if (!token) {
                     token = iterator.stepForward();
