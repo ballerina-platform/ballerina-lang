@@ -311,7 +311,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var designViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
             designViewBtn.click(function () {
                 // re-parse if there are modifications to source
-                var isSourceChanged = !self._sourceView._editor.getSession().getUndoManager().isClean();
+                var isSourceChanged = !self._sourceView.isClean();
                 if (isSourceChanged) {
                     var source = self._sourceView.getContent();
                     var response = self.backend.parse(source);
@@ -326,7 +326,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     var root = self.deserializer.getASTModel(response);
                     self.setModel(root);
                     // reset source editor delta stack
-                    self._sourceView._editor.getSession().getUndoManager().markClean();
+                    self._sourceView.markClean();
                 }
                 //canvas should be visible before you can call reDraw. drawing dependednt on attr:offsetWidth
                 self.toolPalette.show();

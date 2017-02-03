@@ -106,6 +106,14 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
        return  $(this._container).is(':visible')
     };
 
+    SourceView.prototype.isClean = function(){
+       return this._editor.getSession().getUndoManager().isClean();
+    };
+
+    SourceView.prototype.markClean = function(){
+       this._editor.getSession().getUndoManager().markClean();
+    };
+
     return SourceView;
 });
 
