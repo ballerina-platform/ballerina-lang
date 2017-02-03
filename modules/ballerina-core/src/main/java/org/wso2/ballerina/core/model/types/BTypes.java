@@ -63,6 +63,11 @@ public class BTypes {
         return type;
     }
 
+    public static BStructType getStructType(String structTypeName) {
+        BStructType type = new BStructType(structTypeName);
+        return type;
+    }
+
     public static void addConnectorType(String connectorName) {
         new BConnectorType(connectorName);
     }

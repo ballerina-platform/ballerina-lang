@@ -88,11 +88,17 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
                 forEach(argument -> {
                     try {
                         BType bType;
-                        // For non-array types.
-                        if (!argument.type().equals(TypeEnum.ARRAY)) {
-                            bType = BTypes.getType(argument.type().getName());
+                        TypeEnum argumentType = argument.type();
+                        if (argumentType.equals(TypeEnum.STRUCT)) {
+                            bType = BTypes.getStructType(argument.structType());
+                        } else if (argumentType.equals(TypeEnum.ARRAY)) {
+                            if (argument.elementType().equals(TypeEnum.STRUCT)) {
+                                bType = BTypes.getArrayType(argument.structType());
+                            } else {
+                                bType = BTypes.getArrayType(argument.elementType().getName());
+                            }
                         } else {
-                            bType = BTypes.getArrayType(argument.elementType().getName());
+                            bType = BTypes.getType(argument.type().getName());
                         }
                         parameters.add(new Parameter(bType, new SymbolName(argument.name())));
                     } catch (BallerinaException e) {
