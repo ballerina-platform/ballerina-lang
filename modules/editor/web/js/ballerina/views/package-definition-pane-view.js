@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './point','./../ast/package-definition',
+define(['require', 'lodash', 'jquery', 'log', './../ast/package-definition',
     'ballerina/ast/ballerina-ast-factory'],
-    function (require, _, $, log, D3Utils, d3, Alerts, Point, PackageDefinition, BallerinaASTFactory) {
+    function (require, _, $, log, PackageDefinition, BallerinaASTFactory) {
 
         /**
          * Creates a new instance for a package definition pane view.
