@@ -24,14 +24,12 @@ import org.apache.commons.io.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.TransportSender;
-import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
-import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.listener.HTTPServerConnector;
 import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
+import org.wso2.carbon.transport.http.netty.listener.ServerConnectorController;
 import org.wso2.carbon.transport.http.netty.sender.HTTPSender;
 import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
 
@@ -39,8 +37,11 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+
+import static org.testng.AssertJUnit.fail;
 
 /**
  * A util class to be used for tests
@@ -50,22 +51,25 @@ public class TestUtil {
     private static final Logger log = LoggerFactory.getLogger(TestUtil.class);
 
     public static final int TEST_SERVER_PORT = 9000;
-    public static final int TEST_ESB_PORT = 8490;
     public static final String TEST_HOST = "localhost";
 
-    public static final int RESPONSE_WAIT_TIME = 10000;
     public static final int SERVERS_SETUP_TIME = 10000;
     public static final int SERVERS_SHUTDOWN_WAIT_TIME = 5000;
 
     public static final String TRANSPORT_URI = "http://localhost:8490/";
 
-    public static void cleanUp(HTTPTransportListener httpTransportListener, HTTPServer httpServer) {
+    public static void cleanUp(List<HTTPServerConnector> serverConnectors, HTTPServer httpServer) {
         try {
             Thread.sleep(TestUtil.SERVERS_SHUTDOWN_WAIT_TIME);
         } catch (InterruptedException e) {
             log.error("Thread Interrupted while sleeping ", e);
         }
-        httpTransportListener.stop();
+
+        serverConnectors.forEach(serverConnector -> {
+            serverConnector.unbind();
+        });
+        serverConnectors.get(0).getServerConnectorController().stop();
+
         httpServer.shutdown();
         try {
             Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
@@ -74,52 +78,17 @@ public class TestUtil {
         }
     }
 
-    public static HTTPTransportListener startCarbonTransport(ListenerConfiguration listenerConfiguration,
-            SenderConfiguration senderConfiguration, CarbonMessageProcessor carbonMessageProcessor) {
-        Set<ListenerConfiguration> interfacesSet = new HashSet<>();
-        Set<TransportProperty> transportProperties = new HashSet<>();
-        Set<SenderConfiguration> senderConfigurationSet = new HashSet<>();
-        senderConfigurationSet.add(senderConfiguration);
-        interfacesSet.add(listenerConfiguration);
-        int bossGroupSize = Runtime.getRuntime().availableProcessors();
-        int workerGroupSize = Runtime.getRuntime().availableProcessors() * 2;
-        TransportProperty transportProperty = new TransportProperty();
-        transportProperty.setName(Constants.SERVER_BOOTSTRAP_BOSS_GROUP_SIZE);
-        transportProperty.setValue(bossGroupSize);
-        TransportProperty workerGroup = new TransportProperty();
-        workerGroup.setName(Constants.SERVER_BOOTSTRAP_WORKER_GROUP_SIZE);
-        workerGroup.setValue(workerGroupSize);
-        transportProperties.add(transportProperty);
-        transportProperties.add(workerGroup);
-        transportProperties.add(workerGroup);
-        HTTPTransportListener httpTransportListener = new HTTPTransportListener(transportProperties, interfacesSet);
-        TransportSender transportSender = new HTTPSender(senderConfigurationSet, transportProperties);
-        HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
-        carbonMessageProcessor.setTransportSender(transportSender);
-        Thread transportRunner = new Thread(() -> {
-            try {
-                httpTransportListener.start();
-            } catch (Exception e) {
-                log.error("Unable to start Netty Listener ", e);
-            }
-        });
-        transportRunner.start();
-        try {
-            Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
-        } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
-        }
-        return httpTransportListener;
-    }
+    public static List<HTTPServerConnector> startConnectors(TransportsConfiguration transportsConfiguration,
+                                                            CarbonMessageProcessor carbonMessageProcessor) {
 
-    public static HTTPTransportListener startCarbonTransport(TransportsConfiguration transportsConfiguration,
-            CarbonMessageProcessor carbonMessageProcessor) {
+        List<HTTPServerConnector> connectors = new ArrayList<>();
 
-        HTTPTransportListener httpTransportListener = new HTTPTransportListener(
-                transportsConfiguration.getTransportProperties(), transportsConfiguration.getListenerConfigurations());
+        ServerConnectorController serverConnectorController = new ServerConnectorController(transportsConfiguration);
+
+        Set<ListenerConfiguration> listenerConfigurationSet = transportsConfiguration.getListenerConfigurations();
 
         HTTPSender httpSender = new HTTPSender(transportsConfiguration.getSenderConfigurations(),
-                transportsConfiguration.getTransportProperties());
+                                               transportsConfiguration.getTransportProperties());
 
         HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
 
@@ -127,19 +96,29 @@ public class TestUtil {
 
         Thread transportRunner = new Thread(() -> {
             try {
-                httpTransportListener.start();
+                serverConnectorController.start();
             } catch (Exception e) {
-                log.error("Unable to start Netty Listener ", e);
+                log.error("Unable to start Server Connector Controller ", e);
             }
         });
-
         transportRunner.start();
+
         try {
             Thread.sleep(TestUtil.SERVERS_SETUP_TIME);
         } catch (InterruptedException e) {
             log.error("Thread Interrupted while sleeping ", e);
         }
-        return httpTransportListener;
+
+        listenerConfigurationSet.forEach(config -> {
+            HTTPServerConnector connector = new HTTPServerConnector(config.getId());
+            connector.setListenerConfiguration(config);
+            connector.setServerConnectorController(serverConnectorController);
+            serverConnectorController.bindInterface(connector);
+            connector.setMessageProcessor(carbonMessageProcessor);
+            connectors.add(connector);
+        });
+
+        return connectors;
     }
 
     public static HTTPServer startHTTPServer(int port) {
@@ -215,6 +194,10 @@ public class TestUtil {
         return urlConn;
     }
 
+    public static void setHeader(HttpURLConnection urlConnection, String key, String value) {
+        urlConnection.setRequestProperty(key, value);
+    }
+
     public static void updateMessageProcessor(CarbonMessageProcessor carbonMessageProcessor,
             TransportsConfiguration transportsConfiguration) {
 
@@ -223,6 +206,11 @@ public class TestUtil {
 
         carbonMessageProcessor.setTransportSender(httpSender);
         HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
+    }
+
+    public static void handleException(String msg, Exception ex) {
+        log.error(msg, ex);
+        fail(msg);
     }
 
 }
