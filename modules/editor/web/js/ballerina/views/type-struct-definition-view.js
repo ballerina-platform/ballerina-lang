@@ -15,26 +15,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerina/ast/ballerina-ast-factory',
-            'typeMapper','./svg-canvas'], function (_, log, d3, BallerinaView, VariablesView, BallerinaASTFactory,TypeMapper,SVGCanvas) {
-    var TypeStructDefinitionView = function (args) {
+define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerina/ast/ballerina-ast-factory', 'typeMapper',
+        './svg-canvas'],
+    function (_, log, d3, BallerinaView, VariablesView, BallerinaASTFactory, TypeMapper, SVGCanvas) {
 
-        SVGCanvas.call(this, args);
-        this._parentView = _.get(args, "parentView");
+        var TypeStructDefinitionView = function (args) {
+            SVGCanvas.call(this, args);
+            this._parentView = _.get(args, "parentView");
 
-        if (_.isNil(this.getModel()) || !(BallerinaASTFactory.isTypeStructDefinition(this.getModel()))) {
-            log.error("Type Struct definition is undefined or is of different type." + this.getModel());
-            throw "Type Struct definition is undefined or is of different type." + this.getModel();
-        }
+            if (_.isNil(this.getModel()) || !(BallerinaASTFactory.isTypeStructDefinition(this.getModel()))) {
+                log.error("Type Struct definition is undefined or is of different type." + this.getModel());
+                throw "Type Struct definition is undefined or is of different type." + this.getModel();
+            }
 
-    };
+        };
 
-    TypeStructDefinitionView.prototype = Object.create(SVGCanvas.prototype);
-    TypeStructDefinitionView.prototype.constructor = TypeStructDefinitionView;
+        TypeStructDefinitionView.prototype = Object.create(SVGCanvas.prototype);
+        TypeStructDefinitionView.prototype.constructor = TypeStructDefinitionView;
 
-    TypeStructDefinitionView.prototype.canVisitTypeStructDefinition = function (typeStructDefinition) {
-        return true;
-    };
+        TypeStructDefinitionView.prototype.canVisitTypeStructDefinition = function (typeStructDefinition) {
+            return true;
+        };
 
     /**
      * Rendering the view of the Type struct definition.
@@ -50,34 +51,16 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerin
             this._parentView._typeMapper = mapper;
         }
         mapper.removeStruct(selectedStructName);
-        if(category == "SOURCE"){
+        if (category == "SOURCE"){
             mapper.addSourceStruct(struct,this.getModel());
-        }else{
+        } else{
             mapper.addTargetStruct(struct,this.getModel());
         }
     };
 
-    TypeStructDefinitionView.prototype.getModel = function () {
-        return this._model;
-    };
+        TypeStructDefinitionView.prototype.getModel = function () {
+            return this._model;
+        };
 
-
-
-//    /**
-//     * Receives attributes connected
-//     * @param connection object
-//     */
-//    TypeStructDefinitionView.prototype.onAttributesConnect = function (connection) {
-//        alert("connected");
-//    };
-//
-//    /**
-//     * Receives the attributes disconnected
-//     * @param connection object
-//     */
-//    TypeStructDefinitionView.prototype.onAttributesDisConnect = function (connection) {
-//        alert("disconnected");
-//    };
-
-    return TypeStructDefinitionView;
+        return TypeStructDefinitionView;
 });
