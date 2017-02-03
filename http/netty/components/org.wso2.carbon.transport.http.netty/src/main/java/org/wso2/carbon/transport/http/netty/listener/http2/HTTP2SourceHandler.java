@@ -49,13 +49,16 @@ import java.util.Map;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 /**
- *
- * Class {@code HTTP2SourceHandler} will read the http2 binary frames sent from client through the channel
+ * Class {@code HTTP2SourceHandler} will read the Http2 binary frames sent from client through the channel
  * and build carbon messages and sent to message processor.
  */
 public final class HTTP2SourceHandler extends Http2ConnectionHandler implements Http2FrameListener {
 
     private static final Logger log = LoggerFactory.getLogger(HTTP2SourceHandler.class);
+    /**
+     * streamIdRequestMap contains mapping of http carbon messages to streamid to support multiplexing capability of
+     * http2 tcp connections
+     */
     private Map<Integer, HTTPCarbonMessage> streamIdRequestMap = new HashMap<>();
     private ConnectionManager connectionManager;
     private ListenerConfiguration listenerConfiguration;
@@ -73,8 +76,8 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler implements 
      * This method handles the cleartext HTTP upgrade event. If an upgrade occurred, sends a simple response via HTTP/2
      * on stream 1 (the stream specifically reserved for cleartext HTTP upgrade).
      *
-     * @param ctx
-     * @param evt
+     * @param ctx Channel context
+     * @param evt Event
      * @throws Exception
      */
     @Override
@@ -105,7 +108,7 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler implements 
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
         ctx.close();
-        throw new Exception(cause.getMessage());
+        throw new Exception("Error occurred while processing Http2 message ", cause);
     }
 
     @Override
@@ -160,10 +163,10 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler implements 
      * Carbon Message is published to registered message processor and Message Processor should return transport
      * thread immediately
      *
-     * @param streamId
-     * @param headers
-     * @param ctx
-     * @return
+     * @param streamId Stream id of HTTP2 request received
+     * @param headers  HTTP2 Headers
+     * @param ctx      Channel context
+     * @return HTTPCarbonMessage
      */
     private HTTPCarbonMessage publishToMessageProcessor(int streamId, Http2Headers headers, ChannelHandlerContext ctx) {
         HTTPCarbonMessage cMsg = setupCarbonMessage(streamId, headers, ctx);
@@ -202,13 +205,15 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler implements 
 
     /**
      * Setup carbon message for HTTP2 request
-     * @param streamId
-     * @param headers
-     * @param ctx
-     * @return
+     *
+     * @param streamId Stream id of HTTP2 request received
+     * @param headers  HTTP2 Headers
+     * @param ctx      Channel context
+     * @return HTTPCarbonMessage
      */
     protected HTTPCarbonMessage setupCarbonMessage(int streamId, Http2Headers headers, ChannelHandlerContext ctx) {
 
+        // Construct new HTTP carbon message and put into stream id request map
         HTTPCarbonMessage cMsg = new HTTPCarbonMessage();
         cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
         cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
@@ -238,6 +243,7 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler implements 
         if (headers.method() != null) {
             cMsg.setProperty(Constants.HTTP_METHOD, headers.method().toString());
         }
+        // Copy Http2 headers to carbon message
         headers.forEach(k -> cMsg.setHeader(k.getKey().toString(), k.getValue().toString()));
         streamIdRequestMap.put(streamId, cMsg);
         return cMsg;

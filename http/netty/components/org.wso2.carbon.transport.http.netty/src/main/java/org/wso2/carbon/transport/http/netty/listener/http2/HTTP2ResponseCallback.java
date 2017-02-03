@@ -17,7 +17,6 @@
 */
 package org.wso2.carbon.transport.http.netty.listener.http2;
 
-import com.sun.xml.internal.bind.v2.TODO;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -41,7 +40,7 @@ import java.nio.ByteBuffer;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 /**
- * {@code HTTP2ResponseCallback} is the class implements {@code CarbonCallback} interface to process http2 message
+ * {@code HTTP2ResponseCallback} is the class implements {@link CarbonCallback} interface to process http2 message
  * responses coming from message processor
  */
 public class HTTP2ResponseCallback implements CarbonCallback {
@@ -50,7 +49,12 @@ public class HTTP2ResponseCallback implements CarbonCallback {
     private int streamId;
     private static final Logger logger = LoggerFactory.getLogger(HTTP2ResponseCallback.class);
 
-
+    /**
+     * Construct a new {@link HTTP2ResponseCallback} to process HTTP2 responses
+     *
+     * @param channelHandlerContext Channel context
+     * @param streamId              Stream Id
+     */
     public HTTP2ResponseCallback(ChannelHandlerContext channelHandlerContext, int streamId) {
 
         this.ctx = channelHandlerContext;
@@ -70,6 +74,7 @@ public class HTTP2ResponseCallback implements CarbonCallback {
             HTTP2SourceHandler http2SourceHandler = (HTTP2SourceHandler) ctx.handler();
             http2SourceHandler.encoder().writeHeaders(ctx, streamId, http2Headers, 0, false,
                     ctx.newPromise());
+
             // Full HTTP2 Request response
             if (cMsg instanceof HTTPCarbonMessage) {
                 HTTPCarbonMessage nettyCMsg = (HTTPCarbonMessage) cMsg;
@@ -93,7 +98,8 @@ public class HTTP2ResponseCallback implements CarbonCallback {
                     http2SourceHandler.encoder().writeData(ctx, 3, httpContent.content(), 0, false,
                             ctx.newPromise());
                 }
-            // HTTP2 Header Request response
+
+                // HTTP2 Header Request response
             } else if (cMsg instanceof DefaultCarbonMessage) {
                 DefaultCarbonMessage defaultCMsg = (DefaultCarbonMessage) cMsg;
                 while (true) {
@@ -121,8 +127,9 @@ public class HTTP2ResponseCallback implements CarbonCallback {
     }
 
     /**
-     * Handles the response without content length
-     * @param cMsg
+     * Handles the response without content length and set or remove headers based on carbon message
+     *
+     * @param cMsg Carbon Message
      */
     private void handleResponsesWithoutContentLength(CarbonMessage cMsg) {
         if (cMsg.isAlreadyRead()) {
