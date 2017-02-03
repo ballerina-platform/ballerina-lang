@@ -42,6 +42,11 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', /** void module 
         var contentContainer = $('<div id="debugger-variable-tree" class="panel-collapse collapse in" role="tabpanel">' +
             '</div>');
         container.append(contentContainer);
+        this.updateFrames();
+    };
+
+    Frames.prototype.updateFrames = function () {
+        // <table class="table table-condensed"></table>
     };
 
     return (instance = (instance || new Frames() ));
