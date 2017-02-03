@@ -22,7 +22,13 @@ import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
+
+import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BallerinaAction;
+import org.wso2.ballerina.core.model.BallerinaConnector;
+import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Package;
+import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.docgen.docs.DocumentWriter;
 
 import java.io.File;
@@ -90,19 +96,57 @@ public class HtmlDocumentWriter implements DocumentWriter {
         try {
             TemplateLoader templateLoader = new FileTemplateLoader(templatesFolderPath);
             Handlebars handlebars = new Handlebars(templateLoader);
-            handlebars.registerHelper("hasFunctions", (Helper<Package>) (balPackage, options) -> {
-                if (balPackage.getPublicFunctions().size() > 0) {
-                    return options.fn(balPackage);
-                }
-                return options.inverse(null);
-            });
-            handlebars.registerHelper("hasConnectors", (Helper<Package>) (balPackage, options) -> {
-                if ((balPackage.getFiles().stream().filter(
-                        p -> p.getConnectors().size() > 0).count() > 0)) {
-                    return options.fn(this);
-                }
-                return options.inverse(null);
-            });
+            DataHolder dataHolder = DataHolder.getInstance();
+            handlebars
+                    .registerHelper("hasFunctions", (Helper<Package>) (balPackage, options) -> {
+                        if (balPackage.getPublicFunctions().size() > 0) {
+                            return options.fn(balPackage);
+                        }
+                        return options.inverse(null);
+                    })
+                    .registerHelper("hasConnectors", (Helper<Package>) (balPackage, options) -> {
+                        if ((balPackage.getFiles().stream().filter(p -> p.getConnectors().size() > 0).count() > 0)) {
+                            return options.fn(this);
+                        }
+                        return options.inverse(null);
+                    })
+                    // usage: {{currentObject this}}
+                    .registerHelper("currentObject", (Helper<Object>) (obj, options) -> {
+                        dataHolder.setCurrentObject(obj);
+                        return null;
+                    })
+                    // usage: {{paramAnnotation this "<annotationName>"}}
+                    // eg: {{paramAnnotation this "param"}}
+                    .registerHelper(
+                            "paramAnnotation",
+                            (Helper<Parameter>) (param, options) -> {
+                                String annotationName = options.param(0);
+                                if (annotationName == null || param.getName() == null) {
+                                    return "";
+                                }
+                                String subName = param.getName().getName();
+                                for (Annotation annotation : getAnnotations(dataHolder)) {
+                                    if (annotationName.equalsIgnoreCase(annotation.getName())
+                                            && annotation.getValue().startsWith(subName)) {
+                                        return annotation.getValue().split(subName + ":")[1].trim();
+                                    }
+                                }
+                                return "";
+                    })
+                    // usage: {{oneValueAnnotation "<annotationName>"}}
+                    // eg: {{oneValueAnnotation "description"}} - this would retrieve the description annotation of the
+                    // currentObject
+                    .registerHelper("oneValueAnnotation", (Helper<String>) (annotationName, options) -> {
+                        if (annotationName == null) {
+                            return null;
+                        }
+                        for (Annotation annotation : getAnnotations(dataHolder)) {
+                            if (annotationName.equalsIgnoreCase(annotation.getName())) {
+                                return annotation.getValue().trim();
+                            }
+                        }
+                        return "";
+                    });
             Template template = handlebars.compile(templateName);
 
             writer = new PrintWriter(absoluteFilePath, UTF_8);
@@ -115,6 +159,39 @@ public class HtmlDocumentWriter implements DocumentWriter {
             if (writer != null) {
                 writer.close();
             }
+        }
+    }
+
+    private Annotation[] getAnnotations(DataHolder dataHolder) {
+        if (dataHolder.getCurrentObject() instanceof BallerinaFunction) {
+            return ((BallerinaFunction) dataHolder.getCurrentObject()).getAnnotations();
+        } else if (dataHolder.getCurrentObject() instanceof BallerinaConnector) {
+            return ((BallerinaConnector) dataHolder.getCurrentObject()).getAnnotations();
+        } else if (dataHolder.getCurrentObject() instanceof BallerinaAction) {
+            return ((BallerinaAction) dataHolder.getCurrentObject()).getAnnotations();
+        } else {
+            return new Annotation[0];
+        }
+    }
+
+    /**
+     * Holds the current object which is processed by Handlebars
+     */
+    static class DataHolder {
+
+        private static final DataHolder instance = new DataHolder();
+        private Object currentObject;
+
+        public static DataHolder getInstance() {
+            return instance;
+        }
+
+        public Object getCurrentObject() {
+            return currentObject;
+        }
+
+        public void setCurrentObject(Object currentObject) {
+            this.currentObject = currentObject;
         }
     }
 }

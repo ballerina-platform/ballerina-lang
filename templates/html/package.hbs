@@ -28,11 +28,12 @@
 
                             {{#hasFunctions}}<h2>Functions of {{fullyQualifiedName}} package</h2>
 						    {{#each publicFunctions}}
+						        {{currentObject this}}
 						        <div style="padding-bottom: 30px;">
                                 <h3 id="{{functionName}}">
                                    function {{functionName}}({{#each parameters}}<a href="">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}
                                 </h3>
-                                <p>{{description}}</p>
+                                <p>{{oneValueAnnotation "description"}}</p>
 
                                 <p>
                                 <b>Parameters:</b>
@@ -42,7 +43,7 @@
                                     </tr>
                                     {{#each parameters}}
                                     <tr>
-                                        <td>{{name}}</td><td><a href="">{{type}}</a></td><td>{{description}}</td>
+                                        <td>{{name}}</td><td><a href="">{{type}}</a></td><td>{{paramAnnotation this "param"}}</td>
                                     </tr>
                                     {{/each}}
                                 </table>
@@ -57,7 +58,7 @@
                                     </tr>
                                     {{#each returnParameters}}
                                     <tr>
-                                        <td>{{name}}</td><td><a href="">{{type}}</a></td><td>{{description}}</td>
+                                        <td>{{name}}</td><td><a href="">{{type}}</a></td><td>{{paramAnnotation this "return"}}</td>
                                     </tr>
                                     {{/each}}
                                 </table>
@@ -71,10 +72,12 @@
                             <h2>Connectors of {{fullyQualifiedName}} package</h2>
                         {{#each files}}
                             {{#each connectorList}}
+                                {{currentObject this}}
                                 <h3 id="{{name}}">
                                     connector {{#with this}}{{this.name}} ({{#each parameters}}<a
                                         href="">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/with}}
                                 </h3>
+                                <p>{{oneValueAnnotation "description"}}</p>
                                 <p>
                                     <b>Parameters:</b>
                                 <table>
@@ -85,9 +88,7 @@
                                     </tr>
                                     {{#each parameters}}
                                         <tr>
-                                            <td>{{name}}</td>
-                                            <td><a href="">{{type}}</a></td>
-                                            <td>{{description}}</td>
+                                            <td>{{name}}</td><td><a href="">{{type}}</a></td><td>{{paramAnnotation this "param"}}</td>
                                         </tr>
                                     {{/each}}
                                 </table>
@@ -95,10 +96,11 @@
 
                                 <b>Actions:</b><br><br>
                                 {{#each actions}}
-
+                                    {{currentObject this}}
                                     <h3 id="{{name}}{{../name}}">action {{this.name}}({{#each parameters}}<a
                                             href="">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}
                                         )</h3>
+                                    <p>{{oneValueAnnotation "description"}}</p>
                                     <p>
                                         <b>Parameters:</b>
                                     <table>
@@ -109,9 +111,7 @@
                                         </tr>
                                         {{#each parameters}}
                                             <tr>
-                                                <td>{{name}}</td>
-                                                <td><a href="">{{type}}</a></td>
-                                                <td>{{description}}</td>
+                                                <td>{{name}}</td><td><a href="">{{type}}</a></td><td>{{paramAnnotation this "param"}}</td>
                                             </tr>
                                         {{/each}}
                                     </table>
@@ -127,9 +127,7 @@
                                             </tr>
                                             {{#each returnParameters}}
                                                 <tr>
-                                                    <td>{{name}}</td>
-                                                    <td><a href="">{{type}}</a></td>
-                                                    <td>{{description}}</td>
+                                                    <td>{{name}}</td><td><a href="">{{type}}</a></td><td>{{paramAnnotation this "return"}}</td>
                                                 </tr>
                                             {{/each}}
                                         </table>
