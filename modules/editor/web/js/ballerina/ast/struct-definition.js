@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+define(['lodash', 'log', './node'], function (_, log, ASTNode) {
     var StructDefinition = function (args) {
         ASTNode.call(this, 'StructDefinition');
         this._structName = _.get(args, 'structName', 'newStruct');
@@ -30,7 +30,7 @@ define(['lodash', './node'], function (_, ASTNode) {
      * @param structName - name of the struct
      */
     StructDefinition.prototype.setStructName = function (structName) {
-        this._structName = structName;
+        this.setAttribute('_structName', structName);
     };
 
     /**
@@ -41,7 +41,10 @@ define(['lodash', './node'], function (_, ASTNode) {
         return this._structName;
     };
 
-
+    /**
+     * Gets all the variables declarations residing in the struct.
+     * @return {VariableDeclaration[]} - The variable declarations.
+     */
     StructDefinition.prototype.getVariableDeclarations = function () {
         var variableDeclarations = [];
         var self = this;
@@ -56,35 +59,58 @@ define(['lodash', './node'], function (_, ASTNode) {
 
     /**
      * Adds new variable declaration.
+     * @param {string} bType - The ballerina type of the variable.
+     * @param {string} identifier - The identifier of the variable
      */
-    StructDefinition.prototype.addVariableDeclaration = function (newVariableDeclaration) {
-        var self = this;
+    StructDefinition.prototype.addVariableDeclaration = function (bType, identifier) {
+        // Check if already variable declaration exists with same identifier.
+        var identifierAlreadyExists = _.findIndex(this.getVariableDeclarations(), function (variableDeclaration) {
+                return variableDeclaration.getIdentifier() === identifier;
+            }) !== -1;
 
-        // Get the index of the last variable declaration.
-        var index = _.findLastIndex(this.getChildren(), function (child) {
-            return self.BallerinaASTFactory.isVariableDeclaration(child);
-        });
+        // If variable declaration with the same identifier exists, then throw an error. Else create the new variable
+        // declaration.
+        if (identifierAlreadyExists) {
+            var errorString = "A variable with identifier '" + identifier + "' already exists.";
+            log.error(errorString);
+            throw errorString;
+        } else {
+            // Creating new variable declaration.
+            var newVariableDeclaration = this.getFactory().createVariableDeclaration();
 
-        this.addChild(newVariableDeclaration, index + 1);
+            newVariableDeclaration.setType(bType);
+            newVariableDeclaration.setIdentifier(identifier);
+
+            var self = this;
+
+            // Get the index of the last declaration.
+            var index = _.findLastIndex(this.getChildren(), function (child) {
+                return self.getFactory().isVariableDeclaration(child);
+            });
+
+            this.addChild(newVariableDeclaration, index + 1);
+        }
     };
 
     /**
      * Removes new variable declaration.
+     * @param {string} modelID - The model ID of the variable.
      */
-    StructDefinition.prototype.removeVariableDeclaration = function (variableDeclarationIdentifier) {
+    StructDefinition.prototype.removeVariableDeclaration = function (modelID) {
         var self = this;
         // Removing the variable from the children.
-        var variableDeclarationChild = _.filter(this.getChildren(), function (child) {
+        var variableDeclarationChild = _.find(this.getChildren(), function (child) {
             return self.BallerinaASTFactory.isVariableDeclaration(child)
-                && child.getIdentifier() === variableDeclarationIdentifier;
+                && child.getID() === modelID;
         });
-        this.removeChild(variableDeclarationChild[0])
+        this.removeChild(variableDeclarationChild);
     };
 
     /**
-     * initialize StructDefinition from json object
-     * @param {Object} jsonNode to initialize from
-     * @param {string} [jsonNode.struct_name] - Name of the struct definition
+     * Initialize StructDefinition from json object
+     * @param {Object} jsonNode - JSON object for initialization.
+     * @param {string} jsonNode.struct_name - Name of the struct definition.
+     * @param {VariableDeclaration[]} jsonNode.children - Variables of the struct definition.
      */
     StructDefinition.prototype.initFromJson = function (jsonNode) {
         var self = this;
