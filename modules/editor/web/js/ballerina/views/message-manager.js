@@ -27,11 +27,12 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
     MessageManager.prototype = Object.create(EventChannel.prototype);
     MessageManager.prototype.constructor = MessageManager;
 
-     MessageManager.prototype.setMessageSource = function(source){
+    MessageManager.prototype.setMessageSource = function(source){
          if (!_.isUndefined(source)) {
              this.messageSource = source;
          }
-     };
+    };
+
     MessageManager.prototype.getMessageSource = function(){
        return this.messageSource;
     };
@@ -45,7 +46,6 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
         return this.messageTarget;
     };
 
-
     MessageManager.prototype.setActivatedDropTarget = function (dropTarget) {
         if (!_.isUndefined(dropTarget)) {
             this.activatedDropTarget = dropTarget;
@@ -55,6 +55,22 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
     MessageManager.prototype.getActivatedDropTarget = function () {
         return this.activatedDropTarget;
     };
+
+    MessageManager.prototype.updateActivatedTarget = function (target) {
+        if (!_.isUndefined(target)) {
+            this.getMessageSource().setConnector(target);
+            this.getMessageSource().setActionPackageName(target.getConnectorPkgName());
+            this.getMessageSource().setActionConnectorName(target.getConnectorName());
+            this.getMessageSource().setConnectorVariableReference(target.getConnectorVariable());
+            //set the right hand expression to set the statement string of the assignment-statement containing the
+            //action invocation expression. This is to keep action invocation statement UI and source-gen in sync
+            //when action invocation is configured
+            if (BallerinaASTFactory.isRightOperandExpression(rightOp = this.getMessageSource().getParent())){
+                rightOp.setRightOperandExpressionString(this.getMessageSource().getExpression());
+            }
+        }
+    };
+
     MessageManager.prototype.setValidateCallBack = function (callBackMethod) {
         if (!_.isUndefined(callBackMethod)) {
             this.validateCallBack = callBackMethod;
@@ -168,17 +184,7 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
             var endPoint = new Point(tempLine.attr("x2"),tempLine.attr("y2"));
 
             if(self.isAtValidDropTarget()){
-                var connectorReference = self.getActivatedDropTarget();
-                self.getMessageSource().setConnector(connectorReference);
-                self.getMessageSource().setActionPackageName(connectorReference.getConnectorPkgName());
-                self.getMessageSource().setActionConnectorName(connectorReference.getConnectorName());
-                self.getMessageSource().setConnectorVariableReference(connectorReference.getConnectorVariable());
-                //set the right hand expression to set the statement string of the assignment-statement containing the
-                //action invocation expression. This is to keep action invocation statement UI and source-gen in sync
-                //when action invocation is configured
-                if (BallerinaASTFactory.isRightOperandExpression(rightOp = self.getMessageSource().getParent())){
-                    rightOp.setRightOperandExpressionString(self.getMessageSource().getExpression());
-                }
+                self.updateActivatedTarget(self.getActivatedDropTarget());
             }
             tempLine.remove();
             arrowPoint.remove();
