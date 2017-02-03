@@ -29,7 +29,7 @@ function testGetStringPayload(message msg) (message){
 function testEmptyString() (string){
     message msg;
     string strPayload;
-
+    msg = new message;
     strPayload = ballerina.lang.message:getStringPayload(msg);
     return strPayload;
 }

@@ -30,6 +30,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
+import org.wso2.carbon.messaging.MessageDataSource;
 
 /**
  *  Get the payload of the Message as a JSON.
@@ -53,17 +54,16 @@ public class GetJsonPayload extends AbstractNativeFunction {
             BMessage msg = (BMessage) getArgument(ctx, 0);
 
             if (msg.isAlreadyRead()) {
-                BValue payload = msg.getBuiltPayload();
+                MessageDataSource payload = msg.getMessageDataSource();
                 if (payload instanceof BJSON) {
-                    // if the payload is already JSON, return it as it is.
-                    result = (BJSON) msg.getBuiltPayload();
+                    result = (BJSON) payload;
                 } else {
                     // else, build the JSON from the string representation of the payload.
-                    result = new BJSON(msg.getBuiltPayload().stringValue());
+                    result = new BJSON(msg.getMessageDataSource().getMessageAsString());
                 }
             } else {
                 result = new BJSON(msg.value().getInputStream());
-                msg.setBuiltPayload(result);
+                msg.setMessageDataSource(result);
                 msg.setAlreadyRead(true);
             }
         } catch (JsonSyntaxException e) {

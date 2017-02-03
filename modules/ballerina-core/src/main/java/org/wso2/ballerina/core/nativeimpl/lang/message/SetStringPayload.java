@@ -49,7 +49,7 @@ public class SetStringPayload extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BMessage msg = (BMessage) getArgument(context, 0);
         BString payload = (BString) getArgument(context, 1);
-        msg.setBuiltPayload(payload);
+        msg.setMessageDataSource(payload.stringValue());
         msg.setHeader(Constants.CONTENT_TYPE, Constants.TEXT_PLAIN);
         if (log.isDebugEnabled()) {
             log.debug("Setting new payload: " + payload.stringValue());

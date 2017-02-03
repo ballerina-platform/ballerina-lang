@@ -47,7 +47,7 @@ public class SetJsonPayload extends AbstractNativeFunction {
         BJSON payload = (BJSON) getArgument(ctx, 1);
 
         // Setting the payload
-        msg.setBuiltPayload(payload);
+        msg.setMessageDataSource(payload);
         msg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
         return VOID_RETURN;
     }

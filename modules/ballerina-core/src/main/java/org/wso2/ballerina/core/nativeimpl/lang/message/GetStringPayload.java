@@ -53,11 +53,11 @@ public class GetStringPayload extends AbstractNativeFunction {
         try {
             BMessage msg = (BMessage) getArgument(context, 0);
             if (msg.isAlreadyRead()) {
-                result = new BString(msg.getBuiltPayload().stringValue());
+                result = new BString(msg.getMessageDataSource().getMessageAsString());
             } else {
                 String payload = MessageUtils.getStringFromInputStream(msg.value().getInputStream());
                 result = new BString(payload);
-                msg.setBuiltPayload(result);
+                msg.setMessageDataSource(payload);
                 msg.setAlreadyRead(true);
             }
             if (log.isDebugEnabled()) {
