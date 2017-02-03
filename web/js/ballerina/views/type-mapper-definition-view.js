@@ -57,6 +57,8 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             // Draws the outlying body of the function.
             this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().type.toLowerCase(),
                 this.getModel().getTypeMapperName());
+            
+            this._package = diagramRenderingContext.getPackagedScopedEnvironment().getCurrentPackage();
 
             // Setting the styles for the canvas icon.
             this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.type_mapper_icon", ""));
