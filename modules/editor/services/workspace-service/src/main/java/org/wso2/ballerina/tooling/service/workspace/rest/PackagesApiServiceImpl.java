@@ -128,7 +128,7 @@ public class PackagesApiServiceImpl extends PackagesApiService {
         annotations.add(createNewAnnotation("Param", "reason phrase"));
         modelPackage.addFunctionsItem(createNewFunction("setReasonPhrase", annotations, params, returnParams));
 
-        //adding connector
+        //adding action GET
         List<Action> actions = new ArrayList<>();
         List<Parameter> actionParams = new ArrayList<>();
         actionParams.add(createNewParameter("HttpConnector", "h"));
@@ -139,6 +139,42 @@ public class PackagesApiServiceImpl extends PackagesApiService {
         annotations = new ArrayList<>();
         annotations.add(createNewAnnotation("Description", ""));
         actions.add(createNewAction("get", actionParams, returnParams, annotations));
+
+        //adding action POST
+        actions = new ArrayList<>();
+        actionParams = new ArrayList<>();
+        actionParams.add(createNewParameter("HttpConnector", "h"));
+        actionParams.add(createNewParameter("string", "path"));
+        actionParams.add(createNewParameter("message", "m"));
+        returnParams = new ArrayList<>();
+        returnParams.add(createNewParameter("message", null));
+        annotations = new ArrayList<>();
+        annotations.add(createNewAnnotation("Description", ""));
+        actions.add(createNewAction("post", actionParams, returnParams, annotations));
+
+        //adding action PUT
+        actions = new ArrayList<>();
+        actionParams = new ArrayList<>();
+        actionParams.add(createNewParameter("HttpConnector", "h"));
+        actionParams.add(createNewParameter("string", "path"));
+        actionParams.add(createNewParameter("message", "m"));
+        returnParams = new ArrayList<>();
+        returnParams.add(createNewParameter("message", null));
+        annotations = new ArrayList<>();
+        annotations.add(createNewAnnotation("Description", ""));
+        actions.add(createNewAction("put", actionParams, returnParams, annotations));
+
+        //adding action DELETE
+        actions = new ArrayList<>();
+        actionParams = new ArrayList<>();
+        actionParams.add(createNewParameter("HttpConnector", "h"));
+        actionParams.add(createNewParameter("string", "path"));
+        actionParams.add(createNewParameter("message", "m"));
+        returnParams = new ArrayList<>();
+        returnParams.add(createNewParameter("message", null));
+        annotations = new ArrayList<>();
+        annotations.add(createNewAnnotation("Description", ""));
+        actions.add(createNewAction("delete", actionParams, returnParams, annotations));
 
         modelPackage.addConnectorsItem(createNewConnector("HTTPConnector", annotations, actions, params));
         packages.put(modelPackage.getName(), modelPackage);
