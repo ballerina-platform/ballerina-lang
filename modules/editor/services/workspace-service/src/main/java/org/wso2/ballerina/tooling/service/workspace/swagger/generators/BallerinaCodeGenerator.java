@@ -189,13 +189,13 @@ public class BallerinaCodeGenerator extends DefaultCodegen implements CodegenCon
      *
      * @return the escaped term
      */
-    @Override
+    /*@Override
     public String escapeReservedWord(String name) {
         if (this.reservedWordsMappings().containsKey(name)) {
             return this.reservedWordsMappings().get(name);
         }
         return "_" + name;
-    }
+    }*/
 
 
     @Override
