@@ -111,20 +111,21 @@ public class BallerinaConnectorManager {
         }
 
         this.messageProcessor = messageProcessor;
+
         //1. Loading server connector providers
         ServiceLoader<ServerConnectorProvider> serverConnectorProviderLoader =
                 ServiceLoader.load(ServerConnectorProvider.class);
         serverConnectorProviderLoader.
                 forEach(serverConnectorProvider -> {
-                        List<ServerConnector> serverConnectors = serverConnectorProvider.initializeConnectors();
+                    this.registerServerConnectorProvider(serverConnectorProvider);
+                    List<ServerConnector> serverConnectors = serverConnectorProvider.initializeConnectors();
                     if (serverConnectors == null || serverConnectors.isEmpty()) {
                         return;
                     }
                     serverConnectors.forEach(serverConnector -> {
                         serverConnector.setMessageProcessor(messageProcessor);
-                        registerServerConnector(serverConnector);
+                        this.registerServerConnector(serverConnector);
                     });
-                    registerServerConnectorProvider(serverConnectorProvider);
                 });
 
         //2. Loading transport listener error handlers
