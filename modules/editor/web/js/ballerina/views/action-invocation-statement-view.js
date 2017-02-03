@@ -148,33 +148,18 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             actionInvocationModel.accept(this);
 
             // Creating property pane
-            var editableProperties = [
-                {
+            var editableProperty = {
                     propertyType: "text",
-                    key: "Assign To",
-                    model: leftOperandModel,
-                    getterMethod: leftOperandModel.getLeftOperandExpressionString,
-                    setterMethod: leftOperandModel.setLeftOperandExpressionString
-                },
-                {
-                    propertyType: "text",
-                    key: "Path Parameter",
-                    model: actionInvocationModel,
-                    getterMethod: actionInvocationModel.getPath,
-                    setterMethod: actionInvocationModel.setPath
-                },
-                {
-                    propertyType: "text",
-                    key: "Message Parameter",
-                    model: actionInvocationModel,
-                    getterMethod: actionInvocationModel.getMessageVariableReference,
-                    setterMethod: actionInvocationModel.setMessageVariableReference
-                }
-            ];
+                    key: "Action Invocation",
+                    model: this._model,
+                    getterMethod: this._model.getStatementString,
+                    setterMethod: this._model.setStatementString
+            };
+
             this._createPropertyPane({
                 model: actionInvocationModel,
                 statementGroup: assignmentStatementGroup,
-                editableProperties: editableProperties
+                editableProperties: editableProperty
             });
 
             this.parentContainer = d3.select(parentGroup);
@@ -332,20 +317,11 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
 
         /**
          * Remove statement view callback
-         * @param {ASTNode} parent - Parent model
-         * @param {ASTNode} child - child model
          */
-        ActionInvocationStatementView.prototype.removeViewCallback = function (parent, child) {
+        ActionInvocationStatementView.prototype.onBeforeModelRemove = function () {
             d3.select("#_" +this._model.id).remove();
             this.removeArrows();
-            // We directly don not use the provided parent and the child, since the Assignment statement
-            // node structure is different (Aggregated Action Invocation node)
-            this.getDiagramRenderingContext().getViewOfModel(parent.getParent().getParent()).getStatementContainer().removeInnerDropZone(parent.getParent());
-            this.unplugView(
-                {
-                    w: 0,
-                    h: 0
-                }, parent.getParent().getParent(), parent.getParent());
+            this.getBoundingBox().w(0).h(0);
         };
 
         return ActionInvocationStatementView;

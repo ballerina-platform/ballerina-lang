@@ -36,7 +36,7 @@ define(['lodash', 'log', './node'], function(_, log, ASTNode){
 
     VariableDeclaration.prototype.setType = function (type) {
         if (!_.isUndefined(type)) {
-            this._type = type;
+            this.setAttribute('_type', type);
         } else {
             var exceptionString = "A variable requires a type.";
             log.error(exceptionString);
@@ -50,7 +50,7 @@ define(['lodash', 'log', './node'], function(_, log, ASTNode){
 
     VariableDeclaration.prototype.setIdentifier = function (identifier) {
         if (!_.isNil(identifier) && ASTNode.isValidIdentifier(identifier)) {
-            this._identifier = identifier;
+            this.setAttribute('_identifier', identifier);
         } else {
             var exceptionString = "Invalid identifier: \'" + identifier + "\'. An identifier must match the regex " +
                 "^[a-zA-Z$_][a-zA-Z0-9$_]*$";
