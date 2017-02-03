@@ -17,7 +17,7 @@
  */
 define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _, $, jsPlumb, dagre) {
 
-    var TypeMapper = function (onConnectionCallback, onDisconnectCallback, typeConverterView) {
+    var TypeMapperRenderer = function (onConnectionCallback, onDisconnectCallback, typeConverterView) {
         this.references = [];
         this.placeHolderName = "data-mapper-container-" + typeConverterView._model.id;
         this.idNameSeperator = "-";
@@ -97,9 +97,9 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
         });
     };
 
-    TypeMapper.prototype.constructor = TypeMapper;
+    TypeMapperRenderer.prototype.constructor = TypeMapperRenderer;
 
-    TypeMapper.prototype.removeStruct = function (name) {
+    TypeMapperRenderer.prototype.removeStruct = function (name) {
         var structId = name + this.idNameSeperator + this.typeConverterView._model.id;
         var structConns = $('div[id^="' + structId + '"]');
         for (var i = 0; i < structConns.length; i++) {
@@ -112,7 +112,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
         this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
     };
 
-    TypeMapper.prototype.addConnection = function (connection) {
+    TypeMapperRenderer.prototype.addConnection = function (connection) {
         this.jsPlumbInstance.connect({
             source: connection.sourceStruct + this.idNameSeperator + connection.sourceProperty
             + this.idNameSeperator + connection.sourceType,
@@ -123,7 +123,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
     };
 
 
-    TypeMapper.prototype.getConnections = function () {
+    TypeMapperRenderer.prototype.getConnections = function () {
         var connections = [];
         for (var i = 0; i < this.jsPlumbInstance.getConnections().length; i++) {
             var sourceParts = this.jsPlumbInstance.getConnections()[i].sourceId.split(this.idNameSeperator);
@@ -141,7 +141,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
         return connections;
     };
 
-    TypeMapper.prototype.addSourceStruct = function (struct, reference) {
+    TypeMapperRenderer.prototype.addSourceStruct = function (struct, reference) {
         struct.id = struct.name + this.idNameSeperator + this.typeConverterView._model.id;
         this.makeStruct(struct, 50, 50, reference);
         for (var i = 0; i < struct.properties.length; i++) {
@@ -150,7 +150,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
         this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
     };
 
-    TypeMapper.prototype.addTargetStruct = function (struct, reference) {
+    TypeMapperRenderer.prototype.addTargetStruct = function (struct, reference) {
         struct.id = struct.name + this.idNameSeperator + this.typeConverterView._model.id;
         var placeHolderWidth = document.getElementById(this.placeHolderName).offsetWidth;
         var posY = placeHolderWidth - (placeHolderWidth / 4);
@@ -161,7 +161,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
         this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
     };
 
-    TypeMapper.prototype.makeStruct = function (struct, posX, posY, reference) {
+    TypeMapperRenderer.prototype.makeStruct = function (struct, posX, posY, reference) {
         this.references.push({name: struct.id, refObj: reference});
         var newStruct = $('<div>').attr('id', struct.id).addClass('struct');
 
@@ -176,7 +176,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
         $("#" + this.placeHolderName).append(newStruct);
     };
 
-    TypeMapper.prototype.addFunction = function (func, reference) {
+    TypeMapperRenderer.prototype.addFunction = function (func, reference) {
         this.references.push({name: func.name, refObj: reference});
         var newFunc = $('<div>').attr('id', func.name).addClass('func');
 
@@ -201,7 +201,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
     };
 
 
-    TypeMapper.prototype.makeProperty = function (parentId, name, type) {
+    TypeMapperRenderer.prototype.makeProperty = function (parentId, name, type) {
         var id = parentId.selector.replace("#", "") + this.idNameSeperator + name + this.idNameSeperator + type;
         var property = $('<div>').attr('id', id).addClass('property');
         var propertyName = $('<span>').addClass('property-name').text(name);
@@ -215,13 +215,13 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
         return property;
     };
 
-    TypeMapper.prototype.addSourceProperty = function (parentId, name, type) {
+    TypeMapperRenderer.prototype.addSourceProperty = function (parentId, name, type) {
         this.jsPlumbInstance.makeSource(this.makeProperty(parentId, name, type), {
             anchor: ["Continuous", {faces: ["right"]}]
         });
     };
 
-    TypeMapper.prototype.addTargetProperty = function (parentId, name, type) {
+    TypeMapperRenderer.prototype.addTargetProperty = function (parentId, name, type) {
         var callback = this.onConnection;
         var refObjects = this.references;
         var seperator = this.idNameSeperator;
@@ -283,7 +283,6 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
                     if (isValidTypes) {
                         connection.isComplexMapping = true;
                         connection.complexMapperName = compatibleTypeConverters[0];
-                        //TODO: show select drop down
                         callback(connection);
                     }
                 }
@@ -297,9 +296,9 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
     };
 
 
-    TypeMapper.prototype.dagrePosition = function (viewId, jsPlumbInstance) {
+    TypeMapperRenderer.prototype.dagrePosition = function (viewId, jsPlumbInstance) {
         // construct dagre graph from this.jsPlumbInstance graph
-        var g = new dagre.graphlib.Graph();
+        var graph = new dagre.graphlib.Graph();
 
         var alignment = 'LR';
 
@@ -307,8 +306,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
             alignment = 'TD';
         }
 
-        g.setGraph({ranksep: '10', rankdir: alignment, edgesep: '10', marginx: '20'});
-        g.setDefaultEdgeLabel(function () {
+        graph.setGraph({ranksep: '10', rankdir: alignment, edgesep: '10', marginx: '20'});
+        graph.setDefaultEdgeLabel(function () {
             return {};
         });
         var nodes = $("#" + viewId + "> .struct, #" + viewId + "> .func");
@@ -324,31 +323,31 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
                     maxTypeHeight = nodeContent.width();
                 }
 
-                g.setNode(n.id, {width: nodeContent.width() , height: nodeContent.height()});
+                graph.setNode(n.id, {width: nodeContent.width() , height: nodeContent.height()});
             }
             var edges = jsPlumbInstance.getAllConnections();
             for (var i = 0; i < edges.length; i++) {
                 var c = edges[i];
-                g.setEdge(c.source.id.split("-")[0], c.target.id.split("-")[0]);
+                graph.setEdge(c.source.id.split("-")[0], c.target.id.split("-")[0]);
             }
 
             // calculate the layout (i.e. node positions)
-            dagre.layout(g);
+            dagre.layout(graph);
 
             var maxYPosition = 0;
 
             // Applying the calculated layout
-            g.nodes().forEach(function(v) {
+            graph.nodes().forEach(function(v) {
 
                 var node = $("#" + v);
 
                 if (node.attr('class') == "func") {
-                    node.css("left", g.node(v).x + "px");
-                    node.css("top", g.node(v).y + "px");
+                    node.css("left", graph.node(v).x + "px");
+                    node.css("top", graph.node(v).y + "px");
                 }
 
-                if (g.node(v) != null && g.node(v).y > maxYPosition) {
-                    maxYPosition = g.node(v).y;
+                if (graph.node(v) != null && graph.node(v).y > maxYPosition) {
+                    maxYPosition = graph.node(v).y;
                 }
             });
 
@@ -356,7 +355,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre'], function (require, _
         }
     };
 
-    return TypeMapper;
+    return TypeMapperRenderer;
 });
 
 
