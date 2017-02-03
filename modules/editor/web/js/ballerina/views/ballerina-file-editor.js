@@ -36,7 +36,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         var BallerinaFileEditor = function (args) {
             BallerinaView.call(this, args);
             this._canvasList = _.get(args, 'canvasList', []);
-            this._debugger = _.get(args, 'debugger', undefined); 
+            this._debugger = _.get(args, 'debugger'); 
             this._id = _.get(args, "id", "Ballerina File Editor");
 
             if (_.isNil(this._model) || !(this._model instanceof BallerinaASTRoot)) {
