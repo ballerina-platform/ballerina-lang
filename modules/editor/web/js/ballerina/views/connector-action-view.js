@@ -721,6 +721,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             _.set(statementContainerOpts, 'width', this._defaultWorker.width());
             _.set(statementContainerOpts, 'container', this._defaultWorker.getContentArea().node());
             _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
+            _.set(statementContainerOpts, 'offset', {top: 40, bottom: 40});
             this._statementContainer = new StatementContainer(statementContainerOpts);
             this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy){
                 this._defaultWorker.getBottomCenter().y(this._statementContainer.getBoundingBox().getBottom());
