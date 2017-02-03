@@ -591,6 +591,10 @@
     line-height:20px;
 }
 
+.jstree-anchor {
+    padding: 2px 4px 0 1px;
+}
+
 /** End of Struct view CSS **/
 
 #package-name-input{
