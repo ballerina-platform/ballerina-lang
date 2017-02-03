@@ -97,11 +97,7 @@ variableDeclaration
 
 // typeName below is only 'message' type
 workerDeclaration
-    :   'worker' Identifier '(' workerInputParameter ')'  '{' variableDeclaration* statement+ '}'
-    ;
-
-workerInputParameter
-    :   typeName Identifier
+    :   'worker' Identifier '(' typeName Identifier ')'  '{' variableDeclaration* statement+ '}'
     ;
 
 returnParameters
