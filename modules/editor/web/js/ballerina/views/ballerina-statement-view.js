@@ -16,98 +16,90 @@
  * under the License.
  */
 define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3utils', 'property_pane_utils', './point', './bounding-box', 'expression_editor_utils'],
-    function (require, _, log, StatementVisitor, d3, D3Utils, PropertyPaneUtils, Point, BBox, ExpressionEditor) {
+    function (require, _, log, StatementVisitor, d3, D3Utils, PropertyPaneUtils, Point, BBox, expressionEditor) {
 
-        /**
-         * A common class which consists functions of moving or resizing views.
-         * @constructor
-         */
-        var BallerinaStatementView = function (args) {
-            StatementVisitor.call(this, args);
-            this._parent = _.get(args, "parent");
-            this._model = _.get(args, "model");
-            this._container = _.get(args, "container");
-            this._viewOptions = _.get(args, "viewOptions");
-            this.toolPalette = _.get(args, "toolPalette");
-            this.messageManager = _.get(args, "messageManager");
-            this._statementGroup = undefined;
-            this._childrenViewsList = [];
-            if (!_.has(args, 'topCenter')) {
-                log.warn('topCenter has not defined. Default top center will be created');
-            }
-            this._topCenter = _.has(args, "topCenter") ? _.get(args, 'topCenter').clone() : new Point(0, 0);
-            this._boundingBox = new BBox();
-            var self = this;
-            this._topCenter.on("moved", function (offset) {
-                self._bottomCenter(offset.dx, offset.dy);
-            });
-            this.init();
-        };
+    /**
+     * A common class which consists functions of moving or resizing views.
+     * @constructor
+     */
+    var BallerinaStatementView = function (args) {
+        StatementVisitor.call(this, args);
+        this._parent = _.get(args, "parent");
+        this._model = _.get(args, "model");
+        this._container = _.get(args, "container");
+        this._viewOptions = _.get(args, "viewOptions");
+        this.toolPalette = _.get(args, "toolPalette");
+        this.messageManager = _.get(args, "messageManager");
+        this._statementGroup = undefined;
+        this._childrenViewsList = [];
+        if (!_.has(args, 'topCenter')) {
+            log.warn('topCenter has not defined. Default top center will be created');
+        }
+        this._topCenter = _.has(args, "topCenter") ? _.get(args, 'topCenter').clone() : new Point(0,0);
+        this._boundingBox = new  BBox();
+        var self = this;
+        this._topCenter.on("moved", function(offset){
+            self._bottomCenter(offset.dx, offset.dy);
+        });
+        this.init();
+    };
 
-        BallerinaStatementView.prototype = Object.create(StatementVisitor.prototype);
-        BallerinaStatementView.prototype.constructor = BallerinaStatementView;
+    BallerinaStatementView.prototype = Object.create(StatementVisitor.prototype);
+    BallerinaStatementView.prototype.constructor = BallerinaStatementView;
 
-        BallerinaStatementView.prototype.init = function () {
-            //Registering event listeners
-            this._parent.on('changeStatementMetricsEvent', this.changeMetricsCallback, this);
-            this._model.on('child-removed', this.childRemovedCallback, this);
-            this._model.on('before-remove', this.onBeforeModelRemove, this);
-        };
+    BallerinaStatementView.prototype.init = function(){
+        //Registering event listeners
+        this._parent.on('changeStatementMetricsEvent', this.changeMetricsCallback, this);
+        this._model.on('child-removed', this.childRemovedCallback, this);
+        this._model.on('before-remove', this.onBeforeModelRemove, this);
+    };
 
-        /**
-         * Remove statement view callback
-         * @param {ASTNode} parent - Parent model
-         * @param {ASTNode} child - child model
-         */
-        BallerinaStatementView.prototype.onBeforeModelRemove = function () {
-            d3.select("#_" + this._model.id).remove();
-            this.getDiagramRenderingContext().getViewOfModel(this._model.getParent()).getStatementContainer()
-                .removeInnerDropZone(this._model);
-            // resize the bounding box in order to the other objects to resize
-            var moveOffset = -this.getBoundingBox().h() - 30;
-            this.getBoundingBox().move(0, moveOffset);
-        };
+    /**
+     * Remove statement view callback
+     * @param {ASTNode} parent - Parent model
+     * @param {ASTNode} child - child model
+     */
+    BallerinaStatementView.prototype.onBeforeModelRemove = function () {
+        d3.select("#_" +this._model.id).remove();
+        this.getDiagramRenderingContext().getViewOfModel(this._model.getParent()).getStatementContainer()
+                                    .removeInnerDropZone(this._model);
+        // resize the bounding box in order to the other objects to resize
+        var moveOffset = -this.getBoundingBox().h() - 30;
+        this.getBoundingBox().move(0, moveOffset);
+    };
 
-        /**
-         * Child remove callback
-         * @param {ASTNode} child - removed child
-         */
-        BallerinaStatementView.prototype.childRemovedCallback = function (child) {
-        };
+    /**
+     * Child remove callback
+     * @param {ASTNode} child - removed child
+     */
+    BallerinaStatementView.prototype.childRemovedCallback = function (child) {
+    };
 
-        BallerinaStatementView.prototype.setParent = function (parent) {
-            this._parent = parent;
-        };
+    BallerinaStatementView.prototype.setParent = function (parent) {
+        this._parent = parent;
+    };
+    BallerinaStatementView.prototype.getParent = function () {
+        return this._parent;
+    };
 
-        BallerinaStatementView.prototype.getParent = function () {
-            return this._parent;
-        };
-
-        BallerinaStatementView.prototype.getStatementGroup = function () {
-            return this._statementGroup;
-        };
-
-        BallerinaStatementView.prototype.setStatementGroup = function (getStatementGroup) {
-            this._statementGroup = getStatementGroup;
-        };
-
-        BallerinaStatementView.prototype.getChildrenViewsList = function () {
-            return this._childrenViewsList;
-        };
-
-        BallerinaStatementView.prototype.changeWidth = function (dw) {
-        };
-
-        BallerinaStatementView.prototype.changeHeight = function (dh) {
-        };
-
-        BallerinaStatementView.prototype.changeMetricsCallback = function (baseMetrics) {
-        };
-
-        BallerinaStatementView.prototype.getDiagramRenderingContext = function () {
-            return this._diagramRenderingContext;
-        };
-
+    BallerinaStatementView.prototype.getStatementGroup = function () {
+        return this._statementGroup;
+    };
+    BallerinaStatementView.prototype.setStatementGroup = function (getStatementGroup) {
+        this._statementGroup = getStatementGroup;
+    };
+    BallerinaStatementView.prototype.getChildrenViewsList = function () {
+        return this._childrenViewsList;
+    };
+    BallerinaStatementView.prototype.changeWidth = function (dw) {
+    };
+    BallerinaStatementView.prototype.changeHeight = function (dh) {
+    };
+    BallerinaStatementView.prototype.changeMetricsCallback = function (baseMetrics) {
+    };
+    BallerinaStatementView.prototype.getDiagramRenderingContext = function () {
+        return this._diagramRenderingContext;
+    };
         BallerinaStatementView.prototype._createPropertyPane = function (args) {
             var model = _.get(args, "model", {});
             var viewOptions = _.get(args, "viewOptions", {});
@@ -138,6 +130,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
             var self = this;
             // Adding click event for 'statement' group.
             $(statementGroup.node()).click(function (statementView, event) {
+
                 event.stopPropagation();
                 $(window).trigger('click');
                 // Not allowing to click the statement group multiple times.
@@ -174,8 +167,8 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
 
                 // Bottom center point.
 
-                var centerPointX = statementBoundingBox.x() + (statementBoundingBox.w() / 2);
-                var centerPointY = statementBoundingBox.y() + statementBoundingBox.h();
+                var centerPointX = statementBoundingBox.x()+ (statementBoundingBox.w() / 2);
+                var centerPointY = statementBoundingBox.y()+ statementBoundingBox.h();
 
                 var smallArrowPoints =
                     // Bottom point of the polygon.
@@ -193,7 +186,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
                     .classed(viewOptions.actionButton.wrapper.class, true);
 
                 // Not allowing to click background elements.
-                $(propertyButtonPaneRect.node()).click(function (event) {
+                $(propertyButtonPaneRect.node()).click(function(event){
                     event.stopPropagation();
                 });
 
@@ -216,54 +209,53 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
                 // Adding edit view on click of statement box.
                 log.debug("Clicked on statement");
 
-                var parentSVG = propertyButtonPaneGroup.node().ownerSVGElement;
+                    var parentSVG = propertyButtonPaneGroup.node().ownerSVGElement;
 
-                event.stopPropagation();
+                    event.stopPropagation();
 
-                // Hiding property button pane.
-                $(propertyButtonPaneGroup.node()).remove();
+                    // Hiding property button pane.
+                    $(propertyButtonPaneGroup.node()).remove();
 
-                // 175 is the width set in css
-                var propertyPaneWrapper = $("<div/>", {
+                    // 175 is the width set in css
+                    var propertyPaneWrapper = $("<div/>", {
                     class: viewOptions.propertyForm.wrapper.class,
-                    css: {
+                        css : {
                         "width": (statementBoundingBox.w() + 1), // Making the text box bit bigger than the statement box
                         "height": 32 // Height for the expression editor box.
-                    },
-                    click: function (event) {
-                        event.stopPropagation();
-                    }
+                        },
+                        click : function(event){
+                            event.stopPropagation();
+                        }
                 }).offset({
                     top: (statementBoundingBox.y() - 1), // Adding the textbox bit bigger than the statement box.
                     left: (statementBoundingBox.x() - 1)
                 }).appendTo(parentSVG.parentElement);
 
-                // When the outside of the propertyPaneWrapper is clicked.
-                $(window).click(function (event) {
-                    log.debug("window click");
-                    closeAllPopUps();
-                });
+                    // When the outside of the propertyPaneWrapper is clicked.
+                    $(window).click(function (event) {
+                        log.debug("window click");
+                        closeAllPopUps();
+                    });
 
-                // Div which contains the form for the properties.
-                var propertyPaneBody = $("<div/>", {
-                    "class": viewOptions.propertyForm.body.class /*+ " nano-content"*/
-                }).appendTo(propertyPaneWrapper);
+                    // Div which contains the form for the properties.
+                    var propertyPaneBody = $("<div/>", {
+                        "class": viewOptions.propertyForm.body.class /*+ " nano-content"*/
+                    }).appendTo(propertyPaneWrapper);
 
-                ExpressionEditor.createEditor(propertyPaneBody,
-                    viewOptions.propertyForm.body.property.wrapper, editableProperties);
+                expressionEditor.createEditor(propertyPaneBody,
+                        viewOptions.propertyForm.body.property.wrapper, editableProperties);
 
-                // Close the popups of property pane body.
-                function closeAllPopUps() {
-                    $(propertyPaneWrapper).remove();
+                    // Close the popups of property pane body.
+                    function closeAllPopUps() {
+                        $(propertyPaneWrapper).remove();
                     $(deleteButtonPaneGroup.node()).remove();
 
-                    // Remove the small arrow.
-                    $(smallArrow.node()).remove();
+                        // Remove the small arrow.
+                        $(smallArrow.node()).remove();
 
-                    $(this).unbind('click');
-                }
-
-                $(deleteButtonRect.node()).click(function (event) {
+                        $(this).unbind('click');
+                    }
+                $(deleteButtonRect.node()).click(function(event){
                     event.stopPropagation();
                     model.remove();
                     // Hiding property button pane.
@@ -276,46 +268,47 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
             }.bind(statementGroup.node(), this));
         };
 
+
         BallerinaStatementView.prototype.getTopCenter = function () {
-            return this._topCenter;
-        };
+        return this._topCenter;
+    };
 
-        BallerinaStatementView.prototype.getViewOptions = function () {
-            return this._viewOptions;
-        };
+    BallerinaStatementView.prototype.getViewOptions = function () {
+        return this._viewOptions;
+    };
 
-        BallerinaStatementView.prototype.getBoundingBox = function () {
-            return this._boundingBox;
-        };
+    BallerinaStatementView.prototype.getBoundingBox = function () {
+        return this._boundingBox;
+    };
 
-        BallerinaStatementView.prototype.repositionStatement = function (options) {
-            this.getBoundingBox().y(this.getBoundingBox().y() + options.dy);
-            this.getStatementGroup().attr('transform', ('translate(0,' + options.dy + ')'));
-        };
+    BallerinaStatementView.prototype.repositionStatement = function (options) {
+        this.getBoundingBox().y(this.getBoundingBox().y() + options.dy);
+        this.getStatementGroup().attr('transform', ('translate(0,' + options.dy + ')'));
+    };
 
-        BallerinaStatementView.prototype.childViewRemovedCallback = function (child) {
-            log.debug("[Eventing] Child element view removed. ");
-            //TODO: remove canvas container for each delete click
+    BallerinaStatementView.prototype.childViewRemovedCallback = function (child) {
+        log.debug("[Eventing] Child element view removed. ");
+        //TODO: remove canvas container for each delete click
 
-            var ballerinaFileEditor = this.getDiagramRenderingContext().ballerinaFileEditor;
+        var ballerinaFileEditor = this.getDiagramRenderingContext().ballerinaFileEditor;
 
-            $(ballerinaFileEditor._$canvasContainer)[0].remove();
+        $(ballerinaFileEditor._$canvasContainer)[0].remove();
 
-            var self = ballerinaFileEditor;
-            self.reDraw({
-                model: self._model,
-                container: self._container,
-                viewOptions: self._viewOptions
-            });
-        };
+        var self = ballerinaFileEditor;
+        self.reDraw({
+            model: self._model,
+            container: self._container,
+            viewOptions: self._viewOptions
+        });
+    };
 
-        /**
-         * Set the diagram rendering context
-         * @param {object} diagramRenderingContext
-         */
-        BallerinaStatementView.prototype.setDiagramRenderingContext = function (diagramRenderingContext) {
-            this._diagramRenderingContext = diagramRenderingContext;
-        };
+    /**
+     * Set the diagram rendering context
+     * @param {object} diagramRenderingContext
+     */
+    BallerinaStatementView.prototype.setDiagramRenderingContext = function (diagramRenderingContext) {
+        this._diagramRenderingContext = diagramRenderingContext;
+    };
 
-        return BallerinaStatementView;
-    });
+    return BallerinaStatementView;
+});
