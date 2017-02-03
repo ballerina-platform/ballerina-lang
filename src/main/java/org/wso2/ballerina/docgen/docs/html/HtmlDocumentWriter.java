@@ -133,11 +133,15 @@ public class HtmlDocumentWriter implements DocumentWriter {
                                 }
                                 return "";
                     })
-                    // usage: {{descriptionAnnotation}} - this would retrieve the description annotation of the
+                    // usage: {{oneValueAnnotation "<annotationName>"}}
+                    // eg: {{oneValueAnnotation "description"}} - this would retrieve the description annotation of the
                     // currentObject
-                    .registerHelper("descriptionAnnotation", (Helper<Object>) (obj, options) -> {
+                    .registerHelper("oneValueAnnotation", (Helper<String>) (annotationName, options) -> {
+                        if (annotationName == null) {
+                            return null;
+                        }
                         for (Annotation annotation : getAnnotations(dataHolder)) {
-                            if ("description".equalsIgnoreCase(annotation.getName())) {
+                            if (annotationName.equalsIgnoreCase(annotation.getName())) {
                                 return annotation.getValue().trim();
                             }
                         }
