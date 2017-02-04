@@ -124,6 +124,15 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
                 this.app.workspaceManager.updateSaveMenuItem();
                 this.updateHeader();
             }, this);
+
+            fileEditor.on("dispatch-command", function (id) {
+                this.app.commandManager.dispatch(id);
+            }, this);
+
+            // bind app commands to source editor commands
+            this.app.commandManager.getCommands().forEach(function(command){
+                fileEditor.getSourceView().bindCommand(command);
+            });
         },
 
         updateHeader: function(){

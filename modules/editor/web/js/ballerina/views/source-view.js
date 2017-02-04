@@ -99,6 +99,27 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
         return this._editor.session.getValue();
     };
 
+    SourceView.prototype.getEditor = function(){
+        return this._editor;
+    };
+
+    SourceView.prototype.bindCommand = function(command){
+        var id = command.id,
+            hasShortcut = _.has(command, 'shortcuts'),
+            self = this;
+        if(hasShortcut){
+            var macShortcut = _.replace(command.shortcuts.mac.key, '+', "-"),
+                winShortcut = _.replace(command.shortcuts.other.key, '+', "-");
+            this.getEditor().commands.addCommand({
+                name: id,
+                bindKey: {win: winShortcut, mac: macShortcut},
+                exec: function(editor) {
+                    self.trigger('dispatch-command', id);
+                }
+            });
+        }
+    };
+
     SourceView.prototype.show = function(){
         $(this._container).show();
     };
