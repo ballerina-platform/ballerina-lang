@@ -20,11 +20,10 @@ package org.wso2.ballerina.core.nativeimpl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.Function;
+import org.wso2.ballerina.core.model.NativeUnit;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.ParameterDef;
@@ -33,17 +32,11 @@ import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.types.BType;
-import org.wso2.ballerina.core.model.types.BTypes;
-import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
-import org.wso2.ballerina.core.nativeimpl.annotations.Utils;
 import org.wso2.ballerina.core.nativeimpl.exceptions.ArgumentOutOfRangeException;
-import org.wso2.ballerina.core.nativeimpl.exceptions.MalformedEntryException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -51,10 +44,13 @@ import java.util.List;
  *
  * @since 0.8.0
  */
-public abstract class AbstractNativeFunction implements Function {
-
-    /* Void RETURN */
+public abstract class AbstractNativeFunction implements NativeUnit, Function {
+    
+    /**
+     * Value to be returned for functions having a void return
+     */
     public static final BValue[] VOID_RETURN = new BValue[0];
+    
     private static final Logger log = LoggerFactory.getLogger(AbstractNativeFunction.class);
 
     // BLangSymbol related attributes
@@ -66,76 +62,20 @@ public abstract class AbstractNativeFunction implements Function {
     private List<Annotation> annotations;
     private List<ParameterDef> parameterDefs;
     private List<ParameterDef> returnParams;
-    private List<ConstDef> constants;
     private int stackFrameSize;
+    
+    private BType[] returnParamTypes;
+    private BType[] argTypes;
+    private SimpleTypeName[] returnParamTypeNames;
+    private SimpleTypeName[] argTypeNames;
 
+    /**
+     * Initialize a native function
+     */
     public AbstractNativeFunction() {
         parameterDefs = new ArrayList<>();
         returnParams = new ArrayList<>();
         annotations = new ArrayList<>();
-        constants = new ArrayList<>();
-        buildModel();
-    }
-
-    /**
-     * Build Native function Model using Java annotation.
-     */
-    private void buildModel() {
-        BallerinaFunction function = this.getClass().getAnnotation(BallerinaFunction.class);
-        pkgPath = function.packageName();
-        name = function.functionName();
-
-        Argument[] methodParams = function.args();
-
-        stackFrameSize = methodParams.length;
-
-        symbolName = new SymbolName(pkgPath + ":" + name);
-        isPublic = function.isPublic();
-        Arrays.stream(methodParams).
-                forEach(argument -> {
-                    try {
-                        BType bType;
-                        // For non-array types.
-                        if (!argument.type().equals(TypeEnum.ARRAY)) {
-                            bType = BTypes.getType(argument.type().getName());
-                        } else {
-                            bType = BTypes.getArrayType(argument.elementType().getName());
-                        }
-                        parameterDefs.add(new ParameterDef(bType, new SymbolName(argument.name())));
-                    } catch (BallerinaException e) {
-                        // TODO: Fix this when TypeC.getType method is improved.
-                        log.error("Internal Error..! Error while processing Parameters for Native ballerina" +
-                                " function {}:{}.", pkgPath, name, e);
-                    }
-                });
-        Arrays.stream(function.returnType()).forEach(
-                returnType -> {
-                    try {
-                        BType type;
-                        if (!returnType.type().equals(TypeEnum.ARRAY)) {
-                            type = BTypes.getType(returnType.type().getName());
-                        } else {
-                            type = BTypes.getArrayType(returnType.elementType().getName());
-                        }
-                        returnParams.add(new ParameterDef(type, null));
-                    } catch (BallerinaException e) {
-                        // TODO: Fix this when TypeC.getType method is improved.
-                        log.error("Internal Error..! Error while processing ReturnTypes for Native ballerina " +
-                                "function {}:{}.", pkgPath, name, e);
-                    }
-                });
-
-        Arrays.stream(function.consts()).forEach(
-                constant -> {
-                    try {
-                        constants.add(Utils.getConst(constant));
-                    } catch (MalformedEntryException e) {
-                        log.error("Internal Error..! Error while processing pre defined const {} for Native " +
-                                "ballerina function {}:{}.", constant.identifier(), pkgPath, name, e);
-                    }
-                }
-        );
-        // TODO: Handle Ballerina Annotations.
     }
 
     /**
@@ -160,6 +100,11 @@ public abstract class AbstractNativeFunction implements Function {
      */
     public abstract BValue[] execute(Context context);
 
+    /**
+     * Execute this native function and set the values for return parameters.
+     * 
+     * @param context   Ballerina Context
+     */
     public void executeNative(Context context) {
         BValue[] retVals = execute(context);
         BValue[] returnRefs = context.getControlStack().getCurrentFrame().returnValues;
@@ -167,7 +112,7 @@ public abstract class AbstractNativeFunction implements Function {
             returnRefs[0] = retVals[0];
         }
     }
-
+    
     /**
      * Util method to construct BValue array.
      *
@@ -177,7 +122,6 @@ public abstract class AbstractNativeFunction implements Function {
     public BValue[] getBValues(BValue... values) {
         return values;
     }
-
 
     // Methods in CallableUnit interface
 
@@ -235,6 +179,15 @@ public abstract class AbstractNativeFunction implements Function {
         this.stackFrameSize = stackFrameSize;
     }
 
+    @Override
+    public BType[] getReturnParamTypes() {
+        return returnParamTypes.clone();
+    }
+
+    @Override
+    public BType[] getArgumentTypes() {
+        return argTypes.clone();
+    }
 
     // Methods in Node interface
 
@@ -278,5 +231,37 @@ public abstract class AbstractNativeFunction implements Function {
     @Override
     public SymbolScope getSymbolScope() {
         return null;
+    }
+    
+    // Methods in NativeCallableUnit interface
+    
+    @Override
+    public void setReturnParamTypeNames(SimpleTypeName[] returnParamTypes) {
+        this.returnParamTypeNames = returnParamTypes;
+    }
+    
+    @Override
+    public void setArgTypeNames(SimpleTypeName[] argTypes) {
+        this.argTypeNames = argTypes;
+    }
+    
+    @Override
+    public SimpleTypeName[] getArgumentTypeNames() {
+        return argTypeNames;
+    }
+    
+    @Override
+    public SimpleTypeName[] getReturnParamTypeNames() {
+        return returnParamTypeNames;
+    }
+    
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    @Override
+    public void setPackagePath(String packagePath) {
+        this.pkgPath = packagePath;
     }
 }

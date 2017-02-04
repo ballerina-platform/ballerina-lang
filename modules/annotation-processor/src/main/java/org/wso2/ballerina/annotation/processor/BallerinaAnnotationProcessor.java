@@ -109,6 +109,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         processNativeConnectors(balConnectorElements, classBuilder);
         processNativeActions(balActionElements, classBuilder);
         processNativeTypeConvertors(balTypeConvertorElements, classBuilder);
+        
         classBuilder.build();
         System.setProperty(IS_PROCESSED, TRUE);
         
@@ -125,8 +126,11 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         for (Element element : balFunctionElements) {
             BallerinaFunction balFunction = element.getAnnotation(BallerinaFunction.class);
             String functionName = getFunctionQualifiedName(balFunction);
+//            String functionName = balFunction.functionName();
+            String packageName = balFunction.packageName();
             String className = getClassName(element);
-            classBuilder.addNativeConstruct(functionName, className);
+            classBuilder.addNativeConstruct(packageName, functionName, className, balFunction.args(), 
+                    balFunction.returnType(), balFunction.args().length);
         }
     }
     
@@ -140,9 +144,11 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
             ConstructProviderClassBuilder classBuilder) {
         for (Element element : balConnectorElements) {
             BallerinaConnector balConnector = element.getAnnotation(BallerinaConnector.class);
-            String connectorName = getConnectorQualifiedName(balConnector);
+            String connectorName = balConnector.connectorName();
+            String packageName = balConnector.packageName();
             String className = getClassName(element);
-            classBuilder.addNativeConstruct(connectorName, className);
+            classBuilder.addNativeConstruct(packageName, connectorName, className, balConnector.args(), null, 
+                    balConnector.args().length);
         }
     }
     
@@ -155,10 +161,11 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     private void processNativeActions(Set<Element> balActionElements, ConstructProviderClassBuilder classBuilder) {
         for (Element element : balActionElements) {
             BallerinaAction balAction = element.getAnnotation(BallerinaAction.class);
-            String actionName = balAction.packageName() + ":" + balAction.connectorName() + ":" 
-                    + balAction.actionName();
+            String actionName = balAction.connectorName() + ":" + balAction.actionName();
+            String packageName = balAction.packageName();
             String className = getClassName(element);
-            classBuilder.addNativeConstruct(actionName, className);
+            classBuilder.addNativeConstruct(packageName, actionName, className, balAction.args(), null,
+                    balAction.args().length);
         }
     }
     
@@ -173,8 +180,10 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         for (Element element : balTypeConvertorElements) {
             BallerinaTypeConvertor balTypeConvertor = element.getAnnotation(BallerinaTypeConvertor.class);
             String typeConvertorName = getTypeConverterQualifiedName(balTypeConvertor);
+            String packageName = balTypeConvertor.packageName();
             String className = getClassName(element);
-            classBuilder.addNativeConstruct(typeConvertorName, className);
+            classBuilder.addNativeConstruct(packageName, typeConvertorName, className, balTypeConvertor.args(), 
+                    balTypeConvertor.returnType(), balTypeConvertor.args().length);
         }
     }
     
@@ -195,15 +204,14 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
      * @return              Fully qualified name
      */
     private String getFunctionQualifiedName(BallerinaFunction balFunction) {
-        StringBuilder funcNameBuilder = new StringBuilder(balFunction.packageName() + ":" + 
-                balFunction.functionName());
+        StringBuilder funcNameBuilder = new StringBuilder(balFunction.functionName());
         Argument[] args = balFunction.args();
         for (Argument arg : args) {
             // if the argument is arrayType, then append the element type to the method signature 
             if (arg.type() == TypeEnum.ARRAY && arg.elementType() != TypeEnum.EMPTY) {
-                funcNameBuilder.append("_" + BTypes.getArrayType(arg.elementType().getName()));
+                funcNameBuilder.append("." + BTypes.getArrayType(arg.elementType().getName()));
             } else {
-                funcNameBuilder.append("_" + arg.type().getName());
+                funcNameBuilder.append("." + arg.type().getName());
             }
         }
         return funcNameBuilder.toString();
@@ -216,31 +224,19 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
      * @return                  Fully qualified name
      */
     private String getTypeConverterQualifiedName(BallerinaTypeConvertor balTypeConvertor) {
-        StringBuilder convertorNameBuilder = new StringBuilder(balTypeConvertor.packageName() + ":");
+        StringBuilder convertorNameBuilder = new StringBuilder();
         Argument[] args = balTypeConvertor.args();
         ReturnType[] returnTypes = balTypeConvertor.returnType();
         
         for (Argument arg : args) {
-            convertorNameBuilder.append("_").append(arg.type().getName());
+            convertorNameBuilder.append(".").append(arg.type().getName());
         }
         
         convertorNameBuilder.append("->");
         
         for (ReturnType returnType : returnTypes) {
-            convertorNameBuilder.append("_").append(returnType.type().getName());
+            convertorNameBuilder.append(".").append(returnType.type().getName());
         }
         return convertorNameBuilder.toString();
-    }
-    
-    /**
-     * Get the fully qualified name of the ballerina connector.
-     * 
-     * @param balConnector  Ballerina connector annotation
-     * @return              Fully qualified name
-     */
-    private String getConnectorQualifiedName(BallerinaConnector balConnector) {
-        StringBuilder connectorNameBuilder = new StringBuilder(balConnector.packageName() + ":" + 
-                balConnector.connectorName());
-        return connectorNameBuilder.toString();
     }
 }

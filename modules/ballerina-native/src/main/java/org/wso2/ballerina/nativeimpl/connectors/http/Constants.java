@@ -42,6 +42,7 @@ public class Constants {
     public static final String HOST = "HOST";
     public static final String PORT = "PORT";
     public static final String TO = "TO";
+    public static final String USER_AGENT_HEADER = "User-Agent";
 
 
     public static final String HTTP_METHOD_GET = "GET";
