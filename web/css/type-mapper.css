@@ -52,6 +52,6 @@
     cursor: pointer;
 }
 
-svg path {
+svg.plumbConnect path {
     stroke:#414e66;
 }
