@@ -39,8 +39,9 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
 
     private Annotation[] annotations;
     private ParameterDef[] parameterDefs;
+    private BType[] parameterTypes;
     private ParameterDef[] returnParams;
-    private VariableDef[] variableDefs;
+    private BType[] returnParamTypes;
     private BlockStmt typeConverterBody;
     private int stackFrameSize;
 
@@ -104,7 +105,7 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
      * @return list of all BallerinaTypeConvertor scoped variableDcls
      */
     public VariableDef[] getVariableDefs() {
-        return variableDefs;
+        return null;
     }
 
     public ParameterDef[] getReturnParameters() {
@@ -131,12 +132,22 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
 
     @Override
     public BType[] getReturnParamTypes() {
-        return null;
+        return returnParamTypes;
+    }
+
+    @Override
+    public void setReturnParamTypes(BType[] returnParamTypes) {
+        this.returnParamTypes = returnParamTypes;
     }
 
     @Override
     public BType[] getArgumentTypes() {
-        return null;
+        return parameterTypes;
+    }
+
+    @Override
+    public void setParameterTypes(BType[] parameterTypes) {
+        this.parameterTypes = parameterTypes;
     }
 
     // Methods in Node interface

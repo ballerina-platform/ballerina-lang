@@ -50,10 +50,10 @@ public class BallerinaAction implements Action, SymbolScope, Node {
 
     private Annotation[] annotations;
     private ParameterDef[] parameterDefs;
-    private ConnectorDcl[] connectorDcls;
-    private VariableDef[] variableDefs;
+    private BType[] parameterTypes;
     private Worker[] workers;
     private ParameterDef[] returnParams;
+    private BType[] returnParamTypes;
     private BlockStmt actionBody;
     private int stackFrameSize;
 
@@ -124,21 +124,31 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     }
 
     public VariableDef[] getVariableDefs() {
-        return variableDefs;
+        return null;
     }
 
     public ConnectorDcl[] getConnectorDcls() {
-        return connectorDcls;
+        return null;
     }
 
     @Override
     public BType[] getReturnParamTypes() {
-        return null;
+        return returnParamTypes;
+    }
+
+    @Override
+    public void setReturnParamTypes(BType[] returnParamTypes) {
+        this.returnParamTypes = returnParamTypes;
     }
 
     @Override
     public BType[] getArgumentTypes() {
-        return null;
+        return parameterTypes;
+    }
+
+    @Override
+    public void setParameterTypes(BType[] parameterTypes) {
+        this.parameterTypes = parameterTypes;
     }
 
     // Methods in Node interface

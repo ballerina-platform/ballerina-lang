@@ -18,8 +18,6 @@
 
 package org.wso2.ballerina.core.nativeimpl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Function;
@@ -45,13 +43,11 @@ import java.util.List;
  * @since 0.8.0
  */
 public abstract class AbstractNativeFunction implements NativeUnit, Function {
-    
+
     /**
      * Value to be returned for functions having a void return
      */
     public static final BValue[] VOID_RETURN = new BValue[0];
-    
-    private static final Logger log = LoggerFactory.getLogger(AbstractNativeFunction.class);
 
     // BLangSymbol related attributes
     protected String name;
@@ -65,7 +61,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     private int stackFrameSize;
     
     private BType[] returnParamTypes;
-    private BType[] argTypes;
+    private BType[] parameterTypes;
     private SimpleTypeName[] returnParamTypeNames;
     private SimpleTypeName[] argTypeNames;
 
@@ -86,7 +82,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
      * @return BValue;
      */
     public BValue getArgument(Context context, int index) {
-        if (index > -1 && index < parameterDefs.size()) {
+        if (index > -1 && index < argTypeNames.length) {
             return context.getControlStack().getCurrentFrame().values[index];
         }
         throw new ArgumentOutOfRangeException(index);
@@ -181,12 +177,22 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
 
     @Override
     public BType[] getReturnParamTypes() {
-        return returnParamTypes.clone();
+        return returnParamTypes;
+    }
+
+    @Override
+    public void setReturnParamTypes(BType[] returnParamTypes) {
+        this.returnParamTypes = returnParamTypes;
     }
 
     @Override
     public BType[] getArgumentTypes() {
-        return argTypes.clone();
+        return parameterTypes;
+    }
+
+    @Override
+    public void setParameterTypes(BType[] parameterTypes) {
+        this.parameterTypes = parameterTypes;
     }
 
     // Methods in Node interface

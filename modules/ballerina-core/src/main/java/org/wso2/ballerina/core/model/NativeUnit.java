@@ -27,47 +27,47 @@ public interface NativeUnit {
 
     /**
      * Get the simple Type Names of the return parameters.
-     * 
+     *
      * @return  Simple Type Names of the return parameters
      */
     SimpleTypeName[] getReturnParamTypeNames();
-    
+
     /**
      * Get the simple Type Names of the input input arguments.
-     * 
+     *
      * @return   Simple Type Names of the input input arguments.
      */
     SimpleTypeName[] getArgumentTypeNames();
-    
+
     /**
      * Set the types of the return parameters of this callable unit.
-     * 
+     *
      * @param returnParamTypes  Types of the return parameters of this callable unit
      */
-    public void setReturnParamTypeNames(SimpleTypeName[] returnParamTypes);
-    
+    void setReturnParamTypeNames(SimpleTypeName[] returnParamTypes);
+
     /**
      * Set the types of the input arguments of this callable unit.
-     * 
+     *
      * @param argTypes  Types of the input arguments of this callable unit
      */
-    public void setArgTypeNames(SimpleTypeName[] argTypes);
+    void setArgTypeNames(SimpleTypeName[] argTypes);
 
     /**
      * Set the name of this callable unit.
-     * 
+     *
      * @param name  Name of this callable unit.
      */
     void setName(String name);
 
     /**
      * Set the package of this callable unit.
-     * 
+     *
      * @param packagePath   Package of this callable unit
      */
     void setPackagePath(String packagePath);
-    
+
     void setStackFrameSize(int frameSize);
-    
+
     void setSymbolName(SymbolName symbolName);
 }

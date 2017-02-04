@@ -15,11 +15,8 @@
  */
 package org.wso2.ballerina.core.nativeimpl.connectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.NativeUnit;
-import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.SymbolScope;
@@ -36,9 +33,6 @@ import java.util.List;
  * @since 0.8.0
  */
 public abstract class AbstractNativeConnector implements NativeUnit, Connector, BLangSymbol {
-    private static final Logger log = LoggerFactory.getLogger(AbstractNativeConnector.class);
-    private NodeLocation location;
-
     // BLangSymbol related attributes
     protected String name;
     protected String pkgPath;

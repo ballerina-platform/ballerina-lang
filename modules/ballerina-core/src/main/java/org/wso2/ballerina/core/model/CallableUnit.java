@@ -86,18 +86,32 @@ public interface CallableUnit extends BLangSymbol, Node {
      * @return body of the callable unit
      */
     BlockStmt getCallableUnitBody();
-    
+
     /**
      * Get Types of the return parameters.
-     * 
+     *
      * @return  Types of the return parameters
      */
     BType[] getReturnParamTypes();
-    
+
+    /**
+     * Sets a {@code BType} array containing the types of return parameters of this callable unit.
+     *
+     * @param returnParamTypes array of the return parameters
+     */
+    void setReturnParamTypes(BType[] returnParamTypes);
+
     /**
      * Get Types of the return input arguments.
-     * 
+     *
      * @return  Types of the return input arguments
      */
     BType[] getArgumentTypes();
+
+    /**
+     * Sets a {@code BType} array containing the types of input parameters of this callable unit.
+     *
+     * @param parameterTypes array of the input parameters
+     */
+    void setParameterTypes(BType[] parameterTypes);
 }
