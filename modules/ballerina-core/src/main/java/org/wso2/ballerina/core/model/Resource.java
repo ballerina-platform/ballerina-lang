@@ -57,8 +57,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     private int stackFrameSize;
     private Annotation[] annotations;
     private ParameterDef[] parameterDefs;
-    private ConnectorDcl[] connectorDcls;
-    private VariableDef[] variableDefs;
+    private BType[] parameterTypes;
     private Worker[] workers;
     private BlockStmt resourceBody;
 
@@ -124,7 +123,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
      * @return list of all the Connections belongs to the default Worker of the Resource
      */
     public ConnectorDcl[] getConnectorDcls() {
-        return connectorDcls;
+        return null;
     }
 
     /**
@@ -204,7 +203,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
      */
     @Override
     public VariableDef[] getVariableDefs() {
-        return this.variableDefs;
+        return null;
     }
 
     @Override
@@ -223,8 +222,18 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     }
 
     @Override
+    public void setReturnParamTypes(BType[] returnParamTypes) {
+
+    }
+
+    @Override
     public BType[] getArgumentTypes() {
-        return null;
+        return parameterTypes;
+    }
+
+    @Override
+    public void setParameterTypes(BType[] parameterTypes) {
+        this.parameterTypes = parameterTypes;
     }
 
     // Methods in Node interface

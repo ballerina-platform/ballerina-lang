@@ -15,12 +15,9 @@
  */
 package org.wso2.ballerina.core.nativeimpl.connectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.NativeUnit;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
@@ -42,9 +39,6 @@ import java.util.List;
  */
 public abstract class AbstractNativeAction implements NativeUnit, Action {
     public static final BValue[] VOID_RETURN = new BValue[0];
-    private static final Logger log = LoggerFactory.getLogger(AbstractNativeAction.class);
-
-    private NodeLocation location;
 
     // BLangSymbol related attributes
     protected String name;
@@ -55,11 +49,10 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
     private List<Annotation> annotations;
     private List<ParameterDef> parameterDefs;
     private List<ParameterDef> returnParams;
-    private List<ConstDef> constants;
     private int stackFrameSize;
     
     private BType[] returnParamTypes;
-    private BType[] argTypes;
+    private BType[] parameterTypes;
     private SimpleTypeName[] returnParamTypeNames;
     private SimpleTypeName[] argTypeNames;
     
@@ -67,7 +60,6 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
         parameterDefs = new ArrayList<>();
         returnParams = new ArrayList<>();
         annotations = new ArrayList<>();
-        constants = new ArrayList<>();
     }
 
     /**
@@ -149,8 +141,18 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
     }
 
     @Override
+    public void setReturnParamTypes(BType[] returnParamTypes) {
+        this.returnParamTypes = returnParamTypes;
+    }
+
+    @Override
     public BType[] getArgumentTypes() {
-        return argTypes;
+        return parameterTypes;
+    }
+
+    @Override
+    public void setParameterTypes(BType[] parameterTypes) {
+        this.parameterTypes = parameterTypes;
     }
 
     // Methods in Node interface
@@ -161,7 +163,7 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
 
     @Override
     public NodeLocation getNodeLocation() {
-        return location;
+        return null;
     }
 
     // Methods in BLangSymbol interface

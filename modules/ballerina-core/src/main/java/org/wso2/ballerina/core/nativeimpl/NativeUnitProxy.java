@@ -25,10 +25,11 @@ import java.util.function.Supplier;
 
 /**
  * Proxy class to hold Native units.
+ *
+ * @since 0.8.0
  */
 public class NativeUnitProxy implements BLangSymbol {
-    
-    Supplier<NativeUnit> nativeFunctionSupplier;
+    private Supplier<NativeUnit> nativeFunctionSupplier;
 
     public NativeUnitProxy(Supplier<NativeUnit> nativeFunctionSupplier) {
         this.nativeFunctionSupplier = nativeFunctionSupplier;
@@ -67,5 +68,4 @@ public class NativeUnitProxy implements BLangSymbol {
     public NativeUnit load() {
         return this.nativeFunctionSupplier.get();
     }
-
 }

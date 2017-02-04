@@ -51,10 +51,10 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
 
     private Annotation[] annotations;
     private ParameterDef[] parameterDefs;
-    private ConnectorDcl[] connectorDcls;
-    private VariableDef[] variableDefs;
+    private BType[] parameterTypes;
     private Worker[] workers;
     private ParameterDef[] returnParams;
+    private BType[] returnParamTypes;
     private BlockStmt functionBody;
     private int stackFrameSize;
 
@@ -114,7 +114,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
      * @return list of all the Connections belongs to a BallerinaFunction
      */
     public ConnectorDcl[] getConnectorDcls() {
-        return connectorDcls;
+        return null;
     }
 
 
@@ -151,7 +151,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
      */
     @Override
     public VariableDef[] getVariableDefs() {
-        return this.variableDefs;
+        return null;
     }
 
     @Override
@@ -166,12 +166,22 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
 
     @Override
     public BType[] getReturnParamTypes() {
-        return null;
+        return returnParamTypes;
+    }
+
+    @Override
+    public void setReturnParamTypes(BType[] returnParamTypes) {
+        this.returnParamTypes = returnParamTypes;
     }
 
     @Override
     public BType[] getArgumentTypes() {
-        return null;
+        return parameterTypes;
+    }
+
+    @Override
+    public void setParameterTypes(BType[] parameterTypes) {
+        this.parameterTypes = parameterTypes;
     }
 
     // Methods in Node interface

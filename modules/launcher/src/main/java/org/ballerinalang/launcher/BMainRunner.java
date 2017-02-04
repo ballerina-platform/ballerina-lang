@@ -74,6 +74,7 @@ class BMainRunner {
 
             Expression[] exprs = new Expression[1];
             VariableRefExpr variableRefExpr = new VariableRefExpr(mainFuncLocation, argsName);
+            variableRefExpr.setVariableDef(parameterDefs[0]);
             StackVarLocation location = new StackVarLocation(0);
             variableRefExpr.setMemoryLocation(location);
             variableRefExpr.setType(BTypes.typeString);

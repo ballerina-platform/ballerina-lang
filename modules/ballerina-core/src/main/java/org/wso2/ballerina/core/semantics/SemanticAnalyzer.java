@@ -40,6 +40,7 @@ import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.ImportPackage;
+import org.wso2.ballerina.core.model.NativeUnit;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Operator;
@@ -1794,30 +1795,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
-//    private void checkForMissingReturnStmt(CallableUnit callableUnit, String errorMsg) {
-//        Statement[] stmt = callableUnit.getCallableUnitBody().getStatements();
-//        int lastStmtIndex = stmt.length - 1;
-//        Statement lastStmt = stmt[lastStmtIndex];
-//        if (callableUnit.getReturnParameters().length > 0 &&
-//                !(lastStmt instanceof ReturnStmt)) {
-//            throw new SemanticException(currentCallableUnit.getLocation().getFileName() + ":" +
-//                    currentCallableUnit.getLocation().getLineNumber() +
-//                    ": " + errorMsg);
-//        }
-//    }
-//
-//    private void checkForMissingReplyStmt(Resource resource) {
-//        Statement[] stmt = resource.getCallableUnitBody().getStatements();
-//        int lastStmtIndex = stmt.length - 1;
-//        Statement lastStmt = stmt[lastStmtIndex];
-//        if (resource.getReturnParameters().length > 0 &&
-//                !(lastStmt instanceof ReplyStmt)) {
-//            throw new SemanticException(currentCallableUnit.getLocation().getFileName() + ":" +
-//                    currentCallableUnit.getLocation().getLineNumber() +
-//                    ": missing reply statement at end of resource");
-//        }
-//    }
-
     private void linkFunction(FunctionInvocationExpr funcIExpr) {
         String pkgPath = funcIExpr.getPackagePath();
 
@@ -1837,13 +1814,27 @@ public class SemanticAnalyzer implements NodeVisitor {
                     ": undefined function '" + funcName + "'");
         }
 
-        // Link
         Function function;
         if (functionSymbol instanceof NativeUnitProxy) {
             function = (Function) ((NativeUnitProxy) functionSymbol).load();
+            // TODO We need to find a way to load input parameter types
+
+            // Loading return parameter types of this native function
+            NativeUnit nativeUnit = (NativeUnit) function;
+            SimpleTypeName[] returnParamTypeNames = nativeUnit.getReturnParamTypeNames();
+            BType[] returnTypes = new BType[returnParamTypeNames.length];
+            for (int i = 0; i < returnParamTypeNames.length; i++) {
+                SimpleTypeName typeName = returnParamTypeNames[i];
+                BType bType = BTypes.resolveType(typeName, currentScope, funcIExpr.getNodeLocation());
+                returnTypes[i] = bType;
+            }
+            function.setReturnParamTypes(returnTypes);
+
         } else {
             function = (Function) functionSymbol;
         }
+
+        // Link the function with the function invocation expression
         funcIExpr.setCallableUnit(function);
     }
 
@@ -2174,6 +2165,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 paramTypes[i] = bType;
             }
 
+            function.setParameterTypes(paramTypes);
             SymbolName symbolName = LangModelUtils.getSymNameWithParams(function.getName(),
                     function.getPackagePath(), paramTypes);
             function.setSymbolName(symbolName);
@@ -2186,10 +2178,15 @@ public class SemanticAnalyzer implements NodeVisitor {
             currentScope.define(symbolName, function);
 
             // Resolve return parameters
-            for (ParameterDef paramDef : function.getReturnParameters()) {
+            ParameterDef[] returnParameters = function.getReturnParameters();
+            BType[] returnTypes = new BType[returnParameters.length];
+            for (int i = 0; i < returnParameters.length; i++) {
+                ParameterDef paramDef = returnParameters[i];
                 BType bType = BTypes.resolveType(paramDef.getTypeName(), currentScope, paramDef.getNodeLocation());
                 paramDef.setType(bType);
+                returnTypes[i] = bType;
             }
+            function.setReturnParamTypes(returnTypes);
         }
     }
 }
