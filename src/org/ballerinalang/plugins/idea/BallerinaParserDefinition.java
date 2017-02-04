@@ -41,8 +41,11 @@ import org.ballerinalang.plugins.idea.grammar.BallerinaParser;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.CallableUnitNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
+import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -147,11 +150,24 @@ public class BallerinaParserDefinition implements ParserDefinition {
             case BallerinaParser.RULE_callableUnitName:
                 return new CallableUnitNode(node);
 
+
+            case BallerinaParser.RULE_variableDefinitionStatement:
+                return new VariableDefinitionNode(node);
+            case BallerinaParser.RULE_variableReference:
+                return new VariableReferenceNode(node);
+
+
+//            case BallerinaParser.RULE_functionBody:
+//                return new FunctionBodyNode(node);
+
+
             case BallerinaParser.RULE_importDeclaration:
                 return new ImportDeclarationNode(node);
             case BallerinaParser.RULE_packageName:
                 return new PackageNameNode(node);
 
+            case BallerinaParser.RULE_packageDeclaration:
+                return new PackageDeclarationNode(node);
 
             //            case BallerinaParser.RULE_packageUnit:
             //                return new PackageUnitNode(node);

@@ -13,24 +13,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.ballerinalang.plugins.idea.psi;
 
-import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiNamedElement;
-import org.antlr.jetbrains.adaptor.SymtabUtils;
-import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
-import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
-import org.antlr.jetbrains.adaptor.psi.ScopeNode;
-import org.ballerinalang.plugins.idea.BallerinaLanguage;
-import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public class PackageNameNode extends ANTLRPsiNode {
+public class VariableDefinitionReference extends BallerinaElementReference {
 
-    public PackageNameNode(@NotNull ASTNode node) {
-        super(node);
+    public VariableDefinitionReference(@NotNull IdentifierPSINode element) {
+        super(element);
+    }
+
+    @Override
+    public boolean isDefinitionNode(PsiElement element) {
+        return element instanceof VariableDefinitionNode;
     }
 }

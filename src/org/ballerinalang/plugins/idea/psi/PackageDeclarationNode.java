@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.lang.ASTNode;
@@ -27,9 +26,9 @@ import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class FunctionDefinitionNode extends IdentifierDefSubtree implements ScopeNode {
+public class PackageDeclarationNode extends IdentifierDefSubtree implements ScopeNode {
 
-    public FunctionDefinitionNode(@NotNull ASTNode node) {
+    public PackageDeclarationNode(@NotNull ASTNode node) {
         super(node, BallerinaParserDefinition.ID);
     }
 
@@ -39,19 +38,7 @@ public class FunctionDefinitionNode extends IdentifierDefSubtree implements Scop
         //		System.out.println(getClass().getSimpleName()+
         //			                   ".resolve("+myElement.getName()+
         //			                   " at "+Integer.toHexString(myElement.hashCode())+")");
-
-//        if (element instanceof VariableReferenceNode) {
-//            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE,
-//                    element, "/statement/variableDefinitionStatement/Identifier");
-//        }
-
-        if (element instanceof FunctionDefinitionNode) {
-            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE,
-                    element, "/compilationUnit/functionDefinition/Identifier");
-        }else if (element.getParent() instanceof VariableReferenceNode) {
-            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE,
-                    element, "//variableDefinitionStatement/Identifier");
-        }
-        return null;
+        return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE,
+                element, "/compilationUnit/importDeclaration/packageName/Identifier");
     }
 }
