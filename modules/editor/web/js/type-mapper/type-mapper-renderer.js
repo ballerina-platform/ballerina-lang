@@ -31,7 +31,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.jsPlumbInstance.Defaults.Container = $("#" + this.placeHolderName);
 
         this.jsPlumbInstance.Defaults.PaintStyle = {
-            lineWidth: strokeWidth
+            lineWidth: strokeWidth,
+            cssClass:"plumbConnect"
         };
 
         this.jsPlumbInstance.Defaults.EndpointStyle = {
@@ -45,7 +46,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             Connector: ["Flowchart",
                 {
                     cornerRadius: 20,
-                    stub: 1, alwaysRespectStubs: false, midpoint: 0.2
+                    stub: 1, alwaysRespectStubs: false, midpoint: 0.2,
+                    cssClass:"plumbConnect"
                 }]
         });
 
