@@ -265,6 +265,9 @@ define(['lodash', 'log', './node', './callable-definition'],
     FunctionDefinition.prototype.hasNamedReturnTypes = function () {
         if (_.isUndefined(this.getReturnTypeModel())) {
             return false;
+        } else if (this.getReturnTypeModel().getChildren().length == 0) {
+            //if there are no return types in the return type model
+            return false;
         } else {
             //check if any of the return types have identifiers
             var indexWithoutIdentifiers = _.findIndex(this.getReturnTypeModel().getChildren(), function (child) {
@@ -328,8 +331,7 @@ define(['lodash', 'log', './node', './callable-definition'],
         _.forEach(this.getChildren(), function (child) {
             if (self.BallerinaASTFactory.isReturnType(child)) {
                 returnTypeModel = child;
-                // break
-                return false;
+                return false; // break
             }
         });
         return returnTypeModel;
