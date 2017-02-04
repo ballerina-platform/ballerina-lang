@@ -920,6 +920,7 @@ button.variable-list {
 
 .constants-btn {
     opacity: 0.4;
+    width: 37px;
 }
 
 .constants-btn:hover {
