@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -22,7 +22,6 @@ define(['lodash', './node'], function (_, ASTNode) {
         this._typeMapperName = _.get(args, 'typeMapperName', 'newTypeMapper');
         this._selectedTypeStructNameForSource = '';
         this._selectedTypeStructNameForTarget = '';
-        this.BallerinaASTFactory = this.getFactory();
     };
 
     TypeMapperDefinition.prototype = Object.create(ASTNode.prototype);
@@ -56,9 +55,10 @@ define(['lodash', './node'], function (_, ASTNode) {
     TypeMapperDefinition.prototype.getVariableDeclarations = function () {
         var variableDeclarations = [];
         var self = this;
+        var ballerinaASTFactory = this.getFactory();
 
         _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isVariableDeclaration(child)) {
+            if (ballerinaASTFactory.isVariableDeclaration(child)) {
                 variableDeclarations.push(child);
             }
         });
@@ -72,9 +72,10 @@ define(['lodash', './node'], function (_, ASTNode) {
     TypeMapperDefinition.prototype.addVariableDeclaration = function (newVariableDeclaration) {
         // Get the index of the last variable declaration.
         var self = this;
+        var ballerinaASTFactory = this.getFactory();
 
         var index = _.findLastIndex(this.getChildren(), function (child) {
-            return self.BallerinaASTFactory.isVariableDeclaration(child);
+            return ballerinaASTFactory.isVariableDeclaration(child);
         });
 
         this.addChild(newVariableDeclaration, index + 1);
@@ -86,9 +87,10 @@ define(['lodash', './node'], function (_, ASTNode) {
      */
     TypeMapperDefinition.prototype.removeVariableDeclaration = function (variableDeclarationIdentifier) {
         var self = this;
+        var ballerinaASTFactory = this.getFactory();
         // Removing the variable from the children.
         var variableDeclarationChild = _.find(this.getChildren(), function (child) {
-            return self.BallerinaASTFactory.isVariableDeclaration(child)
+            return ballerinaASTFactory.isVariableDeclaration(child)
                 && child.getIdentifier() === variableDeclarationIdentifier;
         });
         this.removeChild(variableDeclarationChild);
@@ -101,9 +103,10 @@ define(['lodash', './node'], function (_, ASTNode) {
     TypeMapperDefinition.prototype.getReturnType = function () {
         var returnType = "";
         var self = this;
+        var ballerinaASTFactory = this.getFactory();
 
         _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isTypeStructDefinition(child) && child._category === "TARGET") {
+            if (ballerinaASTFactory.isTypeStructDefinition(child) && child._category === "TARGET") {
                 returnType = child.getTypeStructName();
             }
         });
@@ -117,9 +120,10 @@ define(['lodash', './node'], function (_, ASTNode) {
     TypeMapperDefinition.prototype.getSourceAndIdentifier = function () {
         var sourceAndIdentifier = "";
         var self = this;
+        var ballerinaASTFactory = this.getFactory();
 
         _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isTypeStructDefinition(child) && child._category === "SOURCE") {
+            if (ballerinaASTFactory.isTypeStructDefinition(child) && child._category === "SOURCE") {
                 sourceAndIdentifier = child.getTypeStructName() + " " + child.getIdentifier();
             }
         });
@@ -174,9 +178,10 @@ define(['lodash', './node'], function (_, ASTNode) {
      */
     TypeMapperDefinition.prototype.removeTypeStructDefinition = function (type) {
         var self = this;
+        var ballerinaASTFactory = this.getFactory();
         if (this.getChildren() != 0) {
             var selectedTypeDef = _.find(this.getChildren(), function (child) {
-                return self.BallerinaASTFactory.isTypeStructDefinition(child)
+                return ballerinaASTFactory.isTypeStructDefinition(child)
                     && child._category === type;
             });
             if (selectedTypeDef) {
@@ -193,9 +198,10 @@ define(['lodash', './node'], function (_, ASTNode) {
     TypeMapperDefinition.prototype.removeAssignmentDefinition = function (sourceProperty, targetProperty) {
         //TODO: Get rid of hardcoded x and y
         var self = this;
+        var ballerinaASTFactory = this.getFactory();
         if (this.getChildren() != 0) {
             var assignmentStatement = _.find(this.getChildren(), function (child) {
-                return self.BallerinaASTFactory.isAssignmentStatement(child) &&
+                return ballerinaASTFactory.isAssignmentStatement(child) &&
                     (('x.' + targetProperty + ' = ' + 'y.' + sourceProperty) === child.getStatementString());
             });
             if (assignmentStatement) {

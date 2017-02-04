@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -37,7 +37,6 @@ define(['lodash', 'require', 'log', './node'],
             this._onConnectInstance;
             this._onDisconnectInstance;
             this._selectedStructName;
-            this.BallerinaASTFactory = this.getFactory();
         };
 
         TypeStructDefinition.prototype = Object.create(ASTNode.prototype);
