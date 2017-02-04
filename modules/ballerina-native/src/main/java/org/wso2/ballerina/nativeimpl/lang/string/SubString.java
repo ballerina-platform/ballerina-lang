@@ -1,4 +1,4 @@
-package org.wso2.ballerina.core.nativeimpl.lang.string;
+package org.wso2.ballerina.nativeimpl.lang.string;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
