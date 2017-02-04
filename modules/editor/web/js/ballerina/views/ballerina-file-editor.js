@@ -285,11 +285,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this.diagramRenderingContext = diagramRenderingContext;
             //TODO remove this for adding filecontext to the map
             this.diagramRenderingContext.ballerinaFileEditor = this;
-
-            var symbolTableGenVisitor = new SymbolTableGenVisitor(this._package, this._model);
-            this._model.accept(symbolTableGenVisitor);
-            var package = symbolTableGenVisitor.getPackage();
-            this.toolPalette.getItemProvider().addImport(package);
+            // adding current package to the tool palette with functions, connectors, actions etc. of the current package
+            this.addCurrentPackageToToolPalette();
 
             //adding default packages TODO : this needs to be rendered by referring to imports in the model
             var httpPackage = BallerinaEnvironment.searchPackage("ballerina.net.http");
@@ -319,12 +316,15 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._sourceView.on('add-breakpoint', function (row) {
                 self.trigger('add-breakpoint', row);
             });
+          
+            this._sourceView.on('modified', function () {
+                self._undoManager.reset();
+                self.trigger('content-modified');
+            });
 
             this._sourceView.on('remove-breakpoint', function (row) {
                 self.trigger('remove-breakpoint', row);
-            });            
-
-
+            });
             this._sourceView.render();
 
             var sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
@@ -380,6 +380,25 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             sourceViewContainer.hide();
             this.initDropTarget();
     };
+
+        /**
+         * Returns a package object with functions, connectors,
+         * actions etc. of the current package
+         * @returns {Object}
+         */
+        BallerinaFileEditor.prototype.generateCurrentPackage = function () {
+            var symbolTableGenVisitor = new SymbolTableGenVisitor(this._package, this._model);
+            this._model.accept(symbolTableGenVisitor);
+            return symbolTableGenVisitor.getPackage();
+        };
+
+        /**
+         * adding current package to the tool palette with functions, connectors,
+         * actions etc. of the current package
+         */
+        BallerinaFileEditor.prototype.addCurrentPackageToToolPalette = function () {
+            this.toolPalette.getItemProvider().addImport(this.generateCurrentPackage());
+        };
 
     BallerinaFileEditor.prototype.initDropTarget = function() {
         var self = this,
@@ -579,6 +598,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             // Creating the constants view.
             this._createConstantDefinitionsView(this._$canvasContainer);
 
+            // adding current package to the tool palette with functions, connectors, actions etc. of the current package
+            this.addCurrentPackageToToolPalette();
             this._model.accept(this);
             this.initDropTarget();
             this.trigger('redraw');
