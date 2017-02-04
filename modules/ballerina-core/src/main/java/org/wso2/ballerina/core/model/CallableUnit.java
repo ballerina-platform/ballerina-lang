@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+import org.wso2.ballerina.core.model.types.BType;
 
 /**
  * {@code CallableUnit} represents Functions, Action or Resources.
@@ -85,4 +86,18 @@ public interface CallableUnit extends BLangSymbol, Node {
      * @return body of the callable unit
      */
     BlockStmt getCallableUnitBody();
+    
+    /**
+     * Get Types of the return parameters.
+     * 
+     * @return  Types of the return parameters
+     */
+    BType[] getReturnParamTypes();
+    
+    /**
+     * Get Types of the return input arguments.
+     * 
+     * @return  Types of the return input arguments
+     */
+    BType[] getArgumentTypes();
 }

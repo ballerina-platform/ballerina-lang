@@ -42,6 +42,11 @@ public class SimpleTypeName {
     public SimpleTypeName(String name) {
         this(name, null, null);
     }
+    
+    public SimpleTypeName(String name, boolean isArrayType) {
+        this(name, null, null);
+        this.isArrayType = isArrayType;
+    }
 
     public String getName() {
         return name;

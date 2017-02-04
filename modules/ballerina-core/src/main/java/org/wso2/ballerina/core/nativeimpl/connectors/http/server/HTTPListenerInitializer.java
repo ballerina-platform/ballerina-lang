@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.nativeimpl.connectors.http.server;
 
 import org.wso2.ballerina.core.nativeimpl.connectors.http.TransportConfigProvider;
 import org.wso2.ballerina.core.runtime.MessageProcessor;
+import org.wso2.ballerina.core.runtime.dispatching.HTTPErrorHandler;
 import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.carbon.messaging.handler.HandlerExecutor;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;

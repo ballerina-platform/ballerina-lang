@@ -20,10 +20,8 @@ package org.wso2.ballerina.lang.values;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintString;
-import org.wso2.ballerina.core.utils.FunctionUtils;
+import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
@@ -38,9 +36,9 @@ public class EscapeCharacterTest {
 
     @BeforeClass(alwaysRun = true)
     public void setup() {
-        SymScope symScope = new SymScope(null);
-        FunctionUtils.addNativeFunction(symScope, new PrintString());
-        bFile = ParserUtils.parseBalFile("lang/values/string-newline.bal", symScope);
+//        FunctionUtils.addNativeFunction(symScope, new PrintString());
+        BuiltInNativeConstructLoader.loadConstructs();
+        bFile = ParserUtils.parseBalFile("lang/values/string-newline.bal");
     }
 
     @Test(description = "Test new line character in string")

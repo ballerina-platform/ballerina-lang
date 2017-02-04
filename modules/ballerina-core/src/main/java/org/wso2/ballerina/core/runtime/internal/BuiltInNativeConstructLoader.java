@@ -27,8 +27,8 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 
 /**
- * {@code BuiltInNativeConstructLoader} is responsible for loading built-in native constructs in the ballerina core.
- * itself. Constructs are loaded via java SPI. Each module implementing a native construct will register their
+ * {@code BuiltInNativeConstructLoader} is responsible for loading built-in native constructs in the ballerina.
+ * Constructs are loaded via java SPI. Each module implementing a native construct will register their
  * implementations as a service provider.
  * <p>
  *
@@ -38,6 +38,11 @@ public class BuiltInNativeConstructLoader {
 
     private static final Logger log = LoggerFactory.getLogger(BuiltInNativeConstructLoader.class);
     
+    /**
+     * Load the native constructs to the provided symbol scope.
+     * 
+     * @param globalScope   Symbol scope to load native constructs
+     */
     public static void loadConstructs(SymbolScope globalScope) {
         Iterator<NativeConstructLoader> nativeConstructLoaders =
             ServiceLoader.load(NativeConstructLoader.class).iterator();
@@ -45,9 +50,8 @@ public class BuiltInNativeConstructLoader {
             NativeConstructLoader constructLoader = nativeConstructLoaders.next();
             constructLoader.load(globalScope);
         }
-        System.out.println();
     }
-
+    
     public static void loadConstructs() {
     }
 }
