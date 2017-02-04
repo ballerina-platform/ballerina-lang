@@ -51,3 +51,7 @@
     background-color: #ffffff;
     cursor: pointer;
 }
+
+svg path {
+    stroke:#414e66;
+}
