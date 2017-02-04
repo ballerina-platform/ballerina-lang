@@ -66,6 +66,11 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
         this._editor.setOptions({
             fontSize: _.get(this._options, 'font_size')
         });
+        this._editor.on("change", function() {
+            if(!self._inSilentMode){
+                self.trigger('modified');
+            }
+        });
 
         //register actions
         if(this._debugger != undefined && this._debugger.isEnabled()){
@@ -81,9 +86,12 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
      *
      */
     SourceView.prototype.setContent = function(content){
+        // avoid triggering change event on format
+        this._inSilentMode = true;
         this._editor.session.setValue(content);
         var fomatter = require('ballerina').utils.AceFormatter;
         fomatter.beautify(this._editor.getSession());
+        this._inSilentMode = false;
         this.markClean();
     };
 
