@@ -43,7 +43,7 @@ resourceDefinition
     ;
 
 functionDefinition
-    :   annotation* 'public'? 'native'? 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? functionBody
+    :   annotation* 'native'? 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? functionBody
     ;
 
 //todo rename, this is used in resource, action and funtion
@@ -52,7 +52,7 @@ functionBody
     ;
 
 connectorDefinition
-    :   annotation* 'public'? 'connector' Identifier '(' parameterList ')' connectorBody
+    :   annotation* 'connector' Identifier '(' parameterList ')' connectorBody
     ;
 
 connectorBody
@@ -64,7 +64,7 @@ actionDefinition
     ;
 
 structDefinition
-    :   'public'? 'struct' Identifier structDefinitionBody
+    :   'struct' Identifier structDefinitionBody
     ;
 
 structDefinitionBody
@@ -85,7 +85,7 @@ typeConvertorBody
     ;
 
 constantDefinition
-    :   'public'? 'const' typeName Identifier '=' literalValue ';'
+    :   'const' typeName Identifier '=' literalValue ';'
     ;
 
 // cannot have conector declaration, need to validate at semantic analyzing
@@ -450,7 +450,6 @@ ITERATE         : 'iterate';
 JOIN            : 'join';
 NULL            : 'null';
 PACKAGE         : 'package';
-PUBLIC          : 'public';
 REPLY           : 'reply';
 RESOURCE        : 'resource';
 RETURN          : 'return';
