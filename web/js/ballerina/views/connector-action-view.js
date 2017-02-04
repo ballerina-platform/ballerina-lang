@@ -353,7 +353,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // Creating connector action heading collapse icon.
             var headingCollapseIcon = D3utils.rect(xForCollpaseIcon, yForIcons,
-                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Collapse pane")
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Collapse Pane")
                 .classed("headingExpandIcon", true);
 
             // Creating separator for collapse icon.
@@ -429,7 +429,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // Connector Action heading Return Types icon.
             var headingReturnTypesIcon = D3utils.rect(xForReturnTypesIcon, yForIcons,
-                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Return types")
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Return Types")
                 .classed("headingReturnTypeBlackIcon", true);
 
             // UI changes when the annotation button is clicked.
@@ -721,6 +721,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             _.set(statementContainerOpts, 'width', this._defaultWorker.width());
             _.set(statementContainerOpts, 'container', this._defaultWorker.getContentArea().node());
             _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
+            _.set(statementContainerOpts, 'offset', {top: 40, bottom: 40});
             this._statementContainer = new StatementContainer(statementContainerOpts);
             this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy){
                 this._defaultWorker.getBottomCenter().y(this._statementContainer.getBoundingBox().getBottom());

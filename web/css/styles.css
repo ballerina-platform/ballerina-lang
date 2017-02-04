@@ -119,8 +119,9 @@ header .brand img.logo {
 }
 
 header .brand {
-    padding: 5px;
+    padding: 0 10px;
     margin-right: 25px;
+    line-height: 35px;
 }
 
 header .brand h1 {
@@ -160,9 +161,6 @@ header .brand img.logo {
     padding: 0px 7px;
 }
 
-header .brand {
-    padding: 1px 10px;
-}
 
 header .brand h1 {
     font-size: 14px;
@@ -1092,11 +1090,14 @@ button.variable-list {
 .name-span {
     display: table-cell;
     vertical-align: middle;
+    font-weight: 400;
+    font-size: 16px;
 }
 
 .canvas-operations-wrapper {
     float: right;
     margin-right: 1px;
+    padding-top: 4px;
 }
 
 .annotation-icon {
@@ -1395,4 +1396,9 @@ ul.list-group {
 
 span.fw-stack.fw-lg{
     z-index: 10;
+}
+
+.import-img{
+    height: 37px;
+    width: 37px;
 }
