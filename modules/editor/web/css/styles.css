@@ -610,7 +610,7 @@ button.variable-list {
 .package-btn {
     position: absolute;
     right: 0;
-    top: 3px;
+    top: 6px;
     z-index: 30;
 }
 
