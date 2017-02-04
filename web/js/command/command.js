@@ -26,7 +26,7 @@ define(['lodash', 'backbone', 'log', 'mousetrap'], function (_, Backbone, log, M
         // not reinventing the wheel - reusing event-bus impl provided in backbone models
         var CommandBus = Backbone.Model.extend({}),
             commandBus = new CommandBus(),
-            commands = {};
+            commands = [];
 
         /**
          * Register a command.
@@ -35,8 +35,12 @@ define(['lodash', 'backbone', 'log', 'mousetrap'], function (_, Backbone, log, M
          * @param options key-bindings etc.
          */
         this.registerCommand = function (cmd, options) {
-            if (!_.has(commands, cmd)) {
-                _.set(commands, cmd, options);
+            if (_.isEqual(_.findIndex(commands,  ['id', cmd.id]), -1)) {
+                var command = {id: cmd};
+                if(_.has(options, 'shortcuts')){
+                    _.set(command, 'shortcuts', _.get(options, 'shortcuts'))
+                }
+                commands.push(command);
                 log.debug("Command: " + cmd +
                     " is registered.");
                 // do shortcut key bindings
@@ -62,8 +66,8 @@ define(['lodash', 'backbone', 'log', 'mousetrap'], function (_, Backbone, log, M
          *
          */
         this.unRegisterCommand = function (cmd) {
-            if (_.has(commands, cmd)) {
-                _.unset(commands, cmd);
+            if (!_.isEqual(_.findIndex(commands,  ['id', cmd.id]), -1)) {
+                _.remove(commands, ['id', cmd.id]);
                 //remove all handlers for the command
                 commandBus.off(cmd, null, app);
                 log.debug("Command: " + cmd +
@@ -82,7 +86,7 @@ define(['lodash', 'backbone', 'log', 'mousetrap'], function (_, Backbone, log, M
          * @param context this context for the handler, default is app instance
          */
         this.registerHandler = function (cmd, handler, context) {
-            if(!_.has(commands, cmd)){
+            if(_.isEqual(_.findIndex(commands,  ['id', cmd]), -1)){
                 var message = "No such registered command found. Command: " + cmd;
                 log.debug(message);
             }
@@ -118,6 +122,10 @@ define(['lodash', 'backbone', 'log', 'mousetrap'], function (_, Backbone, log, M
                 triggerFn.apply(commandBus, triggerArgs);
             }
         };
+
+        this.getCommands = function(){
+            return commands;
+        }
     }
 });
 
