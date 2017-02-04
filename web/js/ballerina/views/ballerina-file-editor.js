@@ -291,6 +291,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._sourceView.on('add-breakpoint', function (row) {
                 self.trigger('add-breakpoint', row);
             });
+            this._sourceView.on('modified', function () {
+                self._undoManager.reset();
+                self.trigger('content-modified');
+            });
             this._sourceView.render();
 
             var sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
