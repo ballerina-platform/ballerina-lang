@@ -36,7 +36,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
                 log.error("Container for Type Mapper definition is undefined." + this._container);
                 throw "Container for Type Mapper definition is undefined." + this._container;
             }
-            this._typeMapper;
+            this._typeMapper = undefined;
 
         };
 
