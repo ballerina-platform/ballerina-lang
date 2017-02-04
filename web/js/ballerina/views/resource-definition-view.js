@@ -835,7 +835,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
             connectorDeclarationView._rootGroup.attr('id', '_' +connectorDeclarationView._model.id);
-            connectorDeclarationView.render();
 
             if (this._connectorWorkerViewList.length > 0) {
                 // There are already added resource level connectors
@@ -877,6 +876,22 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             });
 
             connectorDeclarationView.setParent(this);
+
+            var siblingConnectors = _.filter(connectorDeclarationView._parent._model.children, { 'type': 'ConnectorDeclaration' });
+            var endpointIndex = 1;
+
+            if(_.filter(siblingConnectors, { '_connectorVariable': "endpoint1" }).length !== 1){
+                do {
+                    endpointIndex += 1;
+                } while (_.filter(siblingConnectors, { '_connectorVariable': ("endpoint" + endpointIndex) }).length > 0);
+            }
+
+            connectorDeclarationView._model.setConnectorVariable("endpoint" + endpointIndex);
+            connectorDeclarationView._viewOptions.title = "endpoint" + endpointIndex;
+            endpointIndex = 1;
+
+            connectorDeclarationView.render();
+
             this._connectorWorkerViewList.push(connectorDeclarationView);
             this.getBoundingBox().on("height-changed", function (dh) {
                 this.getBoundingBox().h( this.getBoundingBox().h() + dh);
