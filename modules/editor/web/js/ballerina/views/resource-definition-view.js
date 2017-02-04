@@ -130,7 +130,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         ResourceDefinitionView.prototype.onBeforeModelRemove = function (parent, child) {
             d3.select("#_" +this._model.id).remove();
             $(this._nameDiv).remove();
-            this.getBoundingBox().w(0, 0);
+            this.getBoundingBox().w(0).h(0);
         };
 
         /**
@@ -393,7 +393,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // Creating resource heading collapse icon.
             var headingCollapseIcon = D3utils.rect(xForCollpaseIcon, yForIcons,
-                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Collapse pane")
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Collapse Pane")
                 .classed("headingExpandIcon", true);
 
             // Creating separator for collapse icon.

@@ -133,6 +133,90 @@ define(['lodash', 'event_channel', './ballerina-env-factory'], function(_, Event
                                 type: "message"
                             }
                         ]
+                    },
+                    {
+                        name: "put",
+                        annotations: [
+                            {
+                                name: "Description",
+                                value: ""
+                            }
+                        ],
+                        parameters: [
+                            {
+                                name: "h",
+                                type: "HttpConnector"
+                            },
+                            {
+                                name: "path",
+                                type: "string"
+                            },
+                            {
+                                name: "m",
+                                type: "message"
+                            }
+                        ],
+                        returnParams: [
+                            {
+                                type: "message"
+                            }
+                        ]
+                    },
+                    {
+                        name: "post",
+                        annotations: [
+                            {
+                                name: "Description",
+                                value: ""
+                            }
+                        ],
+                        parameters: [
+                            {
+                                name: "h",
+                                type: "HttpConnector"
+                            },
+                            {
+                                name: "path",
+                                type: "string"
+                            },
+                            {
+                                name: "m",
+                                type: "message"
+                            }
+                        ],
+                        returnParams: [
+                            {
+                                type: "message"
+                            }
+                        ]
+                    },
+                    {
+                        name: "delete",
+                        annotations: [
+                            {
+                                name: "Description",
+                                value: ""
+                            }
+                        ],
+                        parameters: [
+                            {
+                                name: "h",
+                                type: "HttpConnector"
+                            },
+                            {
+                                name: "path",
+                                type: "string"
+                            },
+                            {
+                                name: "m",
+                                type: "message"
+                            }
+                        ],
+                        returnParams: [
+                            {
+                                type: "message"
+                            }
+                        ]
                     }
                 ]
             }],
