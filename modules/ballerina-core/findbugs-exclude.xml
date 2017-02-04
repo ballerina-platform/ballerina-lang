@@ -40,4 +40,12 @@
     <Match>
         <Package name="org.wso2.ballerina.core.parser"/>
     </Match>
+	<Match>
+        <OR>
+            <Package name="org.wso2.ballerina.core.nativeimpl*"/>
+        </OR>
+        <OR>
+            <Bug pattern="EI_EXPOSE_REP"/>
+        </OR>
+    </Match>
 </FindBugsFilter>

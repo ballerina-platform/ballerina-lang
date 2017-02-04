@@ -17,19 +17,17 @@ package org.wso2.ballerina.core.nativeimpl.connectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Connector;
+import org.wso2.ballerina.core.model.NativeUnit;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
-import org.wso2.ballerina.core.model.types.BTypes;
+import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -37,7 +35,7 @@ import java.util.List;
  *
  * @since 0.8.0
  */
-public abstract class AbstractNativeConnector implements Connector, BLangSymbol {
+public abstract class AbstractNativeConnector implements NativeUnit, Connector, BLangSymbol {
     private static final Logger log = LoggerFactory.getLogger(AbstractNativeConnector.class);
     private NodeLocation location;
 
@@ -49,31 +47,11 @@ public abstract class AbstractNativeConnector implements Connector, BLangSymbol 
 
     private List<ParameterDef> parameterDefs;
 
+    private SimpleTypeName[] returnParamTypeNames;
+    private SimpleTypeName[] argTypeNames;
+    
     public AbstractNativeConnector() {
         parameterDefs = new ArrayList<>();
-        buildModel();
-    }
-
-    /*
-     * Build Native Action Model using Java annotation.
-     */
-    private void buildModel() {
-        BallerinaConnector connector = this.getClass().getAnnotation(BallerinaConnector.class);
-        pkgPath = connector.packageName();
-        name = connector.connectorName();
-        String symName = pkgPath + ":" + name;
-        symbolName = new SymbolName(symName);
-        Arrays.stream(connector.args()).
-                forEach(argument -> {
-                    try {
-                        parameterDefs.add(new ParameterDef(BTypes.getType(argument.type().getName()),
-                                new SymbolName(argument.name())));
-                    } catch (BallerinaException e) {
-                        // TODO: Fix this when TypeC.getType method is improved.
-                        log.error("Internal Error..! Error while processing Parameters for Native ballerina" +
-                                " Connector {}:{}.", pkgPath, name, e);
-                    }
-                });
     }
 
     public abstract boolean init(BValue[] bValueRefs);
@@ -122,5 +100,46 @@ public abstract class AbstractNativeConnector implements Connector, BLangSymbol 
     @Override
     public SymbolScope getSymbolScope() {
         return null;
+    }
+    
+    // Methods in NativeUnit interface
+    
+    @Override
+    public void setReturnParamTypeNames(SimpleTypeName[] returnParamTypes) {
+        this.returnParamTypeNames = returnParamTypes;
+    }
+    
+    @Override
+    public void setArgTypeNames(SimpleTypeName[] argTypes) {
+        this.argTypeNames = argTypes;
+    }
+    
+    @Override
+    public SimpleTypeName[] getArgumentTypeNames() {
+        return argTypeNames;
+    }
+    
+    @Override
+    public SimpleTypeName[] getReturnParamTypeNames() {
+        return returnParamTypeNames;
+    }
+    
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    @Override
+    public void setPackagePath(String packagePath) {
+        this.pkgPath = packagePath;
+    }
+    
+    public void setStackFrameSize(int stackFrameSize) {
+        // do nothing
+    }
+
+    @Override
+    public void setSymbolName(SymbolName symbolName) {
+        this.symbolName = symbolName;
     }
 }

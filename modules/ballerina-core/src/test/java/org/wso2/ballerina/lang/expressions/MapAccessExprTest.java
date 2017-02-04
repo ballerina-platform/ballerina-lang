@@ -27,9 +27,6 @@ import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnInt;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnString;
-import org.wso2.ballerina.core.utils.FunctionUtils;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
@@ -45,8 +42,6 @@ public class MapAccessExprTest {
     public void setup() {
         // Linking Native functions.
         SymScope symScope = new SymScope(null);
-        FunctionUtils.addNativeFunction(symScope, new PrintlnInt());
-        FunctionUtils.addNativeFunction(symScope, new PrintlnString());
         bFile = ParserUtils.parseBalFile("lang/expressions/map-access-expr.bal", symScope);
     }
 

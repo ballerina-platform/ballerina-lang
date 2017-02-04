@@ -1,17 +1,5 @@
 import ballerina.lang.convertors;
 
-function xmltojson(xml input)(json) {
-    json result;
-    result = (json)input;
-    return result;
-}
-
-function jsontoxml(json input)(xml) {
-    xml result;
-    result = (xml)input;
-    return result;
-}
-
 function doubletofloat(double value)(float) {
     float result;
     result = (float)value;
@@ -108,18 +96,6 @@ function stringtodouble(string value)(double) {
     return result;
 }
 
-function stringtoxml(string value)(xml) {
-    xml result;
-    result = (xml)value;
-    return result;
-}
-
-function stringtojson(string value)(json) {
-    json result;
-    result = (json)value;
-    return result;
-}
-
 function inttostring(int value)(string) {
     string result;
     result = (string)value;
@@ -139,18 +115,6 @@ function floattostring(float value)(string) {
 }
 
 function doubletostring(double value)(string) {
-    string result;
-    result = (string)value;
-    return result;
-}
-
-function xmltostring(xml value)(string) {
-    string result;
-    result = (string)value;
-    return result;
-}
-
-function jsontostring(json value)(string) {
     string result;
     result = (string)value;
     return result;
