@@ -347,10 +347,23 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
              swaggerViewBtn.click(function () {
                  self.toolPalette.hide();
                  var generatedSource = self.generateSource();
-    
+                 var generatedSwagger = {swagger: 2.0, info: {title: "Ballerina Default API", version : ""}, paths: {}};
+
+                 var backend = new Backend({url : "http://localhost:8289/services/convert-ballerina"});
+                 var response = backend.call("POST", {
+                     "name": "CalculatorService",
+                     "description": "null",
+                     "swaggerDefinition": "null",
+                     "ballerinaDefinition": generatedSource
+                 }, [{name: "expectedType", value: "ballerina"}]);
+
+                 if (!response.error) {
+                     generatedSwagger = response.swaggerDefinition;
+                 }
+
                  self.toolPalette.hide();
-                 // Get the generated source and append it to the source view container's content
-                 self._swaggerView.setContent(generatedSource);
+                 // Get the generated swagger and append it to the swagger view container's content
+                 self._swaggerView.setContent(generatedSwagger);
     
                  swaggerViewContainer.show();
                  sourceViewContainer.hide();
