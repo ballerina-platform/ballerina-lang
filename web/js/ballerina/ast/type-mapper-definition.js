@@ -20,8 +20,8 @@ define(['lodash', './node'], function (_, ASTNode) {
     var TypeMapperDefinition = function (args) {
         ASTNode.call(this, 'TypeMapperDefinition');
         this._typeMapperName = _.get(args, 'typeMapperName', 'newTypeMapper');
-        this._selectedTypeStructNameForSource = '';
-        this._selectedTypeStructNameForTarget = '';
+        this._selectedTypeStructNameForSource = _.get(args, 'selectedTypeStructNameForSource', 'default');
+        this._selectedTypeStructNameForTarget = _.get(args, 'selectedTypeStructNameForTarget', 'default');
     };
 
     TypeMapperDefinition.prototype = Object.create(ASTNode.prototype);
@@ -179,14 +179,14 @@ define(['lodash', './node'], function (_, ASTNode) {
     TypeMapperDefinition.prototype.removeTypeStructDefinition = function (type) {
         var self = this;
         var ballerinaASTFactory = this.getFactory();
-        if (this.getChildren() != 0) {
-            var selectedTypeDef = _.find(this.getChildren(), function (child) {
-                return ballerinaASTFactory.isTypeStructDefinition(child)
-                    && child._category === type;
-            });
-            if (selectedTypeDef) {
-                this.removeChild(selectedTypeDef);
-            }
+
+        var selectedTypeDef = _.find(this.getChildren(), function (child) {
+            return ballerinaASTFactory.isTypeStructDefinition(child)
+                && child.getCategory() === type;
+        });
+
+        if (!_.isUndefined(selectedTypeDef)) {
+            this.removeChild(selectedTypeDef);
         }
     };
 
@@ -199,14 +199,12 @@ define(['lodash', './node'], function (_, ASTNode) {
         //TODO: Get rid of hardcoded x and y
         var self = this;
         var ballerinaASTFactory = this.getFactory();
-        if (this.getChildren() != 0) {
-            var assignmentStatement = _.find(this.getChildren(), function (child) {
-                return ballerinaASTFactory.isAssignmentStatement(child) &&
-                    (('x.' + targetProperty + ' = ' + 'y.' + sourceProperty) === child.getStatementString());
-            });
-            if (assignmentStatement) {
-                this.removeChild(assignmentStatement);
-            }
+        var assignmentStatement = _.find(this.getChildren(), function (child) {
+            return ballerinaASTFactory.isAssignmentStatement(child) &&
+                (('x.' + targetProperty + ' = ' + 'y.' + sourceProperty) === child.getStatementString());
+        });
+        if (!_.isUndefined(assignmentStatement)) {
+            this.removeChild(assignmentStatement);
         }
     };
 
