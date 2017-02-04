@@ -19,24 +19,26 @@ define(['lodash', 'require', 'log', './node'],
     function (_, require, log, ASTNode) {
 
         /**
-         * Constructor for ResourceDefinition
-         * @param {Object} args - The arguments to create the ServiceDefinition
-         * @param {string} [args.resourceName=newResource] - Service name
-         * @param {string[]} [args.annotations] - Resource annotations
-         * @param {string} [args.annotations.Method] - Resource annotation for Method
-         * @param {string} [args.annotations.Path] - Resource annotation for Path
+         * Constructor for TypeStructDefinition
+         * @param {Object} args - The arguments to create the TypeStructDefinition
+         * @param {string} [args.typeStructName=newTypeStruct] - TypeStructDefinition name
+         * @param {string[]} [args.annotations] - TypeStructDefinition annotations
+         * @param {string} [args.schema] - Which type of schema object{struct,xml,json}
+         * @param {string} [args.category] - Whether typeStructDefinition is of Source or Target
+         * @param {string} [args.identifier] - identifier name
+         * @param {string} [args.onConnectInstance] - callBackInstance of on connect of typeStructs
+         * @param {string} [args.onDisconnectInstance] - callBackInstance of on disconnect of typeStructs
          * @constructor
          */
         var TypeStructDefinition = function (args) {
-            this._typeStructName = _.get(args, 'typeStructName', 'newStruct');
+            this._typeStructName = _.get(args, 'typeStructName', 'newTypeStruct');
             this._annotations = _.get(args, 'annotations', []);
-            this._schema;
-            this._category;
-            this._identifier;
-            this._dataMapperInstance;
-            this._onConnectInstance;
-            this._onDisconnectInstance;
-            this._selectedStructName;
+            this._schema = _.get(args, 'schema', {});
+            this._category = _.get(args, 'category', 'default');
+            this._identifier = _.get(args, 'identifier', 'default');
+            this._onConnectInstance = _.get(args, 'onConnectInstance', {});
+            this._onDisconnectInstance = _.get(args, 'onDisconnectInstance', {});
+            this._selectedStructName = _.get(args, 'selectedStructName', 'default');
         };
 
         TypeStructDefinition.prototype = Object.create(ASTNode.prototype);
@@ -57,7 +59,7 @@ define(['lodash', 'require', 'log', './node'],
 
         /**
          * returns the name of the type
-         * @returns {*}
+         * @returns {string}
          */
         TypeStructDefinition.prototype.getTypeStructName = function () {
            return this._typeStructName;
@@ -79,7 +81,7 @@ define(['lodash', 'require', 'log', './node'],
 
         /**
          * returns whether the type struct is a source or a target
-         * @returns {*}
+         * @returns {string}
          */
         TypeStructDefinition.prototype.getCategory = function () {
             return this._category;
@@ -121,7 +123,7 @@ define(['lodash', 'require', 'log', './node'],
 
         /**
          * returns the identifier of the type struct
-         * @returns {*}
+         * @returns {string}
          */
         TypeStructDefinition.prototype.getIdentifier = function(){
             return this._identifier;
@@ -129,7 +131,7 @@ define(['lodash', 'require', 'log', './node'],
 
         /**
          * returns the call back function to be called when a connection is drawn
-         * @returns {*}
+         * @returns {object}
          */
         TypeStructDefinition.prototype.getOnConnectInstance = function () {
             return this._onConnectInstance;
@@ -150,7 +152,7 @@ define(['lodash', 'require', 'log', './node'],
 
         /**
          * returns the call back function to be called when a connection is removed
-         * @returns {*}
+         * @returns {object}
          */
         TypeStructDefinition.prototype.getOnDisconnectInstance = function () {
             return this._onDisconnectInstance;
@@ -184,7 +186,7 @@ define(['lodash', 'require', 'log', './node'],
 
         /**
          * returns the previously selected type struct name
-         * @returns {*}
+         * @returns {string}
          */
         TypeStructDefinition.prototype.getSelectedStructName = function () {
             return this._selectedStructName;

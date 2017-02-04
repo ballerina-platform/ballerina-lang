@@ -17,7 +17,6 @@
  */
 define(['lodash', './package', './environment'], function(_, Package, Environment){
 
-
     var PackageScopedEnvironment = function (args) {
         this._packages = _.get(args, 'packages', []);
         this.init();
