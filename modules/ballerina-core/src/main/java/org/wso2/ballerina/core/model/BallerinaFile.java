@@ -53,8 +53,8 @@ public class BallerinaFile implements Node {
 
     private CompilationUnit[] compilationUnits;
 
-    private List<Service> services = new ArrayList<>();
-    private List<BallerinaConnector> connectorList = new ArrayList<>();
+    private Service[] services;
+    private BallerinaConnectorDef[] connectors;
     private Function[] functions;
     private TypeConvertor[] typeConvertors;
     private Function mainFunction;
@@ -70,8 +70,8 @@ public class BallerinaFile implements Node {
             Map<String, ImportPackage> importPkgMap,
             ImportPackage[] importPkgs,
             CompilationUnit[] compilationUnits,
-            List<Service> serviceList,
-            List<BallerinaConnector> connectorList,
+            Service[] services,
+            BallerinaConnectorDef[] connectors,
             Function[] functions,
             Function mainFunction,
             ConstDef[] consts,
@@ -82,8 +82,8 @@ public class BallerinaFile implements Node {
         this.importPkgMap = importPkgMap;
         this.importPkgs = importPkgs;
         this.compilationUnits = compilationUnits;
-        this.services = serviceList;
-        this.connectorList = connectorList;
+        this.services = services;
+        this.connectors = connectors;
         this.functions = functions;
         this.mainFunction = mainFunction;
         this.consts = consts;
@@ -124,21 +124,12 @@ public class BallerinaFile implements Node {
     }
 
     /**
-     * Get list of Connectors.
-     *
-     * @return connectors list
-     */
-    public List<BallerinaConnector> getConnectorList() {
-        return connectorList;
-    }
-
-    /**
      * Get {@code BallerinaConnector} defined the file.
      *
      * @return list of imports
      */
-    public List<BallerinaConnector> getConnectors() {
-        return connectorList;
+    public BallerinaConnectorDef[] getConnectors() {
+        return connectors;
     }
 
     /**
@@ -146,7 +137,7 @@ public class BallerinaFile implements Node {
      *
      * @return list of Services
      */
-    public List<Service> getServices() {
+    public Service[] getServices() {
         return services;
     }
 
@@ -155,7 +146,7 @@ public class BallerinaFile implements Node {
      *
      * @param services list of Services
      */
-    public void setServices(List<Service> services) {
+    public void setServices(Service[] services) {
         this.services = services;
     }
 
@@ -208,11 +199,11 @@ public class BallerinaFile implements Node {
         // We need to keep a map of import packages.
         // This is useful when analyzing import functions, actions and types.
         private Map<String, ImportPackage> importPkgMap = new HashMap<>();
-        private List<ImportPackage> importPkgList  = new ArrayList<>();
+        private List<ImportPackage> importPkgList = new ArrayList<>();
 
         private List<CompilationUnit> compilationUnitList = new ArrayList<>();
         private List<Service> serviceList = new ArrayList<>();
-        private List<BallerinaConnector> connectorList = new ArrayList<>();
+        private List<BallerinaConnectorDef> connectorList = new ArrayList<>();
         private List<Function> functionList = new ArrayList<>();
         private List<TypeConvertor> typeConvertorList = new ArrayList<>();
         private Function mainFunction;
@@ -247,7 +238,7 @@ public class BallerinaFile implements Node {
             this.serviceList.add(service);
         }
 
-        public void addConnector(BallerinaConnector connector) {
+        public void addConnector(BallerinaConnectorDef connector) {
             this.compilationUnitList.add(connector);
             this.connectorList.add(connector);
         }
@@ -284,8 +275,8 @@ public class BallerinaFile implements Node {
                     importPkgMap,
                     importPkgList.toArray(new ImportPackage[importPkgList.size()]),
                     compilationUnitList.toArray(new CompilationUnit[compilationUnitList.size()]),
-                    serviceList,
-                    connectorList,
+                    serviceList.toArray(new Service[serviceList.size()]),
+                    connectorList.toArray(new BallerinaConnectorDef[connectorList.size()]),
                     functionList.toArray(new Function[functionList.size()]),
                     mainFunction,
                     constList.toArray(new ConstDef[constList.size()]),

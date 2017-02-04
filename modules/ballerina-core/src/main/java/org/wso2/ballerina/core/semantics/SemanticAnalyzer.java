@@ -31,7 +31,7 @@ import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
-import org.wso2.ballerina.core.model.BallerinaConnector;
+import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.CallableUnit;
@@ -160,10 +160,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         currentPkg = bFile.getPackagePath();
         importPkgMap = bFile.getImportPackageMap();
 
-        // TODO Re-visit these definitions with the new implementation
-//        Arrays.asList(bFile.getFunctions()).forEach(this::addFuncSymbol);
-
         defineFunctions(bFile.getFunctions());
+//        defineConnectors(bFile.getConnectors());
 
 //        bFile.getConnectorList().forEach(connector -> {
 //            addConnectorSymbol(connector);
@@ -172,6 +170,12 @@ public class SemanticAnalyzer implements NodeVisitor {
 //
 //        Arrays.asList(bFile.getTypeConvertors()).forEach(this::addTypeConverterSymbol);
     }
+
+//    private void defineConnectors(BallerinaConnectorDef[] connectorDefArrya) {
+//        for (BallerinaConnectorDef connectorDef : connectorDefArrya) {
+//            String connectorName = connectorDef.getName();
+//        }
+//    }
 
     public SemanticAnalyzer(BallerinaFile bFile, SymScope globalScope) {
         SymScope pkgScope = bFile.getPackageScope();
@@ -184,7 +188,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // TODO Re-visit these definitions with the new implementation
         Arrays.asList(bFile.getFunctions()).forEach(this::addFuncSymbol);
 
-        bFile.getConnectorList().forEach(connector -> {
+        Arrays.asList(bFile.getConnectors()).forEach(connector -> {
             addConnectorSymbol(connector);
             Arrays.asList(connector.getActions()).forEach(this::addActionSymbol);
         });
@@ -233,19 +237,9 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(Service service) {
         // Visit the contents within a service
         // Open a new symbol scope
-        openScope(SymScope.Name.SERVICE);
+        openScope(service);
 
         // TODO Analyze service level variable definition statements
-
-//        for (ConnectorDcl connectorDcl : service.getConnectorDcls()) {
-//            staticMemAddrOffset++;
-//            visit(connectorDcl);
-//        }
-//
-//        for (VariableDef variableDef : service.getVariableDefs()) {
-//            staticMemAddrOffset++;
-//            visit(variableDef);
-//        }
 
         // Visit the set of resources in a service
         for (Resource resource : service.getResources()) {
@@ -257,9 +251,9 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(BallerinaConnector connector) {
-        // Then open the connector namespace
-        openScope(SymScope.Name.CONNECTOR);
+    public void visit(BallerinaConnectorDef connector) {
+        // Open the connector namespace
+        openScope(connector);
 
         for (ParameterDef parameterDef : connector.getParameterDefs()) {
             connectorMemAddrOffset++;
@@ -267,16 +261,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // TODO Analyze connector level variable definition statements
-
-//        for (ConnectorDcl connectorDcl : connector.getConnectorDcls()) {
-//            connectorMemAddrOffset++;
-//            visit(connectorDcl);
-//        }
-//
-//        for (VariableDef variableDef : connector.getVariableDefs()) {
-//            connectorMemAddrOffset++;
-//            visit(variableDef);
-//        }
 
         for (BallerinaAction action : connector.getActions()) {
             action.accept(this);
@@ -294,7 +278,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(Resource resource) {
         // Visit the contents within a resource
         // Open a new symbol scope
-        currentScope = resource;
+        openScope(resource);
 
         // TODO Check whether the reply statement is missing. Ignore if the function does not return anything.
         //checkForMissingReplyStmt(resource);
@@ -312,13 +296,13 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Close the symbol scope
         stackFrameOffset = -1;
-        currentScope = resource.getEnclosingScope();
+        closeScope();
     }
 
     @Override
     public void visit(BallerinaFunction function) {
         // Open a new symbol scope
-        currentScope = function;
+        openScope(function);
         currentCallableUnit = function;
 
         // Check whether the return statement is missing. Ignore if the function does not return anything.
@@ -357,14 +341,14 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Close the symbol scope
         stackFrameOffset = -1;
-        currentScope = function.getEnclosingScope();
         currentCallableUnit = null;
+        closeScope();
     }
 
     @Override
     public void visit(BTypeConvertor typeConvertor) {
         // Open a new symbol scope
-        openScope(SymScope.Name.TYPECONVERTOR);
+        openScope(typeConvertor);
         currentCallableUnit = typeConvertor;
 
         // Check whether the return statement is missing. Ignore if the function does not return anything.
@@ -414,7 +398,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(BallerinaAction action) {
         // Open a new symbol scope
-        currentScope = action;
+        openScope(action);
 
         // Check whether the return statement is missing. Ignore if the function does not return anything.
         // TODO Define proper error message codes
@@ -451,7 +435,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Close the symbol scope
         stackFrameOffset = -1;
-        currentScope = action.getEnclosingScope();
+        closeScope();
     }
 
     @Override
@@ -599,7 +583,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                         "1 = " + returnTypes.length);
 
             } else if ((varBType != BTypes.typeMap) && (returnTypes[0] != BTypes.typeMap) &&
-                    (!varBType.equals(rExpr.getType()))) {
+                    (!varBType.equals(returnTypes[0]))) {
 
                 TypeCastExpression newExpr = checkWideningPossibleForAssign(varBType, rExpr);
                 if (newExpr != null) {
@@ -607,7 +591,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                     varDefStmt.setRExpr(newExpr);
                 } else {
                     throw new SemanticException(rExpr.getNodeLocation().getFileName() + ":"
-                            + rExpr.getNodeLocation().getLineNumber() + ": incompatible types: " + rExpr.getType() +
+                            + rExpr.getNodeLocation().getLineNumber() + ": incompatible types: " + returnTypes[0] +
                             " cannot be converted to " + varBType);
                 }
             }
@@ -1283,7 +1267,11 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ConnectorInitExpr connectorInitExpr) {
-
+        BType inheritedType = connectorInitExpr.getInheritedType();
+        if (!(inheritedType instanceof BallerinaConnectorDef)) {
+            throw new SemanticException(getNodeLocationStr(connectorInitExpr.getNodeLocation()) +
+                    "connector initializer is not allowed here");
+        }
     }
 
     @Override
@@ -1565,12 +1553,12 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     // Private methods.
 
-    private void openScope(SymScope.Name scopeName) {
-        symbolTable.openScope(scopeName);
+    private void openScope(SymbolScope symbolScope) {
+        currentScope = symbolScope;
     }
 
     private void closeScope() {
-        symbolTable.closeScope();
+        currentScope = currentScope.getEnclosingScope();
     }
 
     private boolean isInScope(SymScope.Name scopeName) {
@@ -1628,24 +1616,24 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private void addActionSymbol(BallerinaAction action) {
-        SymbolName actionSymbolName = action.getSymbolName();
-        BType[] paramTypes = LangModelUtils.getTypesOfParams(action.getParameterDefs());
-
-        SymbolName symbolName =
-                LangModelUtils.getActionSymName(actionSymbolName.getName(),
-                        actionSymbolName.getConnectorName(),
-                        actionSymbolName.getPkgPath(), paramTypes);
-        Symbol symbol = new Symbol(action);
-
-        if (symbolTable.lookup(symbolName) != null) {
-            throw new SemanticException("Duplicate action definition: " + symbolName + " in "
-                    + action.getNodeLocation().getFileName() + ":" + action.getNodeLocation().getLineNumber());
-        }
-
-        symbolTable.insert(symbolName, symbol);
+//        SymbolName actionSymbolName = action.getSymbolName();
+//        BType[] paramTypes = LangModelUtils.getTypesOfParams(action.getParameterDefs());
+//
+//        SymbolName symbolName =
+//                LangModelUtils.getActionSymName(actionSymbolName.getName(),
+//                        actionSymbolName.getConnectorName(),
+//                        actionSymbolName.getPkgPath(), paramTypes);
+//        Symbol symbol = new Symbol(action);
+//
+//        if (symbolTable.lookup(symbolName) != null) {
+//            throw new SemanticException("Duplicate action definition: " + symbolName + " in "
+//                    + action.getNodeLocation().getFileName() + ":" + action.getNodeLocation().getLineNumber());
+//        }
+//
+//        symbolTable.insert(symbolName, symbol);
     }
 
-    private void addConnectorSymbol(BallerinaConnector connector) {
+    private void addConnectorSymbol(BallerinaConnectorDef connector) {
         Symbol symbol = new Symbol(connector);
 
         SymbolName symbolName = connector.getSymbolName();
@@ -2170,7 +2158,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private void defineFunctions(Function[] functions) {
         for (Function function : functions) {
-
+            // Resolve input parameters
             ParameterDef[] paramDefArray = function.getParameterDefs();
             BType[] paramTypes = new BType[paramDefArray.length];
             for (int i = 0; i < paramDefArray.length; i++) {
@@ -2181,8 +2169,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             SymbolName symbolName = LangModelUtils.getSymNameWithParams(function.getName(),
-                    function.getPackagePath(),
-                    paramTypes);
+                    function.getPackagePath(), paramTypes);
             function.setSymbolName(symbolName);
 
             if (currentScope.resolve(symbolName) != null) {
@@ -2190,8 +2177,13 @@ public class SemanticAnalyzer implements NodeVisitor {
                         function.getNodeLocation().getLineNumber() +
                         ": duplicate function '" + function.getName() + "'");
             }
-
             currentScope.define(symbolName, function);
+
+            // Resolve return parameters
+            for (ParameterDef paramDef : function.getReturnParameters()) {
+                BType bType = BTypes.resolveType(paramDef.getTypeName(), currentScope, paramDef.getNodeLocation());
+                paramDef.setType(bType);
+            }
         }
     }
 }

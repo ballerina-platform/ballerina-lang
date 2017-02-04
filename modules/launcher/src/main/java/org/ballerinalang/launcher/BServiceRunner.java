@@ -60,7 +60,7 @@ class BServiceRunner {
         BallerinaFile bFile = LauncherUtils.buildLangModel(serviceFilePath);
         String fileName = LauncherUtils.getFileName(serviceFilePath);
 
-        if (bFile.getServices().size() == 0) {
+        if (bFile.getServices().length == 0) {
             throw LauncherUtils.createLauncherException("error: no service(s) found in " + fileName);
         }
 

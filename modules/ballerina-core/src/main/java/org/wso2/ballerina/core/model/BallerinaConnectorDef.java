@@ -19,8 +19,13 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+import org.wso2.ballerina.core.model.types.BType;
+import org.wso2.ballerina.core.model.values.BConnector;
+import org.wso2.ballerina.core.model.values.BValue;
 
 import java.util.Map;
+
+import static org.wso2.ballerina.core.model.types.TypeConstants.CONNECTOR_TNAME;
 
 /**
  * A {@code Connector} represents a participant in the integration and is used to interact with an external system.
@@ -37,7 +42,7 @@ import java.util.Map;
  *
  * @since 0.8.0
  */
-public class BallerinaConnector implements Connector, SymbolScope, BLangSymbol, CompilationUnit {
+public class BallerinaConnectorDef extends BType implements Connector, SymbolScope, CompilationUnit {
     private NodeLocation location;
 
     // BLangSymbol related attributes
@@ -57,18 +62,20 @@ public class BallerinaConnector implements Connector, SymbolScope, BLangSymbol, 
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
 
-    public BallerinaConnector(NodeLocation location,
-                              String name,
-                              String pkgPath,
-                              Boolean isPublic,
-                              SymbolName symbolName,
-                              Annotation[] annotations,
-                              ParameterDef[] parameterDefs,
-                              ConnectorDcl[] connectorDcls,
-                              VariableDef[] variableDefs,
-                              BallerinaAction[] actions,
-                              SymbolScope enclosingScope,
-                              Map<SymbolName, BLangSymbol> symbolMap) {
+    public BallerinaConnectorDef(NodeLocation location,
+                                 String name,
+                                 String pkgPath,
+                                 Boolean isPublic,
+                                 SymbolName symbolName,
+                                 Annotation[] annotations,
+                                 ParameterDef[] parameterDefs,
+                                 ConnectorDcl[] connectorDcls,
+                                 VariableDef[] variableDefs,
+                                 BallerinaAction[] actions,
+                                 SymbolScope enclosingScope,
+                                 Map<SymbolName, BLangSymbol> symbolMap) {
+
+        super(CONNECTOR_TNAME, pkgPath, enclosingScope, BConnector.class);
 
         this.location = location;
         this.name = name;
@@ -155,6 +162,11 @@ public class BallerinaConnector implements Connector, SymbolScope, BLangSymbol, 
 
 
     // Methods in BLangSymbol interface
+
+    @Override
+    public <V extends BValue> V getDefaultValue() {
+        return null;
+    }
 
     @Override
     public String getName() {

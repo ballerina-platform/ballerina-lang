@@ -19,7 +19,7 @@ package org.wso2.ballerina.core.model.builder;
 
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaAction;
-import org.wso2.ballerina.core.model.BallerinaConnector;
+import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.ParameterDef;
@@ -145,8 +145,8 @@ class CallableUnitGroupBuilder implements SymbolScope {
                 symbolMap);
     }
 
-    BallerinaConnector buildConnector() {
-        return new BallerinaConnector(
+    BallerinaConnectorDef buildConnector() {
+        return new BallerinaConnectorDef(
                 location,
                 name,
                 pkgPath,

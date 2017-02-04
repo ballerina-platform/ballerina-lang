@@ -78,7 +78,7 @@ public interface NodeVisitor {
 
     void visit(Service service);
 
-    void visit(BallerinaConnector connector);
+    void visit(BallerinaConnectorDef connector);
 
     void visit(Resource resource);
 

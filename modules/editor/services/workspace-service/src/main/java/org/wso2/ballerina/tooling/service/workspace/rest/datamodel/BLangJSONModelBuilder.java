@@ -29,7 +29,7 @@ import org.wso2.ballerina.core.model.*;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
-import org.wso2.ballerina.core.model.BallerinaConnector;
+import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
@@ -145,7 +145,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
 
         if (bFile.getConnectors() != null) {
-            for (BallerinaConnector connector : bFile.getConnectors()) {
+            for (BallerinaConnectorDef connector : bFile.getConnectors()) {
                 connector.accept(this);
             }
         }
@@ -217,7 +217,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(BallerinaConnector connector) {
+    public void visit(BallerinaConnectorDef connector) {
         JsonObject jsonConnectObj = new JsonObject();
         jsonConnectObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
                 BLangJSONModelConstants.CONNECTOR_DEFINITION);

@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
-import org.wso2.ballerina.core.model.BallerinaConnector;
+import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
@@ -94,20 +94,20 @@ public class RuntimeEnvironment {
             connector = nativeConnector;
 
         } else {
-            BallerinaConnector ballerinaConnector = (BallerinaConnector) connector;
+            BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
             // sum of, number of arguments, number of declared variables and declared connectors
-            bValueRefs = new BValue[argExprs.length + ballerinaConnector.getVariableDefs().length + ballerinaConnector
+            bValueRefs = new BValue[argExprs.length + connectorDef.getVariableDefs().length + connectorDef
                     .getConnectorDcls().length];
 
             offset = populateConnectorArgs(staticMemory, argExprs, bValueRefs, offset);
 
-            for (ConnectorDcl connectorDcl1 : ballerinaConnector.getConnectorDcls()) {
+            for (ConnectorDcl connectorDcl1 : connectorDef.getConnectorDcls()) {
                 BConnector bConnector = populateConnectorDcls(staticMemory, connectorDcl1);
                 bValueRefs[offset] = bConnector;
                 offset++;
             }
 
-            for (VariableDef variableDef : ballerinaConnector.getVariableDefs()) {
+            for (VariableDef variableDef : connectorDef.getVariableDefs()) {
                 bValueRefs[offset] = variableDef.getType().getDefaultValue();
                 offset++;
             }
