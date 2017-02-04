@@ -17,7 +17,7 @@
  */
 
 define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ballerina/diagram-render/diagram-render-context',
-        'ballerina/views/source-view', 'workspace/file'],
+        'ballerina/views/source-view', 'workspace/file', 'bootstrap'],
     function (require, _, $, log, Backbone, FileBrowser, Ballerina, DiagramRenderContext, SourceView, File) {
     var OpenFileDialog = Backbone.View.extend(
         /** @lends SaveToFileDialog.prototype */

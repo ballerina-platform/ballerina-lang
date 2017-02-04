@@ -53,7 +53,7 @@ define(['require', 'lodash', 'jquery', 'log', './../ast/package-definition',
             this._packageDefinitionsButton = $("<div class='package-name-btn'></div>")
                                                 .appendTo(packageWrapper);
 
-            $("<span class='fw-stack fw-lg' data-toggle='tooltip' title='Package Name'> " +
+            $("<span class='fw-stack fw-lg' data-toggle='tooltip' title='Package Name' data-placement='bottom'> " +
                 "<i class='fw fw-circle fw-stack-2x'></i>" +
                 "<i class='fw fw-package fw-stack-1x fw-inverse'></i> </span>")
                 .appendTo(this._packageDefinitionsButton).tooltip();

@@ -128,7 +128,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         // Creating collapsable icon.
         var panelCollapsibleIcon = $("<i/>", {
             class: _.get(options, 'cssClass.panel_right_icon'),
-            title:"Collapse pane"
+            title:"Collapse Pane"
         }).appendTo(this._canvasOperationsWrapper).tooltip();
 
         $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(this._canvasOperationsWrapper);
