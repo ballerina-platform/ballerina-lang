@@ -49,13 +49,6 @@
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
     <link rel="stylesheet" type="text/css" href="css/debugger.css"/>
     <link rel="stylesheet" type="text/css" href="css/left-tool-bar.css"/>
-
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-    <script src="lib/html5shiv_3.7.2/html5shiv.min.js"></script>
-    <script src="lib/respond_1.4.2/respond.min.js"></script>
-    <![endif]--> 
 </head>
 <body class="sticky-footer">
 
@@ -517,6 +510,8 @@
             mousetrap: "lib/mousetrap_v1.6.0/mousetrap.min",
             mcustom_scroller: "lib/mCustomScrollbar_v3.1.5/js/jquery.mCustomScrollbar.concat.min",
             jquery_context_menu: "lib/context-menu_v2.4.2/jquery.contextMenu.min",
+            html5_shiv: "lib/html5shiv_3.7.2/html5shiv.min",
+            respond: "lib/respond_1.4.2/respond.min",
             ///////////////////////
             // custom modules ////
             //////////////////////
@@ -539,7 +534,8 @@
 			expression_editor_utils: "js/expression-editor/expression-editor-utils"
         },
         shim: {
-            "bootstrap": {"deps": ['jquery']}
+            "bootstrap": {"deps": ['jquery']},
+            "theme_wso2": {"deps": ['jquery', 'bootstrap', 'html5_shiv', 'respond']}
         },
         map: {
             "*": {
