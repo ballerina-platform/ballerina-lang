@@ -205,4 +205,4 @@ $JAVACMD \
 	-Djava.io.tmpdir="$BALLERINA_HOME/tmp" \
 	-Djava.security.egd=file:/dev/./urandom \
 	-Dfile.encoding=UTF8 \
-	org.ballerinalang.launcher.Main $*
+	org.ballerinalang.launcher.Main "$@"
