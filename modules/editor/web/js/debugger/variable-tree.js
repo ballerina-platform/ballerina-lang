@@ -15,39 +15,77 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['jquery', 'backbone', 'lodash', 'log', 'event_channel'], function ($, Backbone, _, log, EventChannel) {
+define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', /** void module - jquery plugin **/ 'js_tree'], function ($, Backbone, _, log, EventChannel) {
 
-    var Variable_Tree = function(args, debuggerInstance){
-        this._options = args;
-        this.debugger = debuggerInstance;
+    var instance;
+
+    var VariableTree = function (){
+        this._treeConfig = {
+            'core': {
+                'data' : [],
+                'multiple': false,
+                'check_callback': false,
+                'force_text': true,
+                'expand_selected_onload': true,
+                'themes': {
+                    'responsive': false,
+                    'variant': 'small',
+                    'stripes': false,
+                    'dots': false
+                }
+            },
+            'types': {
+                'default': {
+                    'icon': 'fw-add'
+                },
+                'object': {
+                    'icon': 'fw-add'
+                },
+                'value': {
+                    'icon': 'fw-info'
+                }
+            },
+            'plugins': ['types', 'wholerow']
+        };
     };
 
-    Variable_Tree.prototype = Object.create(EventChannel.prototype);
-    Variable_Tree.prototype.constructor = Variable_Tree;
+    VariableTree.prototype = Object.create(EventChannel.prototype);
+    VariableTree.prototype.constructor = VariableTree;
 
-    Variable_Tree.prototype.render = function () {
-        this.renderHeader();
-        this.renderContentDiv();
+    VariableTree.prototype.render = function (container) {
+        this.renderHeader(container);
+        this.renderContentDiv(container);
         return this;
     };
 
-    Variable_Tree.prototype.renderHeader = function () {
-        var container = $( '#' + _.get(this._options, 'containerId'));
-        var headerContainer = $('<div class="panel-heading"><a class="collapsed" data-toggle="collapse" href="#debugger-variable-tree">Variables</a></div>');
+    VariableTree.prototype.renderHeader = function (container) {
+        var headerContainer =
+            $('<div class="panel-heading"><a class="collapsed" data-toggle="collapse" href="#debugger-variable-tree">Variables</a></div>');
         container.append(headerContainer);
     };
 
-    Variable_Tree.prototype.renderContentDiv = function () {
-        var container = $( '#' + _.get(this._options, 'containerId'));
-        var contentContainer = $('<div id="debugger-variable-tree" class="panel-collapse collapse" role="tabpanel">' +
+    VariableTree.prototype.renderContentDiv = function (container) {
+        var contentContainer = $('<div id="debugger-variable-tree" class="panel-collapse collapse in" role="tabpanel">' +
             '</div>');
         container.append(contentContainer);
+        this.$_tree = $("#debugger-variable-tree").jstree(this._treeConfig);
+        this.$_tree.on('open_node.jstree', function () {
+            // opening a nested node
+            // TODO :fetch children from server
+        });
+
+        this.updateVariableTree({});
     };
 
-    Variable_Tree.prototype.onVariableTreeUpdate = function() {
-        // TODO: update  #debugger-variable-tree on contentUpdate
+    VariableTree.prototype.updateVariableTree = function(variableTree) {
+        var newData = _.flatMapDeep(variableTree, function (value, key) {
+
+        });
+
+        $('#debugger-variable-tree').jstree(true).settings.core.data = newData;
+        $('#debugger-variable-tree').jstree(true).refresh();
     };
 
 
-    return Variable_Tree;
+    return (instance = (instance || new VariableTree() ));
 });
