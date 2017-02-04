@@ -144,7 +144,7 @@ public class BalDeployer {
                 ApplicationRegistry.getInstance().updatePackage(aPackage);
                 successful = true;
                 log.info("Deployed ballerina file: " + file.getName());
-                return balFile.getServices().size();
+                return balFile.getServices().length;
             } else {
                 if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
                     log.error("Error: File extension not supported. Supported extensions {}.", FILE_EXTENSION);

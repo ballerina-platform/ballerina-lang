@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
-import org.wso2.ballerina.core.model.BallerinaConnector;
+import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConstDef;
@@ -202,7 +202,7 @@ public class BLangModelBuilder {
 
         if (importPkgMap.get(importPkg.getName()) != null) {
             String errMsg = getNodeLocationStr(location) +
-                    "'" + importPkg.getName() + "' redeclared as imported package name";
+                    "redeclared imported package name '" + importPkg.getName() + "'";
             // throw new SemanticException(errMsg);
             errorMessageList.add(errMsg);
             return;
@@ -321,7 +321,7 @@ public class BLangModelBuilder {
         // Check whether this constant is already defined.
         if (currentScope.resolve(symbolName) != null) {
             String errMsg = getNodeLocationStr(location) +
-                    "redeclared struct '" + name + "'";
+                    "redeclared symbol '" + name + "'";
             errorMessageList.add(errMsg);
             //throw new BallerinaException(errMsg);
         }
@@ -824,12 +824,23 @@ public class BLangModelBuilder {
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
 
         List<Annotation> annotationList = annotationListStack.pop();
-        // TODO Improve this implementation
         annotationList.forEach(currentCUGroupBuilder::addAnnotation);
 
         Service service = currentCUGroupBuilder.buildService();
         bFileBuilder.addService(service);
 
+        // Define Service Symbol in the package scope..
+        SymbolName symbolName = new SymbolName(name, currentPackagePath);
+
+        // Check whether this constant is already defined.
+        if (currentScope.resolve(symbolName) != null) {
+            String errMsg = getNodeLocationStr(location) +
+                    "redeclared symbol '" + name + "'";
+            errorMessageList.add(errMsg);
+            //throw new BallerinaException(errMsg);
+        }
+
+        currentScope = currentCUGroupBuilder.getEnclosingScope();
         currentCUGroupBuilder = null;
     }
 
@@ -839,12 +850,23 @@ public class BLangModelBuilder {
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
 
         List<Annotation> annotationList = annotationListStack.pop();
-        // TODO Improve this implementation
         annotationList.forEach(currentCUGroupBuilder::addAnnotation);
 
-        BallerinaConnector connector = currentCUGroupBuilder.buildConnector();
+        BallerinaConnectorDef connector = currentCUGroupBuilder.buildConnector();
         bFileBuilder.addConnector(connector);
 
+        // Define ConnectorDef Symbol in the package scope..
+        SymbolName symbolName = new SymbolName(name, currentPackagePath);
+
+        // Check whether this constant is already defined.
+        if (currentScope.resolve(symbolName) != null) {
+            String errMsg = getNodeLocationStr(location) +
+                    "redeclared symbol '" + name + "'";
+            errorMessageList.add(errMsg);
+            //throw new BallerinaException(errMsg);
+        }
+
+        currentScope = currentCUGroupBuilder.getEnclosingScope();
         currentCUGroupBuilder = null;
     }
 
@@ -868,6 +890,7 @@ public class BLangModelBuilder {
 
         VariableDef variableDef = new VariableDef(location, varName, typeName, symbolName, currentScope);
         currentScope.define(symbolName, variableDef);
+        variableRefExpr.setVariableDef(variableDef);
 
         Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
         VariableDefStmt variableDefStmt = new VariableDefStmt(location, variableDef, variableRefExpr, rhsExpr);
@@ -1205,16 +1228,14 @@ public class BLangModelBuilder {
             errMsg = getNodeLocationStr(location) +
                     "array initializer is not allowed here";
 
+        } else if (argExpr instanceof ConnectorInitExpr) {
+            errMsg = getNodeLocationStr(location) +
+                    "connector initializer is not allowed here";
+
         } else if (argExpr instanceof RefTypeInitExpr) {
             errMsg = getNodeLocationStr(location) +
                     "reference type initializer is not allowed here";
         }
-
-        // TODO add connector check
-        // else if (argExpr instanceof  Connector) {
-        //  errMsg = getNodeLocationStr(location) +
-        //          ": connector initializer is not allowed here";
-        //}
 
         if (errMsg != null) {
             errorMessageList.add(errMsg);

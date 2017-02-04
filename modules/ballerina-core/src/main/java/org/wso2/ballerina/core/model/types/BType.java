@@ -22,9 +22,6 @@ import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.values.BValue;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * {@code BType} represents a type in Ballerina.
  * <p>
@@ -42,28 +39,12 @@ public abstract class BType implements BLangSymbol {
     protected SymbolScope symbolScope;
     protected Class<? extends BValue> valueClass;
 
-    //Using a HashMap here, because there won't be any concurrent access
-    // TODO Improve this to support modularity of Ballerina
-    private static final Map<String, BType> TYPE_MAP = new HashMap<>(20);
-
-    /**
-     * Create a type from the given name.
-     *
-     * @param typeName string name of the type
-     */
-//    protected BType(String typeName, Class<? extends BValue> valueClass) {
-//        this.typeName = typeName;
-//        this.valueClass = valueClass;
-////        TYPE_MAP.put(typeName, this);
-//    }
-
     protected BType(String typeName, String pkgPath, SymbolScope symbolScope, Class<? extends BValue> valueClass) {
         this.typeName = typeName;
         this.pkgPath = pkgPath;
         this.symbolName = new SymbolName(typeName, pkgPath);
         this.symbolScope = symbolScope;
         this.valueClass = valueClass;
-//        TYPE_MAP.put(typeName, this);
     }
 
     @SuppressWarnings("unchecked")
@@ -87,11 +68,6 @@ public abstract class BType implements BLangSymbol {
 
     public int hashCode() {
         return typeName.length();
-    }
-
-    @SuppressWarnings("unchecked")
-    static <T extends BType> T getType(String typeName) {
-        return (T) TYPE_MAP.get(typeName);
     }
 
 

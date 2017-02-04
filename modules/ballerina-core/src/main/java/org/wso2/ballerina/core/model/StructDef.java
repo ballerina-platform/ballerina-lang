@@ -28,12 +28,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.wso2.ballerina.core.model.types.TypeConstants.STRUCT_TNAME;
+
 /**
  * {@code Struct} represents a user-defined type in Ballerina.
  *
  * @since 0.8.0
  */
-public class StructDef extends BType implements CompilationUnit, SymbolScope, BLangSymbol {
+public class StructDef extends BType implements CompilationUnit, SymbolScope {
     private NodeLocation location;
     private String name;
     private String pkgPath;
@@ -59,7 +61,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, BL
                      boolean isPublic,
                      SymbolScope enclosingScope,
                      Map<SymbolName, BLangSymbol> symbolMap) {
-        super(name, pkgPath, enclosingScope, BStruct.class);
+        super(STRUCT_TNAME, pkgPath, enclosingScope, BStruct.class);
 
         this.location = location;
         this.name = name;
@@ -179,7 +181,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, BL
     @Override
     @SuppressWarnings("unchecked")
     public <V extends BValue> V getDefaultValue() {
-        return (V) new BStruct();
+        return null;
     }
 
     /**

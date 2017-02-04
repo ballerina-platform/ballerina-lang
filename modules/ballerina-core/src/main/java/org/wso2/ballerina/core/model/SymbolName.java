@@ -26,9 +26,6 @@ public class SymbolName {
     protected String name;
     protected String pkgPath;
 
-    //TODO Remove this connectorName from here.
-    private String connectorName;
-
     public SymbolName(String name, String pkgPath) {
         this.name = name;
         this.pkgPath = pkgPath;
@@ -56,26 +53,13 @@ public class SymbolName {
         return pkgPath;
     }
 
+    protected boolean isNameAndPackagePathEqual(SymbolName other) {
+        boolean namesEqual = this.name.equals(other.getName());
 
-    // TODO Remove this method from this class
-
-    /**
-     * Set the package name of this symbol name.
-     *
-     * @param pkgPath package name of this symbol name
-     */
-    public void setPkgPath(String pkgPath) {
-        this.pkgPath = pkgPath;
-    }
-
-    // TODO Remove this method from this class
-    public String getConnectorName() {
-        return connectorName;
-    }
-
-    // TODO Remove this method from this class
-    public void setConnectorName(String connectorName) {
-        this.connectorName = connectorName;
+        // If both package paths are null or both package paths are not null,
+        //    then check their names. If not return false
+        return (this.pkgPath == null && other.getPkgPath() == null ||
+                this.pkgPath != null && other.getPkgPath() != null) && namesEqual;
     }
 
     @Override
@@ -85,16 +69,7 @@ public class SymbolName {
         }
 
         SymbolName other = (SymbolName) obj;
-        boolean namesEqual = this.name.equals(other.getName());
-
-        // If both package paths are null, then check their names
-        if (this.pkgPath == null && other.getPkgPath() == null) {
-            return namesEqual;
-        } else if (this.pkgPath != null && other.getPkgPath() != null) {
-            return namesEqual;
-        }
-
-        return false;
+        return isNameAndPackagePathEqual(other);
     }
 
     @Override

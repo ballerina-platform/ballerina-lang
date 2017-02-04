@@ -22,7 +22,6 @@ import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.SymbolScope;
 
-import static org.wso2.ballerina.core.model.types.TypeConstants.ARRAY_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.BOOLEAN_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.DOUBLE_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.FLOAT_TNAME;
@@ -85,9 +84,7 @@ public class BTypes {
     }
 
     public static BArrayType getArrayType(String elementTypeName) {
-        String arrayTypeName = elementTypeName + ARRAY_TNAME;
-        BArrayType type = BType.getType(arrayTypeName);
-        return type;
+        return null;
     }
 
     public static BType resolveType(SimpleTypeName typeName, SymbolScope symbolScope, NodeLocation location) {
