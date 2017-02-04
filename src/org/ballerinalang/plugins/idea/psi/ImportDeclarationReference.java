@@ -25,18 +25,8 @@ public class ImportDeclarationReference extends BallerinaElementReference {
         super(element);
     }
 
-    public ImportDeclarationReference(@NotNull IdentifierPSINode element,String key) {
-        super(element,key);
-    }
-
     @Override
     public boolean isDefinitionNode(PsiElement element) {
-        return element instanceof ImportDeclarationNode;
-    }
-
-    @NotNull
-    @Override
-    public Object[] getVariants() {
-        return new Object[0];
+        return !(element instanceof ImportDeclarationNode) && element instanceof PackageNameNode;
     }
 }

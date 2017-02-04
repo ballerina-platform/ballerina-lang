@@ -19,20 +19,13 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNameIdentifierOwner;
-import com.intellij.psi.PsiPolyVariantReference;
 import com.intellij.psi.PsiReferenceBase;
-import com.intellij.psi.ResolveResult;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-
 public abstract class BallerinaElementReference extends PsiReferenceBase<IdentifierPSINode> {
-
-    private String key;
 
     public BallerinaElementReference(@NotNull IdentifierPSINode element) {
         /** WARNING: You must send up the text range or you get this error:
@@ -45,21 +38,6 @@ public abstract class BallerinaElementReference extends PsiReferenceBase<Identif
          *  Or we might look inside string literals for stuff.
          */
         super(element, new TextRange(0, element.getText().length()));
-        key = myElement.getName();
-    }
-
-    public BallerinaElementReference(@NotNull IdentifierPSINode element, String key) {
-        /** WARNING: You must send up the text range or you get this error:
-         * "Cannot find manipulator for PsiElement(ID) in org.antlr.jetbrains.sample.SampleElementRef"...
-         *  when you click on an identifier.  During rename you get this
-         *  error too if you don't impl handleElementRename().
-         *
-         *  The range is relative to start of the token; I guess for
-         *  qualified references we might want to use just a part of the name.
-         *  Or we might look inside string literals for stuff.
-         */
-        super(element, new TextRange(0, element.getText().length()));
-        this.key = key;
     }
 
     /**
@@ -77,6 +55,12 @@ public abstract class BallerinaElementReference extends PsiReferenceBase<Identif
         //			                   ") on "+myElement+" at "+Integer.toHexString(myElement.hashCode()));
 
         return myElement.setName(newElementName);
+    }
+
+    @NotNull
+    @Override
+    public Object[] getVariants() {
+        return new Object[0];
     }
 
     /**
@@ -98,7 +82,7 @@ public abstract class BallerinaElementReference extends PsiReferenceBase<Identif
 
     @Override
     public boolean isReferenceTo(PsiElement def) {
-        String refName = key;
+        String refName = myElement.getName();
         //		System.out.println(getClass().getSimpleName()+".isReferenceTo("+refName+"->"+def.getText()+")");
         // sometimes def comes in pointing to ID node itself. depends on what you click on
         if (def instanceof IdentifierPSINode && isDefinitionNode(def.getParent())) {

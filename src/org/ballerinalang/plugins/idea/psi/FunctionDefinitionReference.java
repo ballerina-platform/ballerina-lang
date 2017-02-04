@@ -30,9 +30,4 @@ public class FunctionDefinitionReference extends BallerinaElementReference {
         return element instanceof FunctionDefinitionNode;
     }
 
-    @NotNull
-    @Override
-    public Object[] getVariants() {
-        return new Object[0];
-    }
 }
