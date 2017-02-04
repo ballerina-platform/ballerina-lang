@@ -25,21 +25,17 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.typeConverterView = typeConverterView;
         this.jsPlumbInstance = jsPlumb.getInstance();
 
-        var strokeColor = "#414e66";
         var strokeWidth = 1;
-        var pointColor = "#414e66";
         var pointSize = 0.5;
 
         this.jsPlumbInstance.Defaults.Container = $("#" + this.placeHolderName);
 
         this.jsPlumbInstance.Defaults.PaintStyle = {
-            strokeStyle: strokeColor,
             lineWidth: strokeWidth
         };
 
         this.jsPlumbInstance.Defaults.EndpointStyle = {
-            radius: pointSize,
-            fillStyle: pointColor
+            radius: pointSize
         };
         this.jsPlumbInstance.Defaults.Overlays = [
             ["Arrow", {location: 1, width: 10, length: 10}]
