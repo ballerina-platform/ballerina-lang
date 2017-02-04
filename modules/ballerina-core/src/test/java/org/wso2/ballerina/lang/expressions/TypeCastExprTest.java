@@ -26,11 +26,9 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
-import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.ParserUtils;
@@ -47,24 +45,6 @@ public class TypeCastExprTest {
             BuiltInNativeConstructLoader.loadConstructs();
         }
         bFile = ParserUtils.parseBalFile("lang/expressions/type-conversion.bal", symScope);
-    }
-
-    @Test
-    public void testXMLToJSON() {
-        BValue[] args = {new BXML("<name>chanaka</name>")};
-        BValue[] returns = Functions.invoke(bFile, "xmltojson", args);
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        final String expected = "{\"name\":\"chanaka\"}";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }
-
-    @Test
-    public void testJSONToXML() {
-        BValue[] args = {new BJSON("{\"name\":\"chanaka\"}")};
-        BValue[] returns = Functions.invoke(bFile, "jsontoxml", args);
-        Assert.assertTrue(returns[0] instanceof BXML);
-        final String expected = "<name>chanaka</name>";
-        Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
@@ -212,24 +192,6 @@ public class TypeCastExprTest {
     }
 
     @Test
-    public void testStringToJSON() {
-        BValue[] args = {new BString("{\"name\":\"chanaka\"}")};
-        BValue[] returns = Functions.invoke(bFile, "stringtojson", args);
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        final String expected = "{\"name\":\"chanaka\"}";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }
-
-    @Test
-    public void testStringToXML() {
-        BValue[] args = {new BString("<name>chanaka</name>")};
-        BValue[] returns = Functions.invoke(bFile, "stringtoxml", args);
-        Assert.assertTrue(returns[0] instanceof BXML);
-        final String expected = "<name>chanaka</name>";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }
-
-    @Test
     public void testIntToString() {
         BValue[] args = {new BInteger(111)};
         BValue[] returns = Functions.invoke(bFile, "inttostring", args);
@@ -262,24 +224,6 @@ public class TypeCastExprTest {
         BValue[] returns = Functions.invoke(bFile, "doubletostring", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "111.333";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }
-
-    @Test
-    public void testXMLToString() {
-        BValue[] args = {new BXML("<name>chanaka</name>")};
-        BValue[] returns = Functions.invoke(bFile, "xmltostring", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        final String expected = "<name>chanaka</name>";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }
-
-    @Test
-    public void testJSONToString() {
-        BValue[] args = {new BJSON("{\"name\":\"chanaka\"}")};
-        BValue[] returns = Functions.invoke(bFile, "jsontostring", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        final String expected = "{\"name\":\"chanaka\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 }

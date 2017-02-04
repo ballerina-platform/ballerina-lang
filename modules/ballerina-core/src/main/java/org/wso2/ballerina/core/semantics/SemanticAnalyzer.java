@@ -115,7 +115,8 @@ import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
-import org.wso2.ballerina.core.nativeimpl.lang.convertors.NativeCastConvertor;
+import org.wso2.ballerina.core.nativeimpl.NativeUnitProxy;
+import org.wso2.ballerina.core.nativeimpl.convertors.NativeCastConvertor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1837,7 +1838,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // Link
-        Function function = (Function) functionSymbol;
+        Function function;
+        if (functionSymbol instanceof NativeUnitProxy) {
+            function = (Function) ((NativeUnitProxy) functionSymbol).load();
+        } else {
+            function = (Function) functionSymbol;
+        }
         funcIExpr.setCallableUnit(function);
     }
 
