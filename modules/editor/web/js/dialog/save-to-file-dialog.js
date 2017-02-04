@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (require, $, log, Backbone, FileBrowser) {
+define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'bootstrap'], function (require, $, log, Backbone, FileBrowser) {
     var SaveToFileDialog = Backbone.View.extend(
         /** @lends SaveToFileDialog.prototype */
         {
