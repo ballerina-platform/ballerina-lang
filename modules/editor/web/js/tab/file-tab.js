@@ -100,7 +100,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
             fileEditor.render(diagramRenderingContext);
 
             fileEditor.on("content-modified redraw", function(){
-                var updatedContent = this.getBallerinaFileEditor().generateSource();
+                var updatedContent = fileEditor.getContent();
                 this._file.setContent(updatedContent);
                 this._file.setDirty(true);
                 this._file.save();
