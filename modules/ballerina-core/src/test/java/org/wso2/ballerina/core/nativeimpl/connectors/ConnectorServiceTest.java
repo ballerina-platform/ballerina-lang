@@ -18,25 +18,12 @@
 
 package org.wso2.ballerina.core.nativeimpl.connectors;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import org.wso2.ballerina.core.EnvironmentInitializer;
-import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.message.StringDataSource;
-import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
-import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
-import org.wso2.ballerina.core.utils.MessageUtils;
-import org.wso2.ballerina.lang.util.Services;
-import org.wso2.carbon.messaging.CarbonMessage;
-
 /**
  * Test class for Connector service.
  */
 public class ConnectorServiceTest {
 
-    @BeforeClass()
+/*    @BeforeClass()
     public void setup() {
         SymScope symScope = GlobalScopeHolder.getInstance().getScope();
         if (symScope.lookup(new SymbolName("ballerina.lang.message:setStringPayload_message_string")) == null) {
@@ -109,6 +96,6 @@ public class ConnectorServiceTest {
 
         //action level connector declaration not supported yet
         //Assert.assertEquals(stringDataSource.getValue(), "Hello, World");
-    }
+    }*/
 
 }

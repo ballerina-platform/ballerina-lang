@@ -39,7 +39,7 @@ public class ReturnStmtNegativeTest {
 
     @Test(description = "Test return statement in resource",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "return-in-resource.bal:14: return statement cannot be used " +
+            expectedExceptionsMessageRegExp = "return-in-resource.bal:10: return statement cannot be used " +
                     "in a resource definition")
     public void testReturnInResource() {
         ParserUtils.parseBalFile("lang/statements/returnstmt/return-in-resource.bal", globalSymScope);
