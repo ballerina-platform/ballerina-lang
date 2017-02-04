@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+import org.wso2.ballerina.core.model.types.BType;
 
 import java.util.Map;
 
@@ -130,6 +131,15 @@ public class BallerinaAction implements Action, SymbolScope, Node {
         return connectorDcls;
     }
 
+    @Override
+    public BType[] getReturnParamTypes() {
+        return null;
+    }
+
+    @Override
+    public BType[] getArgumentTypes() {
+        return null;
+    }
 
     // Methods in Node interface
 

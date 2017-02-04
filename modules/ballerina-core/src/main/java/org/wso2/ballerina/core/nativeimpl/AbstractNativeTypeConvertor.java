@@ -19,10 +19,10 @@ package org.wso2.ballerina.core.nativeimpl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.ConstDef;
+import org.wso2.ballerina.core.model.NativeUnit;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.ParameterDef;
@@ -33,23 +33,17 @@ import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.types.BType;
-import org.wso2.ballerina.core.model.types.BTypes;
-import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
-import org.wso2.ballerina.core.nativeimpl.annotations.Utils;
 import org.wso2.ballerina.core.nativeimpl.exceptions.ArgumentOutOfRangeException;
-import org.wso2.ballerina.core.nativeimpl.exceptions.MalformedEntryException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * {@code {@link AbstractNativeTypeConvertor }} represents a Abstract implementation of Native Ballerina TypeConvertor.
  */
-public abstract class AbstractNativeTypeConvertor implements TypeConvertor, BLangSymbol {
+public abstract class AbstractNativeTypeConvertor implements NativeUnit, TypeConvertor, BLangSymbol {
     /* Void RETURN */
     public static final BValue[] VOID_RETURN = new BValue[0];
     private static final Logger log = LoggerFactory.getLogger(AbstractNativeTypeConvertor.class);
@@ -65,73 +59,17 @@ public abstract class AbstractNativeTypeConvertor implements TypeConvertor, BLan
     private List<ParameterDef> returnParams;
     private List<ConstDef> constants;
     private int stackFrameSize;
+    
+    private BType[] returnParamTypes;
+    private BType[] argTypes;
+    private SimpleTypeName[] returnParamTypeNames;
+    private SimpleTypeName[] argTypeNames;
 
     public AbstractNativeTypeConvertor() {
         parameterDefs = new ArrayList<>();
         returnParams = new ArrayList<>();
         annotations = new ArrayList<>();
         constants = new ArrayList<>();
-        buildModel();
-    }
-
-    /**
-     * Build Native typeConvertor Model using Java annotation.
-     */
-    private void buildModel() {
-        BallerinaTypeConvertor typeConvertor = this.getClass().getAnnotation(BallerinaTypeConvertor.class);
-        pkgPath = typeConvertor.packageName();
-        name = typeConvertor.typeConverterName();
-
-        Argument[] methodParams = typeConvertor.args();
-        stackFrameSize = methodParams.length;
-        symbolName = new SymbolName(pkgPath + ":" + name);
-        isPublic = typeConvertor.isPublic();
-        Arrays.stream(methodParams).
-                forEach(argument -> {
-                    try {
-                        BType bType;
-                        // For non-array types.
-                        if (!argument.type().equals(TypeEnum.ARRAY)) {
-                            bType = BTypes.getType(argument.type().getName());
-                        } else {
-                            bType = BTypes.getArrayType(argument.elementType().getName());
-                        }
-                        parameterDefs.add(new ParameterDef(bType, new SymbolName(argument.name())));
-                    } catch (BallerinaException e) {
-                        // TODO: Fix this when TypeC.getType method is improved.
-                        log.error("Internal Error..! Error while processing Parameters for Native ballerina" +
-                                " typeConvertor {}:{}.", pkgPath, name, e);
-                    }
-                });
-        Arrays.stream(typeConvertor.returnType()).forEach(
-                returnType -> {
-                    try {
-                        BType type;
-                        if (!returnType.type().equals(TypeEnum.ARRAY)) {
-                            type = BTypes.getType(returnType.type().getName());
-                        } else {
-                            type = BTypes.getArrayType(returnType.elementType().getName());
-                        }
-                        returnParams.add(new ParameterDef(type, null));
-                    } catch (BallerinaException e) {
-                        // TODO: Fix this when TypeC.getType method is improved.
-                        log.error("Internal Error..! Error while processing ReturnTypes for Native ballerina " +
-                                "typeConvertor {}:{}.", pkgPath, name, e);
-                    }
-                });
-
-        Arrays.stream(typeConvertor.consts()).forEach(
-                constant -> {
-                    try {
-                        constants.add(Utils.getConst(constant));
-                    } catch (MalformedEntryException e) {
-                        log.error("Internal Error..! Error while processing pre defined const {} for Native " +
-                                "ballerina typeConvertor {}:{}.", constant.identifier(), pkgPath,
-                                name, e);
-                    }
-                }
-        );
-        // TODO: Handle Ballerina Annotations.
     }
 
     @Override
@@ -210,7 +148,7 @@ public abstract class AbstractNativeTypeConvertor implements TypeConvertor, BLan
     public ConstDef[] getTypeConverterConstats() {
         return constants.toArray(new ConstDef[constants.size()]);
     }
-
+    
     @Override
     public int getStackFrameSize() {
         return stackFrameSize;
@@ -225,7 +163,16 @@ public abstract class AbstractNativeTypeConvertor implements TypeConvertor, BLan
     public BlockStmt getCallableUnitBody() {
         return null;
     }
+    
+    @Override
+    public BType[] getReturnParamTypes() {
+        return returnParamTypes;
+    }
 
+    @Override
+    public BType[] getArgumentTypes() {
+        return argTypes;
+    }
 
     // Methods in Node interface
 
@@ -268,5 +215,37 @@ public abstract class AbstractNativeTypeConvertor implements TypeConvertor, BLan
     @Override
     public SymbolScope getSymbolScope() {
         return null;
+    }
+    
+    // Methods in NativeCallableUnit interface
+    
+    @Override
+    public void setReturnParamTypeNames(SimpleTypeName[] returnParamTypes) {
+        this.returnParamTypeNames = returnParamTypes;
+    }
+    
+    @Override
+    public void setArgTypeNames(SimpleTypeName[] argTypes) {
+        this.argTypeNames = argTypes;
+    }
+    
+    @Override
+    public SimpleTypeName[] getArgumentTypeNames() {
+        return argTypeNames;
+    }
+    
+    @Override
+    public SimpleTypeName[] getReturnParamTypeNames() {
+        return returnParamTypeNames;
+    }
+    
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    @Override
+    public void setPackagePath(String packagePath) {
+        this.pkgPath = packagePath;
     }
 }
