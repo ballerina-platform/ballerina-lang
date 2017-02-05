@@ -27,7 +27,7 @@ import io.netty.handler.codec.http2.Http2Settings;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
-import static io.netty.handler.logging.LogLevel.INFO;
+import static io.netty.handler.logging.LogLevel.DEBUG;
 
 /**
  * {@code HTTP2SourceHandlerBuilder} is used to build the http2 response handler with frame listener and connection
@@ -38,7 +38,7 @@ public final class HTTP2SourceHandlerBuilder
 
     private ConnectionManager connectionManager;
     private ListenerConfiguration listenerConfiguration;
-    private static final Http2FrameLogger logger = new Http2FrameLogger(INFO, HTTP2SourceHandler.class);
+    private static final Http2FrameLogger logger = new Http2FrameLogger(DEBUG, HTTP2SourceHandler.class);
 
     public HTTP2SourceHandlerBuilder(ConnectionManager connectionManager, ListenerConfiguration listenerConfiguration) {
         frameLogger(logger);
