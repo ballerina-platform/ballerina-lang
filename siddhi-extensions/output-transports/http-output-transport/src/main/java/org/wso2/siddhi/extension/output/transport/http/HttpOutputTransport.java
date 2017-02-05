@@ -29,11 +29,9 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.exception.OutputTransportException;
 import org.wso2.siddhi.core.exception.TestConnectionNotSupportedException;
-import org.wso2.siddhi.core.publisher.MessageType;
-import org.wso2.siddhi.core.publisher.OutputTransport;
-import org.wso2.siddhi.query.api.execution.io.Transport;
+import org.wso2.siddhi.core.stream.input.source.MessageType;
+import org.wso2.siddhi.core.stream.input.source.OutputTransport;
 
 import javax.xml.bind.DatatypeConverter;
 import java.net.URL;
@@ -87,12 +85,9 @@ public class HttpOutputTransport extends OutputTransport {
     private String contentType;
     private HttpClient httpClient = null;
     private HostConfiguration hostConfiguration = null;
-    private Map<String, String> options;
 
     @Override
-    public void init(Transport transportOptions, Map<String, String> unmappedDynamicOptions)
-            throws OutputTransportException {
-        options = transportOptions.getOptions();
+    public void init(String type, Map<String, String> options, Map<String, String> unmappedDynamicOptions) {
         if (executorService == null) {
             int minThread = (options.get(ADAPTER_MIN_THREAD_POOL_SIZE_NAME) != null)
                     ? Integer.parseInt(options.get(ADAPTER_MIN_THREAD_POOL_SIZE_NAME))

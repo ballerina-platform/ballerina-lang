@@ -21,14 +21,11 @@ package org.wso2.siddhi.extension.output.transport.kafka;
 import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.exception.OutputTransportException;
 import org.wso2.siddhi.core.exception.TestConnectionNotSupportedException;
-import org.wso2.siddhi.core.publisher.MessageType;
-import org.wso2.siddhi.core.publisher.OutputTransport;
-import org.wso2.siddhi.query.api.execution.io.Transport;
+import org.wso2.siddhi.core.stream.input.source.MessageType;
+import org.wso2.siddhi.core.stream.input.source.OutputTransport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,14 +61,14 @@ public class KafkaOutputTransport extends OutputTransport {
     private String topic = null;
 
     @Override
-    public void init(Transport transportOptions, Map<String, String> unmappedDynamicOptions) throws OutputTransportException {
+    public void init(String type, Map<String, String> options, Map<String, String> unmappedDynamicOptions) {
         //ThreadPoolExecutor will be assigned  if it is null
         if (threadPoolExecutor == null) {
             int minThread;
             int maxThread;
             int jobQueSize;
             long defaultKeepAliveTime;
-            options = transportOptions.getOptions();
+            this.options = options;
             //If global properties are available those will be assigned else constant values will be assigned
             minThread = (options.get(ADAPTER_MIN_THREAD_POOL_SIZE_NAME) != null)
                     ? Integer.parseInt(options.get(ADAPTER_MIN_THREAD_POOL_SIZE_NAME))
@@ -129,7 +126,7 @@ public class KafkaOutputTransport extends OutputTransport {
     @Override
     public void publish(Object event, Map<String, String> dynamicOptions) throws ConnectionUnavailableException {
         String topic;
-        if(this.topic == null) {
+        if (this.topic == null) {
             topic = dynamicOptions.get(ADAPTOR_PUBLISH_TOPIC);
         } else {
             topic = this.topic;

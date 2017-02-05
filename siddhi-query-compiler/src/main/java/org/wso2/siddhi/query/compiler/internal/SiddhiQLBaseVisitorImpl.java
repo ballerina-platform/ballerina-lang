@@ -342,13 +342,14 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
-    @Override public Store visitStorage(@NotNull SiddhiQLParser.StorageContext ctx) {
+    @Override
+    public Store visitStorage(@NotNull SiddhiQLParser.StorageContext ctx) {
 
 //        definition_store
 //        :STORE type OPTIONS '(' option (',' option)* ')'
@@ -545,13 +546,14 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
-    @Override public Object visitSubscription_final(@NotNull SiddhiQLParser.Subscription_finalContext ctx) {
+    @Override
+    public Object visitSubscription_final(@NotNull SiddhiQLParser.Subscription_finalContext ctx) {
 
 //        subscription_final
 //        : subscription ';'? EOF
@@ -562,7 +564,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -595,17 +597,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      */
     @Override
     public Object visitQuery_publish(@NotNull SiddhiQLParser.Query_publishContext ctx) {
-        Query query = new Query();
-        if (ctx.output_event_type() != null) {
-            query.publish((Transport) visit(ctx.transport()),
-                    (OutputStream.OutputEventType) visit(ctx.output_event_type()),
-                    (Mapping) visit(ctx.mapping()));
-            return query.getOutputStream();
-        } else {
-            query.publish((Transport) visit(ctx.transport()),
-                    (Mapping) visit(ctx.mapping()));
-            return query.getOutputStream();
-        }
+        // TODO: 2/1/17 This should be removed, along with other "publish" visitors
+        return null;
     }
 
     /**
@@ -677,7 +670,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
@@ -720,12 +713,12 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
                 mapping.option((String) visit(optionContext.property_name()), ((StringConstant) visit(optionContext.property_value())).getValue());
             }
         }
-        if ((ctx.map_attribute().size() == ctx.map_rename().size()) &&  ctx.map_attribute().size() != 0) {
-            for (int i=0;i<ctx.map_attribute().size();i++){
+        if ((ctx.map_attribute().size() == ctx.map_rename().size()) && ctx.map_attribute().size() != 0) {
+            for (int i = 0; i < ctx.map_attribute().size(); i++) {
                 mapping.map(((StringConstant) visit(ctx.map_rename(i))).getValue(), ((StringConstant) visit(ctx.map_attribute(i))).getValue());
             }
         } else if (ctx.map_attribute().size() != 0 && ctx.map_rename().size() == 0) {
-            for (int i=0;i<ctx.map_attribute().size();i++){
+            for (int i = 0; i < ctx.map_attribute().size(); i++) {
                 mapping.map(((StringConstant) visit(ctx.map_attribute(i))).getValue());
             }
         } else if (ctx.map_attribute().size() != 0) {
@@ -763,7 +756,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      */
     @Override
     public Annotation visitAnnotation(@NotNull SiddhiQLParser.AnnotationContext ctx) {
-        Annotation annotation = Annotation.create((String) visit(ctx.name()));
+        Annotation annotation = Annotation.annotation((String) visit(ctx.name()));
 
         for (SiddhiQLParser.Annotation_elementContext elementContext : ctx.annotation_element()) {
             annotation.element((Element) visit(elementContext));

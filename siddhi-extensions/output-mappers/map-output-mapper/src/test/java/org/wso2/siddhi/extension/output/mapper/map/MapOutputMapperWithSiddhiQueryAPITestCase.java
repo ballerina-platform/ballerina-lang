@@ -28,6 +28,7 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 import org.wso2.siddhi.core.util.transport.InMemoryOutputTransport;
 import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.execution.io.Transport;
@@ -94,6 +95,15 @@ public class MapOutputMapperWithSiddhiQueryAPITestCase {
                 .attribute("price", Attribute.Type.FLOAT)
                 .attribute("volume", Attribute.Type.INT);
 
+        StreamDefinition outputDefinition = StreamDefinition.id("BarStream")
+                .attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.FLOAT)
+                .attribute("volume", Attribute.Type.INT)
+                .annotation(Annotation.annotation("sink")
+                        .element("type", "inMemory")
+                        .element("topic", "{{symbol}}")
+                        .annotation(Annotation.annotation("map").element("type", "map")));
+
         Query query = Query.query();
         query.from(
                 InputStream.stream("FooStream")
@@ -101,15 +111,13 @@ public class MapOutputMapperWithSiddhiQueryAPITestCase {
         query.select(
                 Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new Variable("volume"))
         );
-        query.publish(
-                Transport.transport("inMemory").option("topic", "{{symbol}}"), OutputStream.OutputEventType.CURRENT_EVENTS,
-                Mapping.format("map")
-        );
+        query.insertInto("BarStream");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineStream(streamDefinition);
+        executionPlan.defineStream(outputDefinition);
         executionPlan.addQuery(query);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
@@ -134,7 +142,7 @@ public class MapOutputMapperWithSiddhiQueryAPITestCase {
     //    select symbol,price,volume
     //    publish inMemory options ("topic", "{{symbol}}")
     //    map multiple mapping
-    //todo: w.r.t current implementation, custom mapping works with empty string mapping body. Have to fix it
+    // TODO: 2/5/17 Do we really need this?
     @Test
     public void testMapOutputMapperWithCustomMapping() throws InterruptedException {
         log.info("Test custom map mapping with Siddhi Query API");
@@ -175,6 +183,18 @@ public class MapOutputMapperWithSiddhiQueryAPITestCase {
                 .attribute("price", Attribute.Type.FLOAT)
                 .attribute("volume", Attribute.Type.INT);
 
+        StreamDefinition outputDefinition = StreamDefinition.id("BarStream")
+                .attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.FLOAT)
+                .attribute("volume", Attribute.Type.INT)
+                .annotation(Annotation.annotation("sink")
+                        .element("type", "inMemory")
+                        .element("topic", "{{symbol}}")
+                        .annotation(Annotation.annotation("map")
+                                .element("type", "map")
+                                .annotation(Annotation.annotation("payload")
+                                        .element("{newSymbol={{symbol}}, price={{price}}, volume={{volume}}}"))));
+
         Query query = Query.query();
         query.from(
                 InputStream.stream("FooStream")
@@ -182,15 +202,13 @@ public class MapOutputMapperWithSiddhiQueryAPITestCase {
         query.select(
                 Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new Variable("volume"))
         );
-        query.publish(
-                Transport.transport("inMemory").option("topic", "{{symbol}}"), OutputStream.OutputEventType.CURRENT_EVENTS,
-                Mapping.format("map").map("").option("symbol","newSymbol").option("price","price").option("volume","volume")
-        );
+        query.insertInto("BarStream");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineStream(streamDefinition);
+        executionPlan.defineStream(outputDefinition);
         executionPlan.addQuery(query);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
         InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");

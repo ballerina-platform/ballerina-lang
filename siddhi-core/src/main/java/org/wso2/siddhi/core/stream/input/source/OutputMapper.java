@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c)  2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,20 +16,19 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.publisher;
+package org.wso2.siddhi.core.stream.input.source;
 
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.execution.io.map.AttributeMapping;
-import org.wso2.siddhi.query.api.execution.io.map.Mapping;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public abstract class OutputMapper {
-    private Converter[] attributeConverters;
+    private Converter payloadConverters;
     private Map<String, Converter> dynamicOptionConverters;
     private boolean isCustomMappingEnabled;
+    private String format;
 
     /**
      * This will be called only once and this can be used to acquire
@@ -39,45 +38,46 @@ public abstract class OutputMapper {
                               Map<String, String> options,
                               Map<String, String> unmappedDynamicOptions);
 
+    // TODO: 2/1/17 one method instead of two methods
     public abstract Object convertToTypedInputEvent(Event event, Map<String, String> dynamicOptions);
 
-    public abstract Object convertToMappedInputEvent(Event event, String[] mappedAttributes,
+    public abstract Object convertToMappedInputEvent(Event event, String mappedPayload,
                                                      Map<String, String> dynamicOptions);
 
-    public final void init(StreamDefinition streamDefinition, Mapping mapping) {
-        isCustomMappingEnabled = mapping.getAttributeMappingList().size() > 0;
-        int i;
+    public final void init(StreamDefinition streamDefinition, String format, String payload,
+                           Map<String, String> options, Map<String, String> dynamicOptions) {
+        this.format = format;
+        isCustomMappingEnabled = payload != null && !payload.isEmpty();
         if (isCustomMappingEnabled) {
-            attributeConverters = new Converter[mapping.getAttributeMappingList().size()];
-            i = 0;
-            for (AttributeMapping attributeMapping : mapping.getAttributeMappingList()) {
-                attributeConverters[i] = new Converter(streamDefinition, attributeMapping.getMapping());
-                i++;
-            }
+            payloadConverters = new Converter(streamDefinition, payload);
         }
 
         dynamicOptionConverters = new HashMap<String, Converter>();
-        for (Map.Entry<String, String> entry : mapping.getDynamicOptions().entrySet()) {
+        for (Map.Entry<String, String> entry : dynamicOptions.entrySet()) {
             dynamicOptionConverters.put(entry.getKey(),
                     new Converter(streamDefinition, entry.getValue()));
         }
 
-        init(streamDefinition, mapping.getOptions(), mapping.getDynamicOptions());
+        init(streamDefinition, options, dynamicOptions);
     }
 
     public final Object mapEvent(Event event) {
         if (isCustomMappingEnabled) {
-            return convertToMappedInputEvent(event, getMappedAttributes(event), getMappedOptions(event));
+            return convertToMappedInputEvent(event, mapPayload(event), getMappedOptions(event));
         } else {
             return convertToTypedInputEvent(event, getMappedOptions(event));
         }
+    }
+
+    public final String getFormat() {
+        return this.format;
     }
 
     private Map<String, String> getMappedOptions(Event event) {
         return Converter.convert(event, dynamicOptionConverters);
     }
 
-    private String[] getMappedAttributes(Event event) {
-        return Converter.convert(event, attributeConverters);
+    private String mapPayload(Event event) {
+        return payloadConverters.map(event);
     }
 }

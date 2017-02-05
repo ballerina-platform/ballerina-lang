@@ -51,7 +51,7 @@ public class ExecutionPlan {
     private Map<String, FunctionDefinition> functionDefinitionMap = new HashMap<String, FunctionDefinition>();
 
     public ExecutionPlan(String name) {
-        annotations.add(Annotation.create("info").element("name", name));
+        annotations.add(Annotation.annotation("info").element("name", name));
     }
 
     public ExecutionPlan(List<Annotation> annotations) {

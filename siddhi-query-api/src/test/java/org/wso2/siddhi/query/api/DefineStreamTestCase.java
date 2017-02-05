@@ -48,7 +48,7 @@ public class DefineStreamTestCase {
 
     @Test
     public void testAnnotatingStreamDefinition() {
-        ExecutionPlan.executionPlan("Test").defineStream(StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.FLOAT).annotation(Annotation.create("distribute").element("true")));
+        ExecutionPlan.executionPlan("Test").defineStream(StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.FLOAT).annotation(Annotation.annotation("distribute").element("true")));
 
     }
 

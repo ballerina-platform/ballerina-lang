@@ -369,7 +369,7 @@ public class PartitionTestCase {
                 with("cseEventStream", Expression.variable("symbol"));
 
         Query query = Query.query();
-        query.from(InputStream.stream("cseEventStream")).annotation(Annotation.create("info").element("name", "query"));
+        query.from(InputStream.stream("cseEventStream")).annotation(Annotation.annotation("info").element("name", "query"));
         query.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
@@ -380,7 +380,7 @@ public class PartitionTestCase {
         query.insertIntoInner("StockStream");
 
         Query query1 = Query.query();
-        query1.from(InputStream.innerStream("StockStream")).annotation(Annotation.create("info").element("name", "query1"));
+        query1.from(InputStream.innerStream("StockStream")).annotation(Annotation.annotation("info").element("name", "query1"));
         query1.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
@@ -398,7 +398,7 @@ public class PartitionTestCase {
                 with("cseEventStream1", Expression.variable("symbol"));
 
         Query query2 = Query.query();
-        query2.from(InputStream.stream("cseEventStream1")).annotation(Annotation.create("info").element("name", "query2"));
+        query2.from(InputStream.stream("cseEventStream1")).annotation(Annotation.annotation("info").element("name", "query2"));
         query2.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
@@ -410,7 +410,7 @@ public class PartitionTestCase {
 
 
         Query query3 = Query.query();
-        query3.from(InputStream.innerStream("StockStream")).annotation(Annotation.create("info").element("name", "query3"));
+        query3.from(InputStream.innerStream("StockStream")).annotation(Annotation.annotation("info").element("name", "query3"));
         query3.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
@@ -422,7 +422,7 @@ public class PartitionTestCase {
 
 
         Query query4 = Query.query();
-        query4.from(InputStream.stream("StockStream")).annotation(Annotation.create("info").element("name", "query4"));
+        query4.from(InputStream.stream("StockStream")).annotation(Annotation.annotation("info").element("name", "query4"));
         query4.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
@@ -434,7 +434,7 @@ public class PartitionTestCase {
 
 
         Query query5 = Query.query();
-        query5.from(InputStream.innerStream("StockStream")).annotation(Annotation.create("info").element("name", "query5"));
+        query5.from(InputStream.innerStream("StockStream")).annotation(Annotation.annotation("info").element("name", "query5"));
         query5.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).

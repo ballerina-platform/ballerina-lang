@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.publisher;
+package org.wso2.siddhi.core.stream.input.source;
 
 public class MessageType {
     public static final String XML = "xml";

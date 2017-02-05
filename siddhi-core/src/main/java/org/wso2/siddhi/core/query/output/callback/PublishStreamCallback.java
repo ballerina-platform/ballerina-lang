@@ -23,45 +23,25 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.exception.OutputTransportException;
-import org.wso2.siddhi.core.publisher.OutputMapper;
-import org.wso2.siddhi.core.publisher.OutputTransport;
+import org.wso2.siddhi.core.stream.input.source.OutputMapper;
+import org.wso2.siddhi.core.stream.input.source.OutputTransport;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
-import org.wso2.siddhi.query.api.execution.io.Transport;
-import org.wso2.siddhi.query.api.execution.io.map.Mapping;
 
 public class PublishStreamCallback extends OutputCallback {
     private static final Logger log = Logger.getLogger(PublishStreamCallback.class);
     private StreamDefinition outputStreamDefinition;
     private OutputTransport outputTransport;
-    private Transport transportConfig;
     private OutputMapper outputMapper;
-    private Mapping mappingConfig;
 
-    public PublishStreamCallback(OutputTransport outputTransport, Transport transportConfig,
-                                 OutputMapper outputMapper, Mapping mappingConfig,
-                                 StreamDefinition outputStreamDefinition) {
+    public PublishStreamCallback(OutputTransport outputTransport, StreamDefinition outputStreamDefinition) {
         this.outputTransport = outputTransport;
-        this.transportConfig = transportConfig;
-        this.outputMapper = outputMapper;
-        this.mappingConfig = mappingConfig;
+        this.outputMapper = outputTransport.getMapper();
         this.outputStreamDefinition = outputStreamDefinition;
     }
 
     public void init(ExecutionPlanContext executionPlanContext) {
-        try {
-            // validateSupportedMapping
-            if (outputTransport.isMessageFormatSupported(mappingConfig.getFormat())) {
-                outputMapper.init(outputStreamDefinition, mappingConfig);
-                outputTransport.init(executionPlanContext, outputStreamDefinition, transportConfig);
-            } else {
-                throw new ExecutionPlanValidationException(String.format("%s mapping is not supported by " +
-                        "transport type %s", mappingConfig.getFormat(), transportConfig.getType()));
-            }
-        } catch (OutputTransportException e) {
-            log.error("Error when initializing output transport.", e);
-        }
+        // there's nothing to be done, since we moved the
+        // type validation mechanism to the transport itself.
     }
 
     @Override

@@ -21,7 +21,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.publisher.OutputMapper;
+import org.wso2.siddhi.core.stream.input.source.OutputMapper;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.Map;
@@ -101,20 +101,12 @@ public class JSONOutputMapper extends OutputMapper {
      * Convert the given Event mapping to JSON string
      *
      * @param event            Event object
-     * @param mappedAttributes Event mapping string array
+     * @param mappedPayload Event mapping string array
      * @param dynamicOptions   Dynamic options
      * @return the mapped JSON string
      */
     @Override
-    public Object convertToMappedInputEvent(Event event, String[] mappedAttributes, Map<String, String> dynamicOptions) {
-        StringBuilder eventText = new StringBuilder();
-        for (int i = 0; i < mappedAttributes.length; i++) {
-            String mappedAttribute = mappedAttributes[i];
-            eventText.append(mappedAttribute).append(EVENT_ATTRIBUTE_SEPARATOR).append("\n");
-        }
-        eventText.deleteCharAt(eventText.lastIndexOf(EVENT_ATTRIBUTE_SEPARATOR));
-        eventText.deleteCharAt(eventText.lastIndexOf("\n"));
-
-        return eventText.toString();
+    public Object convertToMappedInputEvent(Event event, String mappedPayload, Map<String, String> dynamicOptions) {
+        return mappedPayload;
     }
 }

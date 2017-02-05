@@ -19,7 +19,7 @@
 package org.wso2.siddhi.core.util.transport;
 
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.publisher.OutputMapper;
+import org.wso2.siddhi.core.stream.input.source.OutputMapper;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.Map;
@@ -38,11 +38,11 @@ public class PassThroughOutputMapper extends OutputMapper {
 
     @Override
     public Object convertToTypedInputEvent(Event event, Map<String, String> dynamicOptions) {
-        return event;
+        return event.toString();
     }
 
     @Override
-    public Object convertToMappedInputEvent(Event event, String[] mappedAttributes, Map<String, String> dynamicOptions) {
-        return event;
+    public Object convertToMappedInputEvent(Event event, String mappedPayload, Map<String, String> dynamicOptions) {
+        return mappedPayload;
     }
 }

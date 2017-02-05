@@ -82,13 +82,14 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
 
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
-                "define stream FooStream (symbol string, price float, volume long); ";
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(type='inMemory', topic='{{symbol}}', @map(type='json')) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
 
         String query = "" +
                 "from FooStream " +
-                "select symbol,price,volume " +
-                "publish inMemory options (topic '{{symbol}}') " +
-                "map json; ";
+                "select * " +
+                "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
@@ -151,19 +152,20 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
         InMemoryBroker.subscribe(subscriberIBM);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
-                "define stream FooStream (symbol string, price float, volume long); ";
-
-        String query = "" +
-                "from FooStream " +
-                "select symbol,price " +
-                "publish inMemory options (topic '{{symbol}}') " +
-                "map json \"\"\"{\n" +
+                "@Plan:name('TestExecutionPlan') " +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(type='inMemory', topic='{{symbol}}', @map(type='json', @payload(\"\"\"{\n" +
                 "   \"Stock Data\":{\n" +
                 "      \"Symbol\":\"{{symbol}}\",\n" +
                 "      \"Price\":{{price}}\n" +
                 "   }\n" +
-                "}\"\"\"; ";
+                "}\"\"\"))) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
@@ -231,23 +233,25 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
 
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
-                "define stream FooStream (symbol string, price float, volume long); ";
-
-        String query = "" +
-                "from FooStream " +
-                "select symbol,price,volume " +
-                "publish inMemory options (topic '{{symbol}}') " +
-                "map json \"\"\"{\n" +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(type='inMemory', topic='{{symbol}}', @map(type='json', @payload(\"\"\"{\n" +
                 "   \"Stock Data\":{\n" +
                 "      \"Symbol\":\"{{symbol}}\",\n" +
                 "      \"Price\":{{price}}\n" +
                 "   }\n" +
-                "}\"\"\" , \"\"\" {\n" +
+                "},\n" +
+                " {\n" +
                 "   \"Stock Data\":{\n" +
                 "      \"Symbol\":\"{{symbol}}\",\n" +
                 "      \"Volume\":{{volume}}\n" +
                 "   }\n" +
-                "} \"\"\"; ";
+                "}\"\"\"))) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
@@ -272,7 +276,7 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
                 "      \"Symbol\":\"WSO2\",\n" +
                 "      \"Volume\":100\n" +
                 "   }\n" +
-                "} ", onMessageList.get(0).toString());
+                "}", onMessageList.get(0).toString());
         executionPlanRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
@@ -289,18 +293,19 @@ public class JSONOutputMapperWithSiddhiQLTestCase {
 
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
-                "define stream FooStream (symbol string, price float, volume long); ";
-
-        String query = "" +
-                "from FooStream " +
-                "select symbol,price " +
-                "publish inMemory options (topic '{{symbol}}') " +
-                "map json \"\"\"{\n" +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(type='inMemory', topic='{{symbol}}', @map(type='json', @payload(\"\"\"{\n" +
                 "   \"Stock Data\":{\n" +
                 "      \"Symbol\":\"{{non-exist}}\",\n" +
                 "      \"Price\":{{price}}\n" +
                 "   }\n" +
-                "}\"\"\"; ";
+                "}\"\"\"))) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);

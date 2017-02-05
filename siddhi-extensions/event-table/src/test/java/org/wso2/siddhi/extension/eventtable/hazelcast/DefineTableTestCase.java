@@ -85,7 +85,7 @@ public class DefineTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         TableDefinition tableDefinition = TableDefinition
                 .id("cseEventStream")
-                .annotation(Annotation.create("from")
+                .annotation(Annotation.annotation("from")
                         .element("eventtable", "hazelcast"))
                 .attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.INT);
@@ -114,7 +114,7 @@ public class DefineTableTestCase {
                 .attribute("price", Attribute.Type.INT);
         TableDefinition tableDefinition = TableDefinition
                 .id("StockTable")
-                .annotation(Annotation.create("from").element("eventtable", "hazelcast"))
+                .annotation(Annotation.annotation("from").element("eventtable", "hazelcast"))
                 .attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.INT);
         Query query = Query.query();
@@ -556,7 +556,7 @@ public class DefineTableTestCase {
                 .attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.INT);
         TableDefinition tableDefinition = TableDefinition.id("StockTable")
-                .annotation(Annotation.create("from")
+                .annotation(Annotation.annotation("from")
                         .element("eventtable", "hazelcast")
                         .element("cluster.name", clusterName)
                         .element("cluster.password", clusterPassword)
@@ -611,7 +611,7 @@ public class DefineTableTestCase {
                 .attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.INT);
         TableDefinition tableDefinition = TableDefinition.id("StockTable")
-                .annotation(Annotation.create("from")
+                .annotation(Annotation.annotation("from")
                         .element("eventtable", "hazelcast"))
                 .attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.INT);
@@ -671,7 +671,7 @@ public class DefineTableTestCase {
                 .attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.INT);
         TableDefinition tableDefinition = TableDefinition.id("StockTable")
-                .annotation(Annotation.create("from")
+                .annotation(Annotation.annotation("from")
                         .element("eventtable", "hazelcast")
                         .element("cluster.name", clusterName)
                         .element("cluster.password", clusterPassword)

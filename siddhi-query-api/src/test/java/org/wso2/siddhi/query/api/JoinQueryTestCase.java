@@ -33,7 +33,7 @@ public class JoinQueryTestCase {
     @Test
     public void testCreatingJoinQuery() {
         Query.query().
-                annotation(Annotation.create("foo").element("name", "Query1").element("summery", "Test Query").element("Custom")).
+                annotation(Annotation.annotation("foo").element("name", "Query1").element("summery", "Test Query").element("Custom")).
                 from(
                         InputStream.joinStream(
                                 InputStream.stream("s1", "cseEventStream").

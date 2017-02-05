@@ -43,9 +43,15 @@ public final class SiddhiConstants {
     public static final String ANNOTATION_STATISTICS = "Statistics";
     public static final String ANNOTATION_INDEX_BY = "IndexBy";
     public static final String ANNOTATION_FROM = "from";
+    public static final String ANNOTATION_SOURCE = "source";
+    public static final String ANNOTATION_SINK = "sink";
+    public static final String ANNOTATION_MAP = "map";
+    public static final String ANNOTATION_ATTRIBUTES = "attributes";
+    public static final String ANNOTATION_PAYLOAD = "payload";
     public static final String ANNOTATION_BUFFER_SIZE = "BufferSize";
     public static final String ANNOTATION_IDLE_TIME = "IdleTime";
     public static final String ANNOTATION_INCREMENT = "Increment";
+    public static final String ANNOTATION_ELEMENT_TYPE = "type";
 
     public static final String TRUE = "true";
     public static final String TRIGGER_START = "start";

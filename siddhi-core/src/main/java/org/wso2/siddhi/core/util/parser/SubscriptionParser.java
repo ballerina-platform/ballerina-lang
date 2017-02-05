@@ -24,9 +24,10 @@ import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutputRateLimiter;
-import org.wso2.siddhi.core.subscription.InputMapper;
-import org.wso2.siddhi.core.subscription.InputTransport;
-import org.wso2.siddhi.core.subscription.SubscriptionRuntime;
+import org.wso2.siddhi.core.stream.input.source.OutputTransport;
+import org.wso2.siddhi.core.stream.output.sink.InputMapper;
+import org.wso2.siddhi.core.stream.output.sink.InputTransport;
+import org.wso2.siddhi.core.stream.output.sink.SubscriptionRuntime;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.SiddhiConstants;
@@ -70,6 +71,8 @@ public class SubscriptionParser {
                                             Map<String, AbstractDefinition> windowDefinitionMap,
                                             Map<String, EventTable> eventTableMap,
                                             Map<String, EventWindow> eventWindowMap,
+                                            Map<String, InputTransport> eventSourceMap,
+                                            Map<String, OutputTransport> eventSinkMap,
                                             LockSynchronizer lockSynchronizer) {
         SubscriptionRuntime subscriptionRuntime;
         String subscriptionName = null;
@@ -169,15 +172,13 @@ public class SubscriptionParser {
             }
 
             OutputCallback outputCallback = OutputParser.constructOutputCallback(subscription.getOutputStream(),
-                    outputStreamDefinition,
-                    eventTableMap, eventWindowMap, executionPlanContext, false, subscriptionName);
+                    outputStreamDefinition, eventTableMap, eventWindowMap, eventSourceMap, eventSinkMap,
+                    executionPlanContext, false, subscriptionName);
 
             MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
             metaStreamEvent.setOutputDefinition(outputStreamDefinition);
-            for (Attribute attribute : outputStreamDefinition.getAttributeList()) {
-                metaStreamEvent.addOutputData(attribute);
-            }
-            //todo create event creator and pass to init()
+            outputStreamDefinition.getAttributeList().forEach(metaStreamEvent::addOutputData);
+            //todo annotation event creator and pass to init()
             inputMapper.init(outputStreamDefinition, outputCallback, metaStreamEvent, subscription.getMapping()
                     .getOptions(), subscription.getMapping().getAttributeMappingList());
 

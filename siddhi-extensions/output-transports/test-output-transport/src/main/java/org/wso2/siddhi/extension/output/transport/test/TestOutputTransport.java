@@ -21,12 +21,10 @@ package org.wso2.siddhi.extension.output.transport.test;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
-import org.wso2.siddhi.core.exception.OutputTransportException;
 import org.wso2.siddhi.core.exception.TestConnectionNotSupportedException;
-import org.wso2.siddhi.core.publisher.MessageType;
-import org.wso2.siddhi.core.publisher.OutputTransport;
+import org.wso2.siddhi.core.stream.input.source.MessageType;
+import org.wso2.siddhi.core.stream.input.source.OutputTransport;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
-import org.wso2.siddhi.query.api.execution.io.Transport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,10 +35,9 @@ public class TestOutputTransport extends OutputTransport {
     private static final String TOPIC_KEY = "topic";
 
     @Override
-    public void init(Transport transportOptions, Map<String, String> unmappedDynamicOptions)
-            throws OutputTransportException {
+    public void init(String type, Map<String, String> options, Map<String, String> unmappedDynamicOptions) {
         List<String> availableConfigs = new ArrayList<>();
-        availableConfigs.addAll(transportOptions.getOptions().keySet());
+        availableConfigs.addAll(options.keySet());
         availableConfigs.addAll(unmappedDynamicOptions.keySet());
         if (!availableConfigs.contains(TOPIC_KEY)) {
             throw new ExecutionPlanCreationException(String.format("{{%s}} configuration " +

@@ -22,8 +22,13 @@ import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.function.EvalScript;
 import org.wso2.siddhi.core.stream.StreamJunction;
+import org.wso2.siddhi.core.stream.input.source.OutputMapper;
+import org.wso2.siddhi.core.stream.input.source.OutputTransport;
+import org.wso2.siddhi.core.stream.output.sink.InputMapper;
+import org.wso2.siddhi.core.stream.output.sink.InputTransport;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.table.InMemoryEventTable;
 import org.wso2.siddhi.core.trigger.CronEventTrigger;
@@ -34,16 +39,34 @@ import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.extension.holder.EvalScriptExtensionHolder;
 import org.wso2.siddhi.core.util.extension.holder.EventTableExtensionHolder;
+import org.wso2.siddhi.core.util.extension.holder.InputMapperExecutorExtensionHolder;
+import org.wso2.siddhi.core.util.extension.holder.InputTransportExecutorExtensionHolder;
+import org.wso2.siddhi.core.util.extension.holder.OutputMapperExecutorExtensionHolder;
+import org.wso2.siddhi.core.util.extension.holder.OutputTransportExecutorExtensionHolder;
 import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.definition.*;
+import org.wso2.siddhi.query.api.annotation.Element;
+import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.definition.FunctionDefinition;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.definition.TriggerDefinition;
+import org.wso2.siddhi.query.api.definition.WindowDefinition;
 import org.wso2.siddhi.query.api.definition.io.Store;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.execution.io.map.AttributeMapping;
 import org.wso2.siddhi.query.api.extension.Extension;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Utility class for queryParser to help with QueryRuntime
@@ -72,6 +95,7 @@ public class DefinitionParserHelper {
                     definition.getId() + "' already exist : " + existingWindowDefinition +
                     ", hence cannot add " + definition);
         }
+        // TODO: 1/29/17 add source / sink both validation here
     }
 
 
@@ -106,7 +130,7 @@ public class DefinitionParserHelper {
 
             Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM,
                     tableDefinition.getAnnotations()); //// TODO: 12/5/16 this must be removed
-            
+
             Store store = tableDefinition.getStore();
 
             EventTable eventTable;
@@ -210,5 +234,173 @@ public class DefinitionParserHelper {
             executionPlanContext.addEternalReferencedHolder(eventTrigger);
             eventTriggerMap.putIfAbsent(eventTrigger.getId(), eventTrigger);
         }
+    }
+
+    public static void addEventSource(StreamDefinition streamDefinition,
+                                      ConcurrentMap<String, InputTransport> eventSourceMap,
+                                      ExecutionPlanContext executionPlanContext) {
+        Annotation sourceAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_SOURCE,
+                streamDefinition.getAnnotations());
+        if (sourceAnnotation != null && !eventSourceMap.containsKey(streamDefinition.getId())) {
+            Annotation mapAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_MAP,
+                    sourceAnnotation.getAnnotations());
+            if (mapAnnotation != null) {
+                final String sourceType = sourceAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
+                final String mapType = mapAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
+                if (sourceType != null && mapType != null) {
+                    // load input transport extension
+                    Extension source = new Extension() {
+                        @Override
+                        public String getNamespace() {
+                            return SiddhiConstants.INPUT_TRANSPORT;
+                        }
+
+                        @Override
+                        public String getFunction() {
+                            return sourceType.toLowerCase();
+                        }
+                    };
+                    InputTransport inputTransport = (InputTransport) SiddhiClassLoader.loadExtensionImplementation(
+                            source, InputTransportExecutorExtensionHolder.getInstance(executionPlanContext));
+
+                    // load input mapper extension
+                    Extension mapper = new Extension() {
+                        @Override
+                        public String getNamespace() {
+                            return SiddhiConstants.INPUT_MAPPER;
+                        }
+
+                        @Override
+                        public String getFunction() {
+                            return mapType.toLowerCase();
+                        }
+                    };
+                    InputMapper inputMapper = (InputMapper) SiddhiClassLoader.loadExtensionImplementation(
+                            mapper, InputMapperExecutorExtensionHolder.getInstance(executionPlanContext));
+
+                    MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
+                    metaStreamEvent.setOutputDefinition(streamDefinition);
+                    streamDefinition.getAttributeList().forEach(metaStreamEvent::addOutputData);
+
+//                    inputMapper.init(streamDefinition, outputCallback, metaStreamEvent,
+//                            (Map<String, String>) getOptions(mapAnnotation)[0], getAttributeMappings(mapAnnotation));
+                    inputTransport.init((Map<String, String>) getOptions(sourceAnnotation)[0], inputMapper);
+
+                    executionPlanContext.addEternalReferencedHolder(inputTransport);
+                    // TODO: 1/31/17 add multiple event source support
+                    eventSourceMap.putIfAbsent(streamDefinition.getId(), inputTransport);
+                } else {
+                    throw new ExecutionPlanCreationException("Both @source(type=) and @map(type=) are required.");
+                }
+            }
+        }
+    }
+
+    public static void addEventSink(StreamDefinition streamDefinition,
+                                    ConcurrentMap<String, OutputTransport> eventSinkMap,
+                                    ExecutionPlanContext executionPlanContext) {
+        Annotation sinkAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_SINK,
+                streamDefinition.getAnnotations());
+        if (sinkAnnotation != null && !eventSinkMap.containsKey(streamDefinition.getId())) {
+            Annotation mapAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_MAP,
+                    sinkAnnotation.getAnnotations());
+            if (mapAnnotation != null) {
+                final String sourceType = sinkAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
+                final String mapType = mapAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
+
+                if (sourceType != null && mapType != null) {
+                    // load input transport extension
+                    Extension sink = new Extension() {
+                        @Override
+                        public String getNamespace() {
+                            return SiddhiConstants.OUTPUT_TRANSPORT;
+                        }
+
+                        @Override
+                        public String getFunction() {
+                            return sourceType;
+                        }
+                    };
+                    OutputTransport outputTransport = (OutputTransport) SiddhiClassLoader.loadExtensionImplementation(
+                            sink, OutputTransportExecutorExtensionHolder.getInstance(executionPlanContext));
+
+                    // load input mapper extension
+                    Extension mapper = new Extension() {
+                        @Override
+                        public String getNamespace() {
+                            return SiddhiConstants.OUTPUT_MAPPER;
+                        }
+
+                        @Override
+                        public String getFunction() {
+                            return mapType;
+                        }
+                    };
+                    OutputMapper outputMapper = (OutputMapper) SiddhiClassLoader.loadExtensionImplementation(
+                            mapper, OutputMapperExecutorExtensionHolder.getInstance(executionPlanContext));
+
+                    Object[] transportOptions = getOptions(sinkAnnotation);
+                    Object[] mapperOptions = getOptions(mapAnnotation);
+                    String payload = getPayload(mapAnnotation);
+
+                    outputMapper.init(streamDefinition, mapType, payload,
+                            (Map<String, String>) mapperOptions[0], (Map<String, String>) mapperOptions[1]);
+
+                    outputTransport.init(executionPlanContext, streamDefinition, sourceType, outputMapper,
+                            (Map<String, String>) transportOptions[0], (Map<String, String>) transportOptions[1]);
+
+                    executionPlanContext.addEternalReferencedHolder(outputTransport);
+                    // TODO: 1/31/17 add multiple event sink support
+                    eventSinkMap.putIfAbsent(streamDefinition.getId(), outputTransport);
+                } else {
+                    throw new ExecutionPlanCreationException("Both @sink(type=) and @map(type=) are required.");
+                }
+            }
+        }
+    }
+
+    private static List<AttributeMapping> getAttributeMappings(Annotation mapAnnotation) {
+        List<AttributeMapping> mappings = new ArrayList<>();
+        List<Annotation> attribAnnotations = mapAnnotation.getAnnotations(SiddhiConstants.ANNOTATION_ATTRIBUTES);
+        if (attribAnnotations.size() > 0) {
+            mappings.addAll(
+                    attribAnnotations
+                            .get(0)
+                            .getElements()
+                            .stream()
+                            .map(element -> new AttributeMapping(element.getKey(), element.getValue()))
+                            .collect(Collectors.toList())
+            );
+        }
+        return mappings;
+    }
+
+    private static String getPayload(Annotation mapAnnotation) {
+        List<Annotation> attribAnnotations = mapAnnotation.getAnnotations(SiddhiConstants.ANNOTATION_PAYLOAD);
+        if (attribAnnotations.size() == 1) {
+            List<Element> elements = attribAnnotations.get(0).getElements();
+            if (elements.size() == 1) {
+                return elements.get(0).getValue();
+            } else {
+                throw new ExecutionPlanCreationException("@payload() annotation should only contain single element.");
+            }
+        } else if (attribAnnotations.size() > 1){
+            throw new ExecutionPlanCreationException("@map() annotation should only contain single @payload() annotation.");
+        } else {
+            return null;
+        }
+    }
+
+    private static Object[] getOptions(Annotation annotation) {
+        // returns [options, dynamicOptions]
+        Object[] optionTuple = new Object[]{new HashMap<String, String>(), new HashMap<String, String>()};
+        for (Element element : annotation.getElements()) {
+            if (Pattern.matches("\\{\\{.*?}}", element.getValue())) {
+                ((Map<String, String>) optionTuple[1]).put(element.getKey(), element.getValue());
+            } else {
+                ((Map<String, String>) optionTuple[0]).put(element.getKey(), element.getValue());
+            }
+        }
+        return optionTuple;
     }
 }

@@ -6,7 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.query.api.exception.AttributeNotExistException;
+import org.wso2.siddhi.core.exception.NoSuchAttributeException;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 import org.wso2.siddhi.core.util.transport.InMemoryOutputTransport;
@@ -64,13 +64,14 @@ public class MapOutputMapperWithSiddhiQLTestCase {
 
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
-                "define stream FooStream (symbol string, price float, volume long); ";
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(type='inMemory', topic='{{symbol}}', @map(type='map')) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
 
         String query = "" +
                 "from FooStream " +
-                "select symbol " +
-                "publish inMemory options (topic '{{symbol}}') " +
-                "map map ; ";
+                "select * " +
+                "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
@@ -98,7 +99,7 @@ public class MapOutputMapperWithSiddhiQLTestCase {
     //    publish inMemory options ("topic", "{{symbol}}")
     //    map custom
     @Test
-    //todo: w.r.t current implementation, custom mapping works with empty string mapping body. Have to fix it
+    // TODO: 2/5/17 Do we really need this?
     public void testMapOutputMapperCustomMappingWithSiddhiQL() throws InterruptedException {
         log.info("Test custom map mapping with SiddhiQL");
         List<Object> onMessageList = new ArrayList<Object>();
@@ -135,13 +136,14 @@ public class MapOutputMapperWithSiddhiQLTestCase {
 
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
-                "define stream FooStream (symbol string, price float, volume long); ";
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(type='inMemory', topic='{{symbol}}', @map(type='map', @payload(\"\"\"{newSymbol={{symbol}}, price={{price}}, volume={{volume}}}\"\"\"))) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
 
         String query = "" +
                 "from FooStream " +
-                "select symbol,price,volume " +
-                "publish inMemory options (topic '{{symbol}}') " +
-                "map map options (symbol 'newSymbol', price 'price', volume 'volume') \"\"\" \"\"\" ; ";
+                "select * " +
+                "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
@@ -172,20 +174,21 @@ public class MapOutputMapperWithSiddhiQLTestCase {
     //    select symbol,price
     //    publish inMemory options ("topic", "{{symbol}}")
     //    map custom
-    //todo: w.r.t current implementation, custom mapping works with empty string mapping body. Have to fix it
-    @Test(expected = AttributeNotExistException.class)
+    // TODO: 2/5/17 Do we really need this?
+    @Test(expected = NoSuchAttributeException.class)
     public void testAttributeNotExistExceptionForMapOutputMapping() throws InterruptedException {
         log.info("Test for non existing attribute in map mapping with SiddhiQL - expects AttributeNotExistException");
 
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
-                "define stream FooStream (symbol string, price float, volume long); ";
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(type='inMemory', topic='{{symbol}}', @map(type='map', @payload(\"\"\"{newSymbol={{non-exist}}, price={{price}}, volume={{volume}}\"\"\"))) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
 
         String query = "" +
                 "from FooStream " +
-                "select symbol " +
-                "publish inMemory options (topic '{{symbol}}') " +
-                "map map options (non-exist 'newSymbol') \"\"\" \"\"\" ; ";
+                "select * " +
+                "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);

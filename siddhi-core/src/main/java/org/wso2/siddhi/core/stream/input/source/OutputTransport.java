@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c)  2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,16 +16,16 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.publisher;
+package org.wso2.siddhi.core.stream.input.source;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.exception.OutputTransportException;
+import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.TestConnectionNotSupportedException;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
+import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.execution.io.Transport;
 
 import java.util.HashMap;
 import java.util.List;
@@ -37,14 +37,13 @@ import java.util.Map;
  */
 public abstract class OutputTransport implements EternalReferencedHolder {
     private Map<String, Converter> dynamicOptionConverters;
+    private AbstractDefinition transportDefinition;
+    private OutputMapper mapper;
 
     /**
      * The init of the transport, this will be called only once before connect() and testConnect()
-     *
-     * @throws OutputTransportException if there are any configuration errors
      */
-    public abstract void init(Transport transportOptions, Map<String, String> unmappedDynamicOptions)
-            throws OutputTransportException;
+    public abstract void init(String type, Map<String, String> options, Map<String, String> unmappedDynamicOptions);
 
     /**
      * Used to test the connection
@@ -94,21 +93,36 @@ public abstract class OutputTransport implements EternalReferencedHolder {
      */
     public abstract List<String> getSupportedMessageFormats();
 
-    public final void init(ExecutionPlanContext executionPlanContext,
-                           StreamDefinition streamDefinition,
-                           Transport transportConfig) throws OutputTransportException {
-        dynamicOptionConverters = new HashMap<String, Converter>();
-        for (Map.Entry<String, String> entry : transportConfig.getDynamicOptions().entrySet()) {
-            dynamicOptionConverters.put(entry.getKey(), new Converter(streamDefinition, entry.getValue()));
+    public final void init(ExecutionPlanContext executionPlanContext, StreamDefinition streamDefinition,
+                           String type, OutputMapper mapper, Map<String, String> options,
+                           Map<String, String> unmappedDynamicOptions) {
+        if (isMessageFormatSupported(mapper.getFormat())) {
+            this.mapper = mapper;
+            this.transportDefinition = streamDefinition;
+            dynamicOptionConverters = new HashMap<String, Converter>();
+            for (Map.Entry<String, String> entry : unmappedDynamicOptions.entrySet()) {
+                dynamicOptionConverters.put(entry.getKey(), new Converter(streamDefinition, entry.getValue()));
+            }
+            init(type, options, unmappedDynamicOptions);
+        } else {
+            throw new ExecutionPlanCreationException(String.format("%s mapping is not supported by " +
+                    "transport type %s", mapper.getFormat(), type));
         }
-        init(transportConfig, transportConfig.getDynamicOptions());
     }
 
     public final Map<String, String> getDynamicOptions(Event event) {
         return Converter.convert(event, dynamicOptionConverters);
     }
 
-    public final boolean isMessageFormatSupported(String messageFormat) {
+    public final OutputMapper getMapper() {
+        return mapper;
+    }
+
+    public final AbstractDefinition getTransportDefinition() {
+        return transportDefinition;
+    }
+
+    private boolean isMessageFormatSupported(String messageFormat) {
         return getSupportedMessageFormats().contains(messageFormat);
     }
 

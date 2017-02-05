@@ -40,7 +40,7 @@ public class DefineTriggerTestCase {
 
     @Test
     public void testCreatingSQLTableDefinition() {
-        TableDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.FLOAT).annotation(Annotation.create("From").element("datasource.id", "cepDataSource"));
+        TableDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.FLOAT).annotation(Annotation.annotation("From").element("datasource.id", "cepDataSource"));
     }
 
 

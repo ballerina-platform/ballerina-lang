@@ -24,7 +24,7 @@ import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
-import org.wso2.siddhi.core.subscription.SubscriptionRuntime;
+import org.wso2.siddhi.core.stream.output.sink.SubscriptionRuntime;
 import org.wso2.siddhi.core.util.ElementIdGenerator;
 import org.wso2.siddhi.core.util.ExecutionPlanRuntimeBuilder;
 import org.wso2.siddhi.core.util.SiddhiConstants;
@@ -209,6 +209,8 @@ public class ExecutionPlanParser {
                             executionPlanRuntimeBuilder.getWindowDefinitionMap(),
                             executionPlanRuntimeBuilder.getEventTableMap(),
                             executionPlanRuntimeBuilder.getEventWindowMap(),
+                            executionPlanRuntimeBuilder.getEventSourceMap(),
+                            executionPlanRuntimeBuilder.getEventSinkMap(),
                             executionPlanRuntimeBuilder.getLockSynchronizer());
                     executionPlanRuntimeBuilder.addQuery(queryRuntime);
                 } else if (executionElement instanceof Subscription) {
@@ -218,6 +220,8 @@ public class ExecutionPlanParser {
                             executionPlanRuntimeBuilder.getWindowDefinitionMap(),
                             executionPlanRuntimeBuilder.getEventTableMap(),
                             executionPlanRuntimeBuilder.getEventWindowMap(),
+                            executionPlanRuntimeBuilder.getEventSourceMap(),
+                            executionPlanRuntimeBuilder.getEventSinkMap(),
                             executionPlanRuntimeBuilder.getLockSynchronizer());
                     executionPlanRuntimeBuilder.addSubscription(subscriptionRuntime);
                 } else {

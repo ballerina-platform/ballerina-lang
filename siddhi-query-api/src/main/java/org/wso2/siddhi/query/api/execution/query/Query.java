@@ -119,14 +119,6 @@ public class Query implements ExecutionElement {
         this.outputStream = new InsertOverwriteStream(outputTableId, outputEventType, onUpdateExpression);
     }
 
-    public void publish(Transport transport, Mapping mapping) {
-        this.outputStream = new PublishStream(transport, mapping);
-    }
-
-    public void publish(Transport transport, OutputStream.OutputEventType outputEventType, Mapping mapping) {
-        this.outputStream = new PublishStream(transport, outputEventType, mapping);
-    }
-
     public OutputStream getOutputStream() {
         return outputStream;
     }

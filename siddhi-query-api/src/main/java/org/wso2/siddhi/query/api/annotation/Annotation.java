@@ -19,6 +19,7 @@ package org.wso2.siddhi.query.api.annotation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by suho on 8/1/14.
@@ -32,7 +33,7 @@ public class Annotation {
         this.name = name;
     }
 
-    public static Annotation create(String name) {
+    public static Annotation annotation(String name) {
         return new Annotation(name);
     }
 
@@ -54,7 +55,7 @@ public class Annotation {
 
     public String getElement(String key) {
         for (Element element : elements) {
-            if (element.getKey().equalsIgnoreCase(key)) {
+            if (element.getKey() != null && element.getKey().equalsIgnoreCase(key)) {
                 return element.getValue();
             }
         }
@@ -84,18 +85,11 @@ public class Annotation {
         this.annotations = annotations;
     }
 
-    public Annotation getAnnotation(String name) {
-        for (Annotation annotation : annotations) {
-            if (annotation.getName().equalsIgnoreCase(name)) {
-                return annotation;
-            }
-        }
-        return null;
-    }
-
-    public Annotation annotation(String name) {
-        annotations.add(create(name));
-        return this;
+    public List<Annotation> getAnnotations(String name) {
+        return annotations
+                .stream()
+                .filter(annotation -> annotation.getName().equalsIgnoreCase(name))
+                .collect(Collectors.toList());
     }
 
     public Annotation annotation(Annotation annotation) {

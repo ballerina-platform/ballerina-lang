@@ -19,7 +19,7 @@
 package org.wso2.siddhi.extension.output.mapper.text;
 
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.publisher.OutputMapper;
+import org.wso2.siddhi.core.stream.input.source.OutputMapper;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.Map;
@@ -79,20 +79,12 @@ public class TextOutputMapper extends OutputMapper {
      * Convert the given Event mapping to TEXT string
      *
      * @param event            Event object
-     * @param mappedAttributes Event mapping string array
+     * @param mappedPayload Event mapping string array
      * @param dynamicOptions   Dynamic options per event
      * @return the mapped TEXT string
      */
     @Override
-    public Object convertToMappedInputEvent(Event event, String[] mappedAttributes, Map<String, String> dynamicOptions) {
-        StringBuilder eventText = new StringBuilder();
-        for (int i = 0; i < mappedAttributes.length; i++) {
-            String mappedAttribute = mappedAttributes[i];
-            eventText.append(mappedAttribute).append(EVENT_ATTRIBUTE_SEPARATOR).append("\n");
-        }
-        eventText.deleteCharAt(eventText.lastIndexOf(EVENT_ATTRIBUTE_SEPARATOR));
-        eventText.deleteCharAt(eventText.lastIndexOf("\n"));
-
-        return eventText.toString();
+    public Object convertToMappedInputEvent(Event event, String mappedPayload, Map<String, String> dynamicOptions) {
+        return mappedPayload;
     }
 }

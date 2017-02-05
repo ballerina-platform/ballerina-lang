@@ -26,8 +26,6 @@ import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
-import org.wso2.siddhi.core.publisher.OutputMapper;
-import org.wso2.siddhi.core.publisher.OutputTransport;
 import org.wso2.siddhi.core.query.output.callback.DeleteTableCallback;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoTableCallback;
@@ -50,13 +48,11 @@ import org.wso2.siddhi.core.query.output.ratelimit.time.FirstPerTimeOutputRateLi
 import org.wso2.siddhi.core.query.output.ratelimit.time.LastGroupByPerTimeOutputRateLimiter;
 import org.wso2.siddhi.core.query.output.ratelimit.time.LastPerTimeOutputRateLimiter;
 import org.wso2.siddhi.core.stream.StreamJunction;
+import org.wso2.siddhi.core.stream.input.source.OutputTransport;
+import org.wso2.siddhi.core.stream.output.sink.InputTransport;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.util.SiddhiClassLoader;
-import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
-import org.wso2.siddhi.core.util.extension.holder.OutputMapperExecutorExtensionHolder;
-import org.wso2.siddhi.core.util.extension.holder.OutputTransportExecutorExtensionHolder;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -71,9 +67,7 @@ import org.wso2.siddhi.query.api.execution.query.output.stream.DeleteStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.InsertOverwriteStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.PublishStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateStream;
-import org.wso2.siddhi.query.api.extension.Extension;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -82,14 +76,22 @@ import java.util.concurrent.ScheduledExecutorService;
 public class OutputParser {
 
 
-    public static OutputCallback constructOutputCallback(final OutputStream outStream, StreamDefinition outputStreamDefinition,
-                                                         Map<String, EventTable> eventTableMap, Map<String, EventWindow> eventWindowMap, ExecutionPlanContext executionPlanContext, boolean convertToStreamEvent, String queryName) {
+    public static OutputCallback constructOutputCallback(final OutputStream outStream,
+                                                         StreamDefinition outputStreamDefinition,
+                                                         Map<String, EventTable> eventTableMap,
+                                                         Map<String, EventWindow> eventWindowMap,
+                                                         Map<String, InputTransport> eventSourceMap,
+                                                         Map<String, OutputTransport> eventSinkMap,
+                                                         ExecutionPlanContext executionPlanContext,
+                                                         boolean convertToStreamEvent, String queryName) {
         String id = outStream.getId();
         EventTable eventTable = null;
         EventWindow eventWindow = null;
+        OutputTransport outputTransport = null;
         if (id != null) {
             eventTable = eventTableMap.get(id);
             eventWindow = eventWindowMap.get(id);
+            outputTransport = eventSinkMap.get(id);
         }
         StreamEventPool streamEventPool = null;
         StreamEventConverter streamEventConverter = null;
@@ -117,6 +119,9 @@ public class OutputParser {
             } else if (eventTable != null) {
                 DefinitionParserHelper.validateOutputStream(outputStreamDefinition, eventTable.getTableDefinition());
                 return new InsertIntoTableCallback(eventTable, outputStreamDefinition, convertToStreamEvent, streamEventPool, streamEventConverter);
+            } else if (outputTransport != null) {
+                DefinitionParserHelper.validateOutputStream(outputStreamDefinition, outputTransport.getTransportDefinition());
+                return new PublishStreamCallback(outputTransport, outputStreamDefinition);
             } else {
                 return new InsertIntoStreamCallback(outputStreamDefinition, queryName);
             }
@@ -176,39 +181,6 @@ public class OutputParser {
             } else {
                 throw new DefinitionNotExistException("Event table with id :" + id + " does not exist");
             }
-        } else if (outStream instanceof PublishStream) {
-            Extension transportExtension = new Extension() {
-                @Override
-                public String getNamespace() {
-                    return SiddhiConstants.OUTPUT_TRANSPORT;
-                }
-
-                @Override
-                public String getFunction() {
-                    return ((PublishStream) outStream).getTransport().getType();
-                }
-            };
-            OutputTransport outputTransport = (OutputTransport) SiddhiClassLoader.loadExtensionImplementation(
-                    transportExtension, OutputTransportExecutorExtensionHolder.getInstance(executionPlanContext));
-
-            Extension mapperExtension = new Extension() {
-                @Override
-                public String getNamespace() {
-                    return SiddhiConstants.OUTPUT_MAPPER;
-                }
-
-                @Override
-                public String getFunction() {
-                    return ((PublishStream) outStream).getMapping().getFormat();
-                }
-            };
-            OutputMapper outputMapper = (OutputMapper) SiddhiClassLoader.loadExtensionImplementation(
-                    mapperExtension, OutputMapperExecutorExtensionHolder.getInstance(executionPlanContext));
-
-            executionPlanContext.addEternalReferencedHolder(outputTransport);
-
-            return new PublishStreamCallback(outputTransport, ((PublishStream) outStream).getTransport(),
-                    outputMapper, ((PublishStream) outStream).getMapping(), outputStreamDefinition);
         } else {
             throw new ExecutionPlanCreationException(outStream.getClass().getName() + " not supported");
         }

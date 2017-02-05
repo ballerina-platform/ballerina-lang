@@ -19,7 +19,7 @@
 package org.wso2.siddhi.extension.output.mapper.map;
 
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.publisher.OutputMapper;
+import org.wso2.siddhi.core.stream.input.source.OutputMapper;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.Map;
@@ -75,18 +75,12 @@ public class MapOutputMapper extends OutputMapper {
      * Convert the given option mapping to a Map object
      *
      * @param event            Event object
-     * @param mappedAttributes Event mapping string array
+     * @param mappedPayload Event mapping string array
      * @param dynamicOptions   Dynamic options
      * @return the mapped string
      */
     @Override
-    public Object convertToMappedInputEvent(Event event, String[] mappedAttributes, Map<String, String> dynamicOptions) {
-        Map<Object, Object> eventMapObject = new TreeMap<Object, Object>();
-        Object[] eventData = event.getData();
-        for (Map.Entry<String, String> entry : options.entrySet()) {
-            int attributePosition = streamDefinition.getAttributePosition(entry.getKey());
-            eventMapObject.put(entry.getValue(), eventData[attributePosition]);
-        }
-        return eventMapObject;
+    public Object convertToMappedInputEvent(Event event, String mappedPayload, Map<String, String> dynamicOptions) {
+        return mappedPayload;
     }
 }

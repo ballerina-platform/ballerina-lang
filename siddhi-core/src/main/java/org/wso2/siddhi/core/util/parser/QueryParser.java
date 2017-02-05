@@ -31,6 +31,8 @@ import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutputRateLimiter;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
+import org.wso2.siddhi.core.stream.input.source.OutputTransport;
+import org.wso2.siddhi.core.stream.output.sink.InputTransport;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.lock.LockSynchronizer;
@@ -73,6 +75,8 @@ public class QueryParser {
                                      Map<String, AbstractDefinition> windowDefinitionMap,
                                      Map<String, EventTable> eventTableMap,
                                      Map<String, EventWindow> eventWindowMap,
+                                     Map<String, InputTransport> eventSourceMap,
+                                     Map<String, OutputTransport> eventSinkMap,
                                      LockSynchronizer lockSynchronizer) {
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
         QueryRuntime queryRuntime;
@@ -174,7 +178,7 @@ public class QueryParser {
             executionPlanContext.addEternalReferencedHolder(outputRateLimiter);
 
             OutputCallback outputCallback = OutputParser.constructOutputCallback(query.getOutputStream(),
-                    streamRuntime.getMetaComplexEvent().getOutputStreamDefinition(), eventTableMap, eventWindowMap, executionPlanContext, !(streamRuntime instanceof SingleStreamRuntime), queryName);
+                    streamRuntime.getMetaComplexEvent().getOutputStreamDefinition(), eventTableMap, eventWindowMap, eventSourceMap, eventSinkMap, executionPlanContext, !(streamRuntime instanceof SingleStreamRuntime), queryName);
 
             QueryParserHelper.reduceMetaComplexEvent(streamRuntime.getMetaComplexEvent());
             QueryParserHelper.updateVariablePosition(streamRuntime.getMetaComplexEvent(), executors);

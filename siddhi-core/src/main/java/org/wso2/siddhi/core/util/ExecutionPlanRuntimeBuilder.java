@@ -21,6 +21,7 @@ package org.wso2.siddhi.core.util;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
+import org.wso2.siddhi.core.stream.input.source.OutputTransport;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
@@ -31,7 +32,8 @@ import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.callback.PublishStreamCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputManager;
-import org.wso2.siddhi.core.subscription.SubscriptionRuntime;
+import org.wso2.siddhi.core.stream.output.sink.InputTransport;
+import org.wso2.siddhi.core.stream.output.sink.SubscriptionRuntime;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.trigger.EventTrigger;
 import org.wso2.siddhi.core.util.lock.LockSynchronizer;
@@ -57,6 +59,8 @@ public class ExecutionPlanRuntimeBuilder {
     private ConcurrentMap<String, TriggerDefinition> triggerDefinitionMap = new ConcurrentHashMap<String, TriggerDefinition>(); //contains trigger definition
     private ConcurrentMap<String, QueryRuntime> queryProcessorMap = new ConcurrentHashMap<String, QueryRuntime>();
     private ConcurrentMap<String, StreamJunction> streamJunctionMap = new ConcurrentHashMap<String, StreamJunction>(); //contains stream junctions
+    private ConcurrentMap<String, InputTransport> eventSourceMap = new ConcurrentHashMap<String, InputTransport>(); //contains event sources
+    private ConcurrentMap<String, OutputTransport> eventSinkMap = new ConcurrentHashMap<String, OutputTransport>(); //contains event sinks
     private ConcurrentMap<String, EventTable> eventTableMap = new ConcurrentHashMap<String, EventTable>(); //contains event tables
     private ConcurrentMap<String, EventWindow> eventWindowMap = new ConcurrentHashMap<String, EventWindow>(); //contains event tables
     private ConcurrentMap<String, EventTrigger> eventTriggerMap = new ConcurrentHashMap<String, EventTrigger>(); //contains event tables
@@ -77,6 +81,8 @@ public class ExecutionPlanRuntimeBuilder {
             streamDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
         }
         DefinitionParserHelper.addStreamJunction(streamDefinition, streamJunctionMap, executionPlanContext);
+        DefinitionParserHelper.addEventSource(streamDefinition, eventSourceMap, executionPlanContext);
+        DefinitionParserHelper.addEventSink(streamDefinition, eventSinkMap, executionPlanContext);
     }
 
     public void defineTable(TableDefinition tableDefinition) {
@@ -222,6 +228,14 @@ public class ExecutionPlanRuntimeBuilder {
 
     public ConcurrentMap<String, AbstractDefinition> getTableDefinitionMap() {
         return tableDefinitionMap;
+    }
+
+    public ConcurrentMap<String, InputTransport> getEventSourceMap() {
+        return eventSourceMap;
+    }
+
+    public ConcurrentMap<String, OutputTransport> getEventSinkMap() {
+        return eventSinkMap;
     }
 
     public ConcurrentMap<String, AbstractDefinition> getWindowDefinitionMap() {
