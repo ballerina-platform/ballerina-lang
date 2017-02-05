@@ -33,6 +33,28 @@ define(['require', 'jquery', 'backbone', './tool'], function (require, $, Backbo
             this.trigger('tool-added', newTool);
         },
 
+        /**
+         * remove given tool item from the tool group
+         * @param {Tool} tool - tool to be removed
+         */
+        removeTool: function (tool) {
+            _.remove(this.tools, function (toolItem) {
+                return _.isEqual(toolItem.id, tool.id);
+            });
+            this.trigger('tool-removed', tool.id);
+        },
+
+        /**
+         * remove given tool item from the tool group
+         * @param {string} toolId - tool ID of the tool to be removed.
+         */
+        removeToolByToolId: function (toolId) {
+            _.remove(this.tools, function (toolItem) {
+                return _.isEqual(toolItem.id, toolId);
+            });
+            this.trigger('tool-removed', toolId);
+        },
+
         modelName: "ToolGroup",
 
         defaults: {
