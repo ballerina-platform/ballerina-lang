@@ -80,6 +80,8 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
             var dragCursorOffset = _.isUndefined(this.model.dragCursorOffset) ?  { left: 30, top: -10 } : this.model.dragCursorOffset;
             this._dragCursorOffset = dragCursorOffset;
             var self = this;
+            // setting id for the div
+            this.$el.attr('id', this.model.id);
             if (orderVertical) {
                 this.$el.html(this.toolTemplateVertical(this.model.attributes));
             } else {

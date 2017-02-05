@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'lodash', './modal-dialog', 'alerts'], function (require, $, _, ModalDialog, alerts) {
+define(['require', 'jquery', 'lodash', './modal-dialog', 'log'], function (require, $, _, ModalDialog, log) {
 
     var NewItemDialog = function (options) {
         _.set(options, 'class', 'create-new-item-wizard');
@@ -44,7 +44,7 @@ define(['require', 'jquery', 'lodash', './modal-dialog', 'alerts'], function (re
                 if(_.isFunction(successCallBack)){
                     successCallBack.call();
                 }
-                alerts.success(path + " created successfully");
+                log.debug('file' + path + " created successfully");
                 if(!_.isEqual('folder', data.type)){
                     var file = this._serviceClient.readFile(path);
                     app.commandManager.dispatch("create-new-tab", {tabOptions: {file: file}});
