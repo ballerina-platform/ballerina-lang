@@ -18,7 +18,7 @@
 package org.wso2.siddhi.annotation.util;
 
 /**
- * Enum types used in @Parameter, @AdditionalAttribute, @Return
+ * Enum types used in @Parameter, @ReturnAttribute
  */
 public enum DataType {
     STRING, INT, LONG, FLOAT, DOUBLE, BOOL, OBJECT,

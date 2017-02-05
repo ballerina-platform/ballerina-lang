@@ -109,7 +109,7 @@ public class SubscriptionParser {
                 }
 
                 @Override
-                public String getFunction() {
+                public String getName() {
                     return subscription.getTransport().getType();
                 }
             };
@@ -118,13 +118,13 @@ public class SubscriptionParser {
                     (transportExtension, InputTransportExecutorExtensionHolder.getInstance(executionPlanContext));
 
 //            InputTransport inputTransport = (InputTransport) SiddhiClassLoader.loadSiddhiImplementation
-//                    (transportExtension.getFunction(), InputTransport.class);
+//                    (transportExtension.getName(), InputTransport.class);
 
             Mapping mapping = subscription.getMapping();
             if (mapping == null) {
                 // Subscription without mapping
                 throw new ExecutionPlanValidationException("Subscription must have a mapping plan but " +
-                        transportExtension.getFunction() + " subscription does not have a mapping plan");
+                        transportExtension.getName() + " subscription does not have a mapping plan");
             }
 
             // Named mapping and positional mapping cannot be together
@@ -150,7 +150,7 @@ public class SubscriptionParser {
                 }
 
                 @Override
-                public String getFunction() {
+                public String getName() {
                     return subscription.getMapping().getFormat();
                 }
             };
@@ -168,7 +168,7 @@ public class SubscriptionParser {
             if (outputStreamDefinition == null) {
                 // Cannot infer the output stream
                 throw new ExecutionPlanValidationException("Subscription must have an output stream or event window " +
-                        "but " + transportExtension.getFunction() + " subscription does not have output stream");
+                        "but " + transportExtension.getName() + " subscription does not have output stream");
             }
 
             OutputCallback outputCallback = OutputParser.constructOutputCallback(subscription.getOutputStream(),

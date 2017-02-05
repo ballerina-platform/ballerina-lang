@@ -25,6 +25,7 @@ import com.hazelcast.config.JoinConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -61,6 +62,11 @@ import java.util.Map;
 /**
  * Hazelcast event table implementation of SiddhiQL.
  */
+@Extension(
+        name = "hazelcast",
+        namespace = "eventtable",
+        description = ""
+)
 public class HazelcastEventTable implements EventTable {
     private static final Logger logger = Logger.getLogger(HazelcastEventTable.class);
     private final ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
@@ -92,7 +98,7 @@ public class HazelcastEventTable implements EventTable {
 
         Store store = tableDefinition.getStore();
         Map<String, String> getStoreOptions = null;
-        if (store != null){
+        if (store != null) {
             getStoreOptions = store.getOptions();
         }
 
@@ -114,7 +120,7 @@ public class HazelcastEventTable implements EventTable {
                 hosts = getStoreOptions.get(
                         HazelcastEventTableConstants.ANNOTATION_ELEMENT_HAZELCAST_WELL_KNOWN_ADDRESSES);
             }
-        }  else {
+        } else {
             clusterName = fromAnnotation.getElement(
                     HazelcastEventTableConstants.ANNOTATION_ELEMENT_HAZELCAST_CLUSTER_NAME);
             clusterPassword = fromAnnotation.getElement(

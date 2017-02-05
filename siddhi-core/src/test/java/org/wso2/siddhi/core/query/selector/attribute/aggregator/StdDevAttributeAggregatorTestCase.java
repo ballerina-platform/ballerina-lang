@@ -29,8 +29,8 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
-public class StddevAttributeAggregatorTestCase {
-    static final Logger log = Logger.getLogger(StddevAttributeAggregatorTestCase.class);
+public class StdDevAttributeAggregatorTestCase {
+    static final Logger log = Logger.getLogger(StdDevAttributeAggregatorTestCase.class);
     private final double epsilon = 0.00001; // difference threshold for two doubles to be treated distinct
     private int inEventCount; // Only used in the Test #1 and #6
 
@@ -40,19 +40,19 @@ public class StddevAttributeAggregatorTestCase {
     }
 
     @Test
-    public void StddevAggregatorTest1() throws InterruptedException {
-        log.info("StddevAggregator Test #1: No events in the stream");
+    public void stdDevAggregatorTest1() throws InterruptedException {
+        log.info("stdDevAggregator Test #1: No events in the stream");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String execPlan = "" +
-                "@Plan:name('StddevAggregatorTests') " +
+                "@Plan:name('stdDevAggregatorTests') " +
                 "" +
                 "define stream cseEventStream (symbol string, price double);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from cseEventStream " +
-                "select stddev(price) as deviation " +
+                "select stdDev(price) as deviation " +
                 "group by symbol " +
                 "insert into outputStream;";
 
@@ -74,19 +74,19 @@ public class StddevAttributeAggregatorTestCase {
     }
 
     @Test
-    public void StddevAggregatorTest2() throws InterruptedException {
-        log.info("StddevAggregator Test #2: Single event in the stream");
+    public void stdDevAggregatorTest2() throws InterruptedException {
+        log.info("stdDevAggregator Test #2: Single event in the stream");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String execPlan = "" +
-                "@Plan:name('StddevAggregatorTests') " +
+                "@Plan:name('stdDevAggregatorTests') " +
                 "" +
                 "define stream cseEventStream (symbol string, price double);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from cseEventStream#window.lengthBatch(1) " +
-                "select stddev(price) as deviation " +
+                "select stdDev(price) as deviation " +
                 "group by symbol " +
                 "insert into outputStream;";
 
@@ -108,19 +108,19 @@ public class StddevAttributeAggregatorTestCase {
     }
 
     @Test
-    public void StddevAggregatorTest3() throws InterruptedException {
-        log.info("StddevAggregator Test #3: All the events in the stream are equal");
+    public void stdDevAggregatorTest3() throws InterruptedException {
+        log.info("stdDevAggregator Test #3: All the events in the stream are equal");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String execPlan = "" +
-                "@Plan:name('StddevAggregatorTests') " +
+                "@Plan:name('stdDevAggregatorTests') " +
                 "" +
                 "define stream cseEventStream (symbol string, price double);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from cseEventStream#window.lengthBatch(3) " +
-                "select stddev(price) as deviation " +
+                "select stdDev(price) as deviation " +
                 "group by symbol " +
                 "insert into outputStream;";
 
@@ -144,19 +144,19 @@ public class StddevAttributeAggregatorTestCase {
     }
 
     @Test
-    public void StddevAggregatorTest4() throws InterruptedException {
-        log.info("StddevAggregator Test #4: Two symbols in the stream with same stddev");
+    public void stdDevAggregatorTest4() throws InterruptedException {
+        log.info("stdDevAggregator Test #4: Two symbols in the stream with same stdDev");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String execPlan = "" +
-                "@Plan:name('StddevAggregatorTests') " +
+                "@Plan:name('stdDevAggregatorTests') " +
                 "" +
                 "define stream cseEventStream (symbol string, price double);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from cseEventStream#window.lengthBatch(6) " +
-                "select stddev(price) as deviation " +
+                "select stdDev(price) as deviation " +
                 "group by symbol " +
                 "insert into outputStream;";
 
@@ -184,19 +184,19 @@ public class StddevAttributeAggregatorTestCase {
     }
 
     @Test
-    public void StddevAggregatorTest5() throws InterruptedException {
-        log.info("StddevAggregator Test #5: Stddev of large and small numbers");
+    public void stdDevAggregatorTest5() throws InterruptedException {
+        log.info("stdDevAggregator Test #5: stdDev of large and small numbers");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String execPlan = "" +
-                "@Plan:name('StddevAggregatorTests') " +
+                "@Plan:name('stdDevAggregatorTests') " +
                 "" +
                 "define stream cseEventStream (symbol string, price double);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from cseEventStream#window.lengthBatch(6) " +
-                "select stddev(price) as deviation " +
+                "select stdDev(price) as deviation " +
                 "group by symbol " +
                 "insert into outputStream;";
 
@@ -224,21 +224,21 @@ public class StddevAttributeAggregatorTestCase {
     }
 
     @Test
-    public void StddevAggregatorTest6() throws InterruptedException {
-        log.info("StddevAggregator Test #6");
+    public void stdDevAggregatorTest6() throws InterruptedException {
+        log.info("stdDevAggregator Test #6");
 
         final double[] results = new double[] {0.0, 489.95, 400.09052, 405.11802, 199.96026};
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String windowExecPlan = "" +
-                "@Plan:name('StddevAggregatorTests') " +
+                "@Plan:name('stdDevAggregatorTests') " +
                 "" +
                 "define stream cseEventStream (symbol string, price double);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from cseEventStream#window.length(3) " +
-                "select stddev(price) as deviation " +
+                "select stdDev(price) as deviation " +
                 "group by symbol " +
                 "insert all events into outputStream;";
 

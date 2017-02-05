@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.extension.output.mapper.map;
 
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.source.OutputMapper;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -25,10 +26,13 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import java.util.Map;
 import java.util.TreeMap;
 
+@Extension(
+        name = "map",
+        namespace = "outputmapper",
+        description = ""
+)
 public class MapOutputMapper extends OutputMapper {
     private StreamDefinition streamDefinition;
-    private Map<String, String> options;
-    private static final String EVENT_ATTRIBUTE_SEPARATOR = ",";
 
     /**
      * Initialize the mapper and the mapping configurations.
@@ -40,7 +44,6 @@ public class MapOutputMapper extends OutputMapper {
     @Override
     public void init(StreamDefinition streamDefinition, Map<String, String> options, Map<String, String> unmappedDynamicOptions) {
         this.streamDefinition = streamDefinition;
-        this.options = options;
     }
 
     /**
@@ -79,6 +82,8 @@ public class MapOutputMapper extends OutputMapper {
      * @param dynamicOptions   Dynamic options
      * @return the mapped string
      */
+    // Note: Currently, we do not support custom mapping for "map" type since the expected usecases such as renaming and
+    // extracting desired attributes can be handled by writing siddhi queries
     @Override
     public Object convertToMappedInputEvent(Event event, String mappedPayload, Map<String, String> dynamicOptions) {
         return mappedPayload;

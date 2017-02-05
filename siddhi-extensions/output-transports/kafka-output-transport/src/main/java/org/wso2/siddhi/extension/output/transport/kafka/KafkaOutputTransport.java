@@ -22,6 +22,7 @@ import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.exception.TestConnectionNotSupportedException;
 import org.wso2.siddhi.core.stream.input.source.MessageType;
@@ -36,6 +37,11 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+@Extension(
+        name = "kafka",
+        namespace = "outputtransport",
+        description = ""
+)
 public class KafkaOutputTransport extends OutputTransport {
 
     public static final int ADAPTER_MIN_THREAD_POOL_SIZE = 8;

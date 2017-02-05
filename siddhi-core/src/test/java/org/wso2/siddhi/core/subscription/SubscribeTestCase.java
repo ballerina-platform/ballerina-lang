@@ -24,6 +24,8 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.transport.InMemoryInputTransport;
+import org.wso2.siddhi.core.util.transport.PassThroughInputMapper;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -49,6 +51,8 @@ public class SubscribeTestCase {
         executionPlan.addSubscription(subscription);
 
         SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setExtension("inputtransport:inMemory", InMemoryInputTransport.class);
+        siddhiManager.setExtension("inputmapper:passThrough", PassThroughInputMapper.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
         executionPlanRuntime.addCallback("FooStream", new StreamCallback() {
             @Override

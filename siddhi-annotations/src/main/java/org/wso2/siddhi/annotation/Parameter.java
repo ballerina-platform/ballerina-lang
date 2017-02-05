@@ -26,22 +26,25 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for storing the parameters of a processor.
- * Can be applied to windows, stream processors, stream functions, function executors and attribute aggregators
+ * Annotation for storing the parameters of a Siddhi Extension.
  *
  * <pre><code>
  * eg:-
- *      {@literal @}Parameter(name = "parameter1", type = {DataType.INT, DataType.LONG})
- *      {@literal @}Parameter(name = "parameter2", type = {DataType.BOOL}, description="description about the parameter")
- *      {@literal @}Parameter(name = "parameter3", type = {DataType.DOUBLE, DataType.FLOAT}, optional=true)
- *      public CustomProcessor extends ProcessorSuperClass {
+ *      {@literal @}Extension(
+ *                      ...
+ *                      parameters = {
+ *                          {@literal @}Parameter(name = "firstParameterName", type = {DataType.INT, DataType.LONG}),
+ *                          {@literal @}Parameter(name = "SecondParameterName", type = {DataType.STRING})
+ *                      },
+ *                      ...
+ *      )
+ *      public CustomExtension extends ExtensionSuperClass {
  *          ...
  *      }
  * </code></pre>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-@Repeatable(Parameters.class)
+@Target(ElementType.ANNOTATION_TYPE)
 public @interface Parameter {
     String name();
 

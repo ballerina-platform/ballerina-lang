@@ -19,6 +19,7 @@
 package org.wso2.siddhi.extension.output.transport.test;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.TestConnectionNotSupportedException;
@@ -30,6 +31,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Extension(
+        name = "test",
+        namespace = "outputtransport",
+        description = ""
+)
 public class TestOutputTransport extends OutputTransport {
     private static final Logger log = Logger.getLogger(TestOutputTransport.class);
     private static final String TOPIC_KEY = "topic";

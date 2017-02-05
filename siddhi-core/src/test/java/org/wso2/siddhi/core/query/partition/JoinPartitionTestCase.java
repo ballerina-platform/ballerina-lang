@@ -119,7 +119,7 @@ public class JoinPartitionTestCase {
         twitterStreamHandler.send(new Object[]{"User2", "Hello World", "IBM"});
         twitterStreamHandler.send(new Object[]{"User2", "World", "IBM"});
 
-        SiddhiTestHelper.waitForEvents(100, 8, count, 6000);
+        SiddhiTestHelper.waitForEvents(1000, 8, count, 12000);
         Assert.assertEquals(8, count.get());
         executionPlanRuntime.shutdown();
 

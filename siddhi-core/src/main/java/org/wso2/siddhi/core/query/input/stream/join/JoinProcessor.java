@@ -29,8 +29,6 @@ import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
 
-import java.util.concurrent.locks.Lock;
-
 /**
  * Created on 12/8/14.
  */
@@ -94,12 +92,14 @@ public class JoinProcessor implements Processor {
                             }
                         } else {
                             while (foundStreamEvent != null) {
+                                StreamEvent nextFoundStreamEvent = foundStreamEvent.getNext();
+                                foundStreamEvent.setNext(null);
                                 if (!leftJoinProcessor) {
                                     returnEventChunk.add(joinEventBuilder(foundStreamEvent, streamEvent, eventType));
                                 } else {
                                     returnEventChunk.add(joinEventBuilder(streamEvent, foundStreamEvent, eventType));
                                 }
-                                foundStreamEvent = foundStreamEvent.getNext();
+                                foundStreamEvent = nextFoundStreamEvent;
                             }
                         }
                     }

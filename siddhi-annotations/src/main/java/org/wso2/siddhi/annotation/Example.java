@@ -23,19 +23,22 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for storing an example for a processor.
- * Can be applied to windows, stream processors, stream functions, function executors and attribute aggregators
- *
+ * An Optional annotation for storing an examples for a Siddhi Extension.
+ * <p>
  * <pre><code>
  * eg:-
- *      {@literal @}Example({"Example of the CustomProcessor usage"})
- *      public CustomProcessor extends ProcessorSuperClass {
+ *      {@literal @}Extension(
+ *                      ...
+ *                      examples = {{@literal @}Example({"Example of the CustomExtension usage 1"}),
+ *                                  {@literal @}Example({"Example of the CustomExtension usage 2"})}
+ *      )
+ *      public CustomExtension extends ExtensionSuperClass {
  *          ...
  *      }
  * </code></pre>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target(ElementType.ANNOTATION_TYPE)
 public @interface Example {
     String value();
 }

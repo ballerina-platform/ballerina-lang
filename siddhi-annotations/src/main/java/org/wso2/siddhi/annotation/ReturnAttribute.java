@@ -28,22 +28,28 @@ import java.lang.annotation.Target;
  * Annotation for storing additional attributes returned by a stream processor.
  * This should not be directly applied to any classes.
  * This should only be passed as a parameter to org.wso2.siddhi.core.util.docs.annotation.ReturnEvent
- *
+ * <p>
  * <pre><code>
  * eg:-
- *      {@literal @}ReturnEvent({
- *          {@literal @}AdditionalAttribute(name = "attribute1", type = {DataType.INT, DataType.LONG}, description="Description about the addition return attributes"),
- *          {@literal @}AdditionalAttribute(name = "attribute2", type = {DataType.DOUBLE, DataType.FLOAT})
- *      })
- *      public CustomStreamProcessor extends StreamProcessor {
+ *      {@literal @}Extension(
+ *                     ...
+ *                      returnAttributes = {{@literal @}ReturnAttribute( name = "attribute1",
+ *                                                                      type = {DataType.INT, DataType.LONG},
+ *                                                                      description="Description of attribute1"),
+ *                                          {{@literal @}ReturnAttribute( name = "attribute2",
+ *                                                                      type = {DataType.INT},
+ *                                                                      description="Description of attribute2")},
+ *                     ...
+ *      )
+ *      public CustomExtension extends ExtensionSuperClass {
  *          ...
  *      }
  * </code></pre>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface AdditionalAttribute {
-    String name();
+@Target(ElementType.ANNOTATION_TYPE)
+public @interface ReturnAttribute {
+    String name() default "";   // optional
 
     DataType[] type();
 

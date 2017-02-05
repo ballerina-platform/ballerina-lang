@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.extension.util;
 
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
@@ -26,7 +27,11 @@ import org.wso2.siddhi.query.api.definition.Attribute.Type;
 import java.util.HashMap;
 import java.util.Map;
 
-
+@Extension(
+        name = "getAll",
+        namespace = "custom",
+        description = ""
+)
 public class StringConcatAggregatorString extends AttributeAggregator {
     private static final long serialVersionUID = 1358667438272544590L;
     private String aggregatedStringValue = "";

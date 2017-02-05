@@ -20,13 +20,13 @@ package org.wso2.siddhi.core.config;
 
 import com.lmax.disruptor.ExceptionHandler;
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.SiddhiExtensionLoader;
 import org.wso2.siddhi.core.util.extension.holder.AbstractExtensionHolder;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
 import org.wso2.siddhi.core.util.statistics.metrics.SiddhiMetricsFactory;
 
 import javax.sql.DataSource;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -35,41 +35,37 @@ public class SiddhiContext {
     private static final Logger log = Logger.getLogger(SiddhiContext.class);
 
     private ExceptionHandler<Object> defaultDisrupterExceptionHandler;
-    private Map<String, Class> siddhiExtensions;
+    private Map<String, Class> siddhiExtensions = new HashMap<>();
     private PersistenceStore persistenceStore = null;
     private ConcurrentHashMap<String, DataSource> siddhiDataSources;
     private StatisticsConfiguration statisticsConfiguration;
     private ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap;
 
     public SiddhiContext() {
-        setSiddhiExtensions(SiddhiExtensionLoader.loadSiddhiExtensions());
+        SiddhiExtensionLoader.loadSiddhiExtensions(siddhiExtensions);
         siddhiDataSources = new ConcurrentHashMap<String, DataSource>();
         statisticsConfiguration = new StatisticsConfiguration(new SiddhiMetricsFactory());
         extensionHolderMap = new ConcurrentHashMap<Class, AbstractExtensionHolder>();
         defaultDisrupterExceptionHandler = new ExceptionHandler<Object>() {
             @Override
             public void handleEventException(Throwable throwable, long l, Object event) {
-                log.error("Disruptor encountered an error processing" +" [sequence: " + l + ", event: "+event.toString()+"]", throwable);
+                log.error("Disruptor encountered an error processing" + " [sequence: " + l + ", event: " + event.toString() + "]", throwable);
             }
 
             @Override
             public void handleOnStartException(Throwable throwable) {
-                log.error("Disruptor encountered an error on start" , throwable);
+                log.error("Disruptor encountered an error on start", throwable);
             }
 
             @Override
             public void handleOnShutdownException(Throwable throwable) {
-                log.error("Disruptor encountered an error on shutdown" , throwable);
+                log.error("Disruptor encountered an error on shutdown", throwable);
             }
         };
     }
 
     public Map<String, Class> getSiddhiExtensions() {
         return siddhiExtensions;
-    }
-
-    public void setSiddhiExtensions(Map<String, Class> siddhiExtensions) {
-        this.siddhiExtensions = siddhiExtensions;
     }
 
     public PersistenceStore getPersistenceStore() {

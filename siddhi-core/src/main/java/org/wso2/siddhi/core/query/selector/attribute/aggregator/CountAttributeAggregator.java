@@ -17,9 +17,7 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
-import org.wso2.siddhi.annotation.Description;
-import org.wso2.siddhi.annotation.Return;
-import org.wso2.siddhi.annotation.util.DataType;
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -27,8 +25,14 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import java.util.HashMap;
 import java.util.Map;
 
-@Description("Returns the count of all the events.")
-@Return(type = {DataType.LONG})
+//@Description("Returns the count of all the events.")
+//@Return(type = {DataType.LONG})
+@Extension(
+        name = "count",
+        namespace = "",
+        description = "",
+        parameters = {}
+)
 public class CountAttributeAggregator extends AttributeAggregator {
 
     private static Attribute.Type type = Attribute.Type.LONG;

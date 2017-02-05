@@ -45,12 +45,12 @@ public class MinForeverAggregatorExtensionTestCase {
 
     @Test
     public void testMinForeverAggregatorExtension1() throws InterruptedException {
-        log.info("MinForeverAggregator TestCase 1");
+        log.info("minForeverAggregator TestCase 1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream inputStream (price1 double,price2 double, price3 double);";
         String query = ("@info(name = 'query1') from inputStream " +
-                "select MinForever(price1) as MinForeverValue " +
+                "select minForever(price1) as minForeverValue " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
@@ -106,12 +106,12 @@ public class MinForeverAggregatorExtensionTestCase {
 
     @Test
     public void testMinForeverAggregatorExtension2() throws InterruptedException {
-        log.info("MinForeverAggregator TestCase 2");
+        log.info("minForeverAggregator TestCase 2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream inputStream (price1 int,price2 int, price3 int);";
         String query = ("@info(name = 'query1') from inputStream " +
-                "select MinForever(price1) as MinForeverValue " +
+                "select minForever(price1) as minForeverValue " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
@@ -156,12 +156,12 @@ public class MinForeverAggregatorExtensionTestCase {
 
     @Test
     public void testMinForeverAggregatorExtension3() throws InterruptedException {
-        log.info("MinForeverAggregator TestCase 3");
+        log.info("minForeverAggregator TestCase 3");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream inputStream (price1 float, price2 float, price3 float);";
         String query = ("@info(name = 'query1') from inputStream " +
-                "select MinForever(price1) as MinForeverValue " +
+                "select minForever(price1) as minForeverValue " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
@@ -217,12 +217,12 @@ public class MinForeverAggregatorExtensionTestCase {
 
     @Test
     public void testMinForeverAggregatorExtension4() throws InterruptedException {
-        log.info("MinForeverAggregator TestCase 4");
+        log.info("minForeverAggregator TestCase 4");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream inputStream (price1 long, price2 long, price3 long);";
         String query = ("@info(name = 'query1') from inputStream " +
-                "select MinForever(price1) as MinForever " +
+                "select minForever(price1) as minForever " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
@@ -267,12 +267,12 @@ public class MinForeverAggregatorExtensionTestCase {
 
     @Test(expected = ExecutionPlanValidationException.class)
     public void testMinForeverAggregatorExtension5() throws InterruptedException {
-        log.info("MinForeverAggregator TestCase 5");
+        log.info("minForeverAggregator TestCase 5");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream inputStream (price1 int,price2 double, price3 double);";
         String query = ("@info(name = 'query1') from inputStream " +
-                "select MinForever(price1, price2, price3) as MinForeverValue " +
+                "select minForever(price1, price2, price3) as minForeverValue " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
     }

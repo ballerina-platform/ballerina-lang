@@ -22,12 +22,7 @@ import org.antlr.v4.runtime.misc.NotNull;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.definition.FunctionDefinition;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.definition.TableDefinition;
-import org.wso2.siddhi.query.api.definition.TriggerDefinition;
-import org.wso2.siddhi.query.api.definition.WindowDefinition;
+import org.wso2.siddhi.query.api.definition.*;
 import org.wso2.siddhi.query.api.definition.io.Store;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.execution.ExecutionElement;
@@ -41,47 +36,22 @@ import org.wso2.siddhi.query.api.execution.partition.ValuePartitionType;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.handler.Filter;
 import org.wso2.siddhi.query.api.execution.query.input.handler.StreamFunction;
-import org.wso2.siddhi.query.api.execution.query.input.handler.StreamFunctionExtension;
 import org.wso2.siddhi.query.api.execution.query.input.handler.StreamHandler;
 import org.wso2.siddhi.query.api.execution.query.input.handler.Window;
-import org.wso2.siddhi.query.api.execution.query.input.handler.WindowExtension;
-import org.wso2.siddhi.query.api.execution.query.input.state.CountStateElement;
-import org.wso2.siddhi.query.api.execution.query.input.state.EveryStateElement;
-import org.wso2.siddhi.query.api.execution.query.input.state.NextStateElement;
-import org.wso2.siddhi.query.api.execution.query.input.state.State;
-import org.wso2.siddhi.query.api.execution.query.input.state.StateElement;
-import org.wso2.siddhi.query.api.execution.query.input.state.StreamStateElement;
-import org.wso2.siddhi.query.api.execution.query.input.stream.AnonymousInputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
+import org.wso2.siddhi.query.api.execution.query.input.state.*;
+import org.wso2.siddhi.query.api.execution.query.input.stream.*;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.EventOutputRate;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.OutputRate;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.SnapshotOutputRate;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.TimeOutputRate;
-import org.wso2.siddhi.query.api.execution.query.output.stream.DeleteStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.InsertOverwriteStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.ReturnStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateStream;
+import org.wso2.siddhi.query.api.execution.query.output.stream.*;
 import org.wso2.siddhi.query.api.execution.query.selection.OutputAttribute;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
+import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
-import org.wso2.siddhi.query.api.expression.constant.BoolConstant;
-import org.wso2.siddhi.query.api.expression.constant.Constant;
-import org.wso2.siddhi.query.api.expression.constant.DoubleConstant;
-import org.wso2.siddhi.query.api.expression.constant.FloatConstant;
-import org.wso2.siddhi.query.api.expression.constant.IntConstant;
-import org.wso2.siddhi.query.api.expression.constant.LongConstant;
-import org.wso2.siddhi.query.api.expression.constant.StringConstant;
-import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
-import org.wso2.siddhi.query.api.expression.function.AttributeFunction;
-import org.wso2.siddhi.query.api.expression.function.AttributeFunctionExtension;
+import org.wso2.siddhi.query.api.expression.constant.*;
 import org.wso2.siddhi.query.api.util.SiddhiConstants;
 import org.wso2.siddhi.query.compiler.SiddhiQLBaseVisitor;
 import org.wso2.siddhi.query.compiler.SiddhiQLParser;
@@ -386,12 +356,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             windowDefinition.annotation((Annotation) visit(annotationContext));
         }
         AttributeFunction attributeFunction = (AttributeFunction) visit(ctx.function_operation());
-        Window window;
-        if (attributeFunction instanceof AttributeFunctionExtension) {
-            window = new WindowExtension(((AttributeFunctionExtension) attributeFunction).getNamespace(), attributeFunction.getFunction(), attributeFunction.getParameters());
-        } else {
-            window = new Window(attributeFunction.getFunction(), attributeFunction.getParameters());
-        }
+        Window window = new Window(attributeFunction.getNamespace(), attributeFunction.getName(), attributeFunction.getParameters());
         windowDefinition.window(window);
 
         // Optional output event type
@@ -1313,11 +1278,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     @Override
     public StreamFunction visitStream_function(@NotNull SiddhiQLParser.Stream_functionContext ctx) {
         AttributeFunction attributeFunction = (AttributeFunction) visit(ctx.function_operation());
-        if (attributeFunction instanceof AttributeFunctionExtension) {
-            return new StreamFunctionExtension(((AttributeFunctionExtension) attributeFunction).getNamespace(), attributeFunction.getFunction(), attributeFunction.getParameters());
-        } else {
-            return new StreamFunction(attributeFunction.getFunction(), attributeFunction.getParameters());
-        }
+            return new StreamFunction(attributeFunction.getNamespace(), attributeFunction.getName(), attributeFunction.getParameters());
     }
 
     /**
@@ -1330,11 +1291,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     @Override
     public Window visitWindow(@NotNull SiddhiQLParser.WindowContext ctx) {
         AttributeFunction attributeFunction = (AttributeFunction) visit(ctx.function_operation());
-        if (attributeFunction instanceof AttributeFunctionExtension) {
-            return new WindowExtension(((AttributeFunctionExtension) attributeFunction).getNamespace(), attributeFunction.getFunction(), attributeFunction.getParameters());
-        } else {
-            return new Window(attributeFunction.getFunction(), attributeFunction.getParameters());
-        }
+        return new Window(attributeFunction.getNamespace(), attributeFunction.getName(), attributeFunction.getParameters());
     }
 
     /**

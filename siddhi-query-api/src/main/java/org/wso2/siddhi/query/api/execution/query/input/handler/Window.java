@@ -18,24 +18,37 @@
 package org.wso2.siddhi.query.api.execution.query.input.handler;
 
 import org.wso2.siddhi.query.api.expression.Expression;
+import org.wso2.siddhi.query.api.extension.Extension;
 
 import java.util.Arrays;
 
-public class Window implements StreamHandler {
+public class Window implements StreamHandler, Extension {
 
+    private String namespace = "";
     private String function;
     private Expression[] parameters;
 
-    public Window(String function, Expression[] parameters) {
-        this.function = function;
+    public Window(String namespace, String functionName, Expression[] parameters) {
+        this.function = functionName;
+        this.parameters = parameters;
+        this.namespace = namespace;
+    }
+
+    public Window(String namespace, String functionName) {
+        this.function = functionName;
+        this.namespace = namespace;
+    }
+
+    public Window(String functionName, Expression[] parameters) {
+        this.function = functionName;
         this.parameters = parameters;
     }
 
-    public Window(String function) {
-        this.function = function;
+    public Window(String functionName) {
+        this.function = functionName;
     }
 
-    public String getFunction() {
+    public String getName() {
         return function;
     }
 
@@ -43,31 +56,37 @@ public class Window implements StreamHandler {
         return parameters;
     }
 
-    @Override
-    public String toString() {
-        return "Window{" +
-                "function='" + function + '\'' +
-                ", parameters=" + Arrays.toString(parameters) +
-                '}';
+    public String getNamespace() {
+        return namespace;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Window)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         Window window = (Window) o;
 
-        if (!function.equals(window.function)) return false;
+        if (function != null ? !function.equals(window.function) : window.function != null) return false;
+        // Probably incorrect - comparing Object[] arrays with Arrays.equals
         if (!Arrays.equals(parameters, window.parameters)) return false;
-
-        return true;
+        return namespace != null ? namespace.equals(window.namespace) : window.namespace == null;
     }
 
     @Override
     public int hashCode() {
-        int result = function.hashCode();
-        result = 31 * result + (parameters != null ? Arrays.hashCode(parameters) : 0);
+        int result = function != null ? function.hashCode() : 0;
+        result = 31 * result + Arrays.hashCode(parameters);
+        result = 31 * result + (namespace != null ? namespace.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Window{" +
+                "namespace='" + namespace + '\'' +
+                ", function='" + function + '\'' +
+                ", parameters=" + Arrays.toString(parameters) +
+                '}';
     }
 }

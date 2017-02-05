@@ -19,10 +19,7 @@
 package org.wso2.siddhi.core.query.processor.stream.window;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.annotation.Description;
-import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.Parameters;
-import org.wso2.siddhi.annotation.util.DataType;
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -44,13 +41,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Description("A sliding time window based on external time. It holds events " +
-        "that arrived during the last windowTime period from the external timestamp, " +
-        "and gets updated on every monotonically increasing timestamp.")
-@Parameters({
-        @Parameter(name = "timestamp", type = {DataType.LONG}),
-        @Parameter(name = "windowTime", type = {DataType.INT, DataType.LONG, DataType.TIME})
-})
+//@Description("A sliding time window based on external time. It holds events " +
+//        "that arrived during the last windowTime period from the external timestamp, " +
+//        "and gets updated on every monotonically increasing timestamp.")
+//@Parameters({
+//        @Parameter(name = "timestamp", type = {DataType.LONG}),
+//        @Parameter(name = "windowTime", type = {DataType.INT, DataType.LONG, DataType.TIME})
+//})
+@Extension(
+        name = "externalTime",
+        namespace = "",
+        description = "",
+        parameters = {}
+)
 public class ExternalTimeWindowProcessor extends WindowProcessor implements FindableProcessor {
     static final Logger log = Logger.getLogger(ExternalTimeWindowProcessor.class);
     private long timeToKeep;

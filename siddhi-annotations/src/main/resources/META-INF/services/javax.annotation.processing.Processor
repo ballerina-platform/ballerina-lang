@@ -17,3 +17,4 @@
 #
 
 org.wso2.siddhi.annotation.processor.ValidationAnnotationProcessor
+org.atteo.classindex.processor.ClassIndexProcessor

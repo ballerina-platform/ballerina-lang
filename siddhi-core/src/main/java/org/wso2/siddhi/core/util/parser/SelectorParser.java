@@ -72,6 +72,7 @@ public class SelectorParser {
         }
 
         id = outputStream.getId();
+        containsAggregatorThreadLocal.remove();
         QuerySelector querySelector = new QuerySelector(id, selector, currentOn, expiredOn, executionPlanContext);
         List<AttributeProcessor> attributeProcessors = getAttributeProcessors(selector, id, executionPlanContext, metaComplexEvent, eventTableMap, variableExpressionExecutors, queryName);
         querySelector.setAttributeProcessorList(attributeProcessors, "true".equals(containsAggregatorThreadLocal.get()));

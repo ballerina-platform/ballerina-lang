@@ -27,8 +27,8 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 
-public class DistinctcountAttributeAggregatorTestCase {
-    private static final Logger log = Logger.getLogger(DistinctcountAttributeAggregatorTestCase.class);
+public class DistinctCountAttributeAggregatorTestCase {
+    private static final Logger log = Logger.getLogger(DistinctCountAttributeAggregatorTestCase.class);
     private volatile int count;
 
     @Before
@@ -47,7 +47,7 @@ public class DistinctcountAttributeAggregatorTestCase {
         String query = "" +
                 "@info(name = 'query1') " +
                 "from inputStream#window.time(5 sec) " +
-                "select userID, pageID, distinctcount(pageID) as distinctPages " +
+                "select userID, pageID, distinctCount(pageID) as distinctPages " +
                 "group by userID " +
                 "having distinctPages > 3 " +
                 "insert into outputStream; ";

@@ -143,7 +143,7 @@ public class DefinitionParserHelper {
                     }
 
                     @Override
-                    public String getFunction() {
+                    public String getName() {
                         return evenTableType;
                     }
                 };
@@ -157,7 +157,7 @@ public class DefinitionParserHelper {
                     }
 
                     @Override
-                    public String getFunction() {
+                    public String getName() {
                         return evenTableType;
                     }
                 };
@@ -186,7 +186,7 @@ public class DefinitionParserHelper {
                     }
 
                     @Override
-                    public String getFunction() {
+                    public String getName() {
                         return functionDefinition.getLanguage().toLowerCase();
                     }
                 }, EvalScriptExtensionHolder.getInstance(executionPlanContext));
@@ -256,7 +256,7 @@ public class DefinitionParserHelper {
                         }
 
                         @Override
-                        public String getFunction() {
+                        public String getName() {
                             return sourceType.toLowerCase();
                         }
                     };
@@ -271,7 +271,7 @@ public class DefinitionParserHelper {
                         }
 
                         @Override
-                        public String getFunction() {
+                        public String getName() {
                             return mapType.toLowerCase();
                         }
                     };
@@ -317,7 +317,7 @@ public class DefinitionParserHelper {
                         }
 
                         @Override
-                        public String getFunction() {
+                        public String getName() {
                             return sourceType;
                         }
                     };
@@ -332,7 +332,7 @@ public class DefinitionParserHelper {
                         }
 
                         @Override
-                        public String getFunction() {
+                        public String getName() {
                             return mapType;
                         }
                     };

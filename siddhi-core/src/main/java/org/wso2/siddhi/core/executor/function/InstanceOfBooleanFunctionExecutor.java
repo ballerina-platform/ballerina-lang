@@ -18,11 +18,7 @@
 
 package org.wso2.siddhi.core.executor.function;
 
-import org.wso2.siddhi.annotation.Description;
-import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.Parameters;
-import org.wso2.siddhi.annotation.Return;
-import org.wso2.siddhi.annotation.util.DataType;
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -38,12 +34,19 @@ import java.util.Map;
  *         input : BOOLEAN, STRING, INT, FLOAT, DOUBLE, LONG
  * Return Type(s): BOOLEAN
  */
-@Description("Checks whether the parameter is an instance of Boolean or not.")
-@Parameters({
-        @Parameter(name = "arg", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
-                DataType.STRING, DataType.BOOL, DataType.OBJECT})
-})
-@Return(type = {DataType.BOOL})
+//@Description("Checks whether the parameter is an instance of Boolean or not.")
+//@Parameters({
+//        @Parameter(name = "arg", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+//                DataType.STRING, DataType.BOOL, DataType.OBJECT})
+//})
+//@Return(type = {DataType.BOOL})
+@Extension(
+        name = "instanceOfBoolean",
+        namespace = "",
+        description = "",
+        parameters = {},
+        returnAttributes = {}
+)
 public class InstanceOfBooleanFunctionExecutor extends FunctionExecutor {
 
     Attribute.Type returnType = Attribute.Type.BOOL;

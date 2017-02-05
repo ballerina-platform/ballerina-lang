@@ -43,6 +43,10 @@
             <artifactId>siddhi-query-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.wso2.siddhi</groupId>
+            <artifactId>siddhi-annotations</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.log4j.wso2</groupId>
             <artifactId>log4j</artifactId>
         </dependency>
@@ -69,6 +73,9 @@
                         <Import-Package>
                             *;resolution:=optional
                         </Import-Package>
+                        <Include-Resource>
+                            META-INF=target/classes/META-INF
+                        </Include-Resource>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>

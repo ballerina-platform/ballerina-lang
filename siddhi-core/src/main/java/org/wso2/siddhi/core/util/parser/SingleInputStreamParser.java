@@ -94,7 +94,7 @@ public class SingleInputStreamParser {
         if (!inputStream.getStreamHandlers().isEmpty() && windowDefinitionMap != null && windowDefinitionMap.containsKey(inputStream.getStreamId())) {
             for (StreamHandler handler : inputStream.getStreamHandlers()) {
                 if (handler instanceof Window) {
-                    throw new OperationNotSupportedException("Cannot create " + ((Window) handler).getFunction() + " window for the window stream " + inputStream.getStreamId());
+                    throw new OperationNotSupportedException("Cannot create " + ((Window) handler).getName() + " window for the window stream " + inputStream.getStreamId());
                 }
             }
         }
@@ -167,14 +167,8 @@ public class SingleInputStreamParser {
             return new FilterProcessor(attributeExpressionExecutors[0]);
 
         } else if (streamHandler instanceof Window) {
-            WindowProcessor windowProcessor;
-            if (streamHandler instanceof Extension) {
-                windowProcessor = (WindowProcessor) SiddhiClassLoader.loadExtensionImplementation((Extension) streamHandler,
-                        WindowProcessorExtensionHolder.getInstance(executionPlanContext));
-            } else {
-                windowProcessor = (WindowProcessor) SiddhiClassLoader.loadSiddhiImplementation(((Window) streamHandler).getFunction(),
-                        WindowProcessor.class);
-            }
+            WindowProcessor windowProcessor = (WindowProcessor) SiddhiClassLoader.loadExtensionImplementation((Extension) streamHandler,
+                    WindowProcessorExtensionHolder.getInstance(executionPlanContext));
             windowProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(), attributeExpressionExecutors, executionPlanContext, outputExpectsExpiredEvents, queryName);
             return windowProcessor;
 
@@ -182,13 +176,8 @@ public class SingleInputStreamParser {
             AbstractStreamProcessor abstractStreamProcessor;
             if (supportsBatchProcessing) {
                 try {
-                    if (streamHandler instanceof Extension) {
-                        abstractStreamProcessor = (StreamProcessor) SiddhiClassLoader.loadExtensionImplementation((Extension) streamHandler,
-                                StreamProcessorExtensionHolder.getInstance(executionPlanContext));
-                    } else {
-                        abstractStreamProcessor = (StreamProcessor) SiddhiClassLoader.loadSiddhiImplementation(
-                                ((StreamFunction) streamHandler).getFunction(), StreamProcessor.class);
-                    }
+                    abstractStreamProcessor = (StreamProcessor) SiddhiClassLoader.loadExtensionImplementation((Extension) streamHandler,
+                            StreamProcessorExtensionHolder.getInstance(executionPlanContext));
                     metaStreamEvent.addInputDefinition(abstractStreamProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(),
                             attributeExpressionExecutors, executionPlanContext, outputExpectsExpiredEvents, queryName));
                     return abstractStreamProcessor;
@@ -198,13 +187,8 @@ public class SingleInputStreamParser {
                     }
                 }
             }
-            if (streamHandler instanceof Extension) {
-                abstractStreamProcessor = (StreamFunctionProcessor) SiddhiClassLoader.loadExtensionImplementation((Extension) streamHandler,
-                        StreamFunctionProcessorExtensionHolder.getInstance(executionPlanContext));
-            } else {
-                abstractStreamProcessor = (StreamFunctionProcessor) SiddhiClassLoader.loadSiddhiImplementation(
-                        ((StreamFunction) streamHandler).getFunction(), StreamFunctionProcessor.class);
-            }
+            abstractStreamProcessor = (StreamFunctionProcessor) SiddhiClassLoader.loadExtensionImplementation((Extension) streamHandler,
+                    StreamFunctionProcessorExtensionHolder.getInstance(executionPlanContext));
             metaStreamEvent.addInputDefinition(abstractStreamProcessor.initProcessor(metaStreamEvent.getLastInputDefinition(),
                     attributeExpressionExecutors, executionPlanContext, outputExpectsExpiredEvents, queryName));
             return abstractStreamProcessor;
