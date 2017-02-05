@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'event_channel'], function (require, $, EventChannel) {
+define(['require', 'jquery', 'event_channel', 'bootstrap'], function (require, $, EventChannel) {
 
     var ModalDialog = function (options) {
         this._options = options;

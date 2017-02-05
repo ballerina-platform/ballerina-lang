@@ -49,13 +49,6 @@
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
     <link rel="stylesheet" type="text/css" href="css/debugger.css"/>
     <link rel="stylesheet" type="text/css" href="css/left-tool-bar.css"/>
-
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-    <script src="lib/html5shiv_3.7.2/html5shiv.min.js"></script>
-    <script src="lib/respond_1.4.2/respond.min.js"></script>
-    <![endif]--> 
 </head>
 <body class="sticky-footer">
 
@@ -190,22 +183,15 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="package-btn btn-icon" data-toggle="tooltip" title="Import packages">
+                <div class="package-btn btn-icon" data-toggle="tooltip" title="Import Packages" data-placement="bottom">
                     <img src="images/dgm-import.svg" class="import-img">
-                    <!--<span class="fw-stack fw-lg">-->
-                        <!--<i class="fw fw-circle fw-stack-2x"></i>-->
-                        <!--<i class="fw fw-dgm-import fw-stack-1x fw-inverse"></i>-->
-                    <!--</span>-->
-
                 </div>
             </div>
             <!-- End: TopRight Controls Container  -->
             <!-- Start: BottomRight Controls Container -->
             <div class="bottom-right-controls-container">
-                <div class="view-source-btn btn-icon" data-toggle="tooltip" title="Source View">
+                <div class="view-source-btn btn-icon" data-toggle="tooltip" title="Source View" data-placement="bottom">
                     <i class="fw fw-lg fw-code-view fw-inverse fw-helper fw-helper-circle"></i>
-
                 </div>
             </div>
             <!-- End: BottomRight Controls Container  -->
@@ -542,8 +528,10 @@
             ace: "lib/ace_v1.2.6",
             beautify: "lib/beautify/beautify",
             mousetrap: "lib/mousetrap_v1.6.0/mousetrap.min",
-            mcustom_scroller: "lib/mCustomScrollbar_v3.1.5/js/jquery.mCustomScrollbar.concat.min",
+            mcustom_scroller: "lib/mCustomScrollbar_v3.1.5/js/jquery.mCustomScrollbar",
             jquery_context_menu: "lib/context-menu_v2.4.2/jquery.contextMenu.min",
+            html5_shiv: "lib/html5shiv_3.7.2/html5shiv.min",
+            respond: "lib/respond_1.4.2/respond.min",
             ///////////////////////
             // custom modules ////
             //////////////////////
@@ -566,7 +554,8 @@
 			expression_editor_utils: "js/expression-editor/expression-editor-utils"
         },
         shim: {
-            "bootstrap": {"deps": ['jquery']}
+            "bootstrap": {"deps": ['jquery']},
+            "theme_wso2": {"deps": ['jquery', 'bootstrap', 'html5_shiv', 'respond']}
         },
         map: {
             "*": {
