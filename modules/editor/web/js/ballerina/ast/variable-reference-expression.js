@@ -34,8 +34,8 @@ define(['lodash', './expression'], function (_, Expression) {
      * Setter for Variable Reference
      * @param variableReference
      */
-    VariableReferenceExpression.prototype.setVariableReferenceName = function (variableReferenceName) {
-        this._variableReferenceName = variableReferenceName;
+    VariableReferenceExpression.prototype.setVariableReferenceName = function (variableReferenceName, options) {
+        this.setAttribute('_variableReferenceName', variableReferenceName, options);
     };
 
     /**
@@ -52,8 +52,8 @@ define(['lodash', './expression'], function (_, Expression) {
      * @param {string} [jsonNode.variable_reference_name] - Symbol name of the VariableReferenceExpression
      */
     VariableReferenceExpression.prototype.initFromJson = function (jsonNode) {
-        this.setVariableReferenceName(jsonNode.variable_reference_name);
-        this.setExpression(this.generateExpression());
+        this.setVariableReferenceName(jsonNode.variable_reference_name, {doSilently: true});
+        this.setExpression(this.generateExpression(), {doSilently: true});
     };
 
     VariableReferenceExpression.prototype.generateExpression = function () {
