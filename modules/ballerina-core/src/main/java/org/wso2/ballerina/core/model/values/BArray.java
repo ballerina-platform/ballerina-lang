@@ -101,7 +101,7 @@ public final class BArray<V extends BValue> implements BRefType {
 
     private void rangeCheck(int index) {
         if (index >= size) {
-            throw new BallerinaException("Array index out of range: " + outOfBoundsMsg(index));
+            throw new BallerinaException("array index out of range: " + outOfBoundsMsg(index));
         }
     }
 

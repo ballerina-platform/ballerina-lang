@@ -295,7 +295,7 @@ public class BLangExecutor implements NodeExecutor {
         CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
                 functionSymbolName.getPkgPath(), funcIExpr.getNodeLocation());
 
-        StackFrame stackFrame = new StackFrame(localVals, returnVals, null);
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
         controlStack.pushFrame(stackFrame);
 
         // Check whether we are invoking a native function or not.
@@ -483,6 +483,23 @@ public class BLangExecutor implements NodeExecutor {
         }
 
         return bArray;
+    }
+
+    @Override
+    public BValue visit(MapInitExpr mapInitExpr) {
+        Expression[] argExprs = mapInitExpr.getArgExprs();
+
+        // Creating a new array
+        BMap bMap = mapInitExpr.getType().getDefaultValue();
+
+        for (int i = 0; i < argExprs.length; i++) {
+            MapStructInitKeyValueExpr expr = (MapStructInitKeyValueExpr) argExprs[i];
+            BValue keyVal = expr.getKeyExpr().execute(this);
+            BValue value = expr.getValueExpr().execute(this);
+            bMap.put(keyVal, value);
+        }
+
+        return bMap;
     }
 
     @Override
@@ -761,11 +778,6 @@ public class BLangExecutor implements NodeExecutor {
             offset++;
         }
         return new BStruct(structDef, structMemBlock);
-    }
-
-    @Override
-    public BValue visit(MapInitExpr mapInitExpr) {
-        return null;
     }
 
     /**

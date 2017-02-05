@@ -134,24 +134,24 @@ public class NotEqualExprTest {
 
     @Test(description = "Test checking equality of two types",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "incompatible-type-equal-expr.bal:6: incompatible " +
-                    "types in binary expression: int vs boolean")
+            expectedExceptionsMessageRegExp = "incompatible-type-equal-expr.bal:6: invalid operation: " +
+                    "incompatible types 'int' and 'boolean'")
     public void testIncompatibleEquality() {
         ParserUtils.parseBalFile("lang/expressions/incompatible-type-equal-expr.bal");
     }
     
     @Test(description = "Test checking equality of unsupported types (json)",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Equals operation is not supported for type: json in " +
-            "unsupported-type-equal-expr.bal:9")
+            expectedExceptionsMessageRegExp = "unsupported-type-equal-expr.bal:9: invalid operation: " +
+                    "operator == not defined on 'json'")
     public void testUnsupportedTypeEquality() {
         ParserUtils.parseBalFile("lang/expressions/unsupported-type-equal-expr.bal");
     }
     
     @Test(description = "Test checking not-equality of unsupported types (json)",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "NotEqual operation is not supported for type: json in " +
-            "unsupported-type-not-equal-expr.bal:9")
+            expectedExceptionsMessageRegExp = "unsupported-type-not-equal-expr.bal:9: invalid operation: " +
+                    "operator != not defined on 'json'")
     public void testUnsupportedTypeNotEquality() {
         ParserUtils.parseBalFile("lang/expressions/unsupported-type-not-equal-expr.bal");
     }
