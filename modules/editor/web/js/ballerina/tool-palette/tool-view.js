@@ -103,6 +103,8 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
                 drag:this.createHandleOnDragEvent()
             });
 
+            // registering id-modified event
+            this.model.on('id-modified', this.updateToolId, this);
             return this;
         },
 
@@ -137,8 +139,16 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
             }
 
             return cloneCallBack;
-        }
+        },
 
+        /**
+         * updates tool id and change view attributes of the tool item
+         * @param {string} id - id of the tool
+         */
+        updateToolId: function (id) {
+            this.$el.find('.tool-container-vertical-title').text(id);
+            this.$el.attr('id', id);
+        }
     });
 
     return toolView;

@@ -42,7 +42,9 @@ define(['log', 'lodash', 'event_channel'],
          * @param {string} name
          */
         Function.prototype.setName = function (name) {
+            var oldName = this._name;
             this._name = name;
+            this.trigger("name-modified", name, oldName);
         };
 
         /**
