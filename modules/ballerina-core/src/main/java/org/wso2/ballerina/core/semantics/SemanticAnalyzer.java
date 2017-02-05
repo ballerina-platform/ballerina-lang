@@ -90,6 +90,7 @@ import org.wso2.ballerina.core.model.invokers.MainInvoker;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.BreakStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
@@ -642,6 +643,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         blockStmt.accept(this);
+    }
+
+    @Override
+    public void visit(BreakStmt breakStmt) {
+
     }
 
     @Override
