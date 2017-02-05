@@ -38,6 +38,7 @@ import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.RequestSizeValidationConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.listener.http2.HTTP2SourceHandlerBuilder;
+import org.wso2.carbon.transport.http.netty.listener.http2.HTTPProtocolNegotiationHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.util.HashMap;

@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.carbon.transport.http.netty.listener;
+package org.wso2.carbon.transport.http.netty.listener.http2;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -32,7 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.RequestSizeValidationConfiguration;
-import org.wso2.carbon.transport.http.netty.listener.http2.HTTP2SourceHandlerBuilder;
+import org.wso2.carbon.transport.http.netty.listener.CustomHttpObjectAggregator;
+import org.wso2.carbon.transport.http.netty.listener.CustomHttpRequestDecoder;
+import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import static io.netty.handler.logging.LogLevel.DEBUG;
