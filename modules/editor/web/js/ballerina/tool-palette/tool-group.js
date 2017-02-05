@@ -66,11 +66,7 @@ define(['require', 'jquery', 'backbone', './tool'], function (require, $, Backbo
             });
             if (!_.isNil(newValue)) {
                 selectedTool.setId(newValue);
-            }
-            if (!_.isNil(newValue)) {
                 selectedTool.setName(newValue);
-            }
-            if (!_.isNil(newValue)) {
                 selectedTool.setTitle(newValue);
             }
         },
