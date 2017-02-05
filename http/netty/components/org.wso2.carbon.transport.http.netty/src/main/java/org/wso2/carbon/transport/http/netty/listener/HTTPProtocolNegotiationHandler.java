@@ -17,6 +17,8 @@
 */
 package org.wso2.carbon.transport.http.netty.listener;
 
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.HttpContentCompressor;
@@ -88,6 +90,13 @@ public class HTTPProtocolNegotiationHandler extends ApplicationProtocolNegotiati
         }
 
         throw new IllegalStateException("unknown protocol: " + protocol);
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        if (ctx != null && ctx.channel().isActive()) {
+            ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+        }
     }
 }
 

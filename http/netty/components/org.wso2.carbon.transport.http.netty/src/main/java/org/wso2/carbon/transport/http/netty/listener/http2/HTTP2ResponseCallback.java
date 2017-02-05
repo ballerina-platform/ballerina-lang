@@ -25,6 +25,7 @@ import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.DefaultHttp2Headers;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
+import io.netty.handler.codec.http2.HttpConversionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -46,6 +47,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 public class HTTP2ResponseCallback implements CarbonCallback {
 
     private ChannelHandlerContext ctx;
+    // Stream id of the channel of initial request
     private int streamId;
     private static final Logger logger = LoggerFactory.getLogger(HTTP2ResponseCallback.class);
 
@@ -69,6 +71,7 @@ public class HTTP2ResponseCallback implements CarbonCallback {
         }
         Http2Headers http2Headers = new DefaultHttp2Headers().status(OK.codeAsText());
         cMsg.getHeaders().getAll().forEach(k -> http2Headers.set(k.getName().toLowerCase(), k.getValue()));
+        http2Headers.set(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text(), Integer.toString(streamId));
 
         if (ctx.handler() instanceof HTTP2SourceHandler) {
             HTTP2SourceHandler http2SourceHandler = (HTTP2SourceHandler) ctx.handler();
@@ -95,7 +98,7 @@ public class HTTP2ResponseCallback implements CarbonCallback {
                         }
                         break;
                     }
-                    http2SourceHandler.encoder().writeData(ctx, 3, httpContent.content(), 0, false,
+                    http2SourceHandler.encoder().writeData(ctx, streamId, httpContent.content(), 0, false,
                             ctx.newPromise());
                 }
 

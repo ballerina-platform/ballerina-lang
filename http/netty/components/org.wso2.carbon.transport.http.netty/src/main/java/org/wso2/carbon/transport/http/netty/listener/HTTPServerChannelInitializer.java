@@ -100,10 +100,10 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
                 // Construct ssl context with ALPN configuration
                 SslContext sslContext = new SSLHandlerFactory(listenerConfiguration.getSslConfig())
                         .createHttp2TLSContext();
-                // ALPN handler will be added to find http protocol version
+                // ALPN handler will be added to decide http protocol version
                 configureHttp2upgrade(ch, listenerConfiguration, sslContext);
             } else {
-                // If ALPN protocol has not been enables, HTTP will be used over SSL.
+                // If ALPN protocol has not been enabled, HTTP will be used over SSL.
                 SslHandler sslHandler = new SSLHandlerFactory(listenerConfiguration.getSslConfig()).create();
                 ch.pipeline().addLast("ssl", sslHandler);
                 // Configure the pipeline handlers for HTTP after ssl handshake.
