@@ -69,7 +69,6 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
             this.getMessageSource().setActionConnectorName(undefined);
             this.getMessageSource().setConnectorVariableReference(undefined);
         }
-
         //set the right hand expression to set the statement string of the assignment-statement containing the
         //action invocation expression. This is to keep action invocation statement UI and source-gen in sync
         //when action invocation is configured

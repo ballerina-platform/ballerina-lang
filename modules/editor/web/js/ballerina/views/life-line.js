@@ -451,12 +451,22 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             $(deleteButtonRect.node()).click(function(event){
                 event.stopPropagation();
                 model.remove();
-                // Remove connected arrows
-                d3.select(model._actionInvocationModel._arrowGroup.node()).remove();
-                // Enable arrow redraw point on action invocation
-                d3.select(model._processorConnectPoint.node()).style("display", "block");
-                // Remove message target from action invocation
-                model._actionInvocationModel.messageManager.updateActivatedTarget();
+
+                var actionInvocationModels = _.filter(model.parent.children, { 'type' : 'Statement' });
+                var resourceConnector = model._connectorVariable;
+
+                _.each(actionInvocationModels, function(key, i){
+                    if(key.children[0]._actionInvocationModel._connectorVariableReference == resourceConnector){
+                        //Remove connected arrows
+                        d3.select(key.children[0]._arrowGroup.node()).remove();
+                        //Enable arrow redraw point on action invocation
+                        d3.select(key.children[0]._processorConnectPoint.node()).style("display", "block");
+                        //Remove message target from action invocation
+                        key.children[0]._actionInvocationModel.messageManager.setMessageSource(key.children[0]._actionInvocationModel);
+                        key.children[0]._actionInvocationModel.messageManager.updateActivatedTarget();
+                    }
+                });
+
                 // Hiding property button pane.
                 $(propertyButtonPaneGroup.node()).remove();
                 $(smallArrow.node()).remove();
