@@ -77,6 +77,7 @@ import org.wso2.ballerina.core.model.invokers.MainInvoker;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.BreakStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
@@ -616,6 +617,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         whileStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(whileStmtObj);
+    }
+
+    @Override
+    public void visit(BreakStmt breakStmt) {
+
     }
 
     @Override
