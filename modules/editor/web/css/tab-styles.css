@@ -28,6 +28,7 @@ button.close {
     position: absolute;
     bottom: 125px;
     right: 25px;
+    z-index: 30;
 }
 
 .top-right-controls-container {

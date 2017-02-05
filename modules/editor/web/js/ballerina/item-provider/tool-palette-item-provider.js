@@ -118,8 +118,9 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     connectorPackageName: packageName
                 };
                 //TODO : use a generic icon
-                connector.icon = "images/tool-icons/http.svg";
+                connector.icon = "images/tool-icons/connector.svg";
                 connector.title = connector.getTitle();
+                connector.id = connector.getName();
                 definitions.push(connector);
                 _.each(connector.getActions(), function (action, index, collection) {
                     /* We need to add a special class to actions to indent them in tool palette. */
@@ -132,9 +133,10 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                         actionConnectorName: connector.getName(),
                         actionPackageName: packageName
                     };
-                    action.icon = "images/tool-icons/http.svg";
+                    action.icon = "images/tool-icons/action.svg";
                     action.title = action.getTitle();
                     action.nodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression;
+                    action.id = connector.getName() + '-' + action.getAction();
                     definitions.push(action);
                 });
             });
@@ -149,8 +151,9 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     params: functionDef.getName()
                 };
                 //TODO : use a generic icon
-                functionDef.icon = "images/tool-icons/http.svg";
+                functionDef.icon = "images/tool-icons/function.svg";
                 functionDef.title = functionDef.getTitle();
+                functionDef.id = functionDef.getName();
                 definitions.push(functionDef);
             });
 
@@ -164,14 +167,23 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
             package.on('connector-defs-added', function (child) {
                 var nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
                 var toolGroupID = package.getName() + "-tool-group";
-                this.addToToolGroup(toolGroupID, child, nodeFactoryMethod);
+                var icon = "images/tool-icons/connector.svg";
+                this.addToToolGroup(toolGroupID, child, nodeFactoryMethod, icon);
             }, this);
 
             package.on('function-defs-added', function (child) {
                 var nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationStatement;
                 var toolGroupID = package.getName() + "-tool-group";
-                this.addToToolGroup(toolGroupID, child, nodeFactoryMethod);
+                var icon = "images/tool-icons/function.svg";
+                this.addToToolGroup(toolGroupID, child, nodeFactoryMethod, icon);
             }, this);
+
+            var self = this;
+            package.on('function-def-removed', function (functionDef) {
+                var toolGroupID = package.getName() + "-tool-group";
+                var toolId = functionDef.getFunctionName();
+                self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
+            });
 
             return group;
         };
@@ -182,7 +194,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
          * @param toolItem - tool item to be added
          * @param nodeFactoryMethod - factory method to create instance when the tool being dragged and dropped
          */
-        ToolPaletteItemProvider.prototype.addToToolGroup = function (toolGroupID, toolItem, nodeFactoryMethod) {
+        ToolPaletteItemProvider.prototype.addToToolGroup = function (toolGroupID, toolItem, nodeFactoryMethod, icon) {
             var tool = {};
             tool.nodeFactoryMethod = nodeFactoryMethod;
             tool.meta = {
@@ -190,8 +202,9 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 connectorPackageName: ''
             };
             //TODO : use a generic icon
-            tool.icon = "images/tool-icons/http.svg";
+            tool.icon = icon;
             tool.title = toolItem.getName();
+            tool.id = toolItem.getName();
             this._toolPalette.addNewToolToGroup(toolGroupID, tool);
         };
 
