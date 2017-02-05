@@ -32,6 +32,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 public abstract class AbstractExpression implements Expression {
     protected NodeLocation location;
     protected BType type;
+    protected boolean multipleReturnsAvailable;
     protected int offset;
 
     public AbstractExpression(NodeLocation location) {
@@ -48,6 +49,10 @@ public abstract class AbstractExpression implements Expression {
 
     public void setOffset(int offset) {
         this.offset = offset;
+    }
+
+    public boolean isMultiReturnExpr() {
+        return multipleReturnsAvailable;
     }
 
     public BValue execute(NodeExecutor executor) {

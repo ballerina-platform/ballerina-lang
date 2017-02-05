@@ -36,4 +36,6 @@ public interface Expression extends Node, ExecutableExpr {
     void setType(BType type);
 
     void setOffset(int offset);
+
+    boolean isMultiReturnExpr();
 }

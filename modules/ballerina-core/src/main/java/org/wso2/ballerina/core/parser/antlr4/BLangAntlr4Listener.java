@@ -135,7 +135,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void enterResourceDefinition(BallerinaParser.ResourceDefinitionContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startCallableUnit();
+            modelBuilder.startResourceDef();
         }
     }
 
@@ -157,7 +157,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void enterFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startCallableUnit();
+            modelBuilder.startFunctionDef();
         }
     }
 
@@ -191,7 +191,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void enterFunctionBody(BallerinaParser.FunctionBodyContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startCallableUnitBody();
+            modelBuilder.startCallableUnitBody(getCurrentLocation(ctx));
         }
     }
 
@@ -237,7 +237,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void enterActionDefinition(BallerinaParser.ActionDefinitionContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startCallableUnit();
+            modelBuilder.startActionDef();
         }
     }
 
@@ -299,7 +299,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void enterTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startCallableUnit();
+            modelBuilder.startTypeConverterDef();
         }
     }
 
@@ -348,7 +348,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void enterTypeConvertorBody(BallerinaParser.TypeConvertorBodyContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startCallableUnitBody();
+            modelBuilder.startCallableUnitBody(getCurrentLocation(ctx));
         }
     }
 
@@ -786,7 +786,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void enterElseClause(BallerinaParser.ElseClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startElseClause();
+            modelBuilder.startElseClause(getCurrentLocation(ctx));
         }
     }
 
@@ -807,16 +807,20 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterWhileStatement(BallerinaParser.WhileStatementContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.startWhileStmt();
+        if (ctx.exception != null) {
+            return;
         }
+
+        modelBuilder.startWhileStmt(getCurrentLocation(ctx));
     }
 
     @Override
     public void exitWhileStatement(BallerinaParser.WhileStatementContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.createWhileStmt(getCurrentLocation(ctx));
+        if (ctx.exception != null) {
+            return;
         }
+
+        modelBuilder.createWhileStmt(getCurrentLocation(ctx));
     }
 
     @Override

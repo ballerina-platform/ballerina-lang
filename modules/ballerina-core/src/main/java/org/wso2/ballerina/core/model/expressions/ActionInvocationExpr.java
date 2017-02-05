@@ -94,6 +94,11 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
     @Override
     public void setTypes(BType[] types) {
         this.types = types;
+
+        multipleReturnsAvailable = types.length > 1;
+        if (!multipleReturnsAvailable) {
+            this.type = types[0];
+        }
     }
 
     @Override

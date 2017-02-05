@@ -17,10 +17,12 @@
  */
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.model.builder.CallableUnitBuilder;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.types.BType;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -49,31 +51,9 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
 
-    public BTypeConvertor(NodeLocation location,
-                          String name,
-                          String pkgPath,
-                          Boolean isPublic,
-                          SymbolName symbolName,
-                          Annotation[] annotations,
-                          ParameterDef[] parameterDefs,
-                          ParameterDef[] returnParams,
-                          BlockStmt typeConverterBody,
-                          SymbolScope enclosingScope,
-                          Map<SymbolName, BLangSymbol> symbolMap) {
-
-        this.location = location;
-        this.name = name;
-        this.pkgPath = pkgPath;
-        this.isPublic = isPublic;
-        this.symbolName = symbolName;
-
-        this.annotations = annotations;
-        this.parameterDefs = parameterDefs;
-        this.returnParams = returnParams;
-        this.typeConverterBody = typeConverterBody;
-
+    private BTypeConvertor(SymbolScope enclosingScope) {
         this.enclosingScope = enclosingScope;
-        this.symbolMap = symbolMap;
+        this.symbolMap = new HashMap<>();
     }
 
     @Override
@@ -216,5 +196,31 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
     @Override
     public BLangSymbol resolve(SymbolName name) {
         return resolve(symbolMap, name);
+    }
+
+    /**
+     * {@code BTypeConvertorBuilder} is responsible for building a {@cdoe BTypeConvertor} node.
+     *
+     * @since 0.8.0
+     */
+    public static class BTypeConvertorBuilder extends CallableUnitBuilder {
+        private BTypeConvertor bTypeCon;
+
+        public BTypeConvertorBuilder(SymbolScope enclosingScope) {
+            bTypeCon = new BTypeConvertor(enclosingScope);
+            currentScope = bTypeCon;
+        }
+
+        public BTypeConvertor buildTypeConverter() {
+            bTypeCon.location = this.location;
+            bTypeCon.name = this.name;
+            bTypeCon.pkgPath = this.pkgPath;
+
+            bTypeCon.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            bTypeCon.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
+            bTypeCon.returnParams = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);
+            bTypeCon.typeConverterBody = this.body;
+            return bTypeCon;
+        }
     }
 }

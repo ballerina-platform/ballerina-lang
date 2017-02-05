@@ -41,14 +41,10 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
 
-    private BlockStmt(NodeLocation location,
-              Statement[] statements,
-              SymbolScope enclosingScope,
-              Map<SymbolName, BLangSymbol> symbolMap) {
+    private BlockStmt(NodeLocation location, SymbolScope enclosingScope) {
         super(location);
-        this.statements = statements;
         this.enclosingScope = enclosingScope;
-        this.symbolMap = symbolMap;
+        this.symbolMap = new HashMap<>();
     }
 
     public Statement[] getStatements() {
@@ -90,52 +86,25 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
      *
      * @since 0.8.0
      */
-    public static class BlockStmtBuilder implements SymbolScope {
-        private NodeLocation location;
+    public static class BlockStmtBuilder {
+        private BlockStmt blockStmt;
         private List<Statement> statementList = new ArrayList<>();
 
-        // Scope related variables
-        private SymbolScope enclosingScope;
-        private Map<SymbolName, BLangSymbol> symbolMap = new HashMap<>();
-
-        public BlockStmtBuilder(SymbolScope enclosingScope) {
-            this.enclosingScope = enclosingScope;
+        public BlockStmtBuilder(NodeLocation location, SymbolScope enclosingScope) {
+            blockStmt = new BlockStmt(location, enclosingScope);
         }
 
-        public void setNodeLocation(NodeLocation location) {
-            this.location = location;
+        public SymbolScope getCurrentScope() {
+            return blockStmt;
         }
 
         public void addStmt(Statement statement) {
             statementList.add(statement);
         }
 
-        @Override
-        public ScopeName getScopeName() {
-            return ScopeName.LOCAL;
-        }
-
-        @Override
-        public SymbolScope getEnclosingScope() {
-            return enclosingScope;
-        }
-
-        @Override
-        public void define(SymbolName name, BLangSymbol symbol) {
-            symbolMap.put(name, symbol);
-        }
-
-        @Override
-        public BLangSymbol resolve(SymbolName name) {
-            return resolve(symbolMap, name);
-        }
-
         public BlockStmt build() {
-            return new BlockStmt(
-                    location,
-                    statementList.toArray(new Statement[statementList.size()]),
-                    enclosingScope,
-                    symbolMap);
+            this.blockStmt.statements = statementList.toArray(new Statement[statementList.size()]);
+            return blockStmt;
         }
     }
 }
