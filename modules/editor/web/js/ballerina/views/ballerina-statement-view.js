@@ -148,6 +148,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
                 // Creating an SVG group for the edit and delete buttons.
                 var propertyButtonPaneGroup = D3Utils.group(statementGroup);
 
+                // Delete button pane group
                 var deleteButtonPaneGroup = D3Utils.group(statementGroup);
 
                 // Adding svg definitions needed for styling delete button.

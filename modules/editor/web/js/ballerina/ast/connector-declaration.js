@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function(_, ASTNode){
+define(['lodash', './node'], function (_, ASTNode) {
 
     /**
      * Defines a connector declaration AST node.
@@ -29,14 +29,15 @@ define(['lodash', './node'], function(_, ASTNode){
      * @constructor
      * @augments ASTNode
      */
-    var ConnectorDeclaration = function(options) {
+    var ConnectorDeclaration = function (options) {
         ASTNode.call(this, "ConnectorDeclaration");
         this._connectorName = _.get(options, "connectorName", "HTTPConnector");
         this._connectorVariable = _.get(options, "connectorVariable", "endpoint1");
         this._connectorType = _.get(options, "connectorType", "ConnectorDeclaration");
         this._connectorPkgName = _.get(options, "connectorPackageName", "http");
         this._timeout = _.get(options, "timeout", "");
-        this._uri = _.get(options, "uri", "http://localhost:9090");
+        this._params = _.get(options, "params", '\"http://localhost:9090\"');
+        this._arguments = _.get(options, "arguments", []);
     };
 
     ConnectorDeclaration.prototype = Object.create(ASTNode.prototype);
@@ -59,17 +60,65 @@ define(['lodash', './node'], function(_, ASTNode){
     ConnectorDeclaration.prototype.setConnectorPkgName = function (pkgName) {
         this.setAttribute('_connectorPkgName', pkgName);
     };
-    ConnectorDeclaration.prototype.setUri = function (uri) {
-        // TODO: need a proper way of extracting the protocol
-        if (this.validateUri(uri)) {
-            var tokens = uri.split(":");
-            this.setConnectorPkgName(tokens[0]);
-            this.setConnectorName('HTTPConnector');
-        }
-        this.setAttribute('_uri', uri);
+
+    /**
+     * Set parameters for the connector
+     *
+     * @param params {string} string with comma separable values
+     * */
+    ConnectorDeclaration.prototype.setParams = function (params) {
+        this._params = params;
     };
+
+    /**
+     * Set connector details from the given expression.
+     *
+     * @param expression {string} expression entered by user.
+     * */
+    ConnectorDeclaration.prototype.setConnectorExpression = function (expression) {
+        if (!_.isNil(expression) && expression !== "") {
+            var leftSide = expression.split("=", 2)[0];
+            var rightSide = expression.split("=", 2)[1];
+
+            if(leftSide) {
+                leftSide = leftSide.trim();
+                this.setAttribute("_connectorPkgName", leftSide.includes(":") ?
+                    leftSide.split(":", 1)[0]
+                    : "");
+
+                this.setAttribute("_connectorName", leftSide.includes(":") ?
+                    leftSide.split(":", 2)[1].split(" ", 1)[0]
+                    : (leftSide.indexOf(" ") !== (leftSide.length - 1) ? leftSide.split(" ", 1)[0] : ""));
+
+                this.setAttribute("_connectorVariable", leftSide.includes(":") ?
+                    leftSide.split(":", 2)[1].split(" ", 2)[1]
+                    : (leftSide.indexOf(" ") !== (leftSide.length - 1) ? leftSide.split(" ", 1)[1] : ""));
+
+            }
+
+            if(rightSide) {
+                rightSide = rightSide.trim();
+                this.setAttribute("_params", rightSide.includes("(") ?
+                    rightSide.split("(", 2)[1].slice(0, (rightSide.split("(", 2)[1].length - 1))
+                    : "");
+            }
+        }
+    };
+
     ConnectorDeclaration.prototype.setTimeout = function (timeout) {
         this._timeout = timeout;
+    };
+
+    ConnectorDeclaration.prototype.setArguments = function (argument) {
+        this._arguments.push(argument);
+    };
+
+    ConnectorDeclaration.prototype.getParams = function(){
+        return this._params;
+    };
+
+    ConnectorDeclaration.prototype.getArguments = function () {
+        return this._arguments;
     };
 
     ConnectorDeclaration.prototype.getConnectorName = function () {
@@ -78,24 +127,28 @@ define(['lodash', './node'], function(_, ASTNode){
 
     ConnectorDeclaration.prototype.getConnectorVariable = function () {
         return this._connectorVariable;
-    }
+    };
 
     ConnectorDeclaration.prototype.getConnectorType = function () {
         return this._connectorType;
     };
-    ConnectorDeclaration.prototype.getUri = function () {
-        return this._uri;
-    };
+
     ConnectorDeclaration.prototype.getConnectorPkgName = function () {
         return this._connectorPkgName;
     };
-    ConnectorDeclaration.prototype.getTimeout = function () {
-        return this._timeout;
+
+    /**
+     * This will return connector expression
+     *
+     * @return {string} expression
+     * */
+    ConnectorDeclaration.prototype.getConnectorExpression = function () {
+        var self = this;
+        return generateExpression(self);
     };
 
-    ConnectorDeclaration.prototype.validateUri = function (uri) {
-        var response = uri.search(/^http[s]?\:\/\//);
-        return response !== -1;
+    ConnectorDeclaration.prototype.getTimeout = function () {
+        return this._timeout;
     };
 
     /**
@@ -106,8 +159,70 @@ define(['lodash', './node'], function(_, ASTNode){
         this._connectorName = jsonNode.connector_name;
         this._connectorPkgName = jsonNode.connector_pkg_name;
         this._connectorVariable = jsonNode.connector_variable;
-        this._uri = jsonNode.children[0].basic_literal_value;
         this.setConnectorType('ConnectorDeclaration');
+        var self = this;
+        self._arguments = [];
+        if (!_.isUndefined(jsonNode.children[0])) {
+            _.each(jsonNode.children, function (argNode) {
+                var arg = self.getFactory().createFromJson(argNode);
+                arg.initFromJson(argNode);
+                self.setArguments(arg);
+            });
+        }
+        generateParamString(self);
+    };
+
+    /**
+     * Generate Param String
+     *
+     * @param self {object} this
+     * */
+    var generateParamString = function (self) {
+        self._params = "";
+        for (var i = 0; i < self._arguments.length; i++) {
+            self._params += self._arguments[i].getExpression();
+            if (i !== (self._arguments.length - 1)) {
+                self._params += ",";
+            }
+        }
+    };
+
+    /**
+     * Generate Expression to Show on the edit textbox.
+     *
+     * @param self {object} this
+     * @return {string} expression
+     * */
+    var generateExpression = function (self) {
+        var expression = "";
+        if (!_.isUndefined(self._connectorPkgName) && !_.isNil(self._connectorPkgName)) {
+            expression += self._connectorPkgName + ":";
+        }
+
+        if (!_.isUndefined(self._connectorName) && !_.isNil(self._connectorName)) {
+            expression += self._connectorName + " ";
+        }
+
+        if (!_.isUndefined(self._connectorVariable) && !_.isNil(self._connectorVariable)) {
+            expression += self._connectorVariable + " = ";
+        }
+
+        expression += "new ";
+
+        if (!_.isUndefined(self._connectorPkgName) && !_.isNil(self._connectorPkgName)) {
+            expression += self._connectorPkgName + ":";
+        }
+
+        if (!_.isUndefined(self._connectorName) && !_.isNil(self._connectorName)) {
+            expression += self._connectorName;
+        }
+
+        expression += "(";
+        if (!_.isUndefined(self._params) && !_.isNil(self._params)) {
+            expression += self._params;
+        }
+        expression += ")";
+        return expression;
     };
 
     return ConnectorDeclaration;
