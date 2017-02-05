@@ -38,10 +38,18 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.ballerinalang.plugins.idea.grammar.BallerinaLexer;
 import org.ballerinalang.plugins.idea.grammar.BallerinaParser;
+import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.CallableUnitNameNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionBodyNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ParameterNode;
+import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ServiceBodyDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -147,7 +155,22 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new FunctionBodyNode(node);
             case BallerinaParser.RULE_callableUnitName:
                 return new CallableUnitNameNode(node);
-
+            case BallerinaParser.RULE_variableReference:
+                return new VariableReferenceNode(node);
+            case BallerinaParser.RULE_variableDefinitionStatement:
+                return new VariableDefinitionNode(node);
+            case BallerinaParser.RULE_parameter:
+                return new ParameterNode(node);
+            case BallerinaParser.RULE_actionDefinition:
+                return new ActionDefinitionNode(node);
+            case BallerinaParser.RULE_connectorBody:
+                return new ConnectorBodyNode(node);
+            case BallerinaParser.RULE_connectorDefinition:
+                return new ConnectorDefinitionNode(node);
+            case BallerinaParser.RULE_resourceDefinition:
+                return new ResourceDefinitionNode(node);
+            case BallerinaParser.RULE_serviceBodyDeclaration:
+                return new ServiceBodyDeclarationNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

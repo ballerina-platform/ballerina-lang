@@ -18,8 +18,10 @@ package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.PsiReferenceBase;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.jetbrains.annotations.NotNull;
@@ -91,16 +93,15 @@ public abstract class BallerinaElementReference extends PsiReferenceBase<Identif
         }
         if (isDefinitionNode(definitionElement)) {
 
-            //            if (definitionElement instanceof FunctionDefinitionNode) {
-            //                PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement,
-            // myElement);
-            //                if (commonContext instanceof PsiFile) {
-            //                    return false;
-            //                }
-            //                if(!PsiTreeUtil.isAncestor(definitionElement,myElement,false)){
-            //                    return false;
-            //                }
-            //            }
+            // Check the scope of the variable
+            if (definitionElement instanceof ParameterNode) {
+                // If the common context is file, that means the myElement is not in the scope where the
+                // definitionElement is defined in.
+                PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
+                if (commonContext instanceof PsiFile) {
+                    return false;
+                }
+            }
 
             PsiElement id = ((PsiNameIdentifierOwner) definitionElement).getNameIdentifier();
             String defName = id != null ? id.getText() : null;

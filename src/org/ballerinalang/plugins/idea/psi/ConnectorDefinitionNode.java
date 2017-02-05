@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.lang.ASTNode;
@@ -27,19 +26,16 @@ import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class FunctionDefinitionNode extends IdentifierDefSubtree implements ScopeNode {
+public class ConnectorDefinitionNode extends IdentifierDefSubtree implements ScopeNode {
 
-    public FunctionDefinitionNode(@NotNull ASTNode node) {
+    public ConnectorDefinitionNode(@NotNull ASTNode node) {
         super(node, BallerinaParserDefinition.ID);
     }
 
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
-        if (element.getParent() instanceof CallableUnitNameNode) {
-            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//functionDefinition/Identifier");
-        } else if (element.getParent() instanceof VariableReferenceNode) {
+        if (element.getParent() instanceof VariableReferenceNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//parameter/Identifier");
         }
