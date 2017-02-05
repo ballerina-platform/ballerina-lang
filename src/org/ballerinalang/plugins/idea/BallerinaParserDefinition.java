@@ -45,6 +45,8 @@ import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionBodyNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.PackageNameNode;
+import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyDeclarationNode;
@@ -171,6 +173,10 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new ResourceDefinitionNode(node);
             case BallerinaParser.RULE_serviceBodyDeclaration:
                 return new ServiceBodyDeclarationNode(node);
+            case BallerinaParser.RULE_packageName:
+                return new PackageNameNode(node);
+            case BallerinaParser.RULE_packagePath:
+                return new PackagePathNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

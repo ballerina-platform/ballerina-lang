@@ -17,28 +17,12 @@
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiNamedElement;
-import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
-import org.antlr.jetbrains.adaptor.psi.ScopeNode;
-import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public class ServiceBodyDeclarationNode extends ANTLRPsiNode implements ScopeNode {
+public class PackagePathNode extends ANTLRPsiNode {
 
-    public ServiceBodyDeclarationNode(@NotNull ASTNode node) {
+    public PackagePathNode(@NotNull ASTNode node) {
         super(node);
-    }
-
-    @Nullable
-    @Override
-    public PsiElement resolve(PsiNamedElement element) {
-        if (element.getParent() instanceof VariableReferenceNode) {
-            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//variableDefinitionStatement/Identifier");
-        }
-        return null;
     }
 }
