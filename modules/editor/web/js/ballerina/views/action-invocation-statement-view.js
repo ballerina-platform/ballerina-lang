@@ -36,7 +36,6 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             this._forwardArrowHead = undefined;
             this._backArrowHead = undefined;
             this._arrowGroup = undefined;
-
         };
 
         ActionInvocationStatementView.prototype = Object.create(BallerinaStatementView.prototype);
@@ -121,7 +120,6 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             var actionInvocationModel = this._model.getChildren()[1].getChildren()[0];
             var leftOperandModel = this._model.getChildren()[0];
             var connectorModel =  actionInvocationModel.getConnector();
-
             var self = this;
 
             if(!_.isUndefined(connectorModel)) {
@@ -234,6 +232,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             this.setDiagramRenderingContext(context);
             var actionInvocationModel = this._model.getChildren()[1].getChildren()[0];
             var connectorModel = actionInvocationModel.getConnector();
+            var actionInvocationModelMessageManager = Object.create(this.messageManager);
 
             if(!_.isUndefined(connectorModel)) {
                 this.connector = this.getDiagramRenderingContext().getViewOfModel(connectorModel);
@@ -275,10 +274,12 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
 
                 this.arrowHeadEndPoint = arrowHeadEnd;
 
-                actionInvocationModel.getConnector()._processorConnectPoint = this.processorConnectPoint;
-                actionInvocationModel.getConnector()._actionInvocationModel = this;
-
                 var self = this;
+
+                this._model.getChildren()[0]._arrowGroup = this._arrowGroup;
+                this._model.getChildren()[0]._processorConnectPoint = this.processorConnectPoint;
+                this._model.getChildren()[0]._actionInvocationModel = actionInvocationModel;
+                this._model.getChildren()[0]._actionInvocationModel.messageManager = actionInvocationModelMessageManager;
 
                 this.arrowHeadEndPoint.on("mousedown", function () {
                     d3.event.preventDefault();
