@@ -16,56 +16,25 @@
 
 package org.ballerinalang.plugins.idea.psi;
 
-import com.intellij.extapi.psi.PsiFileBase;
-import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.psi.FileViewProvider;
+import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import org.antlr.jetbrains.adaptor.SymtabUtils;
+import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
-import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Icon;
+public class FunctionBodyNode extends ANTLRPsiNode implements ScopeNode {
 
-public class BallerinaFile extends PsiFileBase implements ScopeNode {
-
-    public BallerinaFile(@NotNull FileViewProvider viewProvider) {
-        super(viewProvider, BallerinaLanguage.INSTANCE);
-    }
-
-    @NotNull
-    @Override
-    public FileType getFileType() {
-        return BallerinaFileType.INSTANCE;
-    }
-
-    @Override
-    public String toString() {
-        return "Ballerina File";
-    }
-
-    @Override
-    public Icon getIcon(int flags) {
-        return super.getIcon(flags);
-    }
-
-    /**
-     * Return null since a file scope has no enclosing scope. It is not itself in a scope.
-     */
-    @Override
-    public ScopeNode getContext() {
-        return null;
+    public FunctionBodyNode(@NotNull ASTNode node) {
+        super(node);
     }
 
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
-        //		System.out.println(getClass().getSimpleName()+
-        //		                   ".resolve("+element.getName()+
-        //		                   " at "+Integer.toHexString(element.hashCode())+")");
         if (element.getParent() instanceof CallableUnitNameNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//functionDefinition/Identifier");

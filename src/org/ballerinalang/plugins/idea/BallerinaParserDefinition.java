@@ -39,6 +39,9 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.ballerinalang.plugins.idea.grammar.BallerinaLexer;
 import org.ballerinalang.plugins.idea.grammar.BallerinaParser;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
+import org.ballerinalang.plugins.idea.psi.CallableUnitNameNode;
+import org.ballerinalang.plugins.idea.psi.FunctionBodyNode;
+import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -138,48 +141,15 @@ public class BallerinaParserDefinition implements ParserDefinition {
 
         RuleIElementType ruleElType = (RuleIElementType) elementType;
         switch (ruleElType.getRuleIndex()) {
-
-
-//            case BallerinaParser.RULE_functionDefinition:
-//                return new FunctionDefinitionNode(node);
-//            case BallerinaParser.RULE_callableUnitName:
-//                return new CallableUnitNode(node);
-//
-//
-//            case BallerinaParser.RULE_variableDefinitionStatement:
-//                return new VariableDefinitionNode(node);
-//            case BallerinaParser.RULE_variableReference:
-//                return new VariableReferenceNode(node);
-//
-//
-//            //            case BallerinaParser.RULE_functionBody:
-//            //                return new FunctionBodyNode(node);
-//
-//
-//            case BallerinaParser.RULE_importDeclaration:
-//                return new ImportDeclarationNode(node);
-//            case BallerinaParser.RULE_packageName:
-//                return new PackageNameNode(node);
-//            case BallerinaParser.RULE_packagePath:
-//                return new PackagePathNode(node);
-//
-//            case BallerinaParser.RULE_packageDeclaration:
-//                return new PackageDeclarationNode(node);
-//
-//            //            case BallerinaParser.RULE_packageUnit:
-//            //                return new PackageUnitNode(node);
-//            //            case SampleLanguageParser.RULE_vardef :
-//            //                return new VardefSubtree(node);
-//            //            case SampleLanguageParser.RULE_formal_arg :
-//            //                return new ArgdefSubtree(node);
-//            //            case SampleLanguageParser.RULE_block :
-//            //                return new BlockSubtree(node);
-//
+            case BallerinaParser.RULE_functionDefinition:
+                return new FunctionDefinitionNode(node);
+            case BallerinaParser.RULE_functionBody:
+                return new FunctionBodyNode(node);
+            case BallerinaParser.RULE_callableUnitName:
+                return new CallableUnitNameNode(node);
 
             default:
                 return new ANTLRPsiNode(node);
         }
-
-        //        return BallerinaTypes.Factory.createElement(node);
     }
 }

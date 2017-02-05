@@ -18,7 +18,6 @@ package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.util.IncorrectOperationException;
@@ -82,38 +81,52 @@ public abstract class BallerinaElementReference extends PsiReferenceBase<Identif
     }
 
     @Override
-    public boolean isReferenceTo(PsiElement def) {
+    public boolean isReferenceTo(PsiElement definitionElement) {
         String refName = myElement.getName();
-        //		System.out.println(getClass().getSimpleName()+".isReferenceTo("+refName+"->"+def.getText()+")");
-        // sometimes def comes in pointing to ID node itself. depends on what you click on
-        if (def instanceof IdentifierPSINode && isDefinitionNode(def.getParent())) {
-            def = def.getParent();
+        //		System.out.println(getClass().getSimpleName()+".isReferenceTo("+refName+"->"+definitionElement.getText
+        // ()+")");
+        // sometimes definitionElement comes in pointing to ID node itself. depends on what you click on
+        if (definitionElement instanceof IdentifierPSINode && isDefinitionNode(definitionElement.getParent())) {
+            definitionElement = definitionElement.getParent();
         }
-        if (isDefinitionNode(def)) {
-            PsiElement id = ((PsiNameIdentifierOwner) def).getNameIdentifier();
+        if (isDefinitionNode(definitionElement)) {
+
+            //            if (definitionElement instanceof FunctionDefinitionNode) {
+            //                PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement,
+            // myElement);
+            //                if (commonContext instanceof PsiFile) {
+            //                    return false;
+            //                }
+            //                if(!PsiTreeUtil.isAncestor(definitionElement,myElement,false)){
+            //                    return false;
+            //                }
+            //            }
+
+            PsiElement id = ((PsiNameIdentifierOwner) definitionElement).getNameIdentifier();
             String defName = id != null ? id.getText() : null;
 
-            //Todo Parent is different for package, import, const
-            PsiElement parent = def.getParent();
 
-            //Todo Replace with (parent.getParent() instanceof compilableUnitNode)
-            while (!(parent.getParent().getParent() instanceof PsiFile)) {
-                parent = parent.getParent();
-            }
-
-            PsiElement temp = myElement;
-            boolean inScope = false;
-            while (!(temp instanceof PsiFile)) {
-                if (parent == temp) {
-                    inScope = true;
-                    break;
-                }
-                temp = temp.getParent();
-            }
-
-            if (!inScope) {
-                return false;
-            }
+            //            //Todo Parent is different for package, import, const
+            //            PsiElement parent = definitionElement;
+            //
+            //            //Todo Replace with (parent.getParent() instanceof compilableUnitNode)
+            //            while (!(parent.getParent().getParent() instanceof PsiFile)) {
+            //                parent = parent.getParent();
+            //            }
+            //
+            //            PsiElement temp = myElement;
+            //            boolean inScope = false;
+            //            while (!(temp instanceof PsiFile)) {
+            //                if (parent == temp) {
+            //                    inScope = true;
+            //                    break;
+            //                }
+            //                temp = temp.getParent();
+            //            }
+            //
+            //            if (!inScope) {
+            //                return false;
+            //            }
 
             return refName != null && defName != null && refName.equals(defName);
         }
