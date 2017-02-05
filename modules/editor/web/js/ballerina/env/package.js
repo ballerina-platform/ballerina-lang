@@ -363,6 +363,16 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
         };
 
         /**
+         * returns function definition
+         * @param {string} functionName - name of the function to be retrieved
+         */
+        Package.prototype.getFunctionDefinitionByName = function (functionName) {
+            return _.find(this._functionDefinitions, function (functionDefinition) {
+                return _.isEqual(functionDefinition.getName(),functionName);
+            });
+        };
+
+        /**
          * Add struct definition(s) to the package.
          * @param {StructDefinition[]|StructDefinition} structDefinitions - The struct definition(s).
          */
