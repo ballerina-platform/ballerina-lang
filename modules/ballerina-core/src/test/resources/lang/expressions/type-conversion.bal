@@ -1,5 +1,3 @@
-import ballerina.lang.convertors;
-
 function doubletofloat(double value)(float) {
     float result;
     result = (float)value;

@@ -1,6 +1,3 @@
-import ballerina.lang.xml;
-import ballerina.lang.json;
-
 function backtickXMLTest (string name)(xml) {
     xml msg;
     msg = `<name>John</name>`;
