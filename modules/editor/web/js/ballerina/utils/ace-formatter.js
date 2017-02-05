@@ -124,7 +124,7 @@ define(["require", "ace/token_iterator"],
             var iterator = new TokenIterator(session, 0, 0);
             this.session = session;
             var code = this.format(iterator);
-            session.doc.setValue(code);
+            session.setValue(code);
         };
 
         BallerinaFormatter.format = function (iterator) {

@@ -53,7 +53,7 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
                 // Separately handling the HTTP method annotations.
                 if (annotation.key == "Method") {
                     constructedPathAnnotation = "";
-                    var methods = annotation.value.replace( /\n/g, " " ).split(" ");
+                    var methods = annotation.value.replace( /\n/g, " " ).split(/[\s,]+/);
                     _.forEach(methods, function(method){
                         var cleanedMethod = method.trim();
                         if (!_.isEmpty(cleanedMethod)) {

@@ -17,9 +17,9 @@
  */
 define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar', 'breadcrumbs', 'file_browser', 'tab/file-tab-list',
 
-    'command','workspace', 'debugger',/* void modules */ 'jquery_ui', 'bootstrap'],
+    'command','workspace', 'debugger', 'debugger/debug-manager' ,/* void modules */ 'jquery_ui', 'bootstrap', 'theme_wso2'],
 
-    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, CommandManager, Workspace, Debugger) {
+    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, CommandManager, Workspace, Debugger, DebugManager) {
 
     var Application = Backbone.View.extend(
     /** @lends Application.prototype */
@@ -71,9 +71,10 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
 
             // init debugger
             var debuggerOpts = _.get(this.config, "debugger");
-            _.set(debuggerOpts, 'application', this);
-            this.debugger = new Debugger(debuggerOpts);
+            _.set(debuggerOpts, 'application', this);            
+            this.debugger = new Debugger(debuggerOpts);       
 
+            var debuggerManager = DebugManager.init(debuggerOpts);
         },
 
         validateConfig: function(config){

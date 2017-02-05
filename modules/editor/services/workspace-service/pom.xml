@@ -162,6 +162,29 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.9.1</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/gen/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
     <properties>
         <microservice.mainClass>org.wso2.ballerina.tooling.service.workspace.app.WorkspaceServiceRunner</microservice.mainClass>
@@ -179,6 +202,8 @@
         <io.swagger.version>1.5.8</io.swagger.version>
         <com.fasterxml.jackson.datatype.version>2.4.1</com.fasterxml.jackson.datatype.version>
         <com.fasterxml.jackson.version>2.7.4</com.fasterxml.jackson.version>
+        <io.swagger.version.range>[1.5.0,1.6.0)</io.swagger.version.range>
+        <com.fasterxml.jackson.version.range>[2.7.0,2.8.0)</com.fasterxml.jackson.version.range>
         <swagger-parser-version>1.0.25</swagger-parser-version>
     </properties>
 </project>
