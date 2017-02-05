@@ -418,6 +418,16 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitParameter(BallerinaParser.ParameterContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#packagePath}.
+	 * @param ctx the parse tree
+	 */
+	void enterPackagePath(BallerinaParser.PackagePathContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#packagePath}.
+	 * @param ctx the parse tree
+	 */
+	void exitPackagePath(BallerinaParser.PackagePathContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#packageName}.
 	 * @param ctx the parse tree
 	 */
@@ -427,6 +437,16 @@ public interface BallerinaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPackageName(BallerinaParser.PackageNameContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#alias}.
+	 * @param ctx the parse tree
+	 */
+	void enterAlias(BallerinaParser.AliasContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#alias}.
+	 * @param ctx the parse tree
+	 */
+	void exitAlias(BallerinaParser.AliasContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#literalValue}.
 	 * @param ctx the parse tree

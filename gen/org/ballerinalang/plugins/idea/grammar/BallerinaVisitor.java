@@ -257,11 +257,23 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitParameter(BallerinaParser.ParameterContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#packagePath}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPackagePath(BallerinaParser.PackagePathContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#packageName}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitPackageName(BallerinaParser.PackageNameContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#alias}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAlias(BallerinaParser.AliasContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#literalValue}.
 	 * @param ctx the parse tree

@@ -22,7 +22,7 @@ packageDeclaration
     ;
 
 importDeclaration
-    :   'import' packagePath ('as' Identifier)? ';'
+    :   'import' packagePath ('as' alias)? ';'
     ;
 
 serviceDefinition
@@ -205,6 +205,10 @@ packagePath
 
 packageName
     :   Identifier
+    ;
+
+alias
+    :   packageName
     ;
 
 literalValue
