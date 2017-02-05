@@ -95,6 +95,7 @@ public abstract class BallerinaElementReference extends PsiReferenceBase<Identif
 
             //Todo Parent is different for package, import, const
             PsiElement parent = def.getParent();
+
             //Todo Replace with (parent.getParent() instanceof compilableUnitNode)
             while (!(parent.getParent().getParent() instanceof PsiFile)) {
                 parent = parent.getParent();

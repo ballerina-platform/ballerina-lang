@@ -66,23 +66,23 @@ public class BallerinaFile extends PsiFileBase implements ScopeNode {
         //        //		System.out.println(getClass().getSimpleName()+
         //        //		                   ".resolve("+element.getName()+
         //        //		                   " at "+Integer.toHexString(element.hashCode())+")");
-        if (element.getParent() instanceof CallableUnitNode) {
-            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE,
-                    element, "/compilationUnit/functionDefinition/Identifier");
-        } else if (element.getParent() instanceof PackageNameNode) {
-            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE,
-                    element, "/compilationUnit/importDeclaration/packageName/Identifier");
-        }
-//        else if (element.getParent() instanceof VariableReferenceNode) {
+//        if (element.getParent() instanceof CallableUnitNode) {
 //            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE,
-//                    element, "//variableDefinitionStatement/Identifier");
-//        }
-//        else if (element.getParent() instanceof VariableReferenceNode) {
+//                    element, "/compilationUnit/functionDefinition/Identifier");
+//        } else if (element.getParent() instanceof PackageNameNode) {
 //            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE,
-//                    element, "//variableDefinitionStatement/Identifier");
+//                    element, "/compilationUnit/importDeclaration/packageName/Identifier");
 //        }
-        //        return SymtabUtils.resolve(this, SampleLanguage.INSTANCE,
-        //                element, "/script/vardef/ID");
+////        else if (element.getParent() instanceof VariableReferenceNode) {
+////            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE,
+////                    element, "//variableDefinitionStatement/Identifier");
+////        }
+////        else if (element.getParent() instanceof VariableReferenceNode) {
+////            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE,
+////                    element, "//variableDefinitionStatement/Identifier");
+////        }
+//        //        return SymtabUtils.resolve(this, SampleLanguage.INSTANCE,
+//        //                element, "/script/vardef/ID");
         return null;
     }
 }

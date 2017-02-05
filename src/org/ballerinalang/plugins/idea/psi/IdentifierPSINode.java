@@ -103,18 +103,21 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                 //                case RULE_statement :
                 //                case RULE_expr :
                 //                case RULE_primary :
-                //                    return new VariableRef(this);
-//                case RULE_functionName:
-                case RULE_callableUnitName:
-                    return new FunctionDefinitionReference(this);
-
-                case RULE_variableReference:
-                    return new VariableDefinitionReference(this);
-
-                //                case RULE_packageName:
-                //                    return new ImportDeclarationReference(this);
-                case RULE_packageName:
-                    return new PackageNameReference(this);
+//                //                    return new VariableRef(this);
+//                //                case RULE_functionName:
+//                case RULE_callableUnitName:
+//                    return new FunctionDefinitionReference(this);
+//
+//                case RULE_variableReference:
+//                    return new VariableDefinitionReference(this);
+//
+//                case RULE_packageName:
+//                    return new PackageNameReference(this);
+//
+//                //                case RULE_packageName:
+//                //                    return new ImportDeclarationReference(this);
+////                case RULE_packageName:
+////                    return new PackageNameReference(this);
 
 
             }

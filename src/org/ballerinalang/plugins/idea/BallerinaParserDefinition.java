@@ -39,13 +39,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.ballerinalang.plugins.idea.grammar.BallerinaLexer;
 import org.ballerinalang.plugins.idea.grammar.BallerinaParser;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
-import org.ballerinalang.plugins.idea.psi.CallableUnitNode;
-import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
-import org.ballerinalang.plugins.idea.psi.PackageNameNode;
-import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
-import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
-import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -94,7 +87,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
         return new ANTLRParserAdaptor(BallerinaLanguage.INSTANCE, parser) {
             @Override
             protected ParseTree parse(Parser parser, IElementType root) {
-                //todo
+                //Todo - Need to add more start rules?
                 // start rule depends on root passed in; sometimes we want to create an ID node etc...
                 //                if ( root instanceof IFileElementType ) {
                 return ((BallerinaParser) parser).compilationUnit();
@@ -145,39 +138,43 @@ public class BallerinaParserDefinition implements ParserDefinition {
 
         RuleIElementType ruleElType = (RuleIElementType) elementType;
         switch (ruleElType.getRuleIndex()) {
-            case BallerinaParser.RULE_functionDefinition:
-                return new FunctionDefinitionNode(node);
-            case BallerinaParser.RULE_callableUnitName:
-                return new CallableUnitNode(node);
 
 
-            case BallerinaParser.RULE_variableDefinitionStatement:
-                return new VariableDefinitionNode(node);
-            case BallerinaParser.RULE_variableReference:
-                return new VariableReferenceNode(node);
-
-
-//            case BallerinaParser.RULE_functionBody:
-//                return new FunctionBodyNode(node);
-
-
-            case BallerinaParser.RULE_importDeclaration:
-                return new ImportDeclarationNode(node);
-            case BallerinaParser.RULE_packageName:
-                return new PackageNameNode(node);
-
-            case BallerinaParser.RULE_packageDeclaration:
-                return new PackageDeclarationNode(node);
-
-            //            case BallerinaParser.RULE_packageUnit:
-            //                return new PackageUnitNode(node);
-            //            case SampleLanguageParser.RULE_vardef :
-            //                return new VardefSubtree(node);
-            //            case SampleLanguageParser.RULE_formal_arg :
-            //                return new ArgdefSubtree(node);
-            //            case SampleLanguageParser.RULE_block :
-            //                return new BlockSubtree(node);
-
+//            case BallerinaParser.RULE_functionDefinition:
+//                return new FunctionDefinitionNode(node);
+//            case BallerinaParser.RULE_callableUnitName:
+//                return new CallableUnitNode(node);
+//
+//
+//            case BallerinaParser.RULE_variableDefinitionStatement:
+//                return new VariableDefinitionNode(node);
+//            case BallerinaParser.RULE_variableReference:
+//                return new VariableReferenceNode(node);
+//
+//
+//            //            case BallerinaParser.RULE_functionBody:
+//            //                return new FunctionBodyNode(node);
+//
+//
+//            case BallerinaParser.RULE_importDeclaration:
+//                return new ImportDeclarationNode(node);
+//            case BallerinaParser.RULE_packageName:
+//                return new PackageNameNode(node);
+//            case BallerinaParser.RULE_packagePath:
+//                return new PackagePathNode(node);
+//
+//            case BallerinaParser.RULE_packageDeclaration:
+//                return new PackageDeclarationNode(node);
+//
+//            //            case BallerinaParser.RULE_packageUnit:
+//            //                return new PackageUnitNode(node);
+//            //            case SampleLanguageParser.RULE_vardef :
+//            //                return new VardefSubtree(node);
+//            //            case SampleLanguageParser.RULE_formal_arg :
+//            //                return new ArgdefSubtree(node);
+//            //            case SampleLanguageParser.RULE_block :
+//            //                return new BlockSubtree(node);
+//
 
             default:
                 return new ANTLRPsiNode(node);
