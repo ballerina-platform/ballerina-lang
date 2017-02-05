@@ -17,8 +17,6 @@ package org.wso2.ballerina.tooling.service.workspace.swagger.impl;
 
 import com.google.gson.JsonObject;
 import io.swagger.annotations.ApiParam;
-
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -28,8 +26,12 @@ import org.wso2.ballerina.tooling.service.workspace.swagger.SwaggerServiceMapper
 import org.wso2.ballerina.tooling.service.workspace.swagger.api.NotFoundException;
 import org.wso2.ballerina.tooling.service.workspace.swagger.model.Service;
 
-
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.OPTIONS;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -45,6 +47,15 @@ import java.util.List;
  */
 public class ServicesApiServiceImpl {
     private static final Logger logger = LoggerFactory.getLogger(ServicesApiServiceImpl.class);
+
+    private static final String ACCESS_CONTROL_ALLOW_ORIGIN_NAME = "Access-Control-Allow-Origin";
+    private static final String ACCESS_CONTROL_ALLOW_ORIGIN_VALUE = "*";
+    private static final String ACCESS_CONTROL_ALLOW_HEADERS_NAME = "Access-Control-Allow-Headers";
+    private static final String ACCESS_CONTROL_ALLOW_HEADERS_VALUE = "content-type";
+    private static final String ACCESS_CONTROL_ALLOW_METHODS_NAME = "Access-Control-Allow-Methods";
+    private static final String ACCESS_CONTROL_ALLOW_METHODS_VALUE = "OPTIONS, POST";
+    private static final String CONTENT_TYPE_NAME = "Content-Type";
+    private static final Object CONTENT_TYPE_VALUE = "text/plain";
 
     @POST
     @Path("/convert-swagger")
@@ -73,7 +84,7 @@ public class ServicesApiServiceImpl {
                 serviceDefinition.
                         setBallerinaDefinition(generateBallerinaDataModel(swaggerDefinition, ballerinaDefinition));
             }
-                return Response.ok().entity(serviceDefinition).build();
+                return Response.ok().entity(serviceDefinition).header("Access-Control-Allow-Origin", '*').build();
         } catch (IOException ex) {
             logger.error("Error while processing service definition at converter service" + ex.getMessage());
             JsonObject entity = new JsonObject();
@@ -119,9 +130,31 @@ public class ServicesApiServiceImpl {
                         .type(MediaType.APPLICATION_JSON).build();
             }
         }
-        return Response.ok().entity(serviceDefinition).build();
+        return Response.ok().entity(serviceDefinition).header("Access-Control-Allow-Origin", '*').build();
     }
 
+    @OPTIONS
+    @Path("/convert-swagger")
+    public Response sendCORSHeadersForConvertSwaggerPost() {
+        //TODO: this is temporary fix for handling CORS
+        return sendCORSHeaders();
+    }
+
+    @OPTIONS
+    @Path("/convert-ballerina")
+    public Response sendCORSHeadersForConvertBallerinaPost() {
+        //TODO: this is temporary fix for handling CORS
+        return sendCORSHeaders();
+    }
+
+    private Response sendCORSHeaders(){
+        return Response.ok()
+                .header(ACCESS_CONTROL_ALLOW_ORIGIN_NAME, ACCESS_CONTROL_ALLOW_ORIGIN_VALUE)
+                .header(ACCESS_CONTROL_ALLOW_HEADERS_NAME, ACCESS_CONTROL_ALLOW_HEADERS_VALUE)
+                .header(ACCESS_CONTROL_ALLOW_METHODS_NAME, ACCESS_CONTROL_ALLOW_METHODS_VALUE)
+                .header(CONTENT_TYPE_NAME, CONTENT_TYPE_VALUE)
+                .build();
+    }
 
     /**
      * This method will convert ballerina definition to swagger string. Since swagger is subset of ballerina
