@@ -625,17 +625,17 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (rExpr instanceof RefTypeInitExpr) {
             RefTypeInitExpr refTypeInitExpr = (RefTypeInitExpr) rExpr;
-            refTypeInitExpr.setInheritedType(lExprType);
 
             if (lExprType instanceof BMapType) {
-                rExpr = new MapInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
-                assignStmt.setRExpr(rExpr);
+                refTypeInitExpr = new MapInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
+                assignStmt.setRExpr(refTypeInitExpr);
             } else if (lExprType instanceof StructDef) {
-                rExpr = new StructInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
-                assignStmt.setRExpr(rExpr);
+                refTypeInitExpr = new StructInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
+                assignStmt.setRExpr(refTypeInitExpr);
             }
 
-            rExpr.accept(this);
+            refTypeInitExpr.setInheritedType(lExprType);
+            refTypeInitExpr.accept(this);
             return;
         }
 
@@ -1317,11 +1317,12 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (m.group(3) != null) {
                 BasicLiteral indexExpr;
                 if (m.group(5) != null) {
-                    indexExpr = new BasicLiteral(backtickExpr.getNodeLocation(), new BString(m.group(5)));
+                    indexExpr = new BasicLiteral(backtickExpr.getNodeLocation(),
+                            new SimpleTypeName(TypeConstants.STRING_TNAME), new BString(m.group(5)));
                     indexExpr.setType(BTypes.typeString);
                 } else {
                     indexExpr = new BasicLiteral(backtickExpr.getNodeLocation(),
-                            new BInteger(Integer.parseInt(m.group(4))));
+                            new SimpleTypeName(TypeConstants.INT_TNAME), new BInteger(Integer.parseInt(m.group(4))));
                     indexExpr.setType(BTypes.typeInt);
                 }
 
@@ -1346,7 +1347,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                 argExprList.add(variableRefExpr);
             }
             if (literals.length > i) {
-                BasicLiteral basicLiteral = new BasicLiteral(backtickExpr.getNodeLocation(), new BString(literals[i]));
+                BasicLiteral basicLiteral = new BasicLiteral(backtickExpr.getNodeLocation(),
+                        new SimpleTypeName(TypeConstants.STRING_TNAME), new BString(literals[i]));
                 visit(basicLiteral);
                 argExprList.add(basicLiteral);
                 i++;
