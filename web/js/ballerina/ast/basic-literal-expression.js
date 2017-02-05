@@ -38,7 +38,7 @@ define(['lodash', './expression'], function (_, Expression) {
     BasicLiteralExpression.prototype.initFromJson = function (jsonNode) {
         this._basicLiteralType = jsonNode.basic_literal_type;
         this._basicLiteralValue = jsonNode.basic_literal_value;
-        this.setExpression(this.generateExpression());
+        this.setExpression(this.generateExpression(), {doSilently: true});
     };
 
     BasicLiteralExpression.prototype.generateExpression = function () {
