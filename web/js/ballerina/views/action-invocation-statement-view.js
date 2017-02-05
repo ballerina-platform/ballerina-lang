@@ -91,7 +91,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
         };
 
         ActionInvocationStatementView.prototype.getModel = function () {
-            return this._model.getChildren()[1].getChildren()[0];;
+            return this._model.getChildren()[1].getChildren()[0];
         };
 
         ActionInvocationStatementView.prototype.getContainer = function () {
@@ -275,6 +275,9 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                     .style("fill", "#444");
 
                 this.arrowHeadEndPoint = arrowHeadEnd;
+
+                actionInvocationModel.getConnector()._processorConnectPoint = this.processorConnectPoint;
+                actionInvocationModel.getConnector()._actionInvocationModel = this;
 
                 var self = this;
 
