@@ -128,17 +128,16 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                 this.connector = this.getDiagramRenderingContext().getViewOfModel(connectorModel);
             }
             else {
-                var siblingConnectors = this._parent._model.children;
+                var siblingConnectors = _.filter(this._parent._model.children, { 'type': 'ConnectorDeclaration' });
+
                 _.some(siblingConnectors, function (key, i) {
-                    if (BallerinaASTFactory.isConnectorDeclaration(siblingConnectors[i])) {
-                        var connectorReference = siblingConnectors[i];
+                    var connectorReference = siblingConnectors[i];
 
-                        actionInvocationModel._connector = connectorReference;
-                        self.messageManager.setMessageSource(actionInvocationModel);
-                        self.messageManager.updateActivatedTarget(connectorReference);
+                    actionInvocationModel._connector = connectorReference;
+                    self.messageManager.setMessageSource(actionInvocationModel);
+                    self.messageManager.updateActivatedTarget(connectorReference);
 
-                        return true;
-                    }
+                    return true;
                 });
             }
 
