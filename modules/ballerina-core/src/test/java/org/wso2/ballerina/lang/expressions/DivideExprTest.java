@@ -114,16 +114,16 @@ public class DivideExprTest {
     
     @Test(description = "Test dividing values of two types",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "divide-incompatible-types.bal:5: incompatible types in " +
-                    "binary expression: string vs float")
+            expectedExceptionsMessageRegExp = "divide-incompatible-types.bal:5: invalid operation: " +
+                    "incompatible types 'string' and 'float'")
     public void testAddIncompatibleTypes() {
         ParserUtils.parseBalFile("lang/expressions/divide-incompatible-types.bal");
     }
     
     @Test(description = "Test dividing values of unsupported types (json)",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Divide operation is not supported for type: json in " +
-            "divide-unsupported-types.bal:10")
+            expectedExceptionsMessageRegExp = "divide-unsupported-types.bal:10: invalid operation: " +
+                    "operator / not defined on 'json'")
     public void testAddUnsupportedTypes() {
         ParserUtils.parseBalFile("lang/expressions/divide-unsupported-types.bal");
     }

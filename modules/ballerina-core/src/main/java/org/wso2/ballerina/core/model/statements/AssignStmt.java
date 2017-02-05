@@ -46,6 +46,10 @@ public class AssignStmt extends AbstractStatement {
         return rhsExpr;
     }
 
+    public void setRExpr(Expression rhsExpr) {
+        this.rhsExpr = rhsExpr;
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
