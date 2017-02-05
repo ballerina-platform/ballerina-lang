@@ -562,17 +562,17 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (rExpr instanceof RefTypeInitExpr) {
             RefTypeInitExpr refTypeInitExpr = (RefTypeInitExpr) rExpr;
-            refTypeInitExpr.setInheritedType(varBType);
 
             if (varBType instanceof BMapType) {
-                rExpr = new MapInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
-                varDefStmt.setRExpr(rExpr);
+                refTypeInitExpr = new MapInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
+                varDefStmt.setRExpr(refTypeInitExpr);
             } else if (varBType instanceof StructDef) {
-                rExpr = new StructInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
-                varDefStmt.setRExpr(rExpr);
+                refTypeInitExpr = new StructInitExpr(refTypeInitExpr.getNodeLocation(), refTypeInitExpr.getArgExprs());
+                varDefStmt.setRExpr(refTypeInitExpr);
             }
 
-            rExpr.accept(this);
+            refTypeInitExpr.setInheritedType(varBType);
+            refTypeInitExpr.accept(this);
             return;
         }
 

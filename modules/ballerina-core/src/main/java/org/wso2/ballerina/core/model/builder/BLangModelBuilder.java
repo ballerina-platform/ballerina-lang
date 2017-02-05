@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.model.builder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
@@ -167,15 +168,16 @@ public class BLangModelBuilder {
                     errorMessageList.add(errMsg);
                 });
 
-//        if (!errorMessageList.isEmpty()) {
-//
+        if (!errorMessageList.isEmpty()) {
+
 //            for (String errMsg : errorMessageList) {
 //            }
-//
+
 //            BallerinaException e = new BallerinaException(
 //                    errorMessageList.toArray(new String[errorMessageList.size()]));
-//            throw e;
-//        }
+
+            throw new BallerinaException(errorMessageList.get(0));
+        }
 
 
         bFileBuilder.setImportPackageMap(importPkgMap);

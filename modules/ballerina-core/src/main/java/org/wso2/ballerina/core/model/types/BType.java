@@ -66,11 +66,6 @@ public abstract class BType implements BLangSymbol {
         return false;
     }
 
-    public int hashCode() {
-        return typeName.length();
-    }
-
-
     // Methods in BLangSymbol interface
 
     @Override

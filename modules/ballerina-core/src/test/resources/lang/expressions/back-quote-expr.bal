@@ -1,5 +1,3 @@
-import ballerina.lang.message;
-
 function getProduct() (json) {
     message m;
     json payload;

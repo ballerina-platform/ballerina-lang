@@ -18,7 +18,7 @@
 package org.wso2.ballerina.lang.expressions;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.interpreter.SymScope;
@@ -38,7 +38,7 @@ import org.wso2.ballerina.lang.util.Functions;
 public class MapAccessExprTest {
     private BallerinaFile bFile;
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
         // Linking Native functions.
         SymScope symScope = new SymScope(null);
@@ -75,23 +75,6 @@ public class MapAccessExprTest {
 
     }
 
-//    @Test(description = "Test array arg value")
-//    public void testArrayArgValueTest() {
-//        BArray<BInteger> arrayValue = new BArray<>(BInteger.class);
-//        arrayValue.add(0, new BInteger(10));
-//        arrayValue.add(1, new BInteger(1));
-//
-//        BValue[] args = {arrayValue};
-//        BValue[] returns = Functions.invoke(bFile, "arrayArgTest", args);
-//
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertSame(returns[0].getClass(), BInteger.class);
-//
-//        int actual = ((BInteger) returns[0]).intValue();
-//        int expected = 11;
-//        Assert.assertEquals(actual, expected);
-//    }
-    
     @Test(description = "Test map access with an index",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "incorrect-map-access.bal:4: non-string map index type 'int'")
