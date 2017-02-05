@@ -28,12 +28,9 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
-import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * {@code CallableUnitBuilder} is responsible for building Functions, Actions and Resources from parser events.
@@ -42,8 +39,9 @@ import java.util.Map;
  *
  * @since 0.8.0
  */
-class CallableUnitBuilder implements SymbolScope {
-    private NodeLocation location;
+public class CallableUnitBuilder {
+    protected NodeLocation location;
+    protected SymbolScope currentScope;
 
     // BLangSymbol related attributes
     protected String name;
@@ -51,18 +49,14 @@ class CallableUnitBuilder implements SymbolScope {
     protected boolean isPublic;
     protected SymbolName symbolName;
 
-    private List<Annotation> annotationList = new ArrayList<>();
-    private List<ParameterDef> parameterDefList = new ArrayList<>();
-    private List<ParameterDef> returnParamList = new ArrayList<>();
-    private List<Worker> workerList = new ArrayList<>();
-    private BlockStmt body;
+    protected List<Annotation> annotationList = new ArrayList<>();
+    protected List<ParameterDef> parameterDefList = new ArrayList<>();
+    protected List<ParameterDef> returnParamList = new ArrayList<>();
+    protected List<Worker> workerList = new ArrayList<>();
+    protected BlockStmt body;
 
-    // Scope related variables
-    private SymbolScope enclosingScope;
-    private Map<SymbolName, BLangSymbol> symbolMap = new HashMap<>();
-
-    CallableUnitBuilder(SymbolScope enclosingScope) {
-        this.enclosingScope = enclosingScope;
+    SymbolScope getCurrentScope() {
+        return currentScope;
     }
 
     public void setNodeLocation(NodeLocation location) {
@@ -105,84 +99,19 @@ class CallableUnitBuilder implements SymbolScope {
         this.body = body;
     }
 
-    @Override
-    public ScopeName getScopeName() {
-        return ScopeName.LOCAL;
+    public BallerinaFunction buildFunction() {
+        return null;
     }
 
-    @Override
-    public SymbolScope getEnclosingScope() {
-        return this.enclosingScope;
+    public Resource buildResource() {
+        return null;
     }
 
-    @Override
-    public void define(SymbolName name, BLangSymbol symbol) {
-        symbolMap.put(name, symbol);
+    public BallerinaAction buildAction() {
+        return null;
     }
 
-    @Override
-    public BLangSymbol resolve(SymbolName name) {
-        return resolve(symbolMap, name);
-    }
-
-    BallerinaFunction buildFunction() {
-        return new BallerinaFunction(
-                location,
-                name,
-                pkgPath,
-                isPublic,
-                symbolName,
-                annotationList.toArray(new Annotation[annotationList.size()]),
-                parameterDefList.toArray(new ParameterDef[parameterDefList.size()]),
-                returnParamList.toArray(new ParameterDef[returnParamList.size()]),
-                workerList.toArray(new Worker[workerList.size()]),
-                body,
-                enclosingScope,
-                symbolMap);
-    }
-
-    Resource buildResource() {
-        return new Resource(
-                location,
-                name,
-                pkgPath,
-                symbolName,
-                annotationList.toArray(new Annotation[annotationList.size()]),
-                parameterDefList.toArray(new ParameterDef[parameterDefList.size()]),
-                workerList.toArray(new Worker[workerList.size()]),
-                body,
-                enclosingScope,
-                symbolMap);
-    }
-
-    BallerinaAction buildAction() {
-        return new BallerinaAction(
-                location,
-                name,
-                pkgPath,
-                isPublic,
-                symbolName,
-                annotationList.toArray(new Annotation[annotationList.size()]),
-                parameterDefList.toArray(new ParameterDef[parameterDefList.size()]),
-                returnParamList.toArray(new ParameterDef[returnParamList.size()]),
-                workerList.toArray(new Worker[workerList.size()]),
-                body,
-                enclosingScope,
-                symbolMap);
-    }
-
-    BTypeConvertor buildTypeConverter() {
-        return new BTypeConvertor(
-                location,
-                name,
-                pkgPath,
-                isPublic,
-                symbolName,
-                annotationList.toArray(new Annotation[annotationList.size()]),
-                parameterDefList.toArray(new ParameterDef[parameterDefList.size()]),
-                returnParamList.toArray(new ParameterDef[returnParamList.size()]),
-                body,
-                enclosingScope,
-                symbolMap);
+    public BTypeConvertor buildTypeConverter() {
+        return null;
     }
 }

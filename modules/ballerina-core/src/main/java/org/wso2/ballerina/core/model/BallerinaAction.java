@@ -18,10 +18,12 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.model.builder.CallableUnitBuilder;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.types.BType;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -61,32 +63,9 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
 
-    public BallerinaAction(NodeLocation location,
-                           String name,
-                           String pkgPath,
-                           Boolean isPublic,
-                           SymbolName symbolName,
-                           Annotation[] annotations,
-                           ParameterDef[] parameterDefs,
-                           ParameterDef[] returnParams,
-                           Worker[] workers,
-                           BlockStmt actionBody,
-                           SymbolScope enclosingScope,
-                           Map<SymbolName, BLangSymbol> symbolMap) {
-
-        this.location = location;
-        this.name = name;
-        this.pkgPath = pkgPath;
-        this.isPublic = isPublic;
-        this.symbolName = symbolName;
-        this.annotations = annotations;
-        this.parameterDefs = parameterDefs;
-        this.returnParams = returnParams;
-        this.workers = workers;
-        this.actionBody = actionBody;
-
+    private BallerinaAction(SymbolScope enclosingScope) {
         this.enclosingScope = enclosingScope;
-        this.symbolMap = symbolMap;
+        this.symbolMap = new HashMap<>();
     }
 
     @Override
@@ -216,5 +195,32 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     @Override
     public BLangSymbol resolve(SymbolName name) {
         return resolve(symbolMap, name);
+    }
+
+    /**
+     * {@code BallerinaActionBuilder} is responsible for building a {@cdoe BallerinaAction} node.
+     *
+     * @since 0.8.0
+     */
+    public static class BallerinaActionBuilder extends CallableUnitBuilder {
+        private BallerinaAction bAction;
+
+        public BallerinaActionBuilder(SymbolScope enclosingScope) {
+            bAction = new BallerinaAction(enclosingScope);
+            currentScope = bAction;
+        }
+
+        public BallerinaAction buildAction() {
+            bAction.location = this.location;
+            bAction.name = this.name;
+            bAction.pkgPath = this.pkgPath;
+
+            bAction.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            bAction.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
+            bAction.returnParams = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);
+            bAction.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
+            bAction.actionBody = this.body;
+            return bAction;
+        }
     }
 }

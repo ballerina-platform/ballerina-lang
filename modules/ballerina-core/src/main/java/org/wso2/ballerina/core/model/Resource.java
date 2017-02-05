@@ -18,11 +18,13 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.model.builder.CallableUnitBuilder;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.types.BType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -67,28 +69,9 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
 
-    public Resource(NodeLocation location,
-                    String name,
-                    String pkgPath,
-                    SymbolName symbolName,
-                    Annotation[] annotations,
-                    ParameterDef[] parameterDefs,
-                    Worker[] workers,
-                    BlockStmt functionBody,
-                    SymbolScope enclosingScope,
-                    Map<SymbolName, BLangSymbol> symbolMap) {
-
-        this.location = location;
-        this.name = name;
-        this.pkgPath = pkgPath;
-        this.symbolName = symbolName;
-        this.annotations = annotations;
-        this.parameterDefs = parameterDefs;
-        this.workers = workers;
-        this.resourceBody = functionBody;
-
+    private Resource(SymbolScope enclosingScope) {
         this.enclosingScope = enclosingScope;
-        this.symbolMap = symbolMap;
+        this.symbolMap = new HashMap<>();
     }
 
     /**
@@ -302,5 +285,31 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     @Override
     public BLangSymbol resolve(SymbolName name) {
         return resolve(symbolMap, name);
+    }
+
+    /**
+     * {@code ResourceBuilder} is responsible for building a {@cdoe Resource} node.
+     *
+     * @since 0.8.0
+     */
+    public static class ResourceBuilder extends CallableUnitBuilder {
+        private Resource bFunc;
+
+        public ResourceBuilder(SymbolScope enclosingScope) {
+            bFunc = new Resource(enclosingScope);
+            currentScope = bFunc;
+        }
+
+        public Resource buildResource() {
+            bFunc.location = this.location;
+            bFunc.name = this.name;
+            bFunc.pkgPath = this.pkgPath;
+
+            bFunc.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            bFunc.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
+            bFunc.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
+            bFunc.resourceBody = this.body;
+            return bFunc;
+        }
     }
 }

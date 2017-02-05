@@ -82,7 +82,7 @@ public class ParserUtils {
         BallerinaFile bFile = modelBuilder.build();
 
         // Analyze semantic properties of the source code
-        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, globalScope);
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, bLangPackage);
         bFile.accept(semanticAnalyzer);
 
         return bFile;

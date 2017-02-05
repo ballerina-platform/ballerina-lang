@@ -41,7 +41,7 @@ public class FunctionInvocationExpr extends AbstractExpression implements Callab
                                   String name,
                                   String pkgName,
                                   String pkgPath,
-                                  Expression [] exprs) {
+                                  Expression[] exprs) {
         super(location);
         this.name = name;
         this.pkgName = pkgName;
@@ -87,6 +87,11 @@ public class FunctionInvocationExpr extends AbstractExpression implements Callab
     @Override
     public void setTypes(BType[] types) {
         this.types = types;
+
+        multipleReturnsAvailable = types.length > 1;
+        if (!multipleReturnsAvailable) {
+            this.type = types[0];
+        }
     }
 
     @Override

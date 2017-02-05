@@ -18,10 +18,12 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.model.builder.CallableUnitBuilder;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.types.BType;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -62,33 +64,9 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
 
-    public BallerinaFunction(NodeLocation location,
-                             String name,
-                             String pkgPath,
-                             Boolean isPublic,
-                             SymbolName symbolName,
-                             Annotation[] annotations,
-                             ParameterDef[] parameterDefs,
-                             ParameterDef[] returnParams,
-                             Worker[] workers,
-                             BlockStmt functionBody,
-                             SymbolScope enclosingScope,
-                             Map<SymbolName, BLangSymbol> symbolMap) {
-
-        this.location = location;
-        this.name = name;
-        this.pkgPath = pkgPath;
-        this.isPublic = isPublic;
-        this.symbolName = symbolName;
-
-        this.annotations = annotations;
-        this.parameterDefs = parameterDefs;
-        this.returnParams = returnParams;
-        this.workers = workers;
-        this.functionBody = functionBody;
-
+    private BallerinaFunction(SymbolScope enclosingScope) {
         this.enclosingScope = enclosingScope;
-        this.symbolMap = symbolMap;
+        this.symbolMap = new HashMap<>();
     }
 
     public int getStackFrameSize() {
@@ -250,5 +228,32 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     @Override
     public BLangSymbol resolve(SymbolName name) {
         return resolve(symbolMap, name);
+    }
+
+    /**
+     * {@code BallerinaFunctionBuilder} is responsible for building a {@cdoe BallerinaFunction} node.
+     *
+     * @since 0.8.0
+     */
+    public static class BallerinaFunctionBuilder extends CallableUnitBuilder {
+        private BallerinaFunction bFunc;
+
+        public BallerinaFunctionBuilder(SymbolScope enclosingScope) {
+            bFunc = new BallerinaFunction(enclosingScope);
+            currentScope = bFunc;
+        }
+
+        public BallerinaFunction buildFunction() {
+            bFunc.location = this.location;
+            bFunc.name = this.name;
+            bFunc.pkgPath = this.pkgPath;
+
+            bFunc.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            bFunc.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
+            bFunc.returnParams = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);
+            bFunc.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
+            bFunc.functionBody = this.body;
+            return bFunc;
+        }
     }
 }

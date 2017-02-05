@@ -721,22 +721,22 @@ public class BLangModelBuilder {
 
     // Functions, Actions and Resources
 
-    public void startCallableUnitBody() {
-        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(currentScope);
+    public void startCallableUnitBody(NodeLocation location) {
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
-        currentScope = blockStmtBuilder;
+        currentScope = blockStmtBuilder.getCurrentScope();
     }
 
     public void endCallableUnitBody() {
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt blockStmt = blockStmtBuilder.build();
         currentCUBuilder.setBody(blockStmt);
-        currentScope = blockStmtBuilder.getEnclosingScope();
+        currentScope = blockStmt.getEnclosingScope();
     }
 
-    public void startCallableUnit() {
-        currentCUBuilder = new CallableUnitBuilder(currentScope);
-        currentScope = currentCUBuilder;
+    public void startFunctionDef() {
+        currentCUBuilder = new BallerinaFunction.BallerinaFunctionBuilder(currentScope);
+        currentScope = currentCUBuilder.getCurrentScope();
         annotationListStack.push(new ArrayList<>());
     }
 
@@ -754,8 +754,14 @@ public class BLangModelBuilder {
 
         // Define function is delayed due to missing type info of Parameters.
 
-        currentScope = currentCUBuilder.getEnclosingScope();
+        currentScope = function.getEnclosingScope();
         currentCUBuilder = null;
+    }
+
+    public void startTypeConverterDef() {
+        currentCUBuilder = new BTypeConvertor.BTypeConvertorBuilder(currentScope);
+        currentScope = currentCUBuilder.getCurrentScope();
+        annotationListStack.push(new ArrayList<>());
     }
 
     public void addTypeConverter(NodeLocation location, String name, boolean isPublic) {
@@ -769,8 +775,14 @@ public class BLangModelBuilder {
 
         // Define type converter is delayed due to missing type info of Parameters.
 
-        currentScope = currentCUBuilder.getEnclosingScope();
+        currentScope = typeConvertor.getEnclosingScope();
         currentCUBuilder = null;
+    }
+
+    public void startResourceDef() {
+        currentCUBuilder = new Resource.ResourceBuilder(currentScope);
+        currentScope = currentCUBuilder.getCurrentScope();
+        annotationListStack.push(new ArrayList<>());
     }
 
     public void addResource(NodeLocation location, String name) {
@@ -788,8 +800,14 @@ public class BLangModelBuilder {
 
         // Define resource is delayed due to missing type info of Parameters.
 
-        currentScope = currentCUBuilder.getEnclosingScope();
+        currentScope = resource.getEnclosingScope();
         currentCUBuilder = null;
+    }
+
+    public void startActionDef() {
+        currentCUBuilder = new BallerinaAction.BallerinaActionBuilder(currentScope);
+        currentScope = currentCUBuilder.getCurrentScope();
+        annotationListStack.push(new ArrayList<>());
     }
 
     public void addAction(NodeLocation location, String name) {
@@ -805,7 +823,7 @@ public class BLangModelBuilder {
 
         // Define action is delayed due to missing type info of Parameters.
 
-        currentScope = currentCUBuilder.getEnclosingScope();
+        currentScope = action.getEnclosingScope();
         currentCUBuilder = null;
     }
 
@@ -880,7 +898,7 @@ public class BLangModelBuilder {
         BLangSymbol varSymbol = currentScope.resolve(symbolName);
         if (varSymbol != null && varSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
             String errMsg = getNodeLocationStr(location) +
-                    "redeclared variable '" + varName + "'";
+                    "redeclared symbol '" + varName + "'";
             errorMessageList.add(errMsg);
             //throw new BallerinaException(errMsg);
         }
@@ -933,10 +951,10 @@ public class BLangModelBuilder {
         addToBlockStmt(replyStmt);
     }
 
-    public void startWhileStmt() {
-        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(currentScope);
+    public void startWhileStmt(NodeLocation location) {
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
-        currentScope = blockStmtBuilder;
+        currentScope = blockStmtBuilder.getCurrentScope();
     }
 
     public void createWhileStmt(NodeLocation location) {
@@ -951,10 +969,11 @@ public class BLangModelBuilder {
 
         // Get the statement block at the top of the block statement stack and set as the while body.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
-        whileStmtBuilder.setWhileBody(blockStmtBuilder.build());
+        BlockStmt blockStmt = blockStmtBuilder.build();
+        whileStmtBuilder.setWhileBody(blockStmt);
 
         // Close the current scope and open the enclosing scope
-        currentScope = blockStmtBuilder.getEnclosingScope();
+        currentScope = blockStmt.getEnclosingScope();
 
         // Add the while statement to the statement block which is at the top of the stack.
         WhileStmt whileStmt = whileStmtBuilder.build();
@@ -966,19 +985,17 @@ public class BLangModelBuilder {
         ifElseStmtBuilder.setNodeLocation(location);
         ifElseStmtBuilderStack.push(ifElseStmtBuilder);
 
-        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(currentScope);
-        blockStmtBuilder.setNodeLocation(location);
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
 
-        currentScope = blockStmtBuilder;
+        currentScope = blockStmtBuilder.getCurrentScope();
     }
 
     public void startElseIfClause(NodeLocation location) {
-        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(currentScope);
-        blockStmtBuilder.setNodeLocation(location);
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
 
-        currentScope = blockStmtBuilder;
+        currentScope = blockStmtBuilder.getCurrentScope();
     }
 
     public void addElseIfClause() {
@@ -991,14 +1008,14 @@ public class BLangModelBuilder {
         checkArgExprValidity(ifElseStmtBuilder.getLocation(), condition);
         ifElseStmtBuilder.addElseIfBlock(elseIfStmtBlock.getNodeLocation(), condition, elseIfStmtBlock);
 
-        currentScope = blockStmtBuilder.getEnclosingScope();
+        currentScope = elseIfStmtBlock.getEnclosingScope();
     }
 
-    public void startElseClause() {
-        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(currentScope);
+    public void startElseClause(NodeLocation location) {
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
 
-        currentScope = blockStmtBuilder;
+        currentScope = blockStmtBuilder.getCurrentScope();
     }
 
     public void addElseClause() {
@@ -1007,7 +1024,7 @@ public class BLangModelBuilder {
         BlockStmt elseStmt = blockStmtBuilder.build();
         ifElseStmtBuilder.setElseBody(elseStmt);
 
-        currentScope = blockStmtBuilder.getEnclosingScope();
+        currentScope = elseStmt.getEnclosingScope();
     }
 
     public void addIfElseStmt() {
@@ -1018,12 +1035,13 @@ public class BLangModelBuilder {
         ifElseStmtBuilder.setIfCondition(condition);
 
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
-        ifElseStmtBuilder.setThenBody(blockStmtBuilder.build());
+        BlockStmt blockStmt = blockStmtBuilder.build();
+        ifElseStmtBuilder.setThenBody(blockStmt);
 
         IfElseStmt ifElseStmt = ifElseStmtBuilder.build();
         addToBlockStmt(ifElseStmt);
 
-        currentScope = blockStmtBuilder.getEnclosingScope();
+        currentScope = blockStmt.getEnclosingScope();
     }
 
     public void createFunctionInvocationStmt(NodeLocation location) {
