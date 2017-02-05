@@ -296,7 +296,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             // Adding svg definitions needed for styling edit and delete buttons.
             var svgDefinitions = deleteButtonPaneGroup.append("defs");
             var deleteButtonPattern = svgDefinitions.append("pattern")
-                .attr("id", "deleteIcon")
+                .attr("id", "editIcon")
                 .attr("width", "100%")
                 .attr("height", "100%");
 
