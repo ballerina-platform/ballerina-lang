@@ -18,11 +18,11 @@ compilationUnit
     ;
 
 packageDeclaration
-    :   'package' packageName ';'
+    :   'package' packagePath ';'
     ;
 
 importDeclaration
-    :   'import' packageName ('as' Identifier)? ';'
+    :   'import' packagePath ('as' Identifier)? ';'
     ;
 
 serviceDefinition
@@ -111,7 +111,7 @@ returnTypeList
     ;
 
 qualifiedTypeName
-    :   packageName ':' unqualifiedTypeName
+    :   packagePath ':' unqualifiedTypeName
     ;
 
 typeConvertorType
@@ -198,17 +198,14 @@ parameter
     :   annotation* typeName Identifier
     ;
 
-packageName
-    :   Identifier ('.' Identifier)*
+packagePath
+//    :   Identifier ('.' Identifier)*
+    :   (Identifier '.')* packageName
     ;
 
-//packageName
-//    :   packageUnit ('.' packageUnit)*
-//    ;
-//
-//packageUnit
-//    :   Identifier
-//    ;
+packageName
+    :   Identifier
+    ;
 
 literalValue
     :   IntegerLiteral
@@ -393,7 +390,7 @@ actionInvocation
     ;
 
 callableUnitName
-    :   (packageName ':')? Identifier
+    :   (packagePath ':')? Identifier
     ;
 
 backtickString
