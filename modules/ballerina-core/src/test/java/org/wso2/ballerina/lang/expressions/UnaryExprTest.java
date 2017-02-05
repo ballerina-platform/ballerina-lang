@@ -203,24 +203,24 @@ public class UnaryExprTest {
     
     @Test(description = "Test unary positive for unsupported types (json)",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Incompatible type in unary expression: json in " +
-            "unsupported-types-unary-positive.bal:5")
+            expectedExceptionsMessageRegExp = "unsupported-types-unary-positive.bal:5: invalid operation: " +
+                    "operator \\+ not defined on 'json'")
     public void testUnaryPositiveForUnsupportedTypes() {
         ParserUtils.parseBalFile("lang/expressions/unsupported-types-unary-positive.bal");
     }
-    
+
     @Test(description = "Test unary negative for unsupported types (json)",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Incompatible type in unary expression: json in " +
-            "unsupported-types-unary-negative.bal:5")
+            expectedExceptionsMessageRegExp = "unsupported-types-unary-negative.bal:5: invalid operation: " +
+                    "operator - not defined on 'json'")
     public void testUnaryNegativeForUnsupportedTypes() {
         ParserUtils.parseBalFile("lang/expressions/unsupported-types-unary-negative.bal");
     }
-    
+
     @Test(description = "Test unary not for unsupported types (json)",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Incompatible type in unary expression: json in " +
-            "unsupported-types-unary-not.bal:5 'Not' operation only supports boolean")
+            expectedExceptionsMessageRegExp = "unsupported-types-unary-not.bal:5: invalid operation: " +
+                    "operator ! not defined on 'json'")
     public void testUnaryNotForUnsupportedTypes() {
         ParserUtils.parseBalFile("lang/expressions/unsupported-types-unary-not.bal");
     }

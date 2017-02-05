@@ -972,8 +972,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             } else if (unaryExpr.getType() == BTypes.typeFloat) {
                 unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_FLOAT_FUNC);
             } else {
-                throw new SemanticException("Incompatible type in unary expression: " + unaryExpr.getType() + " in " +
-                        unaryExpr.getNodeLocation().getFileName() + ":" + unaryExpr.getNodeLocation().getLineNumber());
+                throwInvalidUnaryOpError(unaryExpr);
             }
         } else if (Operator.ADD.equals(unaryExpr.getOperator())) {
             if (unaryExpr.getType() == BTypes.typeInt) {
@@ -985,25 +984,20 @@ public class SemanticAnalyzer implements NodeVisitor {
             } else if (unaryExpr.getType() == BTypes.typeFloat) {
                 unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_FLOAT_FUNC);
             } else {
-                throw new SemanticException("Incompatible type in unary expression: " + unaryExpr.getType() + " in " +
-                        unaryExpr.getNodeLocation().getFileName() + ":" + unaryExpr.getNodeLocation().getLineNumber());
+                throwInvalidUnaryOpError(unaryExpr);
             }
 
         } else if (Operator.NOT.equals(unaryExpr.getOperator())) {
             if (unaryExpr.getType() == BTypes.typeBoolean) {
                 unaryExpr.setEvalFunc(UnaryExpression.NOT_BOOLEAN_FUNC);
             } else {
-                throw new SemanticException("Incompatible type in unary expression: " + unaryExpr.getType() + " in " +
-                        unaryExpr.getNodeLocation().getFileName() + ":" + unaryExpr.getNodeLocation().getLineNumber()
-                        + " 'Not' operation only supports boolean");
+                throwInvalidUnaryOpError(unaryExpr);
             }
 
         } else {
-            throw new SemanticException("Incompatible operation for unary expression " +
-                    unaryExpr.getOperator().name() + " in " + unaryExpr.getNodeLocation().getFileName() + ":" +
-                    unaryExpr.getNodeLocation().getLineNumber());
+            throw new SemanticException(getNodeLocationStr(unaryExpr.getNodeLocation()) +
+                    "unknown operator '" + unaryExpr.getOperator() + "' in unary expression");
         }
-
     }
 
     @Override
@@ -1211,11 +1205,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
             indexExpr.accept(this);
             if (indexExpr.getType() != BTypes.typeInt) {
-                throw new SemanticException("Array index should be of type int, not " +
-                        indexExpr.getType().toString() +
-                        ". Array name: " + arrayMapVarRefExpr.getSymbolName().getName() + " in "
-                        + indexExpr.getNodeLocation().getFileName() + ":" +
-                        indexExpr.getNodeLocation().getLineNumber());
+                throw new SemanticException(getNodeLocationStr(arrayMapAccessExpr.getNodeLocation()) +
+                        "non-integer array index type '" + indexExpr.getType() + "'");
             }
             // Set type of the array access expression
             BType typeOfArray = ((BArrayType) arrayMapVarRefExpr.getType()).getElementType();
@@ -1225,19 +1216,15 @@ public class SemanticAnalyzer implements NodeVisitor {
             Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
             indexExpr.accept(this);
             if (indexExpr.getType() != BTypes.typeString) {
-                throw new SemanticException("Map index should be of type string, not " + indexExpr.getType().toString()
-                        + ". Map name: " + arrayMapVarRefExpr.getSymbolName().getName() + " in "
-                        + indexExpr.getNodeLocation().getFileName() + ":" +
-                        indexExpr.getNodeLocation().getLineNumber());
+                throw new SemanticException(getNodeLocationStr(arrayMapAccessExpr.getNodeLocation()) +
+                        "non-string map index type '" + indexExpr.getType() + "'");
             }
             // Set type of the map access expression
             BType typeOfMap = arrayMapVarRefExpr.getType();
             arrayMapAccessExpr.setType(typeOfMap);
         } else {
-            throw new SemanticException("Attempt to index non-array, non-map variable: " +
-                    arrayMapVarRefExpr.getSymbolName().getName() + " in " +
-                    arrayMapVarRefExpr.getNodeLocation().getFileName() + ":" +
-                    arrayMapVarRefExpr.getNodeLocation().getLineNumber());
+            throw new SemanticException(getNodeLocationStr(arrayMapAccessExpr.getNodeLocation()) +
+                    "invalid operation: type '" + arrayMapVarRefExpr.getType() + "' does not support indexing");
         }
     }
 
@@ -1869,6 +1856,14 @@ public class SemanticAnalyzer implements NodeVisitor {
             throw new SemanticException(locationStr + "invalid operation: incompatible types '" + lExprType +
                     "' and '" + rExprType + "'");
         }
+    }
+
+    private void throwInvalidUnaryOpError(UnaryExpression unaryExpr) {
+        String locationStr = getNodeLocationStr(unaryExpr.getNodeLocation());
+        BType rExprType = unaryExpr.getRExpr().getType();
+
+        throw new SemanticException(locationStr + "invalid operation: operator " + unaryExpr.getOperator() +
+                " not defined on '" + rExprType + "'");
     }
 
     
