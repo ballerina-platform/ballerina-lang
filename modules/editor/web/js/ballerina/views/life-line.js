@@ -452,10 +452,10 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 event.stopPropagation();
                 model.remove();
 
-                var actionInvocationModels = _.filter(model.parent.children, { 'type' : 'Statement' });
+                var Statements = _.filter(model.parent.children, { 'type' : 'Statement' });
                 var resourceConnector = model._connectorVariable;
 
-                _.each(actionInvocationModels, function(key, i){
+                _.each(Statements, function(key, i){
                     if(key.children[0]._actionInvocationModel._connectorVariableReference == resourceConnector){
                         //Remove connected arrows
                         d3.select(key.children[0]._arrowGroup.node()).remove();
