@@ -32,6 +32,7 @@ import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
 import org.wso2.ballerina.tooling.service.workspace.swagger.generators.BallerinaCodeGenerator;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -43,6 +44,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 
 public class SwaggerConverterUtils {
+
+    /** Maximum loop count when creating temp directories. */
+    private static final int TEMP_DIR_ATTEMPTS = 10000;
 
     /**
      * This method will extract service definitions from ballerina source
@@ -79,7 +83,7 @@ public class SwaggerConverterUtils {
         //Iterate through service annotations and add them to service
         Service service = new Service(new SymbolName(swagger.getBasePath()));
         CodegenConfig codegenConfig = new BallerinaCodeGenerator();
-        codegenConfig.setOutputDir("/home/sanjeewa/work/dev-code/swagger2BallerinaConnector/test");
+        codegenConfig.setOutputDir(createTempDir().getAbsolutePath());
         ClientOptInput clientOptInput = new ClientOptInput().opts(new ClientOpts()).swagger(swagger).
                 config(codegenConfig);
         DefaultGenerator generator = new DefaultGenerator();
@@ -105,6 +109,34 @@ public class SwaggerConverterUtils {
         Resource[] resources = mapPathsToResources(swagger.getPaths());
         service.setResources(resources1);
         return service;
+    }
+
+    /**
+     * Atomically creates a new directory somewhere beneath the system's temporary directory (as
+     * defined by the {@code java.io.tmpdir} system property), and returns its name.
+     *
+     * @return the newly-created directory
+     * @throws IllegalStateException if the directory could not be created
+     */
+    public static File createTempDir() {
+        File baseDir = new File(System.getProperty("java.io.tmpdir"));
+        String baseName = System.currentTimeMillis() + "-";
+
+        for (int counter = 0; counter < TEMP_DIR_ATTEMPTS; counter++) {
+            File tempDir = new File(baseDir, baseName + counter);
+            if (tempDir.mkdir()) {
+                return tempDir;
+            }
+        }
+        throw new IllegalStateException(
+                "Failed to create directory within "
+                        + TEMP_DIR_ATTEMPTS
+                        + " attempts (tried "
+                        + baseName
+                        + "0 to "
+                        + baseName
+                        + (TEMP_DIR_ATTEMPTS - 1)
+                        + ')');
     }
 
     public static Resource[] mapSwaggerPathsToResources(List<CodegenOperation> pathMap) {
