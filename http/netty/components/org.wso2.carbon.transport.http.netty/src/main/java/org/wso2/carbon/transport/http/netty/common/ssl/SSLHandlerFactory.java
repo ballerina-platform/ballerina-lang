@@ -42,6 +42,7 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -144,20 +145,28 @@ public class SSLHandlerFactory {
     /**
      * This method will provide netty ssl context which supports HTTP2 over TLS using
      * Application Layer Protocol Negotiation (ALPN)
+     *
      * @return instance of {@link SslContext}
      * @throws SSLException
      */
     public SslContext createHttp2TLSContext() throws SSLException {
 
+        // If listener configuration does not include cipher suites , default ciphers required by the HTTP/2
+        // specification will be added.
+        List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ? Arrays
+                .asList(sslConfig.getCipherSuites()) : Http2SecurityUtil.CIPHERS;
         SslProvider provider = OpenSsl.isAlpnSupported() ? SslProvider.OPENSSL : SslProvider.JDK;
         return SslContextBuilder.forServer(this.getKeyManagerFactory())
                 .trustManager(this.getTrustStoreFactory())
                 .sslProvider(provider)
-                .ciphers(Http2SecurityUtil.CIPHERS, SupportedCipherSuiteFilter.INSTANCE)
+                .ciphers(ciphers,
+                        SupportedCipherSuiteFilter.INSTANCE)
                 .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE)
                 .applicationProtocolConfig(new ApplicationProtocolConfig(
                         ApplicationProtocolConfig.Protocol.ALPN,
+                        // NO_ADVERTISE is currently the only mode supported by both OpenSsl and JDK providers.
                         ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
+                        // ACCEPT is currently the only mode supported by both OpenSsl and JDK providers.
                         ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
                         ApplicationProtocolNames.HTTP_2,
                         ApplicationProtocolNames.HTTP_1_1)).build();
