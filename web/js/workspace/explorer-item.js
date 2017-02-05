@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['lodash', 'log', 'file_browser', 'event_channel', 'context_menu', 'theme_wso2'],
+define(['lodash', 'log', 'file_browser', 'event_channel', 'context_menu', 'bootstrap'],
     function (_, log, FileBrowser, EventChannel, ContextMenu){
 
     var ExplorerItem = function(args){
