@@ -118,10 +118,19 @@ public class BLangExecutor implements NodeExecutor {
         // TODO This variable definition statement can be modeled exactly same as the assignment statement.
         // TODO Remove the following duplicate code segments soon.
         BValue rValue;
-        Expression rExpr = varDefStmt.getRExpr();
-
         Expression lExpr = varDefStmt.getLExpr();
-        rValue = rExpr.execute(this);
+        Expression rExpr = varDefStmt.getRExpr();
+        if (rExpr == null) {
+            if (BTypes.isValueType(lExpr.getType())) {
+                rValue = lExpr.getType().getDefaultValue();
+            } else {
+                // TODO Implement BNull here ..
+                rValue = null;
+            }
+        } else {
+            rValue = rExpr.execute(this);
+        }
+
 
         if (lExpr instanceof VariableRefExpr) {
             assignValueToVarRefExpr(rValue, (VariableRefExpr) lExpr);
