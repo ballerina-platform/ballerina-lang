@@ -39,12 +39,16 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.ballerinalang.plugins.idea.grammar.BallerinaLexer;
 import org.ballerinalang.plugins.idea.grammar.BallerinaParser;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ArgumentListNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.CallableUnitNameNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
+import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionBodyNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
@@ -177,6 +181,14 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new PackageNameNode(node);
             case BallerinaParser.RULE_packagePath:
                 return new PackagePathNode(node);
+            case BallerinaParser.RULE_expressionList:
+                return new ExpressionListNode(node);
+            case BallerinaParser.RULE_expression:
+                return new ExpressionNode(node);
+            case BallerinaParser.RULE_functionInvocationStatement:
+                return new FunctionInvocationStatementNode(node);
+            case BallerinaParser.RULE_argumentList:
+                return new ArgumentListNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

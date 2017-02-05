@@ -37,6 +37,9 @@ public class FunctionBodyNode extends ANTLRPsiNode implements ScopeNode {
     @Override
     public PsiElement resolve(PsiNamedElement element) {
         if (element.getParent() instanceof CallableUnitNameNode) {
+            if (":".equals(element.getPrevSibling().getText())) {
+                return BallerinaPsiImplUtil.findFunctionReference(element);
+            }
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//functionDefinition/Identifier");
         } else if (element.getParent() instanceof VariableReferenceNode) {
