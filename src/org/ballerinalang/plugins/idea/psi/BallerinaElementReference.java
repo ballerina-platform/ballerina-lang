@@ -18,6 +18,7 @@ package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.util.IncorrectOperationException;
@@ -91,6 +92,28 @@ public abstract class BallerinaElementReference extends PsiReferenceBase<Identif
         if (isDefinitionNode(def)) {
             PsiElement id = ((PsiNameIdentifierOwner) def).getNameIdentifier();
             String defName = id != null ? id.getText() : null;
+
+            //Todo Parent is different for package, import, const
+            PsiElement parent = def.getParent();
+            //Todo Replace with (parent.getParent() instanceof compilableUnitNode)
+            while (!(parent.getParent().getParent() instanceof PsiFile)) {
+                parent = parent.getParent();
+            }
+
+            PsiElement temp = myElement;
+            boolean inScope = false;
+            while (!(temp instanceof PsiFile)) {
+                if (parent == temp) {
+                    inScope = true;
+                    break;
+                }
+                temp = temp.getParent();
+            }
+
+            if (!inScope) {
+                return false;
+            }
+
             return refName != null && defName != null && refName.equals(defName);
         }
         return false;
