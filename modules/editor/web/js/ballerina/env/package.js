@@ -333,6 +333,18 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
         };
 
         /**
+         * remove function definition
+         * @param functionDefinition - function definition to be removed
+         */
+        Package.prototype.removeFunctionDefinition = function (functionDefinition) {
+            _.remove(this._functionDefinitions, function (functionDefinitionItem) {
+                //TODO Need to check param types along with function name to support overloaded functions
+                return _.isEqual(functionDefinitionItem.getName(), functionDefinition.getFunctionName());
+            });
+            this.trigger("function-def-removed", functionDefinition);
+        };
+
+        /**
          * Set function defs
          *
          * @param functionDefs
