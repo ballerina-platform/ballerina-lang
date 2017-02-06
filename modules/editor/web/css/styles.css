@@ -600,6 +600,7 @@ button.variable-list {
 
 .top-right-controls-container-editor-pane {
     display: none;
+    top: 40px !important;
 }
 
 .controls-container-font-action {
@@ -610,7 +611,7 @@ button.variable-list {
 .package-btn {
     position: absolute;
     right: 0;
-    top: 6px;
+    top: 40px;
     z-index: 30;
 }
 
