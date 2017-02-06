@@ -112,7 +112,7 @@ public class ServerConnectorMessageHandler {
         String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
         String stacktrace = ErrorHandlerUtils.getServiceStackTrace(balContext, throwable);
         log.error(errorMsg + "\n" + stacktrace);
-        
+
         Object protocol = cMsg.getProperty("PROTOCOL");
         Optional<ServerConnectorErrorHandler> optionalErrorHandler =
                 BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
@@ -120,6 +120,7 @@ public class ServerConnectorMessageHandler {
         optionalErrorHandler
                 .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
                 .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext), cMsg, callback);
+
     }
 
 }
