@@ -103,6 +103,18 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
         return this._editor;
     };
 
+    /**
+     * Binds a shortcut to ace editor so that it will trigger the command on source view upon key press.
+     * All the commands registered app's command manager will be bound to source view upon render.
+     *
+     * @param command {Object}
+     * @param command.id {String} Id of the command to dispatch
+     * @param command.shortcuts {Object}
+     * @param command.shortcuts.mac {Object}
+     * @param command.shortcuts.mac.key {String} key combination for mac platform eg. 'Command+N'
+     * @param command.shortcuts.other {Object}
+     * @param command.shortcuts.other.key {String} key combination for other platforms eg. 'Ctrl+N'
+     */
     SourceView.prototype.bindCommand = function(command){
         var id = command.id,
             hasShortcut = _.has(command, 'shortcuts'),
