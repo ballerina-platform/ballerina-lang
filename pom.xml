@@ -25,11 +25,13 @@
     <packaging>pom</packaging>
     <groupId>org.wso2.carbon.transport</groupId>
     <artifactId>org.wso2.carbon.transport.parent</artifactId>
-    <version>3.0.5-SNAPSHOT</version>
+    <version>4.0.0-SNAPSHOT</version>
     <name>WSO2 Carbon Transport Parent</name>
 
     <modules>
-        <module>http/netty</module>
+        <module>server-connector-framework</module>
+        <module>http</module>
+        <module>features</module>
     </modules>
 
     <scm>
@@ -100,6 +102,11 @@
             <dependency>
                 <groupId>org.wso2.carbon.transport</groupId>
                 <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.transport</groupId>
+                <artifactId>org.wso2.carbon.serverconnector.framework</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -256,8 +263,8 @@
 
 
 
-        <carbon.messaging.version>1.1.1-SNAPSHOT</carbon.messaging.version>
-        <carbon.messaging.package.import.version.range>[0.0.0, 2.0.0)</carbon.messaging.package.import.version.range>
+        <carbon.messaging.version>2.0.0</carbon.messaging.version>
+        <carbon.messaging.package.import.version.range>[2.0.0, 3.0.0)</carbon.messaging.package.import.version.range>
         <slf4j.version>1.7.5</slf4j.version>
         <!--Logging API version range-->
         <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)</slf4j.logging.package.import.version.range>
@@ -268,6 +275,8 @@
 
         <!-- Package exports -->
         <netty.transport.package.export.version>${project.version}</netty.transport.package.export.version>
+        <serverconnector.framework.package.export.version>${project.version}
+        </serverconnector.framework.package.export.version>
 
         <!-- Following two properties should be removed once the versions are added the wso2 parent pom CARBON-15729 -->
         <maven.checkstyle.plugin.version>2.17</maven.checkstyle.plugin.version>
