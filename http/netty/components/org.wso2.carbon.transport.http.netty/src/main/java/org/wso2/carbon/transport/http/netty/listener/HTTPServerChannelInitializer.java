@@ -25,18 +25,14 @@ import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.BufferFactory;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
-import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.RequestSizeValidationConfiguration;
-import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * A class that responsible for create server side channels.
@@ -61,16 +57,12 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
     }
 
     @Override
-    //TODO: Check the usage of this
     public void setup(Map<String, String> parameters) {
-        if (parameters != null && parameters.get(Constants.OUTPUT_CONTENT_BUFFER_SIZE) != null) {
-            BufferFactory.createInstance(Integer.parseInt(parameters.get(Constants.OUTPUT_CONTENT_BUFFER_SIZE)));
-        }
     }
 
-    public void setupConnectionManager(Set<TransportProperty> transportPropertySet) {
+    public void setupConnectionManager(Map<String, Object> transportProperties) {
         try {
-            connectionManager = ConnectionManager.getInstance(transportPropertySet);
+            connectionManager = ConnectionManager.getInstance(transportProperties);
         } catch (Exception e) {
             log.error("Error initializing the transport ", e);
             throw new RuntimeException(e);

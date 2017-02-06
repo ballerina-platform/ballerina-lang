@@ -29,7 +29,6 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.exceptions.MessagingException;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
-import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.ClientRequestWorker;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
@@ -37,7 +36,6 @@ import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -103,13 +101,13 @@ public class ConnectionManager {
 
     }
 
-    public static ConnectionManager getInstance(Set<TransportProperty> transportPropertySet) {
+    public static ConnectionManager getInstance(Map<String, Object> transportProperties) {
         if (connectionManager == null) {
             synchronized (ConnectionManager.class) {
                 if (connectionManager == null) {
                     PoolConfiguration poolConfiguration = PoolConfiguration.getInstance();
                     if (poolConfiguration == null) {
-                        PoolConfiguration.createPoolConfiguration(transportPropertySet);
+                        PoolConfiguration.createPoolConfiguration(transportProperties);
                         poolConfiguration = PoolConfiguration.getInstance();
                     }
                     connectionManager = new ConnectionManager(poolConfiguration);

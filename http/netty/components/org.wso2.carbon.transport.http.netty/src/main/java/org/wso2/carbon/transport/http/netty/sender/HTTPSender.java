@@ -35,6 +35,7 @@ import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -49,13 +50,21 @@ public class HTTPSender implements TransportSender {
     private ConnectionManager connectionManager;
     private Map<String, SenderConfiguration> senderConfigurationMap;
 
-    public HTTPSender(Set<SenderConfiguration> senderConfiguration, Set<TransportProperty> transportProperties) {
+    public HTTPSender(Set<SenderConfiguration> senderConfiguration, Set<TransportProperty> transportPropertiesSet) {
         if (senderConfiguration.isEmpty()) {
             log.error("Please specify at least one sender configuration");
             return;
         }
         senderConfigurationMap = senderConfiguration.stream().collect(Collectors
                 .toMap(senderConf -> senderConf.getScheme().toLowerCase(Locale.getDefault()), config -> config));
+
+        Map<String, Object> transportProperties = new HashMap<>();
+
+        if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
+            transportProperties = transportPropertiesSet.stream().collect(
+                    Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
+
+        }
 
         BootstrapConfiguration.createBootStrapConfiguration(transportProperties);
         this.connectionManager = ConnectionManager.getInstance(transportProperties);

@@ -19,10 +19,9 @@ import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.config.TransportProperty;
+import org.wso2.carbon.transport.http.netty.common.Util;
 
-import java.util.Iterator;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * A class which represents connection pool specific parameters.
@@ -53,27 +52,24 @@ public class PoolConfiguration {
 
     private int executorServiceThreads = 20;
 
-    private PoolConfiguration(Set<TransportProperty> transportPropertySet) {
+    private PoolConfiguration(Map<String, Object> transportProperties) {
 
-        if (transportPropertySet != null && !transportPropertySet.isEmpty()) {
-            Iterator iterator = transportPropertySet.iterator();
-            while (iterator.hasNext()) {
-                TransportProperty transportProperty = (TransportProperty) iterator.next();
-                if (transportProperty.getName().equals(Constants.NUMBER_OF_POOLS)) {
-                    numberOfPools = (Integer) transportProperty.getValue();
-                } else if (transportProperty.getName().equals(Constants.MAX_ACTIVE_CONNECTIONS_PER_POOL)) {
-                    maxActivePerPool = (Integer) transportProperty.getValue();
-                } else if (transportProperty.getName().equals(Constants.MIN_IDLE_CONNECTIONS_PER_POOL)) {
-                    minIdlePerPool = (Integer) transportProperty.getValue();
-                } else if (transportProperty.getName().equals(Constants.MAX_IDLE_CONNECTIONS_PER_POOL)) {
-                    maxIdlePerPool = (Integer) transportProperty.getValue();
-                } else if (transportProperty.getName().equals(Constants.MIN_EVICTION_IDLE_TIME)) {
-                    minEvictableIdleTime = (Integer) transportProperty.getValue();
-                } else if (transportProperty.getName().equals(Constants.NO_THREADS_IN_EXECUTOR_SERVICE)) {
-                    executorServiceThreads = (Integer) transportProperty.getValue();
-                }
-            }
-        }
+        numberOfPools = Util.getIntTransportProperty(transportProperties, Constants.NUMBER_OF_POOLS, 0);
+
+        maxActivePerPool = Util.getIntTransportProperty(
+                transportProperties, Constants.MAX_ACTIVE_CONNECTIONS_PER_POOL, -1);
+
+        minIdlePerPool = Util.getIntTransportProperty(
+                transportProperties, Constants.MIN_IDLE_CONNECTIONS_PER_POOL, 0);
+
+        maxIdlePerPool = Util.getIntTransportProperty(
+                transportProperties, Constants.MAX_IDLE_CONNECTIONS_PER_POOL, 100);
+
+        minEvictableIdleTime = Util.getLongTransportProperty(
+                transportProperties, Constants.MIN_EVICTION_IDLE_TIME, 5 * 60 * 1000L);
+
+        executorServiceThreads = Util.getIntTransportProperty(
+                transportProperties, Constants.NO_THREADS_IN_EXECUTOR_SERVICE, 20);
 
         logger.debug(Constants.NUMBER_OF_POOLS + ": " + numberOfPools);
         logger.debug(Constants.MAX_ACTIVE_CONNECTIONS_PER_POOL + ":" + maxActivePerPool);
@@ -90,8 +86,8 @@ public class PoolConfiguration {
 
     }
 
-    public static void createPoolConfiguration(Set<TransportProperty> transportPropertySet) {
-        poolConfiguration = new PoolConfiguration(transportPropertySet);
+    public static void createPoolConfiguration(Map<String, Object> transportProperties) {
+        poolConfiguration = new PoolConfiguration(transportProperties);
     }
 
     public int getMaxActivePerPool() {

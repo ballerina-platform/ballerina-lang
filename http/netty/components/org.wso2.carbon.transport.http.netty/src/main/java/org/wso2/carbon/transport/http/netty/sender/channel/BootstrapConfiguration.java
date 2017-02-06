@@ -18,10 +18,9 @@ package org.wso2.carbon.transport.http.netty.sender.channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.config.TransportProperty;
+import org.wso2.carbon.transport.http.netty.common.Util;
 
-import java.util.Iterator;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * A class represents client bootstrap configurations.
@@ -32,51 +31,39 @@ public class BootstrapConfiguration {
 
     private static BootstrapConfiguration bootstrapConfig;
 
-    private boolean tcpNoDelay = true;
+    private boolean tcpNoDelay, keepAlive, socketReuse;
 
-    private int connectTimeOut = 15000;
+    private int connectTimeOut, receiveBufferSize, sendBufferSize, socketTimeout;
 
-    private int reciveBufferSize = 1048576;
+    private BootstrapConfiguration(Map<String, Object> properties) {
 
-    private int sendBufferSize = 1048576;
+        connectTimeOut = Util.getIntTransportProperty(
+                properties, Constants.CLIENT_BOOTSTRAP_CONNECT_TIME_OUT, 15000);
 
-    private boolean keepAlive = true;
+        tcpNoDelay = Util.getBooleanTransportProperty(
+                properties, Constants.CLIENT_BOOTSTRAP_TCP_NO_DELY, true);
 
-    private boolean socketReuse = false;
+        receiveBufferSize = Util.getIntTransportProperty(
+                properties, Constants.CLIENT_BOOTSTRAP_RECEIVE_BUFFER_SIZE, 1048576);
 
-    private int socketTimeout = 15;
+        sendBufferSize = Util.getIntTransportProperty(
+                properties, Constants.CLIENT_BOOTSTRAP_SEND_BUFFER_SIZE, 1048576);
 
-    private BootstrapConfiguration(Set<TransportProperty> transportPropertySet) {
+        socketTimeout = Util.getIntTransportProperty(properties, Constants.CLIENT_BOOTSTRAP_SO_TIMEOUT, 15);
 
-        if (transportPropertySet != null && !transportPropertySet.isEmpty()) {
-            Iterator iterator = transportPropertySet.iterator();
-            while (iterator.hasNext()) {
-                TransportProperty property = (TransportProperty) iterator.next();
-                if (property.getName().equals(Constants.CLINET_BOOTSTRAP_TCP_NO_DELY)) {
-                    tcpNoDelay = (Boolean) property.getValue();
-                } else if (property.getName().equals(Constants.CLINET_BOOTSTRAP_CONNECT_TIME_OUT)) {
-                    connectTimeOut = (Integer) property.getValue();
-                } else if (property.getName().equals(Constants.CLINET_BOOTSTRAP_RECEIVE_BUFFER_SIZE)) {
-                    reciveBufferSize = (Integer) property.getValue();
-                } else if (property.getName().equals(Constants.CLINET_BOOTSTRAP_SEND_BUFFER_SIZE)) {
-                    sendBufferSize = (Integer) property.getValue();
-                } else if (property.getName().equals(Constants.CLINET_BOOTSTRAP_SO_TIMEOUT)) {
-                    socketTimeout = (Integer) property.getValue();
-                } else if (property.getName().equals(Constants.CLINET_BOOTSTRAP_KEEPALIVE)) {
-                    keepAlive = (Boolean) property.getValue();
-                } else if (property.getName().equals(Constants.CLINET_BOOTSTRAP_SO_REUSE)) {
-                    socketReuse = (Boolean) property.getValue();
-                }
-            }
+        keepAlive = Util.getBooleanTransportProperty(
+                properties, Constants.CLIENT_BOOTSTRAP_KEEPALIVE, true);
 
-        }
-        logger.debug(Constants.CLINET_BOOTSTRAP_TCP_NO_DELY + ": " + tcpNoDelay);
-        logger.debug(Constants.CLINET_BOOTSTRAP_CONNECT_TIME_OUT + ":" + connectTimeOut);
-        logger.debug(Constants.CLINET_BOOTSTRAP_RECEIVE_BUFFER_SIZE + ":" + reciveBufferSize);
-        logger.debug(Constants.CLINET_BOOTSTRAP_SEND_BUFFER_SIZE + ":" + sendBufferSize);
-        logger.debug(Constants.CLINET_BOOTSTRAP_SO_TIMEOUT + ":" + socketTimeout);
-        logger.debug(Constants.CLINET_BOOTSTRAP_KEEPALIVE + ":" + keepAlive);
-        logger.debug(Constants.CLINET_BOOTSTRAP_SO_REUSE + ":" + socketReuse);
+        socketReuse = Util.getBooleanTransportProperty(
+                properties, Constants.CLIENT_BOOTSTRAP_SO_REUSE, false);
+
+        logger.debug(Constants.CLIENT_BOOTSTRAP_TCP_NO_DELY + ": " + tcpNoDelay);
+        logger.debug(Constants.CLIENT_BOOTSTRAP_CONNECT_TIME_OUT + ":" + connectTimeOut);
+        logger.debug(Constants.CLIENT_BOOTSTRAP_RECEIVE_BUFFER_SIZE + ":" + receiveBufferSize);
+        logger.debug(Constants.CLIENT_BOOTSTRAP_SEND_BUFFER_SIZE + ":" + sendBufferSize);
+        logger.debug(Constants.CLIENT_BOOTSTRAP_SO_TIMEOUT + ":" + socketTimeout);
+        logger.debug(Constants.CLIENT_BOOTSTRAP_KEEPALIVE + ":" + keepAlive);
+        logger.debug(Constants.CLIENT_BOOTSTRAP_SO_REUSE + ":" + socketReuse);
     }
 
     public boolean isTcpNoDelay() {
@@ -87,8 +74,8 @@ public class BootstrapConfiguration {
         return connectTimeOut;
     }
 
-    public int getReciveBufferSize() {
-        return reciveBufferSize;
+    public int getReceiveBufferSize() {
+        return receiveBufferSize;
     }
 
     public int getSendBufferSize() {
@@ -111,7 +98,7 @@ public class BootstrapConfiguration {
         return bootstrapConfig;
     }
 
-    public static void createBootStrapConfiguration(Set<TransportProperty> transportProperties) {
+    public static void createBootStrapConfiguration(Map<String, Object> transportProperties) {
         bootstrapConfig = new BootstrapConfiguration(transportProperties);
 
     }
