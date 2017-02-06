@@ -143,6 +143,26 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
         },
 
         /**
+         * removes a tool from a particular tool group
+         * @param {string} groupID - group ID of the tool group which the tool should be removed from
+         * @param {string} toolId - tool ID of the tool to be removed
+         */
+        removeToolFromGroup: function (groupID, toolId) {
+            var error,
+                toolGroup = _.find(this._itemProvider.getToolGroups(), function(group){
+                    return _.isEqual(group.get('toolGroupID'), groupID);
+                });
+            if(_.isNil(toolGroup)){
+                error = 'cannot find a tool group with id ' + groupID;
+                log.error(error);
+                return;
+            }
+            if(!_.isNil(toolId)){
+                toolGroup.removeToolByToolId(toolId);
+            }
+        },
+
+        /**
          * Adding given package
          * @param {Object} package - package to add
          */
@@ -197,6 +217,27 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
          */
         getItemProvider: function () {
             return this._itemProvider;
+        },
+
+        /**
+         * updates tool item with given new values
+         * @param {string} toolGroupID - Id of the tool group
+         * @param {Object} toolItem - tool object
+         * @param {Object} newValue - new value for the tool
+         */
+        updateToolPaletteItem: function (toolGroupID, toolItem, newValue) {
+            var error,
+                toolGroup = _.find(this._itemProvider.getToolGroups(), function (group) {
+                    return _.isEqual(group.get('toolGroupID'), toolGroupID);
+                });
+            if (_.isNil(toolGroup)) {
+                error = 'cannot find a tool group with id ' + toolGroupID;
+                log.error(error);
+                return;
+            }
+            if (!_.isNil(toolItem)) {
+                toolGroup.updateTool(toolItem, newValue);
+            }
         }
     });
 

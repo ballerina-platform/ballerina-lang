@@ -23,7 +23,7 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
      * @constructor
      */
     var ConnectorAction = function(args) {
-        ASTNode.call(this, "ConnectorDefinition");
+        ASTNode.call(this, "ConnectorAction");
         this.BallerinaASTFactory = this.getFactory();
         this.action_name = _.get(args, 'action_name', 'newAction');
         this.annotations = _.get(args, 'annotations', []);
@@ -69,17 +69,17 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
      * Set the Action name
      * @param {string} name - Action Name
      */
-    ConnectorAction.prototype.setActionName = function (name) {
-        this.action_name = name;
+    ConnectorAction.prototype.setActionName = function (name, options) {
+        this.setAttribute('action_name', name, options);
     };
 
     /**
      * Set the action annotations
      * @param {string[]} annotations - Action Annotations
      */
-    ConnectorAction.prototype.setAnnotations = function (annotations) {
+    ConnectorAction.prototype.setAnnotations = function (annotations, options) {
         if (!_.isNil(annotations)) {
-            this.annotations = annotations;
+            this.setAttribute('annotations', annotations, options);
         } else {
             log.warn('Trying to set a null or undefined array to annotations');
         }
@@ -349,8 +349,8 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
      */
     ConnectorAction.prototype.initFromJson = function (jsonNode) {
         var self = this;
-        this.setActionName(jsonNode.action_name);
-        this.setAnnotations(jsonNode.annotations);
+        this.setActionName(jsonNode.action_name, {doSilently: true});
+        this.setAnnotations(jsonNode.annotations, {doSilently: true});
 
         _.each(jsonNode.children, function (childNode) {
             var child = self.BallerinaASTFactory.createFromJson(childNode);

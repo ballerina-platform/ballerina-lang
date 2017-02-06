@@ -22,7 +22,7 @@ define(['./action-definition-view', './ballerina-file-editor', './ballerina-view
     function (ActionDefinitionView, BallerinaFileEditor, BallerinaView, Canvas,MessageManager,
               ConnectorDeclarationView, FunctionDefinitionView, ReplyStatementView,
               ResourceDefinitionView, ReturnStatementView, ServiceDefinitionView, ThrowStatementView,
-              WhileStatementView, WorkerDeclarationView, SourceView,ActionInvocationStatementView, ServicePreviewView, Backend) {
+              WhileStatementView, WorkerDeclarationView, SourceView, ActionInvocationStatementView, ServicePreviewView, Backend) {
         return  {
             BallerinaView: BallerinaView,
             ActionDefinitionView: ActionDefinitionView,
@@ -39,7 +39,7 @@ define(['./action-definition-view', './ballerina-file-editor', './ballerina-view
             WhileStatementView: WhileStatementView,
             WorkerDeclarationView: WorkerDeclarationView,
             SourceView: SourceView,
-            GetActionStatementView: ActionInvocationStatementView,
+            ActionInvocationStatementView: ActionInvocationStatementView,
             ServicePreviewView: ServicePreviewView,
             Backend : Backend
         }

@@ -17,13 +17,13 @@
  */
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/connector-action',
         './default-worker', './point', './connector-declaration-view', './statement-view-factory',
-        'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message', './statement-container',
-        './../ast/variable-declaration', './variables-view', './annotation-view',
+        'ballerina/ast/ballerina-ast-factory','./message', './statement-container',
+        './../ast/variable-declaration', './annotation-view',
         './function-arguments-view', './return-types-pane-view'],
     function (_, log, d3, $, D3utils, BallerinaView, ConnectorAction,
               DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory,
-              BallerinaASTFactory, ExpressionViewFactory, MessageView, StatementContainer,
-              VariableDeclaration, VariablesView, AnnotationView,
+              BallerinaASTFactory, MessageView, StatementContainer,
+              VariableDeclaration, AnnotationView,
               ArgumentsView, ReturnTypesPaneView) {
 
         /**
@@ -86,9 +86,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.defua = 180;
             this._viewOptions.hoverClass = _.get(args, "viewOptions.cssClass.hover_svg", 'design-view-hover-svg');
 
-            this._variableButton = undefined;
-            this._variablePane = undefined;
-
             //setting initial height for connector action container
             this._totalHeight = 230;
             this._headerIconGroup = undefined;
@@ -110,21 +107,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          */
         ConnectorActionView.prototype.init = function(){
             this.listenTo(this._model, 'child-removed', this.childRemovedCallback, this);
-            this.on('remove-view', this.removeViewCallback, this);
+            this._model.on('before-remove', this.onBeforeModelRemove, this);
         };
 
-        ConnectorActionView.prototype.removeViewCallback = function (parent, child) {
+        ConnectorActionView.prototype.onBeforeModelRemove = function () {
             d3.select("#_" +this._model.id).remove();
             $(this._nameDiv).remove();
-            $(this._variablePane).remove();
-            $(this._variableButton).remove();
-            this.unplugView(
-                {
-                    x: this._viewOptions.topLeft.x(),
-                    y: this._viewOptions.topLeft.y(),
-                    w: 0,
-                    h: 0
-                }, parent, child);
+            this.getBoundingBox().move(0, -this.getBoundingBox().h() - 25);
         };
 
         /**
@@ -364,8 +353,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // Creating connector action heading collapse icon.
             var headingCollapseIcon = D3utils.rect(xForCollpaseIcon, yForIcons,
-                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Collapse pane")
-                .classed("headingExpandIcon", true);
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Collapse Pane")
+                .classed("headingExpandIcon", true).attr("style", "opacity: 0.4");
 
             // Creating separator for collapse icon.
             D3utils.line(xEndOfHeadingRect - this._viewOptions.heading.icon.width, parseFloat(headingRect.attr("y")) + 5,
@@ -400,9 +389,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var xForDeleteIcon = xEndOfHeadingRect - (2 * this._viewOptions.heading.icon.width) + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
 
             // Connector Action heading delete icon
+            // TODO: removed the tooltip temporarily
             var headingDeleteIcon = D3utils.rect(xForDeleteIcon, yForIcons,
-                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Delete")
-                .classed("headingDeleteIcon", true);
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup)
+                .classed("headingDeleteIcon", true).attr("style", "opacity: 0.4");
 
             // Creating wrapper for annotation icon.
             var headingAnnotationIconWrapper = D3utils.rect(
@@ -415,7 +405,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             // Connector Action heading annotation icon
             var headingAnnotationIcon = D3utils.rect(xForAnnotationIcon, yForIcons,
                 iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Annotations")
-                .classed("headingAnnotationBlackIcon", true);
+                .classed("headingAnnotationBlackIcon", true).attr("style", "opacity: 0.4");
 
             // Creating wrapper for arguments icon.
             var headingArgumentsIconWrapper = D3utils.rect(
@@ -428,7 +418,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             // Connector Action heading arguments icon.
             var headingArgumentsIcon = D3utils.rect(xForArgumentsIcon, yForIcons,
                 iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Arguments")
-                .classed("headingArgumentsBlackIcon", true);
+                .classed("headingArgumentsBlackIcon", true).attr("style", "opacity: 0.4");
 
             // Creating wrapper for Return Types icon.
             var headingReturnTypesIconWrapper = D3utils.rect(
@@ -440,8 +430,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // Connector Action heading Return Types icon.
             var headingReturnTypesIcon = D3utils.rect(xForReturnTypesIcon, yForIcons,
-                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Return types")
-                .classed("headingReturnTypeBlackIcon", true);
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Return Types")
+                .classed("headingReturnTypeBlackIcon", true).attr("style", "opacity: 0.4");
 
             // UI changes when the annotation button is clicked.
             $(headingAnnotationIcon.node()).click(function () {
@@ -538,10 +528,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     // connector action content is expanded. Hence expand connector action BBox
                     connectorActionBBox.h(connectorActionBBox.h() + self._minizedHeight);
 
-                    // show the variable button and variable pane
-                    self._variableButton.show();
-                    self._variablePane.show();
-
                     // Changing icon if the collapse.
                     headingCollapseIcon.classed("headingExpandIcon", true);
                     headingCollapseIcon.classed("headingCollapsedIcon", false);
@@ -551,10 +537,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     // connector action content is folded. Hence decrease connector action BBox height and keep the minimized size
                     self._minizedHeight =  parseFloat(contentRect.attr('height'));
                     connectorActionBBox.h(connectorActionBBox.h() - self._minizedHeight);
-
-                    // hide the variable button and variable pane
-                    self._variableButton.hide();
-                    self._variablePane.hide();
 
                     // Changing icon if the collapse.
                     headingCollapseIcon.classed("headingExpandIcon", false);
@@ -569,9 +551,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             // On click of delete icon
             headingDeleteIcon.on("click", function () {
                 log.debug("Clicked delete button");
-                var child = self._model;
-                var parent = child.parent;
-                self.trigger("remove-view", parent, child);
+                self._model.remove();
             });
 
             this.getBoundingBox().on("height-changed", function(dh){
@@ -586,8 +566,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 this._contentRect.attr('width', parseFloat(this._contentRect.attr('width')) + dw);
                 this._headingRect.attr('width', parseFloat(this._headingRect.attr('width')) + dw);
                 // If the bounding box of the connector action go over the svg's current width
-                if (this.getBoundingBox().getRight() > this._parentView.getServiceContainer().width()) {
-                    this._parentView.setServiceContainerWidth(this.getBoundingBox().getRight() + 60);
+                if (this.getBoundingBox().getRight() > this._parentView.getSVG().width()) {
+                    this._parentView.setSVGWidth(this.getBoundingBox().getRight() + 60);
                 }
             }, this);
 
@@ -614,24 +594,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 // Show/Hide scrolls.
                 self._showHideScrolls(self.getChildContainer().node().ownerSVGElement.parentElement, self.getChildContainer().node().ownerSVGElement);
             });
-
-            this._variableButton = VariablesView.createVariableButton(this.getChildContainer().node(),
-                parseInt(this.getChildContainer().attr("x")) + 4, parseInt(this.getChildContainer().attr("y")) + 7);
-
-            var variableProperties = {
-                model: this._model,
-                activatorElement: this._variableButton,
-                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
-                viewOptions: {
-                    position: {
-                        x: parseInt(this.getChildContainer().attr("x")) + 17,
-                        y: parseInt(this.getChildContainer().attr("y")) + 6
-                    },
-                    width: parseInt(this.getChildContainer().node().getBBox().width) - (2 * $(this._variableButton).width())
-                }
-            };
-
-            this._variablePane = VariablesView.createVariablePane(variableProperties, diagramRenderingContext);
 
             var annotationProperties = {
                 model: this._model,
@@ -704,14 +666,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 // Reposition the connector action name container
                 var newDivPositionVertical = parseInt(this._nameDiv.css("top")) + offset.dy;
                 this._nameDiv.css("top", newDivPositionVertical + "px");
-
-                // Reposition Variable button
-                var newVButtonPositionVertical = parseInt($(self._variableButton).css("top")) + offset.dy;
-                $(self._variableButton).css("top", newVButtonPositionVertical + "px");
-
-                // Reposition variable pane
-                var newVPanePositionVertical = parseInt($(self._variablePane).css("top")) + offset.dy;
-                $(self._variablePane).css("top", newVPanePositionVertical + "px");
             }, this);
         };
 
@@ -768,6 +722,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             _.set(statementContainerOpts, 'width', this._defaultWorker.width());
             _.set(statementContainerOpts, 'container', this._defaultWorker.getContentArea().node());
             _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
+            _.set(statementContainerOpts, 'offset', {top: 40, bottom: 40});
             this._statementContainer = new StatementContainer(statementContainerOpts);
             this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy){
                 this._defaultWorker.getBottomCenter().y(this._statementContainer.getBoundingBox().getBottom());
