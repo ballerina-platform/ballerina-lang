@@ -18,7 +18,7 @@
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/resource-definition',
         './default-worker', './point', './connector-declaration-view', './statement-view-factory',
         'ballerina/ast/ballerina-ast-factory','./message', './statement-container',
-        './../ast/variable-declaration', './variables-view', './client-life-line', './annotation-view',
+        './../ast/variable-declaration', './variable-definitions-pane-view', './client-life-line', './annotation-view',
         './resource-parameters-pane-view'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
               DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory,
