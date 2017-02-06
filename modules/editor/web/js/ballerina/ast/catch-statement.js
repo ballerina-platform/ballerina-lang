@@ -32,9 +32,9 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
     CatchStatement.prototype = Object.create(ConditionalStatement.prototype);
     CatchStatement.prototype.constructor = CatchStatement;
 
-    CatchStatement.prototype.setExceptionType = function(exceptionType){
+    CatchStatement.prototype.setExceptionType = function(exceptionType, options){
         if(!_.isNil(exceptionType)){
-            this.setAttribute('_exceptionType', exceptionType);
+            this.setAttribute('_exceptionType', exceptionType, options);
         }
     };
 
