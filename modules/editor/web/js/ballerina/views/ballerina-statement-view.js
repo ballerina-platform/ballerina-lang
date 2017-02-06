@@ -85,9 +85,15 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
     BallerinaStatementView.prototype.getStatementGroup = function () {
         return this._statementGroup;
     };
-    BallerinaStatementView.prototype.setStatementGroup = function (getStatementGroup) {
-        this._statementGroup = getStatementGroup;
+
+    /**
+     * Sets the statement group of this view.
+     * @param statementGroup {object} statement group to be set
+     */
+    BallerinaStatementView.prototype.setStatementGroup = function (statementGroup) {
+        this._statementGroup = statementGroup;
     };
+
     BallerinaStatementView.prototype.getChildrenViewsList = function () {
         return this._childrenViewsList;
     };
@@ -277,6 +283,10 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         return this._viewOptions;
     };
 
+    /**
+     * Returns the bounding box of this view.
+     * @return {BBox}
+     */
     BallerinaStatementView.prototype.getBoundingBox = function () {
         return this._boundingBox;
     };
