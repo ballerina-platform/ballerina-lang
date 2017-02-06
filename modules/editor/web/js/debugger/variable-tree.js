@@ -20,70 +20,52 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', /** void module 
     var instance;
 
     var VariableTree = function (){
-        this._treeConfig = {
-            'core': {
-                'data' : [],
-                'multiple': false,
-                'check_callback': false,
-                'force_text': true,
-                'expand_selected_onload': true,
-                'themes': {
-                    'responsive': false,
-                    'variant': 'small',
-                    'stripes': false,
-                    'dots': false
+
+        this.compiled = _.template(
+                '<div class="debug-panel-header">'
+              + '   <a class="tool-group-header-title">Variables</a> (<%- frameName%>)<span class="collapse-icon fw fw-up"></span>'
+              + '</div>'
+              + '<div id="debug-v-tree">'
+              + '<ul>'
+              + '<% _.forEach(variables, function(v) { %>'
+              + '<li>'
+              + '    <strong><%- v.name %></strong> = <%- v.value %> (<%- v.type %>)'
+              + '    <ul>'
+              + '        <li>name : <%- v.name %></li>'
+              + '        <li>type : <%- v.type %></li>'
+              + '        <li>value : <%- v.value %></li>'
+              + '        <li>scope : <%- v.scope %></li>'
+              + '    </ul>'
+              + '</li>'
+              + '<% }); %>'
+              + '</ul>'
+              + '</div>');
+
+        this.js_tree_options = {
+            "core": {
+                "themes":{
+                    "icons":false
                 }
-            },
-            'types': {
-                'default': {
-                    'icon': 'fw-add'
-                },
-                'object': {
-                    'icon': 'fw-add'
-                },
-                'value': {
-                    'icon': 'fw-info'
-                }
-            },
-            'plugins': ['types', 'wholerow']
+            }
         };
     };
 
     VariableTree.prototype = Object.create(EventChannel.prototype);
     VariableTree.prototype.constructor = VariableTree;
 
-    VariableTree.prototype.render = function (container) {
-        this.renderHeader(container);
-        this.renderContentDiv(container);
-        return this;
+    VariableTree.prototype.setContainer = function(container){
+        this.container = container;
     };
 
-    VariableTree.prototype.renderHeader = function (container) {
-        var headerContainer =
-            $('<div class="panel-heading"><a class="collapsed" data-toggle="collapse" href="#debugger-variable-tree">Variables</a></div>');
-        container.append(headerContainer);
+    VariableTree.prototype.clear =function(message){
+        this.container.empty();
     };
 
-    VariableTree.prototype.renderContentDiv = function (container) {
-        var contentContainer = $('<div id="debugger-variable-tree" class="panel-collapse collapse in" role="tabpanel">' +
-            '</div>');
-        container.append(contentContainer);
-        this.$_tree = $("#debugger-variable-tree").jstree(this._treeConfig);
-        this.$_tree.on('open_node.jstree', function () {
-            // opening a nested node
-            // TODO :fetch children from server
-        });
-
-        this.updateVariableTree({});
-    };
-
-    VariableTree.prototype.updateVariableTree = function(variableTree) {
-        var newData = _.flatMapDeep(variableTree, function (value, key) {
-
-        });
-
-        $('#debugger-variable-tree').jstree(true).settings.core.data = newData;
-        $('#debugger-variable-tree').jstree(true).refresh();
+    VariableTree.prototype.render = function (frame) {
+        frame.variables = (_.isNil(frame.variables))? []: frame.variables;
+        var html = this.compiled(frame)
+        this.container.html(html);
+        $("#debug-v-tree").jstree(this.js_tree_options);
     };
 
 

@@ -93,10 +93,12 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                 onDropdownOpen: function() {
                     self.getBodyWrapper().css("height", $(self.getBodyWrapper()).height());
                     self.getBodyWrapper().css("overflow-x", "visible");
+                    $(self.getBodyWrapper()).closest(".canvas-container").css("overflow", "visible");
                 },
                 onDropdownClosed: function() {
                     self.getBodyWrapper().css("height", "");
                     self.getBodyWrapper().css("overflow-x", "");
+                    $(self.getBodyWrapper()).closest(".canvas-container").css("overflow", "");
                 }
             });
             typeDropdown.getElement().appendTo(structOperationsWrapper);

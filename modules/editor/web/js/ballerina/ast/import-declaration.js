@@ -38,9 +38,9 @@ define(['lodash', './node'], function (_, ASTNode) {
      * setter for Package name
      * @param packageName
      */
-    ImportDeclaration.prototype.setPackageName = function (packageName) {
+    ImportDeclaration.prototype.setPackageName = function (packageName, options) {
         if(!_.isNil(packageName)){
-            this.setAttribute('_packageName', packageName);
+            this.setAttribute('_packageName', packageName, options);
         }
     };
 
@@ -48,9 +48,9 @@ define(['lodash', './node'], function (_, ASTNode) {
      * setter for Import version number
      * @param importVersionNumber
      */
-    ImportDeclaration.prototype.setImportVersionNumber = function (importVersionNumber) {
+    ImportDeclaration.prototype.setImportVersionNumber = function (importVersionNumber, options) {
         if(!_.isNil(importVersionNumber)){
-            this.setAttribute('_importVersionNumber', importVersionNumber);
+            this.setAttribute('_importVersionNumber', importVersionNumber, options);
         }
     };
 
@@ -58,9 +58,9 @@ define(['lodash', './node'], function (_, ASTNode) {
      * setter for Identifier
      * @param identifier
      */
-    ImportDeclaration.prototype.setIdentifier = function (identifier) {
+    ImportDeclaration.prototype.setIdentifier = function (identifier, options) {
         if(!_.isNil(identifier)){
-            this.setAttribute('_identifier', identifier);
+            this.setAttribute('_identifier', identifier, options);
         }
     };
 
@@ -93,8 +93,8 @@ define(['lodash', './node'], function (_, ASTNode) {
      * @param jsonNode
      */
     ImportDeclaration.prototype.initFromJson = function (jsonNode) {
-        this._packageName = jsonNode.import_package_path;
-        this._identifier = jsonNode.import_package_name;
+        this.setPackageName(jsonNode.import_package_path, {doSilently: true});
+        this.setIdentifier(jsonNode.import_package_name, {doSilently: true});
     };
 
     return ImportDeclaration;

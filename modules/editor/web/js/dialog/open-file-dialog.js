@@ -120,13 +120,18 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                     "</span>" +
                     "</div>");
 
-                var errorNotification = $(
-                    "<div style='z-index: 9999;' style='line-height: 20%;' class='alert alert-danger' id='error-alert'>" +
-                    "<span class='notification'>" +
-                    "Error while opening configuration !" +
-                    "</span>" +
-                    "</div>");
-
+                function getErrorNotification(detailedErrorMsg) {
+                    var errorMsg = "Error while opening configuration";
+                    if (!_.isEmpty(detailedErrorMsg)){
+                        errorMsg += (" : " + detailedErrorMsg);
+                    }
+                    return $(
+                        "<div style='z-index: 9999;' style='line-height: 20%;' class='alert alert-danger' id='error-alert'>" +
+                        "<span class='notification'>" +
+                        errorMsg +
+                        "</span>" +
+                        "</div>");
+                }
 
                 var openConfigModal = fileOpen.filter("#openConfigModal");
                 var openFileWizardError = fileOpen.find("#openFileWizardError");
@@ -171,7 +176,8 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                     });
                 };
 
-                function alertError() {
+                function alertError(errorMessage) {
+                    var errorNotification = getErrorNotification(errorMessage);
                     $(notification_container).append(errorNotification);
                     errorNotification.fadeTo(2000, 200).slideUp(1000, function () {
                         errorNotification.slideUp(1000);
@@ -194,11 +200,11 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                                 var command = app.commandManager;
                                 command.dispatch("create-new-tab", root);
                             } else {
-                                alertError();
+                                alertError(data.Error);
                             }
                         },
                         error: function (res, errorCode, error) {
-                            alertError();
+                            alertError(JSON.parse(res.responseText).Error);
                         }
                     });
                 }
@@ -231,11 +237,11 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                                 });
                                 app.commandManager.dispatch("create-new-tab", {tabOptions: {file: file}});
                             } else {
-                                alertError();
+                                alertError(data.Error);
                             }
                         },
                         error: function (res, errorCode, error) {
-                            alertError();
+                            alertError(JSON.parse(res.responseText).Error);
                         }
                     });
                 };
