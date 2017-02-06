@@ -31,9 +31,6 @@ public class PollingTaskRunner implements Runnable {
 
     private final long interval;
     private final PollingServerConnector connector;
-    private long lastRuntime;
-    private long currentRuntime;
-    private long cycleInterval;
 
     public PollingTaskRunner(PollingServerConnector connector) {
         this.connector = connector;
@@ -52,15 +49,15 @@ public class PollingTaskRunner implements Runnable {
         // Run the poll cycles
         while (execute) {
             log.debug("Executing the polling task for server connector ID: " + connector.getId());
-            lastRuntime = getTime();
+            long lastInvokedTime = getTime();
             try {
                 connector.poll();
             } catch (Exception e) {
                 log.error("Error executing the polling cycle for " +
                         "server connector ID: " + connector.getId(), e);
             }
-            currentRuntime = getTime();
-            cycleInterval = interval - (currentRuntime - lastRuntime);
+            long currentTime = getTime();
+            long cycleInterval = interval - (currentTime - lastInvokedTime);
             if (cycleInterval > 0) {
                 try {
                     Thread.sleep(interval);
