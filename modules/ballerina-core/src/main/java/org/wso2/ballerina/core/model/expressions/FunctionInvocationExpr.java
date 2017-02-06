@@ -108,7 +108,7 @@ public class FunctionInvocationExpr extends AbstractExpression implements Callab
     public BValue execute(NodeExecutor executor) {
         BValue[] values = executor.visit(this);
 
-        if (calleeFunction.getReturnParameters().length == 0) {
+        if (calleeFunction.getReturnParamTypes().length == 0) {
             return null;
         }
 
