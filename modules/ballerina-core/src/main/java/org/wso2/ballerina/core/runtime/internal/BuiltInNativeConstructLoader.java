@@ -170,6 +170,9 @@ import org.wso2.ballerina.core.nativeimpl.net.http.GetStatusCode;
 import org.wso2.ballerina.core.nativeimpl.net.http.SetContentLength;
 import org.wso2.ballerina.core.nativeimpl.net.http.SetReasonPhrase;
 import org.wso2.ballerina.core.nativeimpl.net.http.SetStatusCode;
+import org.wso2.ballerina.core.nativeimpl.net.jms.Acknowledge;
+import org.wso2.ballerina.core.nativeimpl.net.jms.Commit;
+import org.wso2.ballerina.core.nativeimpl.net.jms.Rollback;
 import org.wso2.ballerina.core.nativeimpl.net.uri.Encode;
 import org.wso2.ballerina.core.nativeimpl.net.uri.GetQueryParam;
 import org.wso2.ballerina.core.nativeimpl.util.GetHmac;
@@ -371,6 +374,11 @@ public class BuiltInNativeConstructLoader {
         registerAction(scope, new Delete());
         registerAction(scope, new Execute());
         registerAction(scope, new Patch());
+
+        //jms
+        registerFunction(scope, new Acknowledge());
+        registerFunction(scope, new Commit());
+        registerFunction(scope, new Rollback());
 
     }
 

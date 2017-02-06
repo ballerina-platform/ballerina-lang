@@ -28,6 +28,8 @@ import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPResourceDispatcher;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPServiceDispatcher;
+import org.wso2.ballerina.core.nativeimpl.connectors.jms.server.JMSResourceDispatcher;
+import org.wso2.ballerina.core.nativeimpl.connectors.jms.server.JMSServiceDispatcher;
 import org.wso2.ballerina.core.runtime.MessageProcessor;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
@@ -44,6 +46,11 @@ public class EnvironmentInitializer {
         // Initialize server connectors before starting the test cases
         BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
         BallerinaConnectorManager.getInstance().registerServerConnectorErrorHandler(new TestErrorHandler());
+
+        // Register JMS Dispatchers
+        DispatcherRegistry.getInstance().registerServiceDispatcher(new JMSServiceDispatcher());
+        DispatcherRegistry.getInstance().registerResourceDispatcher(new JMSResourceDispatcher());
+
         // Resister HTTP Dispatchers
         DispatcherRegistry.getInstance().registerServiceDispatcher(new HTTPServiceDispatcher());
         DispatcherRegistry.getInstance().registerResourceDispatcher(new HTTPResourceDispatcher());

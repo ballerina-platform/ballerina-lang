@@ -1,1 +1,2 @@
 org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPResourceDispatcher
+org.wso2.ballerina.core.nativeimpl.connectors.jms.server.JMSResourceDispatcher

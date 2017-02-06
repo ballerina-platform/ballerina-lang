@@ -1,1 +1,2 @@
 org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPServiceDispatcher
+org.wso2.ballerina.core.nativeimpl.connectors.jms.server.JMSServiceDispatcher
