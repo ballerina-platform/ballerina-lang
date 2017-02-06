@@ -258,10 +258,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
 
                 var self = this;
 
-                this._model.getChildren()[0]._arrowGroup = this._arrowGroup;
-                this._model.getChildren()[0]._processorConnectPoint = this.processorConnectPoint;
-                this._model.getChildren()[0]._actionInvocationModel = actionInvocationModel;
-                this._model.getChildren()[0]._actionInvocationModel.messageManager = actionInvocationModelMessageManager;
+                connectorModel.addConnectorActionReference(this);
 
                 this.arrowHeadEndPoint.on("mousedown", function () {
                     d3.event.preventDefault();
@@ -274,6 +271,8 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
 
                     var sourcePoint = self.toGlobalCoordinates(new Point(x, y));
                     var connectorPoint = self.toGlobalCoordinates(new Point(x1, y1));
+
+                    connectorModel.removeConnectorActionReference(self.getModel().id);
 
                     self.messageManager.startDrawMessage(actionInvocationModel, sourcePoint, connectorPoint);
                     self.messageManager.setTypeBeingDragged(true);
