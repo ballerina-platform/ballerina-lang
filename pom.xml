@@ -196,6 +196,13 @@
                 <version>${commons.lang3.version}</version>
             </dependency>
 
+            <!--WebSocket Java Api-->
+            <dependency>
+                <groupId>javax.websocket</groupId>
+                <artifactId>javax.websocket-api</artifactId>
+                <version>${javax.websocket.version}</version>
+            </dependency>
+
             <!-- JSON dependencies -->
             <dependency>
                 <groupId>com.google.code.gson</groupId>
@@ -407,6 +414,7 @@
 
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
         <commons.lang3.version>3.5</commons.lang3.version>
+        <javax.websocket.version>1.1</javax.websocket.version>
         
         <!-- json dependencies -->
         <gson.version>2.7</gson.version>
