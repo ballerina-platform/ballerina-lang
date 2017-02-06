@@ -49,8 +49,8 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
         return this.parent;
     };
 
-    ASTNode.prototype.setParent = function (parent) {
-        this.parent = parent;
+    ASTNode.prototype.setParent = function (parent, options) {
+        this.setAttribute('parent', parent, options);
     };
 
     ASTNode.prototype.getChildren = function () {
@@ -234,8 +234,7 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
 
         // fire change event with necessary callbacks for undo/redo
         if(_.isNil(options) || !options.doSilently){
-            var title = _.has(options, 'changeTitle') ? _.get(options, 'changeTitle') : 'set '
-                            + attributeName + ' to ' + newValue;
+            var title = _.has(options, 'changeTitle') ? _.get(options, 'changeTitle') : 'Modify ' + this.getType();
             /**
              * @event ASTNode#tree-modified
              */
@@ -244,6 +243,11 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
                 type: 'custom',
                 title: title,
                 context: this,
+                data: {
+                    attributeName: attributeName,
+                    newValue: newValue,
+                    oldValue: oldValue
+                },
                 undo: function(){
                     this.setAttribute(attributeName, oldValue, {doSilently: true});
                 },

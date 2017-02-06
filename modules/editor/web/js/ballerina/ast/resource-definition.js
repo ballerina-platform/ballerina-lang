@@ -63,9 +63,9 @@ define(['lodash', 'require', 'log', './node'],
     ResourceDefinition.prototype = Object.create(ASTNode.prototype);
     ResourceDefinition.prototype.constructor = ResourceDefinition;
 
-    ResourceDefinition.prototype.setResourceName = function (resourceName) {
+    ResourceDefinition.prototype.setResourceName = function (resourceName, options) {
         if (!_.isNil(resourceName)) {
-            this.setAttribute('_resourceName', resourceName);
+            this.setAttribute('_resourceName', resourceName, options);
         } else {
             log.error('Invalid Resource name [' + resourceName + '] Provided');
             throw 'Invalid Resource name [' + resourceName + '] Provided';
@@ -277,7 +277,7 @@ define(['lodash', 'require', 'log', './node'],
      * @param {Object[]} jsonNode.children - Children elements of the resource definition.
      */
     ResourceDefinition.prototype.initFromJson = function (jsonNode) {
-        this._resourceName = jsonNode.resource_name;
+        this.setResourceName(jsonNode.resource_name, {doSilently: true});
         this._annotations = _.isNil(this._annotations) ? [] : this._annotations;
 
         var self = this;

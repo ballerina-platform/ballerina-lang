@@ -20,12 +20,12 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
         './if-else-statement', './if-statement', './else-statement', './else-if-statement', './trycatch-statement',
         './try-statement', './catch-statement', './node', './reply-statement', './resource-definition',
         './return-statement', './service-definition', './statement', './throw-statement', './type-definition',
-        './type-mapper-definition', './type-element', './variable-declaration', './while-statement',
+        './type-converter-definition', './type-element', './variable-declaration', './while-statement',
         './worker-declaration', './package-definition', './import-declaration', './assignment',
         './assignment-statement', './function-invocation', './arithmetic-expression', './logical-expression',
         './action-invocation-expression', './ballerina-ast-deserializer', './function-invocation-expression',
         './left-operand-expression', './right-operand-expression', './connector-action', './struct-definition',
-        './action-invocation-statement','./type-struct-definition'],
+        './action-invocation-statement', './variable-definition-statement','./type-struct-definition'],
     function (BallerinaASTFactory, BallerinaASTRoot, ConditionalStatement, ConnectorDeclaration, ConnectorDefinition,
               ConstantDefinition, Expression, FunctionDefinition, IfElseStatement, IfStatement, ElseStatement,
               ElseIfStatement, TryCatchStatement, TryStatement, CatchStatement, ASTNode, ReplyStatement,
@@ -34,7 +34,7 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
               WorkerDeclaration, PackageDefinition, ImportDeclaration, Assignment, AssignmentStatement,
               FunctionInvocation, ArithmeticExpression, LogicalExpression, ActionInvocationExpression,
               BallerinaASTDeserializer, FunctionInvocationExpression, LeftOperandExpression, RightOperandExpression,
-              ConnectorAction, StructDefinition, ActionInvocationStatement,TypeStructDefinition) {
+              ConnectorAction, StructDefinition, ActionInvocationStatement, VariableDefinitionStatement,TypeStructDefinition) {
 
         return  {
             BallerinaASTFactory: BallerinaASTFactory,
@@ -80,6 +80,7 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
             BallerinaASTDeserializer : BallerinaASTDeserializer,
             ConnectorAction : ConnectorAction,
             StructDefinition : StructDefinition,
+            VariableDefinitionStatement: VariableDefinitionStatement,
             TypeStructDefinition : TypeStructDefinition
         }
     });

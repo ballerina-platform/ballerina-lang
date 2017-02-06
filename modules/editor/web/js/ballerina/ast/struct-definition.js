@@ -29,8 +29,8 @@ define(['lodash', 'log', './node','constants'], function (_, log, ASTNode,consta
      * setter for struct name
      * @param structName - name of the struct
      */
-    StructDefinition.prototype.setStructName = function (structName) {
-        this.setAttribute('_structName', structName);
+    StructDefinition.prototype.setStructName = function (structName, options) {
+        this.setAttribute('_structName', structName, options);
     };
 
     /**
@@ -114,7 +114,7 @@ define(['lodash', 'log', './node','constants'], function (_, log, ASTNode,consta
      */
     StructDefinition.prototype.initFromJson = function (jsonNode) {
         var self = this;
-        this._structName = jsonNode.struct_name;
+        this.setStructName(jsonNode.struct_name, {doSilently: true});
 
         _.each(jsonNode.children, function (childNode) {
             var child = self.BallerinaASTFactory.createFromJson(childNode);

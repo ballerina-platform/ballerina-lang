@@ -129,6 +129,15 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             nodeFactoryMethod: BallerinaASTFactory.createAggregatedAssignmentStatement
         };
 
+        // TODO: change the icon with the new one
+        var createVariableDefinitionStatementTool = {
+            id: "VariableDefinition",
+            name: "VariableDefinition",
+            icon: "images/variable.svg",
+            title: "Variable Definition",
+            nodeFactoryMethod: BallerinaASTFactory.createVariableDefinitionStatement
+        };
+
         var createFunctionInvocationTool = {
             id: "FunctionInvocation",
             name: "FunctionInvocation",
@@ -140,7 +149,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
         var createReplyStatementTool = {
             id: "Reply",
             name: "Reply",
-            icon: "images/tool-icons/left-arrow.svg",
+            icon: "images/tool-icons/reply.svg",
             title: "Reply",
             nodeFactoryMethod: BallerinaASTFactory.createReplyStatement
         };
@@ -154,7 +163,8 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
         };
 
         var statementToolDefArray = [createIfStatementTool, createAssignmentExpressionTool,
-            createFunctionInvocationTool, createReturnStatementTool, createReplyStatementTool, createWhileStatementTool];
+            createVariableDefinitionStatementTool,  createFunctionInvocationTool, createReturnStatementTool,
+            createReplyStatementTool, createWhileStatementTool];
 
         // Create statements tool group
         var statements = new ToolGroup({
