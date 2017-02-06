@@ -20,17 +20,15 @@ connector AmazonLambda(string accessKeyId, string secretAccessKey,
         string signature;
         string httpMethod;
         string requestURI;
-        string host;
         string endpoint;
         message requestMsg;
         message response;
 
         httpMethod = "POST";
         requestURI = "/2015-03-31/functions/" + arn + "/invocations";
-        host = "lambda.us-east-1.amazonaws.com";
         endpoint = "https://lambda." + region + ".amazonaws.com";
 
-        message:setHeader(requestMsg, "Host", host);
+        message:setHeader(requestMsg, "Host", endpoint);
         response = sample:AmazonAuthConnector.req(amazonAuthConnector, requestMsg, httpMethod, requestURI, "");
 
         return response;
@@ -115,7 +113,7 @@ connector AmazonLambda(string accessKeyId, string secretAccessKey,
 
             return response;
     }
-    action invokeFunction(AmazonLambda amz, string arn) (message) throws exception {
+    action getFunctionVersions(AmazonLambda amz, string arn) (message) throws exception {
 
             string signature;
             string httpMethod;
