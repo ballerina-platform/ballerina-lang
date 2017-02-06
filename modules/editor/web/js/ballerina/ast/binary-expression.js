@@ -36,7 +36,7 @@ define(['lodash', './expression'], function (_, Expression) {
      * @param {Object} jsonNode to initialize from
      */
     BinaryExpression.prototype.initFromJson = function (jsonNode) {
-        this.setExpression(this.generateExpressionString(jsonNode));
+        this.setExpression(this.generateExpressionString(jsonNode), {doSilently: true});
     };
 
     /**
