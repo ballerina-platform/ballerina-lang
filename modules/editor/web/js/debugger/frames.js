@@ -15,39 +15,63 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', /** void module - jquery plugin **/ 'js_tree'], function ($, Backbone, _, log, EventChannel) {
+define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager', './variable-tree'], 
+    function ($, Backbone, _, log, EventChannel, DebugManager, VariableTree ) {
 
     var instance;
 
     var Frames = function (){
 
+        this.compiled = _.template(
+                '<div class="debug-panel-header">'
+              + '   <a class="tool-group-header-title">Frames</a><span class="collapse-icon fw fw-up"></span>'
+              + '</div>'
+              + '<table class="table table-condensed table-hover debug-frames">'
+              + '<% _.forEach(frames, function(frame) { %>'
+              + '<tr>'
+              + '   <td>'
+              + '       <a><%- frame.frameName %>'
+              + '           <span class="debug-frame-pkg-name">'
+              + '           <i class="fw fw-package"></i> <%- frame.packageName %>'
+              + '           </span>'
+              + '       <a>'
+              + '   </td>'
+              + '</tr>'
+              + '<% }); %>'
+              + '</table>');
+
+        DebugManager.on('debug-hit', _.bindKey(this,'render'));
+        DebugManager.on('resume-execution', _.bindKey(this,'clear'));
     };
 
     Frames.prototype = Object.create(EventChannel.prototype);
     Frames.prototype.constructor = Frames;
 
-    Frames.prototype.render = function (container) {
-        this.renderHeader(container);
-        this.renderContentDiv(container);
-        return this;
+    Frames.prototype.setContainer = function(container){
+        this.container = container;
     };
 
-    Frames.prototype.renderHeader = function (container) {
-        var headerContainer =
-            $('<div class="panel-heading"><a class="collapsed" data-toggle="collapse" href="#debugger-variable-tree">Frames</a></div>');
-        container.append(headerContainer);
+    Frames.prototype.clear =function(message){
+        this.container.empty();
+        VariableTree.clear();
     };
 
-    Frames.prototype.renderContentDiv = function (container) {
-        var contentContainer = $('<div id="debugger-variable-tree" class="panel-collapse collapse in" role="tabpanel">' +
-            '</div>');
-        container.append(contentContainer);
-        this.updateFrames();
+    Frames.prototype.render = function (message) {
+        //clear duplicate main
+        message.frames = _.uniqWith(message.frames, function(obj, other){
+            if (_.isEqual(obj.frameName,other.frameName) && _.isEqual(obj.packageName,other.packageName))
+                return true;
+        });
+        //reverse order
+        message.frames = _.reverse(message.frames);
+
+        var html = this.compiled(message);
+        this.container.html(html);
+
+        //render variables tree
+        VariableTree.render(message.frames[0]);
     };
 
-    Frames.prototype.updateFrames = function () {
-        // <table class="table table-condensed"></table>
-    };
 
     return (instance = (instance || new Frames() ));
 });
