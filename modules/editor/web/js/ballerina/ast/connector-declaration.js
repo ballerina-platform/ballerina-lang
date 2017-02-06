@@ -37,6 +37,7 @@ define(['lodash', './node'], function(_, ASTNode){
         this._connectorPkgName = _.get(options, "connectorPackageName", "http");
         this._timeout = _.get(options, "timeout", "");
         this._uri = _.get(options, "uri", "http://localhost:9090");
+        this._connectorActionsReference = _.get(options, "connectorActionsReference", []);
     };
 
     ConnectorDeclaration.prototype = Object.create(ASTNode.prototype);
@@ -48,7 +49,12 @@ define(['lodash', './node'], function(_, ASTNode){
     ConnectorDeclaration.prototype.setConnectorName = function (name, options) {
         this.setAttribute('_connectorName', name, options);
     };
-
+    ConnectorDeclaration.prototype.addConnectorActionReference = function (model) {
+        this._connectorActionsReference.push(model);
+    };
+    ConnectorDeclaration.prototype.removeConnectorActionReference = function (id) {
+        _.pullAllBy(this._connectorActionsReference, [{ 'id': id }], 'id');
+    };
     ConnectorDeclaration.prototype.setConnectorVariable = function (connectorVariable, options) {
         this.setAttribute('_connectorVariable', connectorVariable, options);
     };
@@ -76,9 +82,13 @@ define(['lodash', './node'], function(_, ASTNode){
         return this._connectorName;
     };
 
+    ConnectorDeclaration.prototype.getConnectorActionsReference = function () {
+        return this._connectorActionsReference;
+    };
+
     ConnectorDeclaration.prototype.getConnectorVariable = function () {
         return this._connectorVariable;
-    }
+    };
 
     ConnectorDeclaration.prototype.getConnectorType = function () {
         return this._connectorType;
