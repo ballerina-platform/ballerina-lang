@@ -190,7 +190,7 @@ public final class Constants {
 
     public static final String WEBSOCKET_SESSION = "WEBSOCKET_SESSION";
     public static final String WEBSOCKET_PROTOCOL = "ws";
-    public static final String WEBSOCKET_PROTOCOL_NAME = "websocket";
+    public static final String WEBSOCKET_UPGRADE = "websocket";
 
 
     private Constants() {
