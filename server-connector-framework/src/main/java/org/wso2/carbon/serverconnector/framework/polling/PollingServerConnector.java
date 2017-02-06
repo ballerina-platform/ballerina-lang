@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.serverconnector.framework.polling;
 
+import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
@@ -31,8 +32,42 @@ public abstract class PollingServerConnector extends ServerConnector {
     private long interval = 1000L;  //default polling interval
     private PollingTaskRunner pollingTaskRunner;
 
+    private CarbonMessageProcessor messageProcessor;
+
+
     public PollingServerConnector(String id) {
         super(id);
+    }
+
+    @Override
+    public void setMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
+        messageProcessor = carbonMessageProcessor;
+    }
+
+    public CarbonMessageProcessor getMessageProcessor() {
+        return messageProcessor;
+    }
+
+    @Override
+    protected void init() throws ServerConnectorException {
+        //Generally, there is nothing to do in the connector init phase (at the server start up)
+    }
+
+    @Override
+    protected void destroy() throws ServerConnectorException {
+        if (pollingTaskRunner != null) {
+            pollingTaskRunner.terminate();
+        }
+    }
+
+    @Override
+    protected void beginMaintenance() {
+        //Generally, there is nothing to do
+    }
+
+    @Override
+    protected void endMaintenance() {
+        //Generally, there is nothing to do
     }
 
     /**
