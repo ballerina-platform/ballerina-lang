@@ -269,23 +269,23 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
 
     /**
      * A generic method to be used for adding values for node attributes which are arrays while firing required change events
-     * If an object with the same 'key' exists in the array that value is updated instead of adding a new one.
      *
-     * @param attributeName {String} name of the array attribute that needs to be pushed to
+     * @param arrAttrName {string} name of the array attribute that needs to be pushed to
      * @param newValue {*} new value to be pushed in
      * @param [options] {Object} options
-     * @param [options.changeTitle=change $attributeName] {String} the title for change
+     * @param [options.predicate=undefined] {*} A predicate valid for {@link https://lodash.com/docs/4.17.4#findIndex|Lodash.findIndex}
+     * if defined, if a value that satisfy this predicate exists in the array, replaces it instead of adding a new value
+     * @param [options.changeTitle=Modify $attributeName] {string} the title for change
      * @param [options.doSilently=false] {boolean} a flag to indicate whether events should not be fired
      */
-    ASTNode.prototype.pushToAttribute = function (attributeName, newValue, options) {
-        var currentArray = _.get(this, attributeName);
-        var keyField = 'key' // use 'key' as the key field
-        var keyValue = _.get(newValue, keyField);
+    ASTNode.prototype.pushToArrayAttribute = function (arrAttrName, newValue, options) {
+        var currentArray = _.get(this, arrAttrName);
 
         // Check if a value already exists for the given key
-        var existingValueIndex = _.findIndex(currentArray, function (value) {
-            return value[keyField] === keyValue;
-        });
+        var existingValueIndex = -1;
+        if(_.has(options, 'predicate')) {
+            existingValueIndex = _.findIndex(currentArray, options.predicate);
+        }
 
         var existingValue;
 
@@ -311,18 +311,22 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
                 title: title,
                 context: this,
                 undo: function(){
-                    var currentArray = _.get(this, attributeName);
+                    var currentArray = _.get(this, arrAttrName);
                     if (existingValueIndex === -1) {
                         // A value with this key did not exist. So remove it.
-                        _.remove(currentArray, function (value) {
-                            return value[keyField] === keyValue;
-                        });
+                        _.remove(currentArray, options.predicate);
                     } else {
-                        this.pushToAttribute(attributeName, existingValue, {doSilently: true});
+                        this.pushToArrayAttribute(arrAttrName, existingValue, {
+                          predicate: options.predicate,
+                          doSilently: true
+                        });
                     }
                 },
-                redo: function(){
-                    this.pushToAttribute(attributeName, newValue, {doSilently: true});
+                redo: function() {
+                    this.pushToArrayAttribute(arrAttrName, newValue, {
+                      predicate: options.predicate,
+                      doSilently: true
+                    });
                 }
             });
         }
