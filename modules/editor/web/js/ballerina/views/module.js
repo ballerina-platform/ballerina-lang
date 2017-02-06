@@ -18,11 +18,13 @@
 define(['./action-definition-view', './ballerina-file-editor', './ballerina-view','./message-manager', './canvas',
         './connector-declaration-view', './function-definition-view', './reply-statement-view',
         './resource-definition-view', './return-statement-view', './service-definition-view', './throw-statement-view',
-        './while-statement-view', './worker-declaration-view', './source-view','./action-invocation-statement-view', './service-preview-view', './backend'],
+        './while-statement-view', './worker-declaration-view', './source-view', './action-invocation-statement-view',
+        './service-preview-view', './simple-statement-view', './compund-statement-view','./backend'],
     function (ActionDefinitionView, BallerinaFileEditor, BallerinaView, Canvas,MessageManager,
               ConnectorDeclarationView, FunctionDefinitionView, ReplyStatementView,
               ResourceDefinitionView, ReturnStatementView, ServiceDefinitionView, ThrowStatementView,
-              WhileStatementView, WorkerDeclarationView, SourceView, ActionInvocationStatementView, ServicePreviewView, Backend) {
+              WhileStatementView, WorkerDeclarationView, SourceView, ActionInvocationStatementView,
+              ServicePreviewView, SimpleStatementView, CompoundStatementView, Backend) {
         return  {
             BallerinaView: BallerinaView,
             ActionDefinitionView: ActionDefinitionView,
@@ -41,6 +43,8 @@ define(['./action-definition-view', './ballerina-file-editor', './ballerina-view
             SourceView: SourceView,
             ActionInvocationStatementView: ActionInvocationStatementView,
             ServicePreviewView: ServicePreviewView,
+            SimpleStatementView: SimpleStatementView,
+            CompoundStatementView: CompoundStatementView,
             Backend : Backend
         }
     });
