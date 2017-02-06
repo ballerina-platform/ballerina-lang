@@ -24,7 +24,7 @@ import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 /**
  * Util class to configure Test with external configuration.
  */
-public class TestRunner {
+public class TestConfigurationUtil {
 
     @Parameters("nonblocking")
     @BeforeTest
