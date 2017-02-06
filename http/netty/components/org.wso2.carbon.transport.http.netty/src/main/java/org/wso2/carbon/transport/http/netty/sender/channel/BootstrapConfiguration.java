@@ -37,24 +37,24 @@ public class BootstrapConfiguration {
 
     private BootstrapConfiguration(Map<String, Object> properties) {
 
-        connectTimeOut = Util.getIntTransportProperty(
+        connectTimeOut = Util.getIntProperty(
                 properties, Constants.CLIENT_BOOTSTRAP_CONNECT_TIME_OUT, 15000);
 
-        tcpNoDelay = Util.getBooleanTransportProperty(
+        tcpNoDelay = Util.getBooleanProperty(
                 properties, Constants.CLIENT_BOOTSTRAP_TCP_NO_DELY, true);
 
-        receiveBufferSize = Util.getIntTransportProperty(
+        receiveBufferSize = Util.getIntProperty(
                 properties, Constants.CLIENT_BOOTSTRAP_RECEIVE_BUFFER_SIZE, 1048576);
 
-        sendBufferSize = Util.getIntTransportProperty(
+        sendBufferSize = Util.getIntProperty(
                 properties, Constants.CLIENT_BOOTSTRAP_SEND_BUFFER_SIZE, 1048576);
 
-        socketTimeout = Util.getIntTransportProperty(properties, Constants.CLIENT_BOOTSTRAP_SO_TIMEOUT, 15);
+        socketTimeout = Util.getIntProperty(properties, Constants.CLIENT_BOOTSTRAP_SO_TIMEOUT, 15);
 
-        keepAlive = Util.getBooleanTransportProperty(
+        keepAlive = Util.getBooleanProperty(
                 properties, Constants.CLIENT_BOOTSTRAP_KEEPALIVE, true);
 
-        socketReuse = Util.getBooleanTransportProperty(
+        socketReuse = Util.getBooleanProperty(
                 properties, Constants.CLIENT_BOOTSTRAP_SO_REUSE, false);
 
         logger.debug(Constants.CLIENT_BOOTSTRAP_TCP_NO_DELY + ": " + tcpNoDelay);

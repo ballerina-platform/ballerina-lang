@@ -214,13 +214,23 @@ public class Util {
         return sslConfig;
     }
 
-    public static int getIntTransportProperty(Map<String, Object> transportProperties, String key, int defaultVal) {
+    /**
+     * Get integer type property value from a property map.
+     * <p>
+     * If {@code properties} is null or property value is null, default value is returned
+     *
+     * @param properties map of properties
+     * @param key        property name
+     * @param defaultVal default value of the property
+     * @return integer value of the property,
+     */
+    public static int getIntProperty(Map<String, Object> properties, String key, int defaultVal) {
 
-        if (transportProperties == null) {
+        if (properties == null) {
             return defaultVal;
         }
 
-        Object propertyVal = transportProperties.get(key);
+        Object propertyVal = properties.get(key);
 
         if (propertyVal == null) {
             return defaultVal;
@@ -233,14 +243,25 @@ public class Util {
         return (Integer) propertyVal;
     }
 
-    public static String getStringTransportProperty(
-            Map<String, Object> transportProperties, String key, String defaultVal) {
 
-        if (transportProperties == null) {
+    /**
+     * Get string type property value from a property map.
+     * <p>
+     * If {@code properties} is null or property value is null, default value is returned
+     *
+     * @param properties map of properties
+     * @param key        property name
+     * @param defaultVal default value of the property
+     * @return integer value of the property,
+     */
+    public static String getStringProperty(
+            Map<String, Object> properties, String key, String defaultVal) {
+
+        if (properties == null) {
             return defaultVal;
         }
 
-        Object propertyVal = transportProperties.get(key);
+        Object propertyVal = properties.get(key);
 
         if (propertyVal == null) {
             return defaultVal;
@@ -253,14 +274,25 @@ public class Util {
         return (String) propertyVal;
     }
 
-    public static Boolean getBooleanTransportProperty(
-            Map<String, Object> transportProperties, String key, boolean defaultVal) {
 
-        if (transportProperties == null) {
+    /**
+     * Get boolean type property value from a property map.
+     * <p>
+     * If {@code properties} is null or property value is null, default value is returned
+     *
+     * @param properties map of properties
+     * @param key        property name
+     * @param defaultVal default value of the property
+     * @return integer value of the property,
+     */
+    public static Boolean getBooleanProperty(
+            Map<String, Object> properties, String key, boolean defaultVal) {
+
+        if (properties == null) {
             return defaultVal;
         }
 
-        Object propertyVal = transportProperties.get(key);
+        Object propertyVal = properties.get(key);
 
         if (propertyVal == null) {
             return defaultVal;
@@ -273,14 +305,24 @@ public class Util {
         return (Boolean) propertyVal;
     }
 
-    public static Long getLongTransportProperty(
-            Map<String, Object> transportProperties, String key, long defaultVal) {
+    /**
+     * Get long type property value from a property map.
+     * <p>
+     * If {@code properties} is null or property value is null, default value is returned
+     *
+     * @param properties map of properties
+     * @param key        property name
+     * @param defaultVal default value of the property
+     * @return integer value of the property,
+     */
+    public static Long getLongProperty(
+            Map<String, Object> properties, String key, long defaultVal) {
 
-        if (transportProperties == null) {
+        if (properties == null) {
             return defaultVal;
         }
 
-        Object propertyVal = transportProperties.get(key);
+        Object propertyVal = properties.get(key);
 
         if (propertyVal == null) {
             return defaultVal;

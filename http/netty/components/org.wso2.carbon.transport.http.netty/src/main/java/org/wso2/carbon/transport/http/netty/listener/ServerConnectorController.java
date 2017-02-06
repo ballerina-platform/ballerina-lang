@@ -85,9 +85,9 @@ public class ServerConnectorController {
         EventLoopGroup bossGroup = HTTPTransportContextHolder.getInstance().getBossGroup();
         if (bossGroup == null) {
             int bossGroupSize =
-                    Util.getIntTransportProperty(transportProperties,
-                                                 Constants.SERVER_BOOTSTRAP_BOSS_GROUP_SIZE,
-                                                 Runtime.getRuntime().availableProcessors());
+                    Util.getIntProperty(transportProperties,
+                                        Constants.SERVER_BOOTSTRAP_BOSS_GROUP_SIZE,
+                                        Runtime.getRuntime().availableProcessors());
 
             bossGroup = new NioEventLoopGroup(bossGroupSize);
             HTTPTransportContextHolder.getInstance().setBossGroup(bossGroup);
@@ -97,8 +97,8 @@ public class ServerConnectorController {
         EventLoopGroup workerGroup = HTTPTransportContextHolder.getInstance().getWorkerGroup();
         if (workerGroup == null) {
             int workerGroupSize =
-                    Util.getIntTransportProperty(transportProperties,
-                                                 Constants.SERVER_BOOTSTRAP_WORKER_GROUP_SIZE,
+                    Util.getIntProperty(transportProperties,
+                                        Constants.SERVER_BOOTSTRAP_WORKER_GROUP_SIZE,
                                                  Runtime.getRuntime().availableProcessors() * 2);
             workerGroup = new NioEventLoopGroup(workerGroupSize);
             HTTPTransportContextHolder.getInstance().setWorkerGroup(workerGroup);
@@ -115,7 +115,7 @@ public class ServerConnectorController {
         bootstrap.childHandler(handler);
 
         int bufferSize =
-                Util.getIntTransportProperty(transportProperties, Constants.OUTPUT_CONTENT_BUFFER_SIZE, 0);
+                Util.getIntProperty(transportProperties, Constants.OUTPUT_CONTENT_BUFFER_SIZE, 0);
 
         if (bufferSize != 0) {
             BufferFactory.createInstance(bufferSize);
