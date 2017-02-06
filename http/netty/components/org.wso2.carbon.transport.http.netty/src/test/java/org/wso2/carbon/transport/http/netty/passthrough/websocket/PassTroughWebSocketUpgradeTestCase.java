@@ -16,50 +16,55 @@
  *  under the License.
  */
 
-package org.wso2.carbon.transport.http.netty.passthrough.test;
+package org.wso2.carbon.transport.http.netty.passthrough.websocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
-import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
+import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
+import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
+import org.wso2.carbon.transport.http.netty.listener.HTTPServerConnector;
+import org.wso2.carbon.transport.http.netty.passthrough.PassthroughMessageProcessor;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
+import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
 import org.wso2.carbon.transport.http.netty.util.websocket.client.WebSocketClient;
 
 import java.net.URISyntaxException;
+import java.util.List;
 
 import static org.testng.Assert.assertTrue;
 
 /**
- * Test class for WebSocket Upgrade
+ * Test class for WebSocket Upgrade and Message Receiving.
  */
 public class PassTroughWebSocketUpgradeTestCase {
 
     Logger logger = LoggerFactory.getLogger(PassTroughWebSocketUpgradeTestCase.class);
-    private ListenerConfiguration listenerConfiguration;
-    private SenderConfiguration senderConfiguration;
-    private HTTPTransportListener httpTransportListener;
+
+    private List<HTTPServerConnector> serverConnectors;
+
+    private static final String testValue = "Test Message";
+
+    private HTTPServer httpServer;
+
     private WebSocketClient client = new WebSocketClient();
 
     @BeforeClass(groups = "passthroughUPGRADE")
     public void setup() {
-        listenerConfiguration = new ListenerConfiguration();
-        listenerConfiguration.setHost(TestUtil.TEST_HOST);
-        listenerConfiguration.setId("test-listener");
-        listenerConfiguration.setPort(TestUtil.TEST_ESB_PORT);
-        senderConfiguration = new SenderConfiguration("passthrough-sender");
-        httpTransportListener = TestUtil
-                .startCarbonTransport(listenerConfiguration, senderConfiguration, new PassthroughMessageProcessor());
+        TransportsConfiguration configuration = YAMLTransportConfigurationBuilder
+                .build("src/test/resources/simple-test-config/netty-transports.yml");
+        serverConnectors = TestUtil.startConnectors(configuration, new PassthroughMessageProcessor());
+        httpServer = TestUtil.startHTTPServer(TestUtil.TEST_SERVER_PORT);
     }
 
     @Test(groups = "passthroughUPGRADE")
-    public void testHandshake() throws URISyntaxException {
+    public void testHandshakeAndMessageReceive() throws URISyntaxException {
         try {
-            assertTrue(client.handhshake(TestUtil.TEST_HOST, TestUtil.TEST_ESB_PORT));
+            assertTrue(client.handhshake(TestUtil.TEST_HOST, TestUtil.TEST_SERVER_PORT));
             logger.info("Handshake test completed.");
+            client.sendAndReceiveWebSocketFrames();
         } catch (InterruptedException e) {
             logger.error("Handshake interruption.");
             assertTrue(false);
@@ -68,6 +73,6 @@ public class PassTroughWebSocketUpgradeTestCase {
 
     @AfterClass(groups = "passthroughUPGRADE")
     public void cleaUp() {
-        TestUtil.shutDownCarbonTransport(httpTransportListener);
+        TestUtil.cleanUp(serverConnectors, httpServer);
     }
 }

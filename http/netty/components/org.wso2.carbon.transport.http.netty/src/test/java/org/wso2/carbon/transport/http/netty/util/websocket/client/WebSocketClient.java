@@ -40,7 +40,7 @@ import java.net.URISyntaxException;
 public class WebSocketClient {
 
     private final String url = System.getProperty("url", String.format("ws://%s:%d/%s",
-                                                        TestUtil.TEST_HOST, TestUtil.TEST_ESB_PORT, "test"));
+                                                        TestUtil.TEST_HOST, TestUtil.TEST_SERVER_PORT, "test"));
     private Channel channel = null;
 
 

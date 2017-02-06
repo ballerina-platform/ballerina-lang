@@ -48,8 +48,6 @@ import javax.websocket.Session;
  * {@link SourceHandler} only handles the HTTP requests.
  * This class handles all kinds of WebSocketFrames
  * after connection is upgraded from HTTP to WebSocket.
- *
- * @since 1.0.0
  */
 public class WebSocketSourceHandler extends SourceHandler {
 
@@ -95,6 +93,7 @@ public class WebSocketSourceHandler extends SourceHandler {
             CloseWebSocketFrame closeWebSocketFrame = (CloseWebSocketFrame) msg;
             String reasonText = closeWebSocketFrame.reasonText();
             int statusCode = closeWebSocketFrame.statusCode();
+            ctx.channel().close();
             cMsg = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_CLOSE, statusCode, reasonText);
 
         } else if (msg instanceof PongWebSocketFrame) {
