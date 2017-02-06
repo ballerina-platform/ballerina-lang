@@ -34,7 +34,35 @@ define(['lodash','require', 'backbone'], function (_, require, Backbone) {
             title: "",
             icon: "",
             classNames:"",
+        },
+
+        /**
+         * sets name
+         * @param {string} name
+         */
+        setName: function (name) {
+            this.set('name', name);
+            this.trigger('name-modified', name);
+        },
+
+        /**
+         * sets id
+         * @param {string} id
+         */
+        setId: function (id) {
+            this.set('id', id);
+            this.trigger('id-modified', id);
+        },
+
+        /**
+         * sets title
+         * @param {string} title
+         */
+        setTitle: function (title) {
+            this.set('title', title);
+            this.trigger('title-modified', title);
         }
+
     });
 
     return tool;

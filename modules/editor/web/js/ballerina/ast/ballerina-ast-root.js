@@ -33,8 +33,9 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
         this.serviceDefinitions = _.get(args, 'serviceDefinitions', []);
         this.functionDefinitions = _.get(args, 'functionDefinitions', []);
         this.connectorDefinitions = _.get(args, 'connectorDefinitions', []);
+        this.structDefinitions = _.get(args, 'structDefinitions', []);
         this.typeDefinitions = _.get(args, 'typeDefinitions', []);
-        this.typeConvertorDefinitions = _.get(args, 'typeConvertorDefinitions', []);
+        this.typeMapperDefinitions = _.get(args, 'typeMapperDefinitions', []);
         ASTNode.call(this, "BallerinaASTRoot");
     };
 
@@ -312,9 +313,10 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
             || BallerinaASTFactory.isFunctionDefinition(node)
             || BallerinaASTFactory.isConnectorDefinition(node)
             || BallerinaASTFactory.isTypeDefinition(node)
-            || BallerinaASTFactory.isTypeConverterDefinition(node)
             || BallerinaASTFactory.isConnectorDefinition(node)
-            || BallerinaASTFactory.isStructDefinition(node);
+            || BallerinaASTFactory.isStructDefinition(node)
+            || BallerinaASTFactory.isTypeMapperDefinition(node)
+            || BallerinaASTFactory.isTypeStructDefinition(node);
     };
 
 
