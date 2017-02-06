@@ -75,7 +75,7 @@ function main (string[] args) {
     soapResponse = sample:SoapConnector.send(soapConnector, payload, "''", "https://login.salesforce.com/services/Soap/u/27.0", "1.1");
 
     soapXMLResponse = message:getXmlPayload(soapResponse);
-    sessionId = xml:getString(soapXMLResponse, "/ns:loginResponse/ns:result/ns:sessionId/text()", {"soapenv" :"http://schemas.xmlsoap.org/soap/envelope/", "ns":"urn:partner.soap.sforce.com"});
+    sessionId = xml:getString(soapXMLResponse, "/ns:loginResponse/ns:result/ns:sessionId/text()", {"ns":"urn:partner.soap.sforce.com"});
     system:println(sessionId);
 }
 
