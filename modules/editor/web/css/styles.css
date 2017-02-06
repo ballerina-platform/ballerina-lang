@@ -610,7 +610,7 @@ button.variable-list {
 .package-btn {
     position: absolute;
     right: 0;
-    top: 3px;
+    top: 6px;
     z-index: 30;
 }
 
@@ -1273,6 +1273,18 @@ button.variable-list {
 .search-results ul li:hover{
     background-color: #222;
     color: #ff7916;
+}
+
+.struct-title-text:hover {
+    cursor: text;
+}
+
+.type-mapper-title-text:hover {
+    cursor: text;
+}
+
+.type-struct-title-text:hover {
+    cursor: text;
 }
 
 .canvas-title:hover {

@@ -19,39 +19,39 @@ define(['log', 'lodash', 'event_channel'],
     function (log, _, EventChannel) {
 
         /**
-         * @class Function
+         * @class TypeMapper
          * @augments
-         * @param {Object} args - data to create the Function
-         * @param {string} args.name - name of function
-         * @param {string} args.id - id of function
-         * @param {string} args.title - title of function
+         * @param {Object} args - data to create the TypeMapper
+         * @param {string} args.name - name of TypeMapper
+         * @param {string} args.id - id of TypeMapper
+         * @param {string} args.title - title of TypeMapper
          * @constructor
          */
-        var Function = function (args) {
+        var TypeMapper = function (args) {
             EventChannel.call(this, args);
             this._name = _.get(args, 'name', '');
             this._id = _.get(args, 'id', '');
             this._title = _.get(args, 'title', '');
+            this._returnType = _.get(args, 'returnType', '');
+            this._sourceAndIdentifier = _.get(args, 'sourceAndIdentifier', '');
         };
 
-        Function.prototype = Object.create(EventChannel.prototype);
-        Function.prototype.constructor = Function;
+        TypeMapper.prototype = Object.create(EventChannel.prototype);
+        TypeMapper.prototype.constructor = TypeMapper;
 
         /**
          * sets the name
          * @param {string} name
          */
-        Function.prototype.setName = function (name) {
-            var oldName = this._name;
+        TypeMapper.prototype.setName = function (name) {
             this._name = name;
-            this.trigger("name-modified", name, oldName);
         };
 
         /**
          * returns the name
          * @returns {string}
          */
-        Function.prototype.getName = function () {
+        TypeMapper.prototype.getName = function () {
             return this._name;
         };
 
@@ -59,7 +59,7 @@ define(['log', 'lodash', 'event_channel'],
          * sets the id
          * @param {string} id
          */
-        Function.prototype.setId = function (id) {
+        TypeMapper.prototype.setId = function (id) {
             this._id = id;
         };
 
@@ -67,15 +67,47 @@ define(['log', 'lodash', 'event_channel'],
          * returns the id
          * @returns {string}
          */
-        Function.prototype.getId = function () {
+        TypeMapper.prototype.getId = function () {
             return this._id;
+        };
+
+        /**
+         * sets the returnType
+         * @param {string} returnType
+         */
+        TypeMapper.prototype.setReturnType = function (returnType) {
+            this._returnType = returnType;
+        };
+
+        /**
+         * returns the returnType
+         * @returns {string}
+         */
+        TypeMapper.prototype.getReturnType = function () {
+            return this._returnType;
+        };
+
+        /**
+         * sets the sourceAndIdentifier
+         * @param {string} sourceAndIdentifier
+         */
+        TypeMapper.prototype.setSourceAndIdentifier = function (sourceAndIdentifier) {
+            this._sourceAndIdentifier = sourceAndIdentifier;
+        };
+
+        /**
+         * returns the sourceAndIdentifier
+         * @returns {string}
+         */
+        TypeMapper.prototype.getSourceAndIdentifier = function () {
+            return this._sourceAndIdentifier;
         };
 
         /**
          * sets the title
          * @param {string} title
          */
-        Function.prototype.setTitle = function (title) {
+        TypeMapper.prototype.setTitle = function (title) {
             this._title = title;
         };
 
@@ -83,7 +115,7 @@ define(['log', 'lodash', 'event_channel'],
          * returns the title
          * @returns {string}
          */
-        Function.prototype.getTitle = function () {
+        TypeMapper.prototype.getTitle = function () {
             return this._title;
         };
 
@@ -91,11 +123,11 @@ define(['log', 'lodash', 'event_channel'],
          * sets values from a json object
          * @param {Object} jsonNode
          */
-        Function.prototype.initFromJson = function (jsonNode) {
+        TypeMapper.prototype.initFromJson = function (jsonNode) {
             this.setName(jsonNode.name);
             this.setId(jsonNode.name);
             this.setTitle(jsonNode.name);
         };
 
-        return Function;
+        return TypeMapper;
     });
