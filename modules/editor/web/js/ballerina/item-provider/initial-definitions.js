@@ -88,7 +88,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
         var createTypeMapperDefTool = {
             id: "typeMapper",
             name: "Type Mapper",
-            icon: "images/tool-icons/assign.svg",
+            icon: "images/tool-icons/type-converter.svg",
             title: "Type Mapper",
             nodeFactoryMethod: BallerinaASTFactory.createTypeMapperDefinition
         };
