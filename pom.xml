@@ -31,6 +31,7 @@
     <modules>
         <module>server-connector-framework</module>
         <module>http</module>
+        <module>jms</module>
         <module>features</module>
     </modules>
 
@@ -110,6 +111,11 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.wso2.carbon.transport</groupId>
+                <artifactId>org.wso2.carbon.transport.jms.jndi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.wso2.carbon.messaging</groupId>
                 <artifactId>org.wso2.carbon.messaging</artifactId>
                 <version>${carbon.messaging.version}</version>
@@ -154,6 +160,27 @@
                 <artifactId>testng</artifactId>
                 <version>${testng.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>findbugs</artifactId>
+                <version>${findbugs-annotations.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.jms</groupId>
+                <artifactId>javax.jms-api</artifactId>
+                <version>${javax.jms.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-broker</artifactId>
+                <version>${activemq.broker.vesion}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.transport</groupId>
+                <artifactId>org.wso2.carbon.transport.jms</artifactId>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -266,11 +293,13 @@
         <carbon.p2.plugin.version>2.0.1</carbon.p2.plugin.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <org.snakeyaml.package.import.version.range>[1.16.0, 2.0.0)</org.snakeyaml.package.import.version.range>
+        <javax.jms.import.version.range>[2.0.1, 3.0.0)</javax.jms.import.version.range>
 
         <!-- Package exports -->
         <netty.transport.package.export.version>${project.version}</netty.transport.package.export.version>
         <serverconnector.framework.package.export.version>${project.version}
         </serverconnector.framework.package.export.version>
+        <jms.transport.package.export.version>${project.version}</jms.transport.package.export.version>
 
         <!-- Following two properties should be removed once the versions are added the wso2 parent pom CARBON-15729 -->
         <maven.checkstyle.plugin.version>2.17</maven.checkstyle.plugin.version>
@@ -280,6 +309,10 @@
         <metrics.version>3.1.2</metrics.version>
 
         <testng.version>6.9.10</testng.version>
+        <activemq.broker.vesion>5.14.3</activemq.broker.vesion>
+
+        <javax.jms.version>2.0.1</javax.jms.version>
+        <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
     </properties>
 
 </project>
