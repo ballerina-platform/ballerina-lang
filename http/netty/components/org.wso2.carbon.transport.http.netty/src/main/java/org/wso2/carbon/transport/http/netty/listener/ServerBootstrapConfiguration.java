@@ -16,9 +16,9 @@
 package org.wso2.carbon.transport.http.netty.listener;
 
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.config.TransportProperty;
+import org.wso2.carbon.transport.http.netty.common.Util;
 
-import java.util.Set;
+import java.util.Map;
 
 /**
  * A class represents Server Bootstrap configurations.
@@ -27,45 +27,34 @@ public class ServerBootstrapConfiguration {
 
     private static ServerBootstrapConfiguration bootstrapConfig;
 
-    private boolean tcpNoDelay = true;
+    private boolean tcpNoDelay, keepAlive, socketReuse;
 
-    private int connectTimeOut = 15000;
+    private int connectTimeOut, receiveBufferSize, sendBufferSize, soBackLog, socketTimeOut;
 
-    private int reciveBufferSize = 1048576;
+    private ServerBootstrapConfiguration(Map<String, Object> properties) {
 
-    private int sendBufferSize = 1048576;
+        connectTimeOut = Util.getIntTransportProperty(
+                properties, Constants.SERVER_BOOTSTRAP_CONNECT_TIME_OUT, 15000);
 
-    private boolean keepAlive = true;
+        keepAlive = Util.getBooleanTransportProperty(
+                properties, Constants.SERVER_BOOTSTRAP_KEEPALIVE, true);
 
-    private boolean socketReuse = false;
+        receiveBufferSize = Util.getIntTransportProperty(
+                properties, Constants.SERVER_BOOTSTRAP_RECEIVE_BUFFER_SIZE, 1048576);
 
-    private int soBackLog = 100;
+        sendBufferSize = Util.getIntTransportProperty(
+                properties, Constants.SERVER_BOOTSTRAP_SEND_BUFFER_SIZE, 1048576);
 
-    private int socketTimeOut = 15;
+        tcpNoDelay = Util.getBooleanTransportProperty(
+                properties, Constants.SERVER_BOOTSTRAP_TCP_NO_DELY, true);
 
-    private ServerBootstrapConfiguration(Set<TransportProperty> properties) {
+        socketReuse = Util.getBooleanTransportProperty(
+                properties, Constants.SERVER_BOOTSTRAP_SO_REUSE, false);
 
-        if (properties != null) {
-            properties.forEach(parameter -> {
-                if (Constants.SERVER_BOOTSTRAP_CONNECT_TIME_OUT.equals(parameter.getName())) {
-                    connectTimeOut = (Integer) (parameter.getValue());
-                } else if (Constants.SERVER_BOOTSTRAP_KEEPALIVE.equals(parameter.getName())) {
-                    keepAlive = (Boolean) (parameter.getValue());
-                } else if (Constants.SERVER_BOOTSTRAP_RECEIVE_BUFFER_SIZE.equals(parameter.getName())) {
-                    reciveBufferSize = (Integer) (parameter.getValue());
-                } else if (Constants.SERVER_BOOTSTRAP_SEND_BUFFER_SIZE.equals(parameter.getName())) {
-                    sendBufferSize = (Integer) (parameter.getValue());
-                } else if (Constants.SERVER_BOOTSTRAP_TCP_NO_DELY.equals(parameter.getName())) {
-                    tcpNoDelay = (Boolean) (parameter.getValue());
-                } else if (Constants.SERVER_BOOTSTRAP_SO_REUSE.equals(parameter.getName())) {
-                    socketReuse = (Boolean) (parameter.getValue());
-                } else if (Constants.SERVER_BOOTSTRAP_SO_BACKLOG.equals(parameter.getName())) {
-                    soBackLog = (Integer) (parameter.getValue());
-                } else if (Constants.SERVER_BOOTSTRAP_SO_TIMEOUT.equals(parameter.getName())) {
-                    socketTimeOut = (Integer) (parameter.getValue());
-                }
-            });
-        }
+        soBackLog = Util.getIntTransportProperty(properties, Constants.SERVER_BOOTSTRAP_SO_BACKLOG, 100);
+
+        socketTimeOut = Util.getIntTransportProperty(properties, Constants.SERVER_BOOTSTRAP_SO_TIMEOUT, 15);
+
     }
 
     public boolean isTcpNoDelay() {
@@ -76,8 +65,8 @@ public class ServerBootstrapConfiguration {
         return connectTimeOut;
     }
 
-    public int getReciveBufferSize() {
-        return reciveBufferSize;
+    public int getReceiveBufferSize() {
+        return receiveBufferSize;
     }
 
     public int getSendBufferSize() {
@@ -109,7 +98,7 @@ public class ServerBootstrapConfiguration {
      *
      * @param properties
      */
-    public static void createBootStrapConfiguration(Set<TransportProperty> properties) {
+    public static void createBootStrapConfiguration(Map<String, Object> properties) {
         bootstrapConfig = new ServerBootstrapConfiguration(properties);
 
     }

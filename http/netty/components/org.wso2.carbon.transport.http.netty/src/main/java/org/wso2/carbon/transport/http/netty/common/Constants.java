@@ -28,19 +28,19 @@ public final class Constants {
     public static final String STATE_STOPPED = "STATE_STOPPED";
 
     // Client Bootstrap related
-    public static final String CLINET_BOOTSTRAP_TCP_NO_DELY = "client.bootstrap.nodelay";
+    public static final String CLIENT_BOOTSTRAP_TCP_NO_DELY = "client.bootstrap.nodelay";
 
-    public static final String CLINET_BOOTSTRAP_KEEPALIVE = "client.bootstrap.keepalive";
+    public static final String CLIENT_BOOTSTRAP_KEEPALIVE = "client.bootstrap.keepalive";
 
-    public static final String CLINET_BOOTSTRAP_SEND_BUFFER_SIZE = "client.bootstrap.sendbuffersize";
+    public static final String CLIENT_BOOTSTRAP_SEND_BUFFER_SIZE = "client.bootstrap.sendbuffersize";
 
-    public static final String CLINET_BOOTSTRAP_RECEIVE_BUFFER_SIZE = "client.bootstrap.recievebuffersize";
+    public static final String CLIENT_BOOTSTRAP_RECEIVE_BUFFER_SIZE = "client.bootstrap.recievebuffersize";
 
-    public static final String CLINET_BOOTSTRAP_CONNECT_TIME_OUT = "client.bootstrap.connect.timeout";
+    public static final String CLIENT_BOOTSTRAP_CONNECT_TIME_OUT = "client.bootstrap.connect.timeout";
 
-    public static final String CLINET_BOOTSTRAP_SO_REUSE = "client.bootstrap.socket.reuse";
+    public static final String CLIENT_BOOTSTRAP_SO_REUSE = "client.bootstrap.socket.reuse";
 
-    public static final String CLINET_BOOTSTRAP_SO_TIMEOUT = "client.bootstrap.socket.timeout";
+    public static final String CLIENT_BOOTSTRAP_SO_TIMEOUT = "client.bootstrap.socket.timeout";
 
     //Server side SSL Parameters
     public static final String CLIENT_SUPPORT_CIPHERS = "client.ssl.ciphers";

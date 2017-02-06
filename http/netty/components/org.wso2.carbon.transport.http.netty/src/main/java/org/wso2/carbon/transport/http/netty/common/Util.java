@@ -213,4 +213,84 @@ public class Util {
         }
         return sslConfig;
     }
+
+    public static int getIntTransportProperty(Map<String, Object> transportProperties, String key, int defaultVal) {
+
+        if (transportProperties == null) {
+            return defaultVal;
+        }
+
+        Object propertyVal = transportProperties.get(key);
+
+        if (propertyVal == null) {
+            return defaultVal;
+        }
+
+        if (!(propertyVal instanceof Integer)) {
+            throw new IllegalArgumentException("Property : " + key + " must be an integer");
+        }
+
+        return (Integer) propertyVal;
+    }
+
+    public static String getStringTransportProperty(
+            Map<String, Object> transportProperties, String key, String defaultVal) {
+
+        if (transportProperties == null) {
+            return defaultVal;
+        }
+
+        Object propertyVal = transportProperties.get(key);
+
+        if (propertyVal == null) {
+            return defaultVal;
+        }
+
+        if (!(propertyVal instanceof String)) {
+            throw new IllegalArgumentException("Property : " + key + " must be a string");
+        }
+
+        return (String) propertyVal;
+    }
+
+    public static Boolean getBooleanTransportProperty(
+            Map<String, Object> transportProperties, String key, boolean defaultVal) {
+
+        if (transportProperties == null) {
+            return defaultVal;
+        }
+
+        Object propertyVal = transportProperties.get(key);
+
+        if (propertyVal == null) {
+            return defaultVal;
+        }
+
+        if (!(propertyVal instanceof Boolean)) {
+            throw new IllegalArgumentException("Property : " + key + " must be a boolean");
+        }
+
+        return (Boolean) propertyVal;
+    }
+
+    public static Long getLongTransportProperty(
+            Map<String, Object> transportProperties, String key, long defaultVal) {
+
+        if (transportProperties == null) {
+            return defaultVal;
+        }
+
+        Object propertyVal = transportProperties.get(key);
+
+        if (propertyVal == null) {
+            return defaultVal;
+        }
+
+        if (!(propertyVal instanceof Long)) {
+            throw new IllegalArgumentException("Property : " + key + " must be a long");
+        }
+
+        return (Long) propertyVal;
+    }
+
 }
