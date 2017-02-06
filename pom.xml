@@ -29,8 +29,8 @@
     <name>WSO2 Carbon Transport Parent</name>
 
     <modules>
-        <module>http/netty</module>
         <module>server-connector-framework</module>
+        <module>http/netty</module>
     </modules>
 
     <scm>

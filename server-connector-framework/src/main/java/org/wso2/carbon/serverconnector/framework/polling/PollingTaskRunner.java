@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.carbon.transport.serverconnector.framework.polling;
+package org.wso2.carbon.serverconnector.framework.polling;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
