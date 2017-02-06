@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
   ~ WSO2 Inc. licenses this file to you under the Apache License,
   ~ Version 2.0 (the "License"); you may not use this file except
@@ -18,24 +18,21 @@
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>org.wso2.carbon.transport.http.netty.parent</artifactId>
+        <artifactId>org.wso2.carbon.transport.feature.parent</artifactId>
         <groupId>org.wso2.carbon.transport</groupId>
         <version>4.0.0-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>org.wso2.carbon.transport.http.netty.statistics.feature</artifactId>
-    <name>WSO2 Carbon Transport HTTP Netty Statistics Feature</name>
+    <artifactId>org.wso2.carbon.serverconnector.framework.feature</artifactId>
+    <name>WSO2 Carbon Transport Server Connector Framework Feature</name>
     <packaging>carbon-feature</packaging>
 
     <dependencies>
-
         <dependency>
             <groupId>org.wso2.carbon.transport</groupId>
-            <artifactId>org.wso2.carbon.transport.http.netty.statistics</artifactId>
+            <artifactId>org.wso2.carbon.serverconnector.framework</artifactId>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -62,20 +59,10 @@
                             </adviceFileContents>
                             <bundles>
                                 <bundle>
-                                    <symbolicName>org.wso2.carbon.transport.http.netty.statistics</symbolicName>
+                                    <symbolicName>org.wso2.carbon.serverconnector.framework</symbolicName>
                                     <version>${project.version}</version>
                                 </bundle>
                             </bundles>
-                            <importFeatures>
-                                <feature>
-                                    <id>org.wso2.carbon.metrics.core.feature</id>
-                                    <version>${carbon.metrics.version}</version>
-                                </feature>
-                                <feature>
-                                    <id>org.wso2.carbon.transport.http.netty.feature</id>
-                                    <version>${project.version}</version>
-                                </feature>
-                            </importFeatures>
                         </configuration>
                     </execution>
                 </executions>

@@ -30,7 +30,8 @@
 
     <modules>
         <module>server-connector-framework</module>
-        <module>http/netty</module>
+        <module>http</module>
+        <module>features</module>
     </modules>
 
     <scm>
@@ -101,6 +102,11 @@
             <dependency>
                 <groupId>org.wso2.carbon.transport</groupId>
                 <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.transport</groupId>
+                <artifactId>org.wso2.carbon.serverconnector.framework</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
