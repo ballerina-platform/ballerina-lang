@@ -140,7 +140,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
         var createReplyStatementTool = {
             id: "Reply",
             name: "Reply",
-            icon: "images/tool-icons/left-arrow.svg",
+            icon: "images/tool-icons/reply.svg",
             title: "Reply",
             nodeFactoryMethod: BallerinaASTFactory.createReplyStatement
         };
