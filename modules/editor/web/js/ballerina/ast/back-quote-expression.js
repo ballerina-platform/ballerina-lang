@@ -34,8 +34,8 @@ define(['lodash', './expression'], function (_, Expression) {
      * Setter for BackQuoteEnclosedString
      * @param backQuoteEnclosedString
      */
-    BackQuoteExpression.prototype.setBackQuoteEnclosedString = function (backQuoteEnclosedString) {
-        this._backQuoteEnclosedString = backQuoteEnclosedString;
+    BackQuoteExpression.prototype.setBackQuoteEnclosedString = function (backQuoteEnclosedString, options) {
+        this.setAttribute('_backQuoteEnclosedString', backQuoteEnclosedString, options);
     };
 
     /**
@@ -52,8 +52,8 @@ define(['lodash', './expression'], function (_, Expression) {
      * @param {string} [jsonNode.back_quote_enclosed_string] - back quote enclosed string
      */
     BackQuoteExpression.prototype.initFromJson = function (jsonNode) {
-        this.setBackQuoteEnclosedString(jsonNode.back_quote_enclosed_string);
-        this.setExpression(this.generateExpression());
+        this.setBackQuoteEnclosedString(jsonNode.back_quote_enclosed_string, {doSilently: true});
+        this.setExpression(this.generateExpression(), {doSilently: true});
     };
 
     BackQuoteExpression.prototype.generateExpression = function () {

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+define(['lodash', './node'], function(_, ASTNode){
 
     /**
      * Defines a connector declaration AST node.
@@ -29,7 +29,7 @@ define(['lodash', './node'], function (_, ASTNode) {
      * @constructor
      * @augments ASTNode
      */
-    var ConnectorDeclaration = function (options) {
+    var ConnectorDeclaration = function(options) {
         ASTNode.call(this, "ConnectorDeclaration");
         this._connectorName = _.get(options, "connectorName", "HTTPConnector");
         this._connectorVariable = _.get(options, "connectorVariable", "endpoint1");
@@ -54,13 +54,12 @@ define(['lodash', './node'], function (_, ASTNode) {
         this.setAttribute('_connectorVariable', connectorVariable, options);
     };
 
-    ConnectorDeclaration.prototype.setConnectorType = function (type, options) {
-        this.setAttribute('_connectorType', type, options);
+    ConnectorDeclaration.prototype.setConnectorType = function (type) {
+        this.setAttribute('_connectorType', type);
     };
-    ConnectorDeclaration.prototype.setConnectorPkgName = function (pkgName, options) {
-        this.setAttribute('_connectorPkgName', pkgName, options);
+    ConnectorDeclaration.prototype.setConnectorPkgName = function (pkgName) {
+        this.setAttribute('_connectorPkgName', pkgName);
     };
-
     /**
      * Set parameters for the connector
      *
@@ -95,9 +94,7 @@ define(['lodash', './node'], function (_, ASTNode) {
                 this.setAttribute("_connectorVariable", leftSide.includes(":") ?
                     leftSide.split(":", 2)[1].split(" ", 2)[1]
                     : (leftSide.indexOf(" ") !== (leftSide.length - 1) ? leftSide.split(" ", 1)[1] : ""));
-
-            }
-
+        }
             if(rightSide) {
                 rightSide = rightSide.trim();
                 this.setAttribute("_params", rightSide.includes("(") ?
@@ -106,7 +103,6 @@ define(['lodash', './node'], function (_, ASTNode) {
             }
         }
     };
-
     ConnectorDeclaration.prototype.setTimeout = function (timeout, options) {
         this.setAttribute("_timeout", timeout, options);
     };
@@ -134,11 +130,10 @@ define(['lodash', './node'], function (_, ASTNode) {
     ConnectorDeclaration.prototype.getConnectorType = function () {
         return this._connectorType;
     };
-
+    
     ConnectorDeclaration.prototype.getConnectorPkgName = function () {
         return this._connectorPkgName;
     };
-
     /**
      * This will return connector expression
      *
@@ -148,7 +143,6 @@ define(['lodash', './node'], function (_, ASTNode) {
         var self = this;
         return generateExpression(self);
     };
-
     ConnectorDeclaration.prototype.getTimeout = function () {
         return this._timeout;
     };

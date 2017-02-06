@@ -356,7 +356,6 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', '.
             _.set(connectorOpts, 'centerPoint', center);
             connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
-            connectorDeclarationView.render();
             
             // Creating property pane
             var editableProperty = {
@@ -374,6 +373,21 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', '.
             });
 
             connectorDeclarationView.setParent(this);
+
+            var siblingConnectors = connectorDeclarationView._parent._model.children;
+            var endpointIndex = 1;
+
+            if(_.filter(siblingConnectors, { '_connectorVariable': "endpoint1" }).length !== 1){
+                do {
+                    endpointIndex += 1;
+                } while (_.filter(siblingConnectors, { '_connectorVariable': ("endpoint" + endpointIndex) }).length > 0);
+            }
+
+            connectorDeclarationView._model.setConnectorVariable("endpoint" + endpointIndex);
+            connectorDeclarationView._viewOptions.title = "endpoint" + endpointIndex;
+            endpointIndex = 1;
+
+            connectorDeclarationView.render();
 
             if (this._connectorViewList.length === 0) {
                 // Always the first connector is listening to the lifeline margin
