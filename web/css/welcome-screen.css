@@ -66,8 +66,7 @@
 }
 
 .preview-img {
-    width : 180px;
-    height : 145px;
+    width : 100%;
 }
 
 .preview-name-div {
@@ -118,8 +117,8 @@
 }
 
 .welcome-icon {
-    margin-right: 50px;
     margin-top: -20px;
+    width: 250px
 }
 
 .new-welcome-button {
@@ -172,8 +171,9 @@
 
 .top-heading{
     padding-top: 30px;
-    width: 35%;
+    width: 100%;
     margin: 0 auto;
+    text-align: center;
 }
 
 .new-btn-wrap{
@@ -209,3 +209,58 @@
     margin-top: 20px;
 }
 /** Initial Welcome Screen related styles | End -> **/
+
+/** Welcome screen responsive related styles **/
+.btn-wrap {
+    text-align: center;
+}
+
+.btn-wrap button {
+    display: inline-block;
+    margin: 0 5px
+}
+
+.btn-block + .btn-block {
+    margin-top: 0;
+}
+
+@media (max-width: 1040px) {
+    .initial-welcome-container {
+        position: static;
+        top: initial;
+        width: 100%;
+    }
+
+    .top-heading {
+        width: 100%;
+        text-align: center;
+    }
+
+    .welcome-icon {
+        margin-right: initial;
+        max-width: 268px;
+    }
+
+    .initial-welcome-container {
+        border: 0;
+    }
+
+    .body-welcome-container {
+        width:100%;
+    }
+
+    .welcome-body-title {
+        position: static;
+        display: block;
+        padding: 20px
+    }
+
+    .welcome-samples {
+        position: static;
+        width: 100%;
+    }
+
+    .preview-div {
+        height: auto;
+    }
+}
