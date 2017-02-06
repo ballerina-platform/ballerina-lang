@@ -33,6 +33,7 @@ import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
+import org.wso2.carbon.messaging.exceptions.ErrorHandlerException;
 
 import java.util.Optional;
 
@@ -117,9 +118,13 @@ public class ServerConnectorMessageHandler {
         Optional<ServerConnectorErrorHandler> optionalErrorHandler =
                 BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
 
-        optionalErrorHandler
-                .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
-                .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext), cMsg, callback);
+        try {
+            optionalErrorHandler
+                    .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
+                    .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext), cMsg, callback);
+        } catch (ErrorHandlerException e) {
+            throw new BallerinaException("Cannot handle error for the protocol : '" + protocol + "'", e);
+        }
     }
 
 }
