@@ -161,6 +161,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 BDataTable dataframe = new BDataTable(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
                         getColumnDefinitions(rs));
                 context.getControlStack().setReturnValue(0, dataframe);
+            } else {
+                closeResources(null, stmt, conn);
             }
         } catch (SQLException e) {
             closeResources(rs, stmt, conn);

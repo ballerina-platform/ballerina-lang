@@ -11,7 +11,7 @@ service SQLConnectorTestService {
     @GET
     @Path ("/createTable")
         resource passthrough (message m) {
-        sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/TEST_SQL_CONNECTOR",
+        sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
             "username":"SA", "password":"", "maximumPoolSize":1});
 
         int returnValue;
@@ -29,7 +29,7 @@ service SQLConnectorTestService {
     @GET
     @Path ("/insertData")
         resource passthrough (message m) {
-        sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/TEST_SQL_CONNECTOR",
+        sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
             "username":"SA", "password":"", "maximumPoolSize":1});
 
         int insertCount;
@@ -47,7 +47,7 @@ service SQLConnectorTestService {
     @GET
     @Path ("/rowUpdate")
         resource passthrough (message m) {
-        sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/TEST_SQL_CONNECTOR",
+        sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
             "username":"SA", "password":"", "maximumPoolSize":1});
 
         int updateCount;
@@ -64,7 +64,7 @@ service SQLConnectorTestService {
     @GET
     @Path ("/getGeneratedKeysByColumn")
         resource passthrough (message m) {
-        sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/TEST_SQL_CONNECTOR",
+        sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
             "username":"SA", "password":"", "maximumPoolSize":1});
 
         int insertCount;
@@ -84,7 +84,7 @@ service SQLConnectorTestService {
     @GET
     @Path ("/generatedKeys")
         resource passthrough (message m) {
-        sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/TEST_SQL_CONNECTOR",
+        sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
             "username":"SA", "password":"", "maximumPoolSize":1});
 
         int insertCount;
@@ -106,7 +106,7 @@ service SQLConnectorTestService {
     @GET
     @Path ("/dataSelect")
         resource passthrough (message m) {
-        sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/TEST_SQL_CONNECTOR",
+        sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
             "username":"SA", "password":"", "maximumPoolSize":1});
 
         datatable df;
@@ -124,11 +124,32 @@ service SQLConnectorTestService {
         }
 
     @GET
+    @Path ("/testCall")
+         resource passthrough (message m) {
+         sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+             "username":"SA", "password":"", "maximumPoolSize":1});
+
+         datatable df;
+         message response;
+         string firstName;
+
+         sql:Connector.call(testDB, "{call InsertPersonData(100,'James')}");
+         df = sql:Connector.select(testDB, "SELECT  FirstName from Customers where registrationID = 100");
+         while (datatable:next(df)) {
+             firstName = datatable:getString(df, 1);
+         }
+
+         response = new message;
+         message:setStringPayload(response,firstName);
+         reply response;
+         }
+
+    @GET
     @Path ("/connectorWithDataSource")
         resource passthrough (message m) {
         sql:Connector testDB = new sql:Connector({"dataSourceClassName"  :"org.hsqldb.jdbc.JDBCDataSource",
             "dataSource.user":"SA", "dataSource.password":"", "dataSource.loginTimeout":0,
-            "dataSource.url":"jdbc:hsqldb:file:./target/TEST_SQL_CONNECTOR"});
+            "dataSource.url":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR"});
 
         datatable df;
         message response;
@@ -147,13 +168,14 @@ service SQLConnectorTestService {
     @GET
     @Path ("/poolPropTest")
         resource passthrough (message m) {
-        sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/TEST_SQL_CONNECTOR",
+        sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
                     "driverClassName":"org.hsqldb.jdbcDriver", "username":"SA", "password":"", "maximumPoolSize":1,
                     "idleTimeout":600000,"connectionTimeout":30000,"autoCommit":"true","maxLifetime":1800000,
                     "minimumIdle":1,"poolName":"testHSQLPool","initializationFailTimeout":1,
                     "isolateInternalQueries":"false","allowPoolSuspension":"false","readOnly":"false",
                     "registerMbeans":"false","validationTimeout":5000,"leakDetectionThreshold":0,
                     "connectionInitSql":"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS",
+                    "transactionIsolation":"2","catalog":"PUBLIC",
                     "connectionTestQuery":"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS"});
 
         datatable df;
@@ -173,7 +195,7 @@ service SQLConnectorTestService {
     @GET
     @Path ("/selectExceptionTest")
         resource passthrough (message m) {
-        sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/TEST_SQL_CONNECTOR",
+        sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
             "username":"SA", "password":"", "maximumPoolSize":1});
 
         sql:Connector.select(testDB, "SELECT  FirstName from StudentData where registrationID = 1");
@@ -182,7 +204,7 @@ service SQLConnectorTestService {
     @GET
     @Path ("/UpdateExceptionTest")
         resource passthrough (message m) {
-        sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/TEST_SQL_CONNECTOR",
+        sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
             "username":"SA", "password":"", "maximumPoolSize":1});
 
         sql:Connector.update(testDB, "Update StudentData set country = 'UK' where registrationID = 1");
@@ -191,7 +213,7 @@ service SQLConnectorTestService {
     @GET
     @Path ("/keyUpdateExceptionTest")
         resource passthrough (message m) {
-        sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/TEST_SQL_CONNECTOR",
+        sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
             "username":"SA", "password":"", "maximumPoolSize":1});
 
         sql:Connector.updateWithGeneratedKeys(testDB,
