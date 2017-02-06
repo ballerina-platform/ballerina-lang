@@ -39,6 +39,8 @@ import java.net.URL;
  */
 public class DeploymentTest {
 
+    Application application;
+
     @BeforeClass
     public void setup() {
         SymScope symScope = GlobalScopeHolder.getInstance().getScope();
