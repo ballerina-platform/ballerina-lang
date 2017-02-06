@@ -258,9 +258,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterStructDefinition(BallerinaParser.StructDefinitionContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.startStructDef();
+        if (ctx.exception != null) {
+            return;
         }
+
+        modelBuilder.startStructDef(getCurrentLocation(ctx));
     }
 
     @Override
@@ -269,13 +271,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        boolean isPublic = false;
-        // TODO: get the child in the (anotation.length) instead of 0, once the annotation support is added.
-        String tokenStr = ctx.getChild(0).getText();
-        if (PUBLIC.equals(tokenStr)) {
-            isPublic = true;
-        }
-        modelBuilder.addStructDef(getCurrentLocation(ctx), ctx.Identifier().getText(), isPublic);
+        modelBuilder.addStructDef(getCurrentLocation(ctx), ctx.Identifier().getText());
     }
 
     @Override
