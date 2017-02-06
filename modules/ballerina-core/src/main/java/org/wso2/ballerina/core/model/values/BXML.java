@@ -112,4 +112,12 @@ public final class BXML extends BallerinaMessageDataSource implements BRefType<O
 
         return "";
     }
+
+    @Override
+    public String getMessageAsString() {
+        if (this.value != null) {
+            return this.value.toString();
+        }
+        return "";
+    }
 }

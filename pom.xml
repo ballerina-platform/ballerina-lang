@@ -395,8 +395,8 @@
         <carbon.transport.version>3.0.4</carbon.transport.version>
         <carbon.transport.package.import.version.range>[3.0.0, 3.1.0)</carbon.transport.package.import.version.range>
 
-        <carbon.messaging.version>1.0.11</carbon.messaging.version>
-        <carbon.messaging.package.import.version.range>[0.0.0, 2.0.0)</carbon.messaging.package.import.version.range>
+        <carbon.messaging.version>2.0.0</carbon.messaging.version>
+        <carbon.messaging.package.import.version.range>[2.0.0, 3.0.0)</carbon.messaging.package.import.version.range>
 
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.deployment.export.version>5.0.0</carbon.deployment.export.version>
