@@ -98,6 +98,15 @@ structDefinitionBody
     ;
 
 typeConvertorDefinition
+    :   nativeTypeConvertor
+    |   typeConvertor
+    ;
+
+nativeTypeConvertor
+    :   'native' 'typeconvertor' Identifier '(' typeConvertorInput ')' '('typeConvertorType')' ';'
+    ;
+
+typeConvertor
     :   'typeconvertor' Identifier '(' typeConvertorInput ')' '('typeConvertorType')' typeConvertorBody
     ;
 
