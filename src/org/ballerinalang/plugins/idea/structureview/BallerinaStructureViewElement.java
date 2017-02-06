@@ -107,6 +107,12 @@ public class BallerinaStructureViewElement implements StructureViewTreeElement, 
                 treeElements.add(new BallerinaStructureViewElement(el));
             }
 
+            Collection<? extends PsiElement> nativeFunctions = XPath.findAll(BallerinaLanguage.INSTANCE, element,
+                    "/compilationUnit/nativeFunctionDefinition/Identifier");
+            for (PsiElement el : nativeFunctions) {
+                treeElements.add(new BallerinaStructureViewElement(el));
+            }
+
             Collection<? extends PsiElement> connectors = XPath.findAll(BallerinaLanguage.INSTANCE, element,
                     "/compilationUnit/connectorDefinition/Identifier");
             for (PsiElement el : connectors) {
