@@ -32,7 +32,6 @@ define(['require', 'lodash', 'jquery', 'log', './../ast/package-definition',
             this._paneAppendElement = _.get(args, "paneAppendElement");
             this._viewOfModel = _.get(args, "view");
             this._container = _.get(args, "container");
-            this._packageDefinitionsButton = undefined;
         };
 
         PackageDefinitionPaneView.prototype.constructor = PackageDefinitionPaneView;
