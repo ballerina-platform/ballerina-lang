@@ -179,6 +179,7 @@ public class DataTableTest {
             connection = DriverManager.getConnection("jdbc:h2:file:./target/TEST_DATA_TABLE_DB2", "root", "root");
             String sql = XMLUtils.readFileToString("datafiles/DataTableDataFile.sql");
             String[] sqlQuery = sql.split(";");
+
             st = connection.createStatement();
             for (String query : sqlQuery) {
                 st.executeUpdate(query.trim());

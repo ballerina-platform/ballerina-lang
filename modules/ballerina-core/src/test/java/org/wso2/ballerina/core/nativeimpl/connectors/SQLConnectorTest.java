@@ -34,6 +34,7 @@ import org.wso2.ballerina.core.utils.XMLUtils;
 import org.wso2.ballerina.lang.util.Services;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -108,7 +109,7 @@ public class SQLConnectorTest {
         Assert.assertTrue(generatedKey > 0);
     }
 
-    //@Test(description = "Test Insert Data with Generated Keys and Key Columns")
+    @Test(description = "Test Insert Data with Generated Keys and Key Columns")
     public void testInsertWithKeyColumns() {
 
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/generatedKeys", "GET");
@@ -135,7 +136,7 @@ public class SQLConnectorTest {
         Assert.assertEquals(stringDataSource.getValue(), "Peter");
     }
 
-    //@Test(description = "Test Connector With Data Source")
+    @Test(description = "Test Connector With Data Source")
     public void testConnectorWithDataSource() {
 
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/connectorWithDataSource", "GET");
@@ -148,7 +149,7 @@ public class SQLConnectorTest {
         Assert.assertEquals(stringDataSource.getValue(), "Peter");
     }
 
-    //@Test(description = "Test Connector With Hikari Pool Properties")
+    @Test(description = "Test Connector With Hikari Pool Properties")
     public void testPoolProperties() {
 
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/poolPropTest", "GET");
@@ -161,22 +162,35 @@ public class SQLConnectorTest {
         Assert.assertEquals(stringDataSource.getValue(), "Peter");
     }
 
+    @Test(description = "Test Stored Procedure")
+    public void testCall() {
+
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/testCall", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+
+        Assert.assertEquals(stringDataSource.getValue(), "James");
+    }
+
     @Test(description = "Test for Select Errors",
-          expectedExceptions = {BallerinaException.class})
+          expectedExceptions = { BallerinaException.class })
     public void testSelectException() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/selectExceptionTest", "GET");
         Services.invoke(cMsg);
     }
 
     @Test(description = "Test for update Errors",
-          expectedExceptions = {BallerinaException.class})
+          expectedExceptions = { BallerinaException.class })
     public void testUpdateException() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/UpdateExceptionTest", "GET");
         Services.invoke(cMsg);
     }
 
     @Test(description = "Test for update Errors with keys",
-          expectedExceptions = {BallerinaException.class})
+          expectedExceptions = { BallerinaException.class })
     public void testUpdateKeyException() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/keyUpdateExceptionTest", "GET");
         Services.invoke(cMsg);
@@ -187,15 +201,15 @@ public class SQLConnectorTest {
         Statement st = null;
         try {
             Class.forName("org.hsqldb.jdbcDriver");
-            connection = DriverManager.getConnection("jdbc:hsqldb:file:./target/TEST_SQL_CONNECTOR", "SA", "");
+            connection = DriverManager.getConnection("jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR", "SA", "");
             String sql = XMLUtils.readFileToString("datafiles/SQLConnetorDataFile.sql");
-            String[] sqlQuery = sql.split(";");
+            String[] sqlQuery = sql.trim().split("/");
             st = connection.createStatement();
             for (String query : sqlQuery) {
                 st.executeUpdate(query.trim());
             }
         } catch (ClassNotFoundException | SQLException e) {
-            //Do nothing
+            logger.info("Error");
         } finally {
             try {
                 if (st != null) {
@@ -212,6 +226,18 @@ public class SQLConnectorTest {
 
     @AfterSuite
     public void cleanup() {
-        //DeleteDbFiles.execute("./target/", "TEST_SQL_CONNECTOR", true);
+        deleteDirectory(new File("./target/tempdb"));
+    }
+
+    private boolean deleteDirectory(File directory) {
+        if (directory.isDirectory()) {
+            for (File f : directory.listFiles()) {
+                boolean success = deleteDirectory(f);
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+        return directory.delete();
     }
 }
