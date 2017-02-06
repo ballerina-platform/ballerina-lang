@@ -42,8 +42,8 @@ define(['lodash', './statement'], function(_, Statement){
      * Set Right Operand Expression String
      * @param {string} rightOperandExpStr - The expression
      */
-    RightOperandExpression.prototype.setRightOperandExpressionString = function (rightOperandExpStr) {
-        this.setAttribute('_right_operand_expression_string', rightOperandExpStr);
+    RightOperandExpression.prototype.setRightOperandExpressionString = function (rightOperandExpStr, options) {
+        this.setAttribute('_right_operand_expression_string', rightOperandExpStr, options);
     };
 
     /**
@@ -64,7 +64,7 @@ define(['lodash', './statement'], function(_, Statement){
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
-            self.setRightOperandExpressionString(child.getExpression());
+            self.setRightOperandExpressionString(child.getExpression(), {doSilently: true});
         });
     };
 

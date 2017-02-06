@@ -42,8 +42,8 @@ define(['lodash', './statement'], function(_, Statement){
      * Set Variable Reference Name
      * @param {string} variableRefName
      */
-    LeftOperandExpression.prototype.setLeftOperandExpressionString = function (leftOperandExpStr) {
-        this.setAttribute('_left_operand_expression_string', leftOperandExpStr);
+    LeftOperandExpression.prototype.setLeftOperandExpressionString = function (leftOperandExpStr, options) {
+        this.setAttribute('_left_operand_expression_string', leftOperandExpStr, options);
     };
 
     /**
@@ -67,7 +67,7 @@ define(['lodash', './statement'], function(_, Statement){
                 expression += " , ";
             }
         };
-        this.setLeftOperandExpressionString(expression);
+        this.setLeftOperandExpressionString(expression, {doSilently: true});
     };
 
     return LeftOperandExpression;

@@ -32,8 +32,8 @@ define(['lodash', './expression'], function (_, Expression) {
     InstanceCreationExpression.prototype = Object.create(Expression.prototype);
     InstanceCreationExpression.prototype.constructor = InstanceCreationExpression;
 
-    InstanceCreationExpression.prototype.setTypeName = function (typeName) {
-        this.setAttribute('_typeName', typeName);
+    InstanceCreationExpression.prototype.setTypeName = function (typeName, options) {
+        this.setAttribute('_typeName', typeName, options);
     };
 
     InstanceCreationExpression.prototype.getTypeName = function () {
@@ -43,20 +43,11 @@ define(['lodash', './expression'], function (_, Expression) {
     /**
      * initialize BackQuoteExpression from json object
      * @param {Object} jsonNode to initialize from
-     * @param {string} [jsonNode.instance_type] - Symbol name of the BackQuoteExpression
-     */
-    InstanceCreationExpression.prototype.initFromJson = function (jsonNode) {
-        this.setTypeName(jsonNode.instance_type);
-    };
-
-    /**
-     * initialize BackQuoteExpression from json object
-     * @param {Object} jsonNode to initialize from
      * @param {string} [jsonNode.instance_type] - instance type
      */
     InstanceCreationExpression.prototype.initFromJson = function (jsonNode) {
-        this.setTypeName(jsonNode.instance_type);
-        this.setExpression(this.generateExpression());
+        this.setTypeName(jsonNode.instance_type, {doSilently: true});
+        this.setExpression(this.generateExpression(), {doSilently: true});
     };
 
     InstanceCreationExpression.prototype.generateExpression = function () {

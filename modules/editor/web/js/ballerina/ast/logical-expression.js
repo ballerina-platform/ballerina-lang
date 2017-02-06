@@ -30,8 +30,8 @@ define(['lodash', './statement'], function (_, Statement) {
     LogicalExpression.prototype = Object.create(Statement.prototype);
     LogicalExpression.prototype.constructor = LogicalExpression;
 
-    LogicalExpression.prototype.setExpression = function (expression) {
-        this.setAttribute('_expression', expression);
+    LogicalExpression.prototype.setExpression = function (expression, options) {
+        this.setAttribute('_expression', expression, options);
     };
 
     LogicalExpression.prototype.getExpression = function () {
