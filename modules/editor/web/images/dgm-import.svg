@@ -1,12 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 21.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<!--
+ ~   Copyright (c) WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ ~
+ ~   Licensed under the Apache License, Version 2.0 (the "License");
+ ~   you may not use this file except in compliance with the License.
+ ~   You may obtain a copy of the License at
+ ~
+ ~        http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~   Unless required by applicable law or agreed to in writing, software
+ ~   distributed under the License is distributed on an "AS IS" BASIS,
+ ~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~   See the License for the specific language governing permissions and
+ ~   limitations under the License.
+-->
+
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
-<style type="text/css">
-	.st0{fill:#FFFFFF;}
-</style>
 <ellipse cx="7" cy="7" rx="6.6136446" ry="7"/>
-<path class="st0" d="M2.2598617,4.8208876C2.3122249,4.7737412,2.360482,4.7320604,2.4182928,4.689086
+<path d="M2.2598617,4.8208876C2.3122249,4.7737412,2.360482,4.7320604,2.4182928,4.689086
 	c0.0632586-0.0387187,0.1168818-0.0760603,0.1855476-0.1104813c0.0495579-0.0317926,0.1003356-0.0537806,0.1552193-0.0813589
 	c0.2443748-0.108562,0.49932-0.1734824,0.7593062-0.1991C3.6771221,4.281373,3.8371387,4.2744889,3.9943094,4.2830005
 	C4.2581983,4.286839,4.5204611,4.3160448,4.7811384,4.370409C4.9709144,4.4044547,5.1632109,4.4581933,5.3417659,4.518858
