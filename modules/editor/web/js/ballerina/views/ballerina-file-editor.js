@@ -461,8 +461,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
          * @private
          */
         BallerinaFileEditor.prototype._createPackagePropertyPane = function (canvasContainer) {
-            var currentASTRoot = this._model;
-
+            var self = this;
             var topRightControlsContainer = $(canvasContainer).siblings(".top-right-controls-container");
             var propertyPane = topRightControlsContainer.children(".top-right-controls-container-editor-pane");
 
@@ -497,6 +496,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 $(addImportButton).click(function () {
                     // TODO : Validate new import package name.
                     if (importPackageTextBox.val() != "") {
+                        var currentASTRoot = self.getModel();
                         log.debug("Adding new import");
 
                         // Creating new import.
@@ -525,7 +525,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 var importsWrapper = propertyPane.find(".imports-wrapper");
 
                 // Adding current imports to view.
-                addImportsToView(currentASTRoot, importsWrapper);
+                addImportsToView(self.getModel(), importsWrapper);
 
                 // When clicked outside of the property pane.
                 $(window).click(function () {
