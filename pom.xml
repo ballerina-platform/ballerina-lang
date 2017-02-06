@@ -277,9 +277,9 @@
                 <version>${com.zaxxer.hikaricp.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-                <version>${h2.version}</version>
+                <groupId>org.hsqldb</groupId>
+                <artifactId>hsqldb</artifactId>
+                <version>${hyperSQL.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
@@ -461,7 +461,7 @@
         <!--data services dependencies -->
         <com.zaxxer.hikaricp.version>2.5.1</com.zaxxer.hikaricp.version>
         <com.zaxxer.hikari.import.version.range>[2.5.0,2.6.0)</com.zaxxer.hikari.import.version.range>
-        <h2.version>1.4.193</h2.version>
+        <hyperSQL.version>2.3.4</hyperSQL.version>
     </properties>
 
     <modules>
