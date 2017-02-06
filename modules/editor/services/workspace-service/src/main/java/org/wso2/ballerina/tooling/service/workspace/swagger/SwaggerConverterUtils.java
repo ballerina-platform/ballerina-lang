@@ -96,7 +96,7 @@ public class SwaggerConverterUtils {
 
             }*/
         }
-        generator.generate();
+        //generator.generate();
         List<Annotation> serviceAnnotationArrayList = new ArrayList<Annotation>();
         serviceAnnotationArrayList.add(new Annotation("BasePath", swagger.getBasePath()));
         serviceAnnotationArrayList.add(new Annotation("Host", swagger.getHost()));

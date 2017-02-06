@@ -53,10 +53,10 @@ public class BallerinaCodeGenerator extends DefaultCodegen implements CodegenCon
          * as with models, add multiple entries with different extensions for multiple files per
          * class
          */
-        apiTemplateFiles.put(
+        /*apiTemplateFiles.put(
                 "controller.mustache",   // the template to use
                 ".bal");       // the extension for each file to write
-
+*/
         /*
          * Template Location.  This is the location which templates will be read from.  The generator
          * will use the resource stream to attempt to read the templates.
