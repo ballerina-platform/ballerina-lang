@@ -49,6 +49,7 @@
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
     <link rel="stylesheet" type="text/css" href="css/debugger.css"/>
     <link rel="stylesheet" type="text/css" href="css/left-tool-bar.css"/>
+    <link rel="stylesheet" type="text/css" href="css/type-mapper.css"/>
 </head>
 <body class="sticky-footer">
 
@@ -520,6 +521,7 @@
             jquery_ui: "lib/jquery-ui_v1.12.1/jquery-ui",
             bootstrap: "lib/bootstrap_v3.3.6/js/bootstrap",
             d3: "lib/d3_v4.1.1/d3",
+            dagre: "lib/dagre-0.7.4/dagre.min",
             log4javascript: "lib/log4javascript-1.4.13/log4javascript",
             lodash: "lib/lodash_v4.13.1/lodash",
             backbone: "lib/backbone_v1.3.3/backbone",
@@ -533,6 +535,7 @@
             jquery_context_menu: "lib/context-menu_v2.4.2/jquery.contextMenu.min",
             html5_shiv: "lib/html5shiv_3.7.2/html5shiv.min",
             respond: "lib/respond_1.4.2/respond.min",
+            jsPlumb: "lib/jsPlumb-1.5.0/jquery.jsPlumb-1.5.0-min",
             ///////////////////////
             // custom modules ////
             //////////////////////
@@ -552,11 +555,17 @@
             breadcrumbs: "js/breadcrumbs/breadcrumbs",
             property_pane_utils: "js/property-pane/property-pane-utils",
             debugger: "js/debugger/debugger",
-			expression_editor_utils: "js/expression-editor/expression-editor-utils"
+			expression_editor_utils: "js/expression-editor/expression-editor-utils",
+            constants: 'js/constants/constants',
+            typeMapper: 'js/type-mapper/type-mapper-renderer'
         },
         shim: {
             "bootstrap": {"deps": ['jquery']},
-            "theme_wso2": {"deps": ['jquery', 'bootstrap', 'html5_shiv', 'respond']}
+            "theme_wso2": {"deps": ['jquery', 'bootstrap', 'html5_shiv', 'respond']},
+            "jsPlumb": {
+                deps: ['jquery','jquery_ui'],
+                exports: 'jsPlumb'
+            }
         },
         map: {
             "*": {
@@ -762,7 +771,9 @@
                                 canvas_container: 'canvas-container',
                                 panel_delete_icon: 'fw fw-delete pull-right right-icon-clickable delete-icon hoverable',
                                 panel_annotation_icon: 'fw fw-annotation pull-right right-icon-clickable hoverable',
-                                panel_args_icon: 'fw fw-import pull-right right-icon-clickable hoverable'
+                                panel_args_icon: 'fw fw-import pull-right right-icon-clickable hoverable',
+                                type_mapper_icon: 'fw fw-dgm-service fw-inverse',
+                                type_struct_icon: 'fw fw-dgm-service fw-inverse'
                             },
                             notifications: {
                                 container: '#notification-container'

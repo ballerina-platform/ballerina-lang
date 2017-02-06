@@ -1275,6 +1275,18 @@ button.variable-list {
     color: #ff7916;
 }
 
+.struct-title-text:hover {
+    cursor: text;
+}
+
+.type-mapper-title-text:hover {
+    cursor: text;
+}
+
+.type-struct-title-text:hover {
+    cursor: text;
+}
+
 .canvas-title:hover {
     cursor: text;
 }

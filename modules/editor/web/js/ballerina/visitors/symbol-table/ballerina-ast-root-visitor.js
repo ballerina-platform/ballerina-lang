@@ -84,6 +84,17 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
             this.getPackage().addStructDefinitions(structDefinition);
         };
 
+        BallerinaASTRootVisitor.prototype.visitTypeMapperDefinition = function (typeMapperDefinition) {
+            //todo need to refactored
+//            var typeMapperDef = BallerinaEnvFactory.createTypeMapper();
+//            typeMapperDef.setName(typeMapperDefinition.getTypeMapperName());
+//            typeMapperDef.setTitle(typeMapperDefinition.getTypeMapperName());
+//            typeMapperDef.setId(typeMapperDefinition.getTypeMapperName());
+//            typeMapperDef.setSourceAndIdentifier(typeMapperDefinition.getSourceAndIdentifier());
+//            typeMapperDef.setReturnType(typeMapperDefinition.getReturnType());
+            this.getPackage().addTypeMapperDefinitions(typeMapperDefinition);
+        };
+
         /**
          * visit connector definition
          * @param {Object} connectorDefinition - connector definition model
