@@ -48,11 +48,11 @@ functionDefinition
     ;
 
 nativeFunction
-    :   'public'? 'native' 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? ';'
+    :   'native' 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? ';'
     ;
 
 function
-    :   annotation* 'public'? 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? functionBody
+    :   annotation* 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? functionBody
     ;
 
 //todo rename, this is used in resource, action and funtion
@@ -66,7 +66,7 @@ connectorDefinition
     ;
 
 nativeConnector
-    :   'public'? 'native' 'connector' Identifier '(' parameterList ')' nativeConnectorBody
+    :   'native' 'connector' Identifier '(' parameterList ')' nativeConnectorBody
     ;
 
 nativeConnectorBody
@@ -74,7 +74,7 @@ nativeConnectorBody
     ;
 
 connector
-    :   annotation* 'public'? 'connector' Identifier '(' parameterList ')' connectorBody
+    :   annotation* 'connector' Identifier '(' parameterList ')' connectorBody
     ;
 
 connectorBody
@@ -82,15 +82,15 @@ connectorBody
     ;
 
 nativeAction
-    :   'public'? 'native' 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? ';'
+    :   'native' 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? ';'
     ;
 
 action
-    :   annotation* 'public'? 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? functionBody
+    :   annotation* 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? functionBody
     ;
 
 structDefinition
-    :   annotation* 'public'? 'struct' Identifier structDefinitionBody
+    :   annotation* 'struct' Identifier structDefinitionBody
     ;
 
 structDefinitionBody
@@ -111,7 +111,7 @@ typeConvertorBody
     ;
 
 constantDefinition
-    :   'public'? 'const' typeName Identifier '=' literalValue ';'
+    :   'const' typeName Identifier '=' literalValue ';'
     ;
 
 // cannot have conector declaration, need to validate at semantic analyzing
@@ -469,7 +469,6 @@ ITERATE         : 'iterate';
 JOIN            : 'join';
 NULL            : 'null';
 PACKAGE         : 'package';
-PUBLIC          : 'public';
 REPLY           : 'reply';
 RESOURCE        : 'resource';
 RETURN          : 'return';
