@@ -102,8 +102,8 @@ public class TextOutputMapperWithSiddhiQLTestCase {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of WSO2 events", 2, wso2Count.get());
-        Assert.assertEquals("Number of IBM events", 1, ibmCount.get());
+        Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
+        Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
         executionPlanRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
@@ -172,12 +172,12 @@ public class TextOutputMapperWithSiddhiQLTestCase {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of WSO2 events", 2, wso2Count.get());
-        Assert.assertEquals("Number of IBM events", 1, ibmCount.get());
+        Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
+        Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
         //assert custom text
-        Assert.assertEquals("Stock price of WSO2 is 55.6", onMessageList.get(0).toString());
-        Assert.assertEquals("Stock price of IBM is 75.6", onMessageList.get(1).toString());
-        Assert.assertEquals("Stock price of WSO2 is 57.6", onMessageList.get(2).toString());
+        Assert.assertEquals("Mismatch of custom text with the event consumed!","Stock price of WSO2 is 55.6", onMessageList.get(0).toString());
+        Assert.assertEquals("Mismatch of custom text with the event consumed!","Stock price of IBM is 75.6", onMessageList.get(1).toString());
+        Assert.assertEquals("Mismatch of custom text with the event consumed!","Stock price of WSO2 is 57.6", onMessageList.get(2).toString());
         executionPlanRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
@@ -246,14 +246,14 @@ public class TextOutputMapperWithSiddhiQLTestCase {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of WSO2 events", 2, wso2Count.get());
-        Assert.assertEquals("Number of IBM events", 1, ibmCount.get());
+        Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
+        Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
         //assert custom text
-        Assert.assertEquals("Stock price of WSO2 is 55.6,\n" +
+        Assert.assertEquals("Mismatch of custom text with the event consumed!","Stock price of WSO2 is 55.6,\n" +
                 "Stock volume of WSO2 is 100", onMessageList.get(0).toString());
-        Assert.assertEquals("Stock price of IBM is 75.6,\n" +
+        Assert.assertEquals("Mismatch of custom text with the event consumed!","Stock price of IBM is 75.6,\n" +
                 "Stock volume of IBM is 100", onMessageList.get(1).toString());
-        Assert.assertEquals("Stock price of WSO2 is 57.6,\n" +
+        Assert.assertEquals("Mismatch of custom text with the event consumed!","Stock price of WSO2 is 57.6,\n" +
                 "Stock volume of WSO2 is 100", onMessageList.get(2).toString());
         executionPlanRuntime.shutdown();
 

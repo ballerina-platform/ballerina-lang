@@ -118,8 +118,8 @@ public class MapOutputMapperTestCase {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of WSO2 events", 2, wso2Count.get());
-        Assert.assertEquals("Number of IBM events", 1, ibmCount.get());
+        Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
+        Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
         executionPlanRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
@@ -185,8 +185,8 @@ public class MapOutputMapperTestCase {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of WSO2 events", 2, wso2Count.get());
-        Assert.assertEquals("Number of IBM events", 1, ibmCount.get());
+        Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
+        Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
         executionPlanRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic

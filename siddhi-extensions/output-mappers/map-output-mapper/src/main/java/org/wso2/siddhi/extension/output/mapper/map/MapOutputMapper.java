@@ -38,7 +38,7 @@ public class MapOutputMapper extends OutputMapper {
      * Initialize the mapper and the mapping configurations.
      *
      * @param streamDefinition       The stream definition
-     * @param options                Custom mapping options
+     * @param options                Additional mapping options
      * @param unmappedDynamicOptions Unmapped dynamic options
      */
     @Override
@@ -51,7 +51,7 @@ public class MapOutputMapper extends OutputMapper {
      *
      * @param event          Event object
      * @param dynamicOptions Dynamic options
-     * @return the constructed Map Object
+     * @return the constructed Map Object in key-value format
      */
     @Override
     public Object convertToTypedInputEvent(Event event, Map<String, String> dynamicOptions) {

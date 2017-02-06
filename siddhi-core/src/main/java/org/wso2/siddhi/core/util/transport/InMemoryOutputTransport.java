@@ -90,6 +90,7 @@ public class InMemoryOutputTransport extends OutputTransport {
             add(MessageType.JSON);
             add(MessageType.MAP);
             add(MessageType.XML);
+            add(MessageType.WSO2EVENT);
         }};
     }
 }

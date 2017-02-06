@@ -122,8 +122,8 @@ public class XMLOutputMapperWithSiddhiQueryAPITestCase {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of WSO2 events", 2, wso2Count.get());
-        Assert.assertEquals("Number of IBM events", 1, ibmCount.get());
+        Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
+        Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
         executionPlanRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
@@ -202,12 +202,12 @@ public class XMLOutputMapperWithSiddhiQueryAPITestCase {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of WSO2 events", 2, wso2Count.get());
-        Assert.assertEquals("Number of IBM events", 1, ibmCount.get());
+        Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
+        Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
         //assert custom xml
-        Assert.assertEquals("<StockData><Symbol>WSO2</Symbol><Price>55.6</Price></StockData>", onMessageList.get(0).toString());
-        Assert.assertEquals("<StockData><Symbol>IBM</Symbol><Price>75.6</Price></StockData>", onMessageList.get(1).toString());
-        Assert.assertEquals("<StockData><Symbol>WSO2</Symbol><Price>57.6</Price></StockData>", onMessageList.get(2).toString());
+        Assert.assertEquals("Incorrect mapping!","<StockData><Symbol>WSO2</Symbol><Price>55.6</Price></StockData>", onMessageList.get(0).toString());
+        Assert.assertEquals("Incorrect mapping!","<StockData><Symbol>IBM</Symbol><Price>75.6</Price></StockData>", onMessageList.get(1).toString());
+        Assert.assertEquals("Incorrect mapping!","<StockData><Symbol>WSO2</Symbol><Price>57.6</Price></StockData>", onMessageList.get(2).toString());
         executionPlanRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic

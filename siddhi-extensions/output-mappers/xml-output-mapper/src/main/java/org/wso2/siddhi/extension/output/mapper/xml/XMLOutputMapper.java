@@ -56,8 +56,10 @@ public class XMLOutputMapper extends OutputMapper {
      *
      * @param event          Event object
      * @param dynamicOptions Dynamic options
-     * @return the constructed XML string
+     * @return the constructed XML string in following format:
+     * <events><event><AttributeName>AttributeValue</AttributeName></event></events>
      */
+    //todo should we support namespaces for output mapping?
     @Override
     public Object convertToTypedInputEvent(Event event, Map<String, String> dynamicOptions) {
         Object[] data = event.getData();

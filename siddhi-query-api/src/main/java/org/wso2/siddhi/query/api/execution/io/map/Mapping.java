@@ -39,7 +39,7 @@ public class Mapping {
     }
 
     public Mapping option(String key, String value) {
-        if (Pattern.matches("\\{\\{.*?}}", value)) {
+        if (Pattern.matches("\\{\\{.*?}}.*", value)) {
             dynamicOptions.put(key, value);
         } else {
             options.put(key, value);

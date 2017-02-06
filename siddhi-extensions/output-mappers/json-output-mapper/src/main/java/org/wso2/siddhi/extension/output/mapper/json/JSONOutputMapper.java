@@ -55,7 +55,7 @@ public class JSONOutputMapper extends OutputMapper {
      *
      * @param event          Event object
      * @param dynamicOptions Dynamic options
-     * @return the constructed JSON string
+     * @return the constructed JSON string in {"event":{"{attributeName}":"{attributeValue}"}} format
      */
     @Override
     public Object convertToTypedInputEvent(Event event, Map<String, String> dynamicOptions) {

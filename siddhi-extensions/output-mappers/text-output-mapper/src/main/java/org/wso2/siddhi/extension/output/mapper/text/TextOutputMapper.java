@@ -52,7 +52,7 @@ public class TextOutputMapper extends OutputMapper {
      *
      * @param event          Event object
      * @param dynamicOptions Dynamic options per event
-     * @return the constructed TEXT string
+     * @return the constructed text string in the {attributeName}:{attributeValue} format
      */
     @Override
     public Object convertToTypedInputEvent(Event event, Map<String, String> dynamicOptions) {
