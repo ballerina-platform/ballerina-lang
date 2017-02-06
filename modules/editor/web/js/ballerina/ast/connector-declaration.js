@@ -45,31 +45,31 @@ define(['lodash', './node'], function(_, ASTNode){
     ConnectorDeclaration.prototype.canBeConnectorOf = function (action) {
         var BallerinaASTFactory = this.getFactory();
     };
-    ConnectorDeclaration.prototype.setConnectorName = function (name) {
-        this._connectorName = name;
+    ConnectorDeclaration.prototype.setConnectorName = function (name, options) {
+        this.setAttribute('_connectorName', name, options);
     };
 
-    ConnectorDeclaration.prototype.setConnectorVariable = function (connectorVariable) {
-        this._connectorVariable = connectorVariable;
+    ConnectorDeclaration.prototype.setConnectorVariable = function (connectorVariable, options) {
+        this.setAttribute('_connectorVariable', connectorVariable, options);
     };
 
-    ConnectorDeclaration.prototype.setConnectorType = function (type) {
-        this._connectorType = type;
+    ConnectorDeclaration.prototype.setConnectorType = function (type, options) {
+        this.setAttribute('_connectorType', type, options);
     };
-    ConnectorDeclaration.prototype.setConnectorPkgName = function (pkgName) {
-        this._connectorPkgName = pkgName;
+    ConnectorDeclaration.prototype.setConnectorPkgName = function (pkgName, options) {
+        this.setAttribute('_connectorPkgName', pkgName, options);
     };
-    ConnectorDeclaration.prototype.setUri = function (uri) {
+    ConnectorDeclaration.prototype.setUri = function (uri, options) {
         // TODO: need a proper way of extracting the protocol
         if (this.validateUri(uri)) {
             var tokens = uri.split(":");
-            this.setConnectorPkgName(tokens[0]);
-            this.setConnectorName('HTTPConnector');
+            this.setConnectorPkgName(tokens[0], options);
+            this.setConnectorName('HTTPConnector', options);
         }
-        this._uri = uri;
+        this.setAttribute('_uri', uri, options);
     };
-    ConnectorDeclaration.prototype.setTimeout = function (timeout) {
-        this._timeout = timeout;
+    ConnectorDeclaration.prototype.setTimeout = function (timeout, options) {
+        this.setAttribute('_timeout', timeout, options);
     };
 
     ConnectorDeclaration.prototype.getConnectorName = function () {
@@ -103,11 +103,11 @@ define(['lodash', './node'], function(_, ASTNode){
      * @param {Object} jsonNode to initialize from
      */
     ConnectorDeclaration.prototype.initFromJson = function (jsonNode) {
-        this._connectorName = jsonNode.connector_name;
-        this._connectorPkgName = jsonNode.connector_pkg_name;
-        this._connectorVariable = jsonNode.connector_variable;
-        this._uri = jsonNode.children[0].basic_literal_value;
-        this.setConnectorType('ConnectorDeclaration');
+        this.setConnectorName(jsonNode.connector_name, {doSilently: true});
+        this.setConnectorPkgName(jsonNode.connector_pkg_name, {doSilently: true});
+        this.setConnectorVariable(jsonNode.connector_variable, {doSilently: true});
+        this.setUri(jsonNode.children[0].basic_literal_value, {doSilently: true});
+        this.setConnectorType('ConnectorDeclaration', {doSilently: true});
     };
 
     return ConnectorDeclaration;

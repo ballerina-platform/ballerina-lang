@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/argument'],
-    function (_, log, $, Alerts, ReturnTypeView, Argument) {
+define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/node'],
+    function (_, log, $, Alerts, ReturnTypeView, ASTNode) {
 
         /**
          * Creates the return types pane. This is not a ballerina view. This is simply a pane which is created
@@ -100,7 +100,7 @@ define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/arg
                 var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
 
                 // Validation the identifier against grammar.
-                if (!Argument.isValidIdentifier(newIdentifier)) {
+                if (!ASTNode.isValidIdentifier(newIdentifier)) {
                     var errorString = "Invalid identifier for a return type: " + newIdentifier;
                     log.error(errorString);
                     Alerts.error(errorString);
