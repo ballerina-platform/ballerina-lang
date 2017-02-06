@@ -101,6 +101,19 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                     self._parentView.getBodyWrapper().css("height", $(self._parentView.getBodyWrapper()).height());
                     self._parentView.getBodyWrapper().css("overflow-x", "visible");
                     $(self._parentView.getBodyWrapper()).closest(".canvas-container").css("overflow", "visible");
+
+                    this.removeAllItems();
+
+                    // Adding items to the type dropdown.
+                    var bTypes = self.getDiagramRenderingContext().getEnvironment().getTypes();
+                    _.forEach(bTypes, function (bType) {
+                        typeDropdown.addItem({key: bType, value: bType});
+                    });
+
+                    var structTypes = self.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
+                    _.forEach(structTypes, function (sType) {
+                        typeDropdown.addItem({key: sType.getStructName(), value: sType.getStructName()});
+                    });
                 },
                 onDropdownClosed: function() {
                     self._parentView.getBodyWrapper().css("height", "");
@@ -109,12 +122,6 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                 }
             });
             typeDropdown.getElement().appendTo($(this._typeWrapper));
-
-            // Adding items to the type dropdown.
-            var bTypes = this.getDiagramRenderingContext().getEnvironment().getTypes();
-            _.forEach(bTypes, function (bType) {
-                typeDropdown.addItem({key: bType, value: bType});
-            });
 
             typeDropdown.setSelectedValue(this.getModel().getType());
 

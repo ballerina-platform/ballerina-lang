@@ -473,7 +473,7 @@
 
 .struct-type-dropdown-wrapper {
     float: left;
-    min-width: 150px;
+    min-width: 210px;
     padding-top: 12px;
     padding-left: 10px;
 }
@@ -486,7 +486,7 @@
 .struct-content-operations-wrapper {
     height: 50px;
     background-color: #3d3d3d;
-    padding-right: 10px;
+    padding-right: 6px;
 }
 
 .struct-identifier-text-input {
@@ -547,7 +547,7 @@
 }
 
 .struct-variable-definition-wrapper i {
-    line-height: 18px;
+    line-height: 14px;
     padding: 13px;
     opacity: 0.4;
     cursor: pointer;
@@ -560,7 +560,7 @@
 
 .struct-type-dropdown-wrapper button {
     height: 24px;
-    width: 134px;
+    width: 183px;
     padding-top: 2px;
 }
 
@@ -577,7 +577,7 @@
 }
 
 .struct-variable-identifier-text-input {
-    width: 185px;
+    width: 162px;
     padding-left: 8px;
     padding-right: 8px;
 }
