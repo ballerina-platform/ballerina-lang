@@ -3,6 +3,8 @@
     color: #dedede;
     position: relative;
     padding: 0;
+    overflow: auto;
+    height: 100%;
 }
 
 .tree-highlight{
