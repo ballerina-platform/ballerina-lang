@@ -22,7 +22,7 @@ import org.wso2.ballerina.core.model.DataIterator;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * Empty iterator for default usage. This will represent empty datatable object in ballerina
+ * Empty iterator for default usage. This will represent empty datatable object in ballerina.
  */
 public class EmptyDataIterator implements DataIterator {
     @Override

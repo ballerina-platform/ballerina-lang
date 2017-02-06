@@ -460,7 +460,6 @@
 
         <!--data services dependencies -->
         <com.zaxxer.hikaricp.version>2.5.1</com.zaxxer.hikaricp.version>
-        <com.zaxxer.hikari.import.version.range>[2.5.0,2.6.0)</com.zaxxer.hikari.import.version.range>
         <hyperSQL.version>2.3.4</hyperSQL.version>
     </properties>
 
