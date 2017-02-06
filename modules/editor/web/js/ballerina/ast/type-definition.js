@@ -26,9 +26,9 @@ define(['lodash', './node'], function (_, ASTNode) {
     TypeDefinition.prototype.constructor = TypeDefinition;
 
 
-    TypeDefinition.prototype.setTypeElement = function (typeElement) {
+    TypeDefinition.prototype.setTypeElement = function (typeElement, options) {
         if (!_.isNil(typeElement)) {
-            this.typeElement = typeElement;
+            this.setAttribute('typeElement', typeElement, options);
         }
     };
 

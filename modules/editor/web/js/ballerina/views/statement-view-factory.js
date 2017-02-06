@@ -19,11 +19,11 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
         './catch-statement-view', './if-else-statement-view', './if-statement-view', './else-statement-view',
         './else-if-statement-view', './assignment-view', './function-invocation-view',
         './action-invocation-statement-view', './while-statement-view', './reply-statement-view',
-        './logical-expression-view', './arithmetic-expression-view', './return-statement-view'],
+        './logical-expression-view', './arithmetic-expression-view', './return-statement-view', './variable-definition-statement-view'],
     function (_, log, EventChannel, AST, TryCatchStatementView, TryStatementView, CatchStatementView,
               IfElseStatementView, IfStatementView, ElseStatementView, ElseIfStatementView, AssignmentStatementView,
               FunctionInvocationStatementView, ActionInvocationStatementView, WhileStatementView, ReplyStatementView,
-              LogicalExpressionView, ArithmeticExpressionView, ReturnStatement) {
+              LogicalExpressionView, ArithmeticExpressionView, ReturnStatement, VariableDefinitionStatementView) {
 
         var StatementViewFactory = function () {
         };
@@ -63,40 +63,27 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
             } else if (statement instanceof AST.AssignmentStatement){
                 // TODO : This logic needs to be refactored.
                 var children  = _.get(statement, "children");
-                var assignmenStatement = undefined;
+                var assignmentStatement = undefined;
                 _.each(children, function (statementChild) {
                     if(AST.BallerinaASTFactory.isRightOperandExpression(statementChild)) {
                         var operands  = _.get(statementChild, "children");
                         _.each(operands, function (child) {
                             if (AST.BallerinaASTFactory.isActionInvocationExpression(child)) {
                                 _.set(args, 'model', statement);
-                                assignmenStatement = new ActionInvocationStatementView(args);
-                            } else if (AST.BallerinaASTFactory.isAssignment(child)) {
-                                _.set(args, 'model', child);
-                                assignmenStatement = new AssignmentStatementView(args);
-                            } else if (AST.BallerinaASTFactory.isVariableReferenceExpression(child)) {
-                                _.set(args, 'model', child);
-                                assignmenStatement = new AssignmentStatementView(args);
-                            } else if (AST.BallerinaASTFactory.isInstanceCreationExpression(child)){
-                                _.set(args, 'model', child);
-                                assignmenStatement = new AssignmentStatementView(args);
-                            } else if(AST.BallerinaASTFactory.isBasicLiteralExpression(child)){
-                                _.set(args, 'model', child);
-                                assignmenStatement = new AssignmentStatementView(args);
-                            } else if (AST.BallerinaASTFactory.isFunctionInvocationExpression(child)){
-                                _.set(args, 'model', child);
-                                assignmenStatement = new AssignmentStatementView(args);
+                                assignmentStatement = new ActionInvocationStatementView(args);
                             }
                         });
                     }
                 });
-                if (_.isUndefined(assignmenStatement)) {
+                if (_.isUndefined(assignmentStatement)) {
                     _.set(args, 'model', statement);
-                    _.get(args, 'model').setExpression(children[0].getLeftOperandExpressionString()+ " = "
+                    _.get(args, 'model').setStatementString(children[0].getLeftOperandExpressionString()+ " = "
                         + children[1].getRightOperandExpressionString());
-                    assignmenStatement = new AssignmentStatementView(args);
+                    assignmentStatement = new AssignmentStatementView(args);
                 }
-                return assignmenStatement;
+                return assignmentStatement;
+            } else if (statement instanceof AST.VariableDefinitionStatement) {
+                return new VariableDefinitionStatementView(args);
             }
         };
 

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['lodash', 'log', 'file_browser', 'event_channel', 'context_menu', 'theme_wso2'],
+define(['lodash', 'log', 'file_browser', 'event_channel', 'context_menu', 'bootstrap'],
     function (_, log, FileBrowser, EventChannel, ContextMenu){
 
     var ExplorerItem = function(args){
@@ -56,11 +56,16 @@ define(['lodash', 'log', 'file_browser', 'event_channel', 'context_menu', 'theme
         header.attr('title', this.path);
         header.tooltip({
             'delay': { show: 1000, hide: 0 },
-            'placement': 'bottom'
+            'placement': 'bottom',
+            'container': 'body'
         });
 
-        header.click(function(){
-            arrowHeadIcon.toggleClass("fw-rotate-90");
+        body.on('show.bs.collapse', function(){
+            arrowHeadIcon.addClass("fw-rotate-90");
+        });
+
+        body.on('hide.bs.collapse', function(){
+            arrowHeadIcon.removeClass("fw-rotate-90");
         });
 
         var fileBrowser = new FileBrowser({
@@ -132,7 +137,7 @@ define(['lodash', 'log', 'file_browser', 'event_channel', 'context_menu', 'theme
                         self._fileBrowser.refresh(node);
                     }
                 };
-                    items.deleteFolder = {
+                items.deleteFolder = {
                     name: "delete",
                     icon: "",
                     callback: function () {
@@ -141,7 +146,11 @@ define(['lodash', 'log', 'file_browser', 'event_channel', 'context_menu', 'theme
                                 type: "folder",
                                 path: path,
                                 onSuccess: function(){
-                                    self._fileBrowser.refresh(node.parent);
+                                    if(isRoot){
+                                        self.application.commandManager.dispatch("remove-explorer-item", self);
+                                    } else {
+                                        self._fileBrowser.refresh(node.parent);
+                                    }
                                 }
                             });
                     }

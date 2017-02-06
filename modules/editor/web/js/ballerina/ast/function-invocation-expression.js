@@ -31,8 +31,8 @@ define(['lodash', './expression', './function-invocation'], function (_, Express
     FunctionInvocationExpression.prototype = Object.create(Expression.prototype);
     FunctionInvocationExpression.prototype.constructor = FunctionInvocationExpression;
 
-    FunctionInvocationExpression.prototype.setFunctionName = function (functionName) {
-        this._functionName = functionName;
+    FunctionInvocationExpression.prototype.setFunctionName = function (functionName, options) {
+        this.setAttribute('_functionName', functionName, options);
     };
 
     FunctionInvocationExpression.prototype.getFunctionName = function () {
@@ -49,24 +49,22 @@ define(['lodash', './expression', './function-invocation'], function (_, Express
      */
     FunctionInvocationExpression.prototype.initFromJson = function (jsonNode) {
         var functionNameSplit = jsonNode.function_name.split(":");
-        var argsString = "";
-        this.setFunctionName(jsonNode.function_name);
-        argsString += this._generateArgsString(jsonNode, argsString, ", ");
+        this.setFunctionName(jsonNode.function_name, {doSilently: true});
+        var argsString = this._generateArgsString(jsonNode);
 
         // TODO : need to remove following if/else by delegating this logic to parent(FunctionInvocation)
         if( this.getParent() instanceof FunctionInvocation){
             if(functionNameSplit.length < 2){
                 //there is only a function name
-                this.getParent().setFunctionName(functionNameSplit[0]);
+                this.getParent().setFunctionName(functionNameSplit[0], {doSilently: true});
             } else {
-                this.getParent().setFunctionName(functionNameSplit[1]);
-                this.getParent().setPackageName(functionNameSplit[0]);
+                this.getParent().setFunctionName(functionNameSplit[1], {doSilently: true});
+                this.getParent().setPackageName(functionNameSplit[0], {doSilently: true});
             }
-            this.getParent().setParams(argsString);
+            this.getParent().setParams(argsString, {doSilently: true});
         }else{
-            this.setExpression(jsonNode.function_name + '(' + argsString +')');
+            this.setExpression(jsonNode.function_name + '(' + argsString +')', {doSilently: true});
         }
-
     };
 
     /**
@@ -77,32 +75,18 @@ define(['lodash', './expression', './function-invocation'], function (_, Express
      * @return {string} - Arguments as a string.
      * @private
      */
-    FunctionInvocationExpression.prototype._generateArgsString = function (jsonNode, argsString, separator) {
+    FunctionInvocationExpression.prototype._generateArgsString = function (jsonNode) {
         var self = this;
+        var argsString = "";
 
         for (var itr = 0; itr < jsonNode.children.length; itr++) {
             var childJsonNode = jsonNode.children[itr];
-            if (childJsonNode.type == "basic_literal_expression") {
-                if(childJsonNode.basic_literal_type == "string") {
-                    // Adding double quotes if it is a string.
-                    argsString += "\"" + childJsonNode.basic_literal_value + "\"";
-                } else {
-                    argsString += childJsonNode.basic_literal_value;
-                }
-            } else if (childJsonNode.type == "variable_reference_expression") {
-                argsString += childJsonNode.variable_reference_name;
-            } else if (childJsonNode.type == "add_expression") {
-                argsString += self._generateArgsString(childJsonNode, argsString, " + ");
-            } else if (childJsonNode.type == "subtract_expression") {
-                argsString += self._generateArgsString(childJsonNode, argsString, " - ");
-            } else if (childJsonNode.type == "function_invocation_expression") {
-                var child = self.getFactory().createFromJson(childJsonNode);
-                child.initFromJson(childJsonNode);
-                argsString += self._generateArgsString(childJsonNode, child.getExpression(), " - ");
-            }
+            var child = self.getFactory().createFromJson(childJsonNode);
+            child.initFromJson(childJsonNode);
+            argsString += child.getExpression();
 
             if (itr !== jsonNode.children.length - 1) {
-                argsString += separator;
+                argsString += ' , ';
             }
         }
         return argsString;

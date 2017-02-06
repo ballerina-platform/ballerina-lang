@@ -24,23 +24,40 @@ define(['lodash', './expression'], function (_, Expression) {
      */
     var BackQuoteExpression = function (args) {
         Expression.call(this, 'BackQuoteExpression');
-    }
+        this._backQuoteEnclosedString = _.get(args, 'backQuoteEnclosedString', '');
+    };
 
     BackQuoteExpression.prototype = Object.create(Expression.prototype);
     BackQuoteExpression.prototype.constructor = BackQuoteExpression;
 
     /**
-     * setting parameters from json
-     * @param jsonNode
+     * Setter for BackQuoteEnclosedString
+     * @param backQuoteEnclosedString
+     */
+    BackQuoteExpression.prototype.setBackQuoteEnclosedString = function (backQuoteEnclosedString, options) {
+        this.setAttribute('_backQuoteEnclosedString', backQuoteEnclosedString, options);
+    };
+
+    /**
+     * Getter for BackQuoteEnclosedString
+     * @returns backQuoteEnclosedString
+     */
+    BackQuoteExpression.prototype.getBackQuoteEnclosedString = function () {
+        return this._backQuoteEnclosedString;
+    };
+
+    /**
+     * initialize BackQuoteExpression from json object
+     * @param {Object} jsonNode to initialize from
+     * @param {string} [jsonNode.back_quote_enclosed_string] - back quote enclosed string
      */
     BackQuoteExpression.prototype.initFromJson = function (jsonNode) {
+        this.setBackQuoteEnclosedString(jsonNode.back_quote_enclosed_string, {doSilently: true});
+        this.setExpression(this.generateExpression(), {doSilently: true});
+    };
 
-        var self = this;
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
-            child.initFromJson(childNode);
-        });
+    BackQuoteExpression.prototype.generateExpression = function () {
+        this._expression = '`' + this.getBackQuoteEnclosedString() + '`';
     };
 
     return BackQuoteExpression;

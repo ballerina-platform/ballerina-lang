@@ -26,9 +26,9 @@ define(['lodash', './callable-definition'], function (_, CallableDefinition) {
     ActionDefinition.prototype = Object.create(CallableDefinition.prototype);
     ActionDefinition.prototype.constructor = ActionDefinition;
 
-    ActionDefinition.prototype.setArgs = function(args){
+    ActionDefinition.prototype.setArgs = function(args, options){
         if(!_.isNil(args)){
-            this.args = args;
+            this.setAttribute('args', args, options);
         }
     };
 

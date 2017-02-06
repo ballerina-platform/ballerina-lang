@@ -34,9 +34,9 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
     ActionInvocationStatement.prototype = Object.create(Statement.prototype);
     ActionInvocationStatement.prototype.constructor = ActionInvocationStatement;
 
-    ActionInvocationStatement.prototype.setConnector = function(connector){
+    ActionInvocationStatement.prototype.setConnector = function(connector, options){
         if(!_.isNil(connector)){
-            this._connector = connector;
+            this.setAttribute('_connector', connector, options);
         }
     };
 
@@ -44,9 +44,9 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
         return this._connector;
     };
 
-    ActionInvocationStatement.prototype.setAction = function(action){
+    ActionInvocationStatement.prototype.setAction = function(action, options){
         if(!_.isNil(action)){
-            this._action = action;
+            this.setAttribute('_action', action, options);
         }
     };
 
@@ -58,16 +58,16 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
         return this._message;
     };
 
-    ActionInvocationStatement.prototype.setMessage = function (message) {
-        this._message = message;
+    ActionInvocationStatement.prototype.setMessage = function (message, options) {
+        this.setAttribute('_message', message, options);
     };
 
     ActionInvocationStatement.prototype.getPath = function () {
         return this._path;
     };
 
-    ActionInvocationStatement.prototype.setPath = function (path) {
-        this._path = path;
+    ActionInvocationStatement.prototype.setPath = function (path, options) {
+        this.setAttribute('_path', path, options);
     };
 
     return ActionInvocationStatement;

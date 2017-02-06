@@ -35,9 +35,9 @@ define(['lodash', './node'], function (_, ASTNode) {
      * setter for package name
      * @param name
      */
-    PackageDefinition.prototype.setPackageName = function (packageName) {
+    PackageDefinition.prototype.setPackageName = function (packageName, options) {
       if(!_.isNil(packageName)){
-          this._packageName = packageName;
+          this.setAttribute('_packageName', packageName, options);
 
           /**
            * @event ASTNode#tree-modified
@@ -63,7 +63,7 @@ define(['lodash', './node'], function (_, ASTNode) {
      * @param jsonNode
      */
     PackageDefinition.prototype.initFromJson = function (jsonNode) {
-        this._packageName = jsonNode.package_name;
+        this.setPackageName(jsonNode.package_name, {doSilently: true});
     };
 
     return PackageDefinition;

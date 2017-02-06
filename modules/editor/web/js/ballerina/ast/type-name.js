@@ -26,9 +26,9 @@ define(['lodash', './node'], function (_, ASTNode) {
     TypeName.prototype.constructor = TypeName;
 
 
-    TypeName.prototype.setTypeName = function (typename) {
+    TypeName.prototype.setTypeName = function (typename, options) {
         if (!_.isNil(typename)) {
-            this.typename = typename;
+            this.setAttribute('typename', typename, options);
         }
     };
 
@@ -41,7 +41,7 @@ define(['lodash', './node'], function (_, ASTNode) {
      * @param jsonNode
      */
     TypeName.prototype.initFromJson = function (jsonNode) {
-        this.typename = jsonNode.type_name;
+        this.setTypeName(jsonNode.type_name, {doSilently: true});
     };
 
     return TypeName;

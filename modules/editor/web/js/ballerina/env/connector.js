@@ -27,7 +27,6 @@ define(['log', 'lodash', 'require'],
         var Connector = function (args) {
             this._name = _.get(args, 'name', '');
             this._actions = _.get(args, 'actions', []);
-            this._id = _.get(args, 'id', '');
             this._title = _.get(args, 'title', '');
             this.BallerinaEnvFactory = require('./ballerina-env-factory');
         };
@@ -38,14 +37,6 @@ define(['log', 'lodash', 'require'],
 
         Connector.prototype.getName = function () {
             return this._name;
-        };
-
-        Connector.prototype.setId = function (id) {
-            this._id = id;
-        };
-
-        Connector.prototype.getId = function () {
-            return this._id;
         };
 
         Connector.prototype.setTitle = function (title) {
@@ -68,11 +59,11 @@ define(['log', 'lodash', 'require'],
             var self = this;
 
             this.setName(jsonNode.name);
-            this.setId(jsonNode.id);
-            this.setTitle(jsonNode.title);
+            this.setTitle(jsonNode.name);
 
             _.each(jsonNode.actions, function (actionNode) {
-                var action = self.BallerinaEnvFactory.createConnectorAction(actionNode);
+                var action = self.BallerinaEnvFactory.createConnectorAction();
+                action.initFromJson(actionNode);
                 self.addAction(action);
             });
         };
