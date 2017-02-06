@@ -54,21 +54,21 @@ public class PoolConfiguration {
 
     private PoolConfiguration(Map<String, Object> transportProperties) {
 
-        numberOfPools = Util.getIntTransportProperty(transportProperties, Constants.NUMBER_OF_POOLS, 0);
+        numberOfPools = Util.getIntProperty(transportProperties, Constants.NUMBER_OF_POOLS, 0);
 
-        maxActivePerPool = Util.getIntTransportProperty(
+        maxActivePerPool = Util.getIntProperty(
                 transportProperties, Constants.MAX_ACTIVE_CONNECTIONS_PER_POOL, -1);
 
-        minIdlePerPool = Util.getIntTransportProperty(
+        minIdlePerPool = Util.getIntProperty(
                 transportProperties, Constants.MIN_IDLE_CONNECTIONS_PER_POOL, 0);
 
-        maxIdlePerPool = Util.getIntTransportProperty(
+        maxIdlePerPool = Util.getIntProperty(
                 transportProperties, Constants.MAX_IDLE_CONNECTIONS_PER_POOL, 100);
 
-        minEvictableIdleTime = Util.getLongTransportProperty(
+        minEvictableIdleTime = Util.getLongProperty(
                 transportProperties, Constants.MIN_EVICTION_IDLE_TIME, 5 * 60 * 1000L);
 
-        executorServiceThreads = Util.getIntTransportProperty(
+        executorServiceThreads = Util.getIntProperty(
                 transportProperties, Constants.NO_THREADS_IN_EXECUTOR_SERVICE, 20);
 
         logger.debug(Constants.NUMBER_OF_POOLS + ": " + numberOfPools);
