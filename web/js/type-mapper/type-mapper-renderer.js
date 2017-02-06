@@ -112,10 +112,11 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     TypeMapperRenderer.prototype.removeStruct = function (name) {
         var structId = name + this.idNameSeperator + this.typeConverterView.getModel().id;
         var structConns = $('div[id^="' + structId + '"]');
+        var self = this;
 
         _.forEach(structConns, function(structCon) {
             if (_.includes(structCon.className, 'property')) {
-                this.jsPlumbInstance.remove(structCon.id);
+                self.jsPlumbInstance.remove(structCon.id);
             }
         });
 
