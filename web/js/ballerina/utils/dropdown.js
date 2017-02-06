@@ -67,6 +67,7 @@ define(['lodash', 'jquery'], function (_, $) {
                 self.setSelectedValue(item.value.trim());
             });
 
+            $(self.dropdownButton).removeClass("disabled");
         });
 
         // Adding the "open" class to the main wrapper when the dropdown button is clicked. If its already open, then
