@@ -63,9 +63,9 @@ define(['lodash', 'require', 'log', './node'],
     ResourceDefinition.prototype = Object.create(ASTNode.prototype);
     ResourceDefinition.prototype.constructor = ResourceDefinition;
 
-    ResourceDefinition.prototype.setResourceName = function (resourceName) {
+    ResourceDefinition.prototype.setResourceName = function (resourceName, options) {
         if (!_.isNil(resourceName)) {
-            this.setAttribute('_resourceName', resourceName);
+            this.setAttribute('_resourceName', resourceName, options);
         } else {
             log.error('Invalid Resource name [' + resourceName + '] Provided');
             throw 'Invalid Resource name [' + resourceName + '] Provided';
@@ -234,19 +234,10 @@ define(['lodash', 'require', 'log', './node'],
      */
     ResourceDefinition.prototype.addAnnotation = function (key, value) {
         if (!_.isNil(key) && !_.isNil(value)) {
-            var existingAnnotation = _.find(this._annotations, function (annotation) {
-                return annotation.key == key;
-            });
-            if (_.isNil(existingAnnotation)) {
-                // If such annotation does not exists, then add a new one.
-                this._annotations.push({
-                    key: key,
-                    value: value
-                });
-            } else {
-                // Updating existing annotation.
-                existingAnnotation.value = value;
+            var options = {
+              predicate: {key: key}
             }
+            this.pushToArrayAttribute('_annotations', {key: key, value: value}, options);
         } else {
             var errorString = "Cannot add annotation @" + key + "(\"" + value + "\").";
             log.error(errorString);
@@ -277,7 +268,7 @@ define(['lodash', 'require', 'log', './node'],
      * @param {Object[]} jsonNode.children - Children elements of the resource definition.
      */
     ResourceDefinition.prototype.initFromJson = function (jsonNode) {
-        this._resourceName = jsonNode.resource_name;
+        this.setResourceName(jsonNode.resource_name, {doSilently: true});
         this._annotations = _.isNil(this._annotations) ? [] : this._annotations;
 
         var self = this;
