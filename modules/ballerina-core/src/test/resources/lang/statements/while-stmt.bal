@@ -1,4 +1,4 @@
-public function testWhileStmt(int x, int y) (int) {
+function testWhileStmt(int x, int y) (int) {
     int z;
 
     while(x >= y) {
