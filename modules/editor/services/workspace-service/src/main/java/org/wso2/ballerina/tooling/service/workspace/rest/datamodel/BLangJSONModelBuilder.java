@@ -58,6 +58,7 @@ import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MapStructInitKeyValueExpr;
+import org.wso2.ballerina.core.model.expressions.ModExpression;
 import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
 import org.wso2.ballerina.core.model.expressions.LessThanExpression;
 import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
@@ -1058,5 +1059,10 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     @Override
     public void visit(VariableDefStmt varDefStmt) {
 
+    }
+
+    @Override
+    public void visit(ModExpression modExpression) {
+        
     }
 }
