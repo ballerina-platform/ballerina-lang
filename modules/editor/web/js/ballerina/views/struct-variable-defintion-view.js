@@ -25,6 +25,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
          */
         var StructVariableDefinitionView = function (args) {
             BallerinaView.call(this, args);
+            this._parentView = _.get(args, "parentView");
             this._structVariableWrapper = undefined;
             this._typeWrapper = undefined;
             this._identifierWrapper = undefined;
@@ -78,7 +79,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
 
             // Removes the value of the argument in the model and rebind the arguments to the arguments view.
             $(deleteButton).click(function () {
-                $(self.getContainer()).remove();
+                $(structVariableDefinitionWrapper).remove();
                 self.getParent().removeVariableDeclaration(self.getModel().getID());
             });
         };
@@ -95,6 +96,16 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                 class: {mainWrapper: "struct-variable-type-dropdown-wrapper"},
                 onSelectCallBackFunction: function(key, value) {
                     self.getModel().setType(key)
+                },
+                onDropdownOpen: function() {
+                    self._parentView.getBodyWrapper().css("height", $(self._parentView.getBodyWrapper()).height());
+                    self._parentView.getBodyWrapper().css("overflow-x", "visible");
+                    $(self._parentView.getBodyWrapper()).closest(".canvas-container").css("overflow", "visible");
+                },
+                onDropdownClosed: function() {
+                    self._parentView.getBodyWrapper().css("height", "");
+                    self._parentView.getBodyWrapper().css("overflow-x", "");
+                    $(self._parentView.getBodyWrapper()).closest(".canvas-container").css("overflow", "");
                 }
             });
             typeDropdown.getElement().appendTo($(this._typeWrapper));

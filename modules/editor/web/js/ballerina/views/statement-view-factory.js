@@ -19,11 +19,11 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
         './catch-statement-view', './if-else-statement-view', './if-statement-view', './else-statement-view',
         './else-if-statement-view', './assignment-view', './function-invocation-view',
         './action-invocation-statement-view', './while-statement-view', './reply-statement-view',
-        './logical-expression-view', './arithmetic-expression-view', './return-statement-view'],
+        './logical-expression-view', './arithmetic-expression-view', './return-statement-view', './variable-definition-statement-view'],
     function (_, log, EventChannel, AST, TryCatchStatementView, TryStatementView, CatchStatementView,
               IfElseStatementView, IfStatementView, ElseStatementView, ElseIfStatementView, AssignmentStatementView,
               FunctionInvocationStatementView, ActionInvocationStatementView, WhileStatementView, ReplyStatementView,
-              LogicalExpressionView, ArithmeticExpressionView, ReturnStatement) {
+              LogicalExpressionView, ArithmeticExpressionView, ReturnStatement, VariableDefinitionStatementView) {
 
         var StatementViewFactory = function () {
         };
@@ -82,6 +82,8 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                     assignmentStatement = new AssignmentStatementView(args);
                 }
                 return assignmentStatement;
+            } else if (statement instanceof AST.VariableDefinitionStatement) {
+                return new VariableDefinitionStatementView(args);
             }
         };
 
