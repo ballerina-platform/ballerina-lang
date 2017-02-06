@@ -78,6 +78,7 @@ import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
 import org.wso2.ballerina.core.model.expressions.LessThanExpression;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MapStructInitKeyValueExpr;
+import org.wso2.ballerina.core.model.expressions.ModExpression;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
@@ -164,6 +165,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         importPkgMap = bFile.getImportPackageMap();
 
         defineFunctions(bFile.getFunctions());
+        resolveStructFieldTypes(bFile.getStructDefs());
 //        defineConnectors(bFile.getConnectors());
 
 //        bFile.getConnectorList().forEach(connector -> {
@@ -954,6 +956,27 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
+    public void visit(ModExpression modExpression) {
+        BType arithmeticExprType = verifyBinaryArithmeticExprType(modExpression);
+
+        if (arithmeticExprType == BTypes.typeInt) {
+            modExpression.setEvalFunc(ModExpression.MOD_INT_FUNC);
+
+        } else if (arithmeticExprType == BTypes.typeFloat) {
+            modExpression.setEvalFunc(ModExpression.MOD_FLOAT_FUNC);
+
+        } else if (arithmeticExprType == BTypes.typeDouble) {
+            modExpression.setEvalFunc(ModExpression.MOD_DOUBLE_FUNC);
+
+        } else if (arithmeticExprType == BTypes.typeLong) {
+            modExpression.setEvalFunc(ModExpression.MOD_LONG_FUNC);
+
+        } else {
+            throwInvalidBinaryOpError(modExpression);
+        }
+    }
+
+    @Override
     public void visit(UnaryExpression unaryExpr) {
         visitSingleValueExpr(unaryExpr.getRExpr());
         unaryExpr.setType(unaryExpr.getRExpr().getType());
@@ -1251,11 +1274,42 @@ public class SemanticAnalyzer implements NodeVisitor {
      */
     @Override
     public void visit(StructInitExpr structInitExpr) {
+        BType inheritedType = structInitExpr.getInheritedType();
+        structInitExpr.setType(inheritedType);
+        Expression[] argExprs = structInitExpr.getArgExprs();
+        if (argExprs.length == 0) {
+            return;
+        }
 
-        // TODO Improve this
-        // Struct type is not known at this stage
-        structInitExpr.setType(null);
-        visit(structInitExpr.getStructDcl());
+        StructDef structDef = (StructDef) inheritedType;
+        for (Expression argExpr : argExprs) {
+            MapStructInitKeyValueExpr keyValueExpr = (MapStructInitKeyValueExpr) argExpr;
+            Expression keyExpr = keyValueExpr.getKeyExpr();
+            if (!(keyExpr instanceof VariableRefExpr)) {
+                throw new SemanticException(getNodeLocationStr(keyExpr.getNodeLocation()) +
+                        "invalid field name in struct initializer");
+            }
+
+            VariableRefExpr varRefExpr = (VariableRefExpr) keyExpr;
+            VariableDef varDef = (VariableDef) structDef.resolveMembers(varRefExpr.getSymbolName());
+            if (varDef == null) {
+                throw new SemanticException(getNodeLocationStr(keyExpr.getNodeLocation()) +
+                        "unknown '" + structDef.getName() + "' field '" + varRefExpr.getVarName() + "' in struct");
+            }
+
+            Expression valueExpr = keyValueExpr.getValueExpr();
+            visitSingleValueExpr(valueExpr);
+
+            if (valueExpr.getType() != varDef.getType()) {
+                throw new SemanticException(getNodeLocationStr(keyExpr.getNodeLocation()) +
+                        "incompatible type: '" + varDef.getType() + "' expected, found '" + valueExpr.getType() + "'");
+            }
+        }
+
+//
+//        // Struct type is not known at this stage
+//        structInitExpr.setType(null);
+//        visit(structInitExpr.getStructDcl());
     }
 
     @Override
@@ -1886,20 +1940,20 @@ public class SemanticAnalyzer implements NodeVisitor {
         String structStructPackage = structDef.getPackagePath();
 
         for (VariableDef field : structDef.getFields()) {
-            structMemAddrOffset++;
-            BType type = field.getType();
-            validateType(type, field.getNodeLocation());
+            BType fieldType = BTypes.resolveType(field.getTypeName(), currentScope, field.getNodeLocation());
+//            validateType(type, field.getNodeLocation());
 
-            SymbolName fieldSym = LangModelUtils.getStructFieldSymName(field.getName(),
-                    structName, structStructPackage);
-            Symbol symbol = symbolTable.lookup(fieldSym);
-            if (symbol != null && isSymbolInCurrentScope(symbol)) {
-                throw new SemanticException(getNodeLocationStr(field.getNodeLocation()) + "duplicate field '" +
-                        fieldSym.getName() + "'.");
-            }
-            MemoryLocation location = new StructVarLocation(structMemAddrOffset);
-            symbol = new Symbol(type, currentScopeName(), location);
-            symbolTable.insert(fieldSym, symbol);
+//            SymbolName fieldSym = LangModelUtils.getStructFieldSymName(field.getName(),
+//                    structName, structStructPackage);
+//            Symbol symbol = symbolTable.lookup(fieldSym);
+//            if (symbol != null && isSymbolInCurrentScope(symbol)) {
+//                throw new SemanticException(getNodeLocationStr(field.getNodeLocation()) + "duplicate field '" +
+//                        fieldSym.getName() + "'.");
+//            }
+            MemoryLocation location = new StructVarLocation(++structMemAddrOffset);
+//            symbol = new Symbol(type, currentScopeName(), location);
+//            symbolTable.insert(fieldSym, symbol);
+            field.setMemoryLocation(location);
         }
 
         structDef.setStructMemorySize(structMemAddrOffset + 1);
@@ -2194,6 +2248,16 @@ public class SemanticAnalyzer implements NodeVisitor {
                 returnTypes[i] = bType;
             }
             function.setReturnParamTypes(returnTypes);
+        }
+    }
+
+    private void resolveStructFieldTypes(StructDef[] structDefs) {
+        for (StructDef structDef : structDefs) {
+            for (VariableDef variableDef : structDef.getFields()) {
+                BType fieldType = BTypes.resolveType(variableDef.getTypeName(), currentScope,
+                        variableDef.getNodeLocation());
+                variableDef.setType(fieldType);
+            }
         }
     }
 }

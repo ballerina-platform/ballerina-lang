@@ -40,6 +40,7 @@ import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
 import org.wso2.ballerina.core.model.expressions.LessThanExpression;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MapStructInitKeyValueExpr;
+import org.wso2.ballerina.core.model.expressions.ModExpression;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
@@ -135,6 +136,8 @@ public interface NodeVisitor {
     void visit(BasicLiteral basicLiteral);
 
     void visit(DivideExpr divideExpr);
+
+    void visit(ModExpression modExpression);
 
     void visit(EqualExpression equalExpression);
 
