@@ -16,7 +16,9 @@
  * under the License.
  */
 
-define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view', 'property_pane_utils', 'expression_editor_utils'], function (_, $, d3, log, D3Utils, Point, BallerinaView,  PropertyPaneUtils, expressionEditor) {
+define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view',
+        'property_pane_utils', 'expression_editor_utils'],
+    function (_, $, d3, log, D3Utils, Point, BallerinaView,  PropertyPaneUtils, expressionEditor) {
 
     /**
      * View for a generic lifeline
@@ -251,7 +253,6 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         viewOptions.actionButton.class = _.get(args, "actionButton.class", "property-pane-action-button");
         viewOptions.actionButton.wrapper = _.get(args, "actionButton.wrapper", {});
         viewOptions.actionButton.wrapper.class = _.get(args, "actionButton.wrapper.class", "property-pane-action-button-wrapper");
-        viewOptions.actionButton.editClass = _.get(args, "viewOptions.actionButton.editClass", "property-pane-action-button-edit");
         viewOptions.actionButton.disableClass = _.get(args, "viewOptions.actionButton.disableClass", "property-pane-action-button-disable");
         viewOptions.actionButton.deleteClass = _.get(args, "viewOptions.actionButton.deleteClass", "property-pane-action-button-delete");
 
@@ -296,7 +297,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             // Adding svg definitions needed for styling edit and delete buttons.
             var svgDefinitions = deleteButtonPaneGroup.append("defs");
             var deleteButtonPattern = svgDefinitions.append("pattern")
-                .attr("id", "editIcon")
+                .attr("id", "deleteIcon")
                 .attr("width", "100%")
                 .attr("height", "100%");
 
@@ -331,10 +332,10 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 event.stopPropagation();
             });
 
-            // Creating the edit action button.
+            // Creating the delete action button.
             var deleteButtonRect = D3Utils.rect(centerPointX - (propertyButtonPaneRectWidth / 2), centerPointY + 3,
                 propertyButtonPaneRectWidth, viewOptions.actionButton.height, 0, 0, deleteButtonPaneGroup)
-                .classed(viewOptions.actionButton.class, true).classed(viewOptions.actionButton.editClass, true);
+                .classed(viewOptions.actionButton.class, true).classed(viewOptions.actionButton.deleteClass, true);
 
             // When the outside of the propertyButtonPaneRect is clicked.
             $(window).click(function (event) {
@@ -355,18 +356,17 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             $(propertyButtonPaneGroup.node()).remove();
 
             var propertyPaneWrapper = $("<div/>", {
-                class: viewOptions.propertyForm.wrapper.class /*+ " nano"*/,
+                class: viewOptions.propertyForm.wrapper.class,
                 css: {
-                    //"margin": (parseInt($(parentSVG.parentElement).css("padding"), 10) + 3) + "px"
                     "width": (lifeLineBoundingBox.w() + 1), // Making the text box bit bigger
-                    "height": 32 // Fixed height of the expression editor
+                    "height": _.get(self._viewOptions, 'rect.height') + 2 // Make the expression editor bit bigger
                 },
                 click: function (event) {
                     event.stopPropagation();
                 }
             }).offset({
-                top: (lifeLineView.getBoundingBox().y() - 31),//Get the pane to match connector's y.
-                left: (lifeLineView.getBoundingBox().x() - 1) // Get the pane to match connector's x
+                top: self._topCenter.y() - (_.get(self._viewOptions, 'rect.height') / 2) - 1, // Get the pane to match connector's y.
+                left: self._topCenter.x() - (_.get(self._viewOptions, 'rect.width') / 2) - 1 // Get the pane to match connector's x
             }).appendTo(parentSVG.parentElement);
 
             // When the outside of the propertyPaneWrapper is clicked.
@@ -377,7 +377,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
             // Div which contains the form for the properties.
             var propertyPaneBody = $("<div/>", {
-                "class": viewOptions.propertyForm.body.class /*+ " nano-content"*/
+                "class": viewOptions.propertyForm.body.class
             }).appendTo(propertyPaneWrapper);
 
             // Creating the property form.
