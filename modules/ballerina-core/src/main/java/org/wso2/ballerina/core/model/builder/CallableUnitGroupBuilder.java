@@ -20,20 +20,16 @@ package org.wso2.ballerina.core.model.builder;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
-import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.SymbolScope;
-import org.wso2.ballerina.core.model.VariableDef;
-import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * {@code CallableUnitGroupBuilder} builds Services and Connectors.
@@ -42,8 +38,9 @@ import java.util.Map;
  *
  * @since 0.8.0
  */
-class CallableUnitGroupBuilder implements SymbolScope {
-    private NodeLocation location;
+public class CallableUnitGroupBuilder {
+    protected NodeLocation location;
+    protected SymbolScope currentScope;
 
     // BLangSymbol related attributes
     protected String name;
@@ -51,21 +48,15 @@ class CallableUnitGroupBuilder implements SymbolScope {
     protected boolean isPublic;
     protected SymbolName symbolName;
 
-    private List<Annotation> annotationList = new ArrayList<>();
-    private List<ParameterDef> parameterDefList = new ArrayList<>();
-    private List<ConnectorDcl> connectorDclList = new ArrayList<>();
-    private List<VariableDef> variableDefList = new ArrayList<>();
-    private List<Resource> resourceList = new ArrayList<>();
-    private List<BallerinaAction> actionList = new ArrayList<>();
+    protected List<Annotation> annotationList = new ArrayList<>();
+    protected List<ParameterDef> parameterDefList = new ArrayList<>();
+    protected List<Resource> resourceList = new ArrayList<>();
+    protected List<BallerinaAction> actionList = new ArrayList<>();
+    protected List<VariableDefStmt> variableDefStmtList = new ArrayList<>();
 
-    // Scope related variables
-    private SymbolScope enclosingScope;
-    private Map<SymbolName, BLangSymbol> symbolMap = new HashMap<>();
-
-    CallableUnitGroupBuilder(SymbolScope enclosingScope) {
-        this.enclosingScope = enclosingScope;
+    SymbolScope getCurrentScope() {
+        return currentScope;
     }
-
 
     public void setNodeLocation(NodeLocation location) {
         this.location = location;
@@ -83,24 +74,12 @@ class CallableUnitGroupBuilder implements SymbolScope {
         this.isPublic = isPublic;
     }
 
-    public void setSymbolName(SymbolName symbolName) {
-        this.symbolName = symbolName;
-    }
-
     void addAnnotation(Annotation annotation) {
         this.annotationList.add(annotation);
     }
 
     void addParameter(ParameterDef param) {
         this.parameterDefList.add(param);
-    }
-
-    void addConnectorDcl(ConnectorDcl connectorDcl) {
-        this.connectorDclList.add(connectorDcl);
-    }
-
-    void addVariableDcl(VariableDef variableDef) {
-        this.variableDefList.add(variableDef);
     }
 
     void addResource(Resource resource) {
@@ -111,53 +90,15 @@ class CallableUnitGroupBuilder implements SymbolScope {
         this.actionList.add(action);
     }
 
-    @Override
-    public ScopeName getScopeName() {
+    public void addVariableDef(VariableDefStmt variableDefStmt) {
+        this.variableDefStmtList.add(variableDefStmt);
+    }
+
+    public Service buildService() {
         return null;
     }
 
-    @Override
-    public SymbolScope getEnclosingScope() {
-        return enclosingScope;
-    }
-
-    @Override
-    public void define(SymbolName name, BLangSymbol symbol) {
-        symbolMap.put(name, symbol);
-    }
-
-    @Override
-    public BLangSymbol resolve(SymbolName name) {
-        return resolve(symbolMap, name);
-    }
-
-    Service buildService() {
-        return new Service(
-                location,
-                name,
-                pkgPath,
-                symbolName,
-                annotationList.toArray(new Annotation[annotationList.size()]),
-                connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
-                variableDefList.toArray(new VariableDef[variableDefList.size()]),
-                resourceList.toArray(new Resource[resourceList.size()]),
-                enclosingScope,
-                symbolMap);
-    }
-
-    BallerinaConnectorDef buildConnector() {
-        return new BallerinaConnectorDef(
-                location,
-                name,
-                pkgPath,
-                isPublic,
-                symbolName,
-                annotationList.toArray(new Annotation[annotationList.size()]),
-                parameterDefList.toArray(new ParameterDef[parameterDefList.size()]),
-                connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
-                variableDefList.toArray(new VariableDef[variableDefList.size()]),
-                actionList.toArray(new BallerinaAction[actionList.size()]),
-                enclosingScope,
-                symbolMap);
+    public BallerinaConnectorDef buildConnector() {
+        return null;
     }
 }
