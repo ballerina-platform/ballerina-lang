@@ -53,6 +53,8 @@
     padding: 5px;
     background-color: #000;
     font-size: 20px;
+    width: 32px;
+    text-align: center;
 }
 
 .title-link {
