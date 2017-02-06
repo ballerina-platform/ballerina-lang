@@ -430,7 +430,7 @@
 <!--End: Search Modal-->
 
 <!--Start: Debug Modal-->
-<div class="modal fade" id="modalDebugConnection" tabindex="-1" role="dialog">
+<div class="modal fade debug" id="modalDebugConnection" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content clearfix">
             <div class="modal-header">
@@ -440,16 +440,17 @@
                 <h4 class="modal-title" >Debug Connection</h4>
             </div>
             <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
-              <div class="form-group">
+              <div class="form-group debug-connection-group">
                 <label class="sr-only" for="debugUrl">Server URL</label>
                 <div class="input-group">
                   <div class="input-group-addon">ws://</div>
                   <input type="text" class="form-control" id="debugUrl" placeholder="localhost:5006" value="localhost:5006" />
                 </div>
+                <span class="help-block debug-connection-error hide"><i class="fw fw-alert"></i> Connection error please check provided URL.</span>
               </div>
               <div class='form-group'>
-                    <button type='button' class='btn  pull-right btn-file-dialog' data-dismiss='modal'>Cancel</button>
-                    <button type='button' class='btn pull-right btn-file-dialog debug-connect-button'>Connect</button>
+                    <button type='button' class='btn pull-right btn-file-dialog' data-dismiss='modal'>Cancel</button>
+                    <button type='button' class='btn btn-primary pull-right btn-file-dialog debug-connect-button'>Debug</button>
               </div>
             </div>            
         </div>

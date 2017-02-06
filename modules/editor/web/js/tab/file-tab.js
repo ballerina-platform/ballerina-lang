@@ -102,7 +102,8 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
                 DebugManager.removeBreakPoint(row, this._file.getName());
             }, this);
 
-            DebugManager.on('debug-hit', function(position){
+            DebugManager.on('debug-hit', function(message){
+                var position = message.position;
                 if(position.fileName == this._file.getName()){
                     fileEditor.debugHit(position);
                 }

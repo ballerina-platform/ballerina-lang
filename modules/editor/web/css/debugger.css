@@ -14,7 +14,7 @@
 
 /*TODO remove this when feature is done*/
 .left-tool-bar .debugger-activate-btn, .left-tool-bar .debugger-activate-btn i{
-    display: none;
+    /*display: none;*/
 }
 
 .ace_gutter-cell.ace_breakpoint{ 
@@ -46,5 +46,71 @@
 
 .debugger-container .btn-group button{
     background-color: #333;
+    color: white;
+}
+
+.btn-debug-action , .btn-debug-activate{
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    border-bottom: 1px #232323 solid !important;
+    margin:0px !important;
+}
+
+.debug-center-btn{
+    border-left: 1px #232323 solid !important;
+    border-right: 1px #232323 solid !important;
+}
+
+.btn-debug-action:hover , .btn-debug-activate:hover{
+    background: #232323 !important;
+    transition: all 250ms ease 0s;
+}
+
+.debug-error{
+    color: #ff3333;
+}
+
+.debug .has-error .input-group-addon{
+    color:black !important;
+}
+
+table.debug-frames {
+    margin-bottom: 0px !important;
+    border-top: 0px !important;
+}
+
+.debug-frames td{
+    color:white;
+    border-top: none; 
+    border-bottom: 1px #232323 solid !important;
+    border-top: 0px !important;
+}
+
+.debug-frames td a{
+    color:white;
+}
+
+.debug-panel-header{
+    padding: 5px;
+    background: #232323;
+}
+
+.debug-panel-header a{
+    padding:5px;
+    color: #FFF;
+    font-weight: bold;
+}
+
+.debug-frame-pkg-name{
+    display: block;
+    color:#00bbea;
+    font-size: 0.75em;
+}
+
+.debug-variables-container{
+    color: white;
+}
+
+#debug-v-tree ul li{
     color: white;
 }
