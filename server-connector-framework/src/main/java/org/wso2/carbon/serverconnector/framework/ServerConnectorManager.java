@@ -65,7 +65,8 @@ public class ServerConnectorManager {
 
     /**
      * Creates and return a server connector using the given protocol and id. The protocol is used with acquiring the
-     * correct server connector provider. An error will be thrown, if there are no server connector provider found.
+     * correct server connector provider. An error will be thrown, if there are no server connector provider registered
+     * for the given protocol.
      *
      * @param protocol transport protocol used with finding the correct server connector provider.
      * @param id unique id to use when creating the server connector instance.
@@ -104,7 +105,8 @@ public class ServerConnectorManager {
     }
 
     /**
-     * Returns the server connector error handler registered against the given transport protocol.
+     * Returns an {@code Optional} value of the server connector error handler registered against the given transport
+     * protocol.
      * @param protocol the transport protocol associated with the error handler.
      * @return error handler instance.
      */
@@ -115,7 +117,7 @@ public class ServerConnectorManager {
     /**
      * Initialize and load all the server connector providers, default connectors from those providers, error handlers
      * using respective SPI interfaces. The given instance of the message processor will be used to initialize all the
-     * default server connectors and it will be used with subsequent new connector creating as-well.
+     * default server connectors and it will be used with subsequent new connector creation as-well.
      *
      * @param messageProcessor message processor instance used with initializing the server connectors.
      * @throws ServerConnectorException error if the initialization of the connectors failed.
