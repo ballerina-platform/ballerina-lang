@@ -25,6 +25,7 @@ define(['lodash', 'event_channel', 'log'],
             }
             _.assign(this, args);
 
+            // See http://tools.ietf.org/html/rfc6455#section-7.4.1
             this.ws_normal_code = 1000;
             this.ws_ssl_code = 1015;
         };
@@ -55,7 +56,6 @@ define(['lodash', 'event_channel', 'log'],
         Channel.prototype.onClose = function(event){
             this.debugger.trigger("session-terminated");
             var reason;
-            // See http://tools.ietf.org/html/rfc6455#section-7.4.1
             if (event.code == this.ws_normal_code){
                 reason = "Normal closure";
                 this.trigger("session-ended");

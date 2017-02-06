@@ -58,7 +58,7 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', /** void module 
     };
 
     VariableTree.prototype.clear =function(message){
-        this.container.html('');
+        this.container.empty();
     };
 
     VariableTree.prototype.render = function (frame) {
