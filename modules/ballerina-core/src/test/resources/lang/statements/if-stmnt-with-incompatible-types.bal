@@ -1,5 +1,5 @@
 function testIfStmtWithIncompatibleType() {
 	if ("foo") {
-		system:log(3, true);
+		int a = 5;
 	}
 }

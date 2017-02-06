@@ -43,7 +43,7 @@ public class BArrayValueTest {
     }
 
     @Test(description = "Test lazy array creation", expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "Array index out of range: Index: 0, Size: 0")
+            expectedExceptionsMessageRegExp = "array index out of range: Index: 0, Size: 0")
     public void testLazyArrayCreation() {
         Functions.invoke(bFile, "lazyInitThrowArrayIndexOutOfBound", new BValue[0]);
     }

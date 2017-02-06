@@ -19,6 +19,7 @@
 package org.wso2.ballerina.lang.statements;
 
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.utils.ParserUtils;
 
@@ -31,33 +32,33 @@ public class VariableDeclarationTest {
      * Negative tests.
      */
     
-    @Test(expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "duplicate-variables.bal:7: Duplicate variable 'b'.")
+    @Test(expectedExceptions = {BallerinaException.class },
+            expectedExceptionsMessageRegExp = "duplicate-variables.bal:7: redeclared symbol 'b'")
     public void testDuplicateVariables() {
         ParserUtils.parseBalFile("lang/statements/duplicate-variables.bal");
     }
     
     @Test(expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "undeclared-variables.bal:2: undeclared variable 'a'")
+            expectedExceptionsMessageRegExp = "undeclared-variables.bal:2: : undefined symbol 'a'")
     public void testUndeclaredVariables() {
         ParserUtils.parseBalFile("lang/statements/undeclared-variables.bal");
     }
     
     @Test(expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "unsupported-type-variable.bal:6: type 'Foo' is undefined.")
+            expectedExceptionsMessageRegExp = "unsupported-type-variable.bal:6: undefined type 'Foo'")
     public void testUnsupportedTypeVariable() {
         ParserUtils.parseBalFile("lang/statements/unsupported-type-variable.bal");
     }
 
-    @Test(expectedExceptions = SemanticException.class,
-          expectedExceptionsMessageRegExp = "Duplicate constant name: b in duplicate-constant-variables.bal:4")
+    @Test(expectedExceptions = BallerinaException.class,
+          expectedExceptionsMessageRegExp = "duplicate-constant-variables.bal:4: redeclared symbol 'b'")
     public void testDuplicateConstantVariable() {
         ParserUtils.parseBalFile("lang/statements/duplicate-constant-variables.bal");
     }
     
     @Test(description = "Test defining a constant from an array type",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "array-type-constants.bal:3: constant cannot be of type 'int\\[\\]'.")
+            expectedExceptionsMessageRegExp = "array-type-constants.bal:3: invalid type 'int\\[\\]'")
     public void testArrayTypeConstant() {
         ParserUtils.parseBalFile("lang/statements/array-type-constants.bal");
     }

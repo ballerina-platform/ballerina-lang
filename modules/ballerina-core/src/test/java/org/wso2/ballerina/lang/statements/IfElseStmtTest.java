@@ -131,7 +131,7 @@ public class IfElseStmtTest {
         String expected = "elder";
         Assert.assertEquals(actual, expected);
 
-        args = new BValue[] { new BInteger(16) };
+        args = new BValue[]{new BInteger(16)};
         returns = Functions.invoke(bFile, "testAgeGroup", args);
 
         Assert.assertEquals(returns.length, 1);
@@ -141,19 +141,19 @@ public class IfElseStmtTest {
         expected = "minor";
         Assert.assertEquals(actual, expected);
     }
-    
+
     @Test(description = "Test if statement with incompatible types",
-            expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Incompatible types: expected a boolean expression in " +
-            "if-stmnt-with-incompatible-types.bal:2")
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "if-stmnt-with-incompatible-types.bal:2: incompatible type: " +
+                    "'boolean' expected, found 'string'")
     public void testIfStmtWithIncompatibleTypes() {
         ParserUtils.parseBalFile("lang/statements/if-stmnt-with-incompatible-types.bal");
     }
-    
+
     @Test(description = "Test else-if statement with incompatible types",
-            expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Incompatible types: expected a boolean expression in " +
-            "elseif-stmnt-with-incompatible-types.bal:4")
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "elseif-stmnt-with-incompatible-types.bal:2: incompatible type: " +
+                    "'boolean' expected, found 'string'")
     public void testElseIfStmtWithIncompatibleTypes() {
         ParserUtils.parseBalFile("lang/statements/elseif-stmnt-with-incompatible-types.bal");
     }

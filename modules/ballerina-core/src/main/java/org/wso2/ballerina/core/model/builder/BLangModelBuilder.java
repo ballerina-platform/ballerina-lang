@@ -244,7 +244,7 @@ public class BLangModelBuilder {
         // Check whether this constant is already defined.
         if (currentScope.resolve(symbolName) != null) {
             String errMsg = getNodeLocationStr(location) +
-                    "redeclared constant '" + name + "'";
+                    "redeclared symbol '" + name + "'";
             errorMessageList.add(errMsg);
             //throw new BallerinaException(errMsg);
         }
@@ -1061,6 +1061,8 @@ public class BLangModelBuilder {
         if (importPkg != null) {
             importPkg.markUsed();
             cIExprBuilder.setPkgPath(importPkg.getPath());
+        } else {
+            cIExprBuilder.setPkgPath(currentPackagePath);
         }
 
         cIExprBuilder.setName(callableUnitName.name);
