@@ -100,10 +100,12 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                 onDropdownOpen: function() {
                     self._parentView.getBodyWrapper().css("height", $(self._parentView.getBodyWrapper()).height());
                     self._parentView.getBodyWrapper().css("overflow-x", "visible");
+                    $(self._parentView.getBodyWrapper()).closest(".canvas-container").css("overflow", "visible");
                 },
                 onDropdownClosed: function() {
                     self._parentView.getBodyWrapper().css("height", "");
                     self._parentView.getBodyWrapper().css("overflow-x", "");
+                    $(self._parentView.getBodyWrapper()).closest(".canvas-container").css("overflow", "");
                 }
             });
             typeDropdown.getElement().appendTo($(this._typeWrapper));
