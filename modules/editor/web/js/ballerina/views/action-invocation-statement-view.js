@@ -210,24 +210,6 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                 assignmentRect.attr('y',  parseFloat(assignmentRect.attr('y')) + dy);
                 expressionText.attr('y',  parseFloat(expressionText.attr('y')) + dy);
                 processorConnectorPoint.attr('cy',  parseFloat(processorConnectorPoint.attr('cy')) + dy);
-
-                if(!_.isUndefined(self.processorConnector) && !_.isUndefined(self.processorConnector2)){
-                    self.processorConnector.attr('y1', parseFloat(self.processorConnector.attr('y1')) + dy);
-                    self.processorConnector2.attr('y1', parseFloat(self.processorConnector2.attr('y1')) + dy);
-
-                    var x =  parseFloat(self.processorConnector.attr('x2')) - 5;
-                    var y = parseFloat(self.processorConnector.attr('y2')) + dy;
-                    var arrowHeadPoints = "" + x + "," + (y - 5) + " " + (x + 5) + "," + (y) + " " + x + "," + (y + 5);
-                    self.arrowHead.attr("points", arrowHeadPoints);
-
-                    x = parseFloat(self.processorConnector2.attr('x1'));
-                    y = parseFloat(self.processorConnector2.attr('y2')) + dy;
-                    var backArrowHeadPoints = "" + x + "," + y + " " + (x + 5) + "," + (y - 5) + " " + (x + 5) + "," + (y + 5);
-                    self.backArrowHead.attr("points", backArrowHeadPoints);
-
-                    self.processorConnector.attr('y2', parseFloat(self.processorConnector.attr('y2')) + dy);
-                    self.processorConnector2.attr('y2', parseFloat(self.processorConnector2.attr('y2')) + dy);
-                }
             });
         };
 
@@ -338,8 +320,12 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
          */
         ActionInvocationStatementView.prototype.onBeforeModelRemove = function () {
             d3.select("#_" +this._model.id).remove();
+            this.getDiagramRenderingContext().getViewOfModel(this._model.getParent()).getStatementContainer()
+                .removeInnerDropZone(this._model);
             this.removeArrows();
-            this.getBoundingBox().w(0).h(0);
+            // resize the bounding box in order to the other objects to resize
+            var moveOffset = -this.getBoundingBox().h() - 30;
+            this.getBoundingBox().move(0, moveOffset);
         };
 
         return ActionInvocationStatementView;

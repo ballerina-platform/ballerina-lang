@@ -89,9 +89,9 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
      * Set the Connector name
      * @param {string} name - Connector Name
      */
-    ConnectorDefinition.prototype.setConnectorName = function (name) {
+    ConnectorDefinition.prototype.setConnectorName = function (name, options) {
         if (!_.isNil(name) && ASTNode.isValidIdentifier(name)) {
-            this.setAttribute('connector_name', name);
+            this.setAttribute('connector_name', name, options);
         } else {
             var errorString = "Invalid connector name: " + name;
             log.error(errorString);
@@ -103,9 +103,9 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
      * Set the connector annotations
      * @param {string[]} annotations - Connector Annotations
      */
-    ConnectorDefinition.prototype.setAnnotations = function (annotations) {
+    ConnectorDefinition.prototype.setAnnotations = function (annotations, options) {
         if (!_.isNil(annotations)) {
-            this.setAttribute('annotations', annotations);
+            this.setAttribute('annotations', annotations, options);
         } else {
             log.warn('Trying to set a null or undefined array to annotations');
         }
@@ -115,9 +115,9 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
      * Set the Connector Arguments
      * @param {object[]} arguments - Connector Arguments
      */
-    ConnectorDefinition.prototype.setArguments = function (arguments) {
+    ConnectorDefinition.prototype.setArguments = function (arguments, options) {
         if (!_.isNil(arguments)) {
-            this.setAttribute('arguments', arguments);
+            this.setAttribute('arguments', arguments, options);
         } else {
             log.warn('Trying to set a null or undefined array to arguments');
         }
@@ -176,7 +176,7 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
      */
     ConnectorDefinition.prototype.initFromJson = function (jsonNode) {
         var self = this;
-        this.connector_name = jsonNode.connector_name;
+        this.setConnectorName(jsonNode.connector_name, {doSilently: true});
 
         // Populate the annotations array
         for (var itr = 0; itr < this.getAnnotations().length; itr ++) {

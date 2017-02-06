@@ -3,12 +3,12 @@
 }
 
 .panel-default > .panel-heading {
-    margin-bottom: 0px;
+    margin-bottom: 0;
 }
 
 .design-view-container{
     padding-left: 200px;
-    padding-top: 0px;
+    padding-top: 0;
     overflow-y: scroll;
     height: 100%;
 }
@@ -50,8 +50,9 @@
 }
 
 .panel-icon, .service-icon, .connector-icon, .function-icon{
-    padding: 4px;
-    background-color: black;
+    padding: 5px;
+    background-color: #000;
+    font-size: 20px;
 }
 
 .title-link {
@@ -63,8 +64,7 @@
 }
 
 .panel-collapse .collapse{
-    border-style:solid;
-    border-width:1px;
+    border:1px solid;
 }
 
 .tab-pane .panel{
@@ -305,7 +305,7 @@
 .resource-parameters-detail-type-wrapper {
     float: left;
     width: 120px;
-    font-weight: bold;
+    font-weight: 400;
 }
 
 .resource-parameters-detail-identifier-wrapper {
@@ -401,7 +401,7 @@
 }
 
 .return-types-details-wrapper {
-    padding: 0px;
+    padding: 0;
     overflow-y: scroll;
     width: 100%;
     border-left: 1px solid #555;
@@ -606,4 +606,11 @@
 .package-definition-main-wrapper{
     margin-bottom: 1em;
 }
+.tooltip-inner {
+    white-space:nowrap;
+    max-width:none;
+}
 
+.tooltip.bottom {
+    margin-top: -3px;
+}

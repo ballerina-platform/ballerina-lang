@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (require, $, log, Backbone, FileBrowser) {
+define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'bootstrap'], function (require, $, log, Backbone, FileBrowser) {
     var SaveToFileDialog = Backbone.View.extend(
         /** @lends SaveToFileDialog.prototype */
         {
@@ -116,13 +116,18 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     "</span>"+
                     "</div>");
 
-                var errorNotification = $(
-                    "<div style='z-index: 9999;' style='line-height: 20%;' class='alert alert-danger' id='error-alert'>"+
-                    "<span class='notification'>"+
-                    "Error while saving configuration !"+
-                    "</span>"+
-                    "</div>");
-
+                function getErrorNotification(detailedErrorMsg) {
+                    var errorMsg = "Error while saving configuration";
+                    if (!_.isEmpty(detailedErrorMsg)){
+                        errorMsg += (" : " + detailedErrorMsg);
+                    }
+                    return $(
+                        "<div style='z-index: 9999;' style='line-height: 20%;' class='alert alert-danger' id='error-alert'>" +
+                        "<span class='notification'>" +
+                        errorMsg +
+                        "</span>" +
+                        "</div>");
+                }
 
                 var saveConfigModal = fileSave.filter("#saveConfigModal");
                 var newWizardError = fileSave.find("#newWizardError");
@@ -172,9 +177,10 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     });
                 };
 
-                function alertError(){
+                function alertError(errorMessage) {
+                    var errorNotification = getErrorNotification(errorMessage);
                     $(notification_container).append(errorNotification);
-                    errorNotification.fadeTo(2000, 200).slideUp(1000, function(){
+                    errorNotification.fadeTo(2000, 200).slideUp(1000, function () {
                         errorNotification.slideUp(1000);
                     });
                 };
@@ -212,11 +218,11 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                                 app.breadcrumbController.setPath(location.val(), configName.val());
                                 log.debug('file saved successfully')
                             } else {
-                                alertError();
+                                alertError(data.Error);
                             }
                         },
                         error: function(res, errorCode, error){
-                            alertError();
+                            alertError(JSON.parse(res.responseText).Error);
                         }
                     });
                 };

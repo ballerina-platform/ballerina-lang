@@ -80,7 +80,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
         var createStructsDefTool = {
             id: "struct",
             name: "Struct",
-            icon: "images/tool-icons/assign.svg",
+            icon: "images/tool-icons/struct.svg",
             title: "Struct",
             nodeFactoryMethod: BallerinaASTFactory.createStructDefinition
         };
@@ -120,11 +120,20 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             nodeFactoryMethod: BallerinaASTFactory.createAggregatedAssignmentStatement
         };
 
+        // TODO: change the icon with the new one
+        var createVariableDefinitionStatementTool = {
+            id: "VariableDefinition",
+            name: "VariableDefinition",
+            icon: "images/variable.svg",
+            title: "Variable Definition",
+            nodeFactoryMethod: BallerinaASTFactory.createVariableDefinitionStatement
+        };
+
         var createFunctionInvocationTool = {
             id: "FunctionInvocation",
             name: "FunctionInvocation",
             icon: "images/tool-icons/function-invoke.svg",
-            title: "FunctionInvocation",
+            title: "Function Invocation",
             nodeFactoryMethod: BallerinaASTFactory.createAggregatedFunctionInvocationStatement
         };
 
@@ -145,7 +154,8 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
         };
 
         var statementToolDefArray = [createIfStatementTool, createAssignmentExpressionTool,
-            createFunctionInvocationTool, createReturnStatementTool, createReplyStatementTool, createWhileStatementTool];
+            createVariableDefinitionStatementTool,  createFunctionInvocationTool, createReturnStatementTool,
+            createReplyStatementTool, createWhileStatementTool];
 
         // Create statements tool group
         var statements = new ToolGroup({

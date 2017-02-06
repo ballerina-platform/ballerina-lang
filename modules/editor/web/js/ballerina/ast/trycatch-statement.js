@@ -33,9 +33,9 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      * setter for catch block exception
      * @param exception
      */
-    TryCatchStatement.prototype.setExceptionType = function (exception) {
+    TryCatchStatement.prototype.setExceptionType = function (exception, options) {
         if (!_.isNil(exception)) {
-            this.setAttribute('_exceptionType', exception);
+            this.setAttribute('_exceptionType', exception, options);
         } else {
             log.error("Cannot set undefined to the exception.");
         }

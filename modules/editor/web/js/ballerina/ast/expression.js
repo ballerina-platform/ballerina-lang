@@ -26,9 +26,9 @@ define(['lodash', './node'], function(_, ASTNode){
     Expression.prototype = Object.create(ASTNode.prototype);
     Expression.prototype.constructor = Expression;
 
-    Expression.prototype.setExpression = function (expression) {
+    Expression.prototype.setExpression = function (expression, options) {
         if(!_.isUndefined(expression)){
-            this.setAttribute('_expression', expression);
+            this.setAttribute('_expression', expression, options);
         }
     };
 
