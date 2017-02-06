@@ -93,10 +93,12 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                 onDropdownOpen: function() {
                     self.getBodyWrapper().css("height", $(self.getBodyWrapper()).height());
                     self.getBodyWrapper().css("overflow-x", "visible");
+                    $(self.getBodyWrapper()).closest(".canvas-container").css("overflow", "visible");
                 },
                 onDropdownClosed: function() {
                     self.getBodyWrapper().css("height", "");
                     self.getBodyWrapper().css("overflow-x", "");
+                    $(self.getBodyWrapper()).closest(".canvas-container").css("overflow", "");
                 }
             });
             typeDropdown.getElement().appendTo(structOperationsWrapper);
@@ -105,6 +107,11 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
             var bTypes = this.getDiagramRenderingContext().getEnvironment().getTypes();
             _.forEach(bTypes, function (bType) {
                 typeDropdown.addItem({key: bType, value: bType});
+            });
+
+            var structTypes = this.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
+            _.forEach(structTypes, function (sType) {
+                typeDropdown.addItem({key: sType.getStructName(), value: sType.getStructName()});
             });
 
             // Creating the identifier text box.

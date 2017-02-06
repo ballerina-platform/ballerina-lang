@@ -37,6 +37,7 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
         this._content = _.get(args, 'content');
         this._debugger = _.get(args, 'debugger', undefined);
         this._markers = {};
+        this._gutter = 25;
     };
 
     SourceView.prototype = Object.create(EventChannel.prototype);
@@ -66,6 +67,11 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
         this._editor.setOptions({
             fontSize: _.get(this._options, 'font_size')
         });
+        this._editor.on("change", function() {
+            if(!self._inSilentMode){
+                self.trigger('modified');
+            }
+        });
 
         //register actions
         if(this._debugger != undefined && this._debugger.isEnabled()){
@@ -81,13 +87,50 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
      *
      */
     SourceView.prototype.setContent = function(content){
+        // avoid triggering change event on format
+        this._inSilentMode = true;
         this._editor.session.setValue(content);
         var fomatter = require('ballerina').utils.AceFormatter;
         fomatter.beautify(this._editor.getSession());
+        this._inSilentMode = false;
+        this.markClean();
     };
 
     SourceView.prototype.getContent = function(){
         return this._editor.session.getValue();
+    };
+
+    SourceView.prototype.getEditor = function(){
+        return this._editor;
+    };
+
+    /**
+     * Binds a shortcut to ace editor so that it will trigger the command on source view upon key press.
+     * All the commands registered app's command manager will be bound to source view upon render.
+     *
+     * @param command {Object}
+     * @param command.id {String} Id of the command to dispatch
+     * @param command.shortcuts {Object}
+     * @param command.shortcuts.mac {Object}
+     * @param command.shortcuts.mac.key {String} key combination for mac platform eg. 'Command+N'
+     * @param command.shortcuts.other {Object}
+     * @param command.shortcuts.other.key {String} key combination for other platforms eg. 'Ctrl+N'
+     */
+    SourceView.prototype.bindCommand = function(command){
+        var id = command.id,
+            hasShortcut = _.has(command, 'shortcuts'),
+            self = this;
+        if(hasShortcut){
+            var macShortcut = _.replace(command.shortcuts.mac.key, '+', "-"),
+                winShortcut = _.replace(command.shortcuts.other.key, '+', "-");
+            this.getEditor().commands.addCommand({
+                name: id,
+                bindKey: {win: winShortcut, mac: macShortcut},
+                exec: function(editor) {
+                    self.trigger('dispatch-command', id);
+                }
+            });
+        }
     };
 
     SourceView.prototype.show = function(){
@@ -110,7 +153,7 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
             return; 
         if (!this._editor.isFocused()) 
             return; 
-        if (e.clientX > 25 + target.getBoundingClientRect().left) 
+        if (e.clientX > this._gutter + target.getBoundingClientRect().left) 
             return; 
 
 

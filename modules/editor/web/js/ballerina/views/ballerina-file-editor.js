@@ -20,11 +20,11 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         './../visitors/source-gen/ballerina-ast-root-visitor','./../visitors/symbol-table/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
         './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer', './connector-definition-view', './struct-definition-view',
         './../env/package', './../env/package-scoped-environment', './../env/environment', './constant-definitions-pane-view', './../item-provider/tool-palette-item-provider',
-        './package-definition-pane-view'],
+        './package-definition-pane-view','./type-mapper-definition-view'],
     function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory,
               PackageDefinition, SourceView, SourceGenVisitor, SymbolTableGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer,
               ConnectorDefinitionView, StructDefinitionView, Package, PackageScopedEnvironment, BallerinaEnvironment,
-              ConstantsDefinitionsPaneView, ToolPaletteItemProvider, PackageDefinitionView) {
+              ConstantsDefinitionsPaneView, ToolPaletteItemProvider, PackageDefinitionView,TypeMapperDefinitionView) {
 
         /**
          * The view to represent a ballerina file editor which is an AST visitor.
@@ -69,7 +69,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         };
 
         BallerinaFileEditor.prototype.isInSourceView = function(){
-                    return this._isInSourceView;
+            return this._isInSourceView;
         };
 
         BallerinaFileEditor.prototype.setInSourceView = function(isInSourceView){
@@ -235,6 +235,22 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         };
 
         /**
+         * Creates a TypeMapperDefinition view for a TypeMapper Definition model and calls it's render.
+         * @param typeMapperDefinition
+         */
+        BallerinaFileEditor.prototype.visitTypeMapperDefinition = function (typeMapperDefinition) {
+            var typeMapperDefinitionView = new TypeMapperDefinitionView({
+                viewOptions: this._viewOptions,
+                container: this._$canvasContainer,
+                model: typeMapperDefinition,
+                parentView: this,
+                toolPalette: this.toolPalette
+            });
+            typeMapperDefinitionView.render(this.diagramRenderingContext);
+            this.diagramRenderingContext.getViewModelMap()[typeMapperDefinition.id] = typeMapperDefinitionView;
+        };
+
+        /**
          * Adds the service definitions, function definitions and connector definitions to
          * {@link BallerinaFileEditor#_canvasList} and calls {@link BallerinaFileEditor#render}.
          */
@@ -285,11 +301,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this.diagramRenderingContext = diagramRenderingContext;
             //TODO remove this for adding filecontext to the map
             this.diagramRenderingContext.ballerinaFileEditor = this;
-
-            var symbolTableGenVisitor = new SymbolTableGenVisitor(this._package, this._model);
-            this._model.accept(symbolTableGenVisitor);
-            var package = symbolTableGenVisitor.getPackage();
-            this.toolPalette.getItemProvider().addImport(package);
+            this.diagramRenderingContext.packagedScopedEnvironemnt = this._environment;
+            // adding current package to the tool palette with functions, connectors, actions etc. of the current package
+            this.addCurrentPackageToToolPalette();
 
             //adding default packages TODO : this needs to be rendered by referring to imports in the model
             var httpPackage = BallerinaEnvironment.searchPackage("ballerina.net.http");
@@ -319,11 +333,19 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._sourceView.on('add-breakpoint', function (row) {
                 self.trigger('add-breakpoint', row);
             });
+          
+            this._sourceView.on('modified', function () {
+                self._undoManager.reset();
+                self.trigger('content-modified');
+            });
 
             this._sourceView.on('remove-breakpoint', function (row) {
                 self.trigger('remove-breakpoint', row);
-            });            
+            });
 
+            this._sourceView.on('dispatch-command', function (id) {
+                self.trigger('dispatch-command', id);
+            });
 
             this._sourceView.render();
 
@@ -381,6 +403,25 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this.initDropTarget();
     };
 
+        /**
+         * Returns a package object with functions, connectors,
+         * actions etc. of the current package
+         * @returns {Object}
+         */
+        BallerinaFileEditor.prototype.generateCurrentPackage = function () {
+            var symbolTableGenVisitor = new SymbolTableGenVisitor(this._package, this._model);
+            this._model.accept(symbolTableGenVisitor);
+            return symbolTableGenVisitor.getPackage();
+        };
+
+        /**
+         * adding current package to the tool palette with functions, connectors,
+         * actions etc. of the current package
+         */
+        BallerinaFileEditor.prototype.addCurrentPackageToToolPalette = function () {
+            this.toolPalette.getItemProvider().addImport(this.generateCurrentPackage());
+        };
+
     BallerinaFileEditor.prototype.initDropTarget = function() {
         var self = this,
             dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop');
@@ -437,8 +478,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
          * @private
          */
         BallerinaFileEditor.prototype._createPackagePropertyPane = function (canvasContainer) {
-            var currentASTRoot = this._model;
-
+            var self = this;
             var topRightControlsContainer = $(canvasContainer).siblings(".top-right-controls-container");
             var propertyPane = topRightControlsContainer.children(".top-right-controls-container-editor-pane");
 
@@ -473,6 +513,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 $(addImportButton).click(function () {
                     // TODO : Validate new import package name.
                     if (importPackageTextBox.val() != "") {
+                        var currentASTRoot = self.getModel();
                         log.debug("Adding new import");
 
                         // Creating new import.
@@ -501,7 +542,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 var importsWrapper = propertyPane.find(".imports-wrapper");
 
                 // Adding current imports to view.
-                addImportsToView(currentASTRoot, importsWrapper);
+                addImportsToView(self.getModel(), importsWrapper);
 
                 // When clicked outside of the property pane.
                 $(window).click(function () {
@@ -579,6 +620,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             // Creating the constants view.
             this._createConstantDefinitionsView(this._$canvasContainer);
 
+            // adding current package to the tool palette with functions, connectors, actions etc. of the current package
+            this.addCurrentPackageToToolPalette();
             this._model.accept(this);
             this.initDropTarget();
             this.trigger('redraw');
@@ -586,6 +629,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
         BallerinaFileEditor.prototype.getUndoManager = function(){
             return this._undoManager;
+        };
+
+        BallerinaFileEditor.prototype.getSourceView = function(){
+            return this._sourceView;
         };
 
         BallerinaFileEditor.prototype._createConstantDefinitionsView = function(container) {

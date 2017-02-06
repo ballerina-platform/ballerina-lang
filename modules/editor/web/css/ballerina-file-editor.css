@@ -3,12 +3,12 @@
 }
 
 .panel-default > .panel-heading {
-    margin-bottom: 0px;
+    margin-bottom: 0;
 }
 
 .design-view-container{
     padding-left: 200px;
-    padding-top: 0px;
+    padding-top: 0;
     overflow-y: scroll;
     height: 100%;
 }
@@ -50,8 +50,11 @@
 }
 
 .panel-icon, .service-icon, .connector-icon, .function-icon{
-    padding: 4px;
-    background-color: black;
+    padding: 5px;
+    background-color: #000;
+    font-size: 20px;
+    width: 32px;
+    text-align: center;
 }
 
 .title-link {
@@ -63,8 +66,7 @@
 }
 
 .panel-collapse .collapse{
-    border-style:solid;
-    border-width:1px;
+    border:1px solid;
 }
 
 .tab-pane .panel{
@@ -305,7 +307,7 @@
 .resource-parameters-detail-type-wrapper {
     float: left;
     width: 120px;
-    font-weight: bold;
+    font-weight: 400;
 }
 
 .resource-parameters-detail-identifier-wrapper {
@@ -401,7 +403,7 @@
 }
 
 .return-types-details-wrapper {
-    padding: 0px;
+    padding: 0;
     overflow-y: scroll;
     width: 100%;
     border-left: 1px solid #555;
@@ -597,13 +599,40 @@
 
 /** End of Struct view CSS **/
 
-#package-name-input{
-    background-color: rgba(0,0,0,0.1);
-    color: #131313;
-    border: none;
-    font-style: italic;
+span.package-pane {
+    padding: 10px;
+    margin-left: -20px;
+    background-color: #fff;
+    border: 1px solid #f0f0f0;
+    display: none;
+}
+span.package-name-wrapper {
+    margin-left: 10px;
+}
+
+.action-content-wrapper-heading input[type=text] {
+    padding-left: 7px;
+    margin-left: 2px;
+    border: 1px solid #ccc;
+}
+
+input#package-name-input {
+    padding-left: 7px;
+    margin-left: 2px;
+    border: 1px solid #ccc;
+}
+
+.package-name-btn span{
+    cursor: pointer;
 }
 .package-definition-main-wrapper{
     margin-bottom: 1em;
 }
+.tooltip-inner {
+    white-space:nowrap;
+    max-width:none;
+}
 
+.tooltip.bottom {
+    margin-top: -3px;
+}

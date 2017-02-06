@@ -19,11 +19,13 @@
 package org.wso2.ballerina.lang.service;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.EnvironmentInitializer;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.message.StringDataSource;
+import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPResourceDispatcher;
 import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 import org.wso2.ballerina.core.utils.MessageUtils;
@@ -37,9 +39,11 @@ import java.nio.ByteBuffer;
  */
 public class ServiceTest {
 
+    Application application;
+
     @BeforeClass
     public void setup() {
-        EnvironmentInitializer.initialize("lang/service/echoService.bal");
+        application = EnvironmentInitializer.setup("lang/service/echoService.bal");
     }
 
     @Test
@@ -69,7 +73,7 @@ public class ServiceTest {
 
     @Test(description = "Test for service availability check",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = ".* no Service found .*")
+            expectedExceptionsMessageRegExp = ".* no service found .*")
     public void testServiceAvailabilityCheck() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/foo/message", "GET");
         Services.invoke(cMsg);
@@ -90,7 +94,7 @@ public class ServiceTest {
 
     @Test(description = "Test for resource availability check",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = ".* no Resource found .*")
+            expectedExceptionsMessageRegExp = ".* no resource found .*")
     public void testResourceAvailabilityCheck() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/bar", "GET");
         Services.invoke(cMsg);
@@ -132,6 +136,12 @@ public class ServiceTest {
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
         Assert.assertNotNull(stringDataSource);
         Assert.assertEquals(stringDataSource.getValue(), stringPayload);
+    }
+
+
+    @AfterClass
+    public void tearDown() {
+        EnvironmentInitializer.cleanup(application);
     }
 
     //TODO: add more test cases

@@ -49,13 +49,7 @@
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
     <link rel="stylesheet" type="text/css" href="css/debugger.css"/>
     <link rel="stylesheet" type="text/css" href="css/left-tool-bar.css"/>
-
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-    <script src="lib/html5shiv_3.7.2/html5shiv.min.js"></script>
-    <script src="lib/respond_1.4.2/respond.min.js"></script>
-    <![endif]--> 
+    <link rel="stylesheet" type="text/css" href="css/type-mapper.css"/>
 </head>
 <body class="sticky-footer">
 
@@ -184,24 +178,21 @@
                         <div class="action-content-wrapper-body">
                             <!--Div for imports-->
                             <div class="imports-wrapper">
-                                <span class="font-bold">Current imports </span>
+                                <span class="font-bold">Current Imports </span>
                                 <hr>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="package-btn btn-icon" data-toggle="tooltip" title="Import packages">
-                    <span class="fw-stack fw-lg">
-                        <i class="fw fw-circle fw-stack-2x"></i>
-                        <i class="fw fw-package fw-stack-1x fw-inverse"></i>
-                    </span>
+                <div class="package-btn btn-icon" data-toggle="tooltip" title="Import Packages" data-placement="bottom">
+                    <img src="images/dgm-import.svg" class="import-img">
                 </div>
             </div>
             <!-- End: TopRight Controls Container  -->
             <!-- Start: BottomRight Controls Container -->
             <div class="bottom-right-controls-container">
-                <div class="view-source-btn btn-icon" data-toggle="tooltip" title="Source View">
-                    <i class="fw fw-lg fw-code fw-inverse fw-helper fw-helper-circle"></i>
+                <div class="view-source-btn btn-icon" data-toggle="tooltip" title="Source View" data-placement="bottom">
+                    <i class="fw fw-lg fw-code-view fw-inverse fw-helper fw-helper-circle"></i>
                 </div>
             </div>
             <!-- End: BottomRight Controls Container  -->
@@ -211,7 +202,7 @@
         <div class="source-view-container" id="source-container-id">
             <!-- Start: BottomRight Controls Container -->
             <div class="bottom-right-controls-container">
-                <div class="view-design-btn btn-icon" data-toggle="tooltip" title="Design view">
+                <div class="view-design-btn btn-icon" data-toggle="tooltip" title="Design View" data-placement="bottom">
                     <i class="fw fw-lg fw-design-view fw-helper"></i>
                 </div>
             </div>
@@ -440,7 +431,7 @@
 <!--End: Search Modal-->
 
 <!--Start: Debug Modal-->
-<div class="modal fade" id="modalDebugConnection" tabindex="-1" role="dialog">
+<div class="modal fade debug" id="modalDebugConnection" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content clearfix">
             <div class="modal-header">
@@ -450,16 +441,17 @@
                 <h4 class="modal-title" >Debug Connection</h4>
             </div>
             <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
-              <div class="form-group">
+              <div class="form-group debug-connection-group">
                 <label class="sr-only" for="debugUrl">Server URL</label>
                 <div class="input-group">
                   <div class="input-group-addon">ws://</div>
                   <input type="text" class="form-control" id="debugUrl" placeholder="localhost:5006" value="localhost:5006" />
                 </div>
+                <span class="help-block debug-connection-error hide"><i class="fw fw-alert"></i> Connection error please check provided URL.</span>
               </div>
               <div class='form-group'>
-                    <button type='button' class='btn  pull-right btn-file-dialog' data-dismiss='modal'>Cancel</button>
-                    <button type='button' class='btn pull-right btn-file-dialog debug-connect-button'>Connect</button>
+                    <button type='button' class='btn pull-right btn-file-dialog' data-dismiss='modal'>Cancel</button>
+                    <button type='button' class='btn btn-primary pull-right btn-file-dialog debug-connect-button'>Debug</button>
               </div>
             </div>            
         </div>
@@ -529,6 +521,7 @@
             jquery_ui: "lib/jquery-ui_v1.12.1/jquery-ui",
             bootstrap: "lib/bootstrap_v3.3.6/js/bootstrap",
             d3: "lib/d3_v4.1.1/d3",
+            dagre: "lib/dagre-0.7.4/dagre.min",
             log4javascript: "lib/log4javascript-1.4.13/log4javascript",
             lodash: "lib/lodash_v4.13.1/lodash",
             backbone: "lib/backbone_v1.3.3/backbone",
@@ -538,8 +531,11 @@
             ace: "lib/ace_v1.2.6",
             beautify: "lib/beautify/beautify",
             mousetrap: "lib/mousetrap_v1.6.0/mousetrap.min",
-            mcustom_scroller: "lib/mCustomScrollbar_v3.1.5/js/jquery.mCustomScrollbar.concat.min",
+            mcustom_scroller: "lib/mCustomScrollbar_v3.1.5/js/jquery.mCustomScrollbar",
             jquery_context_menu: "lib/context-menu_v2.4.2/jquery.contextMenu.min",
+            html5_shiv: "lib/html5shiv_3.7.2/html5shiv.min",
+            respond: "lib/respond_1.4.2/respond.min",
+            jsPlumb: "lib/jsPlumb-1.5.0/jquery.jsPlumb-1.5.0-min",
             ///////////////////////
             // custom modules ////
             //////////////////////
@@ -559,10 +555,17 @@
             breadcrumbs: "js/breadcrumbs/breadcrumbs",
             property_pane_utils: "js/property-pane/property-pane-utils",
             debugger: "js/debugger/debugger",
-			expression_editor_utils: "js/expression-editor/expression-editor-utils"
+			expression_editor_utils: "js/expression-editor/expression-editor-utils",
+            constants: 'js/constants/constants',
+            typeMapper: 'js/type-mapper/type-mapper-renderer'
         },
         shim: {
-            "bootstrap": {"deps": ['jquery']}
+            "bootstrap": {"deps": ['jquery']},
+            "theme_wso2": {"deps": ['jquery', 'bootstrap', 'html5_shiv', 'respond']},
+            "jsPlumb": {
+                deps: ['jquery','jquery_ui'],
+                exports: 'jsPlumb'
+            }
         },
         map: {
             "*": {
@@ -755,8 +758,8 @@
                                 outer_div: 'panel panel-default container-outer-div',
                                 panel_title: 'panel-title',
                                 panel_icon: 'panel-icon',
-                                service_icon: 'fw fw-dgm-service fw-inverse',
-                                struct_icon: 'fw fw-dgm-service fw-inverse',
+                                service_icon: 'fw fw-service fw-inverse',
+                                struct_icon: 'fw fw-struct fw-inverse',
                                 connector_icon:'fw fw-connector fw-inverse',
                                 function_icon:'fw fw-function fw-inverse',
                                 title_link:'collapsed canvas-title',
@@ -768,7 +771,9 @@
                                 canvas_container: 'canvas-container',
                                 panel_delete_icon: 'fw fw-delete pull-right right-icon-clickable delete-icon hoverable',
                                 panel_annotation_icon: 'fw fw-annotation pull-right right-icon-clickable hoverable',
-                                panel_args_icon: 'fw fw-import pull-right right-icon-clickable hoverable'
+                                panel_args_icon: 'fw fw-import pull-right right-icon-clickable hoverable',
+                                type_mapper_icon: 'fw fw-dgm-service fw-inverse',
+                                type_struct_icon: 'fw fw-dgm-service fw-inverse'
                             },
                             notifications: {
                                 container: '#notification-container'

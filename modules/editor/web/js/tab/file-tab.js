@@ -102,7 +102,8 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
                 DebugManager.removeBreakPoint(row, this._file.getName());
             }, this);
 
-            DebugManager.on('debug-hit', function(position){
+            DebugManager.on('debug-hit', function(message){
+                var position = message.position;
                 if(position.fileName == this._file.getName()){
                     fileEditor.debugHit(position);
                 }
@@ -112,7 +113,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
             fileEditor.render(diagramRenderingContext);
 
             fileEditor.on("content-modified redraw", function(){
-                var updatedContent = this.getBallerinaFileEditor().generateSource();
+                var updatedContent = fileEditor.getContent();
                 this._file.setContent(updatedContent);
                 this._file.setDirty(true);
                 this._file.save();
@@ -124,6 +125,15 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
                 this.app.workspaceManager.updateSaveMenuItem();
                 this.updateHeader();
             }, this);
+
+            fileEditor.on("dispatch-command", function (id) {
+                this.app.commandManager.dispatch(id);
+            }, this);
+
+            // bind app commands to source editor commands
+            this.app.commandManager.getCommands().forEach(function(command){
+                fileEditor.getSourceView().bindCommand(command);
+            });
         },
 
         updateHeader: function(){
