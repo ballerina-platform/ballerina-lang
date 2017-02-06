@@ -23,7 +23,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>bundle</packaging>
-    <artifactId>org.wso2.carbon.transport.serverconnector.framework</artifactId>
+    <artifactId>org.wso2.carbon.serverconnector.framework</artifactId>
     <name>WSO2 Carbon Transport Server Connector Framework</name>
 
     <dependencies>
@@ -47,7 +47,7 @@
 
     <properties>
         <export.package>
-            org.wso2.carbon.transport.serverconnector.framework.*;
+            org.wso2.carbon.serverconnector.framework.*;
             version="${serverconnector.framework.package.export.version}"
         </export.package>
         <import.package>
