@@ -38,6 +38,7 @@ under the License.
             <class name="org.wso2.ballerina.lang.expressions.BackQuoteExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.BinaryExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.DivideExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.ModExpressionTest"/>
             <class name="org.wso2.ballerina.lang.expressions.FuncInvocationExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.GreaterLessThanExprTest"/>
             <!-- Not used at the moment -->
@@ -73,23 +74,27 @@ under the License.
             <class name="org.wso2.ballerina.lang.statements.PackageImportTest"/>
             <!-- Enable this once connector implementation is done -->
             <!--<class name="org.wso2.ballerina.lang.statements.ReplyStmtTest"/>-->
+            <class name="org.wso2.ballerina.lang.statements.ReturnStmtTest"/>
             <!--<class name="org.wso2.ballerina.lang.statements.ReturnStmtNegativeTest"/>-->
             <class name="org.wso2.ballerina.lang.statements.VariableDeclarationTest"/>
             <class name="org.wso2.ballerina.lang.statements.WhileStmtTest"/>
+
+
+            <!-- services -->
+
+
+            <!-- structs -->
+
         </classes>
     </test>
 
     <!-- Parser Level Test Cases -->
-    <!--<test name="ballerina-parser-unit-tests" preserve-order="true" parallel="false">-->
-    <!--<classes>-->
-    <!-- Statements -->
-    <!--<class name="org.wso2.ballerina.core.parser.statements.WhileStatementParserTest"/>-->
-    <!--<class name="org.wso2.ballerina.core.parser.statements.IfElseParserTest"/>-->
-
-    <!-- Negative Test cases -->
-    <!--<class name="org.wso2.ballerina.core.parser.negative.InvalidSyntaxParserTest"/>-->
-    <!--</classes>-->
-    <!--</test>-->
+    <test name="ballerina-parser-unit-tests" preserve-order="true" parallel="false">
+        <classes>
+            <!-- Negative Test cases -->
+            <!--<class name="org.wso2.ballerina.core.parser.negative.InvalidSyntaxParserTest"/>-->
+        </classes>
+    </test>
 
     <!-- Native Function Related Test Cases. -->
     <!--<test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">-->
