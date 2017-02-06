@@ -89,6 +89,7 @@ public class WebSocketSourceHandler extends SourceHandler {
             ByteBuf byteBuf = binaryWebSocketFrame.content();
             ByteBuffer byteBuffer = byteBuf.nioBuffer();
             cMsg = new BinaryCarbonMessage(byteBuffer, finalFragment);
+            byteBuf.release();
 
         } else if (msg instanceof CloseWebSocketFrame) {
             CloseWebSocketFrame closeWebSocketFrame = (CloseWebSocketFrame) msg;
@@ -104,10 +105,10 @@ public class WebSocketSourceHandler extends SourceHandler {
             ByteBuf byteBuf = pongWebSocketFrame.content();
             ByteBuffer byteBuffer = byteBuf.nioBuffer();
             cMsg = new ControlCarbonMessage(byteBuffer, finalFragment);
+            byteBuf.release();
 
-        } else {
-            throw new UnknownWebSocketFrameTypeException("Cannot identify the WebSocket Frame Type");
         }
+
         setupCarbonMessage(ctx);
         publishToMessageProcessor(cMsg);
     }
