@@ -234,8 +234,7 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
 
         // fire change event with necessary callbacks for undo/redo
         if(_.isNil(options) || !options.doSilently){
-            var title = _.has(options, 'changeTitle') ? _.get(options, 'changeTitle') : 'set '
-                            + attributeName + ' to ' + newValue;
+            var title = _.has(options, 'changeTitle') ? _.get(options, 'changeTitle') : 'Modify ' + this.getType();
             /**
              * @event ASTNode#tree-modified
              */
