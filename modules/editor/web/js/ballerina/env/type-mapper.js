@@ -32,6 +32,8 @@ define(['log', 'lodash', 'event_channel'],
             this._name = _.get(args, 'name', '');
             this._id = _.get(args, 'id', '');
             this._title = _.get(args, 'title', '');
+            this._returnType = _.get(args, 'returnType', '');
+            this._sourceAndIdentifier = _.get(args, 'sourceAndIdentifier', '');
         };
 
         TypeMapper.prototype = Object.create(EventChannel.prototype);
@@ -67,6 +69,38 @@ define(['log', 'lodash', 'event_channel'],
          */
         TypeMapper.prototype.getId = function () {
             return this._id;
+        };
+
+        /**
+         * sets the returnType
+         * @param {string} returnType
+         */
+        TypeMapper.prototype.setReturnType = function (returnType) {
+            this._returnType = returnType;
+        };
+
+        /**
+         * returns the returnType
+         * @returns {string}
+         */
+        TypeMapper.prototype.getReturnType = function () {
+            return this._returnType;
+        };
+
+        /**
+         * sets the sourceAndIdentifier
+         * @param {string} sourceAndIdentifier
+         */
+        TypeMapper.prototype.setSourceAndIdentifier = function (sourceAndIdentifier) {
+            this._sourceAndIdentifier = sourceAndIdentifier;
+        };
+
+        /**
+         * returns the sourceAndIdentifier
+         * @returns {string}
+         */
+        TypeMapper.prototype.getSourceAndIdentifier = function () {
+            return this._sourceAndIdentifier;
         };
 
         /**
