@@ -209,7 +209,7 @@ public class SQLConnectorTest {
                 st.executeUpdate(query.trim());
             }
         } catch (ClassNotFoundException | SQLException e) {
-            logger.info("Error");
+            //Do nothing
         } finally {
             try {
                 if (st != null) {
