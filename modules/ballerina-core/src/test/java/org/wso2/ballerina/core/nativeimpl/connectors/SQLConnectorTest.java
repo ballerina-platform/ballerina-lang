@@ -108,7 +108,7 @@ public class SQLConnectorTest {
         Assert.assertTrue(generatedKey > 0);
     }
 
-    //@Test(description = "Test Insert Data with Generated Keys and Key Columns")
+    @Test(description = "Test Insert Data with Generated Keys and Key Columns")
     public void testInsertWithKeyColumns() {
 
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/generatedKeys", "GET");
@@ -135,7 +135,7 @@ public class SQLConnectorTest {
         Assert.assertEquals(stringDataSource.getValue(), "Peter");
     }
 
-    //@Test(description = "Test Connector With Data Source")
+    @Test(description = "Test Connector With Data Source")
     public void testConnectorWithDataSource() {
 
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/connectorWithDataSource", "GET");
@@ -148,7 +148,7 @@ public class SQLConnectorTest {
         Assert.assertEquals(stringDataSource.getValue(), "Peter");
     }
 
-    //@Test(description = "Test Connector With Hikari Pool Properties")
+    @Test(description = "Test Connector With Hikari Pool Properties")
     public void testPoolProperties() {
 
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/poolPropTest", "GET");
@@ -189,7 +189,7 @@ public class SQLConnectorTest {
             Class.forName("org.hsqldb.jdbcDriver");
             connection = DriverManager.getConnection("jdbc:hsqldb:file:./target/TEST_SQL_CONNECTOR", "SA", "");
             String sql = XMLUtils.readFileToString("datafiles/SQLConnetorDataFile.sql");
-            String[] sqlQuery = sql.split(";");
+            String[] sqlQuery = sql.trim().split(";");
             st = connection.createStatement();
             for (String query : sqlQuery) {
                 st.executeUpdate(query.trim());
