@@ -28,27 +28,27 @@ define(['lodash', './node'], function (_, ASTNode) {
     TypeConverterDefinition.prototype = Object.create(ASTNode.prototype);
     TypeConverterDefinition.prototype.constructor = TypeConverterDefinition;
 
-    TypeConverterDefinition.prototype.setSource = function (source) {
+    TypeConverterDefinition.prototype.setSource = function (source, options) {
         if (!_.isNil(source)) {
-            this.source = source;
+            this.setAttribute('source', source, options);
         }
     };
 
-    TypeConverterDefinition.prototype.setVariableDeclarations = function (variableDeclarations) {
+    TypeConverterDefinition.prototype.setVariableDeclarations = function (variableDeclarations, options) {
         if (!_.isNil(variableDeclarations)) {
-            this.variableDeclarations = variableDeclarations;
+            this.setAttribute('variableDeclarations', variableDeclarations, options);
         }
     };
 
-    TypeConverterDefinition.prototype.setStatements = function (statements) {
+    TypeConverterDefinition.prototype.setStatements = function (statements, options) {
         if (!_.isNil(statements)) {
-            this.statements= statements;
+            this.setAttribute('statements', statements, options);
         }
     };
 
-    TypeConverterDefinition.prototype.setReturnType = function (returnType) {
+    TypeConverterDefinition.prototype.setReturnType = function (returnType, options) {
         if (!_.isNil(returnType)) {
-            this.returnType = returnType;
+            this.setAttribute('returnType', returnType, options);
         }
     };
 

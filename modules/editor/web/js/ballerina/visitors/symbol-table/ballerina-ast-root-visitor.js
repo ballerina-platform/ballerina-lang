@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor', './../../env/connector'],
-    function (_, log, EventChannel, AbstractSymbolTableGenVisitor, Connector) {
+define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor', './../../env/connector', './../../env/ballerina-env-factory', './../../ast/ballerina-ast-factory'],
+    function (_, log, EventChannel, AbstractSymbolTableGenVisitor, Connector, BallerinaEnvFactory, BallerinaASTFactory) {
 
         var BallerinaASTRootVisitor = function (package, model) {
             AbstractSymbolTableGenVisitor.call(this, package);
@@ -35,8 +35,13 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
             this._model.on('child-added', function (child) {
                 this.visit(child);
             }, this);
+            this._model.on('child-removed', function (child) {
+                if (BallerinaASTFactory.isFunctionDefinition(child)) {
+                    this.removeFunctionDefinition(child);
+                }
+            }, this);
         };
-
+        
         BallerinaASTRootVisitor.prototype.canVisitBallerinaASTRoot = function (serviceDefinition) {
             return true;
         };
@@ -54,7 +59,11 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
         };
 
         BallerinaASTRootVisitor.prototype.visitFunctionDefinition = function (functionDefinition) {
-            this.getPackage().addFunctionDefinitions(functionDefinition);
+            var functionDef = BallerinaEnvFactory.createFunction();
+            functionDef.setName(functionDefinition.getFunctionName());
+            functionDef.setTitle(functionDefinition.getFunctionName());
+            functionDef.setId(functionDefinition.getFunctionName());
+            this.getPackage().addFunctionDefinitions(functionDef);
         };
 
         BallerinaASTRootVisitor.prototype.visitStructDefinition = function (structDefinition) {
@@ -70,6 +79,14 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
             connector.setName(connectorDefinition.getConnectorName());
             connector.setTitle(connectorDefinition.getConnectorName());
             this.getPackage().addConnectors(connector);
+        };
+
+        /**
+         * remove given function definition from the package object
+         * @param {Object} functionDef - function definition to be removed
+         */
+        BallerinaASTRootVisitor.prototype.removeFunctionDefinition = function (functionDef) {
+            this.getPackage().removeFunctionDefinition(functionDef);
         };
 
         return BallerinaASTRootVisitor;

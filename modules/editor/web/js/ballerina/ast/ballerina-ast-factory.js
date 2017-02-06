@@ -30,7 +30,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression',
         './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
         './if-condition', './array-map-access-expression', './binary-expression', './connector-action', './struct-definition',
-        './constant-definition'],
+        './constant-definition', './variable-definition-statement'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -40,7 +40,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
               thenBody, ifCondition, arrayMapAccessExpression, binaryExpression, connectorAction, structDefinition,
-              constantDefinition) {
+              constantDefinition, variableDefinitionStatement) {
 
 
         /**
@@ -80,14 +80,14 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @param args
          */
         BallerinaASTFactory.createMainFunctionDefinition = function (args) {
-            var functionDefinition = BallerinaASTFactory.createFunctionDefinition();
+            var functionDefinition = BallerinaASTFactory.createFunctionDefinition(args);
             functionDefinition.setFunctionName("main");
             functionDefinition.addArgument("string[]", "args");
-            var printHelloWorldStatement = BallerinaASTFactory.createFunctionInvocationStatement();
+            var printHelloWorldStatement = BallerinaASTFactory.createFunctionInvocationStatement(args);
             printHelloWorldStatement.setPackageName("system");
             printHelloWorldStatement.setFunctionName("println");
             printHelloWorldStatement.setParams('"Hello world"');
-            var functionInvocationExpr = BallerinaASTFactory.createFunctionInvocationExpression();
+            var functionInvocationExpr = BallerinaASTFactory.createFunctionInvocationExpression(args);
             printHelloWorldStatement.addChild(functionInvocationExpr);
             functionDefinition.addChild(printHelloWorldStatement);
             return functionDefinition;
@@ -204,11 +204,12 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @returns {AssignmentStatement}
          */
         BallerinaASTFactory.createAggregatedActionInvocationExpression = function(args) {
-            var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
-            var leftOp = BallerinaASTFactory.createLeftOperandExpression();
-            var rightOp = BallerinaASTFactory.createRightOperandExpression();
+            var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
+            var leftOp = BallerinaASTFactory.createLeftOperandExpression(args);
+            var rightOp = BallerinaASTFactory.createRightOperandExpression(args);
             var actionInExp = BallerinaASTFactory.createActionInvocationExpression(args);
             rightOp.addChild(actionInExp);
+            rightOp.setRightOperandExpressionString(actionInExp.getExpression());
             assignmentStmt.addChild(leftOp);
             assignmentStmt.addChild(rightOp);
             return assignmentStmt;
@@ -267,15 +268,24 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * creates Variable Definition Statement
+         * @param {Object} args
+         * @returns {VariableDefinitionStatement}
+         */
+        BallerinaASTFactory.createVariableDefinitionStatement = function (args) {
+            return new variableDefinitionStatement(args);
+        };
+
+        /**
          * creates Aggregated AssignmentStatement
          * @param {Object} args
          * @returns {AssignmentStatement}
          */
         BallerinaASTFactory.createAggregatedAssignmentStatement = function (args) {
-            var assignmentStmt = new assignmentStatement(args);
-            var leftOperand = BallerinaASTFactory.createLeftOperandExpression();
+            var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
+            var leftOperand = BallerinaASTFactory.createLeftOperandExpression(args);
             leftOperand.setLeftOperandExpressionString("a");
-            var rightOperand = BallerinaASTFactory.createRightOperandExpression();
+            var rightOperand = BallerinaASTFactory.createRightOperandExpression(args);
             rightOperand.setRightOperandExpressionString("b");
             assignmentStmt.addChild(leftOperand);
             assignmentStmt.addChild(rightOperand);
@@ -316,7 +326,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @returns {FunctionInvocationExpression}
          */
         BallerinaASTFactory.createFunctionInvocationExpression = function (args) {
-            return new functionInvocationExpression();
+            return new functionInvocationExpression(args);
         }
 
         /**
@@ -325,7 +335,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @returns {VariableReferenceExpression}
          */
         BallerinaASTFactory.createVariableReferenceExpression = function (args) {
-            return new variableReferenceExpression();
+            return new variableReferenceExpression(args);
         }
 
         /**
@@ -1068,6 +1078,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'constant_definition':
                         node = BallerinaASTFactory.createConstantDefinition();
+                        break;
+                    case 'struct_definition':
+                        node = BallerinaASTFactory.createStructDefinition();
                         break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;
