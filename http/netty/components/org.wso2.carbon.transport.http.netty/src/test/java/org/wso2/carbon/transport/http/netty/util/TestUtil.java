@@ -24,6 +24,7 @@ import org.apache.commons.io.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
+import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
@@ -38,6 +39,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -58,16 +60,18 @@ public class TestUtil {
 
     public static final String TRANSPORT_URI = "http://localhost:8490/";
 
-    public static void cleanUp(List<HTTPServerConnector> serverConnectors, HTTPServer httpServer) {
+    public static void cleanUp(List<HTTPServerConnector> serverConnectors, HTTPServer httpServer)
+            throws ServerConnectorException {
         try {
             Thread.sleep(TestUtil.SERVERS_SHUTDOWN_WAIT_TIME);
         } catch (InterruptedException e) {
             log.error("Thread Interrupted while sleeping ", e);
         }
 
-        serverConnectors.forEach(serverConnector -> {
-            serverConnector.unbind();
-        });
+        for (HTTPServerConnector httpServerConnector : serverConnectors) {
+            httpServerConnector.start(Collections.EMPTY_MAP);
+        }
+
         serverConnectors.get(0).getServerConnectorController().stop();
 
         httpServer.shutdown();

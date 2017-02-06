@@ -21,14 +21,17 @@ import io.netty.channel.ChannelFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.ListeningServerConnector;
+import org.wso2.carbon.messaging.ServerConnector;
+import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+
+import java.util.Map;
 
 /**
  * HTTP ServerConnector implementation
  */
-public class HTTPServerConnector extends ListeningServerConnector {
+public class HTTPServerConnector extends ServerConnector {
 
     private static final Logger log = LoggerFactory.getLogger(HTTPServerConnector.class);
 
@@ -43,26 +46,15 @@ public class HTTPServerConnector extends ListeningServerConnector {
     }
 
     @Override
-    public boolean bind() {
+    public void start(Map<String, String> map) throws ServerConnectorException {
         if (listenerConfiguration.isBindOnStartup()) { // Already bind at the startup, hence skipping
-            return false;
+            return;
         }
-
-        return serverConnectorController.bindInterface(this);
+        serverConnectorController.bindInterface(this);
     }
-
-    @Override
-    public boolean unbind() {
-        return serverConnectorController.unBindInterface(this);
-    }
-
-    @Override
-    public void start() {
-        log.info("Starting  HTTP Transport Listener");
-    }
-
     @Override
     public void stop() {
+        serverConnectorController.unBindInterface(this);
     }
 
     @Override
@@ -76,6 +68,16 @@ public class HTTPServerConnector extends ListeningServerConnector {
     @Override
     public void setMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
         HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
+    }
+
+    @Override
+    public void init() throws ServerConnectorException {
+        log.info("Initializing  HTTP Transport Listener");
+    }
+
+    @Override
+    protected void destroy() throws ServerConnectorException {
+        log.info("Destroying  HTTP Transport Listener");
     }
 
     public ChannelFuture getChannelFuture() {

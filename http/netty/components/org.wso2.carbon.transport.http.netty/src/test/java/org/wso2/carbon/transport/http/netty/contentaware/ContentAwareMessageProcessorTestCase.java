@@ -25,6 +25,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
+import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.listener.HTTPServerConnector;
@@ -177,7 +178,7 @@ public class ContentAwareMessageProcessorTestCase {
     }
 
     @AfterClass
-    public void cleanUp() {
+    public void cleanUp() throws ServerConnectorException {
         TestUtil.cleanUp(serverConnectors, httpServer);
     }
 
