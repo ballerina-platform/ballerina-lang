@@ -42,7 +42,7 @@ public class EnvironmentInitializer {
 
     public static void initialize(String sourcePath) {
         // Initialize server connectors before starting the test cases
-        BallerinaConnectorManager.getInstance().initializeServerConnectors(new MessageProcessor());
+        BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
         BallerinaConnectorManager.getInstance().registerServerConnectorErrorHandler(new TestErrorHandler());
         // Resister HTTP Dispatchers
         DispatcherRegistry.getInstance().registerServiceDispatcher(new HTTPServiceDispatcher());
