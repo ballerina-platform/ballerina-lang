@@ -19,6 +19,7 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.model.ExecutableStmt;
+import org.wso2.ballerina.core.model.LinkedNode;
 import org.wso2.ballerina.core.model.Node;
 
 /**
@@ -29,5 +30,5 @@ import org.wso2.ballerina.core.model.Node;
  *
  * @since 0.8.0
  */
-public interface Statement extends Node, ExecutableStmt {
+public interface Statement extends Node, ExecutableStmt, LinkedNode {
 }

@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.statements;
 
+import org.wso2.ballerina.core.model.LinkedNodeExecutor;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
@@ -50,6 +51,11 @@ public class ReturnStmt extends AbstractStatement {
 
     @Override
     public void execute(NodeExecutor executor) {
+        executor.visit(this);
+    }
+
+    @Override
+    public void executeLNode(LinkedNodeExecutor executor) {
         executor.visit(this);
     }
 }

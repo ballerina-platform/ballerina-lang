@@ -18,8 +18,6 @@
 
 package org.wso2.ballerina.core.runtime;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.BLangExecutor;
 import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -28,6 +26,8 @@ import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.ParameterDef;
+import org.wso2.ballerina.core.interpreter.nonblocking.BLangNonBlockingExecutor;
+import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -52,7 +52,6 @@ import java.util.Map;
  */
 public class BalProgramExecutor {
 
-    private static final Logger log = LoggerFactory.getLogger(BalProgramExecutor.class);
 
     public static void execute(CarbonMessage cMsg, CarbonCallback callback, Resource resource, Service service,
                                Context balContext) {
@@ -102,7 +101,6 @@ public class BalProgramExecutor {
 
         // Create the interpreter and Execute
         RuntimeEnvironment runtimeEnv = resource.getApplication().getRuntimeEnv();
-        BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
 
         SymbolName resourceSymbolName = resource.getSymbolName();
         CallableUnitInfo resourceInfo = new CallableUnitInfo(resourceSymbolName.getName(),
@@ -110,7 +108,13 @@ public class BalProgramExecutor {
 
         StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], resourceInfo);
         balContext.getControlStack().pushFrame(currentStackFrame);
-        new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
+        if (ModeResolver.getInstance().isNonblockingEnabled()) {
+            BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
+            new ResourceInvocationExpr(resource, exprs).executeLNode(executor);
+        } else {
+            BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
+            new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
+        }
         balContext.getControlStack().popFrame();
     }
 

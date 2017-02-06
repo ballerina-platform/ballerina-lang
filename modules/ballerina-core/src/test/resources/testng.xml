@@ -23,6 +23,7 @@ under the License.
 
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
+        <parameter name="nonblocking" value="false" />
         <packages>
             <package name="org.wso2.ballerina.lang.values"/>
             <package name="org.wso2.ballerina.lang.expressions"/>
@@ -65,8 +66,45 @@ under the License.
     <!--</packages>-->
     <!--</test>-->
 
+
     <test name="ballrina-service-test">
         <classes>
+            <class name="org.wso2.ballerina.lang.service.ServiceVariableTest"/>
+        </classes>
+    </test>
+
+    <!-- Ballerina Test Cases - Non Blocking. -->
+    <test name="ballerina-lang-test-suite-non-blocking" preserve-order="true" parallel="false">
+        <parameter name="nonblocking" value="true" />
+        <packages>
+            <package name="org.wso2.ballerina.lang.values"/>
+            <package name="org.wso2.ballerina.lang.expressions"/>
+            <package name="org.wso2.ballerina.lang.statements"/>
+            <package name="org.wso2.ballerina.lang.structs"/>
+            <package name="org.wso2.ballerina.lang.connectors"/>
+        </packages>
+
+
+        <classes>
+            <!-- Before Test -->
+            <class name="org.wso2.ballerina.TestRunner" />
+        </classes>
+    </test>
+
+    <test name="ballerina-native-functions-unit-tests-non-blocking" preserve-order="true" parallel="false">
+        <parameter name="nonblocking" value="true" />
+        <packages>
+            <package name="org.wso2.ballerina.core.nativeimpl.functions"/>
+        </packages>
+        <classes>
+            <class name="org.wso2.ballerina.TestRunner" />
+        </classes>
+    </test>
+
+    <test name="ballrina-service-test-non-blocking">
+        <parameter name="nonblocking" value="true" />
+        <classes>
+            <class name="org.wso2.ballerina.TestRunner" />
             <class name="org.wso2.ballerina.lang.service.ServiceVariableTest"/>
         </classes>
     </test>

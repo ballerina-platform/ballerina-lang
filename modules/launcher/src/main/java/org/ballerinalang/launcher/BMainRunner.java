@@ -23,14 +23,18 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
+import org.wso2.ballerina.core.interpreter.nonblocking.BLangNonBlockingExecutor;
+import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.builder.BLangLinkBuilder;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
+import org.wso2.ballerina.core.model.nodes.StartNode;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BString;
@@ -92,17 +96,26 @@ class BMainRunner {
                     mainFun.getName(), null, mainFun.getPackagePath(), exprs);
             funcIExpr.setOffset(1);
             funcIExpr.setCallableUnit(mainFun);
+            BLangLinkBuilder linker = new BLangLinkBuilder();
+            funcIExpr.setParent(new StartNode(StartNode.Originator.MAIN_FUNCTION));
+            linker.visit(funcIExpr);
 
             CallableUnitInfo functionInfo = new CallableUnitInfo(funcIExpr.getName(),
                     funcIExpr.getPackagePath(), mainFuncLocation);
 
-            StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], functionInfo);
+            BValue[] tempValues = new BValue[funcIExpr.getCallableUnit().getTempStackFrameSize() + 1];
+
+            StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], tempValues, functionInfo);
             bContext.getControlStack().pushFrame(currentStackFrame);
 
             RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(balFile);
-            BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
-            funcIExpr.executeMultiReturn(executor);
-
+            if (ModeResolver.getInstance().isNonblockingEnabled()) {
+                BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
+                funcIExpr.executeLNode(executor);
+            } else {
+                BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
+                funcIExpr.executeMultiReturn(executor);
+            }
             bContext.getControlStack().popFrame();
         } catch (Throwable ex) {
             String errorMsg = ErrorHandlerUtils.getErrorMessage(ex);
