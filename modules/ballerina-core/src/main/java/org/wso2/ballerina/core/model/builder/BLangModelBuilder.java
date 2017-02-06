@@ -266,9 +266,9 @@ public class BLangModelBuilder {
     /**
      * Start a struct builder.
      */
-    public void startStructDef() {
-        currentStructBuilder = new StructDef.StructBuilder(currentScope);
-        currentScope = currentStructBuilder;
+    public void startStructDef(NodeLocation location) {
+        currentStructBuilder = new StructDef.StructBuilder(location, currentScope);
+        currentScope = currentStructBuilder.getCurrentScope();
     }
 
     /**
@@ -281,12 +281,12 @@ public class BLangModelBuilder {
         SymbolName symbolName = new SymbolName(fieldName, currentPackagePath);
 
         // Check whether this constant is already defined.
-        BLangSymbol fieldSymbol = currentScope.resolve(symbolName);
-        if (fieldSymbol != null && fieldSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
+        StructDef structScope = (StructDef) currentScope;
+        BLangSymbol fieldSymbol = structScope.resolveMembers(symbolName);
+        if (fieldSymbol != null) {
             String errMsg = getNodeLocationStr(location) +
-                    "redeclared field '" + fieldName + "'";
+                    "redeclared symbol '" + fieldName + "'";
             errorMessageList.add(errMsg);
-            //throw new BallerinaException(errMsg);
         }
 
         SimpleTypeName typeName = typeNameStack.pop();
@@ -304,17 +304,14 @@ public class BLangModelBuilder {
      *
      * @param location Location of this {@link StructDef} in the source file
      * @param name     Name of the {@link StructDef}
-     * @param isPublic Flag indicating whether the {@link StructDef} is public
      */
-    public void addStructDef(NodeLocation location, String name, boolean isPublic) {
-        currentStructBuilder.setNodeLocation(location);
+    public void addStructDef(NodeLocation location, String name) {
         currentStructBuilder.setName(name);
         currentStructBuilder.setPackagePath(currentPackagePath);
-        currentStructBuilder.setPublic(isPublic);
         StructDef structDef = currentStructBuilder.build();
 
         // Close Struct scope
-        currentScope = currentStructBuilder.getEnclosingScope();
+        currentScope = structDef.getEnclosingScope();
         currentStructBuilder = null;
 
         // Define StructDef Symbol in the package scope..
