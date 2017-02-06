@@ -52,7 +52,7 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
     };
 
     Frames.prototype.clear =function(message){
-        this.container.html('');
+        this.container.empty();
         VariableTree.clear();
     };
 
