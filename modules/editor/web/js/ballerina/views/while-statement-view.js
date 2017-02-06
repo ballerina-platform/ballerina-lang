@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'jquery', 'log', './compound-statement-view', './../ast/while-statement', 'd3utils', 'd3', 'ballerina/ast/ballerina-ast-factory'],
-    function (_, $, log, CompoundStatementView, WhileStatement, D3Utils, d3, BallerinaASTFactory) {
+define(['lodash', 'jquery', 'log', './compound-statement-view', './../ast/while-statement', 'd3utils', 'd3'],
+    function (_, $, log, CompoundStatementView, WhileStatement, D3Utils, d3) {
 
         /**
          * The view to represent a If statement which is an AST visitor.
@@ -51,16 +51,6 @@ define(['lodash', 'jquery', 'log', './compound-statement-view', './../ast/while-
         };
 
         /**
-         * Override Child remove callback
-         * @param {ASTNode} child - removed child
-         */
-        WhileStatementView.prototype.childRemovedCallback = function (child) {
-            if (BallerinaASTFactory.isStatement(child)) {
-                this.getStatementContainer().childStatementRemovedCallback(child);
-            }
-        };
-
-        /**
          * Render the while statement
          */
         WhileStatementView.prototype.render = function (diagramRenderingContext) {
@@ -69,7 +59,6 @@ define(['lodash', 'jquery', 'log', './compound-statement-view', './../ast/while-
 
             // Creating property pane
             var model = this.getModel();
-            model.accept(this);
             var editableProperty = {
                 propertyType: "text",
                 key: "Condition",
@@ -83,29 +72,6 @@ define(['lodash', 'jquery', 'log', './compound-statement-view', './../ast/while-
                                          editableProperties: editableProperty
                                      });
             this.listenTo(model, 'update-property-text', this.updateConditionExpression);
-
-            /* Removing all the registered 'child-added' event listeners for this model. This is needed because we
-             are not un-registering registered event while the diagram element deletion. Due to that, sometimes we
-             are having two or more view elements listening to the 'child-added' event of same model.*/
-            model.off('child-added');
-            model.on('child-added', function (child) {
-                this.visit(child);
-            }, this);
-        };
-
-        /**
-         * @param {BallerinaStatementView} statement
-         */
-        WhileStatementView.prototype.visit = function (statement) {
-            var args = {
-                model: statement,
-                container: this.getStatementGroup().node(),
-                viewOptions: {},
-                toolPalette: this.getToolPalette(),
-                messageManager: this.messageManager,
-                parent: this
-            };
-            this.getStatementContainer().renderStatement(statement, args);
         };
 
         WhileStatementView.prototype.updateConditionExpression = function (newCondition, propertyKey) {
