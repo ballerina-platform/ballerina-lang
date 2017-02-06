@@ -25,6 +25,7 @@ import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 import org.wso2.carbon.messaging.ServerConnectorProvider;
+import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -64,8 +65,14 @@ public class BallerinaConnectorManager {
         serverConnectors.put(serverConnector.getId(), serverConnector);
     }
 
-    private void startServerConnectors() {
-        serverConnectors.values().forEach(ServerConnector::startConnector);
+    private void initializeConnectors() {
+        for (ServerConnector connector : serverConnectors.values()) {
+            try {
+                connector.initConnector();
+            } catch (ServerConnectorException e) {
+                throw new BallerinaException("Error while starting the connector with id : " + connector.getId(), e);
+            }
+        }
     }
 
     public ServerConnector getServerConnector(String id) {
@@ -136,8 +143,8 @@ public class BallerinaConnectorManager {
         //3. Loading service and resource dispatchers related to transports
         loadDispatchers();
 
-        //4. Should we start all the connectors now?
-        startServerConnectors();
+        //4. Initialize all the connectors
+        initializeConnectors();
 
         connectorsInitialized = true;
     }

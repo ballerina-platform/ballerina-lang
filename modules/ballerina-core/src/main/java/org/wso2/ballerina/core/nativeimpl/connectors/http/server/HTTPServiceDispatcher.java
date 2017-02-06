@@ -30,9 +30,10 @@ import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.ListeningServerConnector;
 import org.wso2.carbon.messaging.ServerConnector;
+import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -152,16 +153,15 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             servicesOnInterface = new HashMap<>();
             services.put(listenerInterface, servicesOnInterface);
             ServerConnector connector = BallerinaConnectorManager.getInstance().getServerConnector(listenerInterface);
-            if (connector != null) {
-                if (!(connector instanceof ListeningServerConnector)) {
-                    throw new BallerinaException(
-                            "ServerConnector interface registered for : " + listenerInterface  +
-                            " is not a ListeningServerConnector");
-                }
-                ((ListeningServerConnector) connector).bind();
-            } else {
+            if (connector == null) {
                 throw new BallerinaException(
                         "ServerConnector interface not registered for : " + listenerInterface);
+            }
+            try {
+                connector.start(Collections.emptyMap());
+            } catch (ServerConnectorException e) {
+                throw new BallerinaException("Cannot start the connector for the interface : " +
+                        listenerInterface, e);
             }
         }
         if (servicesOnInterface.containsKey(basePath)) {
@@ -212,8 +212,13 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
                 services.remove(listenerInterface);
                 ServerConnector connector =
                         BallerinaConnectorManager.getInstance().getServerConnector(listenerInterface);
-                if (connector != null && connector instanceof ListeningServerConnector) {
-                    ((ListeningServerConnector) connector).unbind();
+                if (connector != null) {
+                    try {
+                        connector.stop();
+                    } catch (ServerConnectorException e) {
+                        throw new BallerinaException("Cannot stop the connector for the interface : " +
+                                listenerInterface, e);
+                    }
                 }
             }
         }
