@@ -18,7 +18,6 @@
 package org.wso2.ballerina.annotation.processor;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
@@ -30,7 +29,6 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
-
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.RoundEnvironment;
@@ -209,7 +207,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         for (Argument arg : args) {
             // if the argument is arrayType, then append the element type to the method signature 
             if (arg.type() == TypeEnum.ARRAY && arg.elementType() != TypeEnum.EMPTY) {
-                funcNameBuilder.append("." + BTypes.getArrayType(arg.elementType().getName()));
+                funcNameBuilder.append("." + arg.elementType().getName() + "[]");
             } else {
                 funcNameBuilder.append("." + arg.type().getName());
             }
