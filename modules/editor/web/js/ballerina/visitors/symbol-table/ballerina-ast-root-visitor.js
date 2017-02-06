@@ -70,6 +70,8 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
             typeMapperDef.setName(typeMapperDefinition.getTypeMapperName());
             typeMapperDef.setTitle(typeMapperDefinition.getTypeMapperName());
             typeMapperDef.setId(typeMapperDefinition.getTypeMapperName());
+            typeMapperDef.setSourceAndIdentifier(typeMapperDefinition.getSourceAndIdentifier());
+            typeMapperDef.setReturnType(typeMapperDefinition.getReturnType());
             this.getPackage().addTypeMapperDefinitions(typeMapperDef);
         };
 
