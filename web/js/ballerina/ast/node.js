@@ -243,6 +243,11 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
                 type: 'custom',
                 title: title,
                 context: this,
+                data: {
+                    attributeName: attributeName,
+                    newValue: newValue,
+                    oldValue: oldValue
+                },
                 undo: function(){
                     this.setAttribute(attributeName, oldValue, {doSilently: true});
                 },
