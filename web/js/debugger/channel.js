@@ -16,35 +16,32 @@
  * under the License.
  */
 
-define(['lodash', 'event_channel', 'log', './tools'],
-    function (_, EventChannel, log, Tools){
+define(['lodash', 'event_channel', 'log'],
+    function (_, EventChannel, log){
 
         var Channel = function(args){
-            _.assign(this, args);
-            var self = this;
-            if(args.endpoint != undefined){
-                var websocket = new WebSocket(args.endpoint);
-                websocket.onopen = function () {
-                    self.debugger.trigger("connected");
-                };
-                websocket.onerror = function (e) {
-                    log.error('debugger error', e);
-                };
-                websocket.onmessage = _.bindKey(this, 'parseMessage');
-                this.websocket = websocket;
-            }else{
-                //@todo need to handle error.
+            if(_.isNil(args.endpoint)){
+                throw "Invalid Endpoint";
             }
-            var self = this;
+            _.assign(this, args);
 
-            Tools.on('execute-action', function (action) {
-                self.sendMessage({command: action});
-            });
+            this.ws_normal_code = 1000;
+            this.ws_ssl_code = 1015;
         };
 
         Channel.prototype = Object.create(EventChannel.prototype);
 
         Channel.prototype.constructor = Channel;
+
+        Channel.prototype.connect = function(){
+            var websocket = new WebSocket(this.endpoint);
+            //bind functions
+            websocket.onmessage = _.bindKey(this, 'parseMessage');
+            websocket.onopen = _.bindKey(this, 'onOpen');
+            websocket.onclose = _.bindKey(this, 'onClose');
+            websocket.onerror = _.bindKey(this, 'onError');
+            this.websocket = websocket;
+        }
 
         Channel.prototype.parseMessage = function (strMessage) {            
             var message = JSON.parse(strMessage.data);
@@ -54,6 +51,32 @@ define(['lodash', 'event_channel', 'log', './tools'],
         Channel.prototype.sendMessage = function (message) {
             this.websocket.send(JSON.stringify(message))
         };
+
+        Channel.prototype.onClose = function(event){
+            this.debugger.trigger("session-terminated");
+            var reason;
+            // See http://tools.ietf.org/html/rfc6455#section-7.4.1
+            if (event.code == this.ws_normal_code){
+                reason = "Normal closure";
+                this.trigger("session-ended");
+                return;
+            }
+            else if(event.code == this.ws_ssl_code){
+                reason = "Certificate Issue";
+            }
+            else{
+                reason = "Unknown reason :" + event.code;
+            }
+            log.error(resson);
+        };
+
+        Channel.prototype.onError = function(event){
+            this.debugger.trigger("session-error");
+        };
+
+        Channel.prototype.onOpen = function(event){
+            this.debugger.trigger("session-started");
+        };        
 
         return Channel;
     });
