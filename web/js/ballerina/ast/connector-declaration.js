@@ -46,36 +46,38 @@ define(['lodash', './node'], function (_, ASTNode) {
     ConnectorDeclaration.prototype.canBeConnectorOf = function (action) {
         var BallerinaASTFactory = this.getFactory();
     };
-    ConnectorDeclaration.prototype.setConnectorName = function (name) {
-        this.setAttribute('_connectorName', name);
+    ConnectorDeclaration.prototype.setConnectorName = function (name, options) {
+        this.setAttribute('_connectorName', name, options);
     };
 
-    ConnectorDeclaration.prototype.setConnectorVariable = function (connectorVariable) {
-        this.setAttribute('_connectorVariable', connectorVariable);
+    ConnectorDeclaration.prototype.setConnectorVariable = function (connectorVariable, options) {
+        this.setAttribute('_connectorVariable', connectorVariable, options);
     };
 
-    ConnectorDeclaration.prototype.setConnectorType = function (type) {
-        this.setAttribute('_connectorType', type);
+    ConnectorDeclaration.prototype.setConnectorType = function (type, options) {
+        this.setAttribute('_connectorType', type, options);
     };
-    ConnectorDeclaration.prototype.setConnectorPkgName = function (pkgName) {
-        this.setAttribute('_connectorPkgName', pkgName);
+    ConnectorDeclaration.prototype.setConnectorPkgName = function (pkgName, options) {
+        this.setAttribute('_connectorPkgName', pkgName, options);
     };
 
     /**
      * Set parameters for the connector
      *
-     * @param params {string} string with comma separable values
+     * @param {string} params String with comma separable values
+     * @param {object} options
      * */
-    ConnectorDeclaration.prototype.setParams = function (params) {
-        this._params = params;
+    ConnectorDeclaration.prototype.setParams = function (params, options) {
+        this.setAttribute("_params", params, options);
     };
 
     /**
      * Set connector details from the given expression.
      *
-     * @param expression {string} expression entered by user.
+     * @param {string} expression Expression entered by user.
+     * @param {object} options
      * */
-    ConnectorDeclaration.prototype.setConnectorExpression = function (expression) {
+    ConnectorDeclaration.prototype.setConnectorExpression = function (expression, options) {
         if (!_.isNil(expression) && expression !== "") {
             var leftSide = expression.split("=", 2)[0];
             var rightSide = expression.split("=", 2)[1];
@@ -100,13 +102,13 @@ define(['lodash', './node'], function (_, ASTNode) {
                 rightSide = rightSide.trim();
                 this.setAttribute("_params", rightSide.includes("(") ?
                     rightSide.split("(", 2)[1].slice(0, (rightSide.split("(", 2)[1].length - 1))
-                    : "");
+                    : "", options);
             }
         }
     };
 
-    ConnectorDeclaration.prototype.setTimeout = function (timeout) {
-        this._timeout = timeout;
+    ConnectorDeclaration.prototype.setTimeout = function (timeout, options) {
+        this.setAttribute("_timeout", timeout, options);
     };
 
     ConnectorDeclaration.prototype.setArguments = function (argument) {
@@ -175,7 +177,7 @@ define(['lodash', './node'], function (_, ASTNode) {
     /**
      * Generate Param String
      *
-     * @param self {object} this
+     * @param {object} self Connector declaration
      * */
     var generateParamString = function (self) {
         self._params = "";
@@ -190,7 +192,7 @@ define(['lodash', './node'], function (_, ASTNode) {
     /**
      * Generate Expression to Show on the edit textbox.
      *
-     * @param self {object} this
+     * @param {object} self Connector declaration
      * @return {string} expression
      * */
     var generateExpression = function (self) {
