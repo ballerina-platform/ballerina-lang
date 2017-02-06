@@ -444,6 +444,17 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
+    public void visit(StructDef structDef) {
+        for (VariableDef field : structDef.getFields()) {
+            MemoryLocation location = new StructVarLocation(++structMemAddrOffset);
+            field.setMemoryLocation(location);
+        }
+
+        structDef.setStructMemorySize(structMemAddrOffset + 1);
+        structMemAddrOffset = -1;
+    }
+
+    @Override
     public void visit(Worker worker) {
 
     }
@@ -652,8 +663,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                 assignStmt.setRhsExpr(newExpr);
             } else {
                 throw new SemanticException(lExpr.getNodeLocation().getFileName() + ":"
-                        + lExpr.getNodeLocation().getLineNumber() + ": incompatible types: " + rExpr.getType() +
-                        " cannot be converted to " + lExpr.getType());
+                        + lExpr.getNodeLocation().getLineNumber() + ": incompatible types: '" + rExpr.getType() +
+                        "' cannot be converted to '" + lExpr.getType() + "'");
             }
         }
     }
@@ -1926,35 +1937,6 @@ public class SemanticAnalyzer implements NodeVisitor {
     /*
      * Struct related methods
      */
-
-    /**
-     * Visit and semantically analyze a ballerina Struct definition.
-     */
-    @Override
-    public void visit(StructDef structDef) {
-        String structName = structDef.getName();
-        String structStructPackage = structDef.getPackagePath();
-
-        for (VariableDef field : structDef.getFields()) {
-            BType fieldType = BTypes.resolveType(field.getTypeName(), currentScope, field.getNodeLocation());
-//            validateType(type, field.getNodeLocation());
-
-//            SymbolName fieldSym = LangModelUtils.getStructFieldSymName(field.getName(),
-//                    structName, structStructPackage);
-//            Symbol symbol = symbolTable.lookup(fieldSym);
-//            if (symbol != null && isSymbolInCurrentScope(symbol)) {
-//                throw new SemanticException(getNodeLocationStr(field.getNodeLocation()) + "duplicate field '" +
-//                        fieldSym.getName() + "'.");
-//            }
-            MemoryLocation location = new StructVarLocation(++structMemAddrOffset);
-//            symbol = new Symbol(type, currentScopeName(), location);
-//            symbolTable.insert(fieldSym, symbol);
-            field.setMemoryLocation(location);
-        }
-
-        structDef.setStructMemorySize(structMemAddrOffset + 1);
-        structMemAddrOffset = -1;
-    }
 
 //    /**
 //     * Add the struct to the symbol table.
