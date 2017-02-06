@@ -78,6 +78,7 @@ import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
 import org.wso2.ballerina.core.model.expressions.LessThanExpression;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MapStructInitKeyValueExpr;
+import org.wso2.ballerina.core.model.expressions.ModExpression;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
@@ -951,6 +952,27 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else {
             throwInvalidBinaryOpError(divideExpr);
+        }
+    }
+
+    @Override
+    public void visit(ModExpression modExpression) {
+        BType arithmeticExprType = verifyBinaryArithmeticExprType(modExpression);
+
+        if (arithmeticExprType == BTypes.typeInt) {
+            modExpression.setEvalFunc(ModExpression.MOD_INT_FUNC);
+
+        } else if (arithmeticExprType == BTypes.typeFloat) {
+            modExpression.setEvalFunc(ModExpression.MOD_FLOAT_FUNC);
+
+        } else if (arithmeticExprType == BTypes.typeDouble) {
+            modExpression.setEvalFunc(ModExpression.MOD_DOUBLE_FUNC);
+
+        } else if (arithmeticExprType == BTypes.typeLong) {
+            modExpression.setEvalFunc(ModExpression.MOD_LONG_FUNC);
+
+        } else {
+            throwInvalidBinaryOpError(modExpression);
         }
     }
 
