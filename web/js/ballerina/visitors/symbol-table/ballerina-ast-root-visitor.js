@@ -66,7 +66,11 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
         };
 
         BallerinaASTRootVisitor.prototype.visitTypeMapperDefinition = function (typeMapperDefinition) {
-            this.getPackage().addTypeMapperDefinitions(typeMapperDefinition);
+            var typeMapperDef = BallerinaEnvFactory.createTypeMapper();
+            typeMapperDef.setName(typeMapperDefinition.getTypeMapperName());
+            typeMapperDef.setTitle(typeMapperDefinition.getTypeMapperName());
+            typeMapperDef.setId(typeMapperDefinition.getTypeMapperName());
+            this.getPackage().addTypeMapperDefinitions(typeMapperDef);
         };
 
         /**
