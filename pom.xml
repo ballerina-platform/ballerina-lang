@@ -30,6 +30,7 @@
 
     <modules>
         <module>http/netty</module>
+        <module>server-connector-framework</module>
     </modules>
 
     <scm>
