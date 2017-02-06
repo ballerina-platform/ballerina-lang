@@ -40,7 +40,7 @@ class BServiceRunner {
     private static PrintStream outStream = System.err;
 
     static void start(Path[] serviceFilePaths) {
-        BallerinaConnectorManager.getInstance().initializeServerConnectors(new MessageProcessor());
+        BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
 
         for (Path serviceFilePath : serviceFilePaths) {
             try {
