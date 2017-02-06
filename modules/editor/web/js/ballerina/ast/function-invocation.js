@@ -19,6 +19,7 @@ define(['lodash', './statement'], function (_, Statement) {
 
     /**
      * Class to represent a function invocation in ballerina.
+     * @class FunctionInvocation
      * @constructor
      */
     var FunctionInvocation = function (args) {
