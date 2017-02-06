@@ -1,4 +1,4 @@
-public function testStructConvertor() (Employee){
+function testStructConvertor() (Employee){
     Person per;
     Employee emp;
     per = new Person;
@@ -9,13 +9,13 @@ public function testStructConvertor() (Employee){
     return emp;
 }
 
-public type Person {
+type Person {
     string name;
     map adrs;
     int age;
 }
 
-public type Employee {
+type Employee {
     string fname;
     map locations;
     int hoau;

@@ -156,13 +156,33 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) {
+
+    }
+
+    @Override
+    public void exitFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) {
+
+    }
+
+    @Override
+    public void enterNativeFunction(BallerinaParser.NativeFunctionContext ctx) {
+
+    }
+
+    @Override
+    public void exitNativeFunction(BallerinaParser.NativeFunctionContext ctx) {
+
+    }
+
+    @Override
+    public void enterFunction(BallerinaParser.FunctionContext ctx) {
         if (ctx.exception == null) {
             modelBuilder.startFunctionDef();
         }
     }
 
     @Override
-    public void exitFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) {
+    public void exitFunction(BallerinaParser.FunctionContext ctx) {
         if (ctx.exception == null) {
             boolean isPublic = false;
             List<AnnotationContext> annotations = ctx.annotation();
@@ -204,13 +224,43 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) {
+
+    }
+
+    @Override
+    public void exitConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) {
+
+    }
+
+    @Override
+    public void enterNativeConnector(BallerinaParser.NativeConnectorContext ctx) {
+
+    }
+
+    @Override
+    public void exitNativeConnector(BallerinaParser.NativeConnectorContext ctx) {
+
+    }
+
+    @Override
+    public void enterNativeConnectorBody(BallerinaParser.NativeConnectorBodyContext ctx) {
+
+    }
+
+    @Override
+    public void exitNativeConnectorBody(BallerinaParser.NativeConnectorBodyContext ctx) {
+
+    }
+
+    @Override
+    public void enterConnector(BallerinaParser.ConnectorContext ctx) {
         if (ctx.exception == null) {
             modelBuilder.startCallableUnitGroup();
         }
     }
 
     @Override
-    public void exitConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) {
+    public void exitConnector(BallerinaParser.ConnectorContext ctx) {
         if (ctx.exception == null) {
             TerminalNode identifier = ctx.Identifier();
             if (identifier != null) {
@@ -235,14 +285,24 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterActionDefinition(BallerinaParser.ActionDefinitionContext ctx) {
+    public void enterNativeAction(BallerinaParser.NativeActionContext ctx) {
+
+    }
+
+    @Override
+    public void exitNativeAction(BallerinaParser.NativeActionContext ctx) {
+
+    }
+
+    @Override
+    public void enterAction(BallerinaParser.ActionContext ctx) {
         if (ctx.exception == null) {
             modelBuilder.startActionDef();
         }
     }
 
     @Override
-    public void exitActionDefinition(BallerinaParser.ActionDefinitionContext ctx) {
+    public void exitAction(BallerinaParser.ActionContext ctx) {
         if (ctx.exception == null) {
             // Set the location info needed to generate the stack trace
             TerminalNode identifier = ctx.Identifier(0);
@@ -1090,31 +1150,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterBinaryGTExpression(BallerinaParser.BinaryGTExpressionContext ctx) {
-    }
-
-    @Override
-    public void exitBinaryGTExpression(BallerinaParser.BinaryGTExpressionContext ctx) {
-        createBinaryExpr(ctx);
-    }
-
-    @Override
     public void enterTemplateExpression(BallerinaParser.TemplateExpressionContext ctx) {
     }
 
     @Override
     public void exitTemplateExpression(BallerinaParser.TemplateExpressionContext ctx) {
-    }
-
-    @Override
-    public void enterBinaryLEExpression(BallerinaParser.BinaryLEExpressionContext ctx) {
-    }
-
-    @Override
-    public void exitBinaryLEExpression(BallerinaParser.BinaryLEExpressionContext ctx) {
-        if (ctx.exception == null) {
-            createBinaryExpr(ctx);
-        }
     }
 
     @Override
@@ -1128,17 +1168,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         modelBuilder.addFunctionInvocationExpr(getCurrentLocation(ctx));
-    }
-
-    @Override
-    public void enterBinaryGEExpression(BallerinaParser.BinaryGEExpressionContext ctx) {
-    }
-
-    @Override
-    public void exitBinaryGEExpression(BallerinaParser.BinaryGEExpressionContext ctx) {
-        if (ctx.exception == null) {
-            createBinaryExpr(ctx);
-        }
     }
 
     @Override
@@ -1222,6 +1251,18 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterBinaryCompareExpression(BallerinaParser.BinaryCompareExpressionContext ctx) {
+
+    }
+
+    @Override
+    public void exitBinaryCompareExpression(BallerinaParser.BinaryCompareExpressionContext ctx) {
+        if (ctx.exception == null) {
+            createBinaryExpr(ctx);
+        }
+    }
+
+    @Override
     public void enterBinaryAndExpression(BallerinaParser.BinaryAndExpressionContext ctx) {
     }
 
@@ -1233,55 +1274,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterBinaryNotEqualExpression(BallerinaParser.BinaryNotEqualExpressionContext ctx) {
+    public void enterBinaryAddSubExpression(BallerinaParser.BinaryAddSubExpressionContext ctx) {
+
     }
 
     @Override
-    public void exitBinaryNotEqualExpression(BallerinaParser.BinaryNotEqualExpressionContext ctx) {
-        if (ctx.exception == null) {
-            createBinaryExpr(ctx);
-        }
-    }
-
-    @Override
-    public void enterBinaryDivisionExpression(BallerinaParser.BinaryDivisionExpressionContext ctx) {
-    }
-
-    @Override
-    public void exitBinaryDivisionExpression(BallerinaParser.BinaryDivisionExpressionContext ctx) {
-        if (ctx.exception == null) {
-            createBinaryExpr(ctx);
-        }
-    }
-
-    @Override
-    public void enterBinaryModExpression(BallerinaParser.BinaryModExpressionContext ctx) {
-    }
-
-    @Override
-    public void exitBinaryModExpression(BallerinaParser.BinaryModExpressionContext ctx) {
-        if (ctx.exception == null) {
-            createBinaryExpr(ctx);
-        }
-    }
-
-    @Override
-    public void enterBinarySubExpression(BallerinaParser.BinarySubExpressionContext ctx) {
-    }
-
-    @Override
-    public void exitBinarySubExpression(BallerinaParser.BinarySubExpressionContext ctx) {
-        if (ctx.exception == null) {
-            createBinaryExpr(ctx);
-        }
-    }
-
-    @Override
-    public void enterBinaryMultiplicationExpression(BallerinaParser.BinaryMultiplicationExpressionContext ctx) {
-    }
-
-    @Override
-    public void exitBinaryMultiplicationExpression(BallerinaParser.BinaryMultiplicationExpressionContext ctx) {
+    public void exitBinaryAddSubExpression(BallerinaParser.BinaryAddSubExpressionContext ctx) {
         if (ctx.exception == null) {
             createBinaryExpr(ctx);
         }
@@ -1311,17 +1309,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterBinaryLTExpression(BallerinaParser.BinaryLTExpressionContext ctx) {
-    }
-
-    @Override
-    public void exitBinaryLTExpression(BallerinaParser.BinaryLTExpressionContext ctx) {
-        if (ctx.exception == null) {
-            createBinaryExpr(ctx);
-        }
-    }
-
-    @Override
     public void enterConnectorInitExpression(BallerinaParser.ConnectorInitExpressionContext ctx) {
 
     }
@@ -1336,6 +1323,18 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterBinaryDivMulModExpression(BallerinaParser.BinaryDivMulModExpressionContext ctx) {
+
+    }
+
+    @Override
+    public void exitBinaryDivMulModExpression(BallerinaParser.BinaryDivMulModExpressionContext ctx) {
+        if (ctx.exception == null) {
+            createBinaryExpr(ctx);
+        }
+    }
+
+    @Override
     public void enterBinaryPowExpression(BallerinaParser.BinaryPowExpressionContext ctx) {
     }
 
@@ -1344,19 +1343,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception == null) {
             createBinaryExpr(ctx);
         }
-    }
-
-    @Override
-    public void enterBinaryAddExpression(BallerinaParser.BinaryAddExpressionContext ctx) {
-    }
-
-    @Override
-    public void exitBinaryAddExpression(BallerinaParser.BinaryAddExpressionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        createBinaryExpr(ctx);
     }
 
     @Override
