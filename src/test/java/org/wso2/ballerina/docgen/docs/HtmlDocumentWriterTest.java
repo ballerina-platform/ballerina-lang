@@ -105,6 +105,10 @@ public class HtmlDocumentWriterTest {
             String content2 = new Scanner(htmlFile2).useDelimiter("\\Z").next();
             Assert.assertTrue(content2.contains("Functions"));
             Assert.assertFalse(content2.contains("Connectors"));
+            Assert.assertTrue(content2.contains("Structs"));
+            // asserting struct content
+            Assert.assertTrue(content2.contains("<a href=\"#Argument \">"
+                    + "Argument (string text, int argumentId, int sentiment)</a>"));
 
             String content3 = new Scanner(htmlFile3).useDelimiter("\\Z").next();
             Assert.assertFalse(content3.contains("Functions"));
