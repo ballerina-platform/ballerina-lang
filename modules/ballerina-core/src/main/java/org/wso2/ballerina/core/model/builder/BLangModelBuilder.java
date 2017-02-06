@@ -289,7 +289,8 @@ public class BLangModelBuilder {
             errorMessageList.add(errMsg);
         }
 
-        SimpleTypeName typeName = typeNameStack.pop();
+        // TODO Fix this..
+        SimpleTypeName typeName = typeNameStack.remove(0);
         VariableDef variableDef = new VariableDef(location, fieldName, typeName, symbolName, currentScope);
 
         // Define the variableRef symbol in the current scope
