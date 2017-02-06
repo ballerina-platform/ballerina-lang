@@ -9,6 +9,7 @@ compilationUnit
         importDeclaration*
     (   serviceDefinition
     |   functionDefinition
+    |   nativeFunctionDefinition
     |   connectorDefinition
     |   structDefinition
     |   typeConvertorDefinition
@@ -43,7 +44,11 @@ resourceDefinition
     ;
 
 functionDefinition
-    :   annotation* 'public'? 'native'? 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? functionBody
+    :   annotation* 'public'? 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? functionBody
+    ;
+
+nativeFunctionDefinition
+    :   annotation* 'public'? 'native'? 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? ';'
     ;
 
 //todo rename, this is used in resource, action and funtion
@@ -56,11 +61,15 @@ connectorDefinition
     ;
 
 connectorBody
-    :   '{' variableDefinitionStatement* actionDefinition+ '}'
+    :   '{' ((variableDefinitionStatement* actionDefinition+) | nativeActionDefinition+) '}'
     ;
 
 actionDefinition
     :   annotation* 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? functionBody
+    ;
+
+nativeActionDefinition
+    :   annotation* 'native'? 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? ';'
     ;
 
 structDefinition
