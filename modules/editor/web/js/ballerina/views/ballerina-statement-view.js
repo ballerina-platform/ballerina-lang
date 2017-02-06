@@ -110,7 +110,6 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
             viewOptions.actionButton.class = _.get(args, "actionButton.class", "property-pane-action-button");
             viewOptions.actionButton.wrapper = _.get(args, "actionButton.wrapper", {});
             viewOptions.actionButton.wrapper.class = _.get(args, "actionButton.wrapper.class", "property-pane-action-button-wrapper");
-            viewOptions.actionButton.editClass = _.get(args, "viewOptions.actionButton.editClass", "property-pane-action-button-edit");
             viewOptions.actionButton.disableClass = _.get(args, "viewOptions.actionButton.disableClass", "property-pane-action-button-disable");
             viewOptions.actionButton.deleteClass = _.get(args, "viewOptions.actionButton.deleteClass", "property-pane-action-button-delete");
 
@@ -155,7 +154,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
                 var svgDefinitions = deleteButtonPaneGroup.append("defs");
 
                 var deleteButtonPattern = svgDefinitions.append("pattern")
-                    .attr("id", "editIcon")
+                    .attr("id", "deleteIcon")
                     .attr("width", "100%")
                     .attr("height", "100%");
 
@@ -194,7 +193,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
                 // Creating the edit action button.
                 var deleteButtonRect = D3Utils.rect(centerPointX - (propertyButtonPaneRectWidth / 2), centerPointY + 3,
                     propertyButtonPaneRectWidth, viewOptions.actionButton.height, 0, 0, deleteButtonPaneGroup)
-                    .classed(viewOptions.actionButton.class, true).classed(viewOptions.actionButton.editClass, true);
+                    .classed(viewOptions.actionButton.class, true).classed(viewOptions.actionButton.deleteClass, true);
 
                 // When the outside of the propertyButtonPaneRect is clicked.
                 $(window).click(function (event) {
