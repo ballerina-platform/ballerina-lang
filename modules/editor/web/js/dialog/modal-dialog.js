@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'event_channel'], function (require, $, EventChannel) {
+define(['require', 'jquery', 'event_channel', 'bootstrap'], function (require, $, EventChannel) {
 
     var ModalDialog = function (options) {
         this._options = options;
@@ -91,12 +91,12 @@ define(['require', 'jquery', 'event_channel'], function (require, $, EventChanne
         }
         var modalContainer = $("<div class='modal fade " + _.get(this._options, 'class') +
             "' tabindex='-1' role='dialog' aria-hidden='true'></div>");
-        var modalDialog = $("<div class='modal-dialog' role='document'></div>");
+        var modalDialog = $("<div class='modal-dialog file-dialog' role='document'></div>");
         var modalContent = $("<div class='modal-content'></div>");
         var modalHeader = $("<div class='modal-header'></div>");
         var modalCloseBtnTop = $("<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
             "<span aria-hidden='true'>&times;</span></button>");
-        var modalTitle = $("<h4 class='modal-title'></h4>");
+        var modalTitle = $("<h4 class='modal-title '></h4>");
         var modalBody = $("<div class='modal-body'></div>");
         var modalFooter = $("<div class='modal-footer'></div>");
         var modalCloseBtnBottom = $("<button type='button' class='btn btn-default btn-file-dialog'" +

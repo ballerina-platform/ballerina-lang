@@ -127,18 +127,6 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
              });
         };
 
-        /**
-         * Unplug the view from the current context
-         * @param {object} options
-         * @param {ASTNode} parent - parent node
-         * @param {ASTNode} child - child node
-         */
-        BallerinaView.prototype.unplugView = function (options, parent, child) {
-            // resize the bounding box in order to the other objects to resize
-            this.getBoundingBox().h(options.h).w(options.w);
-            parent.removeChild(child);
-        };
-
         // Auto generated Id for service definitions (for accordion views)
         var uuid =  function (){
             function s4() {

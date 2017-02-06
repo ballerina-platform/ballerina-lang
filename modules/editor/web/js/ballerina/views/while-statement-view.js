@@ -50,15 +50,10 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
          * @param {ASTNode} parent - parent node
          * @param {ASTNode} child - child node
          */
-        WhileStatementView.prototype.removeViewCallback = function (parent, child) {
+        WhileStatementView.prototype.onBeforeModelRemove = function () {
             this._statementContainer.getBoundingBox().off('bottom-edge-moved');
             d3.select("#_" +this._model.id).remove();
-            this.getDiagramRenderingContext().getViewOfModel(parent).getStatementContainer().removeInnerDropZone(child);
-            this.unplugView(
-                {
-                    w: 0,
-                    h: 0
-                }, parent, child);
+            this.getBoundingBox().w(0).h(0);
         };
 
         /**
@@ -119,7 +114,6 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             });
 
             // Creating property pane
-            var editableProperties = [];
             var editableProperty = {
                 propertyType: "text",
                 key: "Condition",
@@ -127,11 +121,10 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
                 getterMethod: this._model.getCondition,
                 setterMethod: this._model.setCondition
             };
-            editableProperties.push(editableProperty);
             this._createPropertyPane({
                 model: this._model,
                 statementGroup:whileGroup,
-                editableProperties: editableProperties
+                editableProperties: editableProperty
             });
 
             this.getBoundingBox().on('height-changed', function(dh){

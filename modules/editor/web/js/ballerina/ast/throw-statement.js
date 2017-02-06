@@ -30,9 +30,9 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
     ThrowStatement.prototype = Object.create(Statement.prototype);
     ThrowStatement.prototype.constructor = ThrowStatement;
 
-    ThrowStatement.prototype.setThrowExpression = function (expression) {
+    ThrowStatement.prototype.setThrowExpression = function (expression, options) {
         if (!_.isNil(expression)) {
-            this._expression = expression;
+            this.setAttribute('_expression', expression, options);
         } else {
             log.error("Cannot set undefined to the throw statement.");
         }

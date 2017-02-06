@@ -23,7 +23,7 @@ define(['lodash', 'log', './node'], function(_, log, ASTNode){
         this._identifier = _.get(args, "identifier");
 
         // Validating the identifier.
-        if (!_.isUndefined(this.identifier) && !VariableDeclaration.isValidIdentifier(this.identifier)) {
+        if (!_.isUndefined(this.identifier) && !ASTNode.isValidIdentifier(this.identifier)) {
             var exceptionString = "Invalid identifier: \'" + this.identifier + "\'. An identifier must match the " +
                 "regex ^[a-zA-Z$_][a-zA-Z0-9$_]*$";
             log.error(exceptionString);
@@ -34,9 +34,13 @@ define(['lodash', 'log', './node'], function(_, log, ASTNode){
     VariableDeclaration.prototype = Object.create(ASTNode.prototype);
     VariableDeclaration.prototype.constructor = VariableDeclaration;
 
-    VariableDeclaration.prototype.setType = function (type) {
-        if(!_.isUndefined(type)){
-            this._type = type;
+    VariableDeclaration.prototype.setType = function (type, options) {
+        if (!_.isUndefined(type)) {
+            this.setAttribute('_type', type, options);
+        } else {
+            var exceptionString = "A variable requires a type.";
+            log.error(exceptionString);
+            throw exceptionString;
         }
     };
 
@@ -44,9 +48,9 @@ define(['lodash', 'log', './node'], function(_, log, ASTNode){
         return this._type;
     };
 
-    VariableDeclaration.prototype.setIdentifier = function (identifier) {
-        if (!_.isNil(identifier) && VariableDeclaration.isValidIdentifier(identifier)) {
-            this._identifier = identifier;
+    VariableDeclaration.prototype.setIdentifier = function (identifier, options) {
+        if (!_.isNil(identifier) && ASTNode.isValidIdentifier(identifier)) {
+            this.setAttribute('_identifier', identifier, options);
         } else {
             var exceptionString = "Invalid identifier: \'" + identifier + "\'. An identifier must match the regex " +
                 "^[a-zA-Z$_][a-zA-Z0-9$_]*$";
@@ -60,22 +64,22 @@ define(['lodash', 'log', './node'], function(_, log, ASTNode){
     };
 
     /**
-     * initialize VariableDeclaration from json object
-     * @param {Object} jsonNode to initialize from
+     * Gets the variable declaration as a string.
+     * @return {string} - Variable declaration as string.
      */
-    VariableDeclaration.prototype.initFromJson = function (jsonNode) {
-        this.setType(jsonNode.variable_type);
-        this.setIdentifier(jsonNode.variable_name);
+    VariableDeclaration.prototype.getVariableDeclarationAsString = function() {
+      return this._type + " " + this._identifier + ";";
     };
 
     /**
-     * Checks whether the identifier is valid or not.
-     * @param {string} identifier - The identifier
-     * @return {boolean} - True if valid identifier, else false.
-     * @static
+     * Initialize VariableDeclaration from json object
+     * @param {Object} jsonNode - The JSON object.
+     * @param {string} jsonNode.variable_type - The ballerina type.
+     * @param {string} jsonNode.variable_name - The identifier of the variable.
      */
-    VariableDeclaration.isValidIdentifier = function (identifier) {
-        return identifier === undefined ? false : /^[a-zA-Z$_][a-zA-Z0-9$_]*$/.test(identifier);
+    VariableDeclaration.prototype.initFromJson = function (jsonNode) {
+        this.setType(jsonNode.variable_type, {doSilently: true});
+        this.setIdentifier(jsonNode.variable_name, {doSilently: true});
     };
 
     return VariableDeclaration;

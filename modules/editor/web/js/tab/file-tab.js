@@ -16,8 +16,8 @@
  * under the License.
  */
 define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/file', 'ballerina/diagram-render/diagram-render-context',
-        'ballerina/views/backend', 'ballerina/ast/ballerina-ast-deserializer'],
-    function (require, log, $, _, Tab, Ballerina, File, DiagramRenderContext, Backend, BallerinaASTDeserializer) {
+        'ballerina/views/backend', 'ballerina/ast/ballerina-ast-deserializer', '../debugger/debug-manager'],
+    function (require, log, $, _, Tab, Ballerina, File, DiagramRenderContext, Backend, BallerinaASTDeserializer, DebugManager) {
     var FileTab;
 
     FileTab = Tab.extend({
@@ -75,13 +75,15 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
         },
 
         renderAST: function(astRoot){
+            var self = this;
             var ballerinaEditorOptions = _.get(this.options, 'ballerina_editor');
             var diagramRenderingContext = new DiagramRenderContext();
 
             var fileEditor = new Ballerina.views.BallerinaFileEditor({
                 model: astRoot,
                 container: this.$el.get(0),
-                viewOptions: ballerinaEditorOptions
+                viewOptions: ballerinaEditorOptions,
+                debugger: DebugManager
             });
 
             // change tab header class to match look and feel of source view
@@ -92,11 +94,26 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
                 this.getHeader().toggleClass('inverse');
             }, this);
 
+            fileEditor.on('add-breakpoint', function(row){
+                DebugManager.addBreakPoint(row, this._file.getName());
+            }, this);
+
+            fileEditor.on('remove-breakpoint', function(row){
+                DebugManager.removeBreakPoint(row, this._file.getName());
+            }, this);
+
+            DebugManager.on('debug-hit', function(message){
+                var position = message.position;
+                if(position.fileName == this._file.getName()){
+                    fileEditor.debugHit(position);
+                }
+            }, this);
+
             this._fileEditor = fileEditor;
             fileEditor.render(diagramRenderingContext);
 
             fileEditor.on("content-modified redraw", function(){
-                var updatedContent = this.getBallerinaFileEditor().generateSource();
+                var updatedContent = fileEditor.getContent();
                 this._file.setContent(updatedContent);
                 this._file.setDirty(true);
                 this._file.save();
@@ -108,6 +125,15 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
                 this.app.workspaceManager.updateSaveMenuItem();
                 this.updateHeader();
             }, this);
+
+            fileEditor.on("dispatch-command", function (id) {
+                this.app.commandManager.dispatch(id);
+            }, this);
+
+            // bind app commands to source editor commands
+            this.app.commandManager.getCommands().forEach(function(command){
+                fileEditor.getSourceView().bindCommand(command);
+            });
         },
 
         updateHeader: function(){
@@ -141,7 +167,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
 
         getBallerinaFileEditor: function () {
             return this._fileEditor;
-        }
+        },
 
     });
 

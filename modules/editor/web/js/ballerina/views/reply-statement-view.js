@@ -108,20 +108,18 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/reply-statement
             log.debug("Rendering the Reply Statement.");
 
             // Creating property pane
-            var editableProperties = [
-                {
-                    propertyType: "text",
-                    key: "Response Message",
-                    model: this._model,
-                    getterMethod: this._model.getReplyMessage,
-                    setterMethod: this._model.setReplyMessage
-                }
-            ];
+            var editableProperty = {
+                propertyType: "text",
+                key: "Response Message",
+                model: this._model,
+                getterMethod: this._model.getReplyMessage,
+                setterMethod: this._model.setReplyMessage
+            };
 
             this._createPropertyPane({
                 model: this._model,
                 statementGroup:replyGroup,
-                editableProperties: editableProperties
+                editableProperties: editableProperty
             });
 
             var self = this;
