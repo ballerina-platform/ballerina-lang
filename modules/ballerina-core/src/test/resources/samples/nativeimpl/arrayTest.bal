@@ -193,6 +193,3 @@ function testStringArraySort(string[] arg)(string[]){
     defined = array:sort(arg);
     return defined;
 }
-
-
-
