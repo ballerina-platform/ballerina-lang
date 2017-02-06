@@ -50,11 +50,12 @@ import javax.lang.model.element.TypeElement;
                             "org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction",
                             "org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor"})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedOptions({ "className", "packageName" })
+@SupportedOptions({ "className", "packageName", "targetDir" })
 public class BallerinaAnnotationProcessor extends AbstractProcessor {
 
     private static final String CLASS_NAME = "className";
     private static final String PACKAGE_NAME = "packageName";
+    private static final String TARGET_DIR = "targetDir";
     private static final String IS_PROCESSED = "balAnnotationProcessed";
     private static final String TRUE = "true";
     
@@ -102,17 +103,24 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
             throw new BallerinaException("package name for the generated construct-provider must be specified.");
         }
         
+        String targetDir = options.get(TARGET_DIR);
+        if (targetDir == null) {
+            throw new BallerinaException("target directory to store the generated ballerina files, must be specified.");
+        }
+
         ConstructProviderClassBuilder classBuilder = new ConstructProviderClassBuilder(filer, packageName, 
                 classClassName);
+        NativeBallerinaFileBuilder nativeBallerinaFileBuilder = new NativeBallerinaFileBuilder(targetDir);
         
         // Process all native function, connectors, actions and type converters
-        processNativeFunctions(balFunctionElements, classBuilder);
-        processNativeConnectors(balConnectorElements, classBuilder);
-        processNativeActions(balActionElements, classBuilder);
-        processNativeTypeConvertors(balTypeConvertorElements, classBuilder);
+        processNativeFunctions(balFunctionElements, classBuilder, nativeBallerinaFileBuilder);
+        processNativeConnectors(balConnectorElements, classBuilder, nativeBallerinaFileBuilder);
+        processNativeActions(balActionElements, classBuilder, nativeBallerinaFileBuilder);
+        processNativeTypeConvertors(balTypeConvertorElements, classBuilder, nativeBallerinaFileBuilder);
         
         classBuilder.addConnectors(connectors);
         classBuilder.build();
+        nativeBallerinaFileBuilder.build();
         System.setProperty(IS_PROCESSED, TRUE);
         
         return true;
@@ -124,7 +132,8 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
      * @param balFunctionElements   Elements annotated with {@link BallerinaFunction}
      * @param classBuilder          Builder to generate the source class
      */
-    private void processNativeFunctions(Set<Element> balFunctionElements, ConstructProviderClassBuilder classBuilder) {
+    private void processNativeFunctions(Set<Element> balFunctionElements, ConstructProviderClassBuilder classBuilder,
+            NativeBallerinaFileBuilder nativeBallerinaFileBuilder) {
         for (Element element : balFunctionElements) {
             BallerinaFunction balFunction = element.getAnnotation(BallerinaFunction.class);
             String functionQualifiedName = getFunctionQualifiedName(balFunction);
@@ -132,6 +141,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
             String className = getClassName(element);
             classBuilder.addNativeConstruct(packageName, balFunction.functionName(), functionQualifiedName, className,
                 balFunction.args(), balFunction.returnType(), balFunction.args().length);
+            nativeBallerinaFileBuilder.addNativeConstruct(packageName, balFunction);
         }
     }
     
@@ -142,11 +152,12 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
      * @param classBuilder          Builder to generate the source class
      */
     private void processNativeConnectors(Set<Element> balConnectorElements, 
-            ConstructProviderClassBuilder classBuilder) {
+            ConstructProviderClassBuilder classBuilder, NativeBallerinaFileBuilder nativeBallerinaFileBuilder) {
         for (Element element : balConnectorElements) {
             BallerinaConnector balConnector = element.getAnnotation(BallerinaConnector.class);
             String className = getClassName(element);
             connectors.put(balConnector.connectorName(), new Connector(balConnector, className));
+            nativeBallerinaFileBuilder.addNativeConstruct(balConnector.packageName(), balConnector);
         }
     }
     
@@ -156,12 +167,14 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
      * @param balActionElements     Elements annotated with {@link BallerinaAction}
      * @param classBuilder          Builder to generate the source class
      */
-    private void processNativeActions(Set<Element> balActionElements, ConstructProviderClassBuilder classBuilder) {
+    private void processNativeActions(Set<Element> balActionElements, ConstructProviderClassBuilder classBuilder,
+            NativeBallerinaFileBuilder nativeBallerinaFileBuilder) {
         for (Element element : balActionElements) {
             BallerinaAction balAction = element.getAnnotation(BallerinaAction.class);
             String className = getClassName(element);
             Action action = new Action(balAction, className);
             connectors.get(balAction.connectorName()).addAction(action);
+            nativeBallerinaFileBuilder.addNativeConstruct(balAction.packageName(), balAction);
         }
     }
     
@@ -172,7 +185,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
      * @param classBuilder              Builder to generate the source class
      */
     private void processNativeTypeConvertors(Set<Element> balTypeConvertorElements, 
-            ConstructProviderClassBuilder classBuilder) {
+            ConstructProviderClassBuilder classBuilder, NativeBallerinaFileBuilder nativeBallerinaFileBuilder) {
         for (Element element : balTypeConvertorElements) {
             BallerinaTypeConvertor balTypeConvertor = element.getAnnotation(BallerinaTypeConvertor.class);
             String typeConvertorQualifiedName = getTypeConverterQualifiedName(balTypeConvertor);
@@ -181,6 +194,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
             classBuilder.addNativeConstruct(packageName, balTypeConvertor.typeConverterName(), 
                 typeConvertorQualifiedName, className, balTypeConvertor.args(), balTypeConvertor.returnType(),
                 balTypeConvertor.args().length);
+            nativeBallerinaFileBuilder.addNativeConstruct(packageName, balTypeConvertor);
         }
     }
     
