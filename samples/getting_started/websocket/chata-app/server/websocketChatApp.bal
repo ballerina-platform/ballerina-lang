@@ -9,18 +9,18 @@ service helloWorld {
     @OnOpen
     resource onOpenMessage(message m) {
         system:println("New user connected to chat");
-        ws:sendTextToMembers(m, "server : client connected to chat");
+        ws:broadcastText(m, "server : client connected to chat");
     }
 
     @OnTextMessage
     resource onTextMessage(message m) {
-        ws:sendTextToMembers(m, message:getStringPayload(m));
+        ws:broadcastText(m, message:getStringPayload(m));
         system:println("Received text message: " + message:getStringPayload(m));
     }
 
     @OnClose
     resource onCloseMessage(message m) {
-        ws:sendTextToMembers(m, "server : client left the chat");
+        ws:broadcastText(m, "server : client left the chat");
         system:println("server : client left the chat");
     }
 }
