@@ -109,6 +109,11 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                 typeDropdown.addItem({key: bType, value: bType});
             });
 
+            var structTypes = this.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
+            _.forEach(structTypes, function (sType) {
+                typeDropdown.addItem({key: sType.getStructName(), value: sType.getStructName()});
+            });
+
             // Creating the identifier text box.
             var identifierTextBox = $("<input/>", {
                 type: "text",
