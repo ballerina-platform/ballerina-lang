@@ -27,15 +27,15 @@ define(['lodash', './node'], function (_, ASTNode) {
     TypeElement.prototype.constructor = TypeElement;
 
 
-    TypeElement.prototype.setType = function (type) {
+    TypeElement.prototype.setType = function (type, options) {
         if (!_.isNil(type)) {
-            this.setAttribute('type', type);
+            this.setAttribute('type', type, options);
         }
     };
 
-    TypeElement.prototype.setIdentifier = function (identifier) {
+    TypeElement.prototype.setIdentifier = function (identifier, options) {
         if (!_.isNil(identifier)) {
-            this.setAttribute('identifier', identifier);
+            this.setAttribute('identifier', identifier, options);
         }
     };
 

@@ -49,9 +49,9 @@ define(['lodash', 'log', './node', './callable-definition'],
             s4() + '-' + s4() + s4() + s4();
     }
 
-    FunctionDefinition.prototype.setFunctionName = function(name){
+    FunctionDefinition.prototype.setFunctionName = function(name, options){
         if (!_.isNil(name) && ASTNode.isValidIdentifier(name)) {
-            this.setAttribute('_functionName', name);
+            this.setAttribute('_functionName', name, options);
         } else {
             var errorString = "Invalid function name: " + name;
             log.error(errorString);
@@ -59,9 +59,9 @@ define(['lodash', 'log', './node', './callable-definition'],
         }
     };
 
-    FunctionDefinition.prototype.setIsPublic = function(isPublic){
+    FunctionDefinition.prototype.setIsPublic = function(isPublic, options){
         if(!_.isNil(isPublic)){
-            this.setAttribute('_isPublic', isPublic);
+            this.setAttribute('_isPublic', isPublic, options);
         }
     };
 
@@ -265,6 +265,9 @@ define(['lodash', 'log', './node', './callable-definition'],
     FunctionDefinition.prototype.hasNamedReturnTypes = function () {
         if (_.isUndefined(this.getReturnTypeModel())) {
             return false;
+        } else if (this.getReturnTypeModel().getChildren().length == 0) {
+            //if there are no return types in the return type model
+            return false;
         } else {
             //check if any of the return types have identifiers
             var indexWithoutIdentifiers = _.findIndex(this.getReturnTypeModel().getChildren(), function (child) {
@@ -328,8 +331,7 @@ define(['lodash', 'log', './node', './callable-definition'],
         _.forEach(this.getChildren(), function (child) {
             if (self.BallerinaASTFactory.isReturnType(child)) {
                 returnTypeModel = child;
-                // break
-                return false;
+                return false; // break
             }
         });
         return returnTypeModel;
@@ -370,9 +372,9 @@ define(['lodash', 'log', './node', './callable-definition'],
      * @param {boolean} [jsonNode.is_public_function] - Public or not of the function
      */
     FunctionDefinition.prototype.initFromJson = function (jsonNode) {
-        this._functionName = jsonNode.function_name;
+        this.setFunctionName(jsonNode.function_name, {doSilently: true});
+        this.setIsPublic(jsonNode.is_public_function, {doSilently: true});
         this._annotations = jsonNode.annotations;
-        this._isPublic = jsonNode.is_public_function;
 
         var self = this;
 
