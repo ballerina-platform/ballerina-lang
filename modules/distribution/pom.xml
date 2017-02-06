@@ -52,7 +52,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.transport</groupId>
-            <artifactId>org.wso2.carbon.transport.serverconnector.framework</artifactId>
+            <artifactId>org.wso2.carbon.serverconnector.framework</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.messaging</groupId>
