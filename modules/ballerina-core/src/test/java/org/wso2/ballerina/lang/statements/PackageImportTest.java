@@ -31,11 +31,8 @@ public class PackageImportTest {
      */
     
     @Test(expectedExceptions = {RuntimeException.class },
-            expectedExceptionsMessageRegExp = "Duplicate import package declaration: ballerina.lang.system "
-                    + "in duplicate-import.bal:4")
+            expectedExceptionsMessageRegExp = "duplicate-import.bal:4: redeclared imported package name 'system'")
     public void testDuplicatePackageImports() {
         ParserUtils.parseBalFile("lang/statements/duplicate-import.bal");
     }
-    
-
 }

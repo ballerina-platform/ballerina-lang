@@ -51,16 +51,13 @@ public class BTypes {
     public static BType typeMessage;
     public static BType typeMap;
 
-    // TODO Temporary fix. Please remove this and refactor properly
-    private static SymbolScope globalScope;
-
     private BTypes() {
     }
 
     public static void loadBuiltInTypes(SymbolScope globalScope) {
         typeInt = new BIntegerType(INT_TNAME, null, globalScope);
-        typeLong = new BIntegerType(LONG_TNAME, null, globalScope);
-        typeFloat = new BIntegerType(FLOAT_TNAME, null, globalScope);
+        typeLong = new BLongType(LONG_TNAME, null, globalScope);
+        typeFloat = new BFloatType(FLOAT_TNAME, null, globalScope);
         typeDouble = new BDoubleType(DOUBLE_TNAME, null, globalScope);
         typeBoolean = new BBooleanType(BOOLEAN_TNAME, null, globalScope);
         typeString = new BStringType(STRING_TNAME, null, globalScope);
@@ -79,8 +76,6 @@ public class BTypes {
         globalScope.define(typeJSON.getSymbolName(), typeJSON);
         globalScope.define(typeMessage.getSymbolName(), typeMessage);
         globalScope.define(typeMap.getSymbolName(), typeMap);
-
-        BTypes.globalScope = globalScope;
     }
 
     public static BArrayType getArrayType(String elementTypeName) {
@@ -108,7 +103,7 @@ public class BTypes {
         }
 
 
-        throw new SemanticException(getNodeLocationStr(location) + ": undefined type '" + typeName + "'");
+        throw new SemanticException(getNodeLocationStr(location) + "undefined type '" + typeName + "'");
     }
 
     public static boolean isValueType(BType type) {
@@ -122,10 +117,5 @@ public class BTypes {
         }
 
         return false;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T extends BType> T getType(String typeName) {
-        return (T) globalScope.resolve(new SymbolName(typeName));
     }
 }

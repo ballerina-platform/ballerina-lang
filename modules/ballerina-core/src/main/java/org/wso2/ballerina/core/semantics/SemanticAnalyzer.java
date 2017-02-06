@@ -509,7 +509,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             throw new IllegalStateException("Connector declaration is invalid");
         }
 
-        symbol = new Symbol(BTypes.getType(connectorDcl.getConnectorName().getName()), currentScopeName(), location);
+        symbol = new Symbol(null, currentScopeName(), location);
         symbolTable.insert(symbolName, symbol);
 
         // Setting the connector name with the package name
@@ -674,8 +674,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         visitSingleValueExpr(expr);
 
         if (expr.getType() != BTypes.typeBoolean) {
-            throw new SemanticException("Incompatible types: expected a boolean expression in " +
-                    expr.getNodeLocation().getFileName() + ":" + expr.getNodeLocation().getLineNumber());
+            throw new SemanticException(getNodeLocationStr(ifElseStmt.getNodeLocation()) +
+                    "incompatible type: 'boolean' expected, found '" + expr.getType() + "'");
         }
 
         Statement thenBody = ifElseStmt.getThenBody();
@@ -686,9 +686,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             visitSingleValueExpr(elseIfCondition);
 
             if (elseIfCondition.getType() != BTypes.typeBoolean) {
-                throw new SemanticException("Incompatible types: expected a boolean expression in " +
-                        elseIfCondition.getNodeLocation().getFileName() + ":" +
-                        elseIfCondition.getNodeLocation().getLineNumber());
+                throw new SemanticException(getNodeLocationStr(ifElseStmt.getNodeLocation()) +
+                        "incompatible type: 'boolean' expected, found '" + elseIfCondition.getType() + "'");
             }
 
             Statement elseIfBody = elseIfBlock.getElseIfBody();
@@ -707,8 +706,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         visitSingleValueExpr(expr);
 
         if (expr.getType() != BTypes.typeBoolean) {
-            throw new SemanticException("Incompatible types: expected a boolean expression in " +
-                    whileStmt.getNodeLocation().getFileName() + ":" + whileStmt.getNodeLocation().getLineNumber());
+            throw new SemanticException(getNodeLocationStr(whileStmt.getNodeLocation()) +
+                    "incompatible type: 'boolean' expected, found '" + expr.getType() + "'");
         }
 
         BlockStmt blockStmt = whileStmt.getBody();
@@ -1255,7 +1254,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // TODO Improve this
         // Struct type is not known at this stage
-        structInitExpr.setType(BTypes.getType(structInitExpr.getStructDcl().getStructName().getName()));
+        structInitExpr.setType(null);
         visit(structInitExpr.getStructDcl());
     }
 
@@ -1371,7 +1370,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         VariableDef variableDef = (VariableDef) currentScope.resolve(symbolName);
         if (variableDef == null) {
             throw new SemanticException(getNodeLocationStr(variableRefExpr.getNodeLocation()) +
-                    ": undeclared variable '" + symbolName + "'");
+                    ": undefined symbol '" + symbolName + "'");
         }
 
         variableRefExpr.setVariableDef(variableDef);

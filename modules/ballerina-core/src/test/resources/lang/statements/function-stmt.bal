@@ -1,8 +1,6 @@
 package lang.statements.func;
 
-import ballerina.lang.system;
-
-public function testHelloWorldPublic() {
+function testHelloWorldPublic() {
     testFunction();
 }
 

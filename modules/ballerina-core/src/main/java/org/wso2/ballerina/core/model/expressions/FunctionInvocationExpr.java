@@ -89,7 +89,7 @@ public class FunctionInvocationExpr extends AbstractExpression implements Callab
         this.types = types;
 
         multipleReturnsAvailable = types.length > 1;
-        if (!multipleReturnsAvailable) {
+        if (!multipleReturnsAvailable && types.length == 1) {
             this.type = types[0];
         }
     }

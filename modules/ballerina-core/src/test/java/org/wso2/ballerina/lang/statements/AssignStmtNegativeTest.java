@@ -80,14 +80,9 @@ public class AssignStmtNegativeTest {
     }
 
     @Test(expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "backtick-assign-mismatch-1.bal:6: incompatible types: expected " +
-                    "json or xml on the left side of assignment")
+            expectedExceptionsMessageRegExp = "backtick-assign-mismatch-1.bal:6: incompatible types: " +
+                    "expected json or xml")
     public void testTemplateJSONAssignTypeMismatch() {
         ParserUtils.parseBalFile("lang/statements/assignment/backtick-assign-mismatch-1.bal");
-    }
-
-    public static void main(String[] args) {
-        AssignStmtNegativeTest test = new AssignStmtNegativeTest();
-        test.testTemplateJSONAssignTypeMismatch();
     }
 }
