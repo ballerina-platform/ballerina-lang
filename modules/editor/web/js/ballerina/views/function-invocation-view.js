@@ -75,7 +75,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/function-invoca
             return this._container;
         };
 
-        FunctionInvocationStatementView.prototype.setDiagramRenderingContext = function(context){
+        FunctionInvocationStatementView.prototype.setDiagramRenderingContext = function (context) {
             this._diagramRenderingContext = context;
         };
 
@@ -101,16 +101,11 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/function-invoca
                 text += this._model.getPackageName() + ':';
             }
             text += this._model.getFunctionName() + '(';
-            var params = this._model.getParams();
-            for (var id = 0; id < params.length; id ++) {
-                if (id > 0) {
-                    text += ',' + params[id];
-                } else {
-                    text += params[id];
-                }
+            if (!_.isNil(this._model.getParams()) && this._model.getParams() !== "") {
+                text += this._model.getParams();
             }
             text += ')';
-            text = ((text.length) > 11 ? (text.substring(0,11) + '...') : text);
+            text = ((text.length) > 11 ? (text.substring(0, 11) + '...') : text);
             // TODO : Please revisit these calculations.
             var funInvokeText = D3Utils.textElement(x + width / 2, y + height / 2, text, funInvokeGroup).classed('statement-text', true);
 
@@ -119,39 +114,23 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/function-invoca
             this.setStatementGroup(funInvokeGroup);
             this.listenTo(this._model, 'update-property-text', this.updateStatementText);
 
-            // Creating property pane
-            var editableProperties = [
-                {
-                    propertyType: "text",
-                    key: "PackageName",
-                    model: this._model,
-                    getterMethod: this._model.getPackageName,
-                    setterMethod: this._model.setPackageName
-                },
-                {
-                    propertyType: "text",
-                    key: "FunctionName",
-                    model: this._model,
-                    getterMethod: this._model.getFunctionName,
-                    setterMethod: this._model.setFunctionName
-                },
-                {
-                    propertyType: "text",
-                    key: "Params",
-                    model: this._model,
-                    getterMethod: this._model.getParams,
-                    setterMethod: this._model.setParams
-                }
-            ];
+            var editableProperty = {
+                propertyType: "text",
+                key: "Function",
+                model: this._model,
+                getterMethod: this._model.getFunctionalExpression,
+                setterMethod: this._model.setFunctionalExpression
+            };
+
             this._createPropertyPane({
                 model: this._model,
                 statementGroup: funInvokeGroup,
-                editableProperties: editableProperties
+                editableProperties: editableProperty
             });
 
-            this.getBoundingBox().on('top-edge-moved', function(dy){
-                funInvokeRect.attr('y',  parseFloat(funInvokeRect.attr('y')) + dy);
-                funInvokeText.attr('y',  parseFloat(funInvokeText.attr('y')) + dy);
+            this.getBoundingBox().on('top-edge-moved', function (dy) {
+                funInvokeRect.attr('y', parseFloat(funInvokeRect.attr('y')) + dy);
+                funInvokeText.attr('y', parseFloat(funInvokeText.attr('y')) + dy);
             });
         };
 
@@ -164,22 +143,10 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/function-invoca
         };
 
         FunctionInvocationStatementView.prototype.updateStatementText = function (updatedText) {
-            var text = "";
-            if (!_.isNil(this._model.getPackageName()) && this._model.getPackageName() !== "") {
-                text += this._model.getPackageName() + ':';
+            if(!_.isNil(updatedText) && updatedText !== "") {
+                updatedText = ((updatedText.length) > 11 ? (updatedText.substring(0, 11) + '..') : updatedText);
+                this.getStatementGroup().expression_text.node().textContent = updatedText;
             }
-            text += this._model.getFunctionName() + '(';
-            var params = this._model.getParams();
-            for (var id = 0; id < params.length; id++) {
-                if (id > 0) {
-                    text += ',' + params[id];
-                } else {
-                    text += params[id];
-                }
-            }
-            text += ')';
-            text = ((text.length) > 11 ? (text.substring(0,11) + '..') : text);
-            this.getStatementGroup().expression_text.node().textContent = text;
         };
 
         return FunctionInvocationStatementView;

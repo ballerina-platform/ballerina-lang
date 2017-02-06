@@ -349,12 +349,7 @@ public class BLangExecutor implements NodeExecutor {
         ControlStack controlStack = bContext.getControlStack();
         BValue[] valueParams = new BValue[resource.getStackFrameSize()];
 
-        BMessage messageValue = new BMessage(bContext.getCarbonMessage());
-
-        valueParams[0] = messageValue;
-
-        int valueCounter = 1;
-
+        int valueCounter =  populateArgumentValues(resourceIExpr.getArgExprs(), valueParams);
         // Populate values for Connector declarations
         valueCounter = populateConnectorDclValues(resource.getConnectorDcls(), valueParams, valueCounter);
 
@@ -613,6 +608,7 @@ public class BLangExecutor implements NodeExecutor {
         }
         return i;
     }
+
 
     private int populateConnectorDclValues(ConnectorDcl[] connectorDcls, BValue[] valueParams, int valueCounter) {
         for (ConnectorDcl connectorDcl : connectorDcls) {

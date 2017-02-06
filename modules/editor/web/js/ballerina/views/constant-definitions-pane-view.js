@@ -16,9 +16,9 @@
  * under the License.
  */
 define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './point',
-        'ballerina/ast/ballerina-ast-factory', './constant-definition-view', './../ast/variable-declaration'],
+        'ballerina/ast/ballerina-ast-factory', './constant-definition-view', './../ast/node'],
     function (require, _, $, log, D3Utils, d3, Alerts, Point,
-              BallerinaASTFactory, ConstantDefinitionView, VariableDeclaration) {
+              BallerinaASTFactory, ConstantDefinitionView, ASTNode) {
 
         /**
          * Creates a new instance for a constant definition pane view.
@@ -49,8 +49,9 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
             this._constantDefinitionsButton = $("<div class='constants-btn'></div>")
                 .appendTo(this._paneAppendElement);
 
-            $("<span class='fw-stack fw-lg' data-toggle='tooltip' title='Constants'> <i class='fw fw-circle fw-stack-2x'></i>" +
-                "<i class='fw fw-dgm-constant-definition fw-stack-1x fw-inverse'></i> </span>")
+            $("<span class='fw-stack fw-lg' data-toggle='tooltip' title='Constants' data-placement='bottom'>" +
+                " <i class='fw fw-circle fw-stack-2x'></i>" +
+                "<i class='fw fw-constant fw-stack-1x fw-inverse'></i> </span>")
                 .appendTo(this._constantDefinitionsButton).tooltip();
 
             this._constantsDefinitionsMainWrapper = $("<div class='constants-pane'/>").appendTo(this._paneAppendElement);
@@ -96,7 +97,7 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
                 var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
 
                 // Validation the identifier against grammar.
-                if (!VariableDeclaration.isValidIdentifier(newIdentifier)) {
+                if (!ASTNode.isValidIdentifier(newIdentifier)) {
                     var errorString = "Invalid identifier for a parameter: " + newIdentifier;
                     log.error(errorString);
                     Alerts.error(errorString);
