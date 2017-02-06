@@ -17,9 +17,16 @@
  */
 define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (require, _, $, jsPlumb, dagre, alerts) {
 
+    /**
+     * Renderer constructor for TypeMapper
+     * @param {object} onConnectionCallback call back function when connection made
+     * @param {object} onDisconnectCallback call back function when connection removed
+     * @param {object} typeConverterView Type Mapper View reference object
+     * @constructor
+     */
     var TypeMapperRenderer = function (onConnectionCallback, onDisconnectCallback, typeConverterView) {
         this.references = [];
-        this.placeHolderName = "data-mapper-container-" + typeConverterView._model.id;
+        this.placeHolderName = "data-mapper-container-" + typeConverterView.getModel().id;
         this.idNameSeperator = "-";
         this.onConnection = onConnectionCallback;
         this.typeConverterView = typeConverterView;
@@ -98,13 +105,18 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
     TypeMapperRenderer.prototype.constructor = TypeMapperRenderer;
 
+    /**
+     * Remove a struct from the mapper UI
+     * @param {string} name identifier of the struct
+     */
     TypeMapperRenderer.prototype.removeStruct = function (name) {
-        var structId = name + this.idNameSeperator + this.typeConverterView._model.id;
+        var structId = name + this.idNameSeperator + this.typeConverterView.getModel().id;
         var structConns = $('div[id^="' + structId + '"]');
+        var self = this;
 
         _.forEach(structConns, function(structCon) {
             if (_.includes(structCon.className, 'property')) {
-                this.jsPlumbInstance.remove(structCon.id);
+                self.jsPlumbInstance.remove(structCon.id);
             }
         });
 
@@ -112,6 +124,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
     };
 
+    /**
+     * Add a connection arrow in the mapper UI
+     * @param {object} connection connection object which specified source and target
+     */
     TypeMapperRenderer.prototype.addConnection = function (connection) {
         this.jsPlumbInstance.connect({
             source: connection.sourceStruct + this.idNameSeperator + connection.sourceProperty
@@ -123,6 +139,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     };
 
 
+    /**
+     * Provides all the connections in mapped in the UI
+     * @returns {Array}
+     */
     TypeMapperRenderer.prototype.getConnections = function () {
         var connections = [];
 
@@ -144,9 +164,14 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         return connections;
     };
 
+    /**
+     * Add a source struct in the mapper UI
+     * @param {object} struct definition with parameters to be mapped
+     * @param {object} reference AST model reference
+     */
     TypeMapperRenderer.prototype.addSourceStruct = function (struct, reference) {
         var self = this;
-        struct.id = struct.name + this.idNameSeperator + this.typeConverterView._model.id;
+        struct.id = struct.name + this.idNameSeperator + this.typeConverterView.getModel().id;
         this.makeStruct(struct, 50, 50, reference);
 
         _.forEach(struct.properties, function(property) {
@@ -156,9 +181,14 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
     };
 
+    /**
+     * Add a target struct in the mapper UI
+     * @param {object} struct definition with parameters to be mapped
+     * @param {object} reference AST model reference
+     */
     TypeMapperRenderer.prototype.addTargetStruct = function (struct, reference) {
         var self = this;
-        struct.id = struct.name + this.idNameSeperator + this.typeConverterView._model.id;
+        struct.id = struct.name + this.idNameSeperator + this.typeConverterView.getModel().id;
         var placeHolderWidth = document.getElementById(this.placeHolderName).offsetWidth;
         var posY = placeHolderWidth - (placeHolderWidth / 4);
         this.makeStruct(struct, 50, posY, reference);
@@ -170,6 +200,13 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
     };
 
+    /**
+     * Make generic struct div element in the UI
+     * @param {object} struct definition with parameters to be mapped
+     * @param {int} posX X position cordinate
+     * @param {int} posY Y position cordinate
+     * @param {object} reference
+     */
     TypeMapperRenderer.prototype.makeStruct = function (struct, posX, posY, reference) {
         this.references.push({name: struct.id, refObj: reference});
         var newStruct = $('<div>').attr('id', struct.id).addClass('struct');
@@ -185,6 +222,11 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         $("#" + this.placeHolderName).append(newStruct);
     };
 
+    /**
+     * Add a function in the mapper UI
+     * @param {object} function definition with parameters to be mapped
+     * @param {object} reference AST model reference
+     */
     TypeMapperRenderer.prototype.addFunction = function (func, reference) {
         this.references.push({name: func.name, refObj: reference});
         var newFunc = $('<div>').attr('id', func.name).addClass('func');
@@ -210,7 +252,13 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
     };
 
-
+    /**
+     * Make Property DIV element
+     * @param {string} parentId identifier of the parent of the property
+     * @param {string} name property name
+     * @param {string} type property type
+     * @returns {*|jQuery}
+     */
     TypeMapperRenderer.prototype.makeProperty = function (parentId, name, type) {
         var id = parentId.selector.replace("#", "") + this.idNameSeperator + name + this.idNameSeperator + type;
         var property = $('<div>').attr('id', id).addClass('property');
@@ -225,12 +273,24 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         return property;
     };
 
+    /**
+     * Make Source property
+     * @param {string} parentId identifier of the parent of the property
+     * @param {string} name property name
+     * @param {string} type property type
+     */
     TypeMapperRenderer.prototype.addSourceProperty = function (parentId, name, type) {
         this.jsPlumbInstance.makeSource(this.makeProperty(parentId, name, type), {
             anchor: ["Continuous", {faces: ["right"]}]
         });
     };
 
+    /**
+     * Make Target property
+     * @param {string} parentId identifier of the parent of the property
+     * @param {string} name property name
+     * @param {string} type property type
+     */
     TypeMapperRenderer.prototype.addTargetProperty = function (parentId, name, type) {
         var callback = this.onConnection;
         var refObjects = this.references;
@@ -251,8 +311,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 var sourceId = sourceParts.slice(0, 6).join(seperator);
                 var targetId = targetParts.slice(0, 6).join(seperator);
 
-                var sourceRefObj;
-                var targetRefObj;
+                var sourceRefObj = null;
+                var targetRefObj = null;
 
                 _.forEach(refObjects, function(ref) {
                     if (ref.name == sourceId) {
@@ -282,7 +342,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                     var typeConverters = typeConverterObj._package.getTypeMapperDefinitions();
 
                     _.forEach(typeConverters, function(typeConverter) {
-                        if (typeConverterObj._model.getTypeMapperName() !== typeConverter.getTypeMapperName()) {
+                        if (typeConverterObj.getModel().getTypeMapperName() !== typeConverter.getTypeMapperName()) {
                             if (connection.sourceType == typeConverter.getSourceAndIdentifier().split(" ")[0] &&
                                 connection.targetType == typeConverter.getReturnType()) {
                                 compatibleTypeConverters.push(typeConverter.getTypeMapperName());
@@ -310,6 +370,11 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     };
 
 
+    /**
+     * Position Nodes with dagre
+     * @param {string} viewId type mapper view identifier
+     * @param jsPlumbInstance jsPlumb instance of the type mapper to be repositioned
+     */
     TypeMapperRenderer.prototype.dagrePosition = function (viewId, jsPlumbInstance) {
         // construct dagre graph from this.jsPlumbInstance graph
         var graph = new dagre.graphlib.Graph();
@@ -351,16 +416,16 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             var maxYPosition = 0;
 
             // Applying the calculated layout
-            _.forEach(graph.nodes(), function(v) {
-                var node = $("#" + v);
+            _.forEach(graph.nodes(), function(dagreNode) {
+                var node = $("#" + dagreNode);
 
                 if (node.attr('class') == "func") {
-                    node.css("left", graph.node(v).x + "px");
-                    node.css("top", graph.node(v).y + "px");
+                    node.css("left", graph.node(dagreNode).x + "px");
+                    node.css("top", graph.node(dagreNode).y + "px");
                 }
 
-                if (graph.node(v) != null && graph.node(v).y > maxYPosition) {
-                    maxYPosition = graph.node(v).y;
+                if (graph.node(dagreNode) != null && graph.node(dagreNode).y > maxYPosition) {
+                    maxYPosition = graph.node(dagreNode).y;
                 }
             });
 
