@@ -246,8 +246,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 parentView: this,
                 toolPalette: this.toolPalette
             });
-            this.diagramRenderingContext.getViewModelMap()[typeMapperDefinition.id] = TypeMapperDefinitionView;
             typeMapperDefinitionView.render(this.diagramRenderingContext);
+            this.diagramRenderingContext.getViewModelMap()[typeMapperDefinition.id] = typeMapperDefinitionView;
         };
 
         /**
