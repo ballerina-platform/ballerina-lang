@@ -49,8 +49,8 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
         return this.parent;
     };
 
-    ASTNode.prototype.setParent = function (parent) {
-        this.parent = parent;
+    ASTNode.prototype.setParent = function (parent, options) {
+        this.setAttribute('parent', parent, options);
     };
 
     ASTNode.prototype.getChildren = function () {
