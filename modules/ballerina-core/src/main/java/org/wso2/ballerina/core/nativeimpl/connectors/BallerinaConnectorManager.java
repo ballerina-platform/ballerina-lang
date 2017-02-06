@@ -25,7 +25,7 @@ import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
-import org.wso2.carbon.transport.serverconnector.framework.ServerConnectorManager;
+import org.wso2.carbon.serverconnector.framework.ServerConnectorManager;
 
 import java.util.Optional;
 import java.util.ServiceLoader;
