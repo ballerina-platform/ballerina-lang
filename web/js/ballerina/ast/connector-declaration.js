@@ -54,11 +54,11 @@ define(['lodash', './node'], function(_, ASTNode){
         this.setAttribute('_connectorVariable', connectorVariable, options);
     };
 
-    ConnectorDeclaration.prototype.setConnectorType = function (type) {
-        this.setAttribute('_connectorType', type);
+    ConnectorDeclaration.prototype.setConnectorType = function (type, options) {
+        this.setAttribute('_connectorType', type, options);
     };
-    ConnectorDeclaration.prototype.setConnectorPkgName = function (pkgName) {
-        this.setAttribute('_connectorPkgName', pkgName);
+    ConnectorDeclaration.prototype.setConnectorPkgName = function (pkgName, options) {
+        this.setAttribute('_connectorPkgName', pkgName, options);
     };
     /**
      * Set parameters for the connector
@@ -81,7 +81,7 @@ define(['lodash', './node'], function(_, ASTNode){
             var leftSide = expression.split("=", 2)[0];
             var rightSide = expression.split("=", 2)[1];
 
-            if(leftSide) {
+            if (leftSide) {
                 leftSide = leftSide.trim();
                 this.setAttribute("_connectorPkgName", leftSide.includes(":") ?
                     leftSide.split(":", 1)[0]
@@ -94,8 +94,8 @@ define(['lodash', './node'], function(_, ASTNode){
                 this.setAttribute("_connectorVariable", leftSide.includes(":") ?
                     leftSide.split(":", 2)[1].split(" ", 2)[1]
                     : (leftSide.indexOf(" ") !== (leftSide.length - 1) ? leftSide.split(" ", 1)[1] : ""));
-        }
-            if(rightSide) {
+            }
+            if (rightSide) {
                 rightSide = rightSide.trim();
                 this.setAttribute("_params", rightSide.includes("(") ?
                     rightSide.split("(", 2)[1].slice(0, (rightSide.split("(", 2)[1].length - 1))
