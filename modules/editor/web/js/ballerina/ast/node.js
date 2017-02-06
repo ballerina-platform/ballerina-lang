@@ -267,6 +267,57 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
         return _.get(this, attributeName);
     };
 
+    ASTNode.prototype.pushToAttribute = function (attributeName, newValue, options) {
+        var currentArray = _.get(this, attributeName);
+        var keyField = 'key' // use 'key' as the key field
+        var keyValue = _.get(newValue, keyField);
+
+        // Check if a value already exists for the given key
+        var existingValueIndex = _.findIndex(currentArray, function (value) {
+            return value[keyField] === keyValue;
+        });
+
+        var existingValue;
+
+        if (existingValueIndex === -1) {
+            // A value with this key does not exists, then add a new one.
+            currentArray.push(newValue);
+        } else {
+            // keep a reference to the old object so we can 'undo' this operation
+            existingValue = currentArray[existingValueIndex];
+            // Updating existing annotation.
+            currentArray[existingValueIndex] = newValue;
+        }
+
+        // fire change event with necessary callbacks for undo/redo
+        if(_.isNil(options) || !options.doSilently){
+            var title = _.has(options, 'changeTitle') ? _.get(options, 'changeTitle') : 'Modify ' + this.getType();
+            /**
+             * @event ASTNode#tree-modified
+             */
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'custom',
+                title: title,
+                context: this,
+                undo: function(){
+                    var currentArray = _.get(this, attributeName);
+                    if (existingValueIndex === -1) {
+                        // A value with this key did not exist. So remove it.
+                        _.remove(currentArray, function (value) {
+                            return value[keyField] === keyValue;
+                        });
+                    } else {
+                        this.pushToAttribute(attributeName, existingValue, {doSilently: true});
+                    }
+                },
+                redo: function(){
+                    this.pushToAttribute(attributeName, newValue, {doSilently: true});
+                }
+            });
+        }
+    };
+
     ASTNode.isValidIdentifier = function (identifier) {
         return _.isUndefined(identifier) ? false : /^[a-zA-Z$_][a-zA-Z0-9$_]*$/.test(identifier);
     };
