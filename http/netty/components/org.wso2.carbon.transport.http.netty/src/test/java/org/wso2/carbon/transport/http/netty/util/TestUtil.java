@@ -69,7 +69,7 @@ public class TestUtil {
         }
 
         for (HTTPServerConnector httpServerConnector : serverConnectors) {
-            httpServerConnector.start(Collections.EMPTY_MAP);
+            httpServerConnector.start(Collections.emptyMap());
         }
 
         serverConnectors.get(0).getServerConnectorController().stop();
