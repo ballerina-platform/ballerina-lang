@@ -26,9 +26,6 @@ import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 
 import java.util.LinkedList;
 
-/**
- * Created by suho on 5/22/16.
- */
 public class ListEventHolder extends LinkedList<StreamEvent> implements EventHolder {
 
     private StreamEventPool tableStreamEventPool;

@@ -56,15 +56,7 @@ public class CompareExhaustiveAndCollectionExecutor implements CollectionExecuto
                 return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, candidateEventCloner);
             }
         } else {
-            ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
-            for (StreamEvent resultEvent : compareStreamEvents) {
-                if (candidateEventCloner != null) {
-                    returnEventChunk.add(candidateEventCloner.copyStreamEvent(resultEvent));
-                } else {
-                    returnEventChunk.add(resultEvent);
-                }
-            }
-            return returnEventChunk.getFirst();
+            return null;
         }
     }
 
@@ -98,6 +90,15 @@ public class CompareExhaustiveAndCollectionExecutor implements CollectionExecuto
         Collection<StreamEvent> compareStreamEvents = findEvents(deletingEvent, indexedEventHolder);
         if (compareStreamEvents == null) {
             exhaustiveCollectionExecutor.delete(deletingEvent, indexedEventHolder);
+        }
+    }
+
+    @Override
+    public Cost getDefaultCost() {
+        if (exhaustiveCollectionExecutor != null) {
+            return compareCollectionExecutor.getDefaultCost();
+        } else {
+            return Cost.EXHAUSTIVE;
         }
     }
 

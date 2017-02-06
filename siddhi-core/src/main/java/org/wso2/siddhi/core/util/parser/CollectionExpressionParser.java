@@ -103,19 +103,22 @@ public class CollectionExpressionParser {
 
             if (leftCollectionExpression.getCollectionScope() == CollectionExpression.CollectionScope.NON &&
                     rightCollectionExpression.getCollectionScope() == CollectionExpression.CollectionScope.NON) {
+                //comparing two stream attributes with O(1) time complexity
                 return new BasicCollectionExpression(expression, CollectionExpression.CollectionScope.NON);
             } else if (leftCollectionExpression.getCollectionScope() == CollectionExpression.CollectionScope.INDEXED_ATTRIBUTE &&
                     rightCollectionExpression.getCollectionScope() == CollectionExpression.CollectionScope.NON) {
-                if (indexedEventHolder.isSupportedIndex(((AttributeCollectionExpression) leftCollectionExpression).getAttribute(),
-                        ((Compare) expression).getOperator())) {
+                if (indexedEventHolder.isAttributeIndexed(((AttributeCollectionExpression) leftCollectionExpression).getAttribute())) {
+                    //comparing indexed table attribute with stream attributes
                     return new CompareCollectionExpression((Compare) expression,
                             CollectionExpression.CollectionScope.INDEXED_RESULT_SET, leftCollectionExpression, ((Compare) expression).getOperator(), rightCollectionExpression);
                 } else {
+                    //comparing non indexed table attribute with stream attributes
                     return new BasicCollectionExpression(expression, CollectionExpression.CollectionScope.EXHAUSTIVE);
                 }
             } else if (leftCollectionExpression.getCollectionScope() == CollectionExpression.CollectionScope.NON &&
                     rightCollectionExpression.getCollectionScope() == CollectionExpression.CollectionScope.INDEXED_ATTRIBUTE) {
                 Compare.Operator operator = ((Compare) expression).getOperator();
+                //moving let to right
                 switch (operator) {
                     case LESS_THAN:
                         operator = Compare.Operator.GREATER_THAN;
@@ -134,14 +137,16 @@ public class CollectionExpressionParser {
                     case NOT_EQUAL:
                         break;
                 }
-                if (indexedEventHolder.isSupportedIndex(((AttributeCollectionExpression) rightCollectionExpression).getAttribute(),
-                        operator)) {
+                if (indexedEventHolder.isAttributeIndexed(((AttributeCollectionExpression) rightCollectionExpression).getAttribute())) {
+                    //comparing indexed table attribute with stream attributes
                     return new CompareCollectionExpression((Compare) expression,
                             CollectionExpression.CollectionScope.INDEXED_RESULT_SET, rightCollectionExpression, operator, leftCollectionExpression);
                 } else {
+                    //comparing non indexed table attribute with stream attributes
                     return new BasicCollectionExpression(expression, CollectionExpression.CollectionScope.EXHAUSTIVE);
                 }
             } else {
+                //comparing non indexed table with stream attributes or another table attribute
                 return new BasicCollectionExpression(expression, CollectionExpression.CollectionScope.EXHAUSTIVE);
             }
         } else if (expression instanceof Constant) {
@@ -232,11 +237,11 @@ public class CollectionExpressionParser {
 
     private static boolean isCollectionVariable(MatchingMetaStateHolder matchingMetaStateHolder, Variable variable) {
         if (variable.getStreamId() != null) {
-            MetaStreamEvent CollectionStreamEvent = matchingMetaStateHolder.getMetaStateEvent().getMetaStreamEvent(matchingMetaStateHolder.getCandidateEventIndex());
-            if (CollectionStreamEvent != null) {
-                if ((CollectionStreamEvent.getInputReferenceId() != null && variable.getStreamId().equals(CollectionStreamEvent.getInputReferenceId())) ||
-                        (CollectionStreamEvent.getLastInputDefinition().getId().equals(variable.getStreamId()))) {
-//                    if (Arrays.asList(CollectionStreamEvent.getLastInputDefinition().getAttributeNameArray()).contains(indexAttribute)) {
+            MetaStreamEvent collectionStreamEvent = matchingMetaStateHolder.getMetaStateEvent().getMetaStreamEvent(matchingMetaStateHolder.getCandidateEventIndex());
+            if (collectionStreamEvent != null) {
+                if ((collectionStreamEvent.getInputReferenceId() != null && variable.getStreamId().equals(collectionStreamEvent.getInputReferenceId())) ||
+                        (collectionStreamEvent.getLastInputDefinition().getId().equals(variable.getStreamId()))) {
+//                    if (Arrays.asList(collectionStreamEvent.getLastInputDefinition().getAttributeNameArray()).contains(indexAttribute)) {
                     return true;
 //                    }
                 }
@@ -318,19 +323,17 @@ public class CollectionExpressionParser {
                         case INDEXED_ATTRIBUTE:
                         case INDEXED_RESULT_SET:
                         case OPTIMISED_RESULT_SET:
-                            if (isFirst) {
-                                aCollectionExecutor = new ExhaustiveCollectionExecutor(ExpressionParser.parseExpression(collectionExpression.getExpression(),
-                                        matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName), matchingMetaStateHolder.getCandidateEventIndex());
-                            }
+                            exhaustiveCollectionExecutor = new ExhaustiveCollectionExecutor(ExpressionParser.parseExpression(collectionExpression.getExpression(),
+                                    matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName), matchingMetaStateHolder.getCandidateEventIndex());
                             leftCollectionExecutor = buildCollectionExecutor(leftCollectionExpression, matchingMetaStateHolder, variableExpressionExecutors, eventTableMap, executionPlanContext, false, queryName);
                             rightCollectionExecutor = buildCollectionExecutor(rightCollectionExpression, matchingMetaStateHolder, variableExpressionExecutors, eventTableMap, executionPlanContext, false, queryName);
-                            return new AnyAndCollectionExecutor(leftCollectionExecutor, rightCollectionExecutor, aCollectionExecutor);
+                            return new AnyAndCollectionExecutor(leftCollectionExecutor, rightCollectionExecutor, exhaustiveCollectionExecutor);
                         case EXHAUSTIVE:
-                            if (isFirst) {
+                            leftCollectionExecutor = buildCollectionExecutor(leftCollectionExpression, matchingMetaStateHolder, variableExpressionExecutors, eventTableMap, executionPlanContext, isFirst, queryName);
+                            if (isFirst || leftCollectionExecutor.getDefaultCost() == CollectionExecutor.Cost.SINGLE_RETURN_INDEX_MATCHING) {
                                 exhaustiveCollectionExecutor = new ExhaustiveCollectionExecutor(ExpressionParser.parseExpression(collectionExpression.getExpression(),
                                         matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName), matchingMetaStateHolder.getCandidateEventIndex());
                             }
-                            leftCollectionExecutor = buildCollectionExecutor(leftCollectionExpression, matchingMetaStateHolder, variableExpressionExecutors, eventTableMap, executionPlanContext, isFirst, queryName);
                             return new CompareExhaustiveAndCollectionExecutor(leftCollectionExecutor, exhaustiveCollectionExecutor);
                     }
                     break;
@@ -345,28 +348,24 @@ public class CollectionExpressionParser {
                             return new NonAndCollectionExecutor(expressionExecutor, aCollectionExecutor, rightCollectionExpression.getCollectionScope());
 
                         case INDEXED_ATTRIBUTE:
-                            if (isFirst) {
-                                aCollectionExecutor = new ExhaustiveCollectionExecutor(ExpressionParser.parseExpression(collectionExpression.getExpression(),
-                                        matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName), matchingMetaStateHolder.getCandidateEventIndex());
-                            }
+                            exhaustiveCollectionExecutor = new ExhaustiveCollectionExecutor(ExpressionParser.parseExpression(collectionExpression.getExpression(),
+                                    matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName), matchingMetaStateHolder.getCandidateEventIndex());
                             leftCollectionExecutor = buildCollectionExecutor(leftCollectionExpression, matchingMetaStateHolder, variableExpressionExecutors, eventTableMap, executionPlanContext, false, queryName);
                             rightCollectionExecutor = buildCollectionExecutor(rightCollectionExpression, matchingMetaStateHolder, variableExpressionExecutors, eventTableMap, executionPlanContext, false, queryName);
-                            return new AnyAndCollectionExecutor(rightCollectionExecutor, leftCollectionExecutor, aCollectionExecutor);
+                            return new AnyAndCollectionExecutor(rightCollectionExecutor, leftCollectionExecutor, exhaustiveCollectionExecutor);
                         case INDEXED_RESULT_SET:
                         case OPTIMISED_RESULT_SET:
-                            if (isFirst) {
-                                aCollectionExecutor = new ExhaustiveCollectionExecutor(ExpressionParser.parseExpression(collectionExpression.getExpression(),
-                                        matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName), matchingMetaStateHolder.getCandidateEventIndex());
-                            }
+                            exhaustiveCollectionExecutor = new ExhaustiveCollectionExecutor(ExpressionParser.parseExpression(collectionExpression.getExpression(),
+                                    matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName), matchingMetaStateHolder.getCandidateEventIndex());
                             leftCollectionExecutor = buildCollectionExecutor(leftCollectionExpression, matchingMetaStateHolder, variableExpressionExecutors, eventTableMap, executionPlanContext, false, queryName);
                             rightCollectionExecutor = buildCollectionExecutor(rightCollectionExpression, matchingMetaStateHolder, variableExpressionExecutors, eventTableMap, executionPlanContext, false, queryName);
-                            return new AnyAndCollectionExecutor(leftCollectionExecutor, rightCollectionExecutor, aCollectionExecutor);
+                            return new AnyAndCollectionExecutor(leftCollectionExecutor, rightCollectionExecutor, exhaustiveCollectionExecutor);
                         case EXHAUSTIVE:
-                            if (isFirst) {
+                            leftCollectionExecutor = buildCollectionExecutor(leftCollectionExpression, matchingMetaStateHolder, variableExpressionExecutors, eventTableMap, executionPlanContext, isFirst, queryName);
+                            if (isFirst || leftCollectionExecutor.getDefaultCost() == CollectionExecutor.Cost.SINGLE_RETURN_INDEX_MATCHING) {
                                 exhaustiveCollectionExecutor = new ExhaustiveCollectionExecutor(ExpressionParser.parseExpression(collectionExpression.getExpression(),
                                         matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName), matchingMetaStateHolder.getCandidateEventIndex());
                             }
-                            leftCollectionExecutor = buildCollectionExecutor(leftCollectionExpression, matchingMetaStateHolder, variableExpressionExecutors, eventTableMap, executionPlanContext, isFirst, queryName);
                             return new CompareExhaustiveAndCollectionExecutor(leftCollectionExecutor, exhaustiveCollectionExecutor);
                     }
                     break;
@@ -382,11 +381,11 @@ public class CollectionExpressionParser {
                         case INDEXED_ATTRIBUTE:
                         case INDEXED_RESULT_SET:
                         case OPTIMISED_RESULT_SET:
-                            if (isFirst) {
+                            rightCollectionExecutor = buildCollectionExecutor(rightCollectionExpression, matchingMetaStateHolder, variableExpressionExecutors, eventTableMap, executionPlanContext, isFirst, queryName);
+                            if (isFirst || rightCollectionExecutor.getDefaultCost() == CollectionExecutor.Cost.SINGLE_RETURN_INDEX_MATCHING) {
                                 exhaustiveCollectionExecutor = new ExhaustiveCollectionExecutor(ExpressionParser.parseExpression(collectionExpression.getExpression(),
                                         matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName), matchingMetaStateHolder.getCandidateEventIndex());
                             }
-                            rightCollectionExecutor = buildCollectionExecutor(rightCollectionExpression, matchingMetaStateHolder, variableExpressionExecutors, eventTableMap, executionPlanContext, isFirst, queryName);
                             return new CompareExhaustiveAndCollectionExecutor(rightCollectionExecutor, exhaustiveCollectionExecutor);
                         case EXHAUSTIVE:
                             if (isFirst) {

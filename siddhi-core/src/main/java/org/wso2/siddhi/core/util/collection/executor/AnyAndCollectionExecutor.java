@@ -31,14 +31,19 @@ import java.util.Set;
 public class AnyAndCollectionExecutor implements CollectionExecutor {
 
 
-    private final CollectionExecutor rightCollectionExecutor;
-    private final CollectionExecutor leftCollectionExecutor;
-    private CollectionExecutor exhaustiveCollectionExecutor;
+    private final CollectionExecutor highCostCollectionExecutor;
+    private final CollectionExecutor lowCollectionExecutor;
+    private ExhaustiveCollectionExecutor exhaustiveCollectionExecutor;
 
-    public AnyAndCollectionExecutor(CollectionExecutor leftCollectionExecutor, CollectionExecutor rightCollectionExecutor, CollectionExecutor exhaustiveCollectionExecutor) {
-
-        this.leftCollectionExecutor = leftCollectionExecutor;
-        this.rightCollectionExecutor = rightCollectionExecutor;
+    public AnyAndCollectionExecutor(CollectionExecutor leftCollectionExecutor, CollectionExecutor rightCostCollectionExecutor,
+                                    ExhaustiveCollectionExecutor exhaustiveCollectionExecutor) {
+        if (leftCollectionExecutor.getDefaultCost().getWeight() <= rightCostCollectionExecutor.getDefaultCost().getWeight()) {
+            this.lowCollectionExecutor = leftCollectionExecutor;
+            this.highCostCollectionExecutor = rightCostCollectionExecutor;
+        } else {
+            this.lowCollectionExecutor = rightCostCollectionExecutor;
+            this.highCostCollectionExecutor = leftCollectionExecutor;
+        }
         this.exhaustiveCollectionExecutor = exhaustiveCollectionExecutor;
     }
 
@@ -62,34 +67,43 @@ public class AnyAndCollectionExecutor implements CollectionExecutor {
     }
 
     public Collection<StreamEvent> findEvents(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
-        Collection<StreamEvent> leftStreamEvents = leftCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
-        if (leftStreamEvents == null) {
+        //limit for 10 is a magic number identified via performance test
+        Collection<StreamEvent> lowCostStreamEvents = lowCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
+        if (lowCostStreamEvents == null) {
             return null;
-        } else if (leftStreamEvents.size() > 0) {
-            Collection<StreamEvent> rightStreamEvents = rightCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
-            if (rightStreamEvents == null) {
-                return null;
-            } else if (rightStreamEvents.size() > 0) {
-                Set<StreamEvent> returnSet = new HashSet<StreamEvent>();
-                if (rightStreamEvents.size() > leftStreamEvents.size()) {
-                    for (StreamEvent aStreamEvent : leftStreamEvents) {
-                        if (rightStreamEvents.contains(aStreamEvent)) {
-                            returnSet.add(aStreamEvent);
+        } else if (lowCostStreamEvents.size() > 0) {
+            if (lowCostStreamEvents.size() <= 10) {
+                return exhaustiveCollectionExecutor.findEvents(matchingEvent, lowCostStreamEvents);
+            } else {
+                Collection<StreamEvent> highCostStreamEvents = highCostCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
+                if (highCostStreamEvents == null) {
+                    return null;
+                } else if (highCostStreamEvents.size() > 0) {
+                    if (lowCostStreamEvents.size() <= 10) {
+                        return exhaustiveCollectionExecutor.findEvents(matchingEvent, highCostStreamEvents);
+                    } else {
+                        Set<StreamEvent> returnSet = new HashSet<StreamEvent>();
+                        if (highCostStreamEvents.size() > lowCostStreamEvents.size()) {
+                            for (StreamEvent aStreamEvent : lowCostStreamEvents) {
+                                if (highCostStreamEvents.contains(aStreamEvent)) {
+                                    returnSet.add(aStreamEvent);
+                                }
+                            }
+                        } else {
+                            for (StreamEvent aStreamEvent : highCostStreamEvents) {
+                                if (lowCostStreamEvents.contains(aStreamEvent)) {
+                                    returnSet.add(aStreamEvent);
+                                }
+                            }
                         }
+                        return returnSet;
                     }
                 } else {
-                    for (StreamEvent aStreamEvent : rightStreamEvents) {
-                        if (leftStreamEvents.contains(aStreamEvent)) {
-                            returnSet.add(aStreamEvent);
-                        }
-                    }
+                    return highCostStreamEvents;
                 }
-                return returnSet;
-            } else {
-                return rightStreamEvents;
             }
         } else {
-            return leftStreamEvents;
+            return lowCostStreamEvents;
         }
     }
 
@@ -111,6 +125,11 @@ public class AnyAndCollectionExecutor implements CollectionExecutor {
         } else {
             exhaustiveCollectionExecutor.delete(deletingEvent, indexedEventHolder);
         }
+    }
+
+    @Override
+    public Cost getDefaultCost() {
+        return lowCollectionExecutor.getDefaultCost();
     }
 
 }

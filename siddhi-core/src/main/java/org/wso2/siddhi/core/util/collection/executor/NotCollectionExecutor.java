@@ -121,4 +121,13 @@ public class NotCollectionExecutor implements CollectionExecutor {
         }
     }
 
+    @Override
+    public Cost getDefaultCost() {
+        if (notCollectionExecutor.getDefaultCost() == Cost.EXHAUSTIVE) {
+            return Cost.EXHAUSTIVE;
+        } else {
+            return Cost.MULTI_RETURN_INDEX_MATCHING;
+        }
+    }
+
 }

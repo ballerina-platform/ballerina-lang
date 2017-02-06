@@ -52,6 +52,7 @@ public class CompareCollectionExecutor implements CollectionExecutor {
         Collection<StreamEvent> candidateEventSet = findEvents(matchingEvent, indexedEventHolder);
 
         if (candidateEventSet == null) {
+            //triggering sequential scan
             Collection<StreamEvent> candidateEvents = indexedEventHolder.getAllEvents();
             for (StreamEvent candidateEvent : candidateEvents) {
                 matchingEvent.setEvent(candidateEventIndex, candidateEvent);
@@ -79,6 +80,7 @@ public class CompareCollectionExecutor implements CollectionExecutor {
 
     public Collection<StreamEvent> findEvents(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
         if (operator == Compare.Operator.NOT_EQUAL) {
+            //for not equal trigger sequential scan
             return null;
         }
         return indexedEventHolder.findEvents(attribute, operator, valueExpressionExecutor.execute(matchingEvent));
@@ -92,6 +94,17 @@ public class CompareCollectionExecutor implements CollectionExecutor {
     @Override
     public void delete(StateEvent deletingEvent, IndexedEventHolder indexedEventHolder) {
         indexedEventHolder.delete(attribute, operator, valueExpressionExecutor.execute(deletingEvent));
+    }
+
+    @Override
+    public Cost getDefaultCost() {
+        if (operator == Compare.Operator.EQUAL ) {
+            return Cost.SINGLE_RETURN_INDEX_MATCHING;
+        } else  if (operator == Compare.Operator.NOT_EQUAL ) {
+            return Cost.EXHAUSTIVE;
+        } else {
+            return Cost.MULTI_RETURN_INDEX_MATCHING;
+        }
     }
 
 }

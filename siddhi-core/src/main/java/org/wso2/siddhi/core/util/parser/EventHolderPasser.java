@@ -22,11 +22,14 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
-import org.wso2.siddhi.core.table.holder.*;
+import org.wso2.siddhi.core.table.holder.EventHolder;
+import org.wso2.siddhi.core.table.holder.IndexEventHolder;
+import org.wso2.siddhi.core.table.holder.ListEventHolder;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
@@ -59,6 +62,7 @@ public class EventHolderPasser {
             }
             primaryKeyAttribute = primaryKeyAnnotation.getElements().get(0).getValue().trim();
             primaryKeyPosition = tableDefinition.getAttributePosition(primaryKeyAttribute);
+
         }
 
         // indexes.
@@ -97,8 +101,16 @@ public class EventHolderPasser {
         }
 
         if (primaryKeyAttribute != null || indexMetaData.size() > 0) {
-            return new IndexEventHolder(tableStreamEventPool, eventConverter, primaryKeyPosition, primaryKeyAttribute, indexMetaData);
-//            return new PrimaryKeyEventHolderHashMap(tableStreamEventPool, eventConverter, primaryKeyPosition, primaryKeyAttribute);
+            boolean isNumeric = false;
+            if (primaryKeyAttribute != null) {
+                Attribute.Type type = tableDefinition.getAttributeType(primaryKeyAttribute);
+                if (type == Attribute.Type.DOUBLE || type == Attribute.Type.FLOAT || type == Attribute.Type.INT ||
+                        type == Attribute.Type.LONG) {
+                    isNumeric = true;
+                }
+            }
+            return new IndexEventHolder(tableStreamEventPool, eventConverter, primaryKeyPosition, primaryKeyAttribute,
+                    isNumeric, indexMetaData);
         } else {
             return new ListEventHolder(tableStreamEventPool, eventConverter);
         }

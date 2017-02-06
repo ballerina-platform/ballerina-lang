@@ -122,4 +122,14 @@ public class OrCollectionExecutor implements CollectionExecutor {
         }
     }
 
+    @Override
+    public Cost getDefaultCost() {
+        Cost leftCost = leftCollectionExecutor.getDefaultCost();
+        Cost rightCost = rightCollectionExecutor.getDefaultCost();
+        if (leftCost.getWeight() < rightCost.getWeight()) {
+            return rightCost;
+        } else {
+            return leftCost;
+        }
+    }
 }

@@ -27,6 +27,23 @@ import java.util.Collection;
 
 public interface CollectionExecutor {
 
+    public enum Cost {
+
+        SINGLE_RETURN_INDEX_MATCHING(1),
+        MULTI_RETURN_INDEX_MATCHING(2),
+        EXHAUSTIVE(3);
+
+        private int weight;
+
+        Cost(int cost) {
+            this.weight = cost;
+        }
+
+        public int getWeight() {
+            return weight;
+        }
+    }
+
     /**
      * Find the Events matching to the condition, used on the primary call
      *
@@ -62,4 +79,6 @@ public interface CollectionExecutor {
      * @param indexedEventHolder indexed EventHolder containing data
      */
     void delete(StateEvent deletingEvent, IndexedEventHolder indexedEventHolder);
+
+    Cost getDefaultCost();
 }

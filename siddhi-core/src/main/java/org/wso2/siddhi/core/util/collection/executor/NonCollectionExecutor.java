@@ -76,4 +76,9 @@ public class NonCollectionExecutor implements CollectionExecutor {
             indexedEventHolder.deleteAll();
         }
     }
+
+    @Override
+    public Cost getDefaultCost() {
+        return Cost.MULTI_RETURN_INDEX_MATCHING;
+    }
 }

@@ -79,4 +79,13 @@ public class NonAndCollectionExecutor implements CollectionExecutor {
         }
     }
 
+    @Override
+    public Cost getDefaultCost() {
+        if(collectionScope == CollectionExpression.CollectionScope.EXHAUSTIVE){
+            return Cost.EXHAUSTIVE;
+        }else {
+            return collectionExecutor.getDefaultCost();
+        }
+    }
+
 }

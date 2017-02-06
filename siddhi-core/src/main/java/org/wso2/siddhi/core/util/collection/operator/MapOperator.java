@@ -63,11 +63,11 @@ public class MapOperator extends CollectionOperator {
     }
 
     @Override
-    public ComplexEventChunk<StreamEvent> overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk,
-                                                         Object candidateEvents,
-                                                         UpdateAttributeMapper[] updateAttributeMappers,
-                                                         OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
-        return super.overwriteOrAdd(overwritingOrAddingEventChunk, ((Map<Object, StreamEvent>) candidateEvents).values(),
+    public ComplexEventChunk<StreamEvent> overwrite(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk,
+                                                    Object candidateEvents,
+                                                    UpdateAttributeMapper[] updateAttributeMappers,
+                                                    OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
+        return super.overwrite(overwritingOrAddingEventChunk, ((Map<Object, StreamEvent>) candidateEvents).values(),
                 updateAttributeMappers, overwritingStreamEventExtractor);
     }
 

@@ -105,4 +105,9 @@ public class ExhaustiveCollectionExecutor implements CollectionExecutor {
         }
         indexedEventHolder.deleteAll(toDeleteEvents);
     }
+
+    @Override
+    public Cost getDefaultCost() {
+        return Cost.EXHAUSTIVE;
+    }
 }

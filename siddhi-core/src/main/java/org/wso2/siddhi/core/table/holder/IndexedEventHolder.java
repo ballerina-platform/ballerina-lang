@@ -27,7 +27,7 @@ public interface IndexedEventHolder extends EventHolder {
 
     boolean isAttributeIndexed(String attribute);
 
-    boolean isSupportedIndex(String attribute, Compare.Operator operator);
+    boolean isAttributeIndexed(int position);
 
     Collection<StreamEvent> getAllEvents();
 
