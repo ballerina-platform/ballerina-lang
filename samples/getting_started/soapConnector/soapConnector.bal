@@ -6,80 +6,76 @@ import ballerina.lang.system;
 import ballerina.lang.string;
 import ballerina.lang.xml;
 
-
 connector SoapConnector (string url) {
 
     http:HTTPConnector httpConnector = new http:HTTPConnector("");
 
-    action post (SoapConnector s, xml payload, string soapAction, string url) (message response) {
+    action send (SoapConnector s, xml payload, string soapAction, string url, string soapVersion) (message) {
+        string namespace;
         message backendServiceReq;
-
-        string soapBody;
+        xml soapPayload;
         xml resp;
-        message:setXmlPayload(backendServiceReq, payload);
-        message:setHeader(backendServiceReq, "Content-Type", "text/xml");
+        message response;
+        string reqType;
+        string soapBody;
+
+        if (string:equalsIgnoreCase(soapVersion, "1.1")) {
+            reqType = "text/xml";
+            namespace = "http://schemas.xmlsoap.org/soap/envelope/";
+        }
+        else if (string:equalsIgnoreCase(soapVersion, "1.2")) {
+          reqType = "application/soap+xml";
+          namespace = "http://www.w3.org/2003/05/soap-envelope";
+        }
+        else {
+          system:println("Please check your Soap version");
+        }
+
+        soapPayload = addSoapBody (payload, namespace);
+
+        message:setXmlPayload(backendServiceReq, soapPayload);
+        message:setHeader(backendServiceReq, "Content-Type", reqType);
         message:setHeader(backendServiceReq, "SOAPAction", soapAction);
 
         response = http:HTTPConnector.post(httpConnector, url, backendServiceReq);
-        return response;
+        resp = message:getXmlPayload(response);
+
+        soapBody = xml:getString(resp, "/soapenv:Envelope/soapenv:Body/*", {"soapenv" :"http://schemas.xmlsoap.org/soap/envelope/"});
+        message:setStringPayload (backendServiceReq, soapBody);
+        return backendServiceReq;
     }
+
 }
 
-connector Salesforce (string url) {
-
-    sample:SoapConnector soapConnector = new sample:SoapConnector("");
-    string sessionID;
-    string serviceUrl;
-
-    action getUserInfo (Salesforce s, string msg1, string msg2, string soapAction, string url) (message response) {
-        message backendServiceReq;
-        xml payload;
-        system:println(sessionID);
-        payload = `<soapenv:Envelope
-                        xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-                        xmlns:urn="urn:partner.soap.sforce.com">
-                    <soapenv:Header>
-                        <urn:SessionHeader>
-                            <urn:sessionId>${sessionID}</urn:sessionId>
-                        </urn:SessionHeader>
-                    </soapenv:Header>
-                    <soapenv:Body>
-                        <urn:getUserInfo/>
-                    </soapenv:Body>
-                </soapenv:Envelope>`;
-        response = sample:SoapConnector.post(soapConnector, payload, soapAction, url);
-        return response;
-    }
-
-    action login (Salesforce s, string username, string password, string url) (message response) {
-        message backendServiceReq;
-        xml payload;
-        string soapBody;
-        xml resp;
-        payload = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-                                          xmlns:urn="urn:partner.soap.sforce.com">
-                            <soapenv:Body>
-                                <urn:login>
-                                    <urn:username>${username}</urn:username>
-                                    <urn:password>${password}</urn:password>
-                                </urn:login>
-                            </soapenv:Body>
-                        </soapenv:Envelope>`;
-        response = sample:SoapConnector.post(soapConnector, payload, "''", url);
-        resp = message:getXmlPayload(response);
-        soapBody = xml:getString(resp, "/soapenv:Envelope/soapenv:Body/ns:loginResponse/ns:result/ns:sessionId/text()", {"soapenv" :"http://schemas.xmlsoap.org/soap/envelope/", "ns":"urn:partner.soap.sforce.com"});
-        sessionID = soapBody;
-        return response;
-    }
+function addSoapBody (xml payload, string namespace) (xml) {
+    xml soapBody;
+    soapBody = `<soapenv:Envelope xmlns:soapenv="${namespace}">
+	<soapenv:Body>
+	${payload}
+	</soapenv:Body>
+	</soapenv:Envelope>`;
+    return soapBody;
 }
 
 function main (string[] args) {
-    sample:Salesforce soapConnector = new sample:Salesforce("");
-    message login;
-    message sfResponse;
+    sample:SoapConnector soapConnector = new sample:SoapConnector("");
+    xml payload;
+    message soapResponse;
+    xml soapXMLResponse;
+    string sessionId;
+    string username;
+    string password;
 
-    login = sample:Salesforce.login(soapConnector, args[0], args[1], "https://login.salesforce.com/services/Soap/u/27.0");
-    sfResponse = sample:Salesforce.getUserInfo(soapConnector, args[2], args[3], "urn:partner.soap.sforce.com/Soap/describeGlobalRequest", "https://ap2.salesforce.com/services/Soap/u/27.0/");
+    username = args[0];
+    password = args[1];
+    payload = `<urn:login xmlns:urn="urn:partner.soap.sforce.com">
+	<urn:username>${username}</urn:username>
+	<urn:password>${password}</urn:password>
+	</urn:login>`;
+    soapResponse = sample:SoapConnector.send(soapConnector, payload, "''", "https://login.salesforce.com/services/Soap/u/27.0", "1.1");
 
-    system:println(xml:toString(message:getXmlPayload(sfResponse)));
+    soapXMLResponse = message:getXmlPayload(soapResponse);
+    sessionId = xml:getString(soapXMLResponse, "/ns:loginResponse/ns:result/ns:sessionId/text()", {"soapenv" :"http://schemas.xmlsoap.org/soap/envelope/", "ns":"urn:partner.soap.sforce.com"});
+    system:println(sessionId);
 }
+
