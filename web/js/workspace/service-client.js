@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'jquery', 'event_channel', './file', 'alerts'],
-    function(log, _, $, EventChannel, File, alerts ) {
+define(['log', 'lodash', 'jquery', 'event_channel', './file'],
+    function(log, _, $, EventChannel, File) {
 
         /**
          * @class ServiceClient
@@ -50,6 +50,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file', 'alerts'],
                 },
                 error: function(xhr, textStatus, errorThrown){
                     data = {"error":true, "message":"Unable to render design view due to parser errors."};
+                    log.error(data.message);
                 }
             });
             return data;
@@ -73,6 +74,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file', 'alerts'],
                 },
                 error: function(xhr, textStatus, errorThrown){
                     data = {"error":true, "message":"Unable to read file " + filePath};
+                    log.error(data.message);
                 }
             });
             return data;
@@ -106,7 +108,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file', 'alerts'],
                 },
                 error: function(xhr, textStatus, errorThrown){
                     data = {"error":true, "message":"Unable to invoke exists file. Status " + textStatus};
-                    alerts.error(data.message);
+                    log.error(data.message);
                 }
             });
             return data;
@@ -126,7 +128,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file', 'alerts'],
                 },
                 error: function(xhr, textStatus, errorThrown){
                     data = {"error":true, "message":"Unable to invoke create file/folder. Status " + textStatus};
-                    alerts.error(data.message);
+                    log.error(data.message);
                 }
             });
             return data;
@@ -146,7 +148,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file', 'alerts'],
                 },
                 error: function(xhr, textStatus, errorThrown){
                     data = {"error":true, "message":"Unable to invoke delete file/folder. Status " + textStatus};
-                    alerts.error(data.message);
+                    log.error(data.message);
                 }
             });
             return data;
@@ -170,7 +172,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file', 'alerts'],
                 },
                 error: function(xhr, textStatus, errorThrown){
                     data = {"error":true, "message":"Unable to write file " + file.getName() + ' at '+ file.getPath()};
-                    alerts.error(data.message);
+                    log.error(data.message);
                 }
             });
             return data;
