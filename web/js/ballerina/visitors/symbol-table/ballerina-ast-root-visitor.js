@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor', './../../env/connector', './../../env/ballerina-env-factory'],
-    function (_, log, EventChannel, AbstractSymbolTableGenVisitor, Connector, BallerinaEnvFactory) {
+define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor', './../../env/connector', './../../env/ballerina-env-factory', './../../ast/ballerina-ast-factory'],
+    function (_, log, EventChannel, AbstractSymbolTableGenVisitor, Connector, BallerinaEnvFactory, BallerinaASTFactory) {
 
         var BallerinaASTRootVisitor = function (package, model) {
             AbstractSymbolTableGenVisitor.call(this, package);
@@ -34,6 +34,11 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
             //Registering event listeners
             this._model.on('child-added', function (child) {
                 this.visit(child);
+            }, this);
+            this._model.on('child-removed', function (child) {
+                if (BallerinaASTFactory.isFunctionDefinition(child)) {
+                    this.removeFunctionDefinition(child);
+                }
             }, this);
         };
 
@@ -53,12 +58,26 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
             log.debug('End Visit BallerinaASTRoot');
         };
 
+        /**
+         * visit function definition
+         * @param {Object} functionDefinition - function definition model
+         */
         BallerinaASTRootVisitor.prototype.visitFunctionDefinition = function (functionDefinition) {
             var functionDef = BallerinaEnvFactory.createFunction();
             functionDef.setName(functionDefinition.getFunctionName());
             functionDef.setTitle(functionDefinition.getFunctionName());
             functionDef.setId(functionDefinition.getFunctionName());
             this.getPackage().addFunctionDefinitions(functionDef);
+
+            var self = this;
+            functionDefinition.on('tree-modified', function (modifiedData) {
+                var attributeName = modifiedData.data.attributeName;
+                var newValue = modifiedData.data.newValue;
+                var oldValue = modifiedData.data.oldValue;
+                if (_.isEqual(attributeName, '_functionName')) {
+                    self.updateFunctionDefinition(oldValue, newValue);
+                }
+            });
         };
 
         BallerinaASTRootVisitor.prototype.visitStructDefinition = function (structDefinition) {
@@ -85,6 +104,25 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
             connector.setName(connectorDefinition.getConnectorName());
             connector.setTitle(connectorDefinition.getConnectorName());
             this.getPackage().addConnectors(connector);
+        };
+
+        /**
+         * remove given function definition from the package object
+         * @param {Object} functionDef - function definition to be removed
+         */
+        BallerinaASTRootVisitor.prototype.removeFunctionDefinition = function (functionDef) {
+            this.getPackage().removeFunctionDefinition(functionDef);
+        };
+
+        /**
+         * updates function definition with new value
+         * @param {Object} oldValue - old value
+         * @param {Object} newValue - new value
+         */
+        BallerinaASTRootVisitor.prototype.updateFunctionDefinition = function (oldValue, newValue) {
+            var functionDefinition = this.getPackage().getFunctionDefinitionByName(oldValue);
+            functionDefinition.setName(newValue);
+            functionDefinition.setId(newValue);
         };
 
         return BallerinaASTRootVisitor;

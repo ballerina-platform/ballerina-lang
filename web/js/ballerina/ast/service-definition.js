@@ -66,9 +66,9 @@ define(['lodash', './node', 'log'],
     ServiceDefinition.prototype = Object.create(ASTNode.prototype);
     ServiceDefinition.prototype.constructor = ServiceDefinition;
 
-    ServiceDefinition.prototype.setServiceName = function (serviceName) {
+    ServiceDefinition.prototype.setServiceName = function (serviceName, options) {
         if (!_.isNil(serviceName) && ASTNode.isValidIdentifier(serviceName)) {
-            this.setAttribute('_serviceName', serviceName);
+            this.setAttribute('_serviceName', serviceName, options);
         } else {
             var errorString = "Invalid name for the service name: " + serviceName;
             log.error(errorString);
@@ -182,7 +182,7 @@ define(['lodash', './node', 'log'],
      */
     ServiceDefinition.prototype.initFromJson = function (jsonNode) {
         var self = this;
-        this._serviceName = jsonNode.service_name;
+        this.setServiceName(jsonNode.service_name, {doSilently: true});
 
         // Populate the annotations array
         for (var itr = 0; itr < this._annotations.length; itr ++) {

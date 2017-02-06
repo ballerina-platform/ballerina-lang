@@ -78,6 +78,7 @@ define(['require', 'log', 'jquery', 'd3', 'backbone', './tool-view'], function (
                 });
             });
             this.model.on('tool-added', this.onToolAdded, this);
+            this.model.on('tool-removed', this.onToolRemoved, this);
             return this;
         },
 
@@ -90,6 +91,15 @@ define(['require', 'log', 'jquery', 'd3', 'backbone', './tool-view'], function (
                 var toolView = new ToolView(toolOptions);
                 toolView.render(self._$toolGroupBody, true);
             }
+        },
+
+        /**
+         * function for removing given tool item from the tool palette view
+         * @param {string} toolId
+         */
+        onToolRemoved: function (toolId) {
+            var self = this;
+            self._$toolGroupBody.find('#'+toolId).remove();
         }
     });
 

@@ -30,7 +30,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression',
         './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
         './if-condition', './array-map-access-expression', './binary-expression', './connector-action', './struct-definition',
-        './constant-definition','./type-struct-definition'],
+        './constant-definition', './variable-definition-statement','./type-struct-definition'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -40,7 +40,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
               thenBody, ifCondition, arrayMapAccessExpression, binaryExpression, connectorAction, structDefinition,
-              constantDefinition, typeStructDefinition) {
+              constantDefinition, variableDefinitionStatement,typeStructDefinition) {
+
 
         /**
          * @class BallerinaASTFactory
@@ -274,6 +275,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createAssignmentStatement = function (args) {
             return new assignmentStatement(args);
+        };
+
+        /**
+         * creates Variable Definition Statement
+         * @param {Object} args
+         * @returns {VariableDefinitionStatement}
+         */
+        BallerinaASTFactory.createVariableDefinitionStatement = function (args) {
+            return new variableDefinitionStatement(args);
         };
 
         /**
@@ -578,6 +588,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.isStatement = function (child) {
             return child instanceof statement;
+        };
+
+        /**
+         * instanceof check for TypeConverterDefinition
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isTypeConverterDefinition = function (child) {
+            return child instanceof typeConverterDefinition;
         };
 
         /**
