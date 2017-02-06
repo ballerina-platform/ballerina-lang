@@ -2,28 +2,29 @@ import ballerina.lang.message;
 import ballerina.net.http;
 import ballerina.lang.system;
 import ballerina.lang.string;
+import ballerina.lang.json;
 
 @BasePath ("/ecommerceservice")
 service Ecommerce {
 
+    http:HTTPConnector productsService = new http:HTTPConnector("http://localhost:9090");
+
+
     @GET
-    @Path ("/products")
-    resource productsInfo (message m)  {
-        http:HTTPConnector productsService = new http:HTTPConnector("http://localhost:9090");
+    @Path ("/products/{productId}")
+    resource productsInfo (message m, @PathParam("productId") string prodId)  {
         message response;
-        response = http:HTTPConnector.get(productsService, "/productsservice", m);
+        string reqPath;
 
-
+        reqPath = "/productsservice/" + prodId;
+        response = http:HTTPConnector.get(productsService, reqPath, m);
         reply response;
     }
 
     @POST
     @Path ("/products")
     resource productMgt (message m) {
-        http:HTTPConnector productsService = new http:HTTPConnector("http://localhost:9090");
         message response;
-
-
         response = http:HTTPConnector.post(productsService, "/productsservice", m);
         reply response;
     }
@@ -69,22 +70,66 @@ service Ecommerce {
 @BasePath("/productsservice")
 service productmgt {
 
+    map productsMap;
+
+    boolean isInit;
+
     @GET
-    @POST
-    resource product (message m) {
+    @Path ("/{id}")
+    resource product (message m, @PathParam("id") string prodId) {
         message response;
         json payload;
         string httpMethod;
 
-        httpMethod = http:getMethod(m);
-        if ( string:equalsIgnoreCase(httpMethod, "GET") ) {
-             payload = `{"Product": {"ID": "123456", "Name": "XYZ","Description": "Sample product."}}`;
-        } else {
-            payload = `{"Status":"Product is successfully added."}`;
+        if (!isInit) {
+            isInit = true;
+            populateSampleProducts(productsMap);
         }
+
+        payload = productsMap[prodId];
+        // ToDo : Fix for non-existing products
+
         message:setJsonPayload(response, payload);
         reply response;
     }
+
+    @POST
+    @Path ("/")
+    resource product (message m) {
+        message response;
+        json jsonReq;
+        json payload;
+        string httpMethod;
+        string productId;
+
+        jsonReq = message:getJsonPayload(m);
+
+        productId = json:getString(jsonReq, "$.Product.ID");
+        productsMap[productId]= jsonReq;
+
+        payload = `{"Status":"Product is successfully added."}`;
+
+        message:setJsonPayload(response, payload);
+        reply response;
+    }
+
+}
+
+
+function populateSampleProducts(map productsMap) {
+    json prod_1;
+    json prod_2;
+    json prod_3;
+
+    prod_1 = `{"Product": {"ID": "123000", "Name": "ABC_1","Description": "Sample product."}}`;
+    prod_2 = `{"Product": {"ID": "123001", "Name": "ABC_2","Description": "Sample product."}}`;
+    prod_3 = `{"Product": {"ID": "123002", "Name": "ABC_3","Description": "Sample product."}}`;
+
+    productsMap["123000"]= prod_1;
+    productsMap["123001"]= prod_2;
+    productsMap["123002"]= prod_3;
+    system:println("Sample products are added.");
+
 }
 
 @BasePath("/orderservice")
