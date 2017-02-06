@@ -31,8 +31,8 @@ define(['lodash', './expression', './function-invocation'], function (_, Express
     FunctionInvocationExpression.prototype = Object.create(Expression.prototype);
     FunctionInvocationExpression.prototype.constructor = FunctionInvocationExpression;
 
-    FunctionInvocationExpression.prototype.setFunctionName = function (functionName) {
-        this.setAttribute('_functionName', functionName);
+    FunctionInvocationExpression.prototype.setFunctionName = function (functionName, options) {
+        this.setAttribute('_functionName', functionName, options);
     };
 
     FunctionInvocationExpression.prototype.getFunctionName = function () {
@@ -49,21 +49,21 @@ define(['lodash', './expression', './function-invocation'], function (_, Express
      */
     FunctionInvocationExpression.prototype.initFromJson = function (jsonNode) {
         var functionNameSplit = jsonNode.function_name.split(":");
-        this.setFunctionName(jsonNode.function_name);
+        this.setFunctionName(jsonNode.function_name, {doSilently: true});
         var argsString = this._generateArgsString(jsonNode);
 
         // TODO : need to remove following if/else by delegating this logic to parent(FunctionInvocation)
         if( this.getParent() instanceof FunctionInvocation){
             if(functionNameSplit.length < 2){
                 //there is only a function name
-                this.getParent().setFunctionName(functionNameSplit[0]);
+                this.getParent().setFunctionName(functionNameSplit[0], {doSilently: true});
             } else {
-                this.getParent().setFunctionName(functionNameSplit[1]);
-                this.getParent().setPackageName(functionNameSplit[0]);
+                this.getParent().setFunctionName(functionNameSplit[1], {doSilently: true});
+                this.getParent().setPackageName(functionNameSplit[0], {doSilently: true});
             }
-            this.getParent().setParams(argsString);
+            this.getParent().setParams(argsString, {doSilently: true});
         }else{
-            this.setExpression(jsonNode.function_name + '(' + argsString +')');
+            this.setExpression(jsonNode.function_name + '(' + argsString +')', {doSilently: true});
         }
     };
 

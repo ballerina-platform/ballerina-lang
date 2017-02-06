@@ -34,9 +34,9 @@ define(['lodash', 'log', './node'], function(_, log, ASTNode){
     VariableDeclaration.prototype = Object.create(ASTNode.prototype);
     VariableDeclaration.prototype.constructor = VariableDeclaration;
 
-    VariableDeclaration.prototype.setType = function (type) {
+    VariableDeclaration.prototype.setType = function (type, options) {
         if (!_.isUndefined(type)) {
-            this.setAttribute('_type', type);
+            this.setAttribute('_type', type, options);
         } else {
             var exceptionString = "A variable requires a type.";
             log.error(exceptionString);
@@ -48,9 +48,9 @@ define(['lodash', 'log', './node'], function(_, log, ASTNode){
         return this._type;
     };
 
-    VariableDeclaration.prototype.setIdentifier = function (identifier) {
+    VariableDeclaration.prototype.setIdentifier = function (identifier, options) {
         if (!_.isNil(identifier) && ASTNode.isValidIdentifier(identifier)) {
-            this.setAttribute('_identifier', identifier);
+            this.setAttribute('_identifier', identifier, options);
         } else {
             var exceptionString = "Invalid identifier: \'" + identifier + "\'. An identifier must match the regex " +
                 "^[a-zA-Z$_][a-zA-Z0-9$_]*$";
@@ -78,8 +78,8 @@ define(['lodash', 'log', './node'], function(_, log, ASTNode){
      * @param {string} jsonNode.variable_name - The identifier of the variable.
      */
     VariableDeclaration.prototype.initFromJson = function (jsonNode) {
-        this.setType(jsonNode.variable_type);
-        this.setIdentifier(jsonNode.variable_name);
+        this.setType(jsonNode.variable_type, {doSilently: true});
+        this.setIdentifier(jsonNode.variable_name, {doSilently: true});
     };
 
     return VariableDeclaration;

@@ -120,6 +120,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 //TODO : use a generic icon
                 connector.icon = "images/tool-icons/connector.svg";
                 connector.title = connector.getTitle();
+                connector.id = connector.getName();
                 definitions.push(connector);
                 _.each(connector.getActions(), function (action, index, collection) {
                     /* We need to add a special class to actions to indent them in tool palette. */
@@ -135,6 +136,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     action.icon = "images/tool-icons/action.svg";
                     action.title = action.getTitle();
                     action.nodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression;
+                    action.id = connector.getName() + '-' + action.getAction();
                     definitions.push(action);
                 });
             });
@@ -151,6 +153,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 //TODO : use a generic icon
                 functionDef.icon = "images/tool-icons/function.svg";
                 functionDef.title = functionDef.getTitle();
+                functionDef.id = functionDef.getName();
                 definitions.push(functionDef);
             });
 
@@ -175,6 +178,13 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 this.addToToolGroup(toolGroupID, child, nodeFactoryMethod, icon);
             }, this);
 
+            var self = this;
+            package.on('function-def-removed', function (functionDef) {
+                var toolGroupID = package.getName() + "-tool-group";
+                var toolId = functionDef.getFunctionName();
+                self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
+            });
+
             return group;
         };
 
@@ -194,6 +204,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
             //TODO : use a generic icon
             tool.icon = icon;
             tool.title = toolItem.getName();
+            tool.id = toolItem.getName();
             this._toolPalette.addNewToolToGroup(toolGroupID, tool);
         };
 
