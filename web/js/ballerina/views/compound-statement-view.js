@@ -17,8 +17,8 @@
  */
 
 define(
-    ['require', 'lodash', 'log', './ballerina-statement-view', 'd3utils', 'd3'],
-    function (require, _, log, BallerinaStatementView, D3Utils, d3) {
+    ['require', 'lodash', 'log', './ballerina-statement-view', 'd3utils', 'd3', 'ballerina/ast/ballerina-ast-factory'],
+    function (require, _, log, BallerinaStatementView, D3Utils, d3, BallerinaASTFactory) {
 
         /**
          * Compound statement.
@@ -67,7 +67,7 @@ define(
             statementGroup.title = titleGroup;
             var titleRect = D3Utils.rect(bBox.x(), bBox.y(), bBox.w(), 25, 0, 0, statementGroup)
                                    .classed('statement-title-rect', true);
-            var titleText = D3Utils.textElement(bBox.x() + 20, bBox.y() + 12, 'While', statementGroup)
+            var titleText = D3Utils.textElement(bBox.x() + 20, bBox.y() + 12, titleViewOptions.text, statementGroup)
                                    .classed('statement-text', true);
             var titleTextWrapperPolyline = D3Utils.polyline(getTitlePolyLinePoints(bBox, titleViewOptions),
                                                             statementGroup)
@@ -105,6 +105,7 @@ define(
             var model = this.getModel();
             var boundingBox = this.getBoundingBox();
 
+            // Creating view options for the new statement container.
             var statementContainerOpts = {};
             _.set(statementContainerOpts, 'model', model);
             _.set(statementContainerOpts, 'topCenter',
@@ -121,10 +122,12 @@ define(
             _.set(statementContainerOpts, 'container', this.getStatementGroup().node());
             _.set(statementContainerOpts, 'toolPalette', this.getToolPalette());
 
+            // Creating new statement container.
             var StatementContainer = require('./statement-container');
             var statementContainer = new StatementContainer(statementContainerOpts);
             this.setStatementContainer(statementContainer);
 
+            // Registering event handlers.
             this.listenTo(statementContainer.getBoundingBox(), 'height-changed', function (dh) {
                 boundingBox.h(boundingBox.h() + dh);
             });
@@ -137,6 +140,27 @@ define(
             });
 
             statementContainer.render(this.getDiagramRenderingContext());
+
+            /* Removing all the registered 'child-added' event listeners for this model. This is needed because we
+             are not un-registering registered event while the diagram element deletion. Due to that, sometimes we
+             are having two or more view elements listening to the 'child-added' event of same model. */
+            model.off('child-added');
+            model.on('child-added', function (child) {
+                this.visit(child);
+            }, this);
+            model.accept(this);
+        };
+
+        CompoundStatementView.prototype.visit = function (statement) {
+            var args = {
+                model: statement,
+                container: this.getStatementGroup().node(),
+                viewOptions: {},
+                toolPalette: this.getToolPalette(),
+                messageManager: this.messageManager,
+                parent: this
+            };
+            this.getStatementContainer().renderStatement(statement, args);
         };
 
         CompoundStatementView.prototype.setModel = function (model) {
@@ -185,6 +209,16 @@ define(
 
         CompoundStatementView.prototype.getToolPalette = function () {
             return this.toolPalette;
+        };
+
+        /**
+         * Overrides the child remove callback from BallerinaStatementView.
+         * @param child {ASTNode} removed child
+         */
+        CompoundStatementView.prototype.childRemovedCallback = function (child) {
+            if (BallerinaASTFactory.isStatement(child)) {
+                this.getStatementContainer().childStatementRemovedCallback(child);
+            }
         };
 
         /**
