@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './../ast/while-statement', 'd3utils', 'd3', 'ballerina/ast/ballerina-ast-factory'],
-    function (require, _, $, log, BallerinaStatementView, WhileStatement, D3Utils, d3, BallerinaASTFactory) {
+define(['lodash', 'jquery', 'log', './compund-statement-view', './../ast/while-statement', 'd3utils', 'd3', 'ballerina/ast/ballerina-ast-factory'],
+    function (_, $, log, CompoundStatementView, WhileStatement, D3Utils, d3, BallerinaASTFactory) {
 
         /**
          * The view to represent a If statement which is an AST visitor.
@@ -28,17 +28,11 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
          * @constructor
          */
         var WhileStatementView = function (args) {
-            BallerinaStatementView.call(this, args);
-            _.set(this._viewOptions, 'width', _.get(this._viewOptions, 'width', 140));
-            _.set(this._viewOptions, 'height', _.get(this._viewOptions, 'height', 100));
-            _.set(this._viewOptions, 'contentOffset', _.get(this._viewOptions, 'contentOffset', {top: 10, bottom: 10}));
-            // Initialize the bounding box
-            this.getBoundingBox().fromTopCenter(this.getTopCenter(),
-                _.get(this._viewOptions, 'width'),  _.get(this._viewOptions, 'height'));
-            this._statementContainer = undefined;
+            _.set(args, "viewOptions.title.text", "While");
+            CompoundStatementView.call(this, args);
         };
 
-        WhileStatementView.prototype = Object.create(BallerinaStatementView.prototype);
+        WhileStatementView.prototype = Object.create(CompoundStatementView.prototype);
         WhileStatementView.prototype.constructor = WhileStatementView;
 
         WhileStatementView.prototype.canVisitWhileStatement = function(){
@@ -70,76 +64,31 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
          * Render the while statement
          */
         WhileStatementView.prototype.render = function (diagramRenderingContext) {
-            this._diagramRenderingContext = diagramRenderingContext;
-            var whileGroup = D3Utils.group(d3.select(this._container));
-            whileGroup.attr("id","_" +this._model.id);
-            var self = this;
-
-            var title_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), this.getBoundingBox().w(), 25, 0, 0, whileGroup).classed('statement-title-rect', true);
-            var outer_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), this.getBoundingBox().w(),
-                this.getBoundingBox().h(), 0, 0, whileGroup).classed('background-empty-rect', true);
-            var points = "" + this.getBoundingBox().x() + "," + (parseInt(this.getBoundingBox().y()) + 25) + " " +
-                (parseInt(this.getBoundingBox().x()) + 35) + "," + (parseInt(this.getBoundingBox().y()) + 25) + " " +
-                (parseInt(this.getBoundingBox().x()) + 45) + "," + this.getBoundingBox().y();
-            var title_wrapper_polyline = D3Utils.polyline(points, whileGroup).classed('statement-title-polyline', true);
-            var title_text = D3Utils.textElement(this.getBoundingBox().x() + 20, this.getBoundingBox().y() + 12, 'While', whileGroup).classed('statement-text', true);
-            whileGroup.outerRect = outer_rect;
-            whileGroup.titleRect = title_rect;
-            whileGroup.titleText = title_text;
-            whileGroup.title_wrapper_polyline = title_wrapper_polyline;
-            this.setStatementGroup(whileGroup);
-
-            this.getBoundingBox().on('moved', function(offset){
-                outer_rect.attr("y", parseFloat(outer_rect.attr('y')) + offset.dy);
-                outer_rect.attr("x", parseFloat(outer_rect.attr('x')) + offset.dx);
-                title_rect.attr("y", parseFloat(title_rect.attr('y')) + offset.dy);
-                title_rect.attr("x", parseFloat(title_rect.attr('x')) + offset.dx);
-                title_text.attr("y", parseFloat(title_text.attr('y')) + offset.dy);
-                title_text.attr("x", parseFloat(title_text.attr('x')) + offset.dx);
-                var newPolylinePoints = "" + self.getBoundingBox().x() + "," + (parseInt(self.getBoundingBox().y()) + 25) + " " +
-                    (parseInt(self.getBoundingBox().x()) + 35) + "," + (parseInt(self.getBoundingBox().y()) + 25) + " " +
-                    (parseInt(self.getBoundingBox().x()) + 45) + "," + self.getBoundingBox().y();
-                title_wrapper_polyline.attr("points", newPolylinePoints);
-            });
-
-            this.getBoundingBox().on('width-changed', function(dw){
-                outer_rect.attr("x", parseFloat(outer_rect.attr('x')) - dw/2);
-                outer_rect.attr("width", parseFloat(outer_rect.attr('width')) + dw);
-                title_rect.attr("x", parseFloat(title_rect.attr('x')) - dw/2);
-                title_text.attr("x", parseFloat(title_text.attr('x')) - dw/2);
-                var newPolylinePoints = "" + self.getBoundingBox().x() + "," + (parseInt(self.getBoundingBox().y()) + 25) + " " +
-                    (parseInt(self.getBoundingBox().x()) + 35) + "," + (parseInt(self.getBoundingBox().y()) + 25) + " " +
-                    (parseInt(self.getBoundingBox().x()) + 45) + "," + self.getBoundingBox().y();
-                title_wrapper_polyline.attr("points", newPolylinePoints);
-            });
+            // Calling super render.
+            (this.__proto__.__proto__).render.call(this, diagramRenderingContext);
 
             // Creating property pane
+            var model = this.getModel();
+            model.accept(this);
             var editableProperty = {
                 propertyType: "text",
                 key: "Condition",
-                model: this._model,
-                getterMethod: this._model.getCondition,
-                setterMethod: this._model.setCondition
+                model: model,
+                getterMethod: model.getCondition,
+                setterMethod: model.setCondition
             };
             this._createPropertyPane({
-                model: this._model,
-                statementGroup:whileGroup,
-                editableProperties: editableProperty
-            });
+                                         model: model,
+                                         statementGroup: this.getStatementGroup(),
+                                         editableProperties: editableProperty
+                                     });
+            this.listenTo(model, 'update-property-text', this.updateConditionExpression);
 
-            this.getBoundingBox().on('height-changed', function(dh){
-                outer_rect.attr("height", parseFloat(outer_rect.attr('height')) + dh);
-            });
-
-            this._rootGroup = whileGroup;
-            this._statementContainerGroup = D3Utils.group(whileGroup);
-            this.renderStatementContainer();
-            this._model.accept(this);
-            //Removing all the registered 'child-added' event listeners for this model.
-            //This is needed because we are not unregistering registered event while the diagram element deletion.
-            //Due to that, sometimes we are having two or more view elements listening to the 'child-added' event of same model.
-            this._model.off('child-added');
-            this._model.on('child-added', function(child){
+            /* Removing all the registered 'child-added' event listeners for this model. This is needed because we
+             are not un-registering registered event while the diagram element deletion. Due to that, sometimes we
+             are having two or more view elements listening to the 'child-added' event of same model.*/
+            model.off('child-added');
+            model.on('child-added', function (child) {
                 this.visit(child);
             }, this);
         };
@@ -148,91 +97,19 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
          * @param {BallerinaStatementView} statement
          */
         WhileStatementView.prototype.visit = function (statement) {
-            var args = {model: statement, container: this._rootGroup.node(), viewOptions: {},
-                toolPalette: this.toolPalette, messageManager: this.messageManager, parent: this};
-            this._statementContainer.renderStatement(statement, args);
+            var args = {
+                model: statement,
+                container: this.getStatementGroup().node(),
+                viewOptions: {},
+                toolPalette: this.getToolPalette(),
+                messageManager: this.messageManager,
+                parent: this
+            };
+            this.getStatementContainer().renderStatement(statement, args);
         };
 
-        /**
-         * Render statement container
-         */
-        WhileStatementView.prototype.renderStatementContainer = function(){
-            var statementContainerOpts = {};
-            _.set(statementContainerOpts, 'model', this._model);
-            _.set(statementContainerOpts, 'topCenter', this.getTopCenter().clone().move(0, _.get(this._viewOptions, 'contentOffset.top')));
-            var height = _.get(this._viewOptions, 'height') -
-                _.get(this._viewOptions, 'contentOffset.top') - _.get(this._viewOptions, 'contentOffset.bottom');
-            _.set(statementContainerOpts, 'bottomCenter', this.getTopCenter().clone().move(0, _.get(this._viewOptions, 'height')));
-            _.set(statementContainerOpts, 'width', _.get(this._viewOptions, 'width'));
-            _.set(statementContainerOpts, 'offset', {top: 40, bottom: 40});
-            _.set(statementContainerOpts, 'parent', this);
-            _.set(statementContainerOpts, 'container', this._statementContainerGroup.node());
-            _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
-            var StatementContainer = require('./statement-container');
-            this._statementContainer = new StatementContainer(statementContainerOpts);
-            this.listenTo(this._statementContainer.getBoundingBox(), 'height-changed', function(dh){
-                this.getBoundingBox().h(this.getBoundingBox().h() + dh);
-            });
-            this.getBoundingBox().on('top-edge-moved', function (dy) {
-                this._statementContainer.isOnWholeContainerMove = true;
-                this._statementContainer.getBoundingBox().y(this._statementContainer.getBoundingBox().y() + dy);
-            }, this);
-
-            this.listenTo(this._statementContainer.getBoundingBox(), 'width-changed', function(dw){
-                this.getBoundingBox().w(this.getBoundingBox().w() + dw);
-            });
-
-            this._statementContainer.render(this._diagramRenderingContext);
-        };
-
-        /**
-         * Set the while statement model
-         * @param {WhileStatement} model
-         */
-        WhileStatementView.prototype.setModel = function (model) {
-            if (!_.isNil(model) && model instanceof WhileStatement) {
-                this._model = model;
-            } else {
-                log.error("While statement definition is undefined or is of different type." + model);
-                throw "While statement definition is undefined or is of different type." + model;
-            }
-        };
-
-        /**
-         * Set the container to draw the while statement
-         * @param container
-         */
-        WhileStatementView.prototype.setContainer = function (container) {
-            if (!_.isNil(container)) {
-                this._container = container;
-            } else {
-                log.error("Container for While statement is undefined." + container);
-                throw "Container for While statement is undefined." + container;
-            }
-        };
-
-        WhileStatementView.prototype.setViewOptions = function (viewOptions) {
-            this._viewOptions = viewOptions;
-        };
-
-        WhileStatementView.prototype.getModel = function () {
-            return this._model;
-        };
-
-        WhileStatementView.prototype.getContainer = function () {
-            return this._container;
-        };
-
-        WhileStatementView.prototype.getViewOptions = function () {
-            return this._viewOptions;
-        };
-
-        /**
-         * Get the statement container
-         * @return {StatementContainer} - statement container
-         */
-        WhileStatementView.prototype.getStatementContainer = function () {
-            return this._statementContainer;
+        WhileStatementView.prototype.updateConditionExpression = function (newCondition, propertyKey) {
+            this.getModel().setCondition(newCondition);
         };
 
         return WhileStatementView;
