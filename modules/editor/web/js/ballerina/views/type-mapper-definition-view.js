@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-struct-definition-view',
-        'ballerina/ast/ballerina-ast-factory', './svg-canvas', './point', 'typeMapper'],
-    function (_, log, d3, BallerinaView, VariablesView, TypeStructDefinition, BallerinaASTFactory, SVGCanvas, Point,
+define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-definition-view',
+        'ballerina/ast/ballerina-ast-factory', './svg-canvas','typeMapper'],
+    function (_, log,BallerinaView, VariablesView, TypeStructDefinition, BallerinaASTFactory, SVGCanvas,
               TypeMapper) {
         var TypeMapperDefinitionView = function (args) {
             SVGCanvas.call(this, args);
