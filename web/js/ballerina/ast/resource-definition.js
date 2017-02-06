@@ -234,7 +234,10 @@ define(['lodash', 'require', 'log', './node'],
      */
     ResourceDefinition.prototype.addAnnotation = function (key, value) {
         if (!_.isNil(key) && !_.isNil(value)) {
-            this.pushToAttribute('_annotations', {key: key, value: value});
+            var options = {
+              predicate: {key: key}
+            }
+            this.pushToArrayAttribute('_annotations', {key: key, value: value}, options);
         } else {
             var errorString = "Cannot add annotation @" + key + "(\"" + value + "\").";
             log.error(errorString);
