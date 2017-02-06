@@ -156,9 +156,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.startFunctionDef();
-        }
+
     }
 
     @Override
@@ -178,7 +176,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterFunction(BallerinaParser.FunctionContext ctx) {
-
+        if (ctx.exception == null) {
+            modelBuilder.startFunctionDef();
+        }
     }
 
     @Override
@@ -224,9 +224,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.startCallableUnitGroup();
-        }
+
     }
 
     @Override
@@ -256,7 +254,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterConnector(BallerinaParser.ConnectorContext ctx) {
-
+        if (ctx.exception == null) {
+            modelBuilder.startCallableUnitGroup();
+        }
     }
 
     @Override
@@ -1257,7 +1257,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitBinaryCompareExpression(BallerinaParser.BinaryCompareExpressionContext ctx) {
-
+        if (ctx.exception == null) {
+            createBinaryExpr(ctx);
+        }
     }
 
     @Override
