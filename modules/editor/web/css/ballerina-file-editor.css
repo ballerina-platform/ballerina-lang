@@ -1,16 +1,16 @@
-.service-container {
+.svg-container {
     background: none;
 }
 
 .panel-default > .panel-heading {
-    margin-bottom: 0px;
+    margin-bottom: 0;
 }
 
 .design-view-container{
     padding-left: 200px;
-    padding-top: 0px;
+    padding-top: 0;
     overflow-y: scroll;
-    height: 100vh;
+    height: 100%;
 }
 
 .canvas-container{
@@ -28,10 +28,13 @@
     float: left;
 }
 
-.outer-box{
+.outer-box {
     border: 1px solid;
     border-top: none;
     overflow-x: hidden;
+    position: relative;
+    top: 0;
+    right: 0;
 }
 
 .panel-title{
@@ -41,13 +44,17 @@
     vertical-align: middle;
 }
 
-.panel-title > a{
-   margin-left: 10px;
+.panel-title > a {
+    margin-left: 6px;
+    text-decoration: none;
 }
 
 .panel-icon, .service-icon, .connector-icon, .function-icon{
-    padding: 10px;
-    background-color: black;
+    padding: 5px;
+    background-color: #000;
+    font-size: 20px;
+    width: 32px;
+    text-align: center;
 }
 
 .title-link {
@@ -59,8 +66,7 @@
 }
 
 .panel-collapse .collapse{
-    border-style:solid;
-    border-width:1px;
+    border:1px solid;
 }
 
 .tab-pane .panel{
@@ -301,7 +307,7 @@
 .resource-parameters-detail-type-wrapper {
     float: left;
     width: 120px;
-    font-weight: bold;
+    font-weight: 400;
 }
 
 .resource-parameters-detail-identifier-wrapper {
@@ -397,7 +403,7 @@
 }
 
 .return-types-details-wrapper {
-    padding: 0px;
+    padding: 0;
     overflow-y: scroll;
     width: 100%;
     border-left: 1px solid #555;
@@ -452,4 +458,181 @@
 .outer-box .mCustomScrollBox {
     height: auto;
 }
+
+.tooltip {
+    position: fixed;
+}
+
 /** End of Return type CSS **/
+
+/** Struct view CSS **/
+.struct-content-wrapper {
+    margin: 35px 60px;
+    float: left;
+}
+
+.struct-type-dropdown-wrapper {
+    float: left;
+    min-width: 150px;
+    padding-top: 12px;
+    padding-left: 10px;
+}
+
+.struct-type-dropdown-wrapper i {
+    line-height: 20px;
+    padding-left: 7px;
+}
+
+.struct-content-operations-wrapper {
+    height: 50px;
+    background-color: #3d3d3d;
+    padding-right: 10px;
+}
+
+.struct-identifier-text-input {
+    float: left;
+    margin-top: 12px;
+    width: 185px;
+    padding-left: 8px;
+    padding-right: 8px;
+    margin-right: 5px;
+    border: 0;
+    height: 24px;
+}
+
+.add-struct-variable-button {
+    height: 25px;
+    width: 25px;
+    font-size: 9px;
+    cursor: pointer;
+    opacity: 0.4;
+    padding-top: 12px;
+}
+
+.add-struct-variable-button:hover {
+    opacity: 1;
+}
+
+.clear-struct-variable-button {
+    height: 25px;
+    width: 25px;
+    font-size: 9px;
+    cursor: pointer;
+    opacity: 0.4;
+    padding-top: 12px;
+    padding-left: 3px;
+}
+
+.clear-struct-variable-button:hover {
+    opacity: 1;
+}
+
+.struct-variable-definition-wrapper {
+    border: 1px solid #CCC;
+    background: #FFF;
+    margin-top: 2px;
+    cursor: pointer;
+    height: 41px;
+}
+
+.struct-variable-definition-type {
+    width: 200px;
+    border-right: 1px solid #CCC;
+    padding: 10px 13px;
+}
+
+.struct-variable-definition-identifier {
+    padding: 10px 13px;
+    min-width: 160px;
+}
+
+.struct-variable-definition-wrapper i {
+    line-height: 18px;
+    padding: 13px;
+    opacity: 0.4;
+    cursor: pointer;
+    float: right;
+}
+
+.struct-variable-definition-wrapper i:hover {
+    opacity: 1;
+}
+
+.struct-type-dropdown-wrapper button {
+    height: 24px;
+    width: 134px;
+    padding-top: 2px;
+}
+
+.add-struct-variable-button-square {
+    border: 1px solid #FFF;
+    height: 24px;
+    line-height: 22px;
+}
+
+.clear-struct-variable-button-square {
+    border: 1px solid #FFF;
+    height: 24px;
+    line-height: 22px;
+}
+
+.struct-variable-identifier-text-input {
+    width: 185px;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.struct-variable-type-dropdown-wrapper button {
+    height: 24px;
+    padding-top: 1px;
+    width: 140px;
+}
+
+.struct-variable-type-dropdown-wrapper i {
+    padding: 0;
+    line-height:20px;
+}
+
+.jstree-anchor {
+    padding: 2px 4px 0 1px;
+}
+
+/** End of Struct view CSS **/
+
+span.package-pane {
+    padding: 10px;
+    margin-left: -20px;
+    background-color: #fff;
+    border: 1px solid #f0f0f0;
+    display: none;
+}
+span.package-name-wrapper {
+    margin-left: 10px;
+}
+
+.action-content-wrapper-heading input[type=text] {
+    padding-left: 7px;
+    margin-left: 2px;
+    border: 1px solid #ccc;
+}
+
+input#package-name-input {
+    padding-left: 7px;
+    margin-left: 2px;
+    border: 1px solid #ccc;
+}
+
+.package-name-btn span{
+    cursor: pointer;
+}
+.package-definition-main-wrapper{
+    margin-bottom: 1em;
+}
+.tooltip-inner {
+    white-space:nowrap;
+    max-width:none;
+}
+
+.tooltip.bottom {
+    margin-top: -3px;
+}

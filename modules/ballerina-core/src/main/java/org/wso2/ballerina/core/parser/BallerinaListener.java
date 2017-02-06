@@ -218,16 +218,6 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#workerInputParameter}.
-	 * @param ctx the parse tree
-	 */
-	void enterWorkerInputParameter(BallerinaParser.WorkerInputParameterContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#workerInputParameter}.
-	 * @param ctx the parse tree
-	 */
-	void exitWorkerInputParameter(BallerinaParser.WorkerInputParameterContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#returnParameters}.
 	 * @param ctx the parse tree
 	 */

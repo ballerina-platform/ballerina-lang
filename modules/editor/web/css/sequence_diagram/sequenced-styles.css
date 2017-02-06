@@ -83,9 +83,13 @@
 
 .headingDeleteIcon {
     cursor: pointer;
-    opacity: 0.4;
     fill: url(#deleteIcon);
  }
+
+/*Resolves the issue of not showing the css referred svg images not showing in firefox*/
+svg use svg {
+    fill: inherit;
+}
 
 .headingDeleteIcon:hover {
     opacity: 1;
@@ -333,6 +337,7 @@ text-anchor: start;
 
 .client-life-line text{
     cursor: pointer;
+    font-weight: 400;
 }
 
 .client-life-line polygon{
@@ -349,6 +354,7 @@ text-anchor: start;
 }
 .default-worker-life-line text{
     cursor: pointer;
+    font-weight: 400;
 }
 
 .default-worker-life-line rect{
@@ -368,6 +374,7 @@ text-anchor: start;
 
 .connector-life-line text {
     cursor: pointer;
+    font-weight: 400;
 }
 
 .connector-life-line-top-polygon {
@@ -392,6 +399,7 @@ text-anchor: start;
 .start-action text{
     fill: black;
     stroke-opacity: 0;
+    font-weight: 400;
 }
 
 .statement-container .main-drop-zone{
@@ -431,7 +439,6 @@ text-anchor: start;
 
 .headingAnnotationBlackIcon {
     cursor: pointer;
-    opacity: 0.4;
     fill: url(#annotationBlackIcon);
 }
 
@@ -461,7 +468,6 @@ text-anchor: start;
 
 .headingArgumentsBlackIcon {
     cursor: pointer;
-    opacity: 0.4;
     fill: url(#argumentsBlackIcon);
 }
 
@@ -477,7 +483,6 @@ text-anchor: start;
 
 .headingReturnTypeBlackIcon {
     cursor: pointer;
-    opacity: 0.4;
     fill: url(#returnTypeBlackIcon);
 }
 

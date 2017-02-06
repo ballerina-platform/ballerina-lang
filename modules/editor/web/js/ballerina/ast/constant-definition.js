@@ -35,12 +35,12 @@ define(['lodash', 'log', './variable-declaration'], function (_, log, VariableDe
     ConstantDefinition.prototype = Object.create(VariableDeclaration.prototype);
     ConstantDefinition.prototype.constructor = ConstantDefinition;
 
-    ConstantDefinition.prototype.setValue = function (value) {
+    ConstantDefinition.prototype.setValue = function (value, options) {
         if (_.isNil(value) || _.isEmpty(value)) {
             log.error("A constant requires to have a type.");
             throw "A constant requires to have a type.";
         } else {
-            this._value = value;
+            this.setAttribute('_value', value, options);
         }
     };
 
@@ -64,9 +64,9 @@ define(['lodash', 'log', './variable-declaration'], function (_, log, VariableDe
      * @param {string} jsonNode.constant_definition_value - The value of the constant.
      */
     ConstantDefinition.prototype.initFromJson = function (jsonNode) {
-        this._type = jsonNode.constant_definition_btype;
-        this._identifier = jsonNode.constant_definition_identifier;
-        this._value = jsonNode.constant_definition_value;
+        this.setType(jsonNode.constant_definition_btype, {doSilently: true});
+        this.setIdentifier(jsonNode.constant_definition_identifier, {doSilently: true});
+        this.setValue(jsonNode.constant_definition_value, {doSilently: true});
     };
 
     return ConstantDefinition;

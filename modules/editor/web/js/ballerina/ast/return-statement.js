@@ -31,9 +31,9 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
     ReturnStatement.prototype = Object.create(Statement.prototype);
     ReturnStatement.prototype.constructor = ReturnStatement;
 
-    ReturnStatement.prototype.setReturnExpression = function (expression) {
+    ReturnStatement.prototype.setReturnExpression = function (expression, options) {
         if (!_.isNil(expression)) {
-            this._expression = expression;
+            this.setAttribute('_expression', expression, options);
         } else {
             log.error("Cannot set undefined to the return statement.");
         }
@@ -78,7 +78,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
                 expression += " , ";
             }
         }
-        this._expression = expression;
+        this.setReturnExpression(expression, {doSilently: true});
     };
 
     return ReturnStatement;
