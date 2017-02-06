@@ -16,12 +16,12 @@
  * under the License.
  */
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/resource-definition',
-        './default-worker', './point', './connector-declaration-view', './statement-view-factory',
+        './default-worker', './point', './connector-declaration-view',
         'ballerina/ast/ballerina-ast-factory','./message', './statement-container',
         './../ast/variable-declaration', './variables-view', './client-life-line', './annotation-view',
         './resource-parameters-pane-view'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
-              DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory,
+              DefaultWorkerView, Point, ConnectorDeclarationView,
               BallerinaASTFactory, MessageView, StatementContainer,
               VariableDeclaration, VariablesView, ClientLifeLine, AnnotationView,
               ResourceParametersPaneView) {
@@ -734,6 +734,11 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     this._clientLifeLine.getBottomCenter().y(this._statementContainer.getBoundingBox().getBottom());
                     this.getBoundingBox().h(this.getBoundingBox().h() + dy);
             });
+            /* When the width of the statement container's bounding box changes, width of this resource definition's
+             bounding box should also change.*/
+            this._statementContainer.getBoundingBox().on('right-edge-moved', function (dw) {
+                this._defaultWorker.getBoundingBox().zoomWidth(this._statementContainer.getBoundingBox().w());
+            }, this);
             this._statementContainer.render(this.diagramRenderingContext);
         };
 
@@ -820,39 +825,19 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          * @param {ConnectorDeclaration} connectorDeclaration - The connector declaration model.
          */
         ResourceDefinitionView.prototype.visitConnectorDeclaration = function (connectorDeclaration) {
-            var self = this;
-            var connectorContainer = this._contentGroup.node(),
-                height = this._clientLifeLine.getTopCenter().absDistInYFrom(this._clientLifeLine.getBottomCenter()),
-                connectorOpts = {model: connectorDeclaration, container: connectorContainer,
-                    parentView: this, messageManager: this.messageManager, lineHeight: height},
-                connectorDeclarationView,
-                center;
-
             var lastLifeLine = this.getLastLifeLine();
-                center = lastLifeLine.getTopCenter().clone().move(this._viewOptions.LifeLineCenterGap, 0);
-
-            _.set(connectorOpts, 'centerPoint', center);
-            connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
+            var connectorDeclarationView = new ConnectorDeclarationView({
+                model: connectorDeclaration,
+                container: this._contentGroup.node(),
+                parentView: this,
+                messageManager: this.messageManager,
+                lineHeight: this._clientLifeLine.getTopCenter().absDistInYFrom(this._clientLifeLine.getBottomCenter()),
+                centerPoint: lastLifeLine.getTopCenter().clone().move(this._viewOptions.LifeLineCenterGap, 0)
+            });
+            connectorDeclarationView.setParent(this);
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
-            connectorDeclarationView._rootGroup.attr('id', '_' +connectorDeclarationView._model.id);
+            connectorDeclarationView._rootGroup.attr('id', '_' + connectorDeclarationView._model.id);
             connectorDeclarationView.render();
-
-            if (this._connectorWorkerViewList.length > 0) {
-                // There are already added resource level connectors
-                // New resource level connector listens to the current last resource level connector
-                var lastConnector = _.last(this._connectorWorkerViewList);
-                connectorDeclarationView.listenTo(lastConnector.getBoundingBox(), 'right-edge-moved', function (offset) {
-                    self.moveResourceLevelConnector(this, offset);
-                });
-            }
-
-            // If the New Connector or the worker goes out of the resource bounding box we expand the resource BBox
-            if (connectorDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
-                this._parentView.getLifeLineMargin().setPosition(this._parentView.getLifeLineMargin().getPosition() + this._viewOptions.LifeLineCenterGap);
-                this.setContentMinWidth(connectorDeclarationView.getBoundingBox().getRight());
-                this.setHeadingMinWidth(connectorDeclarationView.getBoundingBox().getRight());
-            }
-
             // Creating property pane
             var editableProperties = [
                 {
@@ -870,18 +855,34 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     setterMethod: connectorDeclarationView._model.setUri
                 }
             ];
-            connectorDeclarationView.createPropertyPane({
-                model: connectorDeclarationView._model,
-                lifeLineGroup:connectorDeclarationView._rootGroup,
-                editableProperties: editableProperties
+            connectorDeclarationView.createPropertyPane(
+                {
+                    model: connectorDeclarationView._model,
+                    lifeLineGroup: connectorDeclarationView._rootGroup,
+                    editableProperties: editableProperties
+                }
+            );
+
+            /* If the adding connector (connectorDeclarationView) goes out of this resource definition's view,
+             then we need to expand this resource definition's view. */
+            if (connectorDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
+                this._parentView.getLifeLineMargin().setPosition(this._parentView.getLifeLineMargin().getPosition()
+                                                                 + this._viewOptions.LifeLineCenterGap);
+                this.setContentMinWidth(connectorDeclarationView.getBoundingBox().getRight());
+                this.setHeadingMinWidth(connectorDeclarationView.getBoundingBox().getRight());
+            }
+
+            /* When last connector's or worker's (which is on left side) width expands/contracts, adding connector
+             should be moved along X-axis accordingly.*/
+            lastLifeLine.getBoundingBox().on('right-edge-moved', function (dx) {
+                this.moveResourceLevelConnector(connectorDeclarationView, dx);
+            }, this);
+            // Adding connector's height should be equal to this resources definition's height
+            this.getBoundingBox().on("height-changed", function (dh) {
+                connectorDeclarationView.getBoundingBox().h(connectorDeclarationView.getBoundingBox().h() + dh);
             });
 
-            connectorDeclarationView.setParent(this);
             this._connectorWorkerViewList.push(connectorDeclarationView);
-            this.getBoundingBox().on("height-changed", function (dh) {
-                this.getBoundingBox().h( this.getBoundingBox().h() + dh);
-            }, connectorDeclarationView);
-
             this.trigger("childConnectorViewAddedEvent", connectorDeclarationView);
         };
 
