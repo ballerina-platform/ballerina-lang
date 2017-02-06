@@ -286,7 +286,7 @@ public class BLangExecutor implements NodeExecutor {
         }
 
         // Create an array in the stack frame to hold return values;
-        BValue[] returnVals = new BValue[function.getReturnParameters().length];
+        BValue[] returnVals = new BValue[function.getReturnParamTypes().length];
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
         // return values and function invocation location;
