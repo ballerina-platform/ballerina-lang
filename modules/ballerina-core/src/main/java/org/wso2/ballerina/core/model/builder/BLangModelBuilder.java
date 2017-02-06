@@ -55,6 +55,7 @@ import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
 import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
 import org.wso2.ballerina.core.model.expressions.LessThanExpression;
 import org.wso2.ballerina.core.model.expressions.MapStructInitKeyValueExpr;
+import org.wso2.ballerina.core.model.expressions.ModExpression;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
@@ -504,6 +505,10 @@ public class BLangModelBuilder {
 
             case "/":
                 expr = new DivideExpr(location, lExpr, rExpr);
+                break;
+
+            case "%":
+                expr = new ModExpression(location, lExpr, rExpr);
                 break;
 
             case "&&":

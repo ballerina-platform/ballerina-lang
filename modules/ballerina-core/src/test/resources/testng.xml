@@ -38,6 +38,7 @@ under the License.
             <class name="org.wso2.ballerina.lang.expressions.BackQuoteExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.BinaryExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.DivideExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.ModExpressionTest"/>
             <class name="org.wso2.ballerina.lang.expressions.FuncInvocationExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.GreaterLessThanExprTest"/>
             <!-- Not used at the moment -->
