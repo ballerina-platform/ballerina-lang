@@ -110,6 +110,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
          */
         ToolPaletteItemProvider.prototype.getToolGroup = function (package) {
             var definitions = [];
+            var self = this;
             _.each(package.getConnectors(), function (connector) {
                 var packageName = _.last(_.split(package.getName(), '.'));
                 connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
@@ -155,6 +156,12 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 functionDef.title = functionDef.getTitle();
                 functionDef.id = functionDef.getName();
                 definitions.push(functionDef);
+
+                var toolGroupID = package.getName() + "-tool-group";
+                // registering function name-modified event
+                functionDef.on('name-modified', function(newName, oldName){
+                    self.updateToolItem(toolGroupID, functionDef, newName);
+                });
             });
 
             var group = new ToolGroup({
@@ -176,6 +183,10 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 var toolGroupID = package.getName() + "-tool-group";
                 var icon = "images/tool-icons/function.svg";
                 this.addToToolGroup(toolGroupID, child, nodeFactoryMethod, icon);
+
+                child.on('name-modified', function(newName, oldName){
+                    self.updateToolItem(toolGroupID, child, newName);
+                });
             }, this);
 
             var self = this;
@@ -206,6 +217,16 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
             tool.title = toolItem.getName();
             tool.id = toolItem.getName();
             this._toolPalette.addNewToolToGroup(toolGroupID, tool);
+        };
+
+        /**
+         * updates tool item with given new values
+         * @param {string} toolGroupID - Id of the tool group
+         * @param {Object} toolItem - tool object
+         * @param {Object} newValue - new value for the tool
+         */
+        ToolPaletteItemProvider.prototype.updateToolItem = function (toolGroupID, toolItem, newValue) {
+            this._toolPalette.updateToolPaletteItem(toolGroupID, toolItem, newValue);
         };
 
         return ToolPaletteItemProvider;

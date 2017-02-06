@@ -21,12 +21,12 @@ button.close {
 }
 
 #tabs-container > div.tab-headers.tab-headers-bar > ul {
-    border-bottom: 0px;
+    border-bottom: 0;
 }
 
 .bottom-right-controls-container {
     position: absolute;
-    bottom: 125px;
+    bottom: 90px;
     right: 25px;
     z-index: 30;
 }
