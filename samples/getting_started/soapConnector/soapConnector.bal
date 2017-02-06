@@ -6,6 +6,7 @@ import ballerina.lang.system;
 import ballerina.lang.string;
 import ballerina.lang.xml;
 
+
 connector SoapConnector (string url) {
 
     http:HTTPConnector httpConnector = new http:HTTPConnector("");
@@ -19,28 +20,30 @@ connector SoapConnector (string url) {
         string reqType;
         string soapBody;
 
-        if (string:equalsIgnoreCase(soapVersion, "1.1")) {
+        if (string:equalsIgnoreCase(soapVersion, "1.2")) {
+            reqType = "application/soap+xml";
+            namespace = "http://www.w3.org/2003/05/soap-envelope";
+        } else {
             reqType = "text/xml";
             namespace = "http://schemas.xmlsoap.org/soap/envelope/";
-        }
-        else if (string:equalsIgnoreCase(soapVersion, "1.2")) {
-          reqType = "application/soap+xml";
-          namespace = "http://www.w3.org/2003/05/soap-envelope";
-        }
-        else {
-          system:println("Please check your Soap version");
         }
 
         soapPayload = addSoapBody (payload, namespace);
 
         message:setXmlPayload(backendServiceReq, soapPayload);
         message:setHeader(backendServiceReq, "Content-Type", reqType);
-        message:setHeader(backendServiceReq, "SOAPAction", soapAction);
-
+        if (soapAction != "null") {
+            message:setHeader(backendServiceReq, "SOAPAction", soapAction);
+        }
         response = http:HTTPConnector.post(httpConnector, url, backendServiceReq);
         resp = message:getXmlPayload(response);
 
-        soapBody = xml:getString(resp, "/soapenv:Envelope/soapenv:Body/*", {"soapenv" :"http://schemas.xmlsoap.org/soap/envelope/"});
+        if (string:equalsIgnoreCase(soapVersion, "1.2")) {
+            soapBody = xml:getString(resp, "/soapenv:Envelope/soapenv:Body/*", {"soapenv" :"http://www.w3.org/2003/05/soap-envelope"});
+        } else {
+            soapBody = xml:getString(resp, "/soapenv:Envelope/soapenv:Body/*", {"soapenv" :"http://schemas.xmlsoap.org/soap/envelope/"});
+        }
+
         message:setStringPayload (backendServiceReq, soapBody);
         return backendServiceReq;
     }
