@@ -31,9 +31,9 @@ define(['lodash', './node'], function (_, ASTNode) {
      * Set the type mapper name
      * @param typeMapperName
      */
-    TypeMapperDefinition.prototype.setTypeMapperName = function (typeMapperName) {
+    TypeMapperDefinition.prototype.setTypeMapperName = function (typeMapperName, options) {
         if (!_.isNil(typeMapperName)) {
-            this.setAttribute('_typeMapperName', typeMapperName);
+            this.setAttribute('_typeMapperName', typeMapperName, options);
         } else {
             log.error('Invalid Type Mapper name [' + typeMapperName + '] Provided');
             throw 'Invalid Type Mapper name [' + typeMapperName + '] Provided';
@@ -134,9 +134,9 @@ define(['lodash', './node'], function (_, ASTNode) {
      * Set the already selected type struct name for source
      * @param selectedStructNameForSource
      */
-    TypeMapperDefinition.prototype.setSelectedStructNameForSource = function (selectedStructNameForSource) {
+    TypeMapperDefinition.prototype.setSelectedStructNameForSource = function (selectedStructNameForSource, options) {
         if (!_.isNil(selectedStructNameForSource)) {
-            this.setAttribute('_selectedTypeStructNameForSource', selectedStructNameForSource);
+            this.setAttribute('_selectedTypeStructNameForSource', selectedStructNameForSource, options);
         } else {
             log.error('Invalid TypeStructName [' + selectedStructNameForSource + '] Provided');
             throw 'Invalid TypeStructName [' + selectedStructNameForSource + '] Provided';
@@ -155,9 +155,9 @@ define(['lodash', './node'], function (_, ASTNode) {
      * Set the already selected type struct name for target
      * @param selectedStructNameForTarget
      */
-    TypeMapperDefinition.prototype.setSelectedStructNameForTarget = function (selectedStructNameForTarget) {
+    TypeMapperDefinition.prototype.setSelectedStructNameForTarget = function (selectedStructNameForTarget, options) {
         if (!_.isNil(selectedStructNameForTarget)) {
-            this.setAttribute('_selectedTypeStructNameForTarget', selectedStructNameForTarget);
+            this.setAttribute('_selectedTypeStructNameForTarget', selectedStructNameForTarget, options);
         } else {
             log.error('Invalid TypeStructName [' + selectedStructNameForTarget + '] Provided');
             throw 'Invalid TypeStructName [' + selectedStructNameForTarget + '] Provided';

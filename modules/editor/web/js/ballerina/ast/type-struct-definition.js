@@ -69,9 +69,9 @@ define(['lodash', 'require', 'log', './node'],
          * set the AST node of the selected type struct
          * @param schema
          */
-        TypeStructDefinition.prototype.setSchema = function (schema) {
+        TypeStructDefinition.prototype.setSchema = function (schema, options) {
             if (!_.isNil(schema)) {
-                this.setAttribute('_schema', schema);
+                this.setAttribute('_schema', schema, options);
             } else {
                 log.error('Invalid schema [' + schema + '] Provided');
                 throw 'Invalid schema [' + schema + '] Provided';
@@ -91,9 +91,9 @@ define(['lodash', 'require', 'log', './node'],
          * set whether chosen type struct is either source or target
          * @param category
          */
-        TypeStructDefinition.prototype.setCategory = function (category) {
+        TypeStructDefinition.prototype.setCategory = function (category, options) {
             if (!_.isNil(category)) {
-                this.setAttribute('_category', category);
+                this.setAttribute('_category', category, options);
             } else {
                 log.error('Invalid category [' + category + '] Provided');
                 throw 'Invalid category [' + category + '] Provided';
@@ -112,9 +112,9 @@ define(['lodash', 'require', 'log', './node'],
          * set the identifier of the chosen type struct (ex: People p;)
          * @param identifier
          */
-        TypeStructDefinition.prototype.setIdentifier = function (identifier) {
+        TypeStructDefinition.prototype.setIdentifier = function (identifier, options) {
             if (!_.isNil(identifier)) {
-                this.setAttribute('_identifier', identifier);
+                this.setAttribute('_identifier', identifier, options);
             } else {
                 log.error('Invalid identifier [' + identifier + '] Provided');
                 throw 'Invalid identifier [' + identifier + '] Provided';
@@ -141,9 +141,9 @@ define(['lodash', 'require', 'log', './node'],
          * set the call back function for connecting a source and a target
          * @param onConnectInstance
          */
-        TypeStructDefinition.prototype.setOnConnectInstance = function (onConnectInstance) {
+        TypeStructDefinition.prototype.setOnConnectInstance = function (onConnectInstance, options) {
             if (!_.isNil(onConnectInstance)) {
-                this.setAttribute('_onConnectInstance', onConnectInstance);
+                this.setAttribute('_onConnectInstance', onConnectInstance, options);
             } else {
                 log.error('Invalid onConnectInstance [' + onConnectInstance + '] Provided');
                 throw 'Invalid onConnectInstance [' + onConnectInstance + '] Provided';
@@ -162,9 +162,9 @@ define(['lodash', 'require', 'log', './node'],
          * set the call back function for disconnecting a source and a target
          * @param onDisconnectInstance
          */
-        TypeStructDefinition.prototype.setOnDisconnectInstance = function (onDisconnectInstance) {
+        TypeStructDefinition.prototype.setOnDisconnectInstance = function (onDisconnectInstance, options) {
             if (!_.isNil(onDisconnectInstance)) {
-                this.setAttribute('_onDisconnectInstance', onDisconnectInstance);
+                this.setAttribute('_onDisconnectInstance', onDisconnectInstance, options);
             } else {
                 log.error('Invalid onDisconnectInstance [' + onDisconnectInstance + '] Provided');
                 throw 'Invalid onDisconnectInstance [' + onDisconnectInstance + '] Provided';
@@ -175,9 +175,9 @@ define(['lodash', 'require', 'log', './node'],
          * Preserves the previous selection of the type struct name in-order to remove upon a new selection
          * @param selectedStructName
          */
-        TypeStructDefinition.prototype.setSelectedStructName = function (selectedStructName) {
+        TypeStructDefinition.prototype.setSelectedStructName = function (selectedStructName, options) {
             if (!_.isNil(selectedStructName)) {
-                this.setAttribute('_selectedStructName', selectedStructName);
+                this.setAttribute('_selectedStructName', selectedStructName, options);
             } else {
                 log.error('Invalid selectedStructName [' + selectedStructName + '] Provided');
                 throw 'Invalid selectedStructName [' + selectedStructName + '] Provided';
