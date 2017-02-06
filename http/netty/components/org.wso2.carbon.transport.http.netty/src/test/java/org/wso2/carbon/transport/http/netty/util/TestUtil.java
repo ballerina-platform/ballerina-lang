@@ -39,7 +39,6 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -69,7 +68,7 @@ public class TestUtil {
         }
 
         for (HTTPServerConnector httpServerConnector : serverConnectors) {
-            httpServerConnector.start(Collections.emptyMap());
+            httpServerConnector.stop();
         }
 
         serverConnectors.get(0).getServerConnectorController().stop();
