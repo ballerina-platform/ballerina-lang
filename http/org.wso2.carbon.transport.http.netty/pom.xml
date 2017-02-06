@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <parent>
+        <groupId>org.wso2.carbon.transport</groupId>
+        <artifactId>org.wso2.carbon.transport.http.parent</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
+    <packaging>bundle</packaging>
+    <name>WSO2 Carbon Transport HTTP Netty Component</name>
+    <description>Carbon HTTP Transport based on Netty</description>
+
+    <scm>
+        <url>https://github.com/wso2/carbon-transports.git</url>
+        <developerConnection>scm:git:https://github.com/wso2/carbon-transports.git</developerConnection>
+        <connection>scm:git:https://github.com/wso2/carbon-transports.git</connection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.wso2.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi.services</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-buffer</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-pool.wso2</groupId>
+            <artifactId>commons-pool</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.wso2.carbon.messaging</groupId>
+            <artifactId>org.wso2.carbon.messaging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io.wso2</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.wso2.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>@{argLine} -Dfile.encoding=UTF-8</argLine>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.8</version>
+                <configuration>
+                    <destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>jacoco-initialize</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>jacoco-site</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
+                            <outputDirectory>${basedir}/target/coverage-reports/site</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <properties>
+        <bundle.activator>org.wso2.carbon.transport.http.netty.internal.HTTPTransportActivator</bundle.activator>
+        <private.package>org.wso2.carbon.transport.http.netty.internal,
+            org.wso2.carbon.transport.http.netty.message,
+        </private.package>
+        <export.package>
+            !org.wso2.carbon.transport.http.netty.internal,
+            !org.wso2.carbon.transport.http.netty.message,
+            org.wso2.carbon.transport.http.netty.*;version="${netty.transport.package.export.version}",
+
+        </export.package>
+        <import.package>
+            org.osgi.framework.*;version="${osgi.framework.import.version.range}",
+            org.osgi.util.tracker;version="${osgi.service.tracker.import.version.range}",
+            io.netty.buffer.*;version="${netty.package.import.version.range}",
+            io.netty.handler.codec.*;version="${netty.package.import.version.range}",
+            io.netty.util.*;version="${netty.package.import.version.range}",
+            io.netty.handler.*;version="${netty.package.import.version.range}",
+            io.netty.bootstrap.*;version="${netty.package.import.version.range}",
+            io.netty.channel.*;version="${netty.package.import.version.range}",
+            org.wso2.carbon.kernel.transports.*;version="${carbon.kernel.package.import.version.range}",
+            org.wso2.carbon.kernel.startupresolver.*;version="${carbon.kernel.package.import.version.range}",
+            org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
+            org.xml.sax.*;version="${org.xml.sax.import.version.range}",
+            javax.xml.bind.*;version="${javax.xml.bind.import.version.range}",
+            javax.xml.transform.*;version="${javax.xml.transform.import.version.range}",
+            javax.xml.validation.*;version="${javax.xml.validation.import.version.range}",
+            javax.net.ssl.*;version="${javax.net.ssl.import.version.range}",javax.management,
+            org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}",
+            org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
+            org.apache.commons.pool.*;version="${commons.pool.package.import.version.range}",
+            com.lmax.disruptor.*;version="${disruptor.package.import.version.range}",
+        </import.package>
+        <carbon.component>
+            startup.listener;componentName="netty-transports-mgt";
+            requiredService="org.wso2.carbon.messaging.CarbonTransportInitializer,
+            org.wso2.carbon.messaging.CarbonMessageProcessor",
+            osgi.service;
+            objectClass="org.wso2.carbon.transport.http.netty.internal.HTTPTransportServiceComponent";
+            requiredByComponentName="carbon-transport-mgt",
+            osgi.service;objectClass="org.wso2.carbon.kernel.startupresolver.CapabilityProvider";
+            capabilityName="org.wso2.carbon.kernel.transports.CarbonTransport"
+        </carbon.component>
+    </properties>
+</project>
