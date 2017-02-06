@@ -88,7 +88,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
             var y = this.getBoundingBox().getTop();
 
             var expressionRect = D3Utils.rect(x, y, width, height, 0, 0, this.getStatementGroup()).classed('statement-rect', true);
-            var assignmentText = this._model.getExpression();
+            var assignmentText = this._model.getStatementString();
             assignmentText = ((assignmentText.length) > 11 ? (assignmentText.substring(0,11) + '...') : assignmentText);
             var expressionText = D3Utils.textElement(x + width/2, y + height/2, assignmentText, this.getStatementGroup()).classed('statement-text', true);
             this.getStatementGroup().expression_rect = expressionRect;
@@ -103,14 +103,14 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
                 propertyType: "text",
                 key: "Assignment",
                 model: this._model,
-                getterMethod: this._model.getExpression,
-                setterMethod: this._model.setExpression
+                getterMethod: this._model.getStatementString,
+                setterMethod: this._model.setStatementString
             };
             editableProperties.push(editableProperty);
             this._createPropertyPane({
                 model: this._model,
                 statementGroup:this.getStatementGroup(),
-                editableProperties: editableProperties
+                editableProperties: editableProperty
             });
 
             this.getBoundingBox().on('top-edge-moved', function(dy){
@@ -129,6 +129,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
 
         AssignmentStatementView.prototype.updateStatementText = function (updatedText) {
             if (!_.isUndefined(updatedText) && updatedText !== '') {
+                updatedText = ((updatedText.length) > 11 ? (updatedText.substring(0, 11) + '..') : updatedText);
                 this.getStatementGroup().expression_text.node().textContent = updatedText;
             }
         };

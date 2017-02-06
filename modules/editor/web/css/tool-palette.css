@@ -5,8 +5,8 @@
     width: 200px;
     left: 0;
     top: 0;
-    background-color: #ffffff;
-    height: 92%; /* reduce the toolbar, breadcrumb and tab heading height  */
+    background-color: #fff;
+    height: calc(100% - 80px);
 }
 
 .tool-group{
@@ -17,7 +17,7 @@
 .tool-group-header{
     cursor: pointer;
     padding: 5px 1px;
-    background: whitesmoke;
+    background: #fff;
     border-bottom: 1px solid #e4e4e4;
 }
 
@@ -140,9 +140,8 @@
 }
 
 .tool-connector-action {
-    border-left: 2px solid #AAA;
     padding-left: 5px;
-    margin-left: 10px;
+    margin-left: 30px;
 }
 
 .tool-group-import-header{
@@ -161,6 +160,6 @@
     font-size: 10px;
     margin-right: 5px;
     color: #fff;
-    padding: 0 4px;
+    padding: 4px;
     border: 1px solid #777;
 }

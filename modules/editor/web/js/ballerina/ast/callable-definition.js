@@ -38,27 +38,27 @@ define(['lodash', './node'], function (_, ASTNode) {
     CallableDefinition .prototype = Object.create(ASTNode.prototype);
     CallableDefinition .prototype.constructor = CallableDefinition ;
 
-    CallableDefinition.prototype.setConnectionDeclarations = function (connectionDeclarations) {
+    CallableDefinition.prototype.setConnectionDeclarations = function (connectionDeclarations, options) {
         if (!_.isNil(connectionDeclarations)) {
-            this.connectionDeclarations = connectionDeclarations;
+            this.setAttribute('connectionDeclarations', connectionDeclarations, options);
         }
     };
 
-    CallableDefinition.prototype.setVariableDeclarations = function (variableDeclarations) {
+    CallableDefinition.prototype.setVariableDeclarations = function (variableDeclarations, options) {
         if (!_.isNil(variableDeclarations)) {
-            this.variableDeclarations = variableDeclarations;
+            this.setAttribute('variableDeclarations', variableDeclarations, options);
         }
     };
 
-    CallableDefinition.prototype.setWorkerDeclarations = function (workerDeclarations) {
+    CallableDefinition.prototype.setWorkerDeclarations = function (workerDeclarations, options) {
         if (!_.isNil(workerDeclarations)) {
-            this.workerDeclarations = workerDeclarations;
+            this.setAttribute('workerDeclarations', workerDeclarations, options);
         }
     };
 
-    CallableDefinition.prototype.setStatements = function (statements) {
+    CallableDefinition.prototype.setStatements = function (statements, options) {
         if (!_.isNil(statements)) {
-            this.statements = statements;
+            this.setAttribute('statements', statements, options);
         }
     };
 

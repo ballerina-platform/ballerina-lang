@@ -36,15 +36,15 @@ define(['lodash', './node'], function (_, ASTNode) {
         }
     };
 
-    WorkerDeclaration.prototype.setReply = function (replyStatement) {
+    WorkerDeclaration.prototype.setReply = function (replyStatement, options) {
         if (!_.isNil(replyStatement)) {
-            this._reply = replyStatement;
+            this.setAttribute('_reply', replyStatement, options);
         }
     };
 
-    WorkerDeclaration.prototype.setIsDefaultWorker = function (isDefaultWorker) {
+    WorkerDeclaration.prototype.setIsDefaultWorker = function (isDefaultWorker, options) {
         if (!_.isNil(isDefaultWorker)) {
-            this._isDefaultWorker = isDefaultWorker;
+            this.setAttribute('_isDefaultWorker', isDefaultWorker, options);
         }
     };
 

@@ -27,8 +27,14 @@ import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.ballerina.core.runtime.dispatching.ResourceDispatcher;
+import org.wso2.ballerina.core.runtime.dispatching.uri.QueryParamProcessor;
+import org.wso2.ballerina.core.runtime.dispatching.uri.URITemplate;
+import org.wso2.ballerina.core.runtime.dispatching.uri.URITemplateException;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Resource level dispatching handler for HTTP protocol.
@@ -61,9 +67,21 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                     subPathAnnotationVal = subPathAnnotationVal.substring(1, subPathAnnotationVal.length() - 1);
                 }
 
-                if ((subPath.startsWith(subPathAnnotationVal) ||
-                        Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal)) &&
-                        (resource.getAnnotation(method) != null)) {
+                Map<String, String> resourceArgumentValues = new HashMap<>();
+                //to enable dispatching with query params products/{productId}?regID={regID}
+                String queryStr = cMsg.getProperty(Constants.QUERY_STR) != null
+                                  ? "?" + cMsg.getProperty(Constants.QUERY_STR)
+                                  : "";
+                if ((matches(subPathAnnotationVal, (subPath + queryStr), resourceArgumentValues) ||
+                        Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal))
+                        && (resource.getAnnotation(method) != null)) {
+
+                    if (cMsg.getProperty(Constants.QUERY_STR) != null) {
+                        QueryParamProcessor.processQueryParams
+                                ((String) cMsg.getProperty(Constants.QUERY_STR))
+                                .forEach((resourceArgumentValues::put));
+                    }
+                    cMsg.setProperty(org.wso2.ballerina.core.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
                     return resource;
                 }
             }
@@ -72,7 +90,14 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
         }
 
         // Throw an exception if the resource is not found.
-        throw new BallerinaException("No matching Resource found for Path : " + subPath + " , Method : " + method);
+        throw new BallerinaException("no matching resource found for Path : " + subPath + " , Method : " + method);
+    }
+
+    public static boolean matches(String uriTemplate, String reqPath,
+                                  Map<String, String> variables) throws URITemplateException {
+        URITemplate template = new URITemplate(uriTemplate);
+        return template.matches(reqPath, variables);
+
     }
 
     @Override

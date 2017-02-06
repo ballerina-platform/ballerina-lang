@@ -73,7 +73,7 @@ public class ServiceTest {
 
     @Test(description = "Test for service availability check",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = ".* no Service found .*")
+            expectedExceptionsMessageRegExp = ".* no service found .*")
     public void testServiceAvailabilityCheck() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/foo/message", "GET");
         Services.invoke(cMsg);
@@ -94,7 +94,7 @@ public class ServiceTest {
 
     @Test(description = "Test for resource availability check",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = ".* no Resource found .*")
+            expectedExceptionsMessageRegExp = ".* no resource found .*")
     public void testResourceAvailabilityCheck() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/bar", "GET");
         Services.invoke(cMsg);

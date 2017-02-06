@@ -53,27 +53,27 @@ public class ServerConnectorMessageHandler {
         try {
             String protocol = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
             if (protocol == null) {
-                throw new BallerinaException("Protocol not defined in the incoming request", balContext);
+                throw new BallerinaException("protocol not defined in the incoming request", balContext);
             }
 
             // Find the Service Dispatcher
             ServiceDispatcher dispatcher = DispatcherRegistry.getInstance().getServiceDispatcher(protocol);
             if (dispatcher == null) {
-                throw new BallerinaException("No service dispatcher available to handle protocol : " + protocol,
+                throw new BallerinaException("no service dispatcher available to handle protocol : " + protocol,
                         balContext);
             }
 
             // Find the Service
             Service service = dispatcher.findService(cMsg, callback, balContext);
             if (service == null) {
-                throw new BallerinaException("No Service found to handle the service request", balContext);
+                throw new BallerinaException("no Service found to handle the service request", balContext);
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
             }
 
             // Find the Resource Dispatcher
             ResourceDispatcher resourceDispatcher = DispatcherRegistry.getInstance().getResourceDispatcher(protocol);
             if (resourceDispatcher == null) {
-                throw new BallerinaException("No resource dispatcher available to handle protocol : " + protocol,
+                throw new BallerinaException("no resource dispatcher available to handle protocol : " + protocol,
                         balContext);
             }
 
@@ -82,11 +82,11 @@ public class ServerConnectorMessageHandler {
             try {
                 resource = resourceDispatcher.findResource(service, cMsg, callback, balContext);
             } catch (BallerinaException ex) {
-                throw new BallerinaException("No Resource found to handle the request to Service : " +
+                throw new BallerinaException("no resource found to handle the request to Service : " +
                                              service.getSymbolName().getName() + " : " + ex.getMessage());
             }
             if (resource == null) {
-                throw new BallerinaException("No Resource found to handle the request to Service : " +
+                throw new BallerinaException("no resource found to handle the request to Service : " +
                                              service.getSymbolName().getName());
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
             }

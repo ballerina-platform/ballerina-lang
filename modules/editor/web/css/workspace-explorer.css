@@ -1,23 +1,10 @@
-.workspace-explorer-activate-btn{
-    color: white;
-    margin: 11px;
-    opacity: 0.4;
-}
-
-.workspace-explorer-activate-btn.active{
-    opacity: 1;
-}
-
-.workspace-explorer-activate-btn:hover{
-    opacity: 1;
-    cursor: pointer;
-}
-
 .workspace-explorer-container{
     width: 100%;
     color: #dedede;
     position: relative;
     padding: 0;
+    overflow: auto;
+    height: 100%;
 }
 
 .tree-highlight{

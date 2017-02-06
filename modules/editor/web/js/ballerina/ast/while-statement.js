@@ -35,9 +35,9 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
     WhileStatement.prototype = Object.create(ConditionalStatement.prototype);
     WhileStatement.prototype.constructor = WhileStatement;
 
-    WhileStatement.prototype.setCondition = function(condition){
+    WhileStatement.prototype.setCondition = function(condition, options){
         if(!_.isNil(condition)){
-            this._condition = condition;
+            this.setAttribute('_condition', condition, options);
         }
     };
 
@@ -55,7 +55,7 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
             var child = self.getFactory().createFromJson(childNode);
             if (self.getFactory().isExpression(child)) {
                 child.initFromJson(childNode);
-                this._condition = child.getExpression();
+                this.setCondition(child.getExpression(), {doSilently: true});
             } else {
                 self.addChild(child);
                 child.initFromJson(childNode);
