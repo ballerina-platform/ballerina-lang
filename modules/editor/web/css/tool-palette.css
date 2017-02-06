@@ -140,9 +140,8 @@
 }
 
 .tool-connector-action {
-    border-left: 2px solid #AAA;
     padding-left: 5px;
-    margin-left: 10px;
+    margin-left: 30px;
 }
 
 .tool-group-import-header{
