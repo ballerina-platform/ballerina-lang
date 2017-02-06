@@ -1,6 +1,6 @@
 Description
 ===========
-This is a sample Salesforce connector with addAccount action. And the action is being invoked in a ballerina main function.
+This is a sample Salesforce connector with login action using soap connector. And the action is being invoked in a ballerina main function.
 
 Prerequisites
 =============
@@ -12,4 +12,4 @@ Prerequisites
 
 How to run this sample
 ======================
-bin$ ./ballerina ../samples/soapConnector/soapConnector.bal <username> <password+securityToken> <message1> <message2>
+bin$ ./ballerina ../samples/soapConnector/soapConnector.bal <username> <password+securityToken>
