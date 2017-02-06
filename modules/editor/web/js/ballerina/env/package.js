@@ -16,10 +16,10 @@
  * under the License.
  */
 define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definition', './../ast/function-definition',
-        './../ast/type-definition','./../ast/constant-definition',
+        './../ast/type-definition', './../ast/type-mapper-definition', './../ast/constant-definition',
         './../ast/struct-definition'],
     function(log, _, require, EventChannel, ServiceDefinition, FunctionDefinition,
-             TypeDefinition,ConstantDefinition,
+             TypeDefinition, TypeMapperDefinition, ConstantDefinition,
              StructDefinition){
 
         /**
@@ -114,8 +114,7 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
         Package.prototype.addTypeMapperDefinitions = function(typeMapperDefinitions){
             var err;
             var self = this;
-
-            if(!_.isArray(typeMapperDefinitions) && !(self.BallerinaEnvFactory.isTypeMapper(typeMapperDefinitions))){
+            if(!_.isArray(typeMapperDefinitions) && !(typeMapperDefinitions instanceof  TypeMapperDefinition)){
                 err = "Adding type mapper def failed. Not an instance of TypeMapperDefinition" + typeMapperDefinitions;
                 log.error(err);
                 throw err;
@@ -123,7 +122,7 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
             if(_.isArray(typeMapperDefinitions)){
                 if(!_.isEmpty(typeMapperDefinitions)){
                     _.each(typeMapperDefinitions, function(typeMapperDefinition){
-                        if(!self.BallerinaEnvFactory.isTypeMapper(typeMapperDefinition)){
+                        if(!(typeMapperDefinition instanceof  TypeMapperDefinition)){
                             err = "Adding type mapper def failed. Not an instance of TypeMapperDefinition" + typeMapperDefinition;
                             log.error(err);
                             throw err;
