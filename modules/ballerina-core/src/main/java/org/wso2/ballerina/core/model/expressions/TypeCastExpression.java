@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.model.LinkedNodeExecutor;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
@@ -45,6 +46,8 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     private SymbolName typeConverterName;
     private TypeConvertor typeConvertor;
     protected Function<BValueType, BValueType> evalFuncNewNew;
+    private int retuningBranchID;
+    private boolean hasReturningBranch;
 
     public TypeCastExpression(NodeLocation location, Expression rExpr, BType targetType) {
         super(location);
@@ -107,6 +110,11 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     @Override
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this);
+    }
+
+    @Override
+    public void executeLNode(LinkedNodeExecutor executor) {
+        executor.visit(this);
     }
 
     @Override
@@ -186,4 +194,25 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     public BValue[] executeMultiReturn(NodeExecutor executor) {
         return new BValue[0];
     }
+
+    @Override
+    public int getGotoBranchID() {
+        return retuningBranchID;
+    }
+
+    @Override
+    public void setGotoBranchID(int retuningBranchID) {
+        this.retuningBranchID = retuningBranchID;
+    }
+
+    @Override
+    public boolean hasGotoBranchID() {
+        return hasReturningBranch;
+    }
+
+    @Override
+    public void setHasGotoBranchID(boolean hasReturningBranch) {
+        this.hasReturningBranch = hasReturningBranch;
+    }
+
 }

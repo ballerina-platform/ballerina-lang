@@ -17,8 +17,10 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.exception.LinkerException;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
+import org.wso2.ballerina.core.model.nodes.AbstractLinkedNode;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -29,11 +31,15 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
-public abstract class AbstractExpression implements Expression {
+public abstract class AbstractExpression extends AbstractLinkedNode implements Expression {
     protected NodeLocation location;
     protected BType type;
     protected boolean multipleReturnsAvailable;
     protected int offset;
+
+    // Non-Blocking Implementation related fields.
+    private int tempOffset;
+    private boolean isTempOffsetSet = false;
 
     public AbstractExpression(NodeLocation location) {
         this.location = location;
@@ -62,5 +68,23 @@ public abstract class AbstractExpression implements Expression {
     @Override
     public NodeLocation getNodeLocation() {
         return location;
+    }
+
+    @Override
+    public int getTempOffset() {
+        if (isTempOffsetSet) {
+            return tempOffset;
+        }
+        throw new LinkerException("Internal Error. Set Temporary value before you access it.");
+    }
+
+    @Override
+    public void setTempOffset(int index) {
+        if (isTempOffsetSet && index != tempOffset) {
+            throw new LinkerException("Internal Error. Attempt to Overwrite tempOffset. current :" + tempOffset +
+                    ", new :" + index);
+        }
+        isTempOffsetSet = true;
+        this.tempOffset = index;
     }
 }

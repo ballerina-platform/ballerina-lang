@@ -72,4 +72,12 @@ public interface CallableUnitInvocationExpr<T extends CallableUnit> extends Exec
      * @param types array of argument types
      */
     void setTypes(BType[] types);
+
+    int getGotoBranchID();
+
+    void setGotoBranchID(int retuningBranchID);
+
+    boolean hasGotoBranchID();
+
+    void setHasGotoBranchID(boolean hasReturningBranch);
 }

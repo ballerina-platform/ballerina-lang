@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  * <p>
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.model.LinkedNodeExecutor;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
@@ -56,5 +57,10 @@ public class RefTypeInitExpr extends NaryExpression {
     @Override
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this);
+    }
+
+    @Override
+    public void executeLNode(LinkedNodeExecutor executor) {
+        executor.visit(this);
     }
 }

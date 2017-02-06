@@ -19,6 +19,7 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.model.NodeLocation;
+import org.wso2.ballerina.core.model.nodes.AbstractLinkedNode;
 
 /**
  * Represents an abstract statement. All statements nodes extends this abstract class.
@@ -28,7 +29,7 @@ import org.wso2.ballerina.core.model.NodeLocation;
  *
  * @since 0.8.0
  */
-public abstract class AbstractStatement implements Statement {
+public abstract class AbstractStatement extends AbstractLinkedNode implements Statement {
     protected NodeLocation location;
 
     public AbstractStatement(NodeLocation location) {

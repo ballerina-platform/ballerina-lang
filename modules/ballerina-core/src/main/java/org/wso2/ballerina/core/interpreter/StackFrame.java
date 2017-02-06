@@ -29,6 +29,8 @@ public class StackFrame {
     public BValue[] values;
     public BValue[] returnValues;
     private CallableUnitInfo callableUnitInfo;
+    // Field for Non-Blocking Implementation.
+    public BValue[] tempValues;
 
     public StackFrame(BValue[] values, BValue[] returnValues) {
         this.values = values;
@@ -45,6 +47,13 @@ public class StackFrame {
     public StackFrame(BValue[] values, BValue[] returnValues, CallableUnitInfo callableUnitInfo) {
         this.values = values;
         this.returnValues = returnValues;
+        this.callableUnitInfo = callableUnitInfo;
+    }
+
+    public StackFrame(BValue[] values, BValue[] returnValues, BValue[] tempValues, CallableUnitInfo callableUnitInfo) {
+        this.values = values;
+        this.returnValues = returnValues;
+        this.tempValues = tempValues;
         this.callableUnitInfo = callableUnitInfo;
     }
 

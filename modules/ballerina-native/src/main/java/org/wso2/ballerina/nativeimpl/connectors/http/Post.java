@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.interpreter.nonblocking.BalNativeActionCallback;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BConnector;
@@ -34,7 +35,6 @@ import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
  * {@code Post} is the POST action implementation of the HTTP Connector.
- *
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
@@ -61,27 +61,44 @@ public class Post extends AbstractHTTPAction {
         logger.debug("Executing Native Action : Post");
 
         try {
-            // Extract Argument values
-            BConnector bConnector = (BConnector) getArgument(context, 0);
-            String path = getArgument(context, 1).stringValue();
-            BMessage bMessage = (BMessage) getArgument(context, 2);
-
-            Connector connector = bConnector.value();
-            if (!(connector instanceof HTTPConnector)) {
-                throw new BallerinaException("Need to use a HTTPConnector as the first argument", context);
-            }
-
-            // Prepare the message
-            CarbonMessage cMsg = bMessage.value();
-            prepareRequest(connector, path, cMsg);
-            cMsg.setProperty(Constants.HTTP_METHOD,
-                             Constants.HTTP_METHOD_POST);
-
             // Execute the operation
-            return executeAction(context, cMsg);
+            return executeAction(context, createCarbonMsg(context));
         } catch (Throwable t) {
             throw new BallerinaException("Failed to invoke 'post' action in " + HTTPConnector.CONNECTOR_NAME
-                + ". " + t.getMessage(), context);
+                    + ". " + t.getMessage(), context);
         }
+    }
+
+    @Override
+    public void execute(Context context, BalNativeActionCallback callback) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing Native Action (non-blocking): {}", this.getName());
+        }
+        try {
+            // Execute the operation
+            executeNonBlockingAction(context, createCarbonMsg(context), callback);
+        } catch (Throwable t) {
+            throw new BallerinaException("Failed to invoke 'post' action in " + HTTPConnector.CONNECTOR_NAME
+                    + ". " + t.getMessage(), context);
+        }
+    }
+
+    private CarbonMessage createCarbonMsg(Context context) {
+
+        // Extract Argument values
+        BConnector bConnector = (BConnector) getArgument(context, 0);
+        String path = getArgument(context, 1).stringValue();
+        BMessage bMessage = (BMessage) getArgument(context, 2);
+
+        Connector connector = bConnector.value();
+        if (!(connector instanceof HTTPConnector)) {
+            throw new BallerinaException("Need to use a HTTPConnector as the first argument", context);
+        }
+
+        // Prepare the message
+        CarbonMessage cMsg = bMessage.value();
+        prepareRequest(connector, path, cMsg);
+        cMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_METHOD_POST);
+        return cMsg;
     }
 }
