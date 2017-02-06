@@ -94,6 +94,19 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                     self.getBodyWrapper().css("height", $(self.getBodyWrapper()).height());
                     self.getBodyWrapper().css("overflow-x", "visible");
                     $(self.getBodyWrapper()).closest(".canvas-container").css("overflow", "visible");
+
+                    this.removeAllItems();
+
+                    // Adding items to the type dropdown.
+                    var bTypes = self.getDiagramRenderingContext().getEnvironment().getTypes();
+                    _.forEach(bTypes, function (bType) {
+                        typeDropdown.addItem({key: bType, value: bType});
+                    });
+
+                    var structTypes = self.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
+                    _.forEach(structTypes, function (sType) {
+                        typeDropdown.addItem({key: sType.getStructName(), value: sType.getStructName()});
+                    });
                 },
                 onDropdownClosed: function() {
                     self.getBodyWrapper().css("height", "");
@@ -101,18 +114,8 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                     $(self.getBodyWrapper()).closest(".canvas-container").css("overflow", "");
                 }
             });
+
             typeDropdown.getElement().appendTo(structOperationsWrapper);
-
-            // Adding items to the type dropdown.
-            var bTypes = this.getDiagramRenderingContext().getEnvironment().getTypes();
-            _.forEach(bTypes, function (bType) {
-                typeDropdown.addItem({key: bType, value: bType});
-            });
-
-            var structTypes = this.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
-            _.forEach(structTypes, function (sType) {
-                typeDropdown.addItem({key: sType.getStructName(), value: sType.getStructName()});
-            });
 
             // Creating the identifier text box.
             var identifierTextBox = $("<input/>", {
@@ -158,15 +161,6 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                 } catch (e) {
                     Alerts.error(e);
                 }
-            });
-
-            // Creating add new constant button.
-            var clearFieldsButton = $("<div class='clear-struct-variable-button pull-left'/>").appendTo(structOperationsWrapper);
-            $("<span class='fw-stack fw-lg'><i class='fw fw-square fw-stack-2x'></i>" +
-                "<i class='fw fw-cancel fw-stack-1x fw-inverse clear-struct-variable-button-square'></i></span>").appendTo(clearFieldsButton);
-
-            $(clearFieldsButton).click(function(){
-                $(identifierTextBox).val("");
             });
 
             //// End of operational panel.
