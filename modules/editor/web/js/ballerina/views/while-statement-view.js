@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'jquery', 'log', './compund-statement-view', './../ast/while-statement', 'd3utils', 'd3', 'ballerina/ast/ballerina-ast-factory'],
+define(['lodash', 'jquery', 'log', './compound-statement-view', './../ast/while-statement', 'd3utils', 'd3', 'ballerina/ast/ballerina-ast-factory'],
     function (_, $, log, CompoundStatementView, WhileStatement, D3Utils, d3, BallerinaASTFactory) {
 
         /**
