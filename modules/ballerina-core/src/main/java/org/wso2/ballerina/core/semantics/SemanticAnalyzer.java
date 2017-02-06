@@ -912,12 +912,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         linkFunction(funcIExpr);
 
         //Find the return types of this function invocation expression.
-        ParameterDef[] returnParams = funcIExpr.getCallableUnit().getReturnParameters();
-        BType[] returnTypes = new BType[returnParams.length];
-        for (int i = 0; i < returnParams.length; i++) {
-            returnTypes[i] = returnParams[i].getType();
-        }
-        funcIExpr.setTypes(returnTypes);
+        BType[] returnParamTypes = funcIExpr.getCallableUnit().getReturnParamTypes();
+        funcIExpr.setTypes(returnParamTypes);
     }
 
     // TODO Duplicate code. fix me
