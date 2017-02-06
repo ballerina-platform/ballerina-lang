@@ -267,6 +267,16 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
         return _.get(this, attributeName);
     };
 
+    /**
+     * A generic method to be used for adding values for node attributes which are arrays while firing required change events
+     * If an object with the same 'key' exists in the array that value is updated instead of adding a new one.
+     *
+     * @param attributeName {String} name of the array attribute that needs to be pushed to
+     * @param newValue {*} new value to be pushed in
+     * @param [options] {Object} options
+     * @param [options.changeTitle=change $attributeName] {String} the title for change
+     * @param [options.doSilently=false] {boolean} a flag to indicate whether events should not be fired
+     */
     ASTNode.prototype.pushToAttribute = function (attributeName, newValue, options) {
         var currentArray = _.get(this, attributeName);
         var keyField = 'key' // use 'key' as the key field
