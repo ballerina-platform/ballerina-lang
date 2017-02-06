@@ -46,18 +46,18 @@ define(['lodash', './node'], function(_, ASTNode){
         var BallerinaASTFactory = this.getFactory();
     };
     ConnectorDeclaration.prototype.setConnectorName = function (name) {
-        this._connectorName = name;
+        this.setAttribute('_connectorName', name);
     };
 
     ConnectorDeclaration.prototype.setConnectorVariable = function (connectorVariable) {
-        this._connectorVariable = connectorVariable;
+        this.setAttribute('_connectorVariable', connectorVariable);
     };
 
     ConnectorDeclaration.prototype.setConnectorType = function (type) {
-        this._connectorType = type;
+        this.setAttribute('_connectorType', type);
     };
     ConnectorDeclaration.prototype.setConnectorPkgName = function (pkgName) {
-        this._connectorPkgName = pkgName;
+        this.setAttribute('_connectorPkgName', pkgName);
     };
     ConnectorDeclaration.prototype.setUri = function (uri) {
         // TODO: need a proper way of extracting the protocol
@@ -66,7 +66,7 @@ define(['lodash', './node'], function(_, ASTNode){
             this.setConnectorPkgName(tokens[0]);
             this.setConnectorName('HTTPConnector');
         }
-        this._uri = uri;
+        this.setAttribute('_uri', uri);
     };
     ConnectorDeclaration.prototype.setTimeout = function (timeout) {
         this._timeout = timeout;

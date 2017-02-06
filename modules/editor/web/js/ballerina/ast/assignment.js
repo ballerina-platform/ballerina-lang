@@ -31,11 +31,11 @@ define(['lodash', './statement'], function (_, Statement) {
     Assignment.prototype.constructor = Assignment;
 
     Assignment.prototype.setVariableAccessor = function (accessor) {
-        this._variableAccessor = accessor;
+        this.setAttribute('_variableAccessor', accessor);
     };
 
     Assignment.prototype.setExpression = function (expression) {
-        this._expression = expression;
+        this.setAttribute('_expression', expression);
     };
 
     Assignment.prototype.getVariableAccessor = function () {
@@ -51,7 +51,7 @@ define(['lodash', './statement'], function (_, Statement) {
      * @param jsonNode
      */
     Assignment.prototype.initFromJson = function (jsonNode) {
-        this._expression = 'a = b';
+        this.setAttribute('_expression', 'a = b');
     };
 
     return Assignment;

@@ -40,25 +40,25 @@ define(['lodash', './node'], function (_, ASTNode) {
 
     CallableDefinition.prototype.setConnectionDeclarations = function (connectionDeclarations) {
         if (!_.isNil(connectionDeclarations)) {
-            this.connectionDeclarations = connectionDeclarations;
+            this.setAttribute('connectionDeclarations', connectionDeclarations);
         }
     };
 
     CallableDefinition.prototype.setVariableDeclarations = function (variableDeclarations) {
         if (!_.isNil(variableDeclarations)) {
-            this.variableDeclarations = variableDeclarations;
+            this.setAttribute('variableDeclarations', variableDeclarations);
         }
     };
 
     CallableDefinition.prototype.setWorkerDeclarations = function (workerDeclarations) {
         if (!_.isNil(workerDeclarations)) {
-            this.workerDeclarations = workerDeclarations;
+            this.setAttribute('workerDeclarations', workerDeclarations);
         }
     };
 
     CallableDefinition.prototype.setStatements = function (statements) {
         if (!_.isNil(statements)) {
-            this.statements = statements;
+            this.setAttribute('statements', statements);
         }
     };
 

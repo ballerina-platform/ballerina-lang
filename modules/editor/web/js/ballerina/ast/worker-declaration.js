@@ -38,13 +38,13 @@ define(['lodash', './node'], function (_, ASTNode) {
 
     WorkerDeclaration.prototype.setReply = function (replyStatement) {
         if (!_.isNil(replyStatement)) {
-            this._reply = replyStatement;
+            this.setAttribute('_reply', replyStatement);
         }
     };
 
     WorkerDeclaration.prototype.setIsDefaultWorker = function (isDefaultWorker) {
         if (!_.isNil(isDefaultWorker)) {
-            this._isDefaultWorker = isDefaultWorker;
+            this.setAttribute('_isDefaultWorker', isDefaultWorker);
         }
     };
 

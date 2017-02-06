@@ -36,7 +36,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
 
     ActionInvocationStatement.prototype.setConnector = function(connector){
         if(!_.isNil(connector)){
-            this._connector = connector;
+            this.setAttribute('_connector', connector);
         }
     };
 
@@ -46,7 +46,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
 
     ActionInvocationStatement.prototype.setAction = function(action){
         if(!_.isNil(action)){
-            this._action = action;
+            this.setAttribute('_action', action);
         }
     };
 
@@ -59,7 +59,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
     };
 
     ActionInvocationStatement.prototype.setMessage = function (message) {
-        this._message = message;
+        this.setAttribute('_message', message);
     };
 
     ActionInvocationStatement.prototype.getPath = function () {
@@ -67,7 +67,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
     };
 
     ActionInvocationStatement.prototype.setPath = function (path) {
-        this._path = path;
+        this.setAttribute('_path', path);
     };
 
     return ActionInvocationStatement;

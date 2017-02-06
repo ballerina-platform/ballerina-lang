@@ -35,7 +35,7 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
 
     ElseIfStatement.prototype.setCondition = function(condition){
         if(!_.isNil(condition)){
-            this._condition = condition;
+            this.setAttribute('_condition', condition);
         }
     };
 

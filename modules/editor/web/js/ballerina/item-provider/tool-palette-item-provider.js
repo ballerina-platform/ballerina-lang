@@ -139,6 +139,21 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 });
             });
 
+            _.each(package.getFunctionDefinitions(), function (functionDef) {
+                var packageName = _.last(_.split(package.getName(), '.'));
+                functionDef.nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationStatement;
+
+                functionDef.meta = {
+                    package: functionDef.getName(),
+                    function: functionDef.getName(),
+                    params: functionDef.getName()
+                };
+                //TODO : use a generic icon
+                functionDef.icon = "images/tool-icons/http.svg";
+                functionDef.title = functionDef.getTitle();
+                definitions.push(functionDef);
+            });
+
             var group = new ToolGroup({
                 toolGroupName: package.getName(),
                 toolGroupID: package.getName() + "-tool-group",
@@ -148,6 +163,12 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
 
             package.on('connector-defs-added', function (child) {
                 var nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
+                var toolGroupID = package.getName() + "-tool-group";
+                this.addToToolGroup(toolGroupID, child, nodeFactoryMethod);
+            }, this);
+
+            package.on('function-defs-added', function (child) {
+                var nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationStatement;
                 var toolGroupID = package.getName() + "-tool-group";
                 this.addToToolGroup(toolGroupID, child, nodeFactoryMethod);
             }, this);

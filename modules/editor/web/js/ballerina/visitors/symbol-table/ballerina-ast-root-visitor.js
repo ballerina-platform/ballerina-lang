@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor', './../../env/connector'],
-    function (_, log, EventChannel, AbstractSymbolTableGenVisitor, Connector) {
+define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor', './../../env/connector', './../../env/ballerina-env-factory'],
+    function (_, log, EventChannel, AbstractSymbolTableGenVisitor, Connector, BallerinaEnvFactory) {
 
         var BallerinaASTRootVisitor = function (package, model) {
             AbstractSymbolTableGenVisitor.call(this, package);
@@ -54,7 +54,11 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
         };
 
         BallerinaASTRootVisitor.prototype.visitFunctionDefinition = function (functionDefinition) {
-            this.getPackage().addFunctionDefinitions(functionDefinition);
+            var functionDef = BallerinaEnvFactory.createFunction();
+            functionDef.setName(functionDefinition.getFunctionName());
+            functionDef.setTitle(functionDefinition.getFunctionName());
+            functionDef.setId(functionDefinition.getFunctionName());
+            this.getPackage().addFunctionDefinitions(functionDef);
         };
 
         BallerinaASTRootVisitor.prototype.visitStructDefinition = function (structDefinition) {

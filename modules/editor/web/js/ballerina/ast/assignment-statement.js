@@ -51,22 +51,24 @@ define(['lodash', './statement'], function (_, Statement) {
     };
 
     /**
-     * Get the assignment expression
-     * @return {string} assignment expression
+     * Get the assignment statement string
+     * @return {string} assignment statement string
      */
-    AssignmentStatement.prototype.getExpression = function () {
-        return (!_.isNil(this.getChildren()[0].getLeftOperandExpressionString()) ? this.getChildren()[0].getLeftOperandExpressionString() : "leftExpression") + " = " +
-            (!_.isNil(this.getChildren()[1].getRightOperandExpressionString()) ? this.getChildren()[1].getRightOperandExpressionString() : "rightExpression");
+    AssignmentStatement.prototype.getStatementString = function () {
+        return (!_.isNil(this.getChildren()[0].getLeftOperandExpressionString())
+                ? this.getChildren()[0].getLeftOperandExpressionString() : "leftExpression") + " = " +
+            (!_.isNil(this.getChildren()[1].getRightOperandExpressionString())
+                ? this.getChildren()[1].getRightOperandExpressionString() : "rightExpression");
     };
 
     /**
-     * Set the assignment expression
-     * @param {string} expression - expression
+     * Set the assignment statement string
+     * @param {string} statementString
      */
-    AssignmentStatement.prototype.setExpression = function (expression) {
-        var equalIndex = _.indexOf(expression, '=');
-        var leftOperand = expression.substring(0, equalIndex);
-        var rightOperand = expression.substring(equalIndex + 1);
+    AssignmentStatement.prototype.setStatementString = function (statementString) {
+        var equalIndex = _.indexOf(statementString, '=');
+        var leftOperand = statementString.substring(0, equalIndex);
+        var rightOperand = statementString.substring(equalIndex + 1);
         this.getChildren()[0].setLeftOperandExpressionString(_.isNil(leftOperand) ? "leftExpression" : leftOperand);
         this.getChildren()[1].setRightOperandExpressionString(_.isNil(rightOperand) ? "rightExpression" : rightOperand);
     };

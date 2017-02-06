@@ -16,9 +16,9 @@
  * under the License.
  */
 define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './point',
-        'ballerina/ast/ballerina-ast-factory', './constant-definition-view', './../ast/variable-declaration'],
+        'ballerina/ast/ballerina-ast-factory', './constant-definition-view', './../ast/node'],
     function (require, _, $, log, D3Utils, d3, Alerts, Point,
-              BallerinaASTFactory, ConstantDefinitionView, VariableDeclaration) {
+              BallerinaASTFactory, ConstantDefinitionView, ASTNode) {
 
         /**
          * Creates a new instance for a constant definition pane view.
@@ -96,7 +96,7 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
                 var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
 
                 // Validation the identifier against grammar.
-                if (!VariableDeclaration.isValidIdentifier(newIdentifier)) {
+                if (!ASTNode.isValidIdentifier(newIdentifier)) {
                     var errorString = "Invalid identifier for a parameter: " + newIdentifier;
                     log.error(errorString);
                     Alerts.error(errorString);

@@ -37,7 +37,7 @@ define(['lodash', './node'], function (_, ASTNode) {
      */
     PackageDefinition.prototype.setPackageName = function (packageName) {
       if(!_.isNil(packageName)){
-          this._packageName = packageName;
+          this.setAttribute('_packageName', packageName);
 
           /**
            * @event ASTNode#tree-modified

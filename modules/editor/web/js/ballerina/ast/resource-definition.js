@@ -65,7 +65,7 @@ define(['lodash', 'require', 'log', './node'],
 
     ResourceDefinition.prototype.setResourceName = function (resourceName) {
         if (!_.isNil(resourceName)) {
-            this._resourceName = resourceName;
+            this.setAttribute('_resourceName', resourceName);
         } else {
             log.error('Invalid Resource name [' + resourceName + '] Provided');
             throw 'Invalid Resource name [' + resourceName + '] Provided';
@@ -233,18 +233,24 @@ define(['lodash', 'require', 'log', './node'],
      * @param value - Value for the annotation.
      */
     ResourceDefinition.prototype.addAnnotation = function (key, value) {
-        var existingAnnotation = _.find(this._annotations, function (annotation) {
-            return annotation.key == key;
-        });
-        if (_.isNil(existingAnnotation)) {
-            // If such annotation does not exists, then add a new one.
-            this._annotations.push({
-                key: key,
-                value: value
+        if (!_.isNil(key) && !_.isNil(value)) {
+            var existingAnnotation = _.find(this._annotations, function (annotation) {
+                return annotation.key == key;
             });
+            if (_.isNil(existingAnnotation)) {
+                // If such annotation does not exists, then add a new one.
+                this._annotations.push({
+                    key: key,
+                    value: value
+                });
+            } else {
+                // Updating existing annotation.
+                existingAnnotation.value = value;
+            }
         } else {
-            // Updating existing annotation.
-            existingAnnotation.value = value;
+            var errorString = "Cannot add annotation @" + key + "(\"" + value + "\").";
+            log.error(errorString);
+            throw errorString;
         }
     };
 
@@ -263,42 +269,65 @@ define(['lodash', 'require', 'log', './node'],
 
     /**
      * initialize ResourceDefinition from json object
-     * @param {Object} jsonNode to initialize from
-     * @param {string} [jsonNode.resource_name] - Name of the resource definition
-     * @param {string} [jsonNode.annotations] - Annotations of the resource definition
+     * @param {Object} jsonNode - to initialize from
+     * @param {string} jsonNode.resource_name - Name of the resource definition
+     * @param {Object[]} jsonNode.annotations - Annotations of the resource definition
+     * @param {string} jsonNode.annotations.annotation_name - The annotation value
+     * @param {string} jsonNode.annotations.annotation_value - The text of the annotation.
+     * @param {Object[]} jsonNode.children - Children elements of the resource definition.
      */
     ResourceDefinition.prototype.initFromJson = function (jsonNode) {
         this._resourceName = jsonNode.resource_name;
-        this._annotations = jsonNode.annotations;
+        this._annotations = _.isNil(this._annotations) ? [] : this._annotations;
 
         var self = this;
-        _.each(this._annotations, function (annotation) {
-            if (annotation.annotation_name === "POST") {
-                self._annotations.push({
-                    key: "Method",
-                    value: "POST"
-                });
-            } else if (annotation.annotation_name === "GET") {
-                self._annotations.push({
-                    key: "Method",
-                    value: "GET"
-                });
-            } else if (annotation.annotation_name === "PUT") {
-                self._annotations.push({
-                    key: "Method",
-                    value: "PUT"
-                });
-            } else if (annotation.annotation_name === "DELETE") {
-                self._annotations.push({
-                    key: "Method",
-                    value: "DELETE"
-                });
-            } else if (annotation.annotation_name === "Path") {
-                self._annotations.push({
-                    key: "Path",
-                    value: annotation.annotation_value
-                });
-            }
+
+        // Check if a annotation of type http method is received from the service.
+        var existingMethodAnnotationFromService = _.find(jsonNode.annotations, function (annotation) {
+            return annotation.annotation_name === "POST" || annotation.annotation_name === "GET" ||
+                annotation.annotation_name === "PUT" || annotation.annotation_name === "DELETE"
+        });
+
+        // Get the method annotation of the model.
+        var existingMethodAnnotationInModel = _.find(self._annotations, function (annotation) {
+            return annotation.key === "Method"
+        });
+
+        // If http method annotation is received from the service.
+        if (!_.isNil(existingMethodAnnotationFromService)) {
+            // Remove the existing value.
+            existingMethodAnnotationInModel.value = "";
+            _.forEach(jsonNode.annotations, function (annotation) {
+                // Updating the new http method value.
+                if (annotation.annotation_name === "POST" || annotation.annotation_name === "GET" ||
+                    annotation.annotation_name === "PUT" || annotation.annotation_name === "DELETE") {
+                    if (_.isEmpty(existingMethodAnnotationInModel.value)) {
+                        existingMethodAnnotationInModel.value = annotation.annotation_name;
+                    } else {
+                        existingMethodAnnotationInModel.value = existingMethodAnnotationInModel.value + ", " +
+                            annotation.annotation_name;
+                    }
+                }
+            });
+        }
+
+        // Updating the annotations of the model according to the annotations received from the service that are not
+        // related to http methods.
+        _.forEach(jsonNode.annotations, function(annotationFromService){
+           if (!(annotationFromService.annotation_name === "POST" || annotationFromService.annotation_name === "GET" ||
+               annotationFromService.annotation_name === "PUT" || annotationFromService.annotation_name === "DELETE")) {
+               var existingAnnotation = _.find(self._annotations, function (annotationInModel) {
+                   return annotationInModel.key === annotationFromService.annotation_name
+               });
+               if (_.isNil(existingAnnotation)) {
+                   self._annotations.push({
+                       key: annotationFromService.annotation_name,
+                       value: annotationFromService.annotation_value
+                   });
+               } else {
+                   existingAnnotation.value = annotationFromService.annotation_value;
+               }
+           }
         });
 
         _.each(jsonNode.children, function (childNode) {

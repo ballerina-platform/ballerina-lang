@@ -18,8 +18,8 @@
 define(['lodash', './expression'], function (_, Expression) {
 
     /**
-     * Constructor for FunctionInvocationExpression
-     * @param {Object} args - Arguments to create the FunctionInvocationExpression
+     * Constructor for InstanceCreationExpression
+     * @param {Object} args - Arguments to create the InstanceCreationExpression
      * @param {Object} args.typeName - Type of the instance creation.
      * @constructor
      * @augments Expression
@@ -27,13 +27,13 @@ define(['lodash', './expression'], function (_, Expression) {
     var InstanceCreationExpression = function (args) {
         Expression.call(this, 'InstanceCreationExpression');
         this._typeName = _.get(args, 'typeName', 'newType');
-    }
+    };
 
     InstanceCreationExpression.prototype = Object.create(Expression.prototype);
     InstanceCreationExpression.prototype.constructor = InstanceCreationExpression;
 
     InstanceCreationExpression.prototype.setTypeName = function (typeName) {
-        this._typeName = typeName;
+        this.setAttribute('_typeName', typeName);
     };
 
     InstanceCreationExpression.prototype.getTypeName = function () {
@@ -41,19 +41,26 @@ define(['lodash', './expression'], function (_, Expression) {
     };
 
     /**
-     * setting parameters from json
-     * @param jsonNode
-     * @param {Object} [jsonNode.instance_type] - Instance Type Name
+     * initialize BackQuoteExpression from json object
+     * @param {Object} jsonNode to initialize from
+     * @param {string} [jsonNode.instance_type] - Symbol name of the BackQuoteExpression
      */
     InstanceCreationExpression.prototype.initFromJson = function (jsonNode) {
         this.setTypeName(jsonNode.instance_type);
+    };
 
-        var self = this;
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
-            child.initFromJson(childNode);
-        });
+    /**
+     * initialize BackQuoteExpression from json object
+     * @param {Object} jsonNode to initialize from
+     * @param {string} [jsonNode.instance_type] - instance type
+     */
+    InstanceCreationExpression.prototype.initFromJson = function (jsonNode) {
+        this.setTypeName(jsonNode.instance_type);
+        this.setExpression(this.generateExpression());
+    };
+
+    InstanceCreationExpression.prototype.generateExpression = function () {
+        this._expression = 'new ' + this.getTypeName();
     };
 
     return InstanceCreationExpression;

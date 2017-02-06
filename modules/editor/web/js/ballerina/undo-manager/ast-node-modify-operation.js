@@ -43,7 +43,7 @@ define(['lodash', './ast-manipulation-operation'],
         };
 
         ASTNodeModifyOperation.prototype.undo = function(){
-            this._parentOfOriginNode.removeChild(this._originNode, true);
+            this._originNode.remove({ignoreTreeModifiedEvent:true});
         };
 
         return ASTNodeModifyOperation;

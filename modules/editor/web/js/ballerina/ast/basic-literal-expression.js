@@ -24,7 +24,9 @@ define(['lodash', './expression'], function (_, Expression) {
      */
     var BasicLiteralExpression = function (args) {
         Expression.call(this, 'BasicLiteralExpression');
-    }
+        this._basicLiteralType = _.get(args, 'basicLiteralType', '');
+        this._basicLiteralValue = _.get(args, 'basicLiteralValue', '');
+    };
 
     BasicLiteralExpression.prototype = Object.create(Expression.prototype);
     BasicLiteralExpression.prototype.constructor = BasicLiteralExpression;
@@ -34,7 +36,18 @@ define(['lodash', './expression'], function (_, Expression) {
      * @param jsonNode
      */
     BasicLiteralExpression.prototype.initFromJson = function (jsonNode) {
-        this._expression = jsonNode.basic_literal_value;
+        this._basicLiteralType = jsonNode.basic_literal_type;
+        this._basicLiteralValue = jsonNode.basic_literal_value;
+        this.setExpression(this.generateExpression());
+    };
+
+    BasicLiteralExpression.prototype.generateExpression = function () {
+        if (this._basicLiteralType == "string") {
+            // Adding double quotes if it is a string.
+            this._expression = "\"" + this._basicLiteralValue + "\"";
+        } else {
+            this._expression = this._basicLiteralValue;
+        }
     };
 
     return BasicLiteralExpression;

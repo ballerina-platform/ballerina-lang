@@ -38,7 +38,7 @@ define(['lodash', './argument'], function (_, Argument) {
     ResourceParameter.prototype.constructor = ResourceParameter;
 
     ResourceParameter.prototype.setAnnotationType = function (annotationType) {
-        this.annotationType = annotationType;
+        this.setAttribute('annotationType', annotationType);
     };
 
     ResourceParameter.prototype.getAnnotationType = function () {
@@ -46,7 +46,7 @@ define(['lodash', './argument'], function (_, Argument) {
     };
 
     ResourceParameter.prototype.setAnnotationText = function (annotationText) {
-        this.annotationText = annotationText;
+        this.setAttribute('annotationText', annotationText);
     };
 
     ResourceParameter.prototype.getAnnotationText = function () {

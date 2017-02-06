@@ -28,7 +28,7 @@ define(['lodash', './node'], function (_, ASTNode) {
 
     TypeName.prototype.setTypeName = function (typename) {
         if (!_.isNil(typename)) {
-            this.typename = typename;
+            this.setAttribute('typename', typename);
         }
     };
 

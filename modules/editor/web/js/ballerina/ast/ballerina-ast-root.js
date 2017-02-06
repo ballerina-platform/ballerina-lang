@@ -48,7 +48,7 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
     BallerinaASTRoot.prototype.setPackageDefinition = function (packageDefinition){
         if(!_.isNil(packageDefinition)){
             packageDefinition.setParent(this);
-            this.packageDefinition  = packageDefinition;
+            this.setAttribute('packageDefinition', packageDefinition);
         }
     };
 
@@ -69,7 +69,7 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
      */
     BallerinaASTRoot.prototype.setServiceDefinitions = function (serviceDefinitions) {
         if (!_.isNil(serviceDefinitions)) {
-            this.serviceDefinitions = serviceDefinitions;
+            this.setAttribute('serviceDefinitions', serviceDefinitions);
             var self = this;
             _.forEach(serviceDefinitions, function (serviceDefinition) {
                 serviceDefinition.setParent(self);
@@ -83,7 +83,7 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
      */
     BallerinaASTRoot.prototype.setConnectorDefinitions = function (connectorDefinitions) {
         if (!_.isNil(connectorDefinitions)) {
-            this.connectorDefinitions = connectorDefinitions;
+            this.setAttribute('connectorDefinitions', connectorDefinitions);
             var self = this;
             _.forEach(connectorDefinitions, function (connectorDefinition) {
                 connectorDefinition.setParent(self);
@@ -97,7 +97,7 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
      */
     BallerinaASTRoot.prototype.setFunctionDefinitions = function (functionDefinitions) {
         if (!_.isNil(functionDefinitions)) {
-            this.functionDefinitions = functionDefinitions;
+            this.setAttribute('functionDefinitions', functionDefinitions);
             var self = this;
             _.forEach(functionDefinitions, function (functionDefinition) {
                 functionDefinition.setParent(self);

@@ -166,7 +166,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file', 'alerts'],
                     data = response;
                     file.setDirty(false)
                         .save();
-                    alerts.success("File " + file.getName() + ' saved successfully at '+ file.getPath());
+                    log.debug("File " + file.getName() + ' saved successfully at '+ file.getPath());
                 },
                 error: function(xhr, textStatus, errorThrown){
                     data = {"error":true, "message":"Unable to write file " + file.getName() + ' at '+ file.getPath()};

@@ -20,6 +20,9 @@
 
 <svg version="1.1" id="action" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
-<path id="path" d="M1.7,6.1v1.2h11V6.1H1.7z M4.4,1.8L3.4,4.1L1.5,4.5h12.1V14H0.7V4.5L0.3,2.7L4.4,1.8z M8.6,0.9L7.5,3.2L5.2,3.7
+<style type="text/css">
+	.st0{fill:#FFFFFF;}
+</style>
+<path class="st0" id="path" d="M1.7,6.1v1.2h11V6.1H1.7z M4.4,1.8L3.4,4.1L1.5,4.5h12.1V14H0.7V4.5L0.3,2.7L4.4,1.8z M8.6,0.9L7.5,3.2L5.2,3.7
 	l1.1-2.3L8.6,0.9z M13,0l0.4,1.9L9.4,2.8l1.1-2.3L13,0z"/>
 </svg>

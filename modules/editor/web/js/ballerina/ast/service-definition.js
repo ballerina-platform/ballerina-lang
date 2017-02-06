@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'],
-    function (_, ASTNode) {
+define(['lodash', './node', 'log'],
+    function (_, ASTNode, log) {
 
     /**
      * Constructor for ServiceDefinition
@@ -67,8 +67,12 @@ define(['lodash', './node'],
     ServiceDefinition.prototype.constructor = ServiceDefinition;
 
     ServiceDefinition.prototype.setServiceName = function (serviceName) {
-        if(!_.isNil(serviceName)){
-            this._serviceName = serviceName;
+        if (!_.isNil(serviceName) && ASTNode.isValidIdentifier(serviceName)) {
+            this.setAttribute('_serviceName', serviceName);
+        } else {
+            var errorString = "Invalid name for the service name: " + serviceName;
+            log.error(errorString);
+            throw errorString;
         }
     };
 
@@ -137,18 +141,24 @@ define(['lodash', './node'],
      * @param value - Value for the annotation.
      */
     ServiceDefinition.prototype.addAnnotation = function (key, value) {
-        var existingAnnotation = _.find(this._annotations, function (annotation) {
-            return annotation.key == key;
-        });
-        if (_.isNil(existingAnnotation)) {
-            // If such annotation does not exists, then add a new one.
-            this._annotations.push({
-                key: key,
-                value: value
+        if (!_.isNil(key) && !_.isNil(value)) {
+            var existingAnnotation = _.find(this._annotations, function (annotation) {
+                return annotation.key == key;
             });
+            if (_.isNil(existingAnnotation)) {
+                // If such annotation does not exists, then add a new one.
+                this._annotations.push({
+                    key: key,
+                    value: value
+                });
+            } else {
+                // Updating existing annotation.
+                existingAnnotation.value = value;
+            }
         } else {
-            // Updating existing annotation.
-            existingAnnotation.value = value;
+            var errorString = "Cannot add annotation @" + key + "(\"" + value + "\").";
+            log.error(errorString);
+            throw errorString;
         }
     };
 

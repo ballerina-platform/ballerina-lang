@@ -32,15 +32,44 @@ define(['lodash', './statement'], function (_, Statement) {
     FunctionInvocation.prototype.constructor = FunctionInvocation;
 
     FunctionInvocation.prototype.setPackageName = function (packageName) {
-        this._packageName = packageName;
+        this.setAttribute('_packageName', packageName);
     };
 
     FunctionInvocation.prototype.setFunctionName = function (functionName) {
-        this._functionName = functionName;
+        this.setAttribute('_functionName', functionName);
     };
 
     FunctionInvocation.prototype.setParams = function (params) {
-        this._params = params;
+        this.setAttribute('_params', params);
+    };
+
+    FunctionInvocation.prototype.setFunctionalExpression = function(expression){
+        if(!_.isNil(expression) && expression !== "") {
+            var splittedText = expression.split("(",1)[0].split(":", 2);
+
+            this._packageName = "";
+            this._functionName = "";
+            this._params = "";
+
+            if(splittedText.length == 2){
+                this._packageName = splittedText[0];
+                this._functionName = splittedText[1];
+            }else{
+                this._functionName = splittedText[0];
+            }
+
+            this._params = expression.slice(((expression.indexOf(this._functionName) + 1)
+            + this._functionName.split("(", 1)[0].length), (expression.length - 1));
+        }
+    };
+
+    FunctionInvocation.prototype.getFunctionalExpression = function(){
+        var text = "";
+        if (!_.isNil(this._packageName) && this._packageName !== "") {
+            text += this._packageName + ":";
+        }
+        text += this._functionName + '('+ (this._params? this._params:'') +')';
+        return text;
     };
 
     FunctionInvocation.prototype.getPackageName = function () {
