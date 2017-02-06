@@ -58,9 +58,5 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerin
         }
     };
 
-        TypeStructDefinitionView.prototype.getModel = function () {
-            return this._model;
-        };
-
         return TypeStructDefinitionView;
 });
