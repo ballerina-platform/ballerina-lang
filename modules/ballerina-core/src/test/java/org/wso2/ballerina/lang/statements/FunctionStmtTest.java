@@ -18,6 +18,7 @@
 package org.wso2.ballerina.lang.statements;
 
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -42,20 +43,58 @@ public class FunctionStmtTest {
         testHelloWorldPrivate = Functions.getFunction(bFile, funcPrivate);
     }
 
-//    @Test(description = "Test function Modularity.")
-//    public void testFuncModularity() {
-//        Assert.assertTrue(testHelloWorldPublic.isPublic(), funcPublic + " is public, but found private)");
-//        Assert.assertTrue(!testHelloWorldPrivate.isPublic(), funcPublic + " is private, but found public)");
-//
-//        // TODO : Broken Fix this.
-//        //Assert.assertEquals(testHelloWorldPublic.getPackageName(), "lang.statements.func");
-//        //Assert.assertEquals(testHelloWorldPrivate.getPackageName(), "lang.statements.func");
-//    }
+    //    @Test(description = "Test function Modularity.")
+    //    public void testFuncModularity() {
+    //        Assert.assertTrue(testHelloWorldPublic.isPublic(), funcPublic + " is public, but found private)");
+    //        Assert.assertTrue(!testHelloWorldPrivate.isPublic(), funcPublic + " is private, but found public)");
+    //
+    //        // TODO : Broken Fix this.
+    //        //Assert.assertEquals(testHelloWorldPublic.getPackageName(), "lang.statements.func");
+    //        //Assert.assertEquals(testHelloWorldPrivate.getPackageName(), "lang.statements.func");
+    //    }
 
     @Test(description = "Test invoking an undefined function",
-            expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "undefined-function-stmt.bal:2: undefined function 'foo'")
+          expectedExceptions = { SemanticException.class },
+          expectedExceptionsMessageRegExp = "undefined-function-stmt.bal:2: undefined function 'foo'")
     public void testUndefinedFunction() {
         ParserUtils.parseBalFile("lang/statements/undefined-function-stmt.bal");
+    }
+
+    @Test(description = "Test functions having return statement missing on required paths",
+          expectedExceptions = { SemanticException.class },
+          expectedExceptionsMessageRegExp = ".*missing return statement.*",
+          dataProvider = "invalidReturnStatements")
+    public void testFunctionInvalidReturnStatement(String filePath) {
+        ParserUtils.parseBalFile(filePath);
+    }
+
+    @Test(description = "Test functions having return statement on required paths",
+          dataProvider = "validReturnStatements")
+    public void testFunctionReturnStatement(String filePath) {
+        ParserUtils.parseBalFile(filePath);
+    }
+
+    @DataProvider(name = "invalidReturnStatements")
+    public static Object[][] invalidReturnStatements() {
+        return new Object[][] {
+                { "lang/functions/invalid-return-in-ifelseblock.bal" }
+                , { "lang/functions/invalid-return-in-only-ifblock.bal" }
+                , { "lang/functions/invalid-return-in-ifelseifblock.bal" }
+                , { "lang/functions/invalid-return-in-only-while.bal" }
+                , { "lang/functions/invalid-return-in-ifandwhile.bal" }
+        };
+    }
+
+    @DataProvider(name = "validReturnStatements")
+    public static Object[][] validReturnStatements() {
+        return new Object[][] {
+                { "lang/functions/return-in-ifelseblock1.bal" }
+                , { "lang/functions/return-in-ifelseblock2.bal" }
+                , { "lang/functions/return-in-only-ifblock.bal" }
+                , { "lang/functions/return-in-ifelseifblock1.bal" }
+                , { "lang/functions/return-in-ifelseifblock2.bal" }
+                , { "lang/functions/return-in-only-while.bal" }
+                , { "lang/functions/return-in-ifandwhile.bal" }
+        };
     }
 }

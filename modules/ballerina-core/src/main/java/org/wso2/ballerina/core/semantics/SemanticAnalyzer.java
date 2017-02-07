@@ -330,6 +330,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         BlockStmt blockStmt = function.getCallableUnitBody();
+        if (function.getReturnParameters().length > 0) {
+            //checking whether return statement has been placed on valid places
+            checkFunctionReturnStmtLocations(blockStmt, new ReturnStmtCounter());
+        }
         blockStmt.accept(this);
 
         // Here we need to calculate size of the BValue array which will be created in the stack frame
@@ -2293,6 +2297,90 @@ public class SemanticAnalyzer implements NodeVisitor {
                         variableDef.getNodeLocation());
                 variableDef.setType(fieldType);
             }
+        }
+    }
+
+    private void checkFunctionReturnStmtLocations(BlockStmt blockStmt, ReturnStmtCounter returnStmtCounter) {
+        //check whether return statement is main block.
+        //if exist returning hence it is in valid path
+        for (Statement statement : blockStmt.getStatements()) {
+            if (statement instanceof ReturnStmt) {
+                returnStmtCounter.count();
+                return;
+            }
+        }
+        for (Statement statement : blockStmt.getStatements()) {
+            // return statement must be in all branches.
+            if (statement instanceof IfElseStmt) {
+                IfElseStmt ifElseStmt = (IfElseStmt) statement;
+                if (ifElseStmt.getThenBody() != null && ifElseStmt.getElseIfBlocks().length == 0
+                        && ifElseStmt.getElseBody() == null) {
+                    if (!returnStmtCounter.hasOne()) {
+                        throw new SemanticException(
+                                "missing return statement of parent in " + statement.getNodeLocation().getFileName()
+                                        + ":" + statement.getNodeLocation().getLineNumber());
+                    }
+                }
+                if (!returnStmtCounter.hasOne() && (ifElseStmt.getElseBody() == null)) {
+                    throw new SemanticException(
+                            "missing return statement in branch" + statement.getNodeLocation().getFileName()
+                                    + ":" + statement.getNodeLocation().getLineNumber());
+                }
+                returnStmtCounter.reset();
+                checkFunctionReturnStmtLocations((BlockStmt) ifElseStmt.getThenBody(), returnStmtCounter);
+                if (!returnStmtCounter.hasOne()) {
+                    throw new SemanticException(
+                            "missing return statement in branch " + statement.getNodeLocation().getFileName() + ":"
+                                    + statement.getNodeLocation().getLineNumber());
+                }
+                if (((IfElseStmt) statement).getElseBody() != null) {
+                    returnStmtCounter.reset();
+                    checkFunctionReturnStmtLocations((BlockStmt) ifElseStmt.getElseBody(), returnStmtCounter);
+                }
+                for (IfElseStmt.ElseIfBlock ifElse : ifElseStmt.getElseIfBlocks()) {
+                    returnStmtCounter.reset();
+                    checkFunctionReturnStmtLocations(ifElse.getElseIfBody(), returnStmtCounter);
+                }
+                if (!returnStmtCounter.hasOne()) {
+                    throw new SemanticException(
+                            "missing return statement in branch " + statement.getNodeLocation().getFileName() + ":"
+                                    + statement.getNodeLocation().getLineNumber());
+                }
+            } else if (statement instanceof WhileStmt) {
+                //return statement must be in out of loop
+                if (!returnStmtCounter.hasOne()) {
+                    throw new SemanticException(
+                            "missing return statement of parent in " + statement.getNodeLocation().getFileName() + ":"
+                                    + statement.getNodeLocation().getLineNumber());
+                }
+                returnStmtCounter.reset();
+                checkFunctionReturnStmtLocations(((WhileStmt) statement).getBody(), returnStmtCounter);
+                if (!returnStmtCounter.hasOne()) {
+                    throw new SemanticException(
+                            "missing return statement in while loop " + statement.getNodeLocation().getFileName() + ":"
+                                    + statement.getNodeLocation().getLineNumber());
+                }
+            } //else if(statement instanceof If)
+        }
+    }
+
+    /**
+     * A class to hold the information whether return statement is present or not.
+     */
+    private class ReturnStmtCounter {
+        boolean hasOne;
+
+        ReturnStmtCounter() {
+            this.hasOne = false;
+        }
+        void count() {
+            this.hasOne = true;
+        }
+        void reset() {
+            this.hasOne = false;
+        }
+        boolean hasOne() {
+            return this.hasOne;
         }
     }
 }
