@@ -28,6 +28,7 @@ import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.ParserUtils;
@@ -87,7 +88,7 @@ public class MessageTest {
         DefaultCarbonMessage carbonMsg = new DefaultCarbonMessage();
         String name = "Content-Type";
         String value = "text/plain";
-        BValue[] args = {new BMessage(carbonMsg), new BString(name), new BString(value)};
+        BValue[] args = { new BMessage(carbonMsg), new BString(name), new BString(value) };
         BValue[] returns = Functions.invoke(bFile, "testSetHeader", args);
 
         List<Header> headers = ((BMessage) returns[0]).getHeaders();
@@ -95,6 +96,56 @@ public class MessageTest {
         Assert.assertNotNull(headers.get(0));
         Assert.assertEquals(headers.get(0).getName(), name);
         Assert.assertEquals(headers.get(0).getValue(), value);
+    }
+
+    @Test
+    public void testSetXmlPayload() {
+        DefaultCarbonMessage carbonMsg = new DefaultCarbonMessage();
+        String xmlPayload = "<root><item>Text</item></root>";
+        BValue[] args = { new BMessage(carbonMsg), new BXML(xmlPayload) };
+        BValue[] returns = Functions.invoke(bFile, "testSetXmlPayload", args);
+        BMessage bMessage = ((BMessage) returns[0]);
+        BValue payload = bMessage.getBuiltPayload();
+        Assert.assertEquals(payload.stringValue(), xmlPayload, "XML payload not set properly");
+
+        List<Header> headers = bMessage.getHeaders();
+        Assert.assertEquals(headers.size(), 1, "Headers list can have only 1 header.");
+        Assert.assertNotNull(headers.get(0));
+        Assert.assertEquals(headers.get(0).getName(), "Content-Type", "Content-Type header not found");
+        Assert.assertEquals(headers.get(0).getValue(), "application/xml", "Invalid Content-Type");
+    }
+
+    @Test
+    public void testAddHeader() {
+        DefaultCarbonMessage carbonMsg = new DefaultCarbonMessage();
+        String name = "MyNewHeader";
+        String value = "NewValue";
+        BValue[] args = { new BMessage(carbonMsg), new BString(name), new BString(value) };
+        BValue[] returns = Functions.invoke(bFile, "testAddHeader", args);
+
+        List<Header> headers = ((BMessage) returns[0]).getHeaders();
+        Assert.assertEquals(headers.size(), 1, "Headers list can have only 1 header.");
+        Assert.assertNotNull(headers.get(0));
+        Assert.assertEquals(headers.get(0).getName(), name);
+        Assert.assertEquals(headers.get(0).getValue(), value);
+    }
+
+    @Test
+    public void testRemoveHeader() {
+        DefaultCarbonMessage carbonMsg = new DefaultCarbonMessage();
+        String name = "NewHeader1";
+        String value = "Value";
+        carbonMsg.setHeader(name, value);
+        carbonMsg.setHeader("Content-Type", "application/xml");
+        Assert.assertEquals(carbonMsg.getHeaders().size(), 2, "Header count mismatched.");
+        Assert.assertEquals(carbonMsg.getHeader(name), value, "Header not found.");
+        BValue[] args = { new BMessage(carbonMsg), new BString(name) };
+        BValue[] returns = Functions.invoke(bFile, "testRemoveHeader", args);
+
+        BMessage bMessage = ((BMessage) returns[0]);
+        List<Header> headers = bMessage.getHeaders();
+        Assert.assertEquals(headers.size(), 1, "Headers list can have only one element");
+        Assert.assertNull(bMessage.getHeader(name), "Removed header found");
     }
 
     //    @Test

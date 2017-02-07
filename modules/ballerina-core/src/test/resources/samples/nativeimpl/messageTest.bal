@@ -12,6 +12,21 @@ function testSetHeader(message msg, string header, string value) (message){
     return msg;
 }
 
+function testAddHeader(message msg, string header, string value) (message){
+    ballerina.lang.message:addHeader(msg, header, value);
+    return msg;
+}
+
+function testRemoveHeader(message msg, string header) (message){
+    ballerina.lang.message:removeHeader(msg, header);
+    return msg;
+}
+
+function testSetXmlPayload(message msg, xml payload) (message){
+    ballerina.lang.message:setXmlPayload(msg, payload);
+    return msg;
+}
+
 function testGetHeader(message msg, string header) (string){
     return ballerina.lang.message:getHeader(msg, header);
 }
