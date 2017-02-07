@@ -72,8 +72,6 @@ public class ParserUtils {
         BTypes.loadBuiltInTypes(globalScope);
         BLangPackage bLangPackage = new BLangPackage(globalScope);
         BLangModelBuilder modelBuilder = new BLangModelBuilder(bLangPackage);
-
-
         BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
 
         ballerinaParser.addParseListener(langModelBuilder);

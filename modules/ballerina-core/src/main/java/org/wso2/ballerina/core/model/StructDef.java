@@ -28,8 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.wso2.ballerina.core.model.types.TypeConstants.STRUCT_TNAME;
-
 /**
  * {@code Struct} represents a user-defined type in Ballerina.
  *
@@ -37,63 +35,20 @@ import static org.wso2.ballerina.core.model.types.TypeConstants.STRUCT_TNAME;
  */
 public class StructDef extends BType implements CompilationUnit, SymbolScope {
     private NodeLocation location;
-    private String name;
-    private String pkgPath;
-    private boolean isPublic;
-    private int structMemorySize;
     private VariableDef[] fields;
+    private int structMemorySize;
 
     private SymbolName symbolName;
-    private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
 
-    /**
-     * Create a ballerina struct.
-     *
-     * @param name     Name of the struct
-     * @param location Boolean indicating whether the struct is public
-     * @param fields   Fields in the struct.
-     */
-    public StructDef(NodeLocation location,
-                     String name,
-                     String pkgPath,
-                     VariableDef[] fields,
-                     boolean isPublic,
-                     SymbolScope enclosingScope,
-                     Map<SymbolName, BLangSymbol> symbolMap) {
-        super(STRUCT_TNAME, pkgPath, enclosingScope, BStruct.class);
-
-        this.location = location;
-        this.name = name;
-        this.pkgPath = pkgPath;
-        this.fields = fields;
-        this.isPublic = isPublic;
-
-        this.enclosingScope = enclosingScope;
-        this.symbolMap = symbolMap;
+    public StructDef(SymbolScope enclosingScope) {
+        super(null, null, enclosingScope, BStruct.class);
+        this.symbolMap = new HashMap<>();
     }
 
     @Override
     public NodeLocation getNodeLocation() {
         return location;
-    }
-
-    /**
-     * Get the name of this struct.
-     *
-     * @return Name of this struct
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Get the package name of this struct.
-     *
-     * @return Package name of this struct
-     */
-    public String getPackagePath() {
-        return pkgPath;
     }
 
     /**
@@ -103,20 +58,6 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
      */
     public void setSymbolName(SymbolName symbolName) {
         this.symbolName = symbolName;
-    }
-
-    /**
-     * Check whether Struct is public, which means function is visible outside the package
-     *
-     * @return Flag indicating whether the struct is public
-     */
-    public boolean isPublic() {
-        return isPublic;
-    }
-
-    @Override
-    public boolean isNative() {
-        return false;
     }
 
     /**
@@ -165,7 +106,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
 
     @Override
     public SymbolScope getEnclosingScope() {
-        return enclosingScope;
+        return symbolScope;
     }
 
     @Override
@@ -178,10 +119,23 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
         return resolve(symbolMap, name);
     }
 
+    public BLangSymbol resolveMembers(SymbolName name) {
+        return symbolMap.get(name);
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public <V extends BValue> V getDefaultValue() {
         return null;
+    }
+
+    public boolean equals(Object obj) {
+        if (obj instanceof StructDef) {
+            StructDef other = (StructDef) obj;
+            return this.typeName.equals(other.typeName);
+        }
+
+        return false;
     }
 
     /**
@@ -189,18 +143,20 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
      *
      * @since 0.8.0
      */
-    public static class StructBuilder implements SymbolScope {
+    public static class StructBuilder {
         private NodeLocation location;
         private String name;
         private String pkgPath;
         private List<VariableDef> fields = new ArrayList<>();
-        private boolean isPublic;
+        private StructDef structDef;
 
-        private SymbolScope enclosingScope;
-        private Map<SymbolName, BLangSymbol> symbolMap = new HashMap<>();
+        public StructBuilder(NodeLocation location, SymbolScope enclosingScope) {
+            structDef = new StructDef(enclosingScope);
+            this.location = location;
+        }
 
-        public StructBuilder(SymbolScope enclosingScope) {
-            this.enclosingScope = enclosingScope;
+        public SymbolScope getCurrentScope() {
+            return structDef;
         }
 
         /**
@@ -217,24 +173,6 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
         }
 
         /**
-         * Set the source location of this struct definition.
-         *
-         * @param location Source location of this struct definition.
-         */
-        public void setNodeLocation(NodeLocation location) {
-            this.location = location;
-        }
-
-        /**
-         * Set the flag indicating whether this struct is a public one.
-         *
-         * @param isPublic Flag indicating whether this struct is a public one
-         */
-        public void setPublic(boolean isPublic) {
-            this.isPublic = isPublic;
-        }
-
-        /**
          * Add a field to the struct.
          *
          * @param field Field in the struct
@@ -243,40 +181,19 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
             fields.add(field);
         }
 
-        @Override
-        public ScopeName getScopeName() {
-            return ScopeName.LOCAL;
-        }
-
-        @Override
-        public SymbolScope getEnclosingScope() {
-            return enclosingScope;
-        }
-
-        @Override
-        public void define(SymbolName name, BLangSymbol symbol) {
-            symbolMap.put(name, symbol);
-        }
-
-        @Override
-        public BLangSymbol resolve(SymbolName name) {
-            return resolve(symbolMap, name);
-        }
-
         /**
          * Build the struct.
          *
          * @return Struct
          */
         public StructDef build() {
-            return new StructDef(
-                    location,
-                    name,
-                    pkgPath,
-                    fields.toArray(new VariableDef[0]),
-                    isPublic,
-                    enclosingScope,
-                    symbolMap);
+            this.structDef.location = location;
+            this.structDef.typeName = name;
+            this.structDef.pkgPath = pkgPath;
+            this.structDef.fields = fields.toArray(new VariableDef[fields.size()]);
+            this.structDef.symbolName = new SymbolName(name, pkgPath);
+
+            return structDef;
         }
     }
 }

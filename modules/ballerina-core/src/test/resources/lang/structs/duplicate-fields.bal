@@ -1,4 +1,4 @@
-public type Department {
+type Department {
 	string dptName;
 	int id;
 	string id;

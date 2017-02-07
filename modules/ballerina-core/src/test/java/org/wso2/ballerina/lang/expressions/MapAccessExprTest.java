@@ -77,7 +77,8 @@ public class MapAccessExprTest {
 
     @Test(description = "Test map access with an index",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "incorrect-map-access.bal:4: non-string map index type 'int'")
+            expectedExceptionsMessageRegExp = "incorrect-map-access.bal:4: non-string map index type 'int'",
+    dependsOnMethods = {"testMapAccessExpr", "testArrayReturnValueTest"})
     public void testMapAccessWithIndex() {
         ParserUtils.parseBalFile("lang/expressions/incorrect-map-access.bal");
     }
