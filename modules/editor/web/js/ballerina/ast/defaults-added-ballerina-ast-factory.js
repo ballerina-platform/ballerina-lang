@@ -48,5 +48,19 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
         return resourceDef;
     };
 
+    /**
+     * Creates a variable definition statement with default values.
+     * @param {Object} [args] - Args for creating a variable definition statement.
+     * @return {VariableDefinitionStatement} - New variable definition statement.
+     *
+     * @see {@link VariableDefinitionStatement}
+     */
+    DefaultsAddedBallerinaASTFactory.createVariableDefinitionStatement = function (args) {
+        var variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement(args);
+        variableDefinitionStatement.setLeftExpression("int i");
+        variableDefinitionStatement.setRightExpression("0");
+        return variableDefinitionStatement;
+    };
+
     return DefaultsAddedBallerinaASTFactory;
 });
