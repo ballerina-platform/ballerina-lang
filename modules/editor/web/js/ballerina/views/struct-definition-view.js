@@ -216,7 +216,7 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                     self._renderVariableDeclarations(wrapper);
                 });
 
-                $(variableDeclarationView.getWrapper()).dblclick({
+                $(variableDeclarationView.getWrapper()).click({
                     modelID: variableDeclaration.getID()
                 }, function (event) {
                     self._renderVariableDeclarations(wrapper);
