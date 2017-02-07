@@ -594,7 +594,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             } else if ((varBType != BTypes.typeMap) && (returnTypes[0] != BTypes.typeMap) &&
                     (!varBType.equals(returnTypes[0]))) {
 
-                TypeCastExpression newExpr = checkWideningPossible(varBType, rExpr, null);
+                TypeCastExpression newExpr = checkWideningPossible(varBType, rExpr);
                 if (newExpr != null) {
                     newExpr.accept(this);
                     varDefStmt.setRExpr(newExpr);
@@ -653,7 +653,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if ((lExprType != BTypes.typeMap) && (rType != BTypes.typeMap) &&
                 (!lExprType.equals(rType))) {
 
-            TypeCastExpression newExpr = checkWideningPossible(lExpr.getType(), rExpr, null);
+            TypeCastExpression newExpr = checkWideningPossible(lExpr.getType(), rExpr);
             if (newExpr != null) {
                 newExpr.accept(this);
                 assignStmt.setRhsExpr(newExpr);
@@ -1265,7 +1265,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             // Types are defined only once, hence the following object equal should work.
             if (argExprs[i].getType() != expectedElementType) {
-                TypeCastExpression typeCastExpr = checkWideningPossible(expectedElementType, argExprs[i], null);
+                TypeCastExpression typeCastExpr = checkWideningPossible(expectedElementType, argExprs[i]);
                 if (typeCastExpr == null) {
                     throw new SemanticException(getNodeLocationStr(arrayInitExpr.getNodeLocation()) +
                             "incompatible types: '" + argExprs[i].getType() +
@@ -1654,16 +1654,33 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         if (!(rType.equals(lType))) {
-            TypeCastExpression newExpr = checkWideningPossible(lExpr.getType(), rExpr, binaryExpr.getOperator());
-            if (newExpr != null) {
-                newExpr.accept(this);
-                binaryExpr.setRExpr(newExpr);
-            } else {
-                throwInvalidBinaryOpError(binaryExpr);
-            }
-        }
+            TypeCastExpression newExpr;
+            TypeEdge newEdge;
 
-        return lExpr.getType();
+            if (((rType.equals(BTypes.typeString) || lType.equals(BTypes.typeString))
+                    && binaryExpr.getOperator().equals(Operator.ADD)) || (!(rType.equals(BTypes.typeString)) &&
+                    !(lType.equals(BTypes.typeString)))) {
+                newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rType, lType, null);
+                if (newEdge != null) { // Implicit cast from right to left
+                    newExpr = new TypeCastExpression(rExpr.getNodeLocation(), rExpr, lType);
+                    newExpr.setEvalFunc(newEdge.getTypeConvertorFunction());
+                    newExpr.accept(this);
+                    binaryExpr.setRExpr(newExpr);
+                    return lType;
+                } else {
+                    newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(lType, rType, null);
+                    if (newEdge != null) { // Implicit cast from left to right
+                        newExpr = new TypeCastExpression(lExpr.getNodeLocation(), lExpr, rType);
+                        newExpr.setEvalFunc(newEdge.getTypeConvertorFunction());
+                        newExpr.accept(this);
+                        binaryExpr.setLExpr(newExpr);
+                        return rType;
+                    }
+                }
+            }
+            throwInvalidBinaryOpError(binaryExpr);
+        }
+        return rType;
     }
 
     private void visitBinaryLogicalExpr(BinaryLogicalExpression expr) {
@@ -2076,20 +2093,15 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
-    private TypeCastExpression checkWideningPossible(BType lhsType, Expression rhsExpr, Operator op) {
+    private TypeCastExpression checkWideningPossible(BType lhsType, Expression rhsExpr) {
         BType rhsType = rhsExpr.getType();
         if (rhsType == null && rhsExpr instanceof TypeCastExpression) {
             rhsType = BTypes.resolveType(((TypeCastExpression) rhsExpr).getTypeName(), currentScope, null);
         }
         TypeCastExpression newExpr = null;
-        TypeEdge newEdge = null;
+        TypeEdge newEdge;
 
-        if (((rhsType.equals(BTypes.typeString) || lhsType.equals(BTypes.typeString)) && op != null
-                && op.equals(Operator.ADD)) || (!(rhsType.equals(BTypes.typeString)) &&
-                !(lhsType.equals(BTypes.typeString)) && op != null) || op == null) {
-            newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rhsType, lhsType, null);
-        }
-
+        newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rhsType, lhsType, null);
         if (newEdge != null) {
             newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, lhsType);
             newExpr.setEvalFunc(newEdge.getTypeConvertorFunction());
