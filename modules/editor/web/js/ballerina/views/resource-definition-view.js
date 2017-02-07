@@ -840,32 +840,22 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             });
             connectorDeclarationView.setParent(this);
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
-            connectorDeclarationView._rootGroup.attr('id', '_' + connectorDeclarationView._model.id);
+            connectorDeclarationView._rootGroup.attr('id', '_' +connectorDeclarationView._model.id);
+
             connectorDeclarationView.render();
-            // Creating property pane
-            var editableProperties = [
-                {
+            // Creating Expression Editor
+            var editableProperty = {
                     propertyType: "text",
-                    key: "Name",
+                key: "ConnectorDeclaration",
                     model: connectorDeclarationView._model,
-                    getterMethod: connectorDeclarationView._model.getConnectorVariable,
-                    setterMethod: connectorDeclarationView._model.setConnectorVariable
-                },
-                {
-                    propertyType: "text",
-                    key: "Uri",
-                    model: connectorDeclarationView._model,
-                    getterMethod: connectorDeclarationView._model.getUri,
-                    setterMethod: connectorDeclarationView._model.setUri
-                }
-            ];
-            connectorDeclarationView.createPropertyPane(
-                {
-                    model: connectorDeclarationView._model,
-                    lifeLineGroup: connectorDeclarationView._rootGroup,
-                    editableProperties: editableProperties
-                }
-            );
+                getterMethod: connectorDeclarationView._model.getConnectorExpression,
+                setterMethod: connectorDeclarationView._model.setConnectorExpression
+            };
+            connectorDeclarationView.createPropertyPane({
+                model: connectorDeclarationView._model,
+                lifeLineGroup:connectorDeclarationView._rootGroup,
+                editableProperties: editableProperty
+            });
 
             /* If the adding connector (connectorDeclarationView) goes out of this resource definition's view,
              then we need to expand this resource definition's view. */

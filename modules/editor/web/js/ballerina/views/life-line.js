@@ -16,7 +16,9 @@
  * under the License.
  */
 
-define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view', 'property_pane_utils'], function (_, $, d3, log, D3Utils, Point, BallerinaView,  PropertyPaneUtils) {
+define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view',
+        'property_pane_utils', 'expression_editor_utils'],
+    function (_, $, d3, log, D3Utils, Point, BallerinaView,  PropertyPaneUtils, expressionEditor) {
 
     /**
      * View for a generic lifeline
@@ -252,7 +254,6 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         viewOptions.actionButton.class = _.get(args, "actionButton.class", "property-pane-action-button");
         viewOptions.actionButton.wrapper = _.get(args, "actionButton.wrapper", {});
         viewOptions.actionButton.wrapper.class = _.get(args, "actionButton.wrapper.class", "property-pane-action-button-wrapper");
-        viewOptions.actionButton.editClass = _.get(args, "viewOptions.actionButton.editClass", "property-pane-action-button-edit");
         viewOptions.actionButton.disableClass = _.get(args, "viewOptions.actionButton.disableClass", "property-pane-action-button-disable");
         viewOptions.actionButton.deleteClass = _.get(args, "viewOptions.actionButton.deleteClass", "property-pane-action-button-delete");
 
@@ -261,25 +262,17 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
         viewOptions.propertyForm = _.get(args, "propertyForm", {});
         viewOptions.propertyForm.wrapper = _.get(args, "propertyForm.wrapper", {});
-        viewOptions.propertyForm.wrapper.class = _.get(args, "propertyForm.wrapper", "property-pane-form-wrapper");
+        viewOptions.propertyForm.wrapper.class = _.get(args, "propertyForm.wrapper", "expression-editor-form-wrapper");
         viewOptions.propertyForm.heading = _.get(args, "propertyForm.heading", {});
-        viewOptions.propertyForm.heading.class = _.get(args, "propertyForm.heading.class", "property-pane-form-heading");
-        viewOptions.propertyForm.heading.iconClass = _.get(args, "propertyForm.heading.class", "property-pane-form-heading-icon");
-        viewOptions.propertyForm.heading.textClass = _.get(args, "propertyForm.heading.class", "property-pane-form-heading-text");
-        viewOptions.propertyForm.heading.iconCloseClass = _.get(args, "propertyForm.heading.class", "property-pane-form-heading-close-icon");
         viewOptions.propertyForm.body = _.get(args, "propertyForm.body", {});
-        viewOptions.propertyForm.body.class = _.get(args, "propertyForm.body.class", "property-pane-form-body");
+        viewOptions.propertyForm.body.class = _.get(args, "propertyForm.body.class", "expression-editor-form-body");
         viewOptions.propertyForm.body.property = _.get(args, "propertyForm.body.property", {});
-        viewOptions.propertyForm.body.property.wrapper = _.get(args, "propertyForm.body.property.wrapper", "property-pane-form-body-property-wrapper");
-
-        viewOptions.propertyForm.body.addStatement = _.get(args, "propertyForm.body.addStatement", {});
-        viewOptions.propertyForm.body.addStatement.text = _.get(args, "propertyForm.body.addStatement.text", "Add");
-        viewOptions.propertyForm.body.addStatement.class = _.get(args, "propertyForm.body.addStatement.class", "property-pane-form-body-add-button");
+        viewOptions.propertyForm.body.property.wrapper = _.get(args, "propertyForm.body.property.wrapper",
+            "expression-editor-form-body-property-wrapper");
 
         var self = this;
         // Adding click event for 'life-line' group.
         $(lifeLineGroup.node()).click(function (lifeLineView, event) {
-
             log.debug("Clicked life-line group");
 
             event.stopPropagation();
@@ -290,26 +283,20 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 return;
             }
 
+            // Get the bounding box of life line.
+            var lifeLineBoundingBox = lifeLineView.getBoundingBox();
+
             // Calculating width for edit and delete button.
             var propertyButtonPaneRectWidth = viewOptions.actionButton.width * 2;
 
             // Creating an SVG group for the edit and delete buttons.
             var propertyButtonPaneGroup = D3Utils.group(lifeLineGroup);
 
+            // Delete button pane group
+            var deleteButtonPaneGroup = D3Utils.group(lifeLineGroup);
+
             // Adding svg definitions needed for styling edit and delete buttons.
-            var svgDefinitions = propertyButtonPaneGroup.append("defs");
-            var editButtonPattern = svgDefinitions.append("pattern")
-                .attr("id", "editIcon")
-                .attr("width", "100%")
-                .attr("height", "100%");
-
-            editButtonPattern.append("image")
-                .attr("xlink:href", "images/edit.svg")
-                .attr("x", (viewOptions.actionButton.width / 2) - (14 / 2))
-                .attr("y", (viewOptions.actionButton.height / 2) - (14 / 2))
-                .attr("width", "14")
-                .attr("height", "14");
-
+            var svgDefinitions = deleteButtonPaneGroup.append("defs");
             var deleteButtonPattern = svgDefinitions.append("pattern")
                 .attr("id", "deleteIcon")
                 .attr("width", "100%")
@@ -317,7 +304,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
             deleteButtonPattern.append("image")
                 .attr("xlink:href", "images/delete.svg")
-                .attr("x", (viewOptions.actionButton.width / 2) - (14 / 2))
+                .attr("x", (viewOptions.actionButton.width) - (14 / 2)) // Increasing the x so the delete button would be in middle
                 .attr("y", (viewOptions.actionButton.height / 2) - (14 / 2))
                 .attr("width", "14")
                 .attr("height", "14");
@@ -338,7 +325,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
             // Creating the action button pane border.
             var propertyButtonPaneRect = D3Utils.rect(centerPointX - (propertyButtonPaneRectWidth / 2), centerPointY + 3,
-                propertyButtonPaneRectWidth, viewOptions.actionButton.height, 0, 0, propertyButtonPaneGroup)
+                propertyButtonPaneRectWidth, viewOptions.actionButton.height, 0, 0, deleteButtonPaneGroup)
                 .classed(viewOptions.actionButton.wrapper.class, true);
 
             // Not allowing to click background elements.
@@ -346,114 +333,76 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 event.stopPropagation();
             });
 
-            // Creating the edit action button.
-            var editButtonRect = D3Utils.rect(centerPointX - (propertyButtonPaneRectWidth / 2), centerPointY + 3,
-                viewOptions.actionButton.width, viewOptions.actionButton.height, 0, 0, propertyButtonPaneGroup)
-                .classed(viewOptions.actionButton.class, true).classed(viewOptions.actionButton.editClass, true);
-
             // Creating the delete action button.
-            var deleteButtonRect = D3Utils.rect(centerPointX + viewOptions.actionButton.width  - (propertyButtonPaneRectWidth / 2), centerPointY + 3,
-                viewOptions.actionButton.width, viewOptions.actionButton.height, 0, 0, propertyButtonPaneGroup)
+            var deleteButtonRect = D3Utils.rect(centerPointX - (propertyButtonPaneRectWidth / 2), centerPointY + 3,
+                propertyButtonPaneRectWidth, viewOptions.actionButton.height, 0, 0, deleteButtonPaneGroup)
                 .classed(viewOptions.actionButton.class, true).classed(viewOptions.actionButton.deleteClass, true);
 
             // When the outside of the propertyButtonPaneRect is clicked.
             $(window).click(function (event) {
                 log.debug("window click");
                 $(propertyButtonPaneGroup.node()).remove();
+                $(deleteButtonPaneGroup.node()).remove();
                 $(smallArrow.node()).remove();
 
                 // Remove this handler.
                 $(this).unbind("click");
             });
 
-            // Adding on click event for edit button.
-            $(editButtonRect.node()).click(function (event) {
+            var parentSVG = propertyButtonPaneGroup.node().ownerSVGElement;
 
-                log.debug("Clicked edit button");
+            event.stopPropagation();
 
-                var parentSVG = propertyButtonPaneGroup.node().ownerSVGElement;
+            // Hiding property button pane.
+            $(propertyButtonPaneGroup.node()).remove();
 
-                event.stopPropagation();
-
-                // Hiding property button pane.
-                $(propertyButtonPaneGroup.node()).remove();
-
-                // 175 is the width set in css
-                var propertyPaneWrapper = $("<div/>", {
-                    class: viewOptions.propertyForm.wrapper.class /*+ " nano"*/,
-                    css : {
-                        "margin": (parseInt($(parentSVG.parentElement).css("padding"), 10) + 3) + "px"
-                    },
-                    click : function(event){
-                        event.stopPropagation();
-                    }
-                }).offset({ top: centerPointY, left: centerPointX - (175 / 2)}).appendTo(parentSVG.parentElement);
-
-                // When the outside of the propertyPaneWrapper is clicked.
-                $(window).click(function (event) {
-                    log.debug("window click");
-                    closeAllPopUps();
-                });
-
-                var propertyPaneHeading = $("<div/>", {
-                    "class": viewOptions.propertyForm.heading.class
-                }).appendTo(propertyPaneWrapper);
-
-                var editIcon = $("<i/>", {
-                    "class": "fw fw-edit " + viewOptions.propertyForm.heading.iconClass
-                }).appendTo(propertyPaneHeading);
-
-                var editTitle = $("<span class='" + viewOptions.propertyForm.heading.textClass +"'>Edit</span>")
-                    .appendTo(propertyPaneHeading);
-
-                var closeIcon = $("<i/>", {
-                    "class": "fw fw-cancel " + viewOptions.propertyForm.heading.iconCloseClass
-                }).appendTo(propertyPaneHeading);
-
-                // When the "X" button is clicked.
-                $(closeIcon).click(function () {
-                    closeAllPopUps();
-                });
-
-                // Div which contains the form for the properties.
-                var propertyPaneBody = $("<div/>", {
-                    "class": viewOptions.propertyForm.body.class /*+ " nano-content"*/
-                }).appendTo(propertyPaneWrapper);
-
-                // Creating the property form.
-                PropertyPaneUtils.createPropertyForm(propertyPaneBody,
-                    viewOptions.propertyForm.body.property.wrapper, editableProperties);
-
-                // FIXME: Removing the add button temporarily
-                // Adding "Add" button.
-                // var buttonPane = $("<div/>").appendTo(propertyPaneBody);
-                // var addButton = $("<button/>", {
-                //     class : viewOptions.propertyForm.body.addStatement.class,
-                //     text : viewOptions.propertyForm.body.addStatement.text
-                //
-                // }).appendTo(buttonPane);
-
-                // $(addButton).click(function (event) {
-                //     //TODO: Add for connector declaration
-                // });
-
-                // Close the popups of property pane body.
-                function closeAllPopUps() {
-                    $(propertyPaneWrapper).remove();
-
-                    // Remove the small arrow.
-                    $(smallArrow.node()).remove();
-
-                    $(this).unbind('click');
+            var propertyPaneWrapper = $("<div/>", {
+                class: viewOptions.propertyForm.wrapper.class,
+                css: {
+                    "width": (lifeLineBoundingBox.w() + 1), // Making the text box bit bigger
+                    "height": _.get(self._viewOptions, 'rect.height') + 2 // Make the expression editor bit bigger
+                },
+                click: function (event) {
+                    event.stopPropagation();
                 }
+            }).offset({
+                top: self._topCenter.y() - (_.get(self._viewOptions, 'rect.height') / 2) - 1, // Get the pane to match connector's y.
+                left: self._topCenter.x() - (_.get(self._viewOptions, 'rect.width') / 2) - 1 // Get the pane to match connector's x
+            }).appendTo(parentSVG.parentElement);
 
+            // When the outside of the propertyPaneWrapper is clicked.
+            $(window).click(function (event) {
+                log.debug("window click");
+                closeAllPopUps();
             });
+
+            // Div which contains the form for the properties.
+            var propertyPaneBody = $("<div/>", {
+                "class": viewOptions.propertyForm.body.class
+            }).appendTo(propertyPaneWrapper);
+
+            // Creating the property form.
+            expressionEditor.createEditor(propertyPaneBody,
+                viewOptions.propertyForm.body.property.wrapper, editableProperties);
+
+            // Close the popups of property pane body.
+            function closeAllPopUps() {
+                $(propertyPaneWrapper).remove();
+                $(deleteButtonPaneGroup.node()).remove();
+
+                // Remove the small arrow.
+                $(smallArrow.node()).remove();
+
+                $(this).unbind('click');
+            }
 
             $(deleteButtonRect.node()).click(function(event){
                 event.stopPropagation();
                 model.remove();
                 // Hiding property button pane.
                 $(propertyButtonPaneGroup.node()).remove();
+                $(deleteButtonPaneGroup.node()).remove();
+                $(propertyPaneWrapper).remove();
                 $(smallArrow.node()).remove();
             });
 
