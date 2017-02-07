@@ -101,8 +101,6 @@ public interface NodeVisitor {
     
     void visit(StructDef structDef);
 
-    void visit(StructDcl structDcl);
-
 
     // Statements
 

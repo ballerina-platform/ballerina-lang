@@ -47,6 +47,7 @@ import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MapStructInitKeyValueExpr;
 import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
+import org.wso2.ballerina.core.model.expressions.ReferenceExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
@@ -63,6 +64,7 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.types.BMapType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.util.BValueUtils;
@@ -82,7 +84,6 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
-
 
 /**
  * {@code BLangExecutor} executes a Ballerina application.
@@ -526,7 +527,7 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public BValue visit(VariableRefExpr variableRefExpr) {
-        MemoryLocation memoryLocation = variableRefExpr.getMemoryLocation();
+        MemoryLocation memoryLocation = variableRefExpr.getVariableDef().getMemoryLocation();
         return memoryLocation.execute(this);
     }
 
@@ -623,8 +624,7 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public BValue visit(StructVarLocation structLocation) {
-        BStruct bStruct = (BStruct) controlStack.getValue(structLocation.getStructMemAddrOffset());
-        return bStruct.getValue(structLocation.getStructMemAddrOffset());
+        throw new IllegalArgumentException("struct value is required to get the value of a field");
     }
 
     @Override
@@ -765,7 +765,7 @@ public class BLangExecutor implements NodeExecutor {
         int offset = 0;
         structMemBlock = new BValue[structDef.getStructMemorySize()];
 
-        Expression[] argExpr = structInitExpr.getArgExprs();
+        Expression[] argExprs = structInitExpr.getArgExprs();
 
 
         // create a memory block to hold field of the struct, and populate it with default values
@@ -774,6 +774,15 @@ public class BLangExecutor implements NodeExecutor {
             structMemBlock[offset] = field.getType().getDefaultValue();
             offset++;
         }
+        
+        // iterate through initialized values and re-populate the memory block
+        for (int i = 0; i < argExprs.length; i++) {
+            MapStructInitKeyValueExpr expr = (MapStructInitKeyValueExpr) argExprs[i];
+            VariableRefExpr varRefExpr = (VariableRefExpr) expr.getKeyExpr();
+            StructVarLocation structVarLoc = (StructVarLocation) (varRefExpr).getVariableDef().getMemoryLocation();
+            structMemBlock[structVarLoc.getStructMemAddrOffset()] = expr.getValueExpr().execute(this);
+        }
+        
         return new BStruct(structDef, structMemBlock);
     }
 
@@ -809,27 +818,17 @@ public class BLangExecutor implements NodeExecutor {
     private void setFieldValue(BValue rValue, StructFieldAccessExpr expr, BValue currentVal) {
         // currentVal is a BStruct or array/map of BStruct. hence get the element value of it.
         BStruct currentStructVal = (BStruct) getUnitValue(currentVal, expr);
-
+        
         StructFieldAccessExpr fieldExpr = expr.getFieldExpr();
         int fieldLocation = ((StructVarLocation) getMemoryLocation(fieldExpr)).getStructMemAddrOffset();
 
         if (fieldExpr.getFieldExpr() == null) {
-            if (currentStructVal.value() == null) {
-                throw new BallerinaException("cannot set field '" + fieldExpr.getSymbolName().getName() +
-                        "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'.");
-            }
             setUnitValue(rValue, currentStructVal, fieldLocation, fieldExpr);
             return;
         }
 
         // At this point, field of the field is not null. Means current element,
         // and its field are both struct types.
-
-        if (currentStructVal.value() == null) {
-            throw new BallerinaException("cannot set field '" + fieldExpr.getSymbolName().getName() +
-                    "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'.");
-        }
-
         // get the unit value of the struct field,
         BValue value = currentStructVal.getValue(fieldLocation);
 
@@ -896,7 +895,7 @@ public class BLangExecutor implements NodeExecutor {
         BValue arrayMapValue = lExprValue.getValue(memoryLocation);
 
         // Set the value to array/map's index location
-        if (fieldExpr.getRefVarType() == BTypes.typeMap) {
+        if (fieldExpr.getRefVarType() instanceof BMapType) {
             ((BMap) arrayMapValue).put(indexValue, rValue);
         } else {
             ((BArray) arrayMapValue).add(((BInteger) indexValue).intValue(), rValue);
@@ -913,25 +912,17 @@ public class BLangExecutor implements NodeExecutor {
     private BValue getFieldExprValue(StructFieldAccessExpr expr, BValue currentVal) {
         // currentVal is a BStruct or array/map of BStruct. hence get the element value of it.
         BStruct currentStructVal = (BStruct) getUnitValue(currentVal, expr);
-
+        
         StructFieldAccessExpr fieldExpr = expr.getFieldExpr();
         int fieldLocation = ((StructVarLocation) getMemoryLocation(fieldExpr)).getStructMemAddrOffset();
 
         // If this is the last field, return the value from memory location
         if (fieldExpr.getFieldExpr() == null) {
-            if (currentStructVal.value() == null) {
-                throw new BallerinaException("cannot access field '" + fieldExpr.getSymbolName().getName() +
-                        "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'.");
-            }
             // Value stored in the struct can be also an array. Hence if its an arrray access, 
             // get the aray element value
             return getUnitValue(currentStructVal.getValue(fieldLocation), fieldExpr);
         }
 
-        if (currentStructVal.value() == null) {
-            throw new BallerinaException("cannot access field '" + fieldExpr.getSymbolName().getName() +
-                    "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'.");
-        }
         BValue value = currentStructVal.getValue(fieldLocation);
 
         // Recursively travel through the struct and get the value
@@ -955,14 +946,19 @@ public class BLangExecutor implements NodeExecutor {
      * @return Unit value of the current value
      */
     private BValue getUnitValue(BValue currentVal, StructFieldAccessExpr fieldExpr) {
+        ReferenceExpr currentVarRefExpr = fieldExpr.getVarRef();
+        if (currentVal == null) {
+            throw new BallerinaException("field '" + currentVarRefExpr.getVarName() + "' is null");
+        }
+        
         if (!(currentVal instanceof BArray || currentVal instanceof BMap<?, ?>)) {
             return currentVal;
         }
 
         // If the lExprValue value is not a struct array/map, then the unit value is same as the struct
         Expression indexExpr;
-        if (fieldExpr.getVarRef() instanceof ArrayMapAccessExpr) {
-            indexExpr = ((ArrayMapAccessExpr) fieldExpr.getVarRef()).getIndexExpr();
+        if (currentVarRefExpr instanceof ArrayMapAccessExpr) {
+            indexExpr = ((ArrayMapAccessExpr) currentVarRefExpr).getIndexExpr();
         } else {
             return currentVal;
         }
@@ -970,12 +966,20 @@ public class BLangExecutor implements NodeExecutor {
         // Evaluate the index expression and get the value
         BValue indexValue = indexExpr.execute(this);
 
+        BValue unitVal;
         // Get the value from array/map's index location
-        if (fieldExpr.getRefVarType() == BTypes.typeMap) {
-            return ((BMap) currentVal).get(indexValue);
+        if (fieldExpr.getRefVarType() instanceof BMapType) {
+            unitVal = ((BMap) currentVal).get(indexValue);
         } else {
-            return ((BArray) currentVal).get(((BInteger) indexValue).intValue());
+            unitVal = ((BArray) currentVal).get(((BInteger) indexValue).intValue());
         }
+        
+        if (unitVal == null) {
+            throw new BallerinaException("field '" + currentVarRefExpr.getSymbolName().getName() + "[" + 
+                    indexValue.stringValue() + "]' is null");
+        }
+        
+        return unitVal;
     }
 
 }
