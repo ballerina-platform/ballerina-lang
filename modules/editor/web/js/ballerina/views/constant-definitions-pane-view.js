@@ -53,11 +53,6 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
                 " Const. </span>")
                 .appendTo(this._constantDefinitionsButton).tooltip();
 
-            //$("<span class='fw-stack fw-lg' data-toggle='tooltip' title='Constants' data-placement='bottom'>" +
-            //    " <i class='fw fw-circle fw-stack-2x'></i>" +
-            //    "<i class='fw fw-constant fw-stack-1x fw-inverse'></i> </span>")
-            //    .appendTo(this._constantDefinitionsButton).tooltip();
-
             this._constantsDefinitionsMainWrapper = $("<div class='constants-pane'/>").appendTo(this._paneAppendElement);
 
             var constantsWrapper = $("<div class='constants-wrapper'/>").appendTo(this._constantsDefinitionsMainWrapper);
