@@ -77,7 +77,7 @@ under the License.
             <!--<class name="org.wso2.ballerina.lang.statements.ReplyStmtTest"/>-->
             <class name="org.wso2.ballerina.lang.statements.ReturnStmtTest"/>
             <!--<class name="org.wso2.ballerina.lang.statements.ReturnStmtNegativeTest"/>-->
-            <class name="org.wso2.ballerina.lang.statements.VariableDeclarationTest"/>
+            <class name="org.wso2.ballerina.lang.statements.VariableDefinitionNegativeTest"/>
             <class name="org.wso2.ballerina.lang.statements.WhileStmtTest"/>
 
 

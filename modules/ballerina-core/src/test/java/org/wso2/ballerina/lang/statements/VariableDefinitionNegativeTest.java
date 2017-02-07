@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 /**
  * Tests covering variable declarations.
  */
-public class VariableDeclarationTest {
+public class VariableDefinitionNegativeTest {
 
     /*
      * Negative tests.
