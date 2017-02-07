@@ -26,7 +26,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
@@ -36,7 +35,6 @@ import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValueType;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
-import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.nativeimpl.util.Functions;
 import org.wso2.ballerina.nativeimpl.util.ParserUtils;
 
@@ -64,9 +62,7 @@ public class SystemTest {
     @BeforeClass
     public void setup() {
         original = System.out;
-        // Add  Native functions.
-        SymScope symScope = GlobalScopeHolder.getInstance().getScope();
-        bFile = ParserUtils.parseBalFile("samples/systemTest.bal", symScope);
+        bFile = ParserUtils.parseBalFile("samples/systemTest.bal");
     }
 
     @AfterClass
