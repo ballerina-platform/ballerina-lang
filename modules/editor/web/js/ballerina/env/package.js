@@ -317,7 +317,7 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
                 if(!_.isEmpty(functionDefinitions)){
                     _.each(functionDefinitions, function(functionDefinition){
                         if(!(functionDefinition instanceof  FunctionDefinition)){
-                            err = "Adding funciton def failed. Not an instance of FunctionDefinition" + functionDefinition;
+                            err = "Adding function def failed. Not an instance of FunctionDefinition" + functionDefinition;
                             log.error(err);
                             throw err;
                         }
