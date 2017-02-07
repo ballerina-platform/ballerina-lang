@@ -50,7 +50,7 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                 var fileBrowser;
                 var fileContent;
                 var app = this.app;
-                var notification_container = this.notification_container;
+                var notification_container = '#openFileWizardError';
                 var ballerinaEditorOptions = this.ballerina_editor;
                 // var sourceViewContainer =  this.source_view_container;
                 var diagramRenderingContext = new DiagramRenderContext();
@@ -159,8 +159,6 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                         openFileWizardError.show();
                         return;
                     }
-
-                    openConfigModal.modal('hide');
                     openConfiguration({location: location});
                 });
 
@@ -196,7 +194,7 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                             if (xhr.status == 200) {
                                 var BallerinaASTDeserializer = Ballerina.ast.BallerinaASTDeserializer;
                                 var root = BallerinaASTDeserializer.getASTModel(data);
-
+                                openConfigModal.modal('hide');
                                 var command = app.commandManager;
                                 command.dispatch("create-new-tab", root);
                             } else {
@@ -207,6 +205,15 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                             alertError(JSON.parse(res.responseText).Error);
                         }
                     });
+                }
+                
+                function isJsonString(str) {
+                    try {
+                        JSON.parse(str);
+                    } catch (e) {
+                        return false;
+                    }
+                    return true;
                 }
 
                 function openConfiguration() {
@@ -237,11 +244,20 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                                 });
                                 app.commandManager.dispatch("create-new-tab", {tabOptions: {file: file}});
                             } else {
-                                alertError(data.Error);
+                                openFileWizardError.text(data.Error);
+                                openFileWizardError.show();
                             }
                         },
                         error: function (res, errorCode, error) {
-                            alertError(JSON.parse(res.responseText).Error);
+                            var msg = _.isString(error) ? error : res.statusText;
+                            if(isJsonString(res.responseText)){
+                                var resObj = JSON.parse(res.responseText);
+                                if(_.has(resObj, 'Error')){
+                                    msg = _.get(resObj, 'Error');
+                                }
+                            }
+                            openFileWizardError.text(msg);
+                            openFileWizardError.show();
                         }
                     });
                 };
