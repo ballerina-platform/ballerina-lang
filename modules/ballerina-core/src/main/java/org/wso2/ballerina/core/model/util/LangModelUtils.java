@@ -70,7 +70,7 @@ public class LangModelUtils {
                                               String pkgPath, BType[] types) {
         StringBuilder sBuilder = new StringBuilder(connectorName + "." + actionName);
         for (BType type : types) {
-            sBuilder.append("_").append(type);
+            sBuilder.append(".").append(type);
         }
 
         return new SymbolName(sBuilder.toString(), pkgPath);

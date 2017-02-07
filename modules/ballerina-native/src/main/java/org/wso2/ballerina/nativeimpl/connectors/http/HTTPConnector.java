@@ -82,25 +82,18 @@ public class HTTPConnector extends AbstractNativeConnector {
     //TODO Fix Issue#320
     @Override
     public HTTPConnector getInstance() {
-        return new HTTPConnector(enclosingScope);
+        return new HTTPConnector(symbolScope);
     }
 
     public String getServiceUri() {
         return serviceUri;
     }
-    
-    @Override
-    public int hashCode() {
-        return (CONNECTOR_PACKAGE + ":" + CONNECTOR_NAME).hashCode();
-    }
-    
-    @Override
+
     public boolean equals(Object obj) {
-        if (obj instanceof HTTPConnector) {
-            HTTPConnector other = (HTTPConnector) obj;
-            return (this.CONNECTOR_PACKAGE.equals(other.CONNECTOR_PACKAGE) && 
-                    this.CONNECTOR_NAME.equals(other.CONNECTOR_NAME));
-        }
-        return false;
+        return super.equals(obj);
+    }
+
+    public int hashCode() {
+        return (pkgPath + ":" + typeName).hashCode();
     }
 }
