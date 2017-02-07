@@ -955,8 +955,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     @Override
     public void visit(MapInitExpr mapInitExpr) {
         JsonObject mapInitExprObj = new JsonObject();
-        mapInitExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
-                BLangJSONModelConstants.MAP_INIT_EXPRESSION);
+        mapInitExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.MAP_INIT_EXPRESSION);
         tempJsonArrayRef.push(new JsonArray());
         if(mapInitExpr.getArgExprs() != null) {
             for(Expression expression : mapInitExpr.getArgExprs()) {
