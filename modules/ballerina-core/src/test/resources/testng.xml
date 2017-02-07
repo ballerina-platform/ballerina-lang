@@ -42,6 +42,7 @@ under the License.
             <class name="org.wso2.ballerina.lang.expressions.ModExpressionTest"/>
             <class name="org.wso2.ballerina.lang.expressions.FuncInvocationExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.GreaterLessThanExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.OperatorPrecedenceTest"/>
             <!-- Not used at the moment -->
             <!--<class name="org.wso2.ballerina.lang.expressions.InstanceCreationExprTest"/>-->
             <!--class name="org.wso2.ballerina.lang.expressions.MapAccessExprTest"/-->
