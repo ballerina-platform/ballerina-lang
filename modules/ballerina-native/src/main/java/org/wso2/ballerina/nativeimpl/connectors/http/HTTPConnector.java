@@ -16,6 +16,7 @@
 package org.wso2.ballerina.nativeimpl.connectors.http;
 
 import org.osgi.service.component.annotations.Component;
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
@@ -36,7 +37,7 @@ import java.util.Set;
  * Native HTTP Connector.
  */
 @BallerinaConnector(
-        packageName = "ballerina.net.http",
+        packageName = HTTPConnector.CONNECTOR_PACKAGE,
         connectorName = HTTPConnector.CONNECTOR_NAME,
         args = {
                 @Argument(name = "serviceUri", type = TypeEnum.STRING)
@@ -47,6 +48,11 @@ import java.util.Set;
         service = AbstractNativeConnector.class)
 public class HTTPConnector extends AbstractNativeConnector {
 
+    public HTTPConnector(SymbolScope enclosingScope) {
+        super(enclosingScope);
+    }
+    
+    public static final String CONNECTOR_PACKAGE = "ballerina.net.http";
     public static final String CONNECTOR_NAME = "HTTPConnector";
 
     private String serviceUri;
@@ -76,10 +82,25 @@ public class HTTPConnector extends AbstractNativeConnector {
     //TODO Fix Issue#320
     @Override
     public HTTPConnector getInstance() {
-        return new HTTPConnector();
+        return new HTTPConnector(enclosingScope);
     }
 
     public String getServiceUri() {
         return serviceUri;
+    }
+    
+    @Override
+    public int hashCode() {
+        return (CONNECTOR_PACKAGE + ":" + CONNECTOR_NAME).hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof HTTPConnector) {
+            HTTPConnector other = (HTTPConnector) obj;
+            return (this.CONNECTOR_PACKAGE.equals(other.CONNECTOR_PACKAGE) && 
+                    this.CONNECTOR_NAME.equals(other.CONNECTOR_NAME));
+        }
+        return false;
     }
 }
