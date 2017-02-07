@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.testerina.core.entity;
 
-import org.wso2.ballerina.core.model.*;
-
+import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.Function;
 
 import java.util.ArrayList;
 
@@ -29,12 +29,10 @@ public class TesterinaFile {
 
     private String name;
     private ArrayList<TesterinaFunction> testFunctions;
-    private String resourcePath;
     private BallerinaFile bFile;
 
-    TesterinaFile(String name, String resourcePath, BallerinaFile bFile) {
+    public TesterinaFile(String name, String resourcePath, BallerinaFile bFile) {
         this.name = name;
-        this.resourcePath = resourcePath;
         this.bFile = bFile;
         setTestFunctions(this.bFile);
     }
@@ -53,7 +51,7 @@ public class TesterinaFile {
             if (name.startsWith(TesterinaFunction.PREFIX_TEST)) {
                 Function bFunc = allFunctions[i];
                 TesterinaFunction tFunction = new TesterinaFunction(bFunc.getFunctionName(),
-                                                                    TesterinaFunction.Type.TEST, bFunc, this);
+                        TesterinaFunction.Type.TEST, bFunc, this);
                 this.testFunctions.add(tFunction);
             }
         }
@@ -82,6 +80,5 @@ public class TesterinaFile {
          */
         return this.bFile;
     }
-
 
 }
