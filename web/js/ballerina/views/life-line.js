@@ -57,6 +57,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         _.set(this._viewOptions, 'cssClass.group', _.get(this._viewOptions, 'cssClass.group', 'life-line'));
         _.set(this._viewOptions, 'cssClass.topPolygon', _.get(this._viewOptions, 'cssClass.topPolygon', 'connector-life-line-top-polygon'));
         _.set(this._viewOptions, 'cssClass.bottomPolygon', _.get(this._viewOptions, 'cssClass.bottomPolygon', 'connector-life-line-bottom-polygon'));
+        _.set(this._viewOptions, 'onDeleteMoveOffset', _.get(this._viewOptions, 'onDeleteMoveOffset', -180));
 
         this._bottomCenter = this._topCenter.clone().move(0, _.get(this._viewOptions, 'line.height' ));
 
@@ -84,7 +85,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
      */
     LifeLineView.prototype.onBeforeModelRemove = function (parent, child) {
         d3.select("#_" +this._model.id).remove();
-        this.getBoundingBox().w(0, 0);
+        this.getBoundingBox().move(_.get(this._viewOptions, 'onDeleteMoveOffset'), 0).h(0);
     };
 
     LifeLineView.prototype.position = function (x, y) {
