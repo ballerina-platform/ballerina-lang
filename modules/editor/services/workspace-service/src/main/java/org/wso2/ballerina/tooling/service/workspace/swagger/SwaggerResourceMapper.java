@@ -112,14 +112,13 @@ public class SwaggerResourceMapper {
 
 
     /**
-     * TODO need to implement
-     *
+     * Converts operation into a resource.
      * @param pathMap
-     * @return
+     * @return resources
      */
     protected Resource[] convertOperationsToResources(Map<String, Path> pathMap) {
-        return null;
-
+        // TODO need to implement this
+        throw new UnsupportedOperationException("Converting operations to resources is not implemented yet!");
     }
 
     /**
