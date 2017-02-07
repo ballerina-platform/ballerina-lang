@@ -40,16 +40,16 @@ import java.io.OutputStream;
 public final class BJSON extends BallerinaMessageDataSource implements BRefType<JsonNode> {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    
+
     static {
         OBJECT_MAPPER.configure(Feature.ALLOW_SINGLE_QUOTES, true);
     }
-    
+
     private static final JsonFactory JSON_FAC = new JsonFactory();
-    
+
     // The streaming JSON data source object
     private JSONDataSource datasource;
-    
+
     // GSON json object model associated with this JSONType object
     private JsonNode value;
 
@@ -58,7 +58,7 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
 
     // Output stream to write message out to the socket
     private OutputStream outputStream;
-    
+
     /**
      * Initialize a {@link BJSON} from a {@link com.google.gson.JsonElement} object.
      *
@@ -76,7 +76,7 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     public BJSON(String jsonString) {
         this(jsonString, null);
     }
-    
+
     /**
      * Initialize a {@link BJSON} from a streaming datasource.
      * @param datasource
@@ -103,7 +103,7 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
                 this.schema = OBJECT_MAPPER.readTree(schema);
             }
         } catch (IOException e) {
-            throw new BallerinaException("Error in creating JSON content: " + 
+            throw new BallerinaException("Error in creating JSON content: " +
                     jsonString + " - " + schema, e);
         }
     }
@@ -209,7 +209,7 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
         }
         return this.value;
     }
-    
+
     @Override
     public String stringValue() {
         try {
@@ -218,20 +218,25 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
             throw new BallerinaException("Error in converting JsonNode to String", e);
         }
     }
-    
+
+    @Override
+    public String getMessageAsString() {
+        return this.value.toString();
+    }
+
     /**
      * This represents a JSON data source implementation, which should be used for custom JSON
      * streaming implementations.
      */
     public static interface JSONDataSource {
-        
+
         /**
          * Serializes the current representation of the JSON data source to the given {@link JsonGenerator}.
          * @param gen The {@link JsonGenerator} object to write the data to
          * @throws IOException Error occurs while serializing
          */
         void serialize(JsonGenerator gen) throws IOException;
-        
+
     }
 
 }

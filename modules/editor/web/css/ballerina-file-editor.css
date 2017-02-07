@@ -93,7 +93,7 @@
 }
 
 .text-editor{
-    height: 91%;
+    height: calc(100% - 80px);
 }
 
 .view-source-btn{

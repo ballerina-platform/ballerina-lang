@@ -75,7 +75,8 @@ public class StringDataSource extends BallerinaMessageDataSource {
         this.outputStream = outputStream;
     }
 
-    public StringDataSource getString() {
-        return this;
+    @Override
+    public String getMessageAsString() {
+        return this.value;
     }
 }
