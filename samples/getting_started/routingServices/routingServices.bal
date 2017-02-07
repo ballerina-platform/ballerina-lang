@@ -12,15 +12,12 @@ service contentBasedRouting {
         http:HTTPConnector nyseEP = create http:HTTPConnector("http://localhost:9090/nyseStocks");
         http:HTTPConnector nasdaqEP = create http:HTTPConnector("http://localhost:9090/nasdaqStocks");
 
+        string nyseString = "nyse";
+
+        json jsonMsg = message:getJsonPayload(m);
+        string nameString = json:getString(jsonMsg, "$.name");
+
         message response = {};
-        json jsonMsg;
-        string nameString;
-        string nyseString;
-
-        nyseString = "nyse";
-
-        jsonMsg = message:getJsonPayload(m);
-        nameString = json:getString(jsonMsg, "$.name");
 
         if (nameString == nyseString) {
             response = http:HTTPConnector.post(nyseEP, "/", m);
@@ -41,14 +38,11 @@ service headerBasedRouting {
         http:HTTPConnector nyseEP = create http:HTTPConnector("http://localhost:9090/nyseStocks");
         http:HTTPConnector nasdaqEP = create http:HTTPConnector("http://localhost:9090/nasdaqStocks");
 
+        string nyseString = "nyse";
+
+        string nameString = message:getHeader(m, "name");
+
         message response = {};
-        string nameString;
-        string nyseString;
-
-        nyseString = "nyse";
-
-
-        nameString = message:getHeader(m, "name");
 
         if (nameString == nyseString) {
             response = http:HTTPConnector.post(nyseEP, "/", m);
@@ -67,9 +61,8 @@ service nyseStockQuote {
     resource stocks (message m) {
 
         message response = {};
-        json payload;
 
-        payload = `{"exchange":"nyse", "name":"IBM", "value":"127.50"}`;
+        json payload = `{"exchange":"nyse", "name":"IBM", "value":"127.50"}`;
         message:setJsonPayload(response, payload);
 
         reply response;
@@ -83,9 +76,8 @@ service nasdaqStocksQuote {
     resource stocks (message m) {
 
         message response = {};
-        json payload;
 
-        payload = `{"exchange":"nasdaq", "name":"IBM", "value":"127.50"}`;
+        json payload = `{"exchange":"nasdaq", "name":"IBM", "value":"127.50"}`;
         message:setJsonPayload(response, payload);
 
         reply response;
