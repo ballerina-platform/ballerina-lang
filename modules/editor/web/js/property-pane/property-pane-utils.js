@@ -42,7 +42,7 @@ define(['require', 'lodash', 'jquery'], function (require, _, $) {
         });
 
         function createTextBox(property, propertyWrapper) {
-            var propertyTitle = $("<span>" + property.key + " :<span/>").appendTo(propertyWrapper);
+            $("<span>" + property.key + " :<span/>").appendTo(propertyWrapper);
             var propertyValue = _.isNil(property.getterMethod.call(property.model)) ? "" : property.getterMethod.call(property.model);
             var propertyInputValue = $("<input type='text' value='" + propertyValue + "'>").appendTo(propertyWrapper);
             $(propertyInputValue).on("change paste keyup", function () {

@@ -41,7 +41,7 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
                 }
             }, this);
         };
-
+        
         BallerinaASTRootVisitor.prototype.canVisitBallerinaASTRoot = function (serviceDefinition) {
             return true;
         };
