@@ -2,6 +2,8 @@ import ballerina.lang.map;
 import ballerina.lang.array;
 
 function testLength(map data)(int){
+string[] str;
+str = ["ss"];
     return map:length(data);
 }
 
