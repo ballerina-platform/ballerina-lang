@@ -9,10 +9,10 @@ service contentBasedRouting {
     @POST
     resource cbrResource (message m) {
 
-        http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090/nyseStocks");
-        http:HTTPConnector nasdaqEP = new http:HTTPConnector("http://localhost:9090/nasdaqStocks");
+        http:HTTPConnector nyseEP = create http:HTTPConnector("http://localhost:9090/nyseStocks");
+        http:HTTPConnector nasdaqEP = create http:HTTPConnector("http://localhost:9090/nasdaqStocks");
 
-        message response;
+        message response = {};
         json jsonMsg;
         string nameString;
         string nyseString;
@@ -38,10 +38,10 @@ service headerBasedRouting {
     @GET
     resource cbrResource (message m) {
 
-        http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090/nyseStocks");
-        http:HTTPConnector nasdaqEP = new http:HTTPConnector("http://localhost:9090/nasdaqStocks");
+        http:HTTPConnector nyseEP = create http:HTTPConnector("http://localhost:9090/nyseStocks");
+        http:HTTPConnector nasdaqEP = create http:HTTPConnector("http://localhost:9090/nasdaqStocks");
 
-        message response;
+        message response = {};
         string nameString;
         string nyseString;
 
@@ -66,7 +66,7 @@ service nyseStockQuote {
     @POST
     resource stocks (message m) {
 
-        message response;
+        message response = {};
         json payload;
 
         payload = `{"exchange":"nyse", "name":"IBM", "value":"127.50"}`;
@@ -82,7 +82,7 @@ service nasdaqStocksQuote {
     @POST
     resource stocks (message m) {
 
-        message response;
+        message response = {};
         json payload;
 
         payload = `{"exchange":"nasdaq", "name":"IBM", "value":"127.50"}`;
