@@ -16,23 +16,15 @@
 
 package org.ballerinalang.plugins.idea.psi;
 
-import com.intellij.psi.PsiElement;
+import com.intellij.lang.ASTNode;
+import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
+import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
+import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
 import org.jetbrains.annotations.NotNull;
 
-public class FunctionReference extends BallerinaElementReference {
+public class AnnotationNameNode extends IdentifierDefSubtree {
 
-    public FunctionReference(@NotNull IdentifierPSINode element) {
-        super(element);
-    }
-
-    @Override
-    public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof FunctionDefinitionNode;
-    }
-
-    @NotNull
-    @Override
-    public Object[] getVariants() {
-        return new Object[]{"function1","function2"};
+    public AnnotationNameNode(@NotNull ASTNode node) {
+        super(node, BallerinaParserDefinition.ID);
     }
 }

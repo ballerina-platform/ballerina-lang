@@ -17,6 +17,7 @@
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.tree.IElementType;
@@ -100,12 +101,27 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
         // do not return a reference for the ID nodes in a definition
         if (elType instanceof RuleIElementType) {
             switch (((RuleIElementType) elType).getRuleIndex()) {
+                //                case RULE_compilationUnit:
+                //                    return new CompilationUnitReference(this);
+                case RULE_importDeclaration:
+                    return new ImportReference(this);
                 case RULE_callableUnitName:
+                    //                case RULE_functionDefinition:
                     return new FunctionReference(this);
                 case RULE_variableReference:
                     return new VariableReference(this);
                 case RULE_packageName:
                     return new PackageNameReference(this);
+                default:
+                    return new Reference(this);
+            }
+        }
+
+        if (parent instanceof PsiErrorElement) {
+            if (parent.getParent() instanceof CompilationUnitNode) {
+                return new Reference(this);
+            }else  if (parent.getParent() instanceof StatementNode) {
+                return new StatementReference(this);
             }
         }
         return null;

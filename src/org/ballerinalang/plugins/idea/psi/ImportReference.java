@@ -19,9 +19,9 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 
-public class FunctionReference extends BallerinaElementReference {
+public class ImportReference extends BallerinaElementReference {
 
-    public FunctionReference(@NotNull IdentifierPSINode element) {
+    public ImportReference(@NotNull IdentifierPSINode element) {
         super(element);
     }
 
@@ -33,6 +33,6 @@ public class FunctionReference extends BallerinaElementReference {
     @NotNull
     @Override
     public Object[] getVariants() {
-        return new Object[]{"function1","function2"};
+        return new Object[]{"import"};
     }
 }

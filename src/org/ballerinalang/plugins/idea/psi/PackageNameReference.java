@@ -17,6 +17,7 @@
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiErrorElement;
 import org.jetbrains.annotations.NotNull;
 
 public class PackageNameReference extends BallerinaElementReference {
@@ -28,5 +29,11 @@ public class PackageNameReference extends BallerinaElementReference {
     @Override
     public boolean isDefinitionNode(PsiElement def) {
         return def.getParent() instanceof PackagePathNode && def instanceof PackageNameNode;
+    }
+
+    @NotNull
+    @Override
+    public Object[] getVariants() {
+        return new Object[]{"package1", "package2"};
     }
 }

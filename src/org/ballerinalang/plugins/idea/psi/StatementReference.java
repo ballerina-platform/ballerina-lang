@@ -13,26 +13,25 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 
-public class FunctionReference extends BallerinaElementReference {
+public class StatementReference extends BallerinaElementReference {
 
-    public FunctionReference(@NotNull IdentifierPSINode element) {
+    public StatementReference(@NotNull IdentifierPSINode element) {
         super(element);
     }
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof FunctionDefinitionNode;
+        return false;
     }
 
     @NotNull
     @Override
     public Object[] getVariants() {
-        return new Object[]{"function1","function2"};
+        return new Object[]{"st1", "st2"};
     }
 }

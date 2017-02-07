@@ -18,6 +18,7 @@ package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.PsiReferenceBase;
@@ -57,12 +58,6 @@ public abstract class BallerinaElementReference extends PsiReferenceBase<Identif
         //			                   ") on "+myElement+" at "+Integer.toHexString(myElement.hashCode()));
 
         return myElement.setName(newElementName);
-    }
-
-    @NotNull
-    @Override
-    public Object[] getVariants() {
-        return new Object[0];
     }
 
     /**

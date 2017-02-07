@@ -16,23 +16,13 @@
 
 package org.ballerinalang.plugins.idea.psi;
 
-import com.intellij.psi.PsiElement;
+import com.intellij.lang.ASTNode;
+import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
-public class FunctionReference extends BallerinaElementReference {
+public class StatementNode extends ANTLRPsiNode {
 
-    public FunctionReference(@NotNull IdentifierPSINode element) {
-        super(element);
-    }
-
-    @Override
-    public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof FunctionDefinitionNode;
-    }
-
-    @NotNull
-    @Override
-    public Object[] getVariants() {
-        return new Object[]{"function1","function2"};
+    public StatementNode(@NotNull ASTNode node) {
+        super(node);
     }
 }

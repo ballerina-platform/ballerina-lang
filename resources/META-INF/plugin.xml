@@ -59,7 +59,12 @@
         <lang.psiStructureViewFactory language="Ballerina"
                                       implementationClass="org.ballerinalang.plugins.idea.structureview.BallerinaStructureViewFactory"/>
 
-        <lang.ast.factory language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.BallerinaASTFactory"/>
+        <lang.ast.factory language="Ballerina"
+                          implementationClass="org.ballerinalang.plugins.idea.BallerinaASTFactory"/>
+
+        <!--completion-->
+        <completion.contributor language="Ballerina"
+                                implementationClass="org.ballerinalang.plugins.idea.completion.KeywordCompletionContributor"/>
 
         <!-- templates -->
         <internalFileTemplate name="Ballerina Application"/>

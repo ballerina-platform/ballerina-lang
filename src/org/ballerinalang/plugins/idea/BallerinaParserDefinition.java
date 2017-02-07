@@ -39,9 +39,12 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.ballerinalang.plugins.idea.grammar.BallerinaLexer;
 import org.ballerinalang.plugins.idea.grammar.BallerinaParser;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.AnnotationNameNode;
+import org.ballerinalang.plugins.idea.psi.AnnotationNode;
 import org.ballerinalang.plugins.idea.psi.ArgumentListNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.CallableUnitNameNode;
+import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
@@ -49,11 +52,16 @@ import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionBodyNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
+import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
+import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
+import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.jetbrains.annotations.NotNull;
@@ -189,6 +197,22 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new FunctionInvocationStatementNode(node);
             case BallerinaParser.RULE_argumentList:
                 return new ArgumentListNode(node);
+            case BallerinaParser.RULE_compilationUnit:
+                return new CompilationUnitNode(node);
+            case BallerinaParser.RULE_packageDeclaration:
+                return new PackageDeclarationNode(node);
+            case BallerinaParser.RULE_annotation:
+                return new AnnotationNode(node);
+            case BallerinaParser.RULE_annotationName:
+                return new AnnotationNameNode(node);
+            case BallerinaParser.RULE_serviceBody:
+                return new ServiceBodyNode(node);
+            case BallerinaParser.RULE_importDeclaration:
+                return new ImportDeclarationNode(node);
+            case BallerinaParser.RULE_statement:
+                return new StatementNode(node);
+            case BallerinaParser.RULE_simpleType:
+                return new SimpleTypeNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

@@ -29,4 +29,11 @@ public class VariableReference extends BallerinaElementReference {
     public boolean isDefinitionNode(PsiElement def) {
         return def instanceof VariableDefinitionNode || def instanceof ParameterNode;
     }
+
+    @NotNull
+    @Override
+    public Object[] getVariants() {
+        return new Object[]{"var1", "var2"};
+    }
+
 }
