@@ -101,6 +101,12 @@ public class CustomNativeFunctionInvocationTest {
         Assert.assertEquals(returns[0].stringValue(), s1);
     }
 
+    @Test(description = "Test defining a ballerina function which has a similar signature as a native function.")
+    public void testDefiningSimilarNativeFunctionInCustomPackage() {
+        bFile = ParserUtils.parseBalFile("samples/duplicate-native-function.bal", globalScope);
+        Assert.assertEquals(bFile.getFunctions().length, 1);
+    }
+
     @Test(expectedExceptions = ArgumentOutOfRangeException.class,
           expectedExceptionsMessageRegExp = "Parameter index out of range2")
     public void testInvalidParamCountNativeFunctionInvocation() {
