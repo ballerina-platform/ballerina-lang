@@ -17,7 +17,7 @@
  */
 define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/function-definition', './default-worker',
         'd3utils', 'd3', './worker-declaration-view', './statement-view-factory', './point', './axis',
-        './connector-declaration-view', './statement-container', './variables-view', './function-arguments-view',
+        './connector-declaration-view', './statement-container', './variable-definitions-pane-view', './function-arguments-view',
         './return-types-pane-view', 'ballerina/ast/ballerina-ast-factory'],
     function (_, log, EventChannel, Alerts, SVGCanvas, FunctionDefinition, DefaultWorkerView,
               D3Utils, d3, WorkerDeclarationView, StatementViewFactory, Point, Axis,

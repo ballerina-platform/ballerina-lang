@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'require'],
-    function (log, _, require) {
+define(['log', 'lodash', 'require', 'event_channel'],
+    function (log, _, require, EventChannel) {
 
         /**
          * @class Connector
@@ -25,11 +25,14 @@ define(['log', 'lodash', 'require'],
          * @constructor
          */
         var Connector = function (args) {
+            EventChannel.call(this, args);
             this._name = _.get(args, 'name', '');
             this._actions = _.get(args, 'actions', []);
-            this._title = _.get(args, 'title', '');
             this.BallerinaEnvFactory = require('./ballerina-env-factory');
         };
+
+        Connector.prototype = Object.create(EventChannel.prototype);
+        Connector.prototype.constructor = Connector;
 
         Connector.prototype.setName = function (name) {
             this._name = name;
@@ -39,16 +42,9 @@ define(['log', 'lodash', 'require'],
             return this._name;
         };
 
-        Connector.prototype.setTitle = function (title) {
-            this._title = title;
-        };
-
-        Connector.prototype.getTitle = function () {
-            return this._title;
-        };
-
         Connector.prototype.addAction = function (action) {
             this._actions.push(action);
+            this.trigger("connector-action-added", action);
         };
 
         Connector.prototype.getActions = function (action) {
@@ -59,7 +55,6 @@ define(['log', 'lodash', 'require'],
             var self = this;
 
             this.setName(jsonNode.name);
-            this.setTitle(jsonNode.name);
 
             _.each(jsonNode.actions, function (actionNode) {
                 var action = self.BallerinaEnvFactory.createConnectorAction();
