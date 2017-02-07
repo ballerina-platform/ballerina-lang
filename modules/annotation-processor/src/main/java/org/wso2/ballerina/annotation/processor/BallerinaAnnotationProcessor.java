@@ -129,6 +129,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
      * 
      * @param balFunctionElements   Elements annotated with {@link BallerinaFunction}
      * @param classBuilder          Builder to generate the source class
+     * @param nativeBallerinaFileBuilder Builder to generate the native ballerina files
      */
     private void processNativeFunctions(Set<Element> balFunctionElements, ConstructProviderClassBuilder classBuilder,
             NativeBallerinaFileBuilder nativeBallerinaFileBuilder) {
@@ -148,6 +149,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
      * 
      * @param balConnectorElements  Elements annotated with {@link BallerinaConnector}
      * @param classBuilder          Builder to generate the source class
+     * @param nativeBallerinaFileBuilder Builder to generate the native ballerina files
      */
     private void processNativeConnectors(Set<Element> balConnectorElements, 
             ConstructProviderClassBuilder classBuilder, NativeBallerinaFileBuilder nativeBallerinaFileBuilder) {
@@ -167,6 +169,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
      * 
      * @param balActionElements     Elements annotated with {@link BallerinaAction}
      * @param classBuilder          Builder to generate the source class
+     * @param nativeBallerinaFileBuilder Builder to generate the native ballerina files
      */
     private void processNativeActions(Set<Element> balActionElements, ConstructProviderClassBuilder classBuilder,
             NativeBallerinaFileBuilder nativeBallerinaFileBuilder) {
@@ -186,6 +189,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
      * 
      * @param balTypeConvertorElements  Elements annotated with {@link BallerinaTypeConvertor}
      * @param classBuilder              Builder to generate the source class
+     * @param nativeBallerinaFileBuilder Builder to generate the native ballerina files
      */
     private void processNativeTypeConvertors(Set<Element> balTypeConvertorElements, 
             ConstructProviderClassBuilder classBuilder, NativeBallerinaFileBuilder nativeBallerinaFileBuilder) {

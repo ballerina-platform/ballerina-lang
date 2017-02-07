@@ -70,6 +70,11 @@ public class NativeBallerinaFileBuilder {
         });
     }
 
+    /**
+     * Add a native construct to the ballerina file builder.
+     * @param packageName name of the package which the construct is belong to
+     * @param construct native construct to be added.
+     */
     public void addNativeConstruct(String packageName, Object construct) {
         NativeBallerinaPackage nativeBallerinaPackage = nativePackages.get(packageName);
         if (nativeBallerinaPackage == null) {
