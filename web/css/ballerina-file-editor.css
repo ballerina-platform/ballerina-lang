@@ -600,11 +600,15 @@
 /** End of Struct view CSS **/
 
 span.package-pane {
-    padding: 10px;
+    padding: 5px;
     margin-left: -20px;
     background-color: #fff;
     border: 1px solid #f0f0f0;
     display: none;
+    position: absolute;
+    top: 20px;
+    left: 309px;
+    color: #333;
 }
 span.package-name-wrapper {
     margin-left: 10px;
@@ -626,7 +630,7 @@ input#package-name-input {
     cursor: pointer;
 }
 .package-definition-main-wrapper{
-    margin-bottom: 1em;
+    height: 50px;
 }
 .tooltip-inner {
     white-space:nowrap;
