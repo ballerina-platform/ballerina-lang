@@ -954,7 +954,18 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(MapInitExpr mapInitExpr) {
-        //TODO
+        JsonObject mapInitExprObj = new JsonObject();
+        mapInitExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.MAP_INIT_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        if(mapInitExpr.getArgExprs() != null) {
+            for(Expression expression : mapInitExpr.getArgExprs()) {
+                expression.accept(this);
+            }
+        }
+        mapInitExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(mapInitExprObj);
     }
 
     @Override
@@ -1008,7 +1019,13 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(KeyValueExpression arrayMapAccessExpr) {
-        //TODO
+        JsonObject keyValueEprObj = new JsonObject();
+        keyValueEprObj.addProperty(BLangJSONModelConstants.KEY_VALUE_EXPRESSION_KEY, arrayMapAccessExpr.getKey());
+        tempJsonArrayRef.push(new JsonArray());
+        arrayMapAccessExpr.getValueExpression().accept(this);
+        keyValueEprObj.add("expression", tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(keyValueEprObj);
     }
     
     @Override
