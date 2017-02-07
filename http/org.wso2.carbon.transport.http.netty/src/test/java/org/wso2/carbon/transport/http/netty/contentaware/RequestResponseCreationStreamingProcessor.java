@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
+import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.MessageProcessorException;
 import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.messaging.TransportSender;
@@ -83,6 +84,11 @@ public class RequestResponseCreationStreamingProcessor implements CarbonMessageP
     @Override
     public void setTransportSender(TransportSender transportSender) {
         this.transportSender = transportSender;
+    }
+
+    @Override
+    public void setClientConnector(ClientConnector clientConnector) {
+
     }
 
     @Override

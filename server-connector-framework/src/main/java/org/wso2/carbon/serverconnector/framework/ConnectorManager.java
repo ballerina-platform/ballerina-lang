@@ -18,6 +18,7 @@
 package org.wso2.carbon.serverconnector.framework;
 
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
+import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 import org.wso2.carbon.messaging.ServerConnectorProvider;
@@ -30,13 +31,15 @@ import java.util.Optional;
 import java.util.ServiceLoader;
 
 /**
- * {@code ServerConnectorManager} is responsible for managing all the server connectors with ballerina runtime.
+ * {@code ServerConnectorManager} is responsible for managing all the server connectors with an application runtime.
  * For an application that uses the transport framework, this manager uses the same message processor instance
  * used with initializing.
  */
-public class ServerConnectorManager {
+public class ConnectorManager {
 
     private Map<String, ServerConnector> serverConnectors = new HashMap<>();
+
+    private Map<String, ClientConnector> clientConnectors = new HashMap<>();
 
     private Map<String, ServerConnectorProvider> serverConnectorProviders = new HashMap<>();
 
@@ -48,15 +51,20 @@ public class ServerConnectorManager {
         serverConnectors.put(serverConnector.getId(), serverConnector);
     }
 
-    private void initializeConnectors() throws ServerConnectorException {
+    private void registerClientConnector(ClientConnector clientConnector) {
+        clientConnectors.put(clientConnector.getProtocol(), clientConnector);
+    }
+
+
+    private void initializeServerConnectors() throws ServerConnectorException {
         for (ServerConnector connector : serverConnectors.values()) {
             connector.initConnector();
         }
     }
 
     /**
-     * Returns the server connector instance associated with the given.
-     * @param id the identified of the server connector.
+     * Returns the server connector instance associated with the given protocol.
+     * @param id the identifier of the server connector.
      * @return server connector instance.
      */
     public ServerConnector getServerConnector(String id) {
@@ -85,6 +93,15 @@ public class ServerConnectorManager {
         serverConnector.setMessageProcessor(messageProcessor);
         registerServerConnector(serverConnector);
         return serverConnector;
+    }
+
+    /**
+     * Returns the client connector instance associated with the given protocol.
+     * @param protocol of the client connector.
+     * @return client connector instance.
+     */
+    public ClientConnector getClientConnector(String protocol) {
+        return clientConnectors.get(protocol);
     }
 
     private void registerServerConnectorProvider(ServerConnectorProvider serverConnectorProvider) {
@@ -141,12 +158,19 @@ public class ServerConnectorManager {
                     });
                 });
 
-        //2. Loading transport listener error handlers
+        //2. Loading server connector error handlers
         ServiceLoader<ServerConnectorErrorHandler> errorHandlerLoader =
                 ServiceLoader.load(ServerConnectorErrorHandler.class);
         errorHandlerLoader.forEach(this::registerServerConnectorErrorHandler);
 
-        //3. Initialize all the connectors
-        initializeConnectors();
+        //3. Initialize all server connectors
+        initializeServerConnectors();
+    }
+
+    public void initializeClientConnectors() {
+        // Loading client connectors
+        ServiceLoader<ClientConnector> clientConnectorLoader =
+                ServiceLoader.load(ClientConnector.class);
+        clientConnectorLoader.forEach(this::registerClientConnector);
     }
 }
