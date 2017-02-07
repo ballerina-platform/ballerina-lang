@@ -47,6 +47,12 @@ public class SimpleTypeName {
         this(name, null, null);
         this.isArrayType = isArrayType;
     }
+    
+    public SimpleTypeName(String name, String pkgPath, boolean isArrayType) {
+        this(name, null, null);
+        this.isArrayType = isArrayType;
+        this.pkgPath = pkgPath;
+    }
 
     public String getName() {
         return name;
