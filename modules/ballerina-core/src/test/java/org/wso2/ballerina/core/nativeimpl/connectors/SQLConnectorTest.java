@@ -196,18 +196,6 @@ public class SQLConnectorTest {
 
     @AfterSuite
     public void cleanup() {
-        deleteDirectory(new File("./target/tempdb"));
-    }
-
-    private boolean deleteDirectory(File directory) {
-        if (directory.isDirectory()) {
-            for (File f : directory.listFiles()) {
-                boolean success = deleteDirectory(f);
-                if (!success) {
-                    return false;
-                }
-            }
-        }
-        return directory.delete();
+        SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));
     }
 }
