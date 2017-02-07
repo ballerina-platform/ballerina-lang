@@ -21,6 +21,7 @@ package org.wso2.ballerina.lang.expressions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BLong;
@@ -56,26 +57,20 @@ public class PowExpressionTest {
         longPow(-2, 4, -2 ^ 4);
     }
 
-    @Test(description = "Test float pow expression")
+    @Test(description = "Test float pow expression",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "pow-float-expr.bal:2: invalid operation: operator \\^ " +
+                    "not defined on 'float'")
     public void testFloatDivideExpr() {
-        String errorMessage = "";
-        try {
-            ParserUtils.parseBalFile("lang/expressions/pow-float-expr.bal");
-        } catch (Exception e) {
-            errorMessage = e.getMessage();
-        }
-        Assert.assertTrue(errorMessage.contains("Error: operator ^ cannot be applied to type float"));
+        ParserUtils.parseBalFile("lang/expressions/pow-float-expr.bal");
     }
 
-    @Test(description = "Test double pow expression")
+    @Test(description = "Test double pow expression",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "pow-double-expr.bal:2: invalid operation: operator \\^ " +
+                    "not defined on 'double'")
     public void testDoubleDivideExpr() {
-        String errorMessage = "";
-        try {
-            ParserUtils.parseBalFile("lang/expressions/pow-double-expr.bal");
-        } catch (Exception e) {
-            errorMessage = e.getMessage();
-        }
-        Assert.assertTrue(errorMessage.contains("Error: operator ^ cannot be applied to type double"));
+        ParserUtils.parseBalFile("lang/expressions/pow-double-expr.bal");
     }
 
     private void intPow(int val1, int val2, int expected) {

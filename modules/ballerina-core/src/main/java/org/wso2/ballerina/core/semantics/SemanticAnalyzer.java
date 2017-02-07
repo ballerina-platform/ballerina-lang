@@ -979,10 +979,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             powExpression.setEvalFunc(PowExpression.POW_LONG_FUNC);
 
         } else if (arithmeticExprType == BTypes.typeFloat) {
-            throw new SemanticException("Error: operator ^ cannot be applied to type float");
+            throwInvalidBinaryOpError(powExpression);
 
         } else if (arithmeticExprType == BTypes.typeDouble) {
-            throw new SemanticException("Error: operator ^ cannot be applied to type double");
+            throwInvalidBinaryOpError(powExpression);
 
         } else {
             throwInvalidBinaryOpError(powExpression);
