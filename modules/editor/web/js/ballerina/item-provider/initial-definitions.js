@@ -135,7 +135,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             name: "VariableDefinition",
             icon: "images/variable.svg",
             title: "Variable Definition",
-            nodeFactoryMethod: BallerinaASTFactory.createVariableDefinitionStatement
+            nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createVariableDefinitionStatement
         };
 
         var createFunctionInvocationTool = {
