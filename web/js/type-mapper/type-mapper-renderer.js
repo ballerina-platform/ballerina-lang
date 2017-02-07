@@ -36,7 +36,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
 
         this.jsPlumbInstance = jsPlumb.getInstance({
-            Connector :  [ "Flowchart", { midpoint: self.midpoint } ],
+            Connector :  self.getConnectorConfig(self.midpoint),
             Container :this.placeHolderName ,
             PaintStyle : {
                 strokeWidth: 2,
@@ -45,6 +45,12 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 cssClass:"plumbConnect",
                 outlineStroke: "#F7F7F7",
                 outlineWidth: 2
+            },
+            HoverPaintStyle : {
+                strokeWidth: 3,
+                stroke: "#216477",
+                outlineWidth: 4,
+                outlineStroke: "white"
             },
             EndpointStyle : { radius:1 },
             ConnectionOverlays: [
@@ -93,7 +99,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             };
 
             self.midpoint= self.midpoint - self.midpointVariance;
-            self.jsPlumbInstance.importDefaults({ Connector :  [ "Flowchart", { midpoint: self.midpoint }]});
+            self.jsPlumbInstance.importDefaults({ Connector : self.getConnectorConfig(self.midpoint)});
 
             jsPlumbInst.detach(connection);
             positionFunc(viewId, jsPlumbInst);
@@ -340,7 +346,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
                 if (isValidTypes) {
                     self.midpoint= self.midpoint + self.midpointVariance;
-                    self.jsPlumbInstance.importDefaults({ Connector :  [ "Flowchart", { midpoint: self.midpoint }]});
+                    self.jsPlumbInstance.importDefaults({ Connector : self.getConnectorConfig(self.midpoint)});
                     callback(connection);
                 } else {
                     var compatibleTypeConverters = [];
@@ -442,7 +448,15 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         }
     };
 
+    /**
+     * Give the flow chart object array for given midpoint
+     * @param {int} midPoint point which flow chart connection should bend
+     * @returns {*[]} flow chart object array
+     */
+    TypeMapperRenderer.prototype.getConnectorConfig = function (midPoint) {
+        return [ "Flowchart", { midpoint: midPoint,
+            stub: [40, 60], cornerRadius: 5, alwaysRespectStubs: true }]
+    }
+
     return TypeMapperRenderer;
 });
-
-
