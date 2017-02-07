@@ -391,6 +391,28 @@ text-anchor: start;
     stroke: #000000;
 }
 
+.worker-life-line {
+    cursor: pointer;
+}
+
+.worker-life-line text {
+    cursor: pointer;
+}
+
+.worker-life-line-top-polygon {
+    fill: white;
+    stroke: black;
+}
+
+.worker-life-line-bottom-polygon {
+    fill: white;
+    stroke: black;
+}
+
+.worker-life-line line{
+    stroke: #000000;
+}
+
 .start-action{
     stroke: #000000;
     fill: #FFFFFF;

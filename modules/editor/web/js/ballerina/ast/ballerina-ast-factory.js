@@ -278,8 +278,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * creates Variable Definition Statement
-         * @param {Object} args
+         * Creates Variable Definition Statement
+         * @param {Object} [args]
          * @returns {VariableDefinitionStatement}
          */
         BallerinaASTFactory.createVariableDefinitionStatement = function (args) {
@@ -970,6 +970,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.isConstantDefinition = function (child) {
             return child instanceof constantDefinition;
+        };
+
+        /**
+         * instanceof check for variableDefinitionStatement
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isVariableDefinitionStatement = function (child) {
+            return child instanceof variableDefinitionStatement;
         };
 
         BallerinaASTFactory.createFromJson = function (jsonNode) {
