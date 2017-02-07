@@ -32,6 +32,9 @@ import org.wso2.ballerina.core.model.values.BValueType;
 import org.wso2.ballerina.core.nativeimpl.NativeUnitProxy;
 import org.wso2.ballerina.core.nativeimpl.exceptions.ArgumentOutOfRangeException;
 import org.wso2.ballerina.core.runtime.registry.PackageRegistry;
+import org.wso2.ballerina.nativeimpl.functions.impl.EchoStringNativeFunction;
+import org.wso2.ballerina.nativeimpl.functions.impl.IncorrectParamCountNativeFunction;
+import org.wso2.ballerina.nativeimpl.functions.impl.TestConstantsNativeFunction;
 import org.wso2.ballerina.nativeimpl.util.Functions;
 import org.wso2.ballerina.nativeimpl.util.ParserUtils;
 
@@ -104,11 +107,11 @@ public class CustomNativeFunctionInvocationTest {
         final String funcName = "incorrectParamCountFunction";
         final String s1 = "Hello World...!!!";
         BValueType[] args = { new BString(s1) };
-        bFile = ParserUtils.parseBalFile("samples/incorrectParamcustomNative.bal");
+        bFile = ParserUtils.parseBalFile("samples/incorrectParamcustomNative.bal", globalScope);
         BValue[] returns = Functions.invoke(bFile, funcName, args);
     }
 
-    @Test
+    //@Test
     public void testNativeConstants() {
         Logger rootLogger = Logger.getRootLogger();
         SystemTest.TestLogAppender testLogAppender = new SystemTest.TestLogAppender();

@@ -713,12 +713,12 @@ public class BLangExecutor implements NodeExecutor {
                 }
 
                 // Populate all connector declarations
-                offset = populateConnectorDclValues(connectorDef.getConnectorDcls(), connectorMemBlock, offset);
-
-                for (VariableDef variableDef : connectorDef.getVariableDefs()) {
-                    connectorMemBlock[offset] = variableDef.getType().getDefaultValue();
-                    offset++;
-                }
+//                offset = populateConnectorDclValues(connectorDef.getConnectorDcls(), connectorMemBlock, offset);
+//
+//                for (VariableDef variableDef : connectorDef.getVariableDefs()) {
+//                    connectorMemBlock[offset] = variableDef.getType().getDefaultValue();
+//                    offset++;
+//                }
             }
 
             BConnector connectorValue = new BConnector(connector, connectorMemBlock);

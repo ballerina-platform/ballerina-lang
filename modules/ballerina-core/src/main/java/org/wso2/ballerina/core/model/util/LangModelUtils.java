@@ -66,7 +66,7 @@ public class LangModelUtils {
     }
 
     public static SymbolName getTypeConverterSymNameWithoutPackage(BType source,
-                                                     BType target) {
+                                                                   BType target) {
         return new SymbolName("ballerina.lang.convertors:" + "_" + source + "->" + "_" + target);
     }
 
@@ -97,14 +97,14 @@ public class LangModelUtils {
 
         return new SymbolName(sBuilder.toString());
     }
-    
+
     /**
      * Get the symbol name of a struct field.
-     * 
-     * @param fieldName         Local name of the field
-     * @param structName        Name os the struct to which this field belongs to
-     * @param pkgPath           Package name of the struct
-     * @return                  Symbol name of a struct field
+     *
+     * @param fieldName  Local name of the field
+     * @param structName Name os the struct to which this field belongs to
+     * @param pkgPath    Package name of the struct
+     * @return Symbol name of a struct field
      */
     public static SymbolName getStructFieldSymName(String fieldName, String structName, String pkgPath) {
         String prefix;
