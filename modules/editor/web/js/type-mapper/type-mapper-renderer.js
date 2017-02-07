@@ -27,11 +27,11 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     var TypeMapperRenderer = function (onConnectionCallback, onDisconnectCallback, typeConverterView) {
         this.references = [];
         this.viewId = typeConverterView._model.id;
-        this.placeHolderName = "data-mapper-container" + this.viewIdSeperator + this.viewId;
         this.viewIdSeperator = "___";
         this.sourceTargetSeperator = "_--_";
         this.idNameSeperator = "_-_-_-";
         this.nameTypeSeperator = "---";
+        this.placeHolderName = "data-mapper-container" + this.viewIdSeperator + this.viewId;
         this.onConnection = onConnectionCallback;
         this.typeConverterView = typeConverterView;
         this.midpoint = 0.01;
@@ -76,7 +76,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             self.midpoint = self.midpoint - self.midpointVariance;
             self.jsPlumbInstance.importDefaults({Connector: ["Flowchart", {midpoint: self.midpoint}]});
             self.jsPlumbInstance.detach(connection);
-            self.dagrePosition(self.placeHolderName, jsPlumbInst);
+            self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
             onDisconnectCallback(propertyConnection);
         });
 
@@ -373,183 +373,181 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         var jsTreeContainer = $('<div>').attr('id', 'jstree-container' + this.viewIdSeperator + struct.id);
         newStruct.append(jsTreeContainer);
         $("#" + this.placeHolderName).append(newStruct);
+    };
 
-        /**
-         * Add a function in the mapper UI
-         * @param {object} function definition with parameters to be mapped
-         * @param {object} reference AST model reference
-         */
-        TypeMapperRenderer.prototype.addFunction = function (func, reference) {
-            this.references.push({name: func.name, refObj: reference});
-            var newFunc = $('<div>').attr('id', func.name).addClass('func');
-            var self = this;
-            var funcName = $('<div>').addClass('struct-name').text(func.name);
-            newFunc.append(funcName);
+    /**
+     * Add a function in the mapper UI
+     * @param {object} function definition with parameters to be mapped
+     * @param {object} reference AST model reference
+     */
+    TypeMapperRenderer.prototype.addFunction = function (func, reference) {
+        this.references.push({name: func.name, refObj: reference});
+        var newFunc = $('<div>').attr('id', func.name).addClass('func');
+        var self = this;
+        var funcName = $('<div>').addClass('struct-name').text(func.name);
+        newFunc.append(funcName);
 
-            newFunc.css({
-                'top': 0,
-                'left': 0
-            });
+        newFunc.css({
+            'top': 0,
+            'left': 0
+        });
 
-            $("#" + this.placeHolderName).append(newFunc);
+        $("#" + this.placeHolderName).append(newFunc);
 
-            var funcContent = $('#' + func.name);
+        var funcContent = $('#' + func.name);
 
-            _.forEach(func.parameters, function (parameter) {
-                self.addTargetProperty(funcContent, parameter.name, parameter.type);
-            });
+        _.forEach(func.parameters, function (parameter) {
+            self.addTargetProperty(funcContent, parameter.name, parameter.type);
+        });
 
-            this.addSourceProperty(funcContent, "output", func.returnType);
-            this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
+        this.addSourceProperty(funcContent, "output", func.returnType);
+        this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
 
-        };
+    };
 
-        /**
-         * Make Property DIV element
-         * @param {string} parentId identifier of the parent of the property
-         * @param {string} name property name
-         * @param {string} type property type
-         * @returns {*|jQuery}
-         */
-        TypeMapperRenderer.prototype.makeProperty = function (parentId, name, type) {
-            var id = parentId.selector.replace("#", "") + this.idNameSeperator + name + this.nameTypeSeperator + type;
-            var ul = $('<ul class="property">');
-            var li = $('<li class="property">').attr('id', id).text(name + " : " + type);
-            ul.append(li);
-            $(parentId).append(ul);
-            return li;
-        };
+    /**
+     * Make Property DIV element
+     * @param {string} parentId identifier of the parent of the property
+     * @param {string} name property name
+     * @param {string} type property type
+     * @returns {*|jQuery}
+     */
+    TypeMapperRenderer.prototype.makeProperty = function (parentId, name, type) {
+        var id = parentId.selector.replace("#", "") + this.idNameSeperator + name + this.nameTypeSeperator + type;
+        var ul = $('<ul class="property">');
+        var li = $('<li class="property">').attr('id', id).text(name + " : " + type);
+        ul.append(li);
+        $(parentId).append(ul);
+        return li;
+    };
 
-        /**
-         * Make Source property
-         * @param {string} parentId identifier of the parent of the property
-         * @param {string} name property name
-         * @param {string} type property type
-         */
-        TypeMapperRenderer.prototype.addSource = function (element) {
-            this.jsPlumbInstance.makeSource(element, {
-                anchor: ["Continuous", {faces: ["right"]}]
-            });
-        };
+    /**
+     * Make Source property
+     * @param {string} parentId identifier of the parent of the property
+     * @param {string} name property name
+     * @param {string} type property type
+     */
+    TypeMapperRenderer.prototype.addSource = function (element) {
+        this.jsPlumbInstance.makeSource(element, {
+            anchor: ["Continuous", {faces: ["right"]}]
+        });
+    };
 
-        /**
-         * Make Target property
-         * @param {string} parentId identifier of the parent of the property
-         * @param {string} name property name
-         * @param {string} type property type
-         */
-        TypeMapperRenderer.prototype.addTarget = function (element) {
-            var callback = this.onConnection;
-            var refObjects = this.references;
-            var seperator = this.idNameSeperator;
-            var typeConverterObj = this.typeConverterView;
-            var placeHolderName = this.placeHolderName;
-            var jsPlumbInst = this.jsPlumbInstance;
-            var positionFunction = this.dagrePosition;
-            var self = this;
+    /**
+     * Make Target property
+     * @param {string} parentId identifier of the parent of the property
+     * @param {string} name property name
+     * @param {string} type property type
+     */
+    TypeMapperRenderer.prototype.addTarget = function (element) {
+        var callback = this.onConnection;
+        var refObjects = this.references;
+        var seperator = this.idNameSeperator;
+        var typeConverterObj = this.typeConverterView;
+        var placeHolderName = this.placeHolderName;
+        var jsPlumbInst = this.jsPlumbInstance;
+        var positionFunction = this.dagrePosition;
+        var self = this;
 
 
-            var c = this.jsPlumbInstance.makeTarget(element, {
-                    maxConnections: 1,
-                    anchor: ["Continuous", {faces: ["left"]}],
+        this.jsPlumbInstance.makeTarget(element, {
+            maxConnections: 1,
+            anchor: ["Continuous", {faces: ["left"]}],
 
-                    beforeDrop: function (params) {
-                        //Checks property types are equal
-                        var isValidTypes = self.getPropertyType(params.sourceId) == self.getPropertyType(params.targetId);
-                        var connection = self.getConnectionObject(params.sourceId, params.targetId);
-                        if (isValidTypes) {
-                            self.midpoint = self.midpoint + self.midpointVariance;
-                            self.jsPlumbInstance.importDefaults({Connector: ["Flowchart", {midpoint: self.midpoint}]});
-                            callback(connection);
-                        } else {
-                            var compatibleTypeConverters = self.getExistingTypeMappers(typeConverterObj,
-                                connection.sourceType, connection.targetType);
-                            isValidTypes = compatibleTypeConverters.length > 0;
-                            if (isValidTypes) {
-                                connection.isComplexMapping = true;
-                                connection.complexMapperName = compatibleTypeConverters[0];
-                                callback(connection);
-                            } else {
-                                alerts.error("There is no valid type mapper existing to covert from : " + connection.sourceType
-                                    + " to: " + connection.targetType);
-                            }
-                        }
-                        return isValidTypes;
-                    },
-
-                    onDrop: function () {
-                        positionFunction(placeHolderName, jsPlumbInst);
+            beforeDrop: function (params) {
+                //Checks property types are equal
+                var isValidTypes = self.getPropertyType(params.sourceId) == self.getPropertyType(params.targetId);
+                var connection = self.getConnectionObject(params.sourceId, params.targetId);
+                if (isValidTypes) {
+                    self.midpoint = self.midpoint + self.midpointVariance;
+                    self.jsPlumbInstance.importDefaults({Connector: ["Flowchart", {midpoint: self.midpoint}]});
+                    callback(connection);
+                } else {
+                    var compatibleTypeConverters = self.getExistingTypeMappers(typeConverterObj,
+                        connection.sourceType, connection.targetType);
+                    isValidTypes = compatibleTypeConverters.length > 0;
+                    if (isValidTypes) {
+                        connection.isComplexMapping = true;
+                        connection.complexMapperName = compatibleTypeConverters[0];
+                        callback(connection);
+                    } else {
+                        alerts.error("There is no valid type mapper existing to covert from : " + connection.sourceType
+                            + " to: " + connection.targetType);
                     }
-                })
-                ;
-        };
+                }
+                return isValidTypes;
+            },
 
-
-        /**
-         * Position Nodes with dagre
-         * @param {string} viewId type mapper view identifier
-         * @param jsPlumbInstance jsPlumb instance of the type mapper to be repositioned
-         */
-        TypeMapperRenderer.prototype.dagrePosition = function (viewId, jsPlumbInstance) {
-            // construct dagre graph from this.jsPlumbInstance graph
-            var graph = new dagre.graphlib.Graph();
-
-            var alignment = 'LR';
-
-            if (jsPlumbInstance.getAllConnections() == 0) {
-                alignment = 'TD';
+            onDrop: function () {
+                positionFunction(placeHolderName, jsPlumbInst);
             }
+        })
+        ;
+    };
 
-            graph.setGraph({ranksep: '10', rankdir: alignment, edgesep: '10', marginx: '20'});
-            graph.setDefaultEdgeLabel(function () {
-                return {};
+
+    /**
+     * Position Nodes with dagre
+     * @param {string} viewId type mapper view identifier
+     * @param jsPlumbInstance jsPlumb instance of the type mapper to be repositioned
+     */
+    TypeMapperRenderer.prototype.dagrePosition = function (viewId, jsPlumbInstance) {
+        // construct dagre graph from this.jsPlumbInstance graph
+        var graph = new dagre.graphlib.Graph();
+
+        var alignment = 'LR';
+
+        if (jsPlumbInstance.getAllConnections() == 0) {
+            alignment = 'TD';
+        }
+
+        graph.setGraph({ranksep: '10', rankdir: alignment, edgesep: '10', marginx: '20'});
+        graph.setDefaultEdgeLabel(function () {
+            return {};
+        });
+        var nodes = $("#" + viewId + "> .struct, #" + viewId + "> .func");
+
+        if (nodes.length > 0) {
+            var maxTypeHeight = 0;
+
+
+            _.forEach(nodes, function (n) {
+                var nodeContent = $("#" + n.id);
+                if (maxTypeHeight < nodeContent.width()) {
+                    maxTypeHeight = nodeContent.width();
+                }
+                graph.setNode(n.id, {width: nodeContent.width(), height: nodeContent.height()});
             });
-            var nodes = $("#" + viewId + "> .struct, #" + viewId + "> .func");
 
-            if (nodes.length > 0) {
-                var maxTypeHeight = 0;
+            var edges = jsPlumbInstance.getAllConnections();
 
 
-                _.forEach(nodes, function (n) {
-                    var nodeContent = $("#" + n.id);
-                    if (maxTypeHeight < nodeContent.width()) {
-                        maxTypeHeight = nodeContent.width();
-                    }
-                    graph.setNode(n.id, {width: nodeContent.width(), height: nodeContent.height()});
-                });
+            _.forEach(edges, function (edge) {
+                graph.setEdge(edge.source.id.split("-")[0], edge.target.id.split("-")[0]);
+            });
 
-                var edges = jsPlumbInstance.getAllConnections();
+            // calculate the layout (i.e. node positions)
+            dagre.layout(graph);
 
+            var maxYPosition = 0;
 
-                _.forEach(edges, function (edge) {
-                    graph.setEdge(edge.source.id.split("-")[0], edge.target.id.split("-")[0]);
-                });
+            // Applying the calculated layout
+            _.forEach(graph.nodes(), function (dagreNode) {
+                var node = $("#" + dagreNode);
 
-                // calculate the layout (i.e. node positions)
-                dagre.layout(graph);
+                if (node.attr('class') == "func") {
+                    node.css("left", graph.node(dagreNode).x + "px");
+                    node.css("top", graph.node(dagreNode).y + "px");
+                }
 
-                var maxYPosition = 0;
+                if (graph.node(dagreNode) != null && graph.node(dagreNode).y > maxYPosition) {
+                    maxYPosition = graph.node(dagreNode).y;
+                }
+            });
 
-                // Applying the calculated layout
-                _.forEach(graph.nodes(), function (dagreNode) {
-                    var node = $("#" + dagreNode);
+            $("#" + viewId).height(maxTypeHeight + maxYPosition);
+        }
+    };
 
-                    if (node.attr('class') == "func") {
-                        node.css("left", graph.node(dagreNode).x + "px");
-                        node.css("top", graph.node(dagreNode).y + "px");
-                    }
-
-                    if (graph.node(dagreNode) != null && graph.node(dagreNode).y > maxYPosition) {
-                        maxYPosition = graph.node(dagreNode).y;
-                    }
-                });
-
-                $("#" + viewId).height(maxTypeHeight + maxYPosition);
-            }
-        };
-
-        return TypeMapperRenderer;
-    }
+    return TypeMapperRenderer;
 });
-
-
