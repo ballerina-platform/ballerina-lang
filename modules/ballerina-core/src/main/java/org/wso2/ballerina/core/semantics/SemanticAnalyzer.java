@@ -167,6 +167,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         packageTypeLattice = bFile.getTypeLattice();
         resolveStructFieldTypes(bFile.getStructDefs());
         defineConnectors(bFile.getConnectors());
+        defineTypeConvertors(packageTypeLattice);
 
 //        bFile.getConnectorList().forEach(connector -> {
 //            addConnectorSymbol(connector);
@@ -2108,6 +2109,44 @@ public class SemanticAnalyzer implements NodeVisitor {
                 returnTypes[i] = bType;
             }
             function.setReturnParamTypes(returnTypes);
+        }
+    }
+
+    private void defineTypeConvertors(TypeLattice typeLattice) {
+        for (TypeEdge typeEdge : typeLattice.getEdges()) {
+            TypeConvertor typeConvertor = typeEdge.getTypeConvertor();
+            // Resolve input parameters
+            ParameterDef[] paramDefArray = typeConvertor.getParameterDefs();
+            BType[] paramTypes = new BType[paramDefArray.length];
+            for (int i = 0; i < paramDefArray.length; i++) {
+                ParameterDef paramDef = paramDefArray[i];
+                BType bType = BTypes.resolveType(paramDef.getTypeName(), currentScope, paramDef.getNodeLocation());
+                paramDef.setType(bType);
+                paramTypes[i] = bType;
+            }
+
+            typeConvertor.setParameterTypes(paramTypes);
+            SymbolName symbolName = LangModelUtils.getSymNameWithParams(typeConvertor.getName(),
+                    typeConvertor.getPackagePath(), paramTypes);
+            typeConvertor.setSymbolName(symbolName);
+
+            if (currentScope.resolve(symbolName) != null) {
+                throw new SemanticException(typeConvertor.getNodeLocation().getFileName() + ":" +
+                        typeConvertor.getNodeLocation().getLineNumber() +
+                        ": duplicate function '" + typeConvertor.getName() + "'");
+            }
+            currentScope.define(symbolName, typeConvertor);
+
+            // Resolve return parameters
+            ParameterDef[] returnParameters = typeConvertor.getReturnParameters();
+            BType[] returnTypes = new BType[returnParameters.length];
+            for (int i = 0; i < returnParameters.length; i++) {
+                ParameterDef paramDef = returnParameters[i];
+                BType bType = BTypes.resolveType(paramDef.getTypeName(), currentScope, paramDef.getNodeLocation());
+                paramDef.setType(bType);
+                returnTypes[i] = bType;
+            }
+            typeConvertor.setReturnParamTypes(returnTypes);
         }
     }
 
