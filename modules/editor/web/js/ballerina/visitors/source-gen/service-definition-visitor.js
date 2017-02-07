@@ -16,9 +16,9 @@
  * under the License.
  */
 define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './resource-definition-visitor',
-        './variable-declaration-visitor', './connector-declaration-visitor'],
+        './variable-declaration-visitor', './connector-declaration-visitor', './statement-visitor-factory'],
     function(_, log, EventChannel, AbstractSourceGenVisitor, ResourceDefinitionVisitor,
-             VariableDeclarationVisitor, ConnectorDeclarationVisitor) {
+             VariableDeclarationVisitor, ConnectorDeclarationVisitor, StatementVisitorFactory) {
 
     /**
      * @param parent
@@ -68,6 +68,12 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './re
         this.appendSource("}\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Service Definition');
+    };
+
+    ServiceDefinitionVisitor.prototype.visitStatement = function (statement) {
+        var statementVisitorFactory = new StatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
     };
 
     ServiceDefinitionVisitor.prototype.visitResourceDefinition = function(resourceDefinition){

@@ -105,8 +105,8 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
                 }
             });
         }
-        //setting the parent node
-        child.setParent(this);
+        //setting the parent node - doing silently avoid subsequent change events
+        child.setParent(this, {doSilently:true});
     };
 
     /**
