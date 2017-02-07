@@ -40,7 +40,6 @@ import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.LinkedNodeExecutor;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
-import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.TypeConvertor;
@@ -788,11 +787,9 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
             logger.debug("Executing StructInitExpr - EndNode");
         }
         StructInitExpr structInitExpr = structInitExprEndNode.getExpression();
-
-        StructDcl structDcl = structInitExpr.getStructDcl();
+        StructDef structDef = (StructDef) structInitExpr.getType();
         BValue[] structMemBlock;
         int offset = 0;
-        StructDef structDef = structDcl.getStructDef();
         structMemBlock = new BValue[structDef.getStructMemorySize()];
 
         // create a memory block to hold field of the struct, and populate it with default values
@@ -1010,12 +1007,12 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
                 }
 
                 // Populate all connector declarations
-                offset = populateConnectorDclValues(connectorDef.getConnectorDcls(), connectorMemBlock, offset);
-
-                for (VariableDef variableDef : connectorDef.getVariableDefs()) {
-                    connectorMemBlock[offset] = variableDef.getType().getDefaultValue();
-                    offset++;
-                }
+//                offset = populateConnectorDclValues(connectorDef.getConnectorDcls(), connectorMemBlock, offset);
+//
+//                for (VariableDef variableDef : connectorDef.getVariableDefs()) {
+//                    connectorMemBlock[offset] = variableDef.getType().getDefaultValue();
+//                    offset++;
+//                }
             }
 
             BConnector connectorValue = new BConnector(connector, connectorMemBlock);
