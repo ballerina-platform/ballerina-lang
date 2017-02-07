@@ -17,13 +17,10 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
-import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.ConstDef;
-import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
@@ -58,31 +55,31 @@ public class RuntimeEnvironment {
             staticMemOffset++;
         }
 
-        for (Service service : bFile.getServices()) {
-            for (ConnectorDcl connectorDcl : service.getConnectorDcls()) {
-                BConnector bConnector = populateConnectorDcls(staticMemory, connectorDcl);
-                staticMemory.setValue(staticMemOffset, bConnector);
-                staticMemOffset++;
-            }
-
-            staticMemOffset = initVariableDcls(staticMemory, staticMemOffset, service);
-        }
+//        for (Service service : bFile.getServices()) {
+//            for (ConnectorDcl connectorDcl : service.getConnectorDcls()) {
+//                BConnector bConnector = populateConnectorDcls(staticMemory, connectorDcl);
+//                staticMemory.setValue(staticMemOffset, bConnector);
+//                staticMemOffset++;
+//            }
+//
+//            staticMemOffset = initVariableDcls(staticMemory, staticMemOffset, service);
+//        }
 
         return new RuntimeEnvironment(staticMemory);
     }
 
-    private static int initVariableDcls(StaticMemory staticMemory, int staticMemOffset, Service service) {
-        for (VariableDef variableDef : service.getVariableDefs()) {
-            staticMemory.setValue(staticMemOffset, variableDef.getType().getDefaultValue());
-            staticMemOffset++;
-        }
-        return staticMemOffset;
-    }
+//    private static int initVariableDcls(StaticMemory staticMemory, int staticMemOffset, Service service) {
+//        for (VariableDef variableDef : service.getVariableDefs()) {
+//            staticMemory.setValue(staticMemOffset, variableDef.getType().getDefaultValue());
+//            staticMemOffset++;
+//        }
+//        return staticMemOffset;
+//    }
 
     private static BConnector populateConnectorDcls(StaticMemory staticMemory, ConnectorDcl connectorDcl) {
         Connector connector = connectorDcl.getConnector();
         Expression[] argExprs = connectorDcl.getArgExprs();
-        BValue[] bValueRefs;
+        BValue[] bValueRefs = null;
 
         int offset = 0;
         if (connector instanceof AbstractNativeConnector) {
@@ -94,23 +91,23 @@ public class RuntimeEnvironment {
             connector = nativeConnector;
 
         } else {
-            BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
-            // sum of, number of arguments, number of declared variables and declared connectors
-            bValueRefs = new BValue[argExprs.length + connectorDef.getVariableDefs().length + connectorDef
-                    .getConnectorDcls().length];
-
-            offset = populateConnectorArgs(staticMemory, argExprs, bValueRefs, offset);
-
-            for (ConnectorDcl connectorDcl1 : connectorDef.getConnectorDcls()) {
-                BConnector bConnector = populateConnectorDcls(staticMemory, connectorDcl1);
-                bValueRefs[offset] = bConnector;
-                offset++;
-            }
-
-            for (VariableDef variableDef : connectorDef.getVariableDefs()) {
-                bValueRefs[offset] = variableDef.getType().getDefaultValue();
-                offset++;
-            }
+//            BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
+//            // sum of, number of arguments, number of declared variables and declared connectors
+//            bValueRefs = new BValue[argExprs.length + connectorDef.getVariableDefs().length + connectorDef
+//                    .getConnectorDcls().length];
+//
+//            offset = populateConnectorArgs(staticMemory, argExprs, bValueRefs, offset);
+//
+//            for (ConnectorDcl connectorDcl1 : connectorDef.getConnectorDcls()) {
+//                BConnector bConnector = populateConnectorDcls(staticMemory, connectorDcl1);
+//                bValueRefs[offset] = bConnector;
+//                offset++;
+//            }
+//
+//            for (VariableDef variableDef : connectorDef.getVariableDefs()) {
+//                bValueRefs[offset] = variableDef.getType().getDefaultValue();
+//                offset++;
+//            }
         }
 
         return new BConnector(connector, bValueRefs);
