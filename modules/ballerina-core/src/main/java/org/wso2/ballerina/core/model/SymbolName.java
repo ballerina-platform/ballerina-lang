@@ -56,10 +56,11 @@ public class SymbolName {
     protected boolean isNameAndPackagePathEqual(SymbolName other) {
         boolean namesEqual = this.name.equals(other.getName());
 
-        // If both package paths are null or both package paths are not null,
-        //    then check their names. If not return false
-        return (this.pkgPath == null && other.getPkgPath() == null ||
-                this.pkgPath != null && other.getPkgPath() != null) && namesEqual;
+        // If both package paths are null or both package paths are not null and same,
+        // then check their names. If not return false
+        return (this.pkgPath == null && other.getPkgPath() == null || this.pkgPath != null
+                && other.getPkgPath() != null && this.pkgPath.equals(other.getPkgPath()))
+                && namesEqual;
     }
 
     @Override
