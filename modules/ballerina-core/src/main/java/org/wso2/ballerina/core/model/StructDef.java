@@ -39,12 +39,10 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
     private int structMemorySize;
 
     private SymbolName symbolName;
-    private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
 
     public StructDef(SymbolScope enclosingScope) {
         super(null, null, enclosingScope, BStruct.class);
-        this.enclosingScope = enclosingScope;
         this.symbolMap = new HashMap<>();
     }
 
@@ -108,7 +106,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
 
     @Override
     public SymbolScope getEnclosingScope() {
-        return enclosingScope;
+        return symbolScope;
     }
 
     @Override

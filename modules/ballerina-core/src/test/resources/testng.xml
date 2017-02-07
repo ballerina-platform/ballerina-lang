@@ -28,7 +28,7 @@ under the License.
         <!--<package name="org.wso2.ballerina.lang.expressions"/>-->
         <!--<package name="org.wso2.ballerina.lang.statements"/>-->
         <!--<package name="org.wso2.ballerina.lang.service"/>-->
-        <package name="org.wso2.ballerina.lang.structs"/>
+            <package name="org.wso2.ballerina.lang.structs"/>
         </packages>
         
         <classes>
