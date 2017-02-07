@@ -92,7 +92,7 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             //Get all the structs which are defined for current package
             var predefinedStructs = diagramRenderingContext.getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
 
-            var dataMapperContainerId = "data-mapper-container-" + this._model.id;
+            var dataMapperContainerId = "data-mapper-container___" + this._model.id;
             var sourceId = 'sourceStructs' + this._model.id;
             var targetId = 'targetStructs' + this._model.id;
             var selectorContainer = $('<div class="selector">' +
@@ -265,6 +265,14 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
 
         TypeMapperDefinitionView.prototype.setViewOptions = function (viewOptions) {
             this._viewOptions = viewOptions;
+        };
+        
+        TypeMapperDefinitionView.prototype.getPackage = function () {
+            return this._package;
+        };
+        
+        TypeMapperDefinitionView.prototype.getTypes = function () {
+           return this.getDiagramRenderingContext().getEnvironment().getTypes();
         };
 
         return TypeMapperDefinitionView;
