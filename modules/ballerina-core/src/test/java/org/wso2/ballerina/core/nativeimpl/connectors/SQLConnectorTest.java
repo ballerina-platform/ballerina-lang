@@ -58,7 +58,6 @@ public class SQLConnectorTest {
     //Update Action Tests
     @Test(description = "Test Create Table")
     public void testActionCreateTable() {
-
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/createTable", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
@@ -71,7 +70,6 @@ public class SQLConnectorTest {
 
     @Test(description = "Test Insert Data")
     public void testActionInsertData() {
-
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/insertData", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
@@ -84,7 +82,6 @@ public class SQLConnectorTest {
 
     @Test(description = "Test Update Data")
     public void testActionUpdateData() {
-
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/rowUpdate", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
@@ -97,7 +94,6 @@ public class SQLConnectorTest {
 
     @Test(description = "Test Insert Data with Generated Keys")
     public void testActionInsertDataWithKeys() {
-
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/getGeneratedKeysByColumn", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
@@ -111,7 +107,6 @@ public class SQLConnectorTest {
 
     @Test(description = "Test Insert Data with Generated Keys and Key Columns")
     public void testInsertWithKeyColumns() {
-
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/generatedKeys", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
@@ -125,7 +120,6 @@ public class SQLConnectorTest {
 
     @Test(description = "Test Select Data")
     public void testActionSelectData() {
-
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/dataSelect", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
@@ -138,7 +132,6 @@ public class SQLConnectorTest {
 
     @Test(description = "Test Connector With Data Source")
     public void testConnectorWithDataSource() {
-
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/connectorWithDataSource", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
@@ -151,7 +144,6 @@ public class SQLConnectorTest {
 
     @Test(description = "Test Connector With Hikari Pool Properties")
     public void testPoolProperties() {
-
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/poolPropTest", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
@@ -164,7 +156,6 @@ public class SQLConnectorTest {
 
     @Test(description = "Test Stored Procedure")
     public void testCall() {
-
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/testCall", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -43,10 +43,7 @@ import java.util.Set;
 @BallerinaConnector(
         packageName = "ballerina.data.sql",
         connectorName = SQLConnector.CONNECTOR_NAME,
-        args = {
-                @Argument(name = "options",
-                          type = TypeEnum.MAP)
-        })
+        args = {@Argument(name = "options", type = TypeEnum.MAP)})
 @Component(
         name = "ballerina.data.connectors.sql",
         immediate = true,

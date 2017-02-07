@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -31,20 +31,14 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.SQLConnector;
 
 /**
- * {@code Select} is the Select action implementation of the SQL Connector
+ * {@code Select} is the Select action implementation of the SQL Connector.
  */
 @BallerinaAction(
         packageName = "ballerina.data.sql",
         actionName = "select",
         connectorName = SQLConnector.CONNECTOR_NAME,
-        args = {
-                @Argument(name = "connector",
-                          type = TypeEnum.CONNECTOR),
-                @Argument(name = "query",
-                          type = TypeEnum.STRING)/*, //TODO:Add Parameter struct
-                @Argument(name = "optionalProperties",
-                          type = TypeEnum.MAP)*/
-        },
+        args = {@Argument(name = "connector", type = TypeEnum.CONNECTOR),
+                @Argument(name = "query", type = TypeEnum.STRING)},
         returnType = { TypeEnum.DATATABLE })
 @Component(
         name = "action.data.sql.select",
