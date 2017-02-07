@@ -355,11 +355,11 @@ public class ConstructProviderClassBuilder {
                 String actionQualifiedName = getActionQualifiedName(balAction, connectorName, connectorPkgName);
                 String actionPkgName = balAction.packageName();
                 String actionClassName = action.getClassName();
-/*                addNativeConstruct(actionPkgName, actionName, actionClassName, balAction.args(), null,
-                        balAction.args().length);*/
+                
                 String actionAddStr = getConstructInsertStr(connectorVarName, actionPkgName, balAction.actionName(),
-                    actionQualifiedName, null, null, actionClassName, balAction.args(), null, balAction.args().length,
-                    "nativeAction", null, nativeUnitClassName, "nativeActionClass", connectorName, connectorPkgName);
+                    actionQualifiedName, null, null, actionClassName, balAction.args(), balAction.returnType(),
+                    balAction.args().length, "nativeAction", null, nativeUnitClassName, "nativeActionClass",
+                    connectorName, connectorPkgName);
                 strBuilder.append(actionAddStr);
             }
             
@@ -369,9 +369,6 @@ public class ConstructProviderClassBuilder {
                     symbolScopClass, GLOBAL_SCOPE, connectorClassName, balConnector.args(), null, 
                     balConnector.args().length, connectorVarName, strBuilder.toString(), nativeConnectorClassName, 
                     "nativeConnectorClass", null, null);
-            
-/*            addNativeConstruct(connectorPkgName, connectorName, connectorClassName, balConnector.args(), null, 
-                    balConnector.args().length);*/
             try {
                 sourceFileWriter.write(connectorAddStr);
             } catch (IOException e) {
