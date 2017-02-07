@@ -255,7 +255,7 @@ define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../
                     self._createCurrentParametersView(wrapper);
                 });
 
-                $(resourceParameterView.getParameterWrapper()).dblclick({
+                $(resourceParameterView.getParameterWrapper()).click({
                     modelID: parameter.getID()
                 }, function (event) {
                     self._createCurrentParametersView(wrapper);

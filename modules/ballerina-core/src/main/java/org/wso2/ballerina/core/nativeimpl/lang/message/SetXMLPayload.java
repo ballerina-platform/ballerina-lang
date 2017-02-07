@@ -49,7 +49,7 @@ public class SetXMLPayload extends AbstractNativeFunction {
         BXML payload = (BXML) getArgument(context, 1);
 
         // Setting the payload
-        msg.setBuiltPayload(payload);
+        msg.setMessageDataSource(payload);
         msg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_XML);
         return VOID_RETURN;
     }
