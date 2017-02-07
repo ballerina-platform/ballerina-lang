@@ -22,6 +22,7 @@ import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -257,5 +258,75 @@ public class BallerinaPsiImplUtil {
             root = match;
         }
         return match;
+    }
+
+    public static PsiDirectory[] suggestPackages(PsiElement element) {
+        List<PsiDirectory> results = new ArrayList<>();
+        Project project = element.getProject();
+
+        PsiElement parent = element.getParent();
+
+        // This is used to store all the packages which need to resolve the current package.
+        List<PsiElement> packages = new ArrayList<>();
+        packages.add(parent);
+
+        // Find all previous PackageNameNode elements.
+        PsiElement sibling = parent.getPrevSibling();
+        while (sibling != null) {
+            if (sibling instanceof PackageNameNode) {
+                // Add the sibling to the index 0 because we are traversing backward.
+                packages.add(0, sibling);
+            }
+            sibling = sibling.getPrevSibling();
+        }
+
+        // Get any matching directrory in the project root
+        List<VirtualFile> matches = suggestDirectory(project.getBaseDir(), packages);
+        // If there is matches, add it to the results.
+        if (matches != null) {
+            for (VirtualFile file : matches) {
+                results.add(PsiManager.getInstance(project).findDirectory(file));
+            }
+        }
+
+        // Get all project source roots and find matching directories.
+        Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+        if (projectSdk != null) {
+            VirtualFile[] roots = projectSdk.getSdkModificator().getRoots(OrderRootType.SOURCES);
+            for (VirtualFile root : roots) {
+                matches = suggestDirectory(root, packages);
+                if (matches != null) {
+                    for (VirtualFile file : matches) {
+                        results.add(PsiManager.getInstance(project).findDirectory(file));
+                    }
+                }
+            }
+        }
+        return results.toArray(new PsiDirectory[results.size()]);
+    }
+
+    @Nullable
+    private static List<VirtualFile> suggestDirectory(VirtualFile root, List<PsiElement> packages) {
+        List<VirtualFile> results = new ArrayList<>();
+        VirtualFile match = null;
+        int count = 1;
+        for (PsiElement element : packages) {
+            if (count == packages.size()) {
+                //Todo - Use caching
+                for (VirtualFile file : root.getChildren()) {
+                    if (file.isDirectory()) {
+                        results.add(file);
+                    }
+                }
+            } else {
+                match = root.findChild(element.getText());
+                if (match == null) {
+                    break;
+                }
+                root = match;
+            }
+            count++;
+        }
+        return results;
     }
 }

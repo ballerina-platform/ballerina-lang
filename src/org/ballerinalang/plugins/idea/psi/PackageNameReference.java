@@ -19,7 +19,6 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
-import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.ResolveResult;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
@@ -41,16 +40,14 @@ public class PackageNameReference extends BallerinaElementReference {
     @NotNull
     @Override
     public Object[] getVariants() {
-        return new Object[]{"package1", "package2"};
+        return BallerinaPsiImplUtil.suggestPackages(getElement());
     }
 
     @NotNull
     @Override
     public ResolveResult[] multiResolve(boolean incompleteCode) {
+        //Todo: Use java8
         PsiDirectory[] directories = BallerinaPsiImplUtil.resolveDirectory(getElement());
-        if (directories == null) {
-            return new ResolveResult[0];
-        }
         List<ResolveResult> results = new ArrayList<>();
         for (PsiDirectory directory : directories) {
             results.add(new PsiElementResolveResult(directory));
