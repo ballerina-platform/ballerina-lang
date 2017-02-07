@@ -151,7 +151,7 @@
     border-bottom: 1px solid #e4e4e4;
 }
 .tool-group-body > .ui-draggable-handle > .tool-container-vertical{
-    margin-bottom: 10px;
+    margin-bottom: 5px;
 }
 
 .tool-group-body > .ui-draggable-handle > .tool-container-vertical > div{
