@@ -16,7 +16,11 @@
 
 package org.wso2.ballerina.tooling.service.workspace.swagger;
 
-import io.swagger.codegen.*;
+import io.swagger.codegen.ClientOptInput;
+import io.swagger.codegen.ClientOpts;
+import io.swagger.codegen.CodegenConfig;
+import io.swagger.codegen.CodegenOperation;
+import io.swagger.codegen.DefaultGenerator;
 import io.swagger.models.HttpMethod;
 import io.swagger.models.Operation;
 import io.swagger.models.Path;
@@ -24,7 +28,11 @@ import io.swagger.models.Swagger;
 import io.swagger.parser.Swagger20Parser;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.wso2.ballerina.core.model.*;
+import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
@@ -36,7 +44,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -45,7 +59,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SwaggerConverterUtils {
 
-    /** Maximum loop count when creating temp directories. */
+    /**
+     * Maximum loop count when creating temp directories.
+     */
     private static final int TEMP_DIR_ATTEMPTS = 10000;
 
     /**
@@ -107,8 +123,8 @@ public class SwaggerConverterUtils {
     }
 
     /**
-     * Atomically creates a new directory somewhere beneath the system's temporary directory (as
-     * defined by the {@code java.io.tmpdir} system property), and returns its name.
+     * Atomically creates a new directory somewhere beneath the system's temporary directory (as defined by the {@code
+     * java.io.tmpdir} system property), and returns its name.
      *
      * @return the newly-created directory
      * @throws IllegalStateException if the directory could not be created
@@ -173,7 +189,7 @@ public class SwaggerConverterUtils {
             for (Map.Entry<HttpMethod, Operation> operationEntry : path.getOperationMap().entrySet()) {
                 Operation currentOperation = operationEntry.getValue();
                 annotationMap.put(operationEntry.getKey().toString(),
-                        new Annotation(operationEntry.getKey().toString()));
+                                  new Annotation(operationEntry.getKey().toString()));
                 resource.setSymbolName(new SymbolName(operationEntry.getKey().name()));
             }
             resource.setAnnotations(annotationMap);
@@ -188,7 +204,8 @@ public class SwaggerConverterUtils {
     public static Service mergeBallerinaService(Service originalService, Service secondaryService) {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
         //Secondary service annotations are coming from swagger. So we need to merge and update.
-        originalService.setAnnotations(mergeAnnotations(originalService.getAnnotations(), secondaryService.getAnnotations()));
+        originalService.setAnnotations(
+                mergeAnnotations(originalService.getAnnotations(), secondaryService.getAnnotations()));
         List<Resource> resourceList = new ArrayList<Resource>();
         for (Resource resource : secondaryService.getResources()) {
             boolean isExistingResource = false;
@@ -199,7 +216,7 @@ public class SwaggerConverterUtils {
                     //Here is a resource math. Do assignments
                     //merge annotations
                     originalResource.setAnnotations(mergeAnnotationsAsMap(originalResource.getAnnotations(),
-                            resource.getAnnotations()));
+                                                                          resource.getAnnotations()));
                 }
             }
             if (!isExistingResource) {

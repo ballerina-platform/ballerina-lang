@@ -24,6 +24,15 @@ import io.swagger.models.Operation;
 public class OperationAdaptor {
 
 
+    Operation operation;
+    String path;
+    String httpOperation;
+
+
+    OperationAdaptor() {
+        this.operation = new Operation();
+    }
+
     public Operation getOperation() {
         return operation;
     }
@@ -31,9 +40,6 @@ public class OperationAdaptor {
     public void setOperation(Operation operation) {
         this.operation = operation;
     }
-
-    Operation operation;
-
 
     public String getPath() {
         return path;
@@ -43,20 +49,12 @@ public class OperationAdaptor {
         this.path = path;
     }
 
-    String path;
-
     public String getHttpOperation() {
         return httpOperation;
     }
 
     public void setHttpOperation(String httpOperation) {
         this.httpOperation = httpOperation;
-    }
-
-    String httpOperation;
-
-    OperationAdaptor() {
-        this.operation = new Operation();
     }
 
 }

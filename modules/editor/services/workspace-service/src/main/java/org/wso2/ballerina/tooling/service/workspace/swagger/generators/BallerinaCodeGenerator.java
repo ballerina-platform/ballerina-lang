@@ -16,17 +16,26 @@
 
 package org.wso2.ballerina.tooling.service.workspace.swagger.generators;
 
-import io.swagger.codegen.*;
+import io.swagger.codegen.CliOption;
+import io.swagger.codegen.CodegenConfig;
+import io.swagger.codegen.CodegenConstants;
+import io.swagger.codegen.CodegenOperation;
+import io.swagger.codegen.CodegenType;
+import io.swagger.codegen.DefaultCodegen;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 /**
- * This the ballerina connector generator class. Here we can add/update templates to generate
- * different connectors, types services etc.
+ * This the ballerina connector generator class. Here we can add/update templates to generate different connectors,
+ * types services etc.
  */
 public class BallerinaCodeGenerator extends DefaultCodegen implements CodegenConfig {
 
@@ -34,6 +43,7 @@ public class BallerinaCodeGenerator extends DefaultCodegen implements CodegenCon
 
     protected String apiVersion = "1.0.0";
     protected String apiPath = "ballerina";
+
     public BallerinaCodeGenerator() {
         super();
 
@@ -113,12 +123,12 @@ public class BallerinaCodeGenerator extends DefaultCodegen implements CodegenCon
         typeMapping.put("ByteArray", "string");
         importMapping = new HashMap<String, String>();
         //importMapping.put("time.Time", "time");
-       // importMapping.put("*os.File", "os");
-       // importMapping.put("os", "io/ioutil");
+        // importMapping.put("*os.File", "os");
+        // importMapping.put("os", "io/ioutil");
 
         cliOptions.clear();
         cliOptions.add(new CliOption(CodegenConstants.PACKAGE_NAME, "Ballerina package name (convention: lowercase).")
-                .defaultValue("swagger"));
+                               .defaultValue("swagger"));
         /*
          * Additional Properties.  These values can be passed to the templates and
          * are available in models, apis, and supporting files
@@ -153,8 +163,8 @@ public class BallerinaCodeGenerator extends DefaultCodegen implements CodegenCon
     }
 
     /**
-     * Configures a friendly name for the generator.  This will be used by the generator
-     * to select the library with the -l flag.
+     * Configures a friendly name for the generator.  This will be used by the generator to select the library with the
+     * -l flag.
      *
      * @return the friendly name for the generator
      */
@@ -164,15 +174,15 @@ public class BallerinaCodeGenerator extends DefaultCodegen implements CodegenCon
     }
 
     /**
-     * Returns human-friendly help for the generator.  Provide the consumer with help
-     * tips, parameters here
+     * Returns human-friendly help for the generator.  Provide the consumer with help tips, parameters here
      *
      * @return A string value for the help message
      */
     @Override
     public String getHelp() {
         return "Generates a Go server library using the swagger-tools project.  By default, " +
-                "it will also generate service classes--which you can disable with the `-Dnoservice` environment variable.";
+                "it will also generate service classes--which you can disable with the `-Dnoservice` environment " +
+                "variable.";
     }
 
     @Override
@@ -184,8 +194,8 @@ public class BallerinaCodeGenerator extends DefaultCodegen implements CodegenCon
     }
 
     /**
-     * Escapes a reserved word as defined in the `reservedWords` array. Handle escaping
-     * those terms here.  This logic is only called if a variable matches the reseved words
+     * Escapes a reserved word as defined in the `reservedWords` array. Handle escaping those terms here.  This logic is
+     * only called if a variable matches the reseved words
      *
      * @return the escaped term
      */
@@ -213,8 +223,7 @@ public class BallerinaCodeGenerator extends DefaultCodegen implements CodegenCon
 
 
     /**
-     * Location to write api files.  You can use the apiPackage() as defined when the class is
-     * instantiated
+     * Location to write api files.  You can use the apiPackage() as defined when the class is instantiated
      */
     @Override
     public String apiFileFolder() {
@@ -230,7 +239,8 @@ public class BallerinaCodeGenerator extends DefaultCodegen implements CodegenCon
     public String toOperationId(String operationId) {
         // method name cannot use reserved keyword, e.g. return
         if (isReservedWord(operationId)) {
-            LOGGER.warn(operationId + " (reserved word) cannot be used as method name. Renamed to " + camelize(sanitizeName("call_" + operationId)));
+            LOGGER.warn(operationId + " (reserved word) cannot be used as method name. Renamed to " +
+                                camelize(sanitizeName("call_" + operationId)));
             operationId = "call_" + operationId;
         }
 
@@ -252,7 +262,7 @@ public class BallerinaCodeGenerator extends DefaultCodegen implements CodegenCon
         // model name cannot use reserved keyword, e.g. return
         if (isReservedWord(name)) {
             LOGGER.warn(name + " (reserved word) cannot be used as model name. Renamed to "
-                    + camelize("model_" + name));
+                                + camelize("model_" + name));
             name = "model_" + name;
         }
 

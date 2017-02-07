@@ -28,16 +28,19 @@ import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 
 /**
- * SwaggerServiceMapper provides functionality for reading and writing Swagger,
- * either to and from ballerina service, or to, as well as
- * related functionality for performing conversions between swagger and ballerina.
+ * SwaggerServiceMapper provides functionality for reading and writing Swagger, either to and from ballerina service, or
+ * to, as well as related functionality for performing conversions between swagger and ballerina.
  */
 public class SwaggerServiceMapper {
-    ObjectMapper objectMapper;
     private static final Logger logger = LoggerFactory.getLogger(SwaggerServiceMapper.class);
+    ObjectMapper objectMapper;
+
+    public SwaggerServiceMapper() {
+        //Default object mapper is JSON mapper available in swagger utils.
+        this.setObjectMapper(Json.mapper());
+    }
 
     /**
-     *
      * @return @ObjectMapper instance to be used to generate service definition.
      */
     public ObjectMapper getObjectMapper() {
@@ -45,21 +48,14 @@ public class SwaggerServiceMapper {
     }
 
     /**
-     * Object mapper can be used to generate swagger definition in JSON and YAML formats
-     * on demand. If user is willing to generate output in specific format he can set mapper accordingly.
-     * Default mapper will be JSON mapper.
+     * Object mapper can be used to generate swagger definition in JSON and YAML formats on demand. If user is willing
+     * to generate output in specific format he can set mapper accordingly. Default mapper will be JSON mapper.
      *
      * @param objectMapper
      */
     public void setObjectMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
-
-    public SwaggerServiceMapper() {
-        //Default object mapper is JSON mapper available in swagger utils.
-        this.setObjectMapper(Json.mapper());
-    }
-
 
     /**
      * @return @String representation of current service object.
@@ -69,7 +65,7 @@ public class SwaggerServiceMapper {
             String swaggerJson = objectMapper.writeValueAsString(swagger);
             return swaggerJson;
         } catch (JsonProcessingException e) {
-            logger.error("Error while generating swagger string from definition" + e );
+            logger.error("Error while generating swagger string from definition" + e);
             return "Error";
         }
     }
@@ -104,8 +100,8 @@ public class SwaggerServiceMapper {
     }
 
     /**
-     * Assumption made here was ballerina service will be always super set of swagger.
-     * Swagger can have its annotations and those will be part of ballerina service without any data loss.
+     * Assumption made here was ballerina service will be always super set of swagger. Swagger can have its annotations
+     * and those will be part of ballerina service without any data loss.
      *
      * @param swagger @Swagger to be convert to @Service.
      * @param service @Service object that need to update with swagger changes.
