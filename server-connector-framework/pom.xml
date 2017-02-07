@@ -43,6 +43,10 @@
             <groupId>org.wso2.carbon.messaging</groupId>
             <artifactId>org.wso2.carbon.messaging</artifactId>
         </dependency>
+        <dependency>
+            <groupId>javax.websocket</groupId>
+            <artifactId>javax.websocket-api</artifactId>
+        </dependency>
     </dependencies>
 
     <properties>
@@ -54,7 +58,8 @@
             org.osgi.framework.*;version="${osgi.framework.import.version.range}",
             org.osgi.util.tracker;version="${osgi.service.tracker.import.version.range}",
             org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
-            org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}"
+            org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
+            javax.websocket.*;version="${javax.websocket.version}"
         </import.package>
     </properties>
 

@@ -38,7 +38,7 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
-import org.wso2.carbon.transport.http.netty.internal.WebSocketSessionImpl;
+import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.net.InetSocketAddress;
@@ -89,7 +89,7 @@ public class WebSocketSourceHandler extends SourceHandler {
             ByteBuf byteBuf = binaryWebSocketFrame.content();
             ByteBuffer byteBuffer = byteBuf.nioBuffer();
             cMsg = new BinaryCarbonMessage(byteBuffer, finalFragment);
-            byteBuf.release();
+            byteBuf.release(); // TODO : Check
 
         } else if (msg instanceof CloseWebSocketFrame) {
             CloseWebSocketFrame closeWebSocketFrame = (CloseWebSocketFrame) msg;

@@ -33,6 +33,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
@@ -51,6 +52,7 @@ import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.net.InetSocketAddress;
+import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
@@ -121,33 +123,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             if (connection != null && upgrade != null) {
                 if (headers.get(Constants.CONNECTION).equals(Constants.UPGRADE) &&
                         headers.get(Constants.UPGRADE).equals(Constants.WEBSOCKET_UPGRADE)) {
-                        log.info("Upgrading the connection from Http to WebSocket for " +
+                    log.info("Upgrading the connection from Http to WebSocket for " +
                                          "channel : " + ctx.channel());
-
-                        try {
-                            handleWebSocketHandshake(ctx, httpRequest);
-                            boolean isSecuredConnection = false;
-                            if (listenerConfiguration.getSslConfig() != null) {
-                                isSecuredConnection = true;
-                            }
-
-                            //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
-                            ChannelPipeline pipeline = ctx.pipeline();
-                            pipeline.addLast("ws_handler",
-                                             new WebSocketSourceHandler(generateWebSocketChannelID(),
-                                                                        this.connectionManager,
-                                                                        this.listenerConfiguration,
-                                                                        httpRequest.getUri(),
-                                                                        isSecuredConnection,
-                                                                        ctx));
-
-                            pipeline.remove(this);
-
-                        } catch (Exception e) {
-                            ctx.channel().close();
-                            log.error(e.toString());
-                        }
-
+                    handleWebSocketHandshake(httpRequest);
                 }
 
             } else {
@@ -176,12 +154,40 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     }
 
 
-    /* Do the handshaking for WebSocket request */
-    private void handleWebSocketHandshake(ChannelHandlerContext ctx, HttpRequest req) throws URISyntaxException {
-        WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(getWebSocketURL(req),
-                                                                                          null, true);
-        handshaker = wsFactory.newHandshaker(req);
-        handshaker.handshake(ctx.channel(), req);
+
+
+    private void handleWebSocketHandshake(HttpRequest httpRequest) throws ProtocolException {
+        try {
+            WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
+                    getWebSocketURL(httpRequest), null, true);
+            handshaker = wsFactory.newHandshaker(httpRequest);
+            handshaker.handshake(ctx.channel(), httpRequest);
+            boolean isSecuredConnection = false;
+            if (listenerConfiguration.getSslConfig() != null) {
+                isSecuredConnection = true;
+            }
+
+            //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
+            ChannelPipeline pipeline = ctx.pipeline();
+            pipeline.addLast("ws_handler",
+                             new WebSocketSourceHandler(generateWebSocketChannelID(),
+                                                        this.connectionManager,
+                                                        this.listenerConfiguration,
+                                                        httpRequest.getUri(),
+                                                        isSecuredConnection,
+                                                        ctx));
+
+            pipeline.remove(this);
+
+        } catch (Exception e) {
+            /*
+            Code 1002 : indicates that an endpoint is terminating the connection
+            due to a protocol error.
+             */
+            ctx.channel().write(new CloseWebSocketFrame(1003, ""));
+            ctx.close();
+            throw new ProtocolException("Error occurred in HTTP to WebSocket Upgrade");
+        }
     }
 
     /* Get the URL of the given connection */
