@@ -73,7 +73,7 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
                 var attributeName = modifiedData.data.attributeName;
                 var newValue = modifiedData.data.newValue;
                 var oldValue = modifiedData.data.oldValue;
-                if (_.isEqual(attributeName, '_functionName')) {
+                if (BallerinaASTFactory.isFunctionDefinition(modifiedData.origin) && _.isEqual(attributeName, '_functionName')) {
                     self.updateFunctionDefinition(oldValue, newValue);
                 }
             });
