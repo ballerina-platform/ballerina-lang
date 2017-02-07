@@ -157,7 +157,7 @@ public class FunctionOverloadTest {
             Assert.assertTrue(ex instanceof BallerinaException, "Expected a " + BallerinaException.class.getName() +
                     ", but found: " + ex.getClass() + ".");
             Assert.assertEquals(ex.getMessage(),
-                    "invalid-function-overloading.bal:5: duplicate function 'testOverloading'");
+                    "invalid-function-overloading.bal:5: redeclared symbol 'testOverloading'");
         }
     }
 
