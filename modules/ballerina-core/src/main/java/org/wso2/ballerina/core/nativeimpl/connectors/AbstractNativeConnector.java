@@ -174,4 +174,14 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
     public <V extends BValue> V getDefaultValue() {
         return null;
     }
+    
+    /**
+     * Resolve a symbol in the current scope only. SymbolName will not be resolved in the enclosing scopes.
+     * 
+     * @param name SymbolName to lookup.
+     * @return Symbol in the current scope. Null if the symbol name is not available in the current scope
+     */
+    public BLangSymbol resolveMembers(SymbolName name) {
+        return symbolMap.get(name);
+    }
 }
