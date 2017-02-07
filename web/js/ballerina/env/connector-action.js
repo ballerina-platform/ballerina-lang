@@ -27,7 +27,6 @@ define(['log', 'lodash'],
         var ConnectorAction = function (args) {
             this.name = _.get(args, 'name', '');
             this.action = _.get(args, 'action', '');
-            this._title = _.get(args, 'title', '');
         };
 
         ConnectorAction.prototype.setName = function (name) {
@@ -36,14 +35,6 @@ define(['log', 'lodash'],
 
         ConnectorAction.prototype.getName = function () {
             return this.name;
-        };
-
-        ConnectorAction.prototype.setTitle = function (title) {
-            this._title = title;
-        };
-
-        ConnectorAction.prototype.getTitle = function () {
-            return this._title;
         };
 
         ConnectorAction.prototype.setAction = function (action) {
@@ -57,7 +48,6 @@ define(['log', 'lodash'],
         ConnectorAction.prototype.initFromJson = function (jsonNode) {
             this.setName(jsonNode.name);
             this.setAction(jsonNode.name);
-            this.setTitle(jsonNode.name.toUpperCase());
         };
 
         return ConnectorAction;
