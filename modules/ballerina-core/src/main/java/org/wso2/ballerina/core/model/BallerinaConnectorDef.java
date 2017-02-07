@@ -56,6 +56,8 @@ public class BallerinaConnectorDef extends BType implements Connector, SymbolSco
     private VariableDefStmt[] variableDefStmts;
     private int sizeOfConnectorMem;
 
+    private BallerinaFunction initFunction;
+
     // Scope related variables
     private Map<SymbolName, BLangSymbol> symbolMap;
 
@@ -88,6 +90,14 @@ public class BallerinaConnectorDef extends BType implements Connector, SymbolSco
 
     public VariableDefStmt[] getVariableDefStmts() {
         return variableDefStmts;
+    }
+
+    public BallerinaFunction getInitFunction() {
+        return initFunction;
+    }
+
+    public void setInitFunction(BallerinaFunction initFunction) {
+        this.initFunction = initFunction;
     }
 
     public void setSizeOfConnectorMem(int sizeOfConnectorMem) {
@@ -170,6 +180,10 @@ public class BallerinaConnectorDef extends BType implements Connector, SymbolSco
     @Override
     public BLangSymbol resolve(SymbolName name) {
         return resolve(symbolMap, name);
+    }
+
+    public BLangSymbol resolveMembers(SymbolName name) {
+        return symbolMap.get(name);
     }
 
     /**

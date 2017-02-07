@@ -15,6 +15,21 @@ function testSetHeader(message msg, string header, string value) (message){
     return msg;
 }
 
+function testAddHeader (message msg, string header, string value) (message) {
+    message:addHeader(msg, header, value);
+    return msg;
+}
+
+function testRemoveHeader (message msg, string header) (message) {
+    message:removeHeader(msg, header);
+    return msg;
+}
+
+function testSetXmlPayload (message msg, xml payload) (message) {
+    message:setXmlPayload(msg, payload);
+    return msg;
+}
+
 function testGetHeader(message msg, string header) (string){
     return message:getHeader(msg, header);
 }
@@ -30,9 +45,8 @@ function testGetStringPayload(message msg) (message){
 }
 
 function testEmptyString() (string){
-    message msg;
+    message msg = {};
     string strPayload;
-
     strPayload = message:getStringPayload(msg);
     return strPayload;
 }

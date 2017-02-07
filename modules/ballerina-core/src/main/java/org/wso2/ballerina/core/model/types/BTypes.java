@@ -76,6 +76,10 @@ public class BTypes {
         globalScope.define(typeJSON.getSymbolName(), typeJSON);
         globalScope.define(typeMessage.getSymbolName(), typeMessage);
         globalScope.define(typeMap.getSymbolName(), typeMap);
+
+        TypeLattice.loadImplicitCastLattice(globalScope);
+        TypeLattice.loadExplicitCastLattice(globalScope);
+
     }
 
     public static BArrayType getArrayType(String elementTypeName) {
