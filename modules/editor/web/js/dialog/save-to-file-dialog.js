@@ -207,6 +207,7 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'bootstrap'], fu
                                             .setName(configName.val())
                                             .setContent(config)
                                             .setPersisted(true)
+                                            .setLastPersisted(_.now())
                                             .setDirty(false)
                                             .save();
                                 if(app.workspaceExplorer.isEmpty()){

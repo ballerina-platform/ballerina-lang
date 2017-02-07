@@ -81,6 +81,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
 
             var fileEditor = new Ballerina.views.BallerinaFileEditor({
                 model: astRoot,
+                file: self._file,
                 container: this.$el.get(0),
                 viewOptions: ballerinaEditorOptions,
                 debugger: DebugManager
@@ -112,7 +113,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
             this._fileEditor = fileEditor;
             fileEditor.render(diagramRenderingContext);
 
-            fileEditor.on("content-modified redraw", function(){
+            fileEditor.on("content-modified", function(){
                 var updatedContent = fileEditor.getContent();
                 this._file.setContent(updatedContent);
                 this._file.setDirty(true);

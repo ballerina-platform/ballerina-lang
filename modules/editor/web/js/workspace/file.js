@@ -24,6 +24,7 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
                 name: 'untitled',
                 content: undefined,
                 isPersisted: false,
+                lastPersisted: _.now(),
                 isDirty: true
             },
 
@@ -64,6 +65,11 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
                 return this;
             },
 
+            setLastPersisted: function(lsatPersisted){
+                this.set('lastPersisted', lsatPersisted);
+                return this;
+            },
+
             setDirty: function(isDirty){
                 this.set('isDirty', isDirty);
                 this.trigger('dirty-state-change', isDirty);
@@ -91,6 +97,11 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
             getContent: function(){
                 return this.get('content')
             },
+
+            getLastPersisted: function(){
+                return this.get('lastPersisted');
+            },
+
 
             isPersisted: function(){
                 return this.get('isPersisted')

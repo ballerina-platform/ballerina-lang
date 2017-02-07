@@ -27,16 +27,17 @@ import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
+import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
-import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Headers;
 import org.wso2.carbon.messaging.MessageDataSource;
-import org.wso2.carbon.messaging.MessageProcessorException;
+import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 
 import static org.wso2.ballerina.core.runtime.Constants.BALLERINA_VERSION;
 
@@ -134,7 +135,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                     logger.debug("Sending an empty message");
                 }
             }
-            ServiceContextHolder.getInstance().getSender().send(message, balConnectorCallback);
+            BallerinaConnectorManager.getInstance().getClientConnector("http/s").send(message, balConnectorCallback,
+                    Collections.emptyMap());
 
             while (!balConnectorCallback.isResponseArrived()) {
                 synchronized (context) {
@@ -146,7 +148,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             }
             handleTransportException(balConnectorCallback.getValueRef());
             return balConnectorCallback.getValueRef();
-        } catch (MessageProcessorException e) {
+        } catch (ClientConnectorException e) {
             throw new BallerinaException("Failed to send the message to an endpoint ", context);
         } catch (InterruptedException ignore) {
         } catch (Throwable e) {
