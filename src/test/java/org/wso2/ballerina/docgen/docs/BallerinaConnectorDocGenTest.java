@@ -20,14 +20,14 @@ package org.wso2.ballerina.docgen.docs;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.model.BallerinaAction;
-import org.wso2.ballerina.core.model.BallerinaConnector;
+import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocGenTestUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -45,17 +45,17 @@ public class BallerinaConnectorDocGenTest {
             BallerinaDocGenTestUtils.printDocMap(docsMap);
             Package balPackage = docsMap.get("a.b");
 
-            List<Connector> connectors = new ArrayList<>();
+            List<BallerinaConnectorDef> connectors = new ArrayList<>();
             for (BallerinaFile balFile : balPackage.getFiles()) {
-                connectors.addAll(balFile.getConnectors());
+                connectors.addAll(Arrays.asList(balFile.getConnectors()));
             }
 
             Assert.assertEquals(connectors.size(), 1);
-            BallerinaConnector connectorDoc = (BallerinaConnector) connectors.iterator().next();
-            Assert.assertEquals(connectorDoc.getParameters().length, 4);
+            BallerinaConnectorDef connectorDoc = (BallerinaConnectorDef) connectors.iterator().next();
+            Assert.assertEquals(connectorDoc.getParameterDefs().length, 4);
             BallerinaAction[] actions = connectorDoc.getActions();
             BallerinaAction action = actions[0];
-            Assert.assertEquals(action.getParameters().length, 2);
+            Assert.assertEquals(action.getParameterDefs().length, 2);
             Assert.assertEquals(action.getReturnParameters().length, 1);
         } catch (IOException e) {
             Assert.fail();
@@ -76,17 +76,17 @@ public class BallerinaConnectorDocGenTest {
 
             Package balPackage = docsMap.get("a.b");
 
-            List<Connector> connectors = new ArrayList<>();
+            List<BallerinaConnectorDef> connectors = new ArrayList<>();
             for (BallerinaFile balFile : balPackage.getFiles()) {
-                connectors.addAll(balFile.getConnectors());
+                connectors.addAll(Arrays.asList(balFile.getConnectors()));
             }
 
             Assert.assertEquals(connectors.size(), 1);
-            BallerinaConnector connector = (BallerinaConnector) connectors.iterator().next();
-            Assert.assertEquals(connector.getParameters().length, 4);
+            BallerinaConnectorDef connector = (BallerinaConnectorDef) connectors.iterator().next();
+            Assert.assertEquals(connector.getParameterDefs().length, 4);
 
             for (BallerinaAction action : connector.getActions()) {
-                Assert.assertEquals(action.getParameters().length, 2);
+                Assert.assertEquals(action.getParameterDefs().length, 2);
                 Assert.assertEquals(action.getReturnParameters().length, 1);
             }
         } catch (IOException e) {

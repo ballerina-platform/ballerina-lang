@@ -1,8 +1,5 @@
 package a.b;
 
-import ballerina.lang.message;
-import ballerina.lang.system;
-
 @Description("Test connector")
 @Param("args: arguments")
 connector TestConnector(string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret) {
