@@ -142,19 +142,10 @@ define(['lodash', './node', 'log'],
      */
     ServiceDefinition.prototype.addAnnotation = function (key, value) {
         if (!_.isNil(key) && !_.isNil(value)) {
-            var existingAnnotation = _.find(this._annotations, function (annotation) {
-                return annotation.key == key;
-            });
-            if (_.isNil(existingAnnotation)) {
-                // If such annotation does not exists, then add a new one.
-                this._annotations.push({
-                    key: key,
-                    value: value
-                });
-            } else {
-                // Updating existing annotation.
-                existingAnnotation.value = value;
+            var options = {
+              predicate: {key: key}
             }
+            this.pushToArrayAttribute('_annotations', {key: key, value: value}, options);
         } else {
             var errorString = "Cannot add annotation @" + key + "(\"" + value + "\").";
             log.error(errorString);
