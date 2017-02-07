@@ -39,7 +39,6 @@ import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.Worker;
@@ -308,10 +307,6 @@ public class BLangLinkBuilder implements NodeVisitor {
 
     }
 
-    @Override
-    public void visit(StructDcl structDcl) {
-
-    }
 
     @Override
     public void visit(VariableDefStmt varDefStmt) {
@@ -1001,42 +996,56 @@ public class BLangLinkBuilder implements NodeVisitor {
 
     @Override
     public void visit(StructFieldAccessExpr structFieldAccessExpr) {
+        // TODO: Simplify this logic.
         calculateTempOffSet(structFieldAccessExpr);
-        ReferenceExpr varRef = structFieldAccessExpr.getVarRef();
-        // TODO : Fix this after Sameera's change. This is broken.
-        StructFieldAccessExpr fieldExpr = structFieldAccessExpr.getFieldExpr();
-        if (varRef instanceof VariableRefExpr &&
-                ((VariableRefExpr) varRef).getMemoryLocation() instanceof StructVarLocation) {
-            // Can't process varRef node. and This can't be the parent.
-            if (fieldExpr != null) {
-                structFieldAccessExpr.setNext(fieldExpr);
-
-                fieldExpr.accept(this);
-            } else {
-                structFieldAccessExpr.setNext(findNext(structFieldAccessExpr));
-            }
-        } else {
-            structFieldAccessExpr.setNext(varRef);
-            varRef.setParent(structFieldAccessExpr);
-//            calculateTempOffSet(varRef);
-            if (fieldExpr != null) {
-                varRef.setNextSibling(fieldExpr);
-
-                if (structFieldAccessExpr.getParent() == null) {
-                    // This is the parent.
-                    StructFieldAccessExprEndNode node = new StructFieldAccessExprEndNode(structFieldAccessExpr);
-                    node.setParent(structFieldAccessExpr);
-                    fieldExpr.setNextSibling(node);
-                    node.setNext(findNext(structFieldAccessExpr));
+        StructFieldAccessExprEndNode endNode = new StructFieldAccessExprEndNode(structFieldAccessExpr);
+        endNode.setParent(structFieldAccessExpr);
+        ReferenceExpr firstReferenceExpr = structFieldAccessExpr.getVarRef();
+        structFieldAccessExpr.setNext(firstReferenceExpr);
+        firstReferenceExpr.setParent(structFieldAccessExpr);
+        StructFieldAccessExpr current = structFieldAccessExpr.getFieldExpr();
+        firstReferenceExpr.setNextSibling(current);
+        firstReferenceExpr.accept(this);
+        LinkedNode lastLinkedNode = current;
+        while (current != null) {
+            calculateTempOffSet(current);
+            ReferenceExpr varRefExpr = current.getVarRef();
+            if (varRefExpr instanceof ArrayMapAccessExpr) {
+                Expression indexExpr = ((ArrayMapAccessExpr) varRefExpr).getIndexExpr();
+                lastLinkedNode.setNext(indexExpr);
+                indexExpr.setParent(structFieldAccessExpr);
+                if (current.getFieldExpr() != null) {
+                    indexExpr.setNextSibling(current.getFieldExpr());
+                    lastLinkedNode = current.getFieldExpr();
+                } else {
+                    if (structFieldAccessExpr.isLHSExpr()) {
+                        lastLinkedNode = null;
+                    } else {
+                        indexExpr.setNextSibling(endNode);
+                        lastLinkedNode = endNode;
+                    }
                 }
-                varRef.accept(this);
-                fieldExpr.accept(this);
+                indexExpr.accept(this);
             } else {
-                // If fieldExpr is null, then this is not parent node. If both fieldExpr and parent are null, this not a
-                // StructFieldAccessExpr.
-                varRef.accept(this);
+                if (current.getFieldExpr() != null) {
+                    lastLinkedNode.setNext(current.getFieldExpr());
+                    lastLinkedNode = current.getFieldExpr();
+                } else {
+                    if (!structFieldAccessExpr.isLHSExpr()) {
+                        lastLinkedNode.setNext(endNode);
+                        lastLinkedNode = endNode;
+                    }
+                }
+            }
+            current = current.getFieldExpr();
+            if (current != null) {
+                current.setParent(structFieldAccessExpr);
             }
         }
+        if (lastLinkedNode != null) {
+            lastLinkedNode.setNext(findNext(structFieldAccessExpr));
+        }
+
     }
 
     @Override
@@ -1195,26 +1204,15 @@ public class BLangLinkBuilder implements NodeVisitor {
     public void visit(StructInitExpr structInitExpr) {
         calculateTempOffSet(structInitExpr);
         StructInitExprEndNode endNode = new StructInitExprEndNode(structInitExpr);
-        Expression rExp = structInitExpr.getRExpr();
         Expression[] argExprs = structInitExpr.getArgExprs();
-        LinkedNode previous = null;
-        if (rExp != null) {
-            structInitExpr.setNext(rExp);
-            rExp.setParent(structInitExpr);
-            rExp.setNextSibling(endNode);
-            rExp.accept(this);
-            previous = rExp;
-        }
         endNode.setParent(structInitExpr);
         if (argExprs != null && argExprs.length > 0) {
-            if (structInitExpr.next == null) {
-                structInitExpr.setNext(argExprs[0]);
-            }
+            LinkedNode previous = null;
+            structInitExpr.setNext(argExprs[0]);
             for (Expression arg : argExprs) {
                 if (previous != null) {
                     previous.setNextSibling(arg);
                 }
-
                 previous = arg;
             }
             if (previous != null) {
@@ -1273,11 +1271,16 @@ public class BLangLinkBuilder implements NodeVisitor {
         // Handle this as non-blocking manner.
         Expression keyExpr = keyValueExpr.getKeyExpr();
         Expression valueExpr = keyValueExpr.getValueExpr();
-        keyValueExpr.setNext(keyExpr);
-        keyExpr.setParent(keyValueExpr);
         valueExpr.setParent(keyValueExpr);
-        keyExpr.setNextSibling(valueExpr);
-        keyExpr.accept(this);
+        if (keyExpr instanceof VariableRefExpr
+                && ((VariableRefExpr) keyExpr).getMemoryLocation() instanceof StructVarLocation) {
+            keyValueExpr.setNext(valueExpr);
+        } else {
+            keyValueExpr.setNext(keyExpr);
+            keyExpr.setParent(keyValueExpr);
+            keyExpr.setNextSibling(valueExpr);
+            keyExpr.accept(this);
+        }
         valueExpr.accept(this);
     }
 
