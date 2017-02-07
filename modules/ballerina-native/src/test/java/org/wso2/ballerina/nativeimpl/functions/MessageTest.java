@@ -20,6 +20,7 @@ package org.wso2.ballerina.nativeimpl.functions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.message.StringDataSource;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BMessage;
@@ -30,6 +31,7 @@ import org.wso2.ballerina.nativeimpl.util.Functions;
 import org.wso2.ballerina.nativeimpl.util.ParserUtils;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Header;
+import org.wso2.carbon.messaging.MessageDataSource;
 
 import java.util.List;
 
@@ -62,9 +64,9 @@ public class MessageTest {
         final String payload = "{\"name\":\"Jack\",\"address\":\"WSO2\"}";
         BValue[] args = { new BMessage(carbonMsg), new BJSON(payload) };
         BValue[] returns = Functions.invoke(bFile, "testSetJSONPayload", args);
-        BValue newPayload = ((BMessage) returns[0]).getBuiltPayload();
+        MessageDataSource newPayload = ((BMessage) returns[0]).getMessageDataSource();
         Assert.assertTrue(newPayload instanceof BJSON);
-        String value = newPayload.stringValue();
+        String value = newPayload.getMessageAsString();
         Assert.assertEquals(value, payload);
     }
 
@@ -89,8 +91,8 @@ public class MessageTest {
         BValue[] args = { new BMessage(carbonMsg), new BXML(xmlPayload) };
         BValue[] returns = Functions.invoke(bFile, "testSetXmlPayload", args);
         BMessage bMessage = ((BMessage) returns[0]);
-        BValue payload = bMessage.getBuiltPayload();
-        Assert.assertEquals(payload.stringValue(), xmlPayload, "XML payload not set properly");
+        MessageDataSource newPayload = ((BMessage) returns[0]).getMessageDataSource();
+        Assert.assertEquals(newPayload.getMessageAsString(), xmlPayload, "XML payload not set properly");
         List<Header> headers = bMessage.getHeaders();
         Assert.assertEquals(headers.size(), 1, "Headers list can have only 1 header.");
         Assert.assertNotNull(headers.get(0));
@@ -150,9 +152,9 @@ public class MessageTest {
         carbonMsg.setStringMessageBody(payload);
         BValue[] args = { new BMessage(carbonMsg) };
         BValue[] returns = Functions.invoke(bFile, "testGetStringPayload", args);
-        BValue newPayload = ((BMessage) returns[0]).getBuiltPayload();
-        Assert.assertTrue(newPayload instanceof BString);
-        String value = newPayload.stringValue();
+        MessageDataSource newPayload = ((BMessage) returns[0]).getMessageDataSource();
+        Assert.assertTrue(newPayload instanceof StringDataSource);
+        String value = newPayload.getMessageAsString();
         Assert.assertEquals(value, payload);
     }
 
@@ -162,9 +164,9 @@ public class MessageTest {
         final String payload = "Hello World...!!!";
         BValue[] args = { new BMessage(carbonMsg), new BString(payload) };
         BValue[] returns = Functions.invoke(bFile, "testSetStringPayload", args);
-        BValue newPayload = ((BMessage) returns[0]).getBuiltPayload();
-        Assert.assertTrue(newPayload instanceof BString);
-        String value = newPayload.stringValue();
+        MessageDataSource newPayload = ((BMessage) returns[0]).getMessageDataSource();
+        Assert.assertTrue(newPayload instanceof StringDataSource);
+        String value = newPayload.getMessageAsString();
         Assert.assertEquals(value, payload);
     }
 
