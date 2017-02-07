@@ -102,12 +102,21 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
             var connector = BallerinaEnvFactory.createConnector();
             connector.setName(connectorDefinition.getConnectorName());
             this.getPackage().addConnectors(connector);
-            connectorDefinition.on('child-added', function (child) {
-                var connectorAction = BallerinaEnvFactory.createConnectorAction();
-                connectorAction.setName(child.getActionName());
-                connector.addAction(connectorAction);
-            }, this);
 
+            _.each(connectorDefinition.getChildren(), function (child) {
+                if (BallerinaASTFactory.isConnectorAction(child)) {
+                    var connectorAction = BallerinaEnvFactory.createConnectorAction();
+                    connectorAction.setName(child.getActionName());
+                    connector.addAction(connectorAction);
+                }
+            });
+            connectorDefinition.on('child-added', function (child) {
+                if (BallerinaASTFactory.isConnectorAction(child)) {
+                    var connectorAction = BallerinaEnvFactory.createConnectorAction();
+                    connectorAction.setName(child.getActionName());
+                    connector.addAction(connectorAction);
+                }
+            }, this);
         };
 
         /**
