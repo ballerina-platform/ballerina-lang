@@ -247,6 +247,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
             bFunc.location = this.location;
             bFunc.name = this.name;
             bFunc.pkgPath = this.pkgPath;
+            bFunc.symbolName = new SymbolName(name, pkgPath);
 
             bFunc.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
             bFunc.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);

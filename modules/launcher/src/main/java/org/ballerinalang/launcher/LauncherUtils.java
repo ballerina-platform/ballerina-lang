@@ -136,6 +136,9 @@ public class LauncherUtils {
     }
 
     static String makeFirstLetterUpperCase(String s) {
+        if (s == null) {
+            return null;
+        }
         char c[] = s.toCharArray();
         c[0] = Character.toLowerCase(c[0]);
         return new String(c);
