@@ -110,7 +110,7 @@ public class BLangExecutionDebugger extends BLangAbstractLinkedExecutor {
 
     private LinkedNode currentHaltNode;
     private Statement nextStep;
-    private boolean done, stepNextStatement, stepOutFromCallableUnit;
+    private boolean done, stepInToStatement, stepOutFromCallableUnit;
     private DebugSessionObserver observer;
 
     public BLangExecutionDebugger(RuntimeEnvironment runtimeEnv, Context bContext) {
@@ -119,7 +119,7 @@ public class BLangExecutionDebugger extends BLangAbstractLinkedExecutor {
         this.runtimeEnvironment = runtimeEnv;
         this.positionHashMap = new HashMap<>();
         this.done = false;
-        this.stepNextStatement = false;
+        this.stepInToStatement = false;
         this.stepOutFromCallableUnit = false;
     }
 
@@ -150,7 +150,7 @@ public class BLangExecutionDebugger extends BLangAbstractLinkedExecutor {
         } else {
             LinkedNode current = currentHaltNode;
             this.currentHaltNode = null;
-            this.stepNextStatement = false;
+            this.stepInToStatement = false;
             current.next().executeLNode(this);
         }
     }
@@ -165,25 +165,31 @@ public class BLangExecutionDebugger extends BLangAbstractLinkedExecutor {
         } else {
             LinkedNode current = currentHaltNode;
             currentHaltNode = null;
-            // Currently we are stepping though statements, But this has to stop at current statement's next sibling.
-            LinkedNode previous = current;
-            while (nextStep == null) {
-                if (previous instanceof BlockStmt) {
-                    if (((BlockStmt) previous).getGotoNode() != null) {
-                        // This is a callable Unit. We have to step-in here.
-                        this.stepNextStatement = true;
+            if (current instanceof IfElseStmt || current instanceof WhileStmt) {
+                // Step Over has to goto into IfElseStmt/WhileStmt body.
+                stepInToStatement = true;
+            } else {
+                // Currently we are stepping though statements, But this has to stop at current statement's next
+                // sibling.
+                LinkedNode previous = current;
+                while (nextStep == null) {
+                    if (previous instanceof BlockStmt) {
+                        if (((BlockStmt) previous).getGotoNode() != null) {
+                            // This is a callable Unit. We have to step-in here.
+                            this.stepInToStatement = true;
+                            break;
+                        } else {
+                            // This is not a callable Unit.
+                            previous = previous.getParent();
+                            continue;
+                        }
+                    }
+                    if (previous.getNextSibling() instanceof Statement) {
+                        nextStep = (Statement) previous.getNextSibling();
                         break;
                     } else {
-                        // This is not a callable Unit.
                         previous = previous.getParent();
-                        continue;
                     }
-                }
-                if (previous.getNextSibling() instanceof Statement) {
-                    nextStep = (Statement) previous.getNextSibling();
-                    break;
-                } else {
-                    previous = previous.getParent();
                 }
             }
             current.next().executeLNode(this);
@@ -199,7 +205,7 @@ public class BLangExecutionDebugger extends BLangAbstractLinkedExecutor {
         } else {
             LinkedNode current = currentHaltNode;
             this.currentHaltNode = null;
-            this.stepNextStatement = true;
+            this.stepInToStatement = true;
             // Currently we are stepping though statements.
             // We always step in to next Statement.
             current.next().executeLNode(this);
@@ -237,11 +243,11 @@ public class BLangExecutionDebugger extends BLangAbstractLinkedExecutor {
     private synchronized void tryNext(AbstractStatement statement) {
         if (stepOutFromCallableUnit) {
             statement.next.executeLNode(this);
-        } else if (stepNextStatement || positionHashMap.containsKey(statement.getNodeLocation().toString()) ||
+        } else if (stepInToStatement || positionHashMap.containsKey(statement.getNodeLocation().toString()) ||
                 statement == nextStep) {
             currentHaltNode = statement;
             stepOutFromCallableUnit = false;
-            stepNextStatement = false;
+            stepInToStatement = false;
             nextStep = null;
             if (observer != null) {
                 observer.notifyHalt(getBreakPointInfo());
@@ -546,7 +552,7 @@ public class BLangExecutionDebugger extends BLangAbstractLinkedExecutor {
         super.visit(gotoNode);
         Integer pop = branchIDStack.pop();
         if (stepOutFromCallableUnit) {
-            this.stepNextStatement = true;
+            this.stepInToStatement = true;
             this.stepOutFromCallableUnit = false;
         }
         gotoNode.next(pop).executeLNode(this);
@@ -606,6 +612,32 @@ public class BLangExecutionDebugger extends BLangAbstractLinkedExecutor {
     @Override
     public void visit(VariableDefStmtEndNode variableDefStmtEndNode) {
         super.visit(variableDefStmtEndNode);
+        Expression expression = variableDefStmtEndNode.getStatement().getLExpr();
+        if (expression instanceof VariableRefExpr) {
+            VariableRefExpr variableRefExpr = (VariableRefExpr) expression;
+            String scope = "Unknown";
+            int offset = -1;
+            if (variableRefExpr.getMemoryLocation() instanceof StackVarLocation) {
+                scope = "Local";
+                offset = ((StackVarLocation) variableRefExpr.getMemoryLocation()).getStackFrameOffset();
+            } else if (variableRefExpr.getMemoryLocation() instanceof ConstantLocation) {
+                scope = "Const";
+                offset = ((ConstantLocation) variableRefExpr.getMemoryLocation()).getStaticMemAddrOffset();
+            } else if (variableRefExpr.getMemoryLocation() instanceof ServiceVarLocation) {
+                scope = "Service";
+                offset = ((ServiceVarLocation) variableRefExpr.getMemoryLocation()).getStaticMemAddrOffset();
+            } else if (variableRefExpr.getMemoryLocation() instanceof ConnectorVarLocation) {
+                scope = "Connector";
+                offset = ((ConnectorVarLocation) variableRefExpr.getMemoryLocation())
+                        .getConnectorMemAddrOffset();
+            } else if (variableRefExpr.getMemoryLocation() instanceof StructVarLocation) {
+                scope = "Struct";
+                offset = ((StructVarLocation) variableRefExpr.getMemoryLocation())
+                        .getStructMemAddrOffset();
+            }
+            bContext.getControlStack().getCurrentFrame().variables.put(
+                    variableRefExpr.getSymbolName(), new AbstractMap.SimpleEntry<>(offset, scope));
+        }
         variableDefStmtEndNode.next.executeLNode(this);
     }
 

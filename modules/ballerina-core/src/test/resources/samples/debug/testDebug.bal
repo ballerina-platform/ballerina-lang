@@ -49,7 +49,7 @@ function calculateExp2(int a, int b, int c) (int, int) {
 function testCalculateExp2(int x) (string) {
     int v1;
     int v2;
-    v1, v2 = calculateExp2(x, 4, 15);
+    v1, v2 = calculateExp2(x, 9, 15);
     if (v1 > 200) {
         return "large";
     } else {

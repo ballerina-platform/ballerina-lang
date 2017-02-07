@@ -157,11 +157,19 @@ public class DebuggerTest {
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
     }
 
-    //    @Test(description = "Testing Step over in IfCondition.")
+    @Test(description = "Testing Step over in IfCondition.")
     public void testStepOverIfStmt() {
         NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 29);
-        String[] debugCommand = {STEP_OVER, STEP_OVER, STEP_OVER, RESUME};
+        String[] debugCommand = {STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, RESUME};
         NodeLocation[] expectedBreakPoints = createBreakNodeLocations(FILE, 29, 31, 35, 44, 46);
+        startDebug(breakPoints, expectedBreakPoints, debugCommand);
+    }
+
+    @Test(description = "Testing Step over in WhileStmt.")
+    public void testStepOverWhileStmt() {
+        NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 15, 21, 18);
+        String[] debugCommand = {STEP_OVER, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME};
+        NodeLocation[] expectedBreakPoints = createBreakNodeLocations(FILE, 15, 16, 21, 21, 21, 21, 18);
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
     }
 
