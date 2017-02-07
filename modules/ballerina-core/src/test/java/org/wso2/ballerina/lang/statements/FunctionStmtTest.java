@@ -80,8 +80,9 @@ public class FunctionStmtTest {
                 { "lang/functions/invalid-return-in-ifelseblock.bal" }
                 , { "lang/functions/invalid-return-in-only-ifblock.bal" }
                 , { "lang/functions/invalid-return-in-ifelseifblock.bal" }
+                , { "lang/functions/invalid-return-in-ifelseifblock3.bal" }
                 , { "lang/functions/invalid-return-in-only-while.bal" }
-                , { "lang/functions/invalid-return-in-ifandwhile.bal" }
+                , { "lang/functions/invalid-return-in-ifandwhile.bal"}
         };
     }
 
@@ -93,6 +94,7 @@ public class FunctionStmtTest {
                 , { "lang/functions/return-in-only-ifblock.bal" }
                 , { "lang/functions/return-in-ifelseifblock1.bal" }
                 , { "lang/functions/return-in-ifelseifblock2.bal" }
+                , { "lang/functions/return-in-ifelseifblock3.bal" }
                 , { "lang/functions/return-in-only-while.bal" }
                 , { "lang/functions/return-in-ifandwhile.bal" }
         };
