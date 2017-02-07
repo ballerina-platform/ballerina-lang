@@ -30,7 +30,6 @@ import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
-import org.wso2.ballerina.lang.util.BallerinaNativeConstructsProvider;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -83,9 +82,6 @@ public class ParserUtils {
 
         // Get the model for source file
         BallerinaFile bFile = modelBuilder.build();
-
-        BallerinaNativeConstructsProvider constructLoader = new BallerinaNativeConstructsProvider();
-        constructLoader.load(globalScope);
 
         // Analyze semantic properties of the source code
         SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, bLangPackage);

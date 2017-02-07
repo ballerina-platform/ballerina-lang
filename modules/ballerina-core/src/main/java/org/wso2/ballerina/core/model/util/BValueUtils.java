@@ -20,10 +20,7 @@ package org.wso2.ballerina.core.model.util;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
-import org.wso2.ballerina.core.model.values.BJSON;
-import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.BXML;
 
 /**
  * BValue utility methods.
