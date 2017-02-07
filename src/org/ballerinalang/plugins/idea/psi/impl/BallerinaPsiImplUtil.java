@@ -18,6 +18,9 @@ package org.ballerinalang.plugins.idea.psi.impl;
 
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
@@ -39,11 +42,13 @@ import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class BallerinaPsiImplUtil {
@@ -200,11 +205,70 @@ public class BallerinaPsiImplUtil {
         return filteredPackages;
     }
 
-//    public static PsiDirectory resolveDirectory(PsiElement element) {
-//        Project project = element.getProject();
-//
-//        Collection<VirtualFile> fileList = FileBasedIndex.getInstance().getContainingFiles(FileTypeIndex.NAME,
-//                BallerinaFileType.INSTANCE, GlobalSearchScope.allScope(project));
-//        return null;
-//    }
+    public static PsiDirectory[] resolveDirectory(PsiElement element) {
+
+        PsiElement parent = element.getParent();
+
+        List<PsiDirectory> results = new ArrayList<PsiDirectory>();
+
+        Project project = element.getProject();
+        VirtualFile baseDirectory = project.getBaseDir();
+
+        List<PsiElement> packages = new ArrayList<PsiElement>();
+        packages.add(parent);
+
+        PsiElement sibling = parent.getPrevSibling();
+        while (sibling != null) {
+            if (sibling instanceof PackageNameNode) {
+                packages.add(0, sibling);
+            }
+            sibling = sibling.getPrevSibling();
+        }
+
+
+        //        packageDefinitions
+        //
+        //        Collection<? extends PsiElement> packageDefinitions =
+        //                XPath.findAll(BallerinaLanguage.INSTANCE, element.getParent().getParent(),
+        //                        "//packageName/Identifier");
+        //
+        //        PsiElement[] packages = Trees.getChildren(element.getParent().getParent());
+
+        VirtualFile match = getMatchingDirectory(baseDirectory, packages);
+        if (match != null) {
+            results.add(PsiManager.getInstance(project).findDirectory(match));
+        }
+        //        for()
+
+
+        //        PsiDirectory directory = PsiManager.getInstance(project).findDirectory(baseDir);
+
+        Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+        if (projectSdk != null) {
+            VirtualFile[] roots = projectSdk.getSdkModificator().getRoots(OrderRootType.SOURCES);
+            for (VirtualFile root : roots) {
+                match = getMatchingDirectory(root, packages);
+                if (match != null) {
+                    results.add(PsiManager.getInstance(project).findDirectory(match));
+                }
+            }
+        }
+
+
+        return results.toArray(new PsiDirectory[results.size()]);
+    }
+
+    @Nullable
+    private static VirtualFile getMatchingDirectory(VirtualFile root, List<PsiElement> packages) {
+        VirtualFile currentSelectedDirectory = root;
+        VirtualFile match = null;
+        for (PsiElement packageName : packages) {
+            match = currentSelectedDirectory.findChild(packageName.getText());
+            if (match == null) {
+                break;
+            }
+            currentSelectedDirectory = match;
+        }
+        return match;
+    }
 }
