@@ -19,9 +19,11 @@
 package org.wso2.ballerina.lang.expressions;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.EnvironmentInitializer;
+import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.utils.MessageUtils;
 import org.wso2.ballerina.lang.util.Services;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -31,9 +33,11 @@ import org.wso2.carbon.messaging.CarbonMessage;
  */
 public class ConstantTest {
 
+    private Application application;
+
     @BeforeClass
     public void setup() {
-        EnvironmentInitializer.initialize("lang/expressions/constant-declaration.bal");
+        application = EnvironmentInitializer.setup("lang/expressions/constant-declaration.bal");
     }
 
     @Test
@@ -41,5 +45,10 @@ public class ConstantTest {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        EnvironmentInitializer.cleanup(application);
     }
 }

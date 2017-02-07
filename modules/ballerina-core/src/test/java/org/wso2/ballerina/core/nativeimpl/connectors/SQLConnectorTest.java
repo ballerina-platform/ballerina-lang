@@ -19,6 +19,7 @@
 package org.wso2.ballerina.core.nativeimpl.connectors;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -26,6 +27,7 @@ import org.wso2.ballerina.core.EnvironmentInitializer;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.message.StringDataSource;
+import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
@@ -45,13 +47,15 @@ import java.sql.Statement;
  */
 public class SQLConnectorTest {
 
+    private Application application;
+
     @BeforeClass()
     public void setup() {
         SymScope symScope = GlobalScopeHolder.getInstance().getScope();
         if (symScope.lookup(new SymbolName("ballerina.lang.message:setStringPayload_message_string")) == null) {
             BuiltInNativeConstructLoader.loadConstructs();
         }
-        EnvironmentInitializer.initialize("lang/connectors/sqlconnector.bal");
+        application = EnvironmentInitializer.setup("lang/connectors/sqlconnector.bal");
         initDatabase();
     }
 
@@ -213,6 +217,12 @@ public class SQLConnectorTest {
                 //Do nothing
             }
         }
+    }
+
+
+    @AfterClass
+    public void tearDown() {
+        EnvironmentInitializer.cleanup(application);
     }
 
     @AfterSuite

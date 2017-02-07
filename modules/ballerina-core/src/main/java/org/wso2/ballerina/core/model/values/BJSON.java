@@ -238,5 +238,4 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
         void serialize(JsonGenerator gen) throws IOException;
 
     }
-
 }
