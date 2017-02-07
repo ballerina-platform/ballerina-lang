@@ -33,6 +33,10 @@ public class SwaggerResourceMapper {
     private Resource resource;
     private Operation operation;
 
+    private final static String HTTP_VERB_MATCHING_PATTERN = "(?i)|" + Constants.ANNOTATION_METHOD_GET + "|" +
+            Constants.ANNOTATION_METHOD_PUT + "|" + Constants.ANNOTATION_METHOD_POST + "|" +
+            Constants.ANNOTATION_METHOD_DELETE + "|" + Constants.ANNOTATION_METHOD_OPTIONS;
+
     /**
      * Get Swagger operation object associated with current resource
      *
@@ -142,7 +146,7 @@ public class SwaggerResourceMapper {
             Map<String, Annotation> annotationMap = resource.getAnnotationMap();
             if(annotationMap!=null) {
                 for (Map.Entry<String, Annotation> operationEntry : annotationMap.entrySet()) {
-                    if (operationEntry.getKey().matches(MapperConstants.httpVerbMatchingPattern)) {
+                    if (operationEntry.getKey().matches(HTTP_VERB_MATCHING_PATTERN)) {
                         op.setHttpOperation(operationEntry.getKey());
                     }
 
@@ -157,7 +161,7 @@ public class SwaggerResourceMapper {
                         op.getOperation().produces(annotation.getValue());
                     } else if (annotation.getName().equalsIgnoreCase("Path")) {
                         op.setPath(annotation.getValue());
-                    } else if (annotation.getName().matches(MapperConstants.httpVerbMatchingPattern)) {
+                    } else if (annotation.getName().matches(HTTP_VERB_MATCHING_PATTERN)) {
                         op.setHttpOperation(annotation.getName());
                     }
                 /*
