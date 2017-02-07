@@ -83,7 +83,7 @@ public class LauncherUtils {
 
             BuiltInNativeConstructLoader.loadConstructs(globalScope);
 
-            SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(balFile, globalScope);
+            SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(balFile, bLangPackage);
             balFile.accept(semanticAnalyzer);
 
             return balFile;
