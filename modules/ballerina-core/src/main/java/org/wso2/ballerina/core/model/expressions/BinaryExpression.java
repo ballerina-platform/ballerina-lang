@@ -64,4 +64,7 @@ public class BinaryExpression extends UnaryExpression {
         this.rExpr = rExpr;
     }
 
+    public void setLExpr(Expression lExpr) {
+        this.lExpr = lExpr;
+    }
 }
