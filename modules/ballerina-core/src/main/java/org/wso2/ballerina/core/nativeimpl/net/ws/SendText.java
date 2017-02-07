@@ -7,13 +7,15 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.websocket.server.SessionManager;
+import org.wso2.carbon.serverconnector.framework.websocket.SessionManager;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 
 import javax.websocket.Session;
 
 /**
- * get a WebSocket connector for a given connection
+ * Send text to the same user who sent the message to the given WebSocket Upgrade Path.
+ *
+ * @since 0.8.0
  */
 
 @BallerinaFunction(
@@ -37,7 +39,7 @@ public class SendText extends AbstractNativeFunction {
                 SessionManager sessionManager = SessionManager.getInstance();
                 session = sessionManager.getSession(uri, sessionId);
                 String text = getArgument(context, 1).stringValue();
-                session.getBasicRemote().sendText("Received message: " + text);
+                session.getBasicRemote().sendText(text);
             }
         } catch (Throwable t) {
             throw new BallerinaException("Cannot send the message");

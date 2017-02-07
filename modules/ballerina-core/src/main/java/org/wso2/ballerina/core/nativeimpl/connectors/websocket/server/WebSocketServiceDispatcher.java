@@ -1,4 +1,4 @@
-package org.wso2.ballerina.core.nativeimpl.connectors.http.websocket.server;
+package org.wso2.ballerina.core.nativeimpl.connectors.websocket.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Service Dispatcher for WebSocket protocol.
+ * Service Dispatcher for WebSocket Endpoint.
  *
  * @since 0.8.0
  */

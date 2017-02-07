@@ -7,7 +7,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.websocket.server.SessionManager;
+import org.wso2.carbon.serverconnector.framework.websocket.SessionManager;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 
 import java.io.IOException;
@@ -15,12 +15,14 @@ import java.util.List;
 import javax.websocket.Session;
 
 /**
- * get a WebSocket connector for a given connection
+ * Send text to all the users but not to the one who sent the message to the given WebSocket Upgrade Path.
+ *
+ * @since 0.8.0
  */
 
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
-        functionName = "sendTextToMembers",
+        functionName = "sendTextToOthers",
         args = {
                 @Argument(name = "message", type = TypeEnum.MESSAGE),
                 @Argument(name = "text", type = TypeEnum.STRING)

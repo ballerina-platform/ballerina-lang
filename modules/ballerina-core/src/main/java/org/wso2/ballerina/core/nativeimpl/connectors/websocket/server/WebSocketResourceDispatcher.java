@@ -1,4 +1,4 @@
-package org.wso2.ballerina.core.nativeimpl.connectors.http.websocket.server;
+package org.wso2.ballerina.core.nativeimpl.connectors.websocket.server;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -12,11 +12,14 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ControlCarbonMessage;
 import org.wso2.carbon.messaging.StatusCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
+import org.wso2.carbon.serverconnector.framework.websocket.SessionManager;
 
 import javax.websocket.Session;
 
 /**
  * Resource Dispatcher for WebSocket Endpoint
+ *
+ * @since 0.8.0
  */
 public class WebSocketResourceDispatcher implements ResourceDispatcher {
 

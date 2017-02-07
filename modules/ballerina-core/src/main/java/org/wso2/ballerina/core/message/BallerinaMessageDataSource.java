@@ -62,12 +62,6 @@ public class BallerinaMessageDataSource implements MessageDataSource {
         // This is where we write to output stream
     }
 
-    @Override
-    public String getMessageAsString() {
-        // TODO : Implement the method
-        return null;
-    }
-
     public void setOutputStream(OutputStream outputStream) {
     }
 

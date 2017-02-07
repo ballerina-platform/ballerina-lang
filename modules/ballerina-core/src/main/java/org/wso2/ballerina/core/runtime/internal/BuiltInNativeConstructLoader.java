@@ -36,7 +36,6 @@ import org.wso2.ballerina.core.nativeimpl.connectors.http.client.HTTPConnector;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Patch;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Post;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Put;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.websocket.server.WebSocketConnector;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayCopyOf;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayLength;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayRangeCopy;
@@ -380,11 +379,6 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new SendText());
         registerFunction(scope, new SendTextToOthers());
         registerFunction(scope, new BroadcastText());
-
-        registerConnector(scope, new WebSocketConnector());
-
-        registerAction(scope, new org.wso2.ballerina.core.nativeimpl.connectors.http.
-                websocket.server.SendText());
     }
 
     /**
