@@ -50,7 +50,7 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                 var fileBrowser;
                 var fileContent;
                 var app = this.app;
-                var notification_container = '#openFileWizardError';
+                var notification_container = this.notification_container;
                 var ballerinaEditorOptions = this.ballerina_editor;
                 // var sourceViewContainer =  this.source_view_container;
                 var diagramRenderingContext = new DiagramRenderContext();
@@ -206,7 +206,7 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                         }
                     });
                 }
-                
+
                 function isJsonString(str) {
                     try {
                         JSON.parse(str);

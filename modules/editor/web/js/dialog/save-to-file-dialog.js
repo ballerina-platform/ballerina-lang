@@ -50,7 +50,7 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
                 //TODO : this render method should be rewritten with improved UI
                 var fileBrowser;
                 var app = this.app;
-                var notification_container = '#newWizardError';
+                var notification_container = this.notification_container;
 
                 if(!_.isNil(this._fileSaveModal)){
                     this._fileSaveModal.remove();
