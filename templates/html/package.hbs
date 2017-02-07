@@ -1,41 +1,43 @@
 <!DOCTYPE HTML>
 <html>
+
 <head>
-	<title>$package.name</title>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-	<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
-	<link rel="stylesheet" href="assets/css/main.css" />
-	<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
-	<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+    <title>$package.name</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+    <!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
 </head>
+
 <body>
-	<!-- Wrapper -->
-	<div id="wrapper">
+    <!-- Wrapper -->
+    <div id="wrapper">
 
-		<!-- Main -->
-		<div id="main">
-			<div class="inner">
+        <!-- Main -->
+        <div id="main">
+            <div class="inner">
 
-				<!-- Header -->
-				<header id="header">
-					<a href="index.html" class="logo"><strong>Ballerina</strong> API Documentation</a>
-				</header>
+                <!-- Header -->
+                <header id="header">
+                    <a href="index.html" class="logo"><strong>Ballerina</strong> API Documentation</a>
+                </header>
 
-				<!-- Banner -->
-				<section id="banner">
-					<div class="content">
+                <!-- Banner -->
+                <section id="banner">
+                    <div class="content">
+                        {{#hasFunctions}}
+                        <!-- Functions -->
+                        <h2>Functions of {{fullyQualifiedName}} package</h2>
+                        {{#each publicFunctions}} {{currentObject this}}
+                        <div style="padding-bottom: 30px;">
+                            <h3 id="{{functionName}}">
+                                function {{functionName}}({{#each parameters}}<a href="">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}
+                            </h3>
+                            <p>{{oneValueAnnotation "description"}}</p>
 
-                            {{#hasFunctions}}<h2>Functions of {{fullyQualifiedName}} package</h2>
-						    {{#each publicFunctions}}
-						        {{currentObject this}}
-						        <div style="padding-bottom: 30px;">
-                                <h3 id="{{functionName}}">
-                                   function {{functionName}}({{#each parameters}}<a href="">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}
-                                </h3>
-                                <p>{{oneValueAnnotation "description"}}</p>
-
-                                <p>
+                            <p>
                                 <b>Parameters:</b>
                                 <table>
                                     <tr>
@@ -47,10 +49,9 @@
                                     </tr>
                                     {{/each}}
                                 </table>
-                                </p>
-
-                                {{#if returnParameters}}
-                                <p>
+                            </p>
+                            {{#if returnParameters}}
+                            <p>
                                 <b>Return Parameters:</b>
                                 <table>
                                     <tr>
@@ -62,172 +63,149 @@
                                     </tr>
                                     {{/each}}
                                 </table>
-                                </p>
-                                {{/if}}
-                                </div>
-                            {{/each}}
-						<p></p>
-                        <br>{{/hasFunctions}}
+                            </p>
+                            {{/if}}
+                        </div>
+                        {{/each}}
+                        <p></p>
+                        <br>{{/hasFunctions}} 
                         {{#hasConnectors}}
-                            <h2>Connectors of {{fullyQualifiedName}} package</h2>
-                        {{#each files}}
-                            {{#each connectorList}}
-                                {{currentObject this}}
-                                <h3 id="{{name}}">
-                                    connector {{#with this}}{{this.name}} ({{#each parameters}}<a
-                                        href="">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/with}}
-                                </h3>
-                                <p>{{oneValueAnnotation "description"}}</p>
-                                <p>
-                                    <b>Parameters:</b>
-                                <table>
-                                    <tr>
-                                        <th>Parameter Name</th>
-                                        <th>Data Type</th>
-                                        <th>Description</th>
-                                    </tr>
-                                    {{#each parameters}}
-                                        <tr>
-                                            <td>{{name}}</td><td><a href="">{{type}}</a></td><td>{{paramAnnotation this "param"}}</td>
-                                        </tr>
-                                    {{/each}}
-                                </table>
-                                </p>
-
-                                <b>Actions:</b><br><br>
-                                {{#each actions}}
-                                    {{currentObject this}}
-                                    <h3 id="{{name}}{{../name}}">action {{this.name}}({{#each parameters}}<a
-                                            href="">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}
-                                        )</h3>
-                                    <p>{{oneValueAnnotation "description"}}</p>
-                                    <p>
-                                        <b>Parameters:</b>
-                                    <table>
-                                        <tr>
-                                            <th>Parameter Name</th>
-                                            <th>Data Type</th>
-                                            <th>Description</th>
-                                        </tr>
-                                        {{#each parameters}}
-                                            <tr>
-                                                <td>{{name}}</td><td><a href="">{{type}}</a></td><td>{{paramAnnotation this "param"}}</td>
-                                            </tr>
-                                        {{/each}}
-                                    </table>
-                                    </p>
-                                    {{#if returnParameters}}
-                                        <p>
-                                            <b>Return Parameters:</b>
-                                        <table>
-                                            <tr>
-                                                <th>Return Variable</th>
-                                                <th>Data Type</th>
-                                                <th>Description</th>
-                                            </tr>
-                                            {{#each returnParameters}}
-                                                <tr>
-                                                    <td>{{name}}</td><td><a href="">{{type}}</a></td><td>{{paramAnnotation this "return"}}</td>
-                                                </tr>
-                                            {{/each}}
-                                        </table>
-                                        </p>
-                                    {{/if}}
+                        <!-- Connectors -->
+                        <h2>Connectors of {{fullyQualifiedName}} package</h2>
+                        {{#each files}} {{#each connectorList}} {{currentObject this}}
+                        <h3 id="{{name}}">
+                            connector {{#with this}}{{this.name}} ({{#each parameters}}<a href="">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/with}}
+                        </h3>
+                        <p>{{oneValueAnnotation "description"}}</p>
+                        <p>
+                            <b>Parameters:</b>
+                            <table>
+                                <tr>
+                                    <th>Parameter Name</th><th>Data Type</th><th>Description</th>
+                                </tr>
+                                {{#each parameters}}
+                                <tr>
+                                    <td>{{name}}</td><td><a href="">{{type}}</a></td><td>{{paramAnnotation this "param"}}</td>
+                                </tr>
                                 {{/each}}
-                            {{/each}}
-                        {{/each}}
-                        {{/hasConnectors}}
-                        <br>
+                            </table>
+                        </p>
+                        <b>Actions:</b><br><br> {{#each actions}} {{currentObject this}}
+                        <h3 id="{{name}}{{../name}}">action {{this.name}}({{#each parameters}}<a href="">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}})</h3>
+                        <p>{{oneValueAnnotation "description"}}</p>
+                        <p>
+                            <b>Parameters:</b>
+                            <table>
+                                <tr>
+                                    <th>Parameter Name</th><th>Data Type</th><th>Description</th>
+                                </tr>
+                                {{#each parameters}}
+                                <tr>
+                                    <td>{{name}}</td><td><a href="">{{type}}</a></td><td>{{paramAnnotation this "param"}}</td>
+                                </tr>
+                                {{/each}}
+                            </table>
+                        </p>
+                        {{#if returnParameters}}
+                        <p>
+                            <b>Return Parameters:</b>
+                            <table>
+                                <tr>
+                                    <th>Return Variable</th><th>Data Type</th><th>Description</th>
+                                </tr>
+                                {{#each returnParameters}}
+                                <tr>
+                                    <td>{{name}}</td><td><a href="">{{type}}</a></td><td>{{paramAnnotation this "return"}}</td>
+                                </tr>
+                                {{/each}}
+                            </table>
+                        </p>
+                        {{/if}} {{/each}} {{/each}} {{/each}}
+                        <br>{{/hasConnectors}} 
                         {{#hasStructs}}
-                        {{#each files}}
-                            {{#each structs}}
-                                    {{#public}}
-                                        <h2>Structs of {{fullyQualifiedName}} package</h2>
-                                        <h3 id="{{symbolName.name}}">
-                                            struct {{symbolName.name}}({{#each fields}}<a
-                                                href="">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}
-                                            )</h3>
-                                        <p>
-                                            <b>Variables:</b>
-                                        <table>
-                                            <tr>
-                                                <th>Variable Name</th>
-                                                <th>Data Type</th>
-                                            </tr>
-                                            {{#each fields}}
-                                                <tr>
-                                                    <td>{{name}}</td>
-                                                    <td><a href="">{{type}}</a></td>
-                                                </tr>
-                                            {{/each}}
-                                        </table>
-                                        </p>
-                                    {{/public}}
-                            {{/each}}
-                        {{/each}}
-                        {{/hasStructs}}
-					</div>
-				</section>
-			</div>
-		</div>
+                        <!-- Structs -->
+                        {{#each files}} {{#each structs}} {{#public}}
+                        <h2>Structs of {{fullyQualifiedName}} package</h2>
+                        <h3 id="{{symbolName.name}}">
+                            struct {{symbolName.name}}({{#each fields}}<a href="">{{type}}</a> {{name}}{{#unless @last}},
+                            {{/unless}}{{/each}} )
+                        </h3>
+                        <p>
+                            <b>Variables:</b>
+                            <table>
+                                <tr>
+                                    <th>Variable Name</th><th>Data Type</th>
+                                </tr>
+                                {{#each fields}}
+                                <tr>
+                                    <td>{{name}}</td><td><a href="">{{type}}</a></td>
+                                </tr>
+                                {{/each}}
+                            </table>
+                        </p>
+                        {{/public}} {{/each}} {{/each}} {{/hasStructs}}
+                    </div>
+                </section>
+            </div>
+        </div>
 
-		<!-- Sidebar -->
-		<div id="sidebar">
-			<div class="inner">
-				<!-- Menu -->
-				<nav id="menu">
-					<header class="major">
-						<h2>Menu</h2>
-					</header>
-					<ul>
-                        {{#hasFunctions}}<li>
-							<span class="opener">Functions</span>
-							<ul>
-                                {{#each publicFunctions}}<li><a href="#{{functionName}}">{{functionName}}({{#each parameters}}{{type}} {{name}}{{#unless @last}},
-                                    {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{type}}
-                                    {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}</a>
+        <!-- Sidebar -->
+        <div id="sidebar">
+            <div class="inner">
+
+                <!-- Menu -->
+                <nav id="menu">
+                    <header class="major">
+                        <h2>Menu</h2>
+                    </header>
+                    <ul>
+                        {{#hasFunctions}}
+                        <li>
+                            <span class="opener">Functions</span>
+                            <ul>
+                                {{#each publicFunctions}}
+                                <li><a href="#{{functionName}}">{{functionName}}({{#each parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}</a>
                                 </li>{{/each}}
-							</ul>
-                        </li>{{/hasFunctions}}
-                        {{#hasConnectors}}<li>
+                            </ul>
+                        </li>{{/hasFunctions}} {{#hasConnectors}}
+                        <li>
                             <span class="opener">Connectors</span>
                             <ul>
-                                {{#each files}}{{#each connectorList}}<li><a href="#{{this.name}} ">{{#with this}}{{this.name}} ({{#each parameters}}
-                                            {{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/with}}</a>
-                                <ul>
-                                {{#each actions}}
-                                    <li><a href="#{{name}}{{../name}}">{{this.name}}({{#each parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}})</a></li>
-                                {{/each}}
-                                </ul>
+                                {{#each files}}{{#each connectorList}}
+                                <li><a href="#{{this.name}} ">{{#with this}}{{this.name}} ({{#each parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/with}}</a>
+                                    <ul>
+                                        {{#each actions}}
+                                        <li><a href="#{{name}}{{../name}}">{{this.name}}({{#each parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}})</a></li>
+                                        {{/each}}
+                                    </ul>
                                 </li>{{/each}}{{/each}}
                             </ul>
-                        </li>{{/hasConnectors}}
-                        {{#hasStructs}}<li>
+                        </li>{{/hasConnectors}} {{#hasStructs}}
+                        <li>
                             <span class="opener">Structs</span>
                             <ul>
-                                {{#each files}}{{#each structs}}<li>
-                                    <a href="#{{symbolName.name}} ">{{symbolName.name}} ({{#each fields}}
-                                        {{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}})</a>
-                                </li>{{/each}}
-                                {{/each}}
+                                {{#each files}}{{#each structs}}
+                                <li>
+                                    <a href="#{{symbolName.name}} ">{{symbolName.name}} ({{#each fields}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}})</a>
+                                </li>{{/each}} {{/each}}
                             </ul>
                         </li>{{/hasStructs}}
-					</ul>
-				</nav>
+                    </ul>
+                </nav>
 
-				<!-- Footer -->
-				<footer id="footer">
-					<p class="copyright">Copyright 2017 Ballerina API Documentation</p>
-				</footer>
-			</div>
-		</div>
-	</div>
+                <!-- Footer -->
+                <footer id="footer">
+                    <p class="copyright">Copyright 2017 Ballerina API Documentation</p>
+                </footer>
+            </div>
+        </div>
+    </div>
 
-	<!-- Scripts -->
-	<script src="assets/js/jquery.min.js"></script>
-	<script src="assets/js/skel.min.js"></script>
-	<script src="assets/js/util.js"></script>
-	<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
-	<script src="assets/js/main.js"></script>
+    <!-- Scripts -->
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/skel.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+    <script src="assets/js/main.js"></script>
 </body>
 </html>
