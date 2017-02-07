@@ -33,6 +33,8 @@ public class SimpleTypeReference extends BallerinaElementReference {
     @NotNull
     @Override
     public Object[] getVariants() {
-        return new Object[]{"function1","function2"};
+        return new Object[]{"boolean", "int", "long", "float", "double", "string",
+                "message", "map", "exception"
+        };
     }
 }

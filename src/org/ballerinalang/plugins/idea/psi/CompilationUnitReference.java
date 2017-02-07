@@ -44,7 +44,7 @@ public class CompilationUnitReference extends BallerinaElementReference {
         if (previousElement == null) {
             // First element
             if (previousSibling == null && getElement().getParent() instanceof PsiErrorElement) {
-                return new Object[]{"public", "package", "import", "service", "function", "connector", "struct",
+                return new Object[]{"package", "import", " service ", " function ", " connector ", " struct ",
                         "typeconverter", "const"};
             }
             if (getElement().getParent() instanceof SimpleTypeNode) {
@@ -57,9 +57,9 @@ public class CompilationUnitReference extends BallerinaElementReference {
                 }
             }
 
-            if ("public".equals(previousSibling.getText())) {
-                return new Object[]{"function", "connector", "struct", "const"};
-            }
+            //            if ("public".equals(previousSibling.getText())) {
+            //                return new Object[]{"function", "connector", "struct", "const"};
+            //            }
 
             return new Object[0];
         }
@@ -77,12 +77,12 @@ public class CompilationUnitReference extends BallerinaElementReference {
         if (previousElement instanceof ImportDeclarationNode || previousElement instanceof PackageDeclarationNode) {
 
             if (previousSibling == null) {
-                return new Object[]{"public", "import", "service", "function", "connector", "struct", "typeconverter",
+                return new Object[]{"import", "service", "function", "connector", "struct", "typeconverter",
                         "const"};
             }
             return new Object[0];
             //            if(getElement().getPrevSibling().getPrevSibling())
         }
-        return new Object[]{"public", "service", "function", "connector", "struct", "typeconverter", "const"};
+        return new Object[]{"service", "function", "connector", "struct", "typeconverter", "const"};
     }
 }

@@ -37,7 +37,7 @@ public class StatementReference extends BallerinaElementReference {
     public Object[] getVariants() {
 
         Collection result = BallerinaPsiImplUtil.getAllFunctions(getElement());
-        result.addAll(BallerinaPsiImplUtil.getAllPackages(getElement()));
+//        result.addAll(BallerinaPsiImplUtil.getAllPackages(getElement()));
 
         return result.toArray();
         //        return new Object[]{"system", "util"};

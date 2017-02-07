@@ -96,7 +96,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
 
     public static final TokenSet KEYWORDS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             ACTION, ALL, ANY, AS, BREAK, CATCH, CONNECTOR, CONST, CREATE, ELSE, FORK, FUNCTION, IF, IMPORT, ITERATE,
-            JOIN, NULL, PACKAGE, PUBLIC, REPLY, RESOURCE, RETURN, SERVICE, STRUCT, THROW, THROWS, TIMEOUT, TRY,
+            JOIN, NULL, PACKAGE, REPLY, RESOURCE, RETURN, SERVICE, STRUCT, THROW, THROWS, TIMEOUT, TRY,
             TYPECONVERTOR, WHILE, WORKER);
 
     @NotNull

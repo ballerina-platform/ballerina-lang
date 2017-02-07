@@ -103,8 +103,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
             switch (((RuleIElementType) elType).getRuleIndex()) {
                 case RULE_compilationUnit:
                     return new CompilationUnitReference(this);
-                case RULE_importDeclaration:
-                    return new ImportReference(this);
+                //                case RULE_importDeclaration:
+                //                    return new ImportReference(this);
                 case RULE_callableUnitName:
                     //                case RULE_functionDefinition:
 
@@ -113,12 +113,12 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     return new VariableReference(this);
                 case RULE_packageName:
                     return new PackageNameReference(this);
-                case RULE_statement:
-                    return new StatementReference(this);
+                //                case RULE_statement:
+                //                    return new StatementReference(this);
                 case RULE_simpleType:
                     return new SimpleTypeReference(this);
-                case RULE_packagePath:
-                    break;
+                //                case RULE_packagePath:
+                //                    break;
                 default:
                     //                    return new Reference(this);
                     return null;
