@@ -19,7 +19,7 @@ package org.wso2.ballerina.core.model;
 /**
  * A common interface represents Ballerina Connectors and Native Connectors.
  */
-public interface Connector {
+public interface Connector extends SymbolScope {
 
     /**
      * Get list of Arguments associated with the action definition.

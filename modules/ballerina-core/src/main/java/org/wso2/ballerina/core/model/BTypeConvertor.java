@@ -190,7 +190,7 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
 
     @Override
     public void define(SymbolName name, BLangSymbol symbol) {
-
+        symbolMap.put(name, symbol);
     }
 
     @Override
