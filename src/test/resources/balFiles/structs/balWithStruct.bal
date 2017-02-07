@@ -1,6 +1,6 @@
 package a.b;
 
-public type Argument {
+struct Argument {
     string text;
     int argumentId;
     int sentiment;

@@ -20,8 +20,8 @@ package org.wso2.ballerina.docgen.docs;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.BallerinaStruct;
 import org.wso2.ballerina.core.model.Package;
+import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocGenTestUtils;
 
 import java.io.IOException;
@@ -43,13 +43,13 @@ public class BallerinaStructDocGenTest {
             Assert.assertEquals(docsMap.size(), 1);
 
             Package balPackage = docsMap.get("a.b");
-            List<BallerinaStruct> structs = new ArrayList<>();
+            List<StructDef> structs = new ArrayList<>();
             for (BallerinaFile balFile : balPackage.getFiles()) {
-                structs.addAll(Arrays.asList(balFile.getStructs()));
+                structs.addAll(Arrays.asList(balFile.getStructDefs()));
             }
 
             Assert.assertEquals(structs.size(), 1);
-            BallerinaStruct struct = (BallerinaStruct) structs.iterator().next();
+            StructDef struct = (StructDef) structs.iterator().next();
             Assert.assertEquals(struct.getFields().length, 3);
         } catch (IOException e) {
             Assert.fail();

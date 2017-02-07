@@ -4,7 +4,7 @@ package a.b;
 @Param("args: a string argument")
 @Return("response: an integer")
 function main (string[] args) (int response) {
-    system:println("Hello, World! "+args[0]);
+    //system:println("Hello, World! "+args[0]);
     return 5;
 }
 
@@ -12,5 +12,6 @@ function main (string[] args) (int response) {
 @Param("args: arguments")
 @Param("x: integer argument")
 function main (string[] args, int x) {
-    system:println("Hello, World! "+args[0]);
+    //system:println("Hello, World! "+args[0]);
+return;
 }

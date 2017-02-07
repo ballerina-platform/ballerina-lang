@@ -1,8 +1,5 @@
 package a.b;
 
-import ballerina.lang.message;
-import ballerina.lang.system;
-
 @Description("HelloWorld connector")
 @Param("args: arguments")
 connector HelloWorld(string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret) {
