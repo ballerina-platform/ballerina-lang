@@ -110,13 +110,11 @@ public class SwaggerConverterUtils {
             List<CodegenOperation> ops = paths.get(path);
             resources1 = mapSwaggerPathsToResources(ops);
         }
-        generator.generate();
         List<Annotation> serviceAnnotationArrayList = new ArrayList<Annotation>();
         serviceAnnotationArrayList.add(new Annotation("BasePath", swagger.getBasePath()));
         serviceAnnotationArrayList.add(new Annotation("Host", swagger.getHost()));
         service.setAnnotations(serviceAnnotationArrayList.toArray(new Annotation[serviceAnnotationArrayList.size()]));
         //Iterate through paths and add them as resources
-        Resource[] resources = mapPathsToResources(swagger.getPaths());
         service.setResources(resources1);
         return service;
     }
