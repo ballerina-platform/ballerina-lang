@@ -2313,18 +2313,11 @@ public class SemanticAnalyzer implements NodeVisitor {
             // return statement must be in all branches.
             if (statement instanceof IfElseStmt) {
                 IfElseStmt ifElseStmt = (IfElseStmt) statement;
-                if (ifElseStmt.getThenBody() != null && ifElseStmt.getElseIfBlocks().length == 0
-                        && ifElseStmt.getElseBody() == null) {
-                    if (!returnStmtCounter.hasOne()) {
-                        throw new SemanticException(
-                                "missing return statement of parent in " + statement.getNodeLocation().getFileName()
-                                        + ":" + statement.getNodeLocation().getLineNumber());
-                    }
-                }
-                if (!returnStmtCounter.hasOne() && (ifElseStmt.getElseBody() == null)) {
+                if (ifElseStmt.getElseBody() == null && ifElseStmt.getElseIfBlocks().length == 0
+                        && !returnStmtCounter.hasOne()) {
                     throw new SemanticException(
-                            "missing return statement in branch" + statement.getNodeLocation().getFileName()
-                                    + ":" + statement.getNodeLocation().getLineNumber());
+                            "missing return statement in branch " + statement.getNodeLocation().getFileName() + ":"
+                                    + statement.getNodeLocation().getLineNumber());
                 }
                 returnStmtCounter.reset();
                 checkFunctionReturnStmtLocations((BlockStmt) ifElseStmt.getThenBody(), returnStmtCounter);
@@ -2360,7 +2353,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                             "missing return statement in while loop " + statement.getNodeLocation().getFileName() + ":"
                                     + statement.getNodeLocation().getLineNumber());
                 }
-            } //else if(statement instanceof If)
+            }
         }
     }
 
