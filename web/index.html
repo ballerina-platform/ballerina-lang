@@ -19,14 +19,14 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    
     <title>Ballerina Editor</title>
 
     <!-- Favion -->
     <link href="images/favicon.png" rel="icon" type="image/png" sizes="16x16" />
 
     <script src="lib/css-browser-selector_0.4.0/css_browser_selector.js"></script>
-
+    
     <link href="lib/font-wso2-1.2.1/css/font-wso2.min.css" rel="stylesheet" type="text/css"/>
     <link href="lib/theme-wso2-2.0.0/css/theme-wso2.css" rel="stylesheet" type="text/css"/>
     <link href="lib/jquery-ui_v1.12.1/jquery-ui.css" rel="stylesheet" type="text/css"/>
@@ -49,6 +49,7 @@
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
     <link rel="stylesheet" type="text/css" href="css/debugger.css"/>
     <link rel="stylesheet" type="text/css" href="css/left-tool-bar.css"/>
+    <link rel="stylesheet" type="text/css" href="css/type-mapper.css"/>
 </head>
 <body class="sticky-footer">
 
@@ -449,7 +450,7 @@
 <!--End: Search Modal-->
 
 <!--Start: Debug Modal-->
-<div class="modal fade" id="modalDebugConnection" tabindex="-1" role="dialog">
+<div class="modal fade debug" id="modalDebugConnection" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content clearfix">
             <div class="modal-header">
@@ -459,16 +460,17 @@
                 <h4 class="modal-title" >Debug Connection</h4>
             </div>
             <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
-              <div class="form-group">
+              <div class="form-group debug-connection-group">
                 <label class="sr-only" for="debugUrl">Server URL</label>
                 <div class="input-group">
                   <div class="input-group-addon">ws://</div>
                   <input type="text" class="form-control" id="debugUrl" placeholder="localhost:5006" value="localhost:5006" />
                 </div>
+                <span class="help-block debug-connection-error hide"><i class="fw fw-alert"></i> Connection error please check provided URL.</span>
               </div>
               <div class='form-group'>
-                    <button type='button' class='btn  pull-right btn-file-dialog' data-dismiss='modal'>Cancel</button>
-                    <button type='button' class='btn pull-right btn-file-dialog debug-connect-button'>Connect</button>
+                    <button type='button' class='btn pull-right btn-file-dialog' data-dismiss='modal'>Cancel</button>
+                    <button type='button' class='btn btn-primary pull-right btn-file-dialog debug-connect-button'>Debug</button>
               </div>
             </div>
         </div>
@@ -538,6 +540,7 @@
             jquery_ui: "lib/jquery-ui_v1.12.1/jquery-ui",
             bootstrap: "lib/bootstrap_v3.3.6/js/bootstrap",
             d3: "lib/d3_v4.1.1/d3",
+            dagre: "lib/dagre-0.7.4/dagre.min",
             log4javascript: "lib/log4javascript-1.4.13/log4javascript",
             lodash: "lib/lodash_v4.13.1/lodash",
             backbone: "lib/backbone_v1.3.3/backbone",
@@ -551,6 +554,7 @@
             jquery_context_menu: "lib/context-menu_v2.4.2/jquery.contextMenu.min",
             html5_shiv: "lib/html5shiv_3.7.2/html5shiv.min",
             respond: "lib/respond_1.4.2/respond.min",
+            jsPlumb: "lib/jsPlumb-1.5.0/jquery.jsPlumb-1.5.0-min",
             yaml: "lib/js-yaml-v3.7.0/dist/js-yaml.min",
             ///////////////////////
             // custom modules ////
@@ -571,11 +575,17 @@
             breadcrumbs: "js/breadcrumbs/breadcrumbs",
             property_pane_utils: "js/property-pane/property-pane-utils",
             debugger: "js/debugger/debugger",
-			expression_editor_utils: "js/expression-editor/expression-editor-utils"
+			expression_editor_utils: "js/expression-editor/expression-editor-utils",
+            constants: 'js/constants/constants',
+            typeMapper: 'js/type-mapper/type-mapper-renderer'
         },
         shim: {
             "bootstrap": {"deps": ['jquery']},
-            "theme_wso2": {"deps": ['jquery', 'bootstrap', 'html5_shiv', 'respond']}
+            "theme_wso2": {"deps": ['jquery', 'bootstrap', 'html5_shiv', 'respond']},
+            "jsPlumb": {
+                deps: ['jquery','jquery_ui'],
+                exports: 'jsPlumb'
+            }
         },
         map: {
             "*": {
@@ -793,7 +803,9 @@
                                 canvas_container: 'canvas-container',
                                 panel_delete_icon: 'fw fw-delete pull-right right-icon-clickable delete-icon hoverable',
                                 panel_annotation_icon: 'fw fw-annotation pull-right right-icon-clickable hoverable',
-                                panel_args_icon: 'fw fw-import pull-right right-icon-clickable hoverable'
+                                panel_args_icon: 'fw fw-import pull-right right-icon-clickable hoverable',
+                                type_mapper_icon: 'fw fw-dgm-service fw-inverse',
+                                type_struct_icon: 'fw fw-dgm-service fw-inverse'
                             },
                             notifications: {
                                 container: '#notification-container'

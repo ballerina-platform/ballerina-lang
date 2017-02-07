@@ -35,7 +35,7 @@ define(['lodash', './expression'], function (_, Expression) {
      * @param {Object} jsonNode to initialize from
      */
     ArrayMapAccessExpression.prototype.initFromJson = function (jsonNode) {
-        this.setExpression(this.generateArrayMapAccessExpressionString(jsonNode));
+        this.setExpression(this.generateArrayMapAccessExpressionString(jsonNode), {doSilently: true});
     };
 
     /**
