@@ -86,7 +86,7 @@
                     <executions>
                         <execution>
                             <id>analyze-compile</id>
-                            <phase>none</phase>
+                            <phase>compile</phase>
                             <goals>
                                 <goal>check</goal>
                             </goals>
