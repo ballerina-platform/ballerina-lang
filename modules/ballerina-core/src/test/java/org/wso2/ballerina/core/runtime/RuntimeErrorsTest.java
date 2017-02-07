@@ -19,12 +19,14 @@
 package org.wso2.ballerina.core.runtime;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.EnvironmentInitializer;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.SymScope;
+import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Get;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.HTTPConnector;
@@ -45,7 +47,9 @@ import org.wso2.carbon.messaging.CarbonMessage;
 public class RuntimeErrorsTest {
     
     private BallerinaFile bFile;
-    
+    Application application;
+
+
     @BeforeClass
     public void setup() {
         SymScope symScope = GlobalScopeHolder.getInstance().getScope();
@@ -53,7 +57,7 @@ public class RuntimeErrorsTest {
         PackageRegistry.getInstance().registerNativeConnector(new HTTPConnector());
         PackageRegistry.getInstance().registerNativeAction(new Get());
         bFile = ParserUtils.parseBalFile("lang/errors/runtime-errors.bal", symScope);
-        EnvironmentInitializer.initialize("lang/errors/undeclared-package-errors.bal");
+        application = EnvironmentInitializer.setup("lang/errors/undeclared-package-errors.bal");
     }
 
     @Test
@@ -155,5 +159,10 @@ public class RuntimeErrorsTest {
         sb.append("\t at test.lang:infiniteRecurse(runtime-errors.bal:47)\n");
         sb.append("\t at test.lang:testStackOverflow(runtime-errors.bal:46)\n");
         return sb.toString();
+    }
+
+    @AfterClass
+    public void tearDown() {
+        EnvironmentInitializer.cleanup(application);
     }
 }

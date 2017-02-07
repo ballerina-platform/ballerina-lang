@@ -29,7 +29,6 @@ import javax.ws.rs.core.Response;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
@@ -217,9 +216,7 @@ public class WorkspaceService {
                 logger.error("/read service error", throwable.getMessage());
             }
 		}
-
 	}
-
 
     @POST
     @Path("/log")
@@ -249,19 +246,9 @@ public class WorkspaceService {
         return this.workspace;
     }
 
-    private Response getErrorResponse(Exception ex){
-        JsonObject entity = new JsonObject();
-        entity.addProperty("Error ", ex.getMessage());
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(entity)
-                .header("Access-Control-Allow-Origin", '*')
-                .type(MediaType.APPLICATION_JSON)
-                .build();
-    }
-
     private Response getErrorResponse(Throwable ex){
         JsonObject entity = new JsonObject();
-        entity.addProperty("Error ", ex.getMessage());
+        entity.addProperty("Error", ex.getMessage());
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity(entity)
                 .header("Access-Control-Allow-Origin", '*')

@@ -236,6 +236,9 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
                 if(file.isPersisted()){
                     if(file.isDirty()){
                         self._serviceClient.writeFile(file);
+                        if(activeTab.getBallerinaFileEditor().isInSourceView()){
+                            activeTab.getBallerinaFileEditor().getSourceView().markClean();
+                        }
                     }
                 } else {
                     app.commandManager.dispatch('open-file-save-dialog');

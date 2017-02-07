@@ -58,16 +58,41 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
             log.debug('End Visit BallerinaASTRoot');
         };
 
+        /**
+         * visit function definition
+         * @param {Object} functionDefinition - function definition model
+         */
         BallerinaASTRootVisitor.prototype.visitFunctionDefinition = function (functionDefinition) {
             var functionDef = BallerinaEnvFactory.createFunction();
             functionDef.setName(functionDefinition.getFunctionName());
             functionDef.setTitle(functionDefinition.getFunctionName());
             functionDef.setId(functionDefinition.getFunctionName());
             this.getPackage().addFunctionDefinitions(functionDef);
+
+            var self = this;
+            functionDefinition.on('tree-modified', function (modifiedData) {
+                var attributeName = modifiedData.data.attributeName;
+                var newValue = modifiedData.data.newValue;
+                var oldValue = modifiedData.data.oldValue;
+                if (_.isEqual(attributeName, '_functionName')) {
+                    self.updateFunctionDefinition(oldValue, newValue);
+                }
+            });
         };
 
         BallerinaASTRootVisitor.prototype.visitStructDefinition = function (structDefinition) {
             this.getPackage().addStructDefinitions(structDefinition);
+        };
+
+        BallerinaASTRootVisitor.prototype.visitTypeMapperDefinition = function (typeMapperDefinition) {
+            //todo need to refactored
+//            var typeMapperDef = BallerinaEnvFactory.createTypeMapper();
+//            typeMapperDef.setName(typeMapperDefinition.getTypeMapperName());
+//            typeMapperDef.setTitle(typeMapperDefinition.getTypeMapperName());
+//            typeMapperDef.setId(typeMapperDefinition.getTypeMapperName());
+//            typeMapperDef.setSourceAndIdentifier(typeMapperDefinition.getSourceAndIdentifier());
+//            typeMapperDef.setReturnType(typeMapperDefinition.getReturnType());
+            this.getPackage().addTypeMapperDefinitions(typeMapperDefinition);
         };
 
         /**
@@ -87,6 +112,17 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
          */
         BallerinaASTRootVisitor.prototype.removeFunctionDefinition = function (functionDef) {
             this.getPackage().removeFunctionDefinition(functionDef);
+        };
+
+        /**
+         * updates function definition with new value
+         * @param {Object} oldValue - old value
+         * @param {Object} newValue - new value
+         */
+        BallerinaASTRootVisitor.prototype.updateFunctionDefinition = function (oldValue, newValue) {
+            var functionDefinition = this.getPackage().getFunctionDefinitionByName(oldValue);
+            functionDefinition.setName(newValue);
+            functionDefinition.setId(newValue);
         };
 
         return BallerinaASTRootVisitor;

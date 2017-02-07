@@ -83,9 +83,13 @@
 
 .headingDeleteIcon {
     cursor: pointer;
-    opacity: 0.4;
     fill: url(#deleteIcon);
  }
+
+/*Resolves the issue of not showing the css referred svg images not showing in firefox*/
+svg use svg {
+    fill: inherit;
+}
 
 .headingDeleteIcon:hover {
     opacity: 1;
@@ -435,7 +439,6 @@ text-anchor: start;
 
 .headingAnnotationBlackIcon {
     cursor: pointer;
-    opacity: 0.4;
     fill: url(#annotationBlackIcon);
 }
 
@@ -465,7 +468,6 @@ text-anchor: start;
 
 .headingArgumentsBlackIcon {
     cursor: pointer;
-    opacity: 0.4;
     fill: url(#argumentsBlackIcon);
 }
 
@@ -481,7 +483,6 @@ text-anchor: start;
 
 .headingReturnTypeBlackIcon {
     cursor: pointer;
-    opacity: 0.4;
     fill: url(#returnTypeBlackIcon);
 }
 
