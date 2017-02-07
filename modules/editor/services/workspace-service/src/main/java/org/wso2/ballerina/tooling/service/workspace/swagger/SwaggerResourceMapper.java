@@ -93,14 +93,18 @@ public class SwaggerResourceMapper {
             switch (httpOperation) {
                 case Constants.ANNOTATION_METHOD_GET:
                     path.get(operation);
+                    break;
                 case Constants.ANNOTATION_METHOD_PUT:
                     path.put(operation);
+                    break;
                 case Constants.ANNOTATION_METHOD_POST:
                     path.post(operation);
                 case Constants.ANNOTATION_METHOD_DELETE:
                     path.delete(operation);
+                    break;
                 case Constants.ANNOTATION_METHOD_OPTIONS:
                     path.options(operation);
+                    break;
                 case Constants.ANNOTATION_METHOD_PATCH:
                     path.patch(operation);
                     break;
@@ -113,6 +117,7 @@ public class SwaggerResourceMapper {
 
     /**
      * Converts operation into a resource.
+     *
      * @param pathMap
      * @return resources
      */
