@@ -65,7 +65,6 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
         BallerinaASTRootVisitor.prototype.visitFunctionDefinition = function (functionDefinition) {
             var functionDef = BallerinaEnvFactory.createFunction();
             functionDef.setName(functionDefinition.getFunctionName());
-            functionDef.setTitle(functionDefinition.getFunctionName());
             functionDef.setId(functionDefinition.getFunctionName());
             this.getPackage().addFunctionDefinitions(functionDef);
 
@@ -100,10 +99,15 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
          * @param {Object} connectorDefinition - connector definition model
          */
         BallerinaASTRootVisitor.prototype.visitConnectorDefinition = function (connectorDefinition) {
-            var connector = new Connector();
+            var connector = BallerinaEnvFactory.createConnector();
             connector.setName(connectorDefinition.getConnectorName());
-            connector.setTitle(connectorDefinition.getConnectorName());
             this.getPackage().addConnectors(connector);
+            connectorDefinition.on('child-added', function (child) {
+                var connectorAction = BallerinaEnvFactory.createConnectorAction();
+                connectorAction.setName(child.getActionName());
+                connector.addAction(connectorAction);
+            }, this);
+
         };
 
         /**

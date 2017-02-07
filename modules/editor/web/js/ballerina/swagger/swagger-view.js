@@ -38,13 +38,16 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
 
        var initSwaggerEditor = function(self, content){
            self._swaggerHolder = new SwaggerHolder();
+           self._swaggerHolder.setSwaggerAsText(content);
            parent.SwaggerHolder = self._swaggerHolder;// Allowing Swagger Editor to inject this swagger holder
            var swaggerEditor = $(self._container).find('div.swaggerEditor');
            swaggerEditor.html('<iframe class="se-iframe" width=100% height="100%"></iframe>');
            swaggerEditor.find('iframe.se-iframe').attr("src", swaggerEditor.data("editor-url"));
            swaggerEditor.ready(function () {
-               self._swaggerHolder.setSwaggerAsText(content);
-               self._swaggerHolder.getEditor().updateSwaggerEditor();
+               var editor = self._swaggerHolder.getEditor();
+               if (editor) {
+                   editor.updateSwaggerEditor();
+               }
            });
        };
 
