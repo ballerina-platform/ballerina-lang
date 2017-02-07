@@ -143,6 +143,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * creates mapInitExpression
+         * @param {Object} args - object for mapInitExpression creation
+         * @returns {MapInitExpression}
+         */
+        BallerinaASTFactory.createMapInitExpression = function (args) {
+            return new mapInitExpression(args);
+        };
+
+        /**
          * creates typeMapperDefinition
          * @param {Object} args - object for typeMapperDefinition creation
          * @returns {TypeMapperDefinition}
@@ -1127,6 +1136,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'struct_definition':
                         node = BallerinaASTFactory.createStructDefinition();
+                        break;
+                    case 'map_init_expression':
+                        node = BallerinaASTFactory.createMapInitExpression();
                         break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;

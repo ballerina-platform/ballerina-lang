@@ -178,8 +178,6 @@ public class BLangJSONModelConstants {
 
     public static final String MAP_INIT_EXPRESSION = "map_init_expression";
 
-    public static final String MAP_ENCLOSED_EXPRESSION = "map_enclosed_expression";
-
     public static final String INSTANCE_CREATION_EXPRESSION = "instance_creation_expression";
 
     public static final String INSTANCE_CREATION_EXPRESSION_INSTANCE_TYPE = "instance_type";
