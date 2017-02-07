@@ -166,7 +166,7 @@ public class StructTest {
     @Test(description = "Test accessing an undeclared field of a struct",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "undeclared-attribute-access.bal:5: field 'id' not found in struct" +
-                    " 'Department'.")
+            " 'Department'.")
     public void testUndeclaredFieldAccess() {
         ParserUtils.parseBalFile("lang/structs/undeclared-attribute-access.bal");
     }
@@ -178,4 +178,27 @@ public class StructTest {
         ParserUtils.parseBalFile("lang/structs/struct-constants.bal");
     }
     
+    @Test(description = "Test initializing a struct with undeclared field",
+            expectedExceptions = {BallerinaException.class},
+            expectedExceptionsMessageRegExp = "undeclared-attribute-init.bal:3: unknown field 'age' in struct" +
+            " 'Department'")
+    public void testUndeclareFieldInit() {
+        ParserUtils.parseBalFile("lang/structs/undeclared-attribute-init.bal");
+    }
+    
+    @Test(description = "Test initializing a struct with mismatching field type",
+            expectedExceptions = {BallerinaException.class},
+            expectedExceptionsMessageRegExp = "invalid-type-attribute-init.bal:3: incompatible type: 'string' " +
+            "expected, found 'int'")
+    public void testMismatchingTypeFieldInit() {
+        ParserUtils.parseBalFile("lang/structs/invalid-type-attribute-init.bal");
+    }
+    
+    @Test(description = "Test initializing a struct with invalid field name",
+            expectedExceptions = {BallerinaException.class},
+            expectedExceptionsMessageRegExp = "invalid-field-name-init.bal:3: invalid field name in struct " +
+            "initializer")
+    public void testInvalidFieldNameInit() {
+        ParserUtils.parseBalFile("lang/structs/invalid-field-name-init.bal");
+    }
 }
