@@ -78,8 +78,9 @@ define(['lodash', './node'], function(_, ASTNode){
      * */
     ConnectorDeclaration.prototype.setConnectorExpression = function (expression, options) {
         if (!_.isNil(expression) && expression !== "") {
-            var leftSide = expression.split("=", 2)[0];
-            var rightSide = expression.split("=", 2)[1];
+            var firstAssignmentIndex = expression.indexOf("=");
+            var leftSide = expression.slice(0, firstAssignmentIndex);
+            var rightSide = expression.slice((firstAssignmentIndex + 1), expression.length);
 
             if (leftSide) {
                 leftSide = leftSide.trim();
