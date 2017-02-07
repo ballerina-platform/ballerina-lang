@@ -120,7 +120,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 };
                 //TODO : use a generic icon
                 connector.icon = "images/tool-icons/connector.svg";
-                connector.title = connector.getTitle();
+                connector.title = connector.getName();
                 connector.id = connector.getName();
                 definitions.push(connector);
                 _.each(connector.getActions(), function (action, index, collection) {
@@ -135,7 +135,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                         actionPackageName: packageName
                     };
                     action.icon = "images/tool-icons/action.svg";
-                    action.title = action.getTitle();
+                    action.title = action.getName();
                     action.nodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression;
                     action.id = connector.getName() + '-' + action.getAction();
                     definitions.push(action);
@@ -153,7 +153,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 };
                 //TODO : use a generic icon
                 functionDef.icon = "images/tool-icons/function.svg";
-                functionDef.title = functionDef.getTitle();
+                functionDef.title = functionDef.getName();
                 functionDef.id = functionDef.getName();
                 definitions.push(functionDef);
 
@@ -171,11 +171,18 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 toolDefinitions: definitions
             });
 
-            package.on('connector-defs-added', function (child) {
+            package.on('connector-defs-added', function (connector) {
                 var nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
                 var toolGroupID = package.getName() + "-tool-group";
                 var icon = "images/tool-icons/connector.svg";
-                this.addToToolGroup(toolGroupID, child, nodeFactoryMethod, icon);
+                this.addToToolGroup(toolGroupID, connector, nodeFactoryMethod, icon);
+
+                connector.on('connector-action-added', function (action) {
+                    var actionIcon = "images/tool-icons/action.svg";
+                    action.classNames = "tool-connector-action";
+                    var actionNodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression;
+                    self.addToToolGroup(toolGroupID, action, actionNodeFactoryMethod, actionIcon);
+                });
             }, this);
 
             package.on('function-defs-added', function (child) {
@@ -208,14 +215,10 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
         ToolPaletteItemProvider.prototype.addToToolGroup = function (toolGroupID, toolItem, nodeFactoryMethod, icon) {
             var tool = {};
             tool.nodeFactoryMethod = nodeFactoryMethod;
-            tool.meta = {
-                connectorName: toolItem.getName(),
-                connectorPackageName: ''
-            };
-            //TODO : use a generic icon
             tool.icon = icon;
             tool.title = toolItem.getName();
             tool.id = toolItem.getName();
+            tool.classNames = toolItem.classNames;
             this._toolPalette.addNewToolToGroup(toolGroupID, tool);
         };
 
