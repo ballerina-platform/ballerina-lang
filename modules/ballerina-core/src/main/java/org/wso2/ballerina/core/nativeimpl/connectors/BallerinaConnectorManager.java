@@ -22,10 +22,11 @@ import org.wso2.ballerina.core.runtime.MessageProcessor;
 import org.wso2.ballerina.core.runtime.dispatching.ResourceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
 import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
+import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
-import org.wso2.carbon.serverconnector.framework.ServerConnectorManager;
+import org.wso2.carbon.serverconnector.framework.ConnectorManager;
 
 import java.util.Optional;
 import java.util.ServiceLoader;
@@ -35,7 +36,7 @@ import java.util.ServiceLoader;
  */
 public class BallerinaConnectorManager {
 
-    private ServerConnectorManager serverConnectorManager = new ServerConnectorManager();
+    private ConnectorManager connectorManager = new ConnectorManager();
 
     private static BallerinaConnectorManager instance = new BallerinaConnectorManager();
 
@@ -49,13 +50,17 @@ public class BallerinaConnectorManager {
     }
 
     public ServerConnector getServerConnector(String id) {
-        return serverConnectorManager.getServerConnector(id);
+        return connectorManager.getServerConnector(id);
+    }
+
+    public ClientConnector getClientConnector(String protocol) {
+        return connectorManager.getClientConnector(protocol);
     }
 
     public ServerConnector createServerConnector(String protocol, String id) {
         ServerConnector serverConnector;
         try {
-            serverConnector = serverConnectorManager.createServerConnector(protocol, id);
+            serverConnector = connectorManager.createServerConnector(protocol, id);
         } catch (ServerConnectorException e) {
             throw new BallerinaException("Error occurred while creating a server connector for protocol : '" +
                     protocol + "' with the given id : '" + id + "'", e);
@@ -65,11 +70,11 @@ public class BallerinaConnectorManager {
 
 
     public void registerServerConnectorErrorHandler(ServerConnectorErrorHandler serverConnectorErrorHandler) {
-        serverConnectorManager.registerServerConnectorErrorHandler(serverConnectorErrorHandler);
+        connectorManager.registerServerConnectorErrorHandler(serverConnectorErrorHandler);
     }
 
     public Optional<ServerConnectorErrorHandler> getServerConnectorErrorHandler(String protocol) {
-        return serverConnectorManager.getServerConnectorErrorHandler(protocol);
+        return connectorManager.getServerConnectorErrorHandler(protocol);
     }
 
     public void initialize(MessageProcessor messageProcessor) {
@@ -79,12 +84,15 @@ public class BallerinaConnectorManager {
         //1. Loading service and resource dispatchers related to transports
         loadDispatchers();
 
-        //2. Initialize all the connectors
+        //2. Initialize server connectors
         try {
-            serverConnectorManager.initializeServerConnectors(messageProcessor);
+            connectorManager.initializeServerConnectors(messageProcessor);
         } catch (ServerConnectorException e) {
             throw new BallerinaException("Error occurred while initializing all server connectors", e);
         }
+
+        //3. Initialize client connectors
+        connectorManager.initializeClientConnectors();
 
         connectorsInitialized = true;
     }
