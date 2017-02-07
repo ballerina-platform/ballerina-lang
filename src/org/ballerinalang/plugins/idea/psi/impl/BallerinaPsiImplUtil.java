@@ -206,43 +206,33 @@ public class BallerinaPsiImplUtil {
     }
 
     public static PsiDirectory[] resolveDirectory(PsiElement element) {
+        List<PsiDirectory> results = new ArrayList<>();
+        Project project = element.getProject();
 
         PsiElement parent = element.getParent();
 
-        List<PsiDirectory> results = new ArrayList<PsiDirectory>();
-
-        Project project = element.getProject();
-        VirtualFile baseDirectory = project.getBaseDir();
-
-        List<PsiElement> packages = new ArrayList<PsiElement>();
+        // This is used to store all the packages which need to resolve the current package.
+        List<PsiElement> packages = new ArrayList<>();
         packages.add(parent);
 
+        // Find all previous PackageNameNode elements.
         PsiElement sibling = parent.getPrevSibling();
         while (sibling != null) {
             if (sibling instanceof PackageNameNode) {
+                // Add the sibling to the index 0 because we are traversing backward.
                 packages.add(0, sibling);
             }
             sibling = sibling.getPrevSibling();
         }
 
-
-        //        packageDefinitions
-        //
-        //        Collection<? extends PsiElement> packageDefinitions =
-        //                XPath.findAll(BallerinaLanguage.INSTANCE, element.getParent().getParent(),
-        //                        "//packageName/Identifier");
-        //
-        //        PsiElement[] packages = Trees.getChildren(element.getParent().getParent());
-
-        VirtualFile match = getMatchingDirectory(baseDirectory, packages);
+        // Get any matching directrory in the project root
+        VirtualFile match = getMatchingDirectory(project.getBaseDir(), packages);
+        // If there is a match, add it to the results.
         if (match != null) {
             results.add(PsiManager.getInstance(project).findDirectory(match));
         }
-        //        for()
 
-
-        //        PsiDirectory directory = PsiManager.getInstance(project).findDirectory(baseDir);
-
+        // Get all project source roots and find matching directories.
         Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
         if (projectSdk != null) {
             VirtualFile[] roots = projectSdk.getSdkModificator().getRoots(OrderRootType.SOURCES);
@@ -253,21 +243,18 @@ public class BallerinaPsiImplUtil {
                 }
             }
         }
-
-
         return results.toArray(new PsiDirectory[results.size()]);
     }
 
     @Nullable
     private static VirtualFile getMatchingDirectory(VirtualFile root, List<PsiElement> packages) {
-        VirtualFile currentSelectedDirectory = root;
         VirtualFile match = null;
-        for (PsiElement packageName : packages) {
-            match = currentSelectedDirectory.findChild(packageName.getText());
+        for (PsiElement element : packages) {
+            match = root.findChild(element.getText());
             if (match == null) {
                 break;
             }
-            currentSelectedDirectory = match;
+            root = match;
         }
         return match;
     }
