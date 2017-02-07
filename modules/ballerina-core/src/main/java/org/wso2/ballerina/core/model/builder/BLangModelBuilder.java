@@ -279,7 +279,8 @@ public class BLangModelBuilder {
      * @param fieldName Name of the field in the {@link StructDef}
      */
     public void addStructField(NodeLocation location, String fieldName) {
-        SymbolName symbolName = new SymbolName(fieldName, currentPackagePath);
+        // TODO: add currentPackagePath path to symbol name. i.e:  new SymbolName(fieldName, currentPackagePath);
+        SymbolName symbolName = new SymbolName(fieldName);
 
         // Check whether this constant is already defined.
         StructDef structScope = (StructDef) currentScope;
@@ -309,7 +310,9 @@ public class BLangModelBuilder {
      */
     public void addStructDef(NodeLocation location, String name) {
         currentStructBuilder.setName(name);
-        currentStructBuilder.setPackagePath(currentPackagePath);
+        
+        // TODO: Fix the package path
+//        currentStructBuilder.setPackagePath(currentPackagePath);
         StructDef structDef = currentStructBuilder.build();
 
         // Close Struct scope
@@ -317,7 +320,8 @@ public class BLangModelBuilder {
         currentStructBuilder = null;
 
         // Define StructDef Symbol in the package scope..
-        SymbolName symbolName = new SymbolName(name, currentPackagePath);
+        // TODO: add currentPackagePath when creating the SymbolName
+        SymbolName symbolName = new SymbolName(name);
 
         // Check whether this constant is already defined.
         if (currentScope.resolve(symbolName) != null) {

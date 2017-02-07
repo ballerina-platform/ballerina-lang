@@ -1,10 +1,10 @@
-type Department {
+struct Department {
 	string dptName;
 	boolean y;
 	Person prsn1;
 }
 
-type Department {
+struct Department {
 	string name;
 	int[] a1;
 }
