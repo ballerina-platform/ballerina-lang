@@ -38,6 +38,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             BallerinaView.call(this, args);
             this._canvasList = _.get(args, 'canvasList', []);
             this._debugger = _.get(args, 'debugger'); 
+            this._file = _.get(args, 'file');
             this._id = _.get(args, "id", "Ballerina File Editor");
 
             if (_.isNil(this._model) || !(this._model instanceof BallerinaASTRoot)) {
@@ -349,11 +350,12 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             this._sourceView.render();
 
+            var lastRenderedTimestamp = this._file.getLastPersisted();
+
             var sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
             sourceViewBtn.click(function () {
-                self.toolPalette.hide();
+                lastRenderedTimestamp = self._file.getLastPersisted();
                 var generatedSource = self.generateSource();
-
                 self.toolPalette.hide();
                 // Get the generated source and append it to the source view container's content
                 self._sourceView.setContent(generatedSource);
@@ -367,8 +369,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var designViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
             designViewBtn.click(function () {
                 // re-parse if there are modifications to source
-                var isSourceChanged = !self._sourceView.isClean();
-                if (isSourceChanged) {
+                var isSourceChanged = !self._sourceView.isClean(),
+                    savedWhileInSourceView = lastRenderedTimestamp < self._file.getLastPersisted();
+                if (isSourceChanged || savedWhileInSourceView) {
                     var source = self._sourceView.getContent();
                     var response = self.backend.parse(source);
                     //if there are errors display the error.
@@ -391,7 +394,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 sourceViewBtn.show();
                 designViewBtn.hide();
                 self.setInSourceView(false);
-                if(isSourceChanged){
+                if(isSourceChanged || savedWhileInSourceView){
                     // reset undo manager for the design view
                     self.getUndoManager().reset();
                     self.reDraw();
