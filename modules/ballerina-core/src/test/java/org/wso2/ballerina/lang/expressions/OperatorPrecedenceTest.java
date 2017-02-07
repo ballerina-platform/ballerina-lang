@@ -180,4 +180,94 @@ public class OperatorPrecedenceTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Test if addition and subtraction takes same precedence")
+    public void testAdditionAndSubtractionPrecedence() {
+
+        int a = 10;
+        int b = 20;
+        int c = 30;
+        int d = 40;
+
+        int expectedResult = a - b + c - d;
+
+        BValue[] args = {new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d)};
+
+        BValue[] returns = Functions.invoke(bFile, "intAdditionAndSubtractionPrecedence", args);
+
+        int actualResult = ((BInteger) returns[0]).intValue();
+
+        Assert.assertEquals(actualResult, expectedResult, "The results of addition and " +
+                "subtraction operation differ");
+    }
+
+    @Test(description = "Test if multiplication takes precedence over addition and substraction")
+    public void testMultiplicationPrecedence() {
+
+        int a = 10;
+        int b = 20;
+        int c = 30;
+        int d = 40;
+
+        int x = (a + b) * (c * d) + a * b;
+        int y = (a + b) * (c * d) - a * b;
+        int z = a + b * c * d - a * b;
+
+        int expectedResult = x + y - z;
+        BValue[] args = {new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d)};
+
+        BValue[] returns = Functions.invoke(bFile, "intMultiplicationPrecedence", args);
+
+        int actualResult = ((BInteger) returns[0]).intValue();
+
+        Assert.assertEquals(actualResult, expectedResult, "The results of multiplication operation differ");
+    }
+
+    @Test(description = "Test if division takes precedence over addition and subtraction")
+    public void testDivisionPrecedence() {
+
+        int a = 10;
+        int b = 20;
+        int c = 30;
+        int d = 40;
+
+        int x = (a + b) / (c + d) + a / b;
+        int y = (a + b) / (c - d) - a / b;
+        int z = a + b / c - d - a / b;
+
+        int expectedResult = x - y + z;
+
+        BValue[] args = {new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d)};
+
+        BValue[] returns = Functions.invoke(bFile, "intDivisionPrecedence", args);
+
+        int actualResult = ((BInteger) returns[0]).intValue();
+
+        Assert.assertEquals(actualResult, expectedResult, "The results of division operation differ");
+    }
+
+
+    @Test(description = "Test if division and multiplication takes same precedence over addition and subtraction")
+    public void testDivisionAndMultiplicationPrecedence() {
+
+        int a = 10;
+        int b = 20;
+        int c = 30;
+        int d = 40;
+
+        int x = (a + b) * (c + d) + a / b;
+        int y = (a + b) / (c - d) - a * b;
+        int z = a + b / c - d + a * b;
+
+        int expectedResult = x + y + z;
+
+        BValue[] args = {new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d)};
+
+        BValue[] returns = Functions.invoke(bFile, "intMultiplicationAndDivisionPrecedence", args);
+
+        int actualResult = ((BInteger) returns[0]).intValue();
+
+        Assert.assertEquals(actualResult, expectedResult, "The results of multiplication and " +
+                "division operation differ");
+    }
+
 }
