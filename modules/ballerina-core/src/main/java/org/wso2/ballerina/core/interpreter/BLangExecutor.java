@@ -24,7 +24,6 @@ import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Connector;
-import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.ParameterDef;
@@ -83,7 +82,6 @@ import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
-import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
 /**
  * {@code BLangExecutor} executes a Ballerina application.
@@ -263,18 +261,6 @@ public class BLangExecutor implements NodeExecutor {
         // Get values for all the function arguments
         int valueCounter = populateArgumentValues(funcIExpr.getArgExprs(), localVals);
 
-        // Populate values for Connector declarations
-//        if (function instanceof BallerinaFunction) {
-//            BallerinaFunction ballerinaFunction = (BallerinaFunction) function;
-//            valueCounter = populateConnectorDclValues(ballerinaFunction.getConnectorDcls(), localVals, valueCounter);
-//        }
-
-        // Create default values for all declared local variables
-//        for (VariableDef variableDef : function.getVariableDefs()) {
-//            localVals[valueCounter] = variableDef.getType().getDefaultValue();
-//            valueCounter++;
-//        }
-
         for (ParameterDef returnParam : function.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
@@ -322,18 +308,6 @@ public class BLangExecutor implements NodeExecutor {
 
         // Create default values for all declared local variables
         int valueCounter = populateArgumentValues(actionIExpr.getArgExprs(), localVals);
-
-        // Populate values for Connector declarations
-        if (action instanceof BallerinaAction) {
-            BallerinaAction ballerinaAction = (BallerinaAction) action;
-            valueCounter = populateConnectorDclValues(ballerinaAction.getConnectorDcls(), localVals, valueCounter);
-        }
-
-        // Create default values for all declared local variables
-        for (VariableDef variableDef : action.getVariableDefs()) {
-            localVals[valueCounter] = variableDef.getType().getDefaultValue();
-            valueCounter++;
-        }
 
         for (ParameterDef returnParam : action.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
@@ -510,7 +484,62 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public BValue visit(ConnectorInitExpr connectorInitExpr) {
-        return null;
+        BConnector bConnector;
+        BValue[] connectorMemBlock;
+        Connector connector = (Connector) connectorInitExpr.getType();
+//        if (connectorInitExpr.getType() instanceof AbstractNativeConnector) {
+
+//            //TODO Fix Issue#320
+//            AbstractNativeConnector nativeConnector = ((AbstractNativeConnector) connector).getInstance();
+//            Expression[] argExpressions = connectorDcl.getArgExprs();
+//            connectorMemBlock = new BValue[argExpressions.length];
+//
+//            for (int j = 0; j < argExpressions.length; j++) {
+//                connectorMemBlock[j] = argExpressions[j].execute(this);
+//            }
+//
+//            nativeConnector.init(connectorMemBlock);
+//            connector = nativeConnector;
+
+//        } else {
+            BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
+
+            int offset = 0;
+            connectorMemBlock = new BValue[connectorDef.getSizeOfConnectorMem()];
+            for (Expression expr : connectorInitExpr.getArgExprs()) {
+                connectorMemBlock[offset] = expr.execute(this);
+                offset++;
+            }
+
+            bConnector =  new BConnector(connector, connectorMemBlock);
+
+            // Invoke the <init> function
+            invokeConnectorInitFunction(connectorDef, bConnector);
+
+//        }
+
+        return bConnector;
+    }
+
+    private void invokeConnectorInitFunction(BallerinaConnectorDef connectorDef, BConnector bConnector) {
+        // Create the Stack frame
+        Function initFunction = connectorDef.getInitFunction();
+        BValue[] localVals = new BValue[1];
+        localVals[0] = bConnector;
+
+        // Create an array in the stack frame to hold return values;
+        BValue[] returnVals = new BValue[0];
+
+        // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
+        // return values and function invocation location;
+        SymbolName functionSymbolName = initFunction.getSymbolName();
+        CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
+                functionSymbolName.getPkgPath(), initFunction.getNodeLocation());
+
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
+        controlStack.pushFrame(stackFrame);
+        initFunction.getCallableUnitBody().execute(this);
+        controlStack.popFrame();
     }
 
     @Override
@@ -527,7 +556,7 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public BValue visit(VariableRefExpr variableRefExpr) {
-        MemoryLocation memoryLocation = variableRefExpr.getVariableDef().getMemoryLocation();
+        MemoryLocation memoryLocation = variableRefExpr.getMemoryLocation();
         return memoryLocation.execute(this);
     }
 
@@ -663,52 +692,6 @@ public class BLangExecutor implements NodeExecutor {
         return i;
     }
 
-    private int populateConnectorDclValues(ConnectorDcl[] connectorDcls, BValue[] valueParams, int valueCounter) {
-        for (ConnectorDcl connectorDcl : connectorDcls) {
-
-            BValue[] connectorMemBlock;
-            Connector connector = connectorDcl.getConnector();
-            if (connector instanceof AbstractNativeConnector) {
-
-                //TODO Fix Issue#320
-                AbstractNativeConnector nativeConnector = ((AbstractNativeConnector) connector).getInstance();
-                Expression[] argExpressions = connectorDcl.getArgExprs();
-                connectorMemBlock = new BValue[argExpressions.length];
-
-                for (int j = 0; j < argExpressions.length; j++) {
-                    connectorMemBlock[j] = argExpressions[j].execute(this);
-                }
-
-                nativeConnector.init(connectorMemBlock);
-                connector = nativeConnector;
-
-            } else {
-                BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
-
-                int offset = 0;
-                connectorMemBlock = new BValue[connectorDef.getSizeOfConnectorMem()];
-                for (Expression expr : connectorDcl.getArgExprs()) {
-                    connectorMemBlock[offset] = expr.execute(this);
-                    offset++;
-                }
-
-                // Populate all connector declarations
-//                offset = populateConnectorDclValues(connectorDef.getConnectorDcls(), connectorMemBlock, offset);
-//
-//                for (VariableDef variableDef : connectorDef.getVariableDefs()) {
-//                    connectorMemBlock[offset] = variableDef.getType().getDefaultValue();
-//                    offset++;
-//                }
-            }
-
-            BConnector connectorValue = new BConnector(connector, connectorMemBlock);
-            valueParams[valueCounter] = connectorValue;
-            valueCounter++;
-        }
-
-        return valueCounter;
-    }
-
     private String evaluteBacktickString(BacktickExpr backtickExpr) {
         String varString = "";
         for (Expression expression : backtickExpr.getArgExprs()) {
@@ -774,7 +757,7 @@ public class BLangExecutor implements NodeExecutor {
             structMemBlock[offset] = field.getType().getDefaultValue();
             offset++;
         }
-        
+
         // iterate through initialized values and re-populate the memory block
         for (int i = 0; i < argExprs.length; i++) {
             MapStructInitKeyValueExpr expr = (MapStructInitKeyValueExpr) argExprs[i];
@@ -782,7 +765,7 @@ public class BLangExecutor implements NodeExecutor {
             StructVarLocation structVarLoc = (StructVarLocation) (varRefExpr).getVariableDef().getMemoryLocation();
             structMemBlock[structVarLoc.getStructMemAddrOffset()] = expr.getValueExpr().execute(this);
         }
-        
+
         return new BStruct(structDef, structMemBlock);
     }
 
@@ -818,7 +801,7 @@ public class BLangExecutor implements NodeExecutor {
     private void setFieldValue(BValue rValue, StructFieldAccessExpr expr, BValue currentVal) {
         // currentVal is a BStruct or array/map of BStruct. hence get the element value of it.
         BStruct currentStructVal = (BStruct) getUnitValue(currentVal, expr);
-        
+
         StructFieldAccessExpr fieldExpr = expr.getFieldExpr();
         int fieldLocation = ((StructVarLocation) getMemoryLocation(fieldExpr)).getStructMemAddrOffset();
 
@@ -912,7 +895,7 @@ public class BLangExecutor implements NodeExecutor {
     private BValue getFieldExprValue(StructFieldAccessExpr expr, BValue currentVal) {
         // currentVal is a BStruct or array/map of BStruct. hence get the element value of it.
         BStruct currentStructVal = (BStruct) getUnitValue(currentVal, expr);
-        
+
         StructFieldAccessExpr fieldExpr = expr.getFieldExpr();
         int fieldLocation = ((StructVarLocation) getMemoryLocation(fieldExpr)).getStructMemAddrOffset();
 
@@ -950,7 +933,7 @@ public class BLangExecutor implements NodeExecutor {
         if (currentVal == null) {
             throw new BallerinaException("field '" + currentVarRefExpr.getVarName() + "' is null");
         }
-        
+
         if (!(currentVal instanceof BArray || currentVal instanceof BMap<?, ?>)) {
             return currentVal;
         }
@@ -973,12 +956,12 @@ public class BLangExecutor implements NodeExecutor {
         } else {
             unitVal = ((BArray) currentVal).get(((BInteger) indexValue).intValue());
         }
-        
+
         if (unitVal == null) {
-            throw new BallerinaException("field '" + currentVarRefExpr.getSymbolName().getName() + "[" + 
+            throw new BallerinaException("field '" + currentVarRefExpr.getSymbolName().getName() + "[" +
                     indexValue.stringValue() + "]' is null");
         }
-        
+
         return unitVal;
     }
 
