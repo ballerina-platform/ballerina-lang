@@ -129,9 +129,8 @@ public class MessageTest {
         Assert.assertNull(bMessage.getHeader(name), "Removed header found");
     }
 
-    //    @Test
+    @Test
     public void testGetHeader() {
-        // TODO : This is not working, because CMessage Headers won't get sync with BMessage value.
         DefaultCarbonMessage carbonMsg = new DefaultCarbonMessage();
         String name = "Content-Type";
         String value = "text/plain";
