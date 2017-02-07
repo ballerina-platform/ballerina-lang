@@ -77,6 +77,7 @@ import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.types.TypeConstants;
 import org.wso2.ballerina.core.model.values.BBoolean;
@@ -325,13 +326,12 @@ public class BLangModelBuilder {
     }
 
     public void createAnnotationKeyValue(String key) {
-        //        // Assuming the annotation value is a string literal
-        //        String value = exprStack.pop().getBValueRef().getString();
-        //
-        //        Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.peek();
-        //        annotationBuilder.addKeyValuePair(new Identifier(key), value);
-
-        LOGGER.warn("Warning: Key/Value pairs in annotations are not supported");
+        Expression expr = exprStack.peek();
+        if (expr instanceof BasicLiteral && expr.getType() == BTypes.typeString) {
+            String value = ((BasicLiteral) expr).getBValue().stringValue();
+            Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.peek();
+            annotationBuilder.addKeyValuePair(new SymbolName(key), value);
+        }
     }
 
     public void endAnnotation(String name, boolean valueAvailable, NodeLocation location) {
