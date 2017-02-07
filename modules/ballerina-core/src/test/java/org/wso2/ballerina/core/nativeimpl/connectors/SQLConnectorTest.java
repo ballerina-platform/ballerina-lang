@@ -32,15 +32,11 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.MessageUtils;
-import org.wso2.ballerina.core.utils.XMLUtils;
+import org.wso2.ballerina.core.utils.SQLDBUtils;
 import org.wso2.ballerina.lang.util.Services;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * Test Class for SQL Connector.
@@ -48,6 +44,7 @@ import java.sql.Statement;
 public class SQLConnectorTest {
 
     private Application application;
+    private static final String DB_NAME = "TEST_SQL_CONNECTOR";
 
     @BeforeClass()
     public void setup() {
@@ -57,6 +54,8 @@ public class SQLConnectorTest {
         }
         application = EnvironmentInitializer.setup("lang/connectors/sqlconnector.bal");
         initDatabase();
+        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
+        SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/SQLConnetorDataFile.sql");
     }
 
     //Update Action Tests
