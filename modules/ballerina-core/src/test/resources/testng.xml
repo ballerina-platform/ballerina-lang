@@ -23,13 +23,14 @@ under the License.
 
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
-        <!--<packages>-->
+        <packages>
         <!--<package name="org.wso2.ballerina.lang.values"/>-->
         <!--<package name="org.wso2.ballerina.lang.expressions"/>-->
         <!--<package name="org.wso2.ballerina.lang.statements"/>-->
         <!--<package name="org.wso2.ballerina.lang.service"/>-->
-        <!--<package name="org.wso2.ballerina.lang.structs"/>-->
-        <!--</packages>-->
+        <package name="org.wso2.ballerina.lang.structs"/>
+        </packages>
+        
         <classes>
             <!-- Expressions -->
             <class name="org.wso2.ballerina.lang.expressions.AddExprTest"/>
