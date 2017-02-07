@@ -1,6 +1,13 @@
 package org.wso2.ballerina.tooling.service.workspace.swagger;
 
-import io.swagger.models.*;
+import io.swagger.models.Contact;
+import io.swagger.models.Info;
+import io.swagger.models.Operation;
+import io.swagger.models.Path;
+import io.swagger.models.RefModel;
+import io.swagger.models.Response;
+import io.swagger.models.Scheme;
+import io.swagger.models.Swagger;
 import io.swagger.models.parameters.BodyParameter;
 import io.swagger.models.parameters.PathParameter;
 import io.swagger.models.parameters.QueryParameter;
@@ -105,16 +112,16 @@ public class SwaggerServiceMapperTest {
                 .deprecated(true);
 
         get.parameter(new QueryParameter()
-                        .name("tags")
-                        .description("tags to filter by")
-                        .required(false)
-                        .property(new StringProperty())
+                              .name("tags")
+                              .description("tags to filter by")
+                              .required(false)
+                              .property(new StringProperty())
         );
 
         get.parameter(new PathParameter()
-                        .name("petId")
-                        .description("pet to fetch")
-                        .property(new LongProperty())
+                              .name("petId")
+                              .description("pet to fetch")
+                              .property(new LongProperty())
         );
 
         final Response response = new Response()
@@ -136,8 +143,8 @@ public class SwaggerServiceMapperTest {
                 .operationId("add pet")
                 .defaultResponse(errorResponse)
                 .parameter(new BodyParameter()
-                        .description("the pet to add")
-                        .schema(new RefModel().asDefault("Person")));
+                                   .description("the pet to add")
+                                   .schema(new RefModel().asDefault("Person")));
 
         swagger.path("/pets", new Path().get(get).post(post));
         //TODO get ballerina service and test it for all swagger attributes.
