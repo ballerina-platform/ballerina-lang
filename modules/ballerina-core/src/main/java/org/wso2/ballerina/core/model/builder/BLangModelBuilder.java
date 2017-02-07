@@ -864,16 +864,6 @@ public class BLangModelBuilder {
         Service service = currentCUGroupBuilder.buildService();
         bFileBuilder.addService(service);
 
-        // Define Service Symbol in the package scope..
-        SymbolName symbolName = new SymbolName(name, currentPackagePath);
-
-        // Check whether this constant is already defined.
-        if (currentScope.resolve(symbolName) != null) {
-            String errMsg = getNodeLocationStr(location) +
-                    "redeclared symbol '" + name + "'";
-            errorMsgs.add(errMsg);
-        }
-
         currentScope = service.getEnclosingScope();
         currentCUGroupBuilder = null;
     }
@@ -888,16 +878,6 @@ public class BLangModelBuilder {
 
         BallerinaConnectorDef connector = currentCUGroupBuilder.buildConnector();
         bFileBuilder.addConnector(connector);
-
-        // Define ConnectorDef Symbol in the package scope..
-        SymbolName symbolName = new SymbolName(name);
-
-        // Check whether this constant is already defined.
-        if (currentScope.resolve(symbolName) != null) {
-            String errMsg = getNodeLocationStr(location) +
-                    "redeclared symbol '" + name + "'";
-            errorMsgs.add(errMsg);
-        }
 
         currentScope = connector.getEnclosingScope();
         currentCUGroupBuilder = null;
@@ -919,15 +899,14 @@ public class BLangModelBuilder {
 
         if (blockStmtBuilderStack.size() == 0 && currentCUGroupBuilder != null) {
             if (rhsExpr != null) {
-                if (rhsExpr instanceof ActionInvocationExpr) {
+                if (rhsExpr instanceof BasicLiteral || rhsExpr instanceof VariableRefExpr) {
+                    currentCUGroupBuilder.addVariableDef(variableDefStmt);
+                } else {
                     String errMsg = getNodeLocationStr(location) +
-                            "action invocation is not allowed here";
+                            "only a basic literal or a variable reference is allowed here ";
                     errorMsgs.add(errMsg);
-
                 }
             }
-
-            currentCUGroupBuilder.addVariableDef(variableDefStmt);
         } else {
             addToBlockStmt(variableDefStmt);
         }
