@@ -89,7 +89,6 @@ public class ConstructProviderClassBuilder {
                 "          " + nativeUnitVarName + ".setStackFrameSize(%s);%n" +
                 "          " + nativeUnitVarName + ".setSymbolName(%s);%n" +
                 "          %s" +
-                "          return " + nativeUnitVarName + ";%n" +
                 "      } catch (Exception ignore) {%n" +
                 "      } finally {%n" +
                 "          return " + nativeUnitVarName + ";%n" +
@@ -386,7 +385,7 @@ public class ConstructProviderClassBuilder {
         Argument[] args = balAction.args();
         for (Argument arg : args) {
             if (arg.type() == TypeEnum.CONNECTOR) {
-                actionNameBuilder.append("." + connectorPkg + "." + connectorName);
+                actionNameBuilder.append("." + connectorPkg + ":" + connectorName);
             } else if (arg.type() == TypeEnum.ARRAY && arg.elementType() != TypeEnum.EMPTY) {
              // if the argument is arrayType, then append the element type to the method signature
                 actionNameBuilder.append("." + arg.elementType().getName() + "[]");
