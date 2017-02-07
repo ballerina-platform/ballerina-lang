@@ -65,12 +65,12 @@ define(['lodash', './statement'], function (_, Statement) {
      * Set the assignment statement string
      * @param {string} statementString
      */
-    AssignmentStatement.prototype.setStatementString = function (statementString) {
+    AssignmentStatement.prototype.setStatementString = function (statementString, options) {
         var equalIndex = _.indexOf(statementString, '=');
         var leftOperand = statementString.substring(0, equalIndex);
         var rightOperand = statementString.substring(equalIndex + 1);
-        this.getChildren()[0].setLeftOperandExpressionString(_.isNil(leftOperand) ? "leftExpression" : leftOperand);
-        this.getChildren()[1].setRightOperandExpressionString(_.isNil(rightOperand) ? "rightExpression" : rightOperand);
+        this.getChildren()[0].setLeftOperandExpressionString(_.isNil(leftOperand) ? "leftExpression" : leftOperand, options);
+        this.getChildren()[1].setRightOperandExpressionString(_.isNil(rightOperand) ? "rightExpression" : rightOperand, options);
     };
 
     return AssignmentStatement;

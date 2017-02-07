@@ -29,8 +29,8 @@ define(['lodash', './statement'], function (_, Statement) {
     ArithmeticExpression.prototype = Object.create(Statement.prototype);
     ArithmeticExpression.prototype.constructor = ArithmeticExpression;
 
-    ArithmeticExpression.prototype.setExpression = function (expression) {
-        this.setAttribute('_expression', expression);
+    ArithmeticExpression.prototype.setExpression = function (expression, options) {
+        this.setAttribute('_expression', expression, options);
     };
 
     ArithmeticExpression.prototype.getExpression = function () {
