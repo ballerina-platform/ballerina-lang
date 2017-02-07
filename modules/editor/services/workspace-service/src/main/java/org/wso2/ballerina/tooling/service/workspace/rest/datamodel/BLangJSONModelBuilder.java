@@ -1052,11 +1052,6 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(StructDcl structDcl) {
-        // TODO
-    }
-
-    @Override
     public void visit(VariableDefStmt varDefStmt) {
 
     }

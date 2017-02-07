@@ -46,7 +46,6 @@ import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -1291,22 +1290,17 @@ public class SemanticAnalyzer implements NodeVisitor {
             VariableDef varDef = (VariableDef) structDef.resolveMembers(varRefExpr.getSymbolName());
             if (varDef == null) {
                 throw new SemanticException(getNodeLocationStr(keyExpr.getNodeLocation()) +
-                        "unknown '" + structDef.getName() + "' field '" + varRefExpr.getVarName() + "' in struct");
+                        "unknown field '" + varRefExpr.getVarName() + "' in struct '"  + structDef.getName() + "'");
             }
-
+            varRefExpr.setVariableDef(varDef);
             Expression valueExpr = keyValueExpr.getValueExpr();
             visitSingleValueExpr(valueExpr);
 
-            if (valueExpr.getType() != varDef.getType()) {
-                throw new SemanticException(getNodeLocationStr(keyExpr.getNodeLocation()) +
-                        "incompatible type: '" + varDef.getType() + "' expected, found '" + valueExpr.getType() + "'");
+            if (!valueExpr.getType().equals(varDef.getType())) {
+                throw new SemanticException(getNodeLocationStr(keyExpr.getNodeLocation()) + "incompatible type: '" +
+                        varDef.getType() + "' expected, found '" + valueExpr.getType() + "'");
             }
         }
-
-//
-//        // Struct type is not known at this stage
-//        structInitExpr.setType(null);
-//        visit(structInitExpr.getStructDcl());
     }
 
     @Override
@@ -1766,7 +1760,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (expr instanceof ArrayMapAccessExpr) {
             return ((ArrayMapAccessExpr) expr).getSymbolName().getName();
         } else if (expr instanceof StructFieldAccessExpr) {
-            return ((StructFieldAccessExpr) expr).getSymbolName().getName();
+            return getVarNameFromExpression(((StructFieldAccessExpr) expr).getVarRef());
         } else {
             return ((VariableRefExpr) expr).getSymbolName().getName();
         }
@@ -1957,128 +1951,66 @@ public class SemanticAnalyzer implements NodeVisitor {
                 " not defined on '" + rExprType + "'");
     }
 
-
-    /**
-     * Visit and analyze allerina Struct declaration expression.
+    /*
+     * Struct related methods
      */
-    @Override
-    public void visit(StructDcl structDcl) {
-        // No need to validate struct instance variable names. It will happen in var declaration phase.
-
-        // Setting the struct name with the package name
-        SymbolName structName = structDcl.getStructName();
-        String pkgPath = getPackagePath(structName);
-        structName = LangModelUtils.getConnectorSymName(structName.getName(), pkgPath);
-        structDcl.setStructName(structName);
-
-        Symbol structSymbol = symbolTable.lookup(structName);
-        if (structSymbol == null) {
-            throw new SemanticException(getNodeLocationStr(structDcl.getNodeLocation()) + "struct '" + structName +
-                    "' not found.");
-        }
-        structDcl.setStructDef(structSymbol.getStructDef());
-    }
 
     /**
      * visit and analyze ballerina struc-field-access-expressions.
      */
     @Override
     public void visit(StructFieldAccessExpr structFieldAccessExpr) {
-        // Check whether this access expression is in left hand side of an assignment expression
-        // If yes, skip assigning a stack frame offset
-        if (!structFieldAccessExpr.isLHSExpr()) {
-            visitSingleValueExpr(structFieldAccessExpr);
+        visitStructField(structFieldAccessExpr, currentScope);
+    }
+    
+    private void visitStructField(StructFieldAccessExpr structFieldAccessExpr, SymbolScope currentScope) {
+        ReferenceExpr varRefExpr = structFieldAccessExpr.getVarRef();
+        SymbolName symbolName = varRefExpr.getSymbolName();
+        BLangSymbol fieldSymbol = currentScope.resolve(symbolName);
+        
+        if (fieldSymbol == null) {
+            if (currentScope instanceof StructDef) {
+                throw new SemanticException(getNodeLocationStr(structFieldAccessExpr.getNodeLocation()) + "field '" +
+                        symbolName.getName() + "' not found in struct '" + ((StructDef) currentScope).getName() + "'.");
+            } else {
+                throw new SemanticException(getNodeLocationStr(structFieldAccessExpr.getNodeLocation()) + "struct '" +
+                        symbolName.getName() + "' not found.");
+            }
         }
-
-        Symbol fieldSymbol = getFieldSymbol(structFieldAccessExpr);
-
+        
         // Set expression type
-        BType exprType = fieldSymbol.getType();
-        structFieldAccessExpr.setType(exprType);
+        VariableDef varDef = (VariableDef) fieldSymbol;
+        BType exprType;
+        
 
         /* Get the actual var representation of this field, and semantically analyze. This will check for semantic
          * errors of array/map accesses, used in this struct field.
          * eg: in dpt.employee[2].name , below will check for semantics of 'employee[2]',
          * treating them as individual array/map variables.
          */
-        if (structFieldAccessExpr.getVarRef() instanceof ArrayMapAccessExpr) {
-            ArrayMapAccessExpr arrayMapAcsExpr = (ArrayMapAccessExpr) structFieldAccessExpr.getVarRef();
-            arrayMapAcsExpr.getRExpr().setType(exprType);
-            setMemoryLocation(structFieldAccessExpr, fieldSymbol.getLocation());
-
-            // Here we only check for array/map type validation, as symbol validation is already done.
-            handleArrayType((ArrayMapAccessExpr) structFieldAccessExpr.getVarRef());
-        } else if (structFieldAccessExpr.getVarRef() instanceof VariableRefExpr) {
-            VariableRefExpr varRefExpr = (VariableRefExpr) structFieldAccessExpr.getVarRef();
-            varRefExpr.setType(exprType);
-            setMemoryLocation(structFieldAccessExpr, fieldSymbol.getLocation());
-        }
-
-        // Go to the referenced field of this struct
-        ReferenceExpr fieldExpr = structFieldAccessExpr.getFieldExpr();
-        if (fieldExpr != null) {
-            fieldExpr.accept(this);
-        }
-    }
-
-    /**
-     * Set the memory location for a expression.
-     *
-     * @param expr        Expression to set the memory location
-     * @param memLocation Memory location
-     */
-    private void setMemoryLocation(Expression expr, MemoryLocation memLocation) {
-        // If the expression is an array-map expression, then set the location to the variable-reference-expression 
-        // of the array-map-access-expression.
-        if (expr instanceof ArrayMapAccessExpr) {
-            setMemoryLocation(((ArrayMapAccessExpr) expr).getRExpr(), memLocation);
-            return;
-        }
-
-        // If the expression is a Struct field access expression, then set the memory location to the variable
-        // referenced by the struct-field-access-expression
-        if (expr instanceof StructFieldAccessExpr) {
-            setMemoryLocation(((StructFieldAccessExpr) expr).getVarRef(), memLocation);
-            return;
-        }
-
-        // Set the memory location to the variable reference expression
-        ((VariableRefExpr) expr).setMemoryLocation(memLocation);
-    }
-
-    /**
-     * Get the symbol of the parent struct to which this field belongs to.
-     *
-     * @param expr Field reference expression
-     * @return Symbol of the parent
-     */
-    private Symbol getFieldSymbol(StructFieldAccessExpr expr) {
-        Symbol fieldSymbol;
-        if (expr.getParent() == null) {
-            fieldSymbol = symbolTable.lookup(new SymbolName(expr.getSymbolName().getName()));
-            // Check for variable existence
-            if (fieldSymbol == null) {
-                throw new SemanticException(getNodeLocationStr(expr.getNodeLocation()) +
-                        "undeclraed struct '" + expr.getSymbolName() + "'.");
+        if (varRefExpr instanceof ArrayMapAccessExpr) {
+            Expression rExpr = ((ArrayMapAccessExpr) varRefExpr).getRExpr();
+            ((VariableRefExpr) rExpr).setVariableDef(varDef);
+            
+            exprType = varDef.getType();
+            if (exprType instanceof BArrayType) {
+                exprType = ((BArrayType) varDef.getType()).getElementType();
             }
-            return fieldSymbol;
+            handleArrayType((ArrayMapAccessExpr) varRefExpr);
+        } else {
+            ((VariableRefExpr) varRefExpr).setVariableDef(varDef);
+            exprType = (varDef).getType();
         }
-        // parent is always a StructAttributeAccessExpr
-        StructFieldAccessExpr parent = expr.getParent();
-        BType parentType = parent.getExpressionType();
-        if (parentType instanceof BArrayType) {
-            parentType = ((BArrayType) parentType).getElementType();
+        
+        // Go to the referenced field of this struct
+        StructFieldAccessExpr fieldExpr = structFieldAccessExpr.getFieldExpr();
+        if (fieldExpr != null) {
+            if (!(exprType instanceof StructDef)) {
+                throw new SemanticException(getNodeLocationStr(structFieldAccessExpr.getNodeLocation()) + "'" + 
+                        symbolName.getName() + "' must be of struct type");
+            }
+            visitStructField(fieldExpr, ((StructDef) exprType).getSymbolScope());
         }
-        SymbolName structFieldSym = LangModelUtils.getStructFieldSymName(expr.getSymbolName().getName(),
-                parentType.toString(), currentPkg);
-
-        fieldSymbol = symbolTable.lookup(structFieldSym);
-        // Check for field existence
-        if (fieldSymbol == null) {
-            throw new SemanticException(getNodeLocationStr(expr.getNodeLocation()) +
-                    "undeclraed field '" + expr.getSymbolName() + "' for type '" + parentType + "'.");
-        }
-        return fieldSymbol;
     }
 
     private void linkTypeConverter(TypeCastExpression typeCastExpression, BType sourceType, BType targetType) {
