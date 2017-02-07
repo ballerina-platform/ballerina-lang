@@ -1,4 +1,3 @@
-import ballerina.lang.system;
 import ballerina.net.uri;
 
 function testEncode(string url)(string){
