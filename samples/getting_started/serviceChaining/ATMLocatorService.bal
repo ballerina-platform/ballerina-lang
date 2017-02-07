@@ -1,7 +1,6 @@
 import ballerina.lang.message;
 import ballerina.net.http;
 import ballerina.lang.system;
-import ballerina.lang.string;
 import ballerina.lang.json;
 
 @BasePath ("/ABCBank")

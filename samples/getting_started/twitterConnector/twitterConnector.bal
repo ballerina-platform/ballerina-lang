@@ -47,7 +47,7 @@ function main (string[] args) {
 
     Twitter twitterConnector = create Twitter(args[0], args[1], args[2], args[3]);
 
-    message tweetResponse = sample:Twitter.tweet(twitterConnector, args[4]);
+    message tweetResponse = Twitter.tweet(twitterConnector, args[4]);
 
     json tweetJSONResponse = message:getJsonPayload(tweetResponse);
     system:println(json:toString(tweetJSONResponse));

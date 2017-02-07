@@ -1,7 +1,6 @@
 import ballerina.net.http;
 import ballerina.lang.json;
 import ballerina.lang.message;
-import ballerina.lang.system;
 
 @BasePath ("/cbr")
 service contentBasedRouting {
