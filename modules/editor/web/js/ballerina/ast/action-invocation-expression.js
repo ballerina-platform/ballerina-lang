@@ -43,8 +43,8 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
      * Set action name
      * @param {string} actionName
      */
-    ActionInvocationExpression.prototype.setActionName = function (actionName) {
-        this.setAttribute('_actionName', actionName);
+    ActionInvocationExpression.prototype.setActionName = function (actionName, options) {
+        this.setAttribute('_actionName', actionName, options);
     };
     /**
      * Get action name
@@ -58,8 +58,8 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
      * Set Action package name
      * @param {string} actionPackageName
      */
-    ActionInvocationExpression.prototype.setActionPackageName = function (actionPackageName) {
-        this.setAttribute('_actionPackageName', actionPackageName);
+    ActionInvocationExpression.prototype.setActionPackageName = function (actionPackageName, options) {
+        this.setAttribute('_actionPackageName', actionPackageName, options);
     };
     /**
      * Get Action Package Name
@@ -73,8 +73,8 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
      * Set Action Connector name
      * @param {string} actionConnectorName
      */
-    ActionInvocationExpression.prototype.setActionConnectorName = function (actionConnectorName) {
-        this.setAttribute('_actionConnectorName', actionConnectorName);
+    ActionInvocationExpression.prototype.setActionConnectorName = function (actionConnectorName, options) {
+        this.setAttribute('_actionConnectorName', actionConnectorName, options);
     };
     /**
      * Get action connector Name
@@ -88,15 +88,15 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
      * set Connector variable reference
      * @param {string} connectorVariableReference
      */
-    ActionInvocationExpression.prototype.setConnectorVariableReference = function (connectorVariableReference) {
+    ActionInvocationExpression.prototype.setConnectorVariableReference = function (connectorVariableReference, options) {
         if(_.isUndefined(this._connectorVariableReference)){
             //update the expression when adding connector variable
-            this.setExpression(insertConnectorVariableToExpression(true, connectorVariableReference, this.getExpression()));
+            this.setExpression(insertConnectorVariableToExpression(true, connectorVariableReference, this.getExpression()), options);
         } else {
             // update the expression when modifying connector variable
-            this.setExpression(insertConnectorVariableToExpression(false, connectorVariableReference, this.getExpression()));
+            this.setExpression(insertConnectorVariableToExpression(false, connectorVariableReference, this.getExpression()), options);
         }
-        this.setAttribute('_connectorVariableReference', connectorVariableReference);
+        this.setAttribute('_connectorVariableReference', connectorVariableReference, options);
     };
     /**
      * Get Connector variable reference
@@ -110,9 +110,9 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
         return this._connector;
     };
 
-    ActionInvocationExpression.prototype.setConnector = function(connector){
+    ActionInvocationExpression.prototype.setConnector = function(connector, options){
         if(!_.isNil(connector)){
-            this.setAttribute("_connector", connector);
+            this.setAttribute("_connector", connector, options);
         }
     };
 
@@ -122,15 +122,16 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
      */
     ActionInvocationExpression.prototype.initFromJson = function (jsonNode) {
         if(!_.isUndefined(jsonNode.children[0])) {
-            this.setConnector(_.head(this.getInvocationConnector(jsonNode.children[0].variable_reference_name)));
+            var connector = _.head(this.getInvocationConnector(jsonNode.children[0].variable_reference_name));
+            this.setConnector(connector, {doSilently: true});
         }
-        this.setActionName(jsonNode.action_name);
-        this.setActionPackageName(jsonNode.action_pkg_name);
-        this.setActionConnectorName(jsonNode.action_connector_name);
+        this.setActionName(jsonNode.action_name, {doSilently: true});
+        this.setActionPackageName(jsonNode.action_pkg_name, {doSilently: true});
+        this.setActionConnectorName(jsonNode.action_connector_name, {doSilently: true});
         if(!_.isUndefined(this.getConnector())) {
             //if connector is available, arguments needs to be added from second in children
             var argStartIndex = 1;
-            this.setConnectorVariableReference(jsonNode.children[0].variable_reference_name);
+            this.setConnectorVariableReference(jsonNode.children[0].variable_reference_name, {doSilently: true});
         } else {
             var argStartIndex = 0;
         }
@@ -143,7 +144,7 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
             self.addArgument(arg);
         });
 
-        this.setExpression(this.generateExpression());
+        this.setExpression(this.generateExpression(), {doSilently: true});
     };
 
     ActionInvocationExpression.prototype.addArgument = function (argument){
