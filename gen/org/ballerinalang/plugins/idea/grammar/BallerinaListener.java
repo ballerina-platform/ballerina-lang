@@ -88,16 +88,6 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#nativeFunctionDefinition}.
-	 * @param ctx the parse tree
-	 */
-	void enterNativeFunctionDefinition(BallerinaParser.NativeFunctionDefinitionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#nativeFunctionDefinition}.
-	 * @param ctx the parse tree
-	 */
-	void exitNativeFunctionDefinition(BallerinaParser.NativeFunctionDefinitionContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#functionBody}.
 	 * @param ctx the parse tree
 	 */
@@ -137,16 +127,6 @@ public interface BallerinaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitActionDefinition(BallerinaParser.ActionDefinitionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#nativeActionDefinition}.
-	 * @param ctx the parse tree
-	 */
-	void enterNativeActionDefinition(BallerinaParser.NativeActionDefinitionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#nativeActionDefinition}.
-	 * @param ctx the parse tree
-	 */
-	void exitNativeActionDefinition(BallerinaParser.NativeActionDefinitionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#structDefinition}.
 	 * @param ctx the parse tree

@@ -59,12 +59,6 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#nativeFunctionDefinition}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNativeFunctionDefinition(BallerinaParser.NativeFunctionDefinitionContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#functionBody}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -88,12 +82,6 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitActionDefinition(BallerinaParser.ActionDefinitionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#nativeActionDefinition}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNativeActionDefinition(BallerinaParser.NativeActionDefinitionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#structDefinition}.
 	 * @param ctx the parse tree

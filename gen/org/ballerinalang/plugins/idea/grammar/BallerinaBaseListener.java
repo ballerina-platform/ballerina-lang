@@ -112,18 +112,6 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNativeFunctionDefinition(BallerinaParser.NativeFunctionDefinitionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitNativeFunctionDefinition(BallerinaParser.NativeFunctionDefinitionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterFunctionBody(BallerinaParser.FunctionBodyContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -167,18 +155,6 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitActionDefinition(BallerinaParser.ActionDefinitionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterNativeActionDefinition(BallerinaParser.NativeActionDefinitionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitNativeActionDefinition(BallerinaParser.NativeActionDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
