@@ -48,11 +48,12 @@ under the License.
             <class name="org.wso2.ballerina.lang.expressions.MapInitializerExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.MultiplyExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.NotEqualExprTest"/>
-            <!--<class name="org.wso2.ballerina.lang.expressions.StructTypeConvertorTest"/>-->
+            <class name="org.wso2.ballerina.lang.expressions.StructTypeConvertorTest"/>
             <class name="org.wso2.ballerina.lang.expressions.SubstractExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.TemplateExpressionTest"/>
             <class name="org.wso2.ballerina.lang.expressions.TypeCastExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.TypeConvertorTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.TypeDivisionTest"/>
             <class name="org.wso2.ballerina.lang.expressions.UnaryExprTest"/>
 
 
@@ -77,7 +78,7 @@ under the License.
             <!--<class name="org.wso2.ballerina.lang.statements.ReplyStmtTest"/>-->
             <class name="org.wso2.ballerina.lang.statements.ReturnStmtTest"/>
             <!--<class name="org.wso2.ballerina.lang.statements.ReturnStmtNegativeTest"/>-->
-            <class name="org.wso2.ballerina.lang.statements.VariableDeclarationTest"/>
+            <class name="org.wso2.ballerina.lang.statements.VariableDefinitionNegativeTest"/>
             <class name="org.wso2.ballerina.lang.statements.WhileStmtTest"/>
 
 
