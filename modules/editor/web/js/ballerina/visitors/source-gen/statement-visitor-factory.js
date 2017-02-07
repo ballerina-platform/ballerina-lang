@@ -34,12 +34,13 @@ define(['lodash', 'log', 'event_channel', '../../ast/module',
 './function-invocation-expression-visitor',
 './assignment-visitor',
 './left-operand-expression-visitor',
-'./right-operand-expression-visitor'],
+'./right-operand-expression-visitor',
+'./variable-definition-statement-visitor'],
 function (_, log, EventChannel, AST,
 TryCatchStatementVisitor, TryStatementVisitor, CatchStatementVisitor, IfElseStatementVisitor, IfStatementVisitor,
 ElseStatementVisitor, ElseIfStatementVisitor, WhileStatementVisitor, AssignmentStatementVisitor, ActionInvocationExpressionVisitor,
 ReplyStatementVisitor,LogicalExpressionVisitor, ArithmeticExpression, ReturnStatementVisitor, FunctionInvocationVisitor, FunctionInvocationExpressionVisitor, AssignmentVisitor,
-LeftOperandExpressionVisitor, RightOperandExpressionVisitor) {
+LeftOperandExpressionVisitor, RightOperandExpressionVisitor, VariableDefinitionStatement) {
 
     var StatementVisitorFactor = function () {
     };
@@ -79,6 +80,8 @@ LeftOperandExpressionVisitor, RightOperandExpressionVisitor) {
             return new LeftOperandExpressionVisitor(parent);
         } else if (statement instanceof AST.RightOperandExpression) {
             return new RightOperandExpressionVisitor(parent);
+        } else if (statement instanceof AST.VariableDefinitionStatement) {
+            return new VariableDefinitionStatement(parent);
         }
     };
 
