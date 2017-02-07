@@ -198,6 +198,45 @@ public class UnaryExprTest {
         Assert.assertSame(x.getClass(), BBoolean.class, "Invalid class type returned.");
         Assert.assertEquals(x.booleanValue(), true, "Invalid value returned.");
     }
+
+    @Test(description = "Test unary negation expression")
+    public void unaryNegationTest() {
+        int a = 3;
+        int b = 2;
+
+        int expectedResult = a - -b;
+
+        BValue[] args = {new BInteger(a), new BInteger(b)};
+
+        BValue[] returns = Functions.invoke(bFile, "unaryNegationTest", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class, "Invalid class type returned.");
+
+        int actualResult = ((BInteger) returns[0]).intValue();
+
+        Assert.assertEquals(actualResult, expectedResult);
+
+    }
+
+    @Test(description = "Test unary positive negation expression")
+    public void unaryPositiveNegationTest() {
+        int a = 3;
+
+        int expectedResult = +-a;
+
+        BValue[] args = {new BInteger(a)};
+
+        BValue[] returns = Functions.invoke(bFile, "unaryPositiveNegationTest", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class, "Invalid class type returned.");
+
+        int actualResult = ((BInteger) returns[0]).intValue();
+
+        Assert.assertEquals(actualResult, expectedResult);
+
+    }
     
     /* negative Tests */
     

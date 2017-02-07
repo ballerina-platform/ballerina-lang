@@ -29,7 +29,19 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
+import org.wso2.ballerina.core.model.types.BType;
+import org.wso2.ballerina.core.model.types.BTypes;
+import org.wso2.ballerina.core.model.values.BBoolean;
+import org.wso2.ballerina.core.model.values.BDouble;
+import org.wso2.ballerina.core.model.values.BFloat;
+import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BJSON;
+import org.wso2.ballerina.core.model.values.BLong;
+import org.wso2.ballerina.core.model.values.BMap;
+import org.wso2.ballerina.core.model.values.BMessage;
+import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.utils.ParserUtils;
 
 import java.util.Arrays;
@@ -70,7 +82,7 @@ public class Functions {
     public static BValue[] invoke(BallerinaFile bFile, String functionName, BValue[] args, Context bContext) {
 
         // 1) Check whether the given function is defined in the source file.
-        Function function = getFunction(bFile.getFunctions(), functionName);
+        Function function = getFunction(bFile.getFunctions(), functionName, args);
         if (function == null) {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }
@@ -158,40 +170,6 @@ public class Functions {
         return invoke(bFile, functionName, args, bContext);
     }
 
-//    private BType getTypeOfValue(BValue bValue) {
-//        if (bValue instanceof BInteger) {
-//            return BTypes.INT_TYPE;
-//
-//        } else if (bValue instanceof BLong) {
-//            return BTypes.typeLong;
-//
-//        } else if (bValue instanceof BFloat) {
-//            return BTypes.typeFloat;
-//
-//        } else if (bValue instanceof BDouble) {
-//            return BTypes.typeDouble;
-//
-//        } else if (bValue instanceof BBoolean) {
-//            return BTypes.typeBoolean;
-//
-//        } else if (bValue instanceof BString) {
-//            return BTypes.typeString;
-//
-//        } else if (bValue instanceof BJSON) {
-//            return BTypes.typeJSON;
-//
-//        } else if (bValue instanceof BMessage) {
-//            return BTypes.typeMessage;
-//
-//        } else if (bValue instanceof BArray) {
-//            BArray bArray = (BArray) bValue;
-//            return BTypes.getArrayType(bArray.)
-//        }
-//
-//
-//        return null;
-//    }
-
     /**
      * Util method to get Given function.
      *
@@ -200,15 +178,91 @@ public class Functions {
      * @return Function instance or null if function doesn't exist.
      */
     public static Function getFunction(BallerinaFile ballerinaFile, String functionName) {
-        return getFunction(ballerinaFile.getFunctions(), functionName);
+        return getFunction(ballerinaFile.getFunctions(), functionName, null);
     }
 
-    private static Function getFunction(Function[] functions, String funcName) {
+    private static Function getFunction(Function[] functions, String funcName, BValue[] args) {
+
+        Function firstMatch = null;
+        int count = 0;
+
         for (Function function : functions) {
             if (function.getName().equals(funcName)) {
+                firstMatch = function;
+                count++;
+            }
+        }
+
+        // If there are no overloading functions, return the first match
+        if (count == 1) {
+            return firstMatch;
+        }
+
+        for (Function function : functions) {
+            if (function.getName().equals(funcName) && matchArgTypes(function.getArgumentTypes(), args)) {
                 return function;
             }
         }
         return null;
+    }
+
+    /**
+     * Compare argument types matches with the provided types.
+     *
+     * @param argTypes List of {@link BType} that are accepted as arguments
+     * @param argValues List of {@link BValue} that are provided as arguments
+     * @return True if a matching type if found for each
+     */
+    private static boolean matchArgTypes(BType[] argTypes, BValue[] argValues) {
+        boolean matching = false;
+
+        if (argTypes.length == argValues.length) {
+            matching = true;
+            for (int i = 0; i < argTypes.length; i++) {
+                BType resolvedType = resolveBType(argValues[i]);
+
+                if (resolvedType == null || !argTypes[i].equals(resolvedType)) {
+                    matching = false;
+                    break;
+                }
+            }
+        }
+
+        return matching;
+    }
+
+    /**
+     * Resolve the {@link BType} of a  given {@link BValue} for built in types.
+     *
+     * @param bValue The {@link BValue} to resolve
+     * @return The {@link BType} corresponding to the {@link BValue}
+     */
+    private static BType resolveBType(BValue bValue) {
+        BType bType = null;
+
+        if (bValue instanceof BString) {
+            bType = BTypes.typeString;
+        } else if (bValue instanceof BInteger) {
+            bType = BTypes.typeInt;
+        } else if (bValue instanceof BLong) {
+            bType = BTypes.typeLong;
+        } else if (bValue instanceof BFloat) {
+            bType = BTypes.typeFloat;
+        } else if (bValue instanceof BDouble) {
+            bType = BTypes.typeDouble;
+        } else if (bValue instanceof BBoolean) {
+            bType = BTypes.typeBoolean;
+        } else if (bValue instanceof BXML) {
+            bType = BTypes.typeXML;
+        } else if (bValue instanceof BJSON) {
+            bType = BTypes.typeXML;
+        } else if (bValue instanceof BMessage) {
+            bType = BTypes.typeMessage;
+        } else if (bValue instanceof BMap) {
+            bType = BTypes.typeMap;
+        }
+
+        return bType;
+
     }
 }
