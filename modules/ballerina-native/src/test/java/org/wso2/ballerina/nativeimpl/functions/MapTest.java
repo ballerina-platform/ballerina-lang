@@ -20,17 +20,13 @@ package org.wso2.ballerina.nativeimpl.functions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
-import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.nativeimpl.util.Functions;
 import org.wso2.ballerina.nativeimpl.util.ParserUtils;
 
@@ -47,12 +43,7 @@ public class MapTest {
 
     @BeforeClass
     public void setup() {
-        // Add Native functions.
-        SymScope symScope = GlobalScopeHolder.getInstance().getScope();
-        if (symScope.lookup(new SymbolName("ballerina.lang.system:print_string")) == null) {
-            BuiltInNativeConstructLoader.loadConstructs();
-        }
-        bFile = ParserUtils.parseBalFile("samples/mapTest.bal", symScope);
+        bFile = ParserUtils.parseBalFile("samples/mapTest.bal");
         dataSet = new BMap<>();
         dataSet.put(new BString("country"), new BString("US"));
         dataSet.put(new BString("currency"), new BString("Dollar"));

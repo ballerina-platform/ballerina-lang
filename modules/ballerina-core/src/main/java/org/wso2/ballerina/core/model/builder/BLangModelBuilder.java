@@ -19,7 +19,6 @@ package org.wso2.ballerina.core.model.builder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BTypeConvertor;
@@ -78,7 +77,6 @@ import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
-import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.types.TypeConstants;
 import org.wso2.ballerina.core.model.values.BBoolean;
@@ -143,6 +141,8 @@ public class BLangModelBuilder {
     // This is useful when analyzing import functions, actions and types.
     private Map<String, ImportPackage> importPkgMap = new HashMap<>();
 
+    private List<String> errorMsgs = new ArrayList<>();
+
     public BLangModelBuilder() {
     }
 
@@ -166,6 +166,10 @@ public class BLangModelBuilder {
                     throw new SemanticException(getNodeLocationStr(location) +
                             "unused import package " + importPkgErrStr + "");
                 });
+
+        if (errorMsgs.size() > 0) {
+            throw new SemanticException(errorMsgs.get(0));
+        }
 
         bFileBuilder.setImportPackageMap(importPkgMap);
         return bFileBuilder.build();
@@ -192,7 +196,7 @@ public class BLangModelBuilder {
         if (importPkgMap.get(importPkg.getName()) != null) {
             String errMsg = getNodeLocationStr(location) +
                     "redeclared imported package name '" + importPkg.getName() + "'";
-            throw new SemanticException(errMsg);
+            errorMsgs.add(errMsg);
         }
 
         bFileBuilder.addImportPackage(importPkg);
@@ -230,7 +234,7 @@ public class BLangModelBuilder {
         if (currentScope.resolve(symbolName) != null) {
             String errMsg = getNodeLocationStr(location) +
                     "redeclared symbol '" + name + "'";
-            throw new BallerinaException(errMsg);
+            errorMsgs.add(errMsg);
         }
 
         SimpleTypeName typeName = typeNameStack.pop();
@@ -270,7 +274,7 @@ public class BLangModelBuilder {
         if (fieldSymbol != null) {
             String errMsg = getNodeLocationStr(location) +
                     "redeclared symbol '" + fieldName + "'";
-            throw new SemanticException(errMsg);
+            errorMsgs.add(errMsg);
         }
 
         // TODO Fix this..
@@ -306,7 +310,7 @@ public class BLangModelBuilder {
         if (currentScope.resolve(symbolName) != null) {
             String errMsg = getNodeLocationStr(location) +
                     "redeclared symbol '" + name + "'";
-            throw new BallerinaException(errMsg);
+            errorMsgs.add(errMsg);
         }
 
         currentScope.define(symbolName, structDef);
@@ -339,7 +343,8 @@ public class BLangModelBuilder {
             Expression expr = exprStack.pop();
 
             // Assuming the annotation value is a string literal
-            if (expr instanceof BasicLiteral && expr.getType() == BTypes.typeString) {
+            if (expr instanceof BasicLiteral &&
+                    ((BasicLiteral) expr).getTypeName().getName().equals(TypeConstants.STRING_TNAME)) {
                 String value = ((BasicLiteral) expr).getBValue().stringValue();
                 annotationBuilder.setValue(value);
             } else {
@@ -372,7 +377,7 @@ public class BLangModelBuilder {
         if (paramSymbol != null && paramSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
             String errMsg = getNodeLocationStr(location) +
                     "redeclared symbol '" + paramName + "'";
-            throw new BallerinaException(errMsg);
+            errorMsgs.add(errMsg);
         }
 
 
@@ -411,7 +416,7 @@ public class BLangModelBuilder {
         if (paramSymbol != null && paramSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
             String errMsg = location.getFileName() + ":" + location.getLineNumber() +
                     ": redeclared symbol '" + paramName + "'";
-            throw new BallerinaException(errMsg);
+            errorMsgs.add(errMsg);
         }
 
         SimpleTypeName typeName = typeNameStack.pop();
@@ -528,7 +533,9 @@ public class BLangModelBuilder {
 
             default:
                 String errMsg = getNodeLocationStr(location) + "unsupported operator '" + opStr + "'";
-                throw new BallerinaException(errMsg);
+                errorMsgs.add(errMsg);
+                // Creating a dummy expression
+                expr = new BinaryExpression(location, lExpr, null, rExpr);
         }
 
         exprStack.push(expr);
@@ -555,7 +562,10 @@ public class BLangModelBuilder {
             default:
                 String errMsg = getNodeLocationStr(location) +
                         "unsupported operator '" + op + "'";
-                throw new BallerinaException(errMsg);
+                errorMsgs.add(errMsg);
+
+                // Creating a dummy expression
+                expr = new UnaryExpression(location, null, rExpr);
         }
 
         exprStack.push(expr);
@@ -851,7 +861,7 @@ public class BLangModelBuilder {
         if (currentScope.resolve(symbolName) != null) {
             String errMsg = getNodeLocationStr(location) +
                     "redeclared symbol '" + name + "'";
-            throw new BallerinaException(errMsg);
+            errorMsgs.add(errMsg);
         }
 
         currentScope = service.getEnclosingScope();
@@ -876,7 +886,7 @@ public class BLangModelBuilder {
         if (currentScope.resolve(symbolName) != null) {
             String errMsg = getNodeLocationStr(location) +
                     "redeclared symbol '" + name + "'";
-            throw new BallerinaException(errMsg);
+            errorMsgs.add(errMsg);
         }
 
         currentScope = connector.getEnclosingScope();
@@ -898,6 +908,21 @@ public class BLangModelBuilder {
         VariableDefStmt variableDefStmt = new VariableDefStmt(location, variableDef, variableRefExpr, rhsExpr);
 
         if (blockStmtBuilderStack.size() == 0 && currentCUGroupBuilder != null) {
+
+            if (rhsExpr != null) {
+                checkArgExprValidity(location, rhsExpr);
+                if (rhsExpr instanceof FunctionInvocationExpr) {
+                    String errMsg = getNodeLocationStr(location) +
+                            "function invocation is not allowed here";
+                    errorMsgs.add(errMsg);
+
+                } else if (!(rhsExpr instanceof BasicLiteral) && !(rhsExpr instanceof VariableRefExpr)) {
+                    String errMsg = getNodeLocationStr(location) +
+                            "a basic literal or a variable reference is allowed here";
+                    errorMsgs.add(errMsg);
+                }
+            }
+
             currentCUGroupBuilder.addVariableDef(variableDefStmt);
         } else {
             addToBlockStmt(variableDefStmt);
@@ -934,7 +959,7 @@ public class BLangModelBuilder {
         if (!(argExpr instanceof VariableRefExpr)) {
             String errMsg = getNodeLocationStr(location) +
                     "only a variable reference of type 'message' is allowed here";
-            throw new SemanticException(errMsg);
+            errorMsgs.add(errMsg);
         }
         ReplyStmt replyStmt = new ReplyStmt(location, argExpr);
         addToBlockStmt(replyStmt);
@@ -1217,6 +1242,25 @@ public class BLangModelBuilder {
         exprStack.push(parentExpr);
     }
 
+    private void startRefTypeInitExpr() {
+        mapStructInitKVListStack.push(new ArrayList<>());
+    }
+
+    private ImportPackage getImportPackage(String pkgName) {
+        return (pkgName != null) ? importPkgMap.get(pkgName) : null;
+    }
+
+    private void checkForUndefinedPackagePath(NodeLocation location,
+                                              String pkgName,
+                                              ImportPackage importPackage,
+                                              Supplier<String> symbolNameSupplier) {
+        if (pkgName != null && importPackage == null) {
+            String errMsg = getNodeLocationStr(location) +
+                    "undefined package name '" + pkgName + "' in '" + symbolNameSupplier.get() + "'";
+            errorMsgs.add(errMsg);
+        }
+    }
+
     private void checkArgExprValidity(NodeLocation location, List<Expression> argExprList) {
         for (Expression argExpr : argExprList) {
             checkArgExprValidity(location, argExpr);
@@ -1247,26 +1291,7 @@ public class BLangModelBuilder {
         }
 
         if (errMsg != null) {
-            throw new SemanticException(errMsg);
-        }
-    }
-
-    private void startRefTypeInitExpr() {
-        mapStructInitKVListStack.push(new ArrayList<>());
-    }
-
-    private ImportPackage getImportPackage(String pkgName) {
-        return (pkgName != null) ? importPkgMap.get(pkgName) : null;
-    }
-
-    private void checkForUndefinedPackagePath(NodeLocation location,
-                                              String pkgName,
-                                              ImportPackage importPackage,
-                                              Supplier<String> symbolNameSupplier) {
-        if (pkgName != null && importPackage == null) {
-            String errMsg = getNodeLocationStr(location) +
-                    "undefined package name '" + pkgName + "' in '" + symbolNameSupplier.get() + "'";
-            throw new SemanticException(errMsg);
+            errorMsgs.add(errMsg);
         }
     }
 

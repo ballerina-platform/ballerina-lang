@@ -19,7 +19,6 @@ package org.wso2.ballerina.nativeimpl.util;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.GlobalScope;
@@ -30,6 +29,7 @@ import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
+import org.wso2.ballerina.nativeimpl.BallerinaNativeConstructsProvider;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -53,22 +53,22 @@ public class ParserUtils {
      * @return BallerinaFile instance.
      */
     public static BallerinaFile parseBalFile(String sourceFilePath) {
-        return parseBalFile(sourceFilePath, new SymScope(SymScope.Name.GLOBAL));
+        GlobalScope globalScope = new GlobalScope();
+        return parseBalFile(sourceFilePath, globalScope);
     }
 
     /**
      * Get parsed, analyzed and linked Ballerina object model.
      *
      * @param sourceFilePath Path to Bal file.
-     * @param globalSymScope Global symbol scope which includes all the native functions and actions
+     * @param globalScope - global scope
      * @return BallerinaFile instance.
      */
-    public static BallerinaFile parseBalFile(String sourceFilePath, SymScope globalSymScope) {
+    public static BallerinaFile parseBalFile(String sourceFilePath, GlobalScope globalScope) {
 
         BallerinaParser ballerinaParser = getBallerinaParser(sourceFilePath);
 
         // Create Ballerina model builder class
-        GlobalScope globalScope = new GlobalScope();
         BTypes.loadBuiltInTypes(globalScope);
         BLangPackage bLangPackage = new BLangPackage(globalScope);
         BLangModelBuilder modelBuilder = new BLangModelBuilder(bLangPackage);
@@ -83,8 +83,7 @@ public class ParserUtils {
 
         BallerinaNativeConstructsProvider constructLoader = new BallerinaNativeConstructsProvider();
         constructLoader.load(globalScope);
-        
-        
+
         // Analyze semantic properties of the source code
         SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, bLangPackage);
         bFile.accept(semanticAnalyzer);

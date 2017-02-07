@@ -172,6 +172,10 @@ public class BallerinaConnectorDef extends BType implements Connector, SymbolSco
         return resolve(symbolMap, name);
     }
 
+    public BLangSymbol resolveMembers(SymbolName name) {
+        return symbolMap.get(name);
+    }
+
     /**
      * {@code BallerinaConnectorDefBuilder} is responsible for building a {@cdoe BallerinaConnectorDef} node.
      *

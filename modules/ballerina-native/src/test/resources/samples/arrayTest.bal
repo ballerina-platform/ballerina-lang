@@ -61,10 +61,10 @@ function testMessageArrayLength(message[] arg)(int, int){
     message[] defined;
     message v1;
     message v2;
-    v1 = new message();
-    v2 = new message();
+    v1 = {};
+    v2 = {};
     defined = [v1, v2];
-    defined[2] = new message;
+    defined[2] = {};
     return array:length(arg) , array:length(defined);
 }
 
@@ -134,9 +134,9 @@ function testJSONArrayCopy(json[] arg)(json[]){
 function testMessageArrayCopy(message[] arg)(message[]){
     message[] defined;
     defined = array:copyOf(arg);
-    defined[0] = new message;
-    defined[1] = new message;
-    defined[2] = new message;
+    defined[0] = {};
+    defined[1] = {};
+    defined[2] = {};
     return defined;
 }
 

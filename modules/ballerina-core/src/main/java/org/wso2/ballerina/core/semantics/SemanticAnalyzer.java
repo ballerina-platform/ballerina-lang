@@ -164,7 +164,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         defineFunctions(bFile.getFunctions());
         resolveStructFieldTypes(bFile.getStructDefs());
-//        defineConnectors(bFile.getConnectors());
+        defineConnectors(bFile.getConnectors());
 
 //        bFile.getConnectorList().forEach(connector -> {
 //            addConnectorSymbol(connector);
@@ -173,12 +173,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 //
 //        Arrays.asList(bFile.getTypeConvertors()).forEach(this::addTypeConverterSymbol);
     }
-
-//    private void defineConnectors(BallerinaConnectorDef[] connectorDefArrya) {
-//        for (BallerinaConnectorDef connectorDef : connectorDefArrya) {
-//            String connectorName = connectorDef.getName();
-//        }
-//    }
 
     public SemanticAnalyzer(BallerinaFile bFile, SymScope globalScope) {
         SymScope pkgScope = bFile.getPackageScope();
@@ -243,6 +237,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         openScope(service);
 
         // TODO Analyze service level variable definition statements
+        for (VariableDefStmt variableDefStmt : service.getVariableDefStmts()) {
+            variableDefStmt.accept(this);
+        }
 
         // Visit the set of resources in a service
         for (Resource resource : service.getResources()) {
@@ -282,13 +279,14 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Visit the contents within a resource
         // Open a new symbol scope
         openScope(resource);
+        currentCallableUnit = resource;
 
         // TODO Check whether the reply statement is missing. Ignore if the function does not return anything.
         //checkForMissingReplyStmt(resource);
 
         for (ParameterDef parameterDef : resource.getParameterDefs()) {
-            currentMemLocation = new StackVarLocation(++stackFrameOffset);
-            visit(parameterDef);
+            parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            parameterDef.accept(this);
         }
 
         BlockStmt blockStmt = resource.getResourceBody();
@@ -299,6 +297,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Close the symbol scope
         stackFrameOffset = -1;
+        currentCallableUnit = null;
         closeScope();
     }
 
@@ -328,9 +327,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         BlockStmt blockStmt = function.getCallableUnitBody();
-        currentScope = blockStmt;
         blockStmt.accept(this);
-        currentScope = blockStmt.getEnclosingScope();
 
         // Here we need to calculate size of the BValue array which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
@@ -402,25 +399,25 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(BallerinaAction action) {
         // Open a new symbol scope
         openScope(action);
+        currentCallableUnit = action;
 
         // Check whether the return statement is missing. Ignore if the function does not return anything.
         // TODO Define proper error message codes
         //checkForMissingReturnStmt(action, "missing return statement at end of action");
 
         for (ParameterDef parameterDef : action.getParameterDefs()) {
-            currentMemLocation = new StackVarLocation(++stackFrameOffset);
-            visit(parameterDef);
+            parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            parameterDef.accept(this);
         }
 
         for (ParameterDef parameterDef : action.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
-            if (parameterDef.getName() == null) {
-                break;
+            if (parameterDef.getName() != null) {
+                parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
             }
 
-            currentMemLocation = new StackVarLocation(++stackFrameOffset);
-            visit(parameterDef);
+            parameterDef.accept(this);
         }
 
         BlockStmt blockStmt = action.getCallableUnitBody();
@@ -438,6 +435,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Close the symbol scope
         stackFrameOffset = -1;
+        currentCallableUnit = null;
         closeScope();
     }
 
@@ -545,7 +543,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Check whether this variable is already defined, if not define it.
         SymbolName symbolName = new SymbolName(varDef.getName());
         BLangSymbol varSymbol = currentScope.resolve(symbolName);
-        if (varSymbol != null && varSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
+        if (varSymbol != null && varSymbol.getSymbolScope().getScopeName() == currentScope.getScopeName()) {
             String errMsg = getNodeLocationStr(varDefStmt.getNodeLocation()) +
                     "redeclared symbol '" + varDef.getName() + "'";
             throw new SemanticException(errMsg);
@@ -658,9 +656,13 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BlockStmt blockStmt) {
+        openScope(blockStmt);
+
         for (Statement stmt : blockStmt.getStatements()) {
             stmt.accept(this);
         }
+
+        closeScope();
     }
 
     @Override
@@ -1230,6 +1232,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             throw new SemanticException(getNodeLocationStr(connectorInitExpr.getNodeLocation()) +
                     "connector initializer is not allowed here");
         }
+        connectorInitExpr.setType(inheritedType);
     }
 
     @Override
@@ -1873,6 +1876,19 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private void linkAction(ActionInvocationExpr actionIExpr) {
         String pkgPath = actionIExpr.getPackagePath();
+        String connectorName = actionIExpr.getConnectorName();
+
+        SymbolName connectorSymbolName = new SymbolName(connectorName, pkgPath);
+        BLangSymbol connectorSymbol = currentScope.resolve(connectorSymbolName);
+        if (connectorSymbol == null) {
+            String connectorWithPkgName = (actionIExpr.getPackageName() != null) ? actionIExpr.getPackageName() +
+                    ":" + actionIExpr.getConnectorName() : actionIExpr.getConnectorName();
+            throw new SemanticException(getNodeLocationStr(actionIExpr.getNodeLocation()) + "" +
+                    "undefined connector '" + connectorWithPkgName + "'");
+        }
+
+        // TODO Handle Native connectors here ;
+        BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connectorSymbol;
 
         Expression[] exprs = actionIExpr.getArgExprs();
         BType[] paramTypes = new BType[exprs.length];
@@ -1880,21 +1896,42 @@ public class SemanticAnalyzer implements NodeVisitor {
             paramTypes[i] = exprs[i].getType();
         }
 
-        SymbolName symName = LangModelUtils.getActionSymName(actionIExpr.getName(), actionIExpr.getConnectorName(),
+        SymbolName symbolName = LangModelUtils.getActionSymName(actionIExpr.getName(), actionIExpr.getConnectorName(),
                 pkgPath, paramTypes);
 
-        Symbol symbol = symbolTable.lookup(symName);
-        if (symbol == null) {
+
+        BLangSymbol actionSymbol = connectorDef.resolveMembers(symbolName);
+        if (actionSymbol == null) {
             String actionWithConnector = actionIExpr.getConnectorName() + "." + actionIExpr.getName();
             String actionName = (actionIExpr.getPackageName() != null) ? actionIExpr.getPackageName() + ":" +
                     actionWithConnector : actionWithConnector;
             throw new SemanticException(actionIExpr.getNodeLocation().getFileName() + ":" +
                     actionIExpr.getNodeLocation().getLineNumber() +
-                    ": undefined function '" + actionName + "'");
+                    ": undefined action '" + actionName + "'");
         }
 
         // Link
-        Action action = symbol.getAction();
+        Action action;
+        if (actionSymbol instanceof NativeUnitProxy) {
+            action = (Action) ((NativeUnitProxy) actionSymbol).load();
+            // TODO We need to find a way to load input parameter types
+
+            // Loading return parameter types of this native function
+            NativeUnit nativeUnit = (NativeUnit) action;
+            SimpleTypeName[] returnParamTypeNames = nativeUnit.getReturnParamTypeNames();
+            BType[] returnTypes = new BType[returnParamTypeNames.length];
+            for (int i = 0; i < returnParamTypeNames.length; i++) {
+                SimpleTypeName typeName = returnParamTypeNames[i];
+                BType bType = BTypes.resolveType(typeName, currentScope, actionIExpr.getNodeLocation());
+                returnTypes[i] = bType;
+            }
+            action.setReturnParamTypes(returnTypes);
+
+        } else {
+            action = (Action) actionSymbol;
+        }
+
+        // Link the action with the action invocation expression
         actionIExpr.setCallableUnit(action);
     }
 
@@ -2196,6 +2233,58 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
             function.setReturnParamTypes(returnTypes);
         }
+    }
+
+    private void defineConnectors(BallerinaConnectorDef[] connectorDefArrya) {
+        for (BallerinaConnectorDef connectorDef : connectorDefArrya) {
+            String connectorName = connectorDef.getName();
+
+            // Define ConnectorDef Symbol in the package scope..
+            SymbolName connectorSymbolName = new SymbolName(connectorName);
+            currentScope.define(connectorSymbolName, connectorDef);
+
+            openScope(connectorDef);
+
+            for (BallerinaAction bAction : connectorDef.getActions()) {
+                defineAction(bAction, connectorDef);
+            }
+
+            closeScope();
+        }
+    }
+
+    private void defineAction(BallerinaAction action, BallerinaConnectorDef connectorDef) {
+        ParameterDef[] paramDefArray = action.getParameterDefs();
+        BType[] paramTypes = new BType[paramDefArray.length];
+        for (int i = 0; i < paramDefArray.length; i++) {
+            ParameterDef paramDef = paramDefArray[i];
+            BType bType = BTypes.resolveType(paramDef.getTypeName(), currentScope, paramDef.getNodeLocation());
+            paramDef.setType(bType);
+            paramTypes[i] = bType;
+        }
+
+        action.setParameterTypes(paramTypes);
+        SymbolName symbolName = LangModelUtils.getActionSymName(action.getName(), connectorDef.getName(),
+                action.getPackagePath(), paramTypes);
+        action.setSymbolName(symbolName);
+
+        if (currentScope.resolve(symbolName) != null) {
+            throw new SemanticException(action.getNodeLocation().getFileName() + ":" +
+                    action.getNodeLocation().getLineNumber() +
+                    ": duplicate action '" + action.getName() + "'");
+        }
+        currentScope.define(symbolName, action);
+
+        // Resolve return parameters
+        ParameterDef[] returnParameters = action.getReturnParameters();
+        BType[] returnTypes = new BType[returnParameters.length];
+        for (int i = 0; i < returnParameters.length; i++) {
+            ParameterDef paramDef = returnParameters[i];
+            BType bType = BTypes.resolveType(paramDef.getTypeName(), currentScope, paramDef.getNodeLocation());
+            paramDef.setType(bType);
+            returnTypes[i] = bType;
+        }
+        action.setReturnParamTypes(returnTypes);
     }
 
     private void resolveStructFieldTypes(StructDef[] structDefs) {
