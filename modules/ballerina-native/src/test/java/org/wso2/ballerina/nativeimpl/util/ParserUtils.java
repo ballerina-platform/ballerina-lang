@@ -29,6 +29,7 @@ import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
+import org.wso2.ballerina.nativeimpl.BallerinaNativeConstructsProvider;
 
 import java.io.File;
 import java.io.FileInputStream;

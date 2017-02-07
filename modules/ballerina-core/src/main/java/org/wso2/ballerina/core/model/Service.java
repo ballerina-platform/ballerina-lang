@@ -18,10 +18,11 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.model.builder.CallableUnitGroupBuilder;
+import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -41,8 +42,6 @@ import java.util.Map;
  * @since 0.8.0
  */
 public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
-    private static final Logger logger = LoggerFactory.getLogger(Service.class);
-
     private NodeLocation location;
 
     // BLangSymbol related attributes
@@ -51,60 +50,24 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
     protected SymbolName symbolName;
 
     private Annotation[] annotations;
-    private ConnectorDcl[] connectorDcls;
-    private VariableDef[] variableDefs;
     private Resource[] resources;
+    private VariableDefStmt[] variableDefStmts;
 
     // Scope related variables
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
 
-    public Service(NodeLocation location,
-                   String name,
-                   String pkgPath,
-                   SymbolName symbolName,
-                   Annotation[] annotations,
-                   ConnectorDcl[] connectorDcls,
-                   VariableDef[] variableDefs,
-                   Resource[] resources,
-                   SymbolScope enclosingScope,
-                   Map<SymbolName, BLangSymbol> symbolMap) {
-
-        this.location = location;
-        this.name = name;
-        this.pkgPath = pkgPath;
-        this.symbolName = symbolName;
-        this.annotations = annotations;
-        this.connectorDcls = connectorDcls;
-        this.variableDefs = variableDefs;
-        this.resources = resources;
-
+    private Service(SymbolScope enclosingScope) {
         this.enclosingScope = enclosingScope;
-        this.symbolMap = symbolMap;
+        this.symbolMap = new HashMap<>();
     }
 
     public Annotation[] getAnnotations() {
         return annotations;
     }
 
-    public ConnectorDcl[] getConnectorDcls() {
-        return connectorDcls;
-    }
-
-    public VariableDef[] getVariableDefs() {
-        return variableDefs;
-    }
-
     public void setAnnotations(Annotation[] annotations) {
         this.annotations = annotations;
-    }
-
-    public void setConnectorDcls(ConnectorDcl[] connectorDcls) {
-        this.connectorDcls = connectorDcls;
-    }
-
-    public void setVariableDefs(VariableDef[] variableDefs) {
-        this.variableDefs = variableDefs;
     }
 
     /**
@@ -125,6 +88,9 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
         this.resources = resources;
     }
 
+    public VariableDefStmt[] getVariableDefStmts() {
+        return variableDefStmts;
+    }
 
     // Methods in Node interface
 
@@ -194,4 +160,29 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
         return resolve(symbolMap, name);
     }
 
+    /**
+     * {@code ServiceBuilder} is responsible for building a {@cdoe Service} node.
+     *
+     * @since 0.8.0
+     */
+    public static class ServiceBuilder extends CallableUnitGroupBuilder {
+        private Service service;
+
+        public ServiceBuilder(SymbolScope enclosingScope) {
+            service = new Service(enclosingScope);
+            currentScope = service;
+        }
+
+        public Service buildService() {
+            this.service.location = this.location;
+            this.service.name = this.name;
+            this.service.pkgPath = this.pkgPath;
+
+            this.service.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            this.service.resources = this.resourceList.toArray(new Resource[this.resourceList.size()]);
+            this.service.variableDefStmts = this.variableDefStmtList.toArray(
+                    new VariableDefStmt[variableDefStmtList.size()]);
+            return service;
+        }
+    }
 }

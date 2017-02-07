@@ -202,16 +202,16 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         }
         serviceObj.add(BLangJSONModelConstants.ANNOTATION_DEFINITIONS, this.tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
-        if (service.getConnectorDcls() != null) {
-            for (ConnectorDcl connectDcl : service.getConnectorDcls()) {
-                connectDcl.accept(this);
-            }
-        }
-        if (service.getVariableDefs() != null) {
-            for (VariableDef variableDef : service.getVariableDefs()) {
-                variableDef.accept(this);
-            }
-        }
+//        if (service.getConnectorDcls() != null) {
+//            for (ConnectorDcl connectDcl : service.getConnectorDcls()) {
+//                connectDcl.accept(this);
+//            }
+//        }
+//        if (service.getVariableDefs() != null) {
+//            for (VariableDef variableDef : service.getVariableDefs()) {
+//                variableDef.accept(this);
+//            }
+//        }
         serviceObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(serviceObj);
@@ -237,16 +237,16 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 parameterDef.accept(this);
             }
         }
-        if (connector.getConnectorDcls() != null) {
-            for (ConnectorDcl connectDcl : connector.getConnectorDcls()) {
-                connectDcl.accept(this);
-            }
-        }
-        if (connector.getVariableDefs() != null) {
-            for (VariableDef variableDef : connector.getVariableDefs()) {
-                variableDef.accept(this);
-            }
-        }
+//        if (connector.getConnectorDcls() != null) {
+//            for (ConnectorDcl connectDcl : connector.getConnectorDcls()) {
+//                connectDcl.accept(this);
+//            }
+//        }
+//        if (connector.getVariableDefs() != null) {
+//            for (VariableDef variableDef : connector.getVariableDefs()) {
+//                variableDef.accept(this);
+//            }
+//        }
         if (connector.getActions() != null) {
             for (BallerinaAction action : connector.getActions()) {
                 action.accept(this);

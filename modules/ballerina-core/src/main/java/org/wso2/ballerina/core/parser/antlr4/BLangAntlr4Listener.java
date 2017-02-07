@@ -96,9 +96,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterServiceDefinition(BallerinaParser.ServiceDefinitionContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.startCallableUnitGroup();
+        if (ctx.exception != null) {
+            return;
         }
+
+        modelBuilder.startServiceDef(getCurrentLocation(ctx));
     }
 
     @Override
@@ -118,6 +120,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterServiceBody(BallerinaParser.ServiceBodyContext ctx) {
+
     }
 
     @Override
@@ -134,9 +137,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterResourceDefinition(BallerinaParser.ResourceDefinitionContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.startResourceDef();
+        if (ctx.exception != null) {
+            return;
         }
+
+        modelBuilder.startResourceDef();
     }
 
     @Override
@@ -254,9 +259,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterConnector(BallerinaParser.ConnectorContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.startCallableUnitGroup();
+        if (ctx.exception != null) {
+            return;
         }
+
+        modelBuilder.startConnectorDef(getCurrentLocation(ctx));
     }
 
     @Override
