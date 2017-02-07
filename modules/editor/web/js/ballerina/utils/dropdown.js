@@ -79,11 +79,12 @@ define(['lodash', 'jquery'], function (_, $) {
                     self.onDropdownClosed();
                 }
             } else {
+                if (!_.isNil(self.onDropdownOpen)) {
+                    self.onDropdownOpen();
+                }
                 if ($(self.dropdownMainWrapper).find("li").length != 0) {
+                    $(self.dropdownButton).removeClass("disabled");
                     $(self.dropdownMainWrapper).addClass("open");
-                    if (!_.isNil(self.onDropdownOpen)) {
-                        self.onDropdownOpen();
-                    }
                 }
             }
 
