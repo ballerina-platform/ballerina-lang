@@ -35,14 +35,6 @@ public class LangModelUtils {
         return new SymbolName(stringBuilder.toString());
     }
 
-    public static SymbolName getSymNameWithParams(String identifier, String pkgPath, ParameterDef[] parameterDefs) {
-        StringBuilder stringBuilder = new StringBuilder(identifier);
-        for (ParameterDef param : parameterDefs) {
-            stringBuilder.append(".").append(param.getType());
-        }
-        return new SymbolName(stringBuilder.toString(), pkgPath);
-    }
-
     public static SymbolName getSymNameWithParams(String identifier, String pkgPath, BType[] types) {
         StringBuilder sBuilder = new StringBuilder(identifier);
         for (BType type : types) {
@@ -66,56 +58,22 @@ public class LangModelUtils {
     }
 
     public static SymbolName getTypeConverterSymNameWithoutPackage(BType source,
-                                                     BType target) {
+                                                                   BType target) {
         return new SymbolName("." + source + "->" + "." + target, "ballerina.lang.convertors");
     }
 
     public static SymbolName getConnectorSymName(String identifier, String pkgPath) {
-        String prefix;
-        if (pkgPath == null) {
-            prefix = identifier;
-        } else {
-            prefix = pkgPath + ":" + identifier;
-        }
-
-        return new SymbolName(prefix);
+        return new SymbolName(identifier, pkgPath);
     }
 
     public static SymbolName getActionSymName(String actionName, String connectorName,
                                               String pkgPath, BType[] types) {
-        String prefix;
-        if (pkgPath == null) {
-            prefix = connectorName + "." + actionName;
-        } else {
-            prefix = pkgPath + ":" + connectorName + "." + actionName;
-        }
-
-        StringBuilder sBuilder = new StringBuilder(prefix);
+        StringBuilder sBuilder = new StringBuilder(connectorName + "." + actionName);
         for (BType type : types) {
             sBuilder.append("_").append(type);
         }
 
-        return new SymbolName(sBuilder.toString());
-    }
-
-    /**
-     * Get the symbol name of a struct field.
-     *
-     * @param fieldName  Local name of the field
-     * @param structName Name os the struct to which this field belongs to
-     * @param pkgPath    Package name of the struct
-     * @return Symbol name of a struct field
-     */
-    public static SymbolName getStructFieldSymName(String fieldName, String structName, String pkgPath) {
-        String prefix;
-        if (pkgPath == null) {
-            prefix = structName + "." + fieldName;
-        } else {
-            prefix = pkgPath + ":" + structName + "." + fieldName;
-        }
-
-        StringBuilder sBuilder = new StringBuilder(prefix);
-        return new SymbolName(sBuilder.toString());
+        return new SymbolName(sBuilder.toString(), pkgPath);
     }
 
     public static BType[] getTypesOfParams(ParameterDef[] parameterDefs) {
