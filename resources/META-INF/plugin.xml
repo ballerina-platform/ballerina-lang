@@ -66,6 +66,10 @@
         <completion.contributor language="Ballerina"
                                 implementationClass="org.ballerinalang.plugins.idea.completion.KeywordCompletionContributor"/>
 
+        <!--line marker-->
+        <codeInsight.lineMarkerProvider language="Ballerina"
+                                        implementationClass="org.ballerinalang.plugins.idea.marker.GoRecursiveCallMarkerProvider"/>
+
         <!-- templates -->
         <internalFileTemplate name="Ballerina Application"/>
         <internalFileTemplate name="Ballerina File"/>
