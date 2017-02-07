@@ -24,12 +24,12 @@
 }
 .property-name {
     padding: 5px;
-    color: #446191;
+    color: #3d3d3d;
 }
 
 .property-type {
     padding: 5px;
-    color: #738ebc;
+    color: #3d3d3d;
 }
 
 .struct-name {
@@ -40,18 +40,26 @@
     border: 1px solid gray;
     width: 200px;
     height: auto;
-    background: #446191;
+    background: #3d3d3d;
     color: #ffffff;
     position: absolute;
 }
 .property {
     padding: 5;
     font-size: 16px;
-    border: 1px solid #D8D8D8;
     background-color: #ffffff;
     cursor: pointer;
+    color: black;
 }
 
 svg.plumbConnect path {
-    stroke:#414e66;
+    stroke:#3d3d3d;
+}
+
+.jstree-default .jstree-last {
+    background: #ffffff;
+}
+
+.typeMapperList {
+    display: none;
 }
