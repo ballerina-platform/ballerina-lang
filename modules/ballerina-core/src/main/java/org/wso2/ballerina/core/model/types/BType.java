@@ -59,15 +59,24 @@ public abstract class BType implements BLangSymbol {
     public abstract <V extends BValue> V getDefaultValue();
 
     public String toString() {
-        return typeName;
+        return (pkgPath != null) ? pkgPath + ":" + typeName : typeName;
     }
 
     public boolean equals(Object obj) {
         if (obj instanceof BType) {
             BType other = (BType) obj;
-            return this.typeName.equals(other.typeName);
+            boolean namesEqual = this.typeName.equals(other.getName());
+
+            // If both package paths are null or both package paths are not null,
+            //    then check their names. If not return false
+            return (this.pkgPath == null && other.getPackagePath() == null ||
+                    this.pkgPath != null && other.getPackagePath() != null) && namesEqual;
         }
         return false;
+    }
+
+    public int hashCode() {
+        return (pkgPath + ":" + typeName).hashCode();
     }
 
     // Methods in BLangSymbol interface

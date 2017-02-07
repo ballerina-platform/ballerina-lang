@@ -118,6 +118,7 @@ import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.nativeimpl.NativeUnitProxy;
+import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -456,7 +457,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(Worker worker) {
-
     }
 
     @Override
@@ -755,7 +755,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ReturnStmt returnStmt) {
-        if (currentScope instanceof Resource) {
+        if (currentCallableUnit instanceof Resource) {
             throw new SemanticException(returnStmt.getNodeLocation().getFileName() + ":" +
                     returnStmt.getNodeLocation().getLineNumber() +
                     ": return statement cannot be used in a resource definition");
@@ -1230,7 +1230,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(ConnectorInitExpr connectorInitExpr) {
         BType inheritedType = connectorInitExpr.getInheritedType();
-        if (!(inheritedType instanceof BallerinaConnectorDef)) {
+        if (!(inheritedType instanceof BallerinaConnectorDef) && !(inheritedType instanceof AbstractNativeConnector)) {
             throw new SemanticException(getNodeLocationStr(connectorInitExpr.getNodeLocation()) +
                     "connector initializer is not allowed here");
         }
@@ -1811,7 +1811,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         Function function;
         if (functionSymbol instanceof NativeUnitProxy) {
             function = (Function) ((NativeUnitProxy) functionSymbol).load();
-            // TODO We need to find a way to load input parameter types
 
             // Loading return parameter types of this native function
             NativeUnit nativeUnit = (NativeUnit) function;
@@ -1836,6 +1835,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         String pkgPath = actionIExpr.getPackagePath();
         String connectorName = actionIExpr.getConnectorName();
 
+        // First look for the connectors
         SymbolName connectorSymbolName = new SymbolName(connectorName, pkgPath);
         BLangSymbol connectorSymbol = currentScope.resolve(connectorSymbolName);
         if (connectorSymbol == null) {
@@ -1844,9 +1844,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             throw new SemanticException(getNodeLocationStr(actionIExpr.getNodeLocation()) + "" +
                     "undefined connector '" + connectorWithPkgName + "'");
         }
-
-        // TODO Handle Native connectors here ;
-        BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connectorSymbol;
 
         Expression[] exprs = actionIExpr.getArgExprs();
         BType[] paramTypes = new BType[exprs.length];
@@ -1857,8 +1854,15 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymbolName symbolName = LangModelUtils.getActionSymName(actionIExpr.getName(), actionIExpr.getConnectorName(),
                 pkgPath, paramTypes);
 
+        // Now check whether there is a matching action
+        BLangSymbol actionSymbol;
+        if (connectorSymbol instanceof NativeUnitProxy) {
+            AbstractNativeConnector connector = (AbstractNativeConnector) ((NativeUnitProxy) connectorSymbol).load();
+            actionSymbol = connector.resolveMembers(symbolName);
+        } else {
+            actionSymbol = ((BallerinaConnectorDef) connectorSymbol).resolveMembers(symbolName);
+        }
 
-        BLangSymbol actionSymbol = connectorDef.resolveMembers(symbolName);
         if (actionSymbol == null) {
             String actionWithConnector = actionIExpr.getConnectorName() + "." + actionIExpr.getName();
             String actionName = (actionIExpr.getPackageName() != null) ? actionIExpr.getPackageName() + ":" +
@@ -1868,11 +1872,10 @@ public class SemanticAnalyzer implements NodeVisitor {
                     ": undefined action '" + actionName + "'");
         }
 
-        // Link
+        // Load native action
         Action action;
         if (actionSymbol instanceof NativeUnitProxy) {
             action = (Action) ((NativeUnitProxy) actionSymbol).load();
-            // TODO We need to find a way to load input parameter types
 
             // Loading return parameter types of this native function
             NativeUnit nativeUnit = (NativeUnit) action;
@@ -2102,7 +2105,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             if (currentScope.resolve(symbolName) != null) {
                 throw new SemanticException(getNodeLocationStr(function.getNodeLocation()) +
-                        "redeclared function '" + function.getName() + "'");
+                        "redeclared symbol '" + function.getName() + "'");
             }
             currentScope.define(symbolName, function);
 
@@ -2140,7 +2143,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (currentScope.resolve(symbolName) != null) {
                 throw new SemanticException(typeConvertor.getNodeLocation().getFileName() + ":" +
                         typeConvertor.getNodeLocation().getLineNumber() +
-                        ": duplicate function '" + typeConvertor.getName() + "'");
+                        ": redeclared symbol '" + typeConvertor.getName() + "'");
             }
             currentScope.define(symbolName, typeConvertor);
 

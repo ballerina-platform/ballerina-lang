@@ -903,7 +903,6 @@ public class BLangModelBuilder {
                             "action invocation is not allowed here";
                     errorMsgs.add(errMsg);
                 }
-                currentCUGroupBuilder.addVariableDef(variableDefStmt);
 
 //                if (rhsExpr instanceof BasicLiteral || rhsExpr instanceof VariableRefExpr) {
 //                    currentCUGroupBuilder.addVariableDef(variableDefStmt);
@@ -913,6 +912,7 @@ public class BLangModelBuilder {
 //                    errorMsgs.add(errMsg);
 //                }
             }
+            currentCUGroupBuilder.addVariableDef(variableDefStmt);
         } else {
             addToBlockStmt(variableDefStmt);
         }

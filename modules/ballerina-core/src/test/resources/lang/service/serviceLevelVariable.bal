@@ -1,6 +1,3 @@
-import ballerina.net.http;
-import ballerina.lang.system;
-
 @BasePath ("/var")
 service echo {
 

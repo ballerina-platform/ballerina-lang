@@ -38,18 +38,11 @@ import java.util.Map;
  */
 public abstract class AbstractNativeConnector extends BType implements NativeUnit, Connector, BLangSymbol {
     // BLangSymbol related attributes
-    protected String name;
-    protected String pkgPath;
-    protected boolean isPublic = true;
-    protected SymbolName symbolName;
-
     private List<ParameterDef> parameterDefs;
-
     private SimpleTypeName[] returnParamTypeNames;
     private SimpleTypeName[] argTypeNames;
     
     // Scope related variables
-    protected SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
     
     public AbstractNativeConnector(SymbolScope enclosingScope) {
@@ -78,7 +71,7 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
 
     @Override
     public String getName() {
-        return name;
+        return typeName;
     }
 
     @Override
@@ -88,7 +81,7 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
 
     @Override
     public boolean isPublic() {
-        return isPublic;
+        return false;
     }
 
     @Override
@@ -105,6 +98,7 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
     public SymbolScope getSymbolScope() {
         return null;
     }
+
     
     // Methods in NativeUnit interface
     
@@ -130,7 +124,7 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
     
     @Override
     public void setName(String name) {
-        this.name = name;
+        this.typeName = name;
     }
     
     @Override
@@ -146,6 +140,7 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
     public void setSymbolName(SymbolName symbolName) {
         this.symbolName = symbolName;
     }
+
     
     // Methods in the SymbolScope interface
 
@@ -156,7 +151,7 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
 
     @Override
     public SymbolScope getEnclosingScope() {
-        return enclosingScope;
+        return symbolScope;
     }
 
     @Override
@@ -168,6 +163,7 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
     public BLangSymbol resolve(SymbolName name) {
         return resolve(symbolMap, name);
     }
+
 
     // Methods in the BType interface
     @Override

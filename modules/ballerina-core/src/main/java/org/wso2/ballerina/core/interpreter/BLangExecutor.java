@@ -25,7 +25,6 @@ import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.Function;
-import org.wso2.ballerina.core.model.NativeUnit;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
@@ -82,7 +81,6 @@ import org.wso2.ballerina.core.model.values.BValueType;
 import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
-import org.wso2.ballerina.core.nativeimpl.NativeUnitProxy;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
@@ -487,13 +485,24 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public BValue visit(ConnectorInitExpr connectorInitExpr) {
-        BConnector bConnector = null;
+        BConnector bConnector;
         BValue[] connectorMemBlock;
         Connector connector = (Connector) connectorInitExpr.getType();
+
         if (connector instanceof AbstractNativeConnector) {
 
+            AbstractNativeConnector nativeConnector = ((AbstractNativeConnector) connector).getInstance();
+            Expression[] argExpressions = connectorInitExpr.getArgExprs();
+            connectorMemBlock = new BValue[argExpressions.length];
+            for (int j = 0; j < argExpressions.length; j++) {
+                connectorMemBlock[j] = argExpressions[j].execute(this);
+            }
+
+            nativeConnector.init(connectorMemBlock);
+            bConnector = new BConnector(nativeConnector, connectorMemBlock);
+
 //            //TODO Fix Issue#320
-            NativeUnit nativeUnit = ((NativeUnitProxy) connector).load();
+//            NativeUnit nativeUnit = ((NativeUnitProxy) connector).load();
 //            AbstractNativeConnector nativeConnector = (AbstractNativeConnector) ((NativeUnitProxy) connector).load();
 //            Expression[] argExpressions = connectorDcl.getArgExprs();
 //            connectorMemBlock = new BValue[argExpressions.length];
