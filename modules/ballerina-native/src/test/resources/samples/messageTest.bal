@@ -45,9 +45,8 @@ function testGetStringPayload(message msg) (message){
 }
 
 function testEmptyString() (string){
-    message msg;
+    message msg = {};
     string strPayload;
-
     strPayload = message:getStringPayload(msg);
     return strPayload;
 }

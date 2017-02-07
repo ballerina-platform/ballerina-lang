@@ -20,6 +20,8 @@ package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.types.BTypes;
+import org.wso2.ballerina.core.model.types.TypeLattice;
+import org.wso2.ballerina.core.model.types.TypeVertex;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,7 +58,7 @@ public class BallerinaFile implements Node {
     private Service[] services;
     private BallerinaConnectorDef[] connectors;
     private Function[] functions;
-    private TypeConvertor[] typeConvertors;
+    private TypeLattice typeLattice;
     private Function mainFunction;
     private ConstDef[] consts;
     private StructDef[] structDefs;
@@ -76,7 +78,7 @@ public class BallerinaFile implements Node {
             Function mainFunction,
             ConstDef[] consts,
             StructDef[] structDefs,
-            TypeConvertor[] typeConvertors) {
+            TypeLattice typeLattice) {
 
         this.pkgName = pkgName;
         this.importPkgMap = importPkgMap;
@@ -88,7 +90,7 @@ public class BallerinaFile implements Node {
         this.mainFunction = mainFunction;
         this.consts = consts;
         this.structDefs = structDefs;
-        this.typeConvertors = typeConvertors;
+        this.typeLattice = typeLattice;
 
         packageScope = new SymScope(SymScope.Name.PACKAGE);
     }
@@ -154,8 +156,8 @@ public class BallerinaFile implements Node {
         return functions;
     }
 
-    public TypeConvertor[] getTypeConvertors() {
-        return typeConvertors;
+    public TypeLattice getTypeLattice() {
+        return typeLattice;
     }
 
     public Function getMainFunction() {
@@ -205,8 +207,8 @@ public class BallerinaFile implements Node {
         private List<Service> serviceList = new ArrayList<>();
         private List<BallerinaConnectorDef> connectorList = new ArrayList<>();
         private List<Function> functionList = new ArrayList<>();
-        private List<TypeConvertor> typeConvertorList = new ArrayList<>();
         private Function mainFunction;
+        private TypeLattice typeLattice = new TypeLattice();
 
         private List<ConstDef> constList = new ArrayList<>();
 
@@ -256,9 +258,12 @@ public class BallerinaFile implements Node {
             this.constList.add(constant);
         }
 
-        public void addTypeConverter(BTypeConvertor typeConvertor) {
-            this.compilationUnitList.add(typeConvertor);
-            this.typeConvertorList.add(typeConvertor);
+        public void addTypeConvertor(TypeVertex source, TypeVertex target,
+                                     TypeConvertor typeConvertor, String packageName) {
+            this.compilationUnitList.add((BTypeConvertor) typeConvertor);
+            typeLattice.addVertex(source, true);
+            typeLattice.addVertex(target, true);
+            typeLattice.addEdge(source, target, typeConvertor, packageName);
         }
 
         /**
@@ -281,7 +286,7 @@ public class BallerinaFile implements Node {
                     mainFunction,
                     constList.toArray(new ConstDef[constList.size()]),
                     structDefList.toArray(new StructDef[structDefList.size()]),
-                    typeConvertorList.toArray(new TypeConvertor[typeConvertorList.size()])
+                    typeLattice
             );
         }
     }

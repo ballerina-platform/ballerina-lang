@@ -20,17 +20,14 @@ package org.wso2.ballerina.lang.expressions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
-import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
@@ -39,13 +36,26 @@ public class TypeCastExprTest {
 
     @BeforeClass
     public void setup() {
-        // Add Native functions.
-        SymScope symScope = GlobalScopeHolder.getInstance().getScope();
-        if (symScope.lookup(new SymbolName("ballerina.lang.convertors:_xml->_json")) == null) {
-            BuiltInNativeConstructLoader.loadConstructs();
-        }
-        bFile = ParserUtils.parseBalFile("lang/expressions/type-conversion.bal", symScope);
+        bFile = ParserUtils.parseBalFile("lang/expressions/type-conversion.bal");
     }
+
+//    @Test
+//    public void testXMLToJSON() {
+//        BValue[] args = {new BXML("<name>chanaka</name>")};
+//        BValue[] returns = Functions.invoke(bFile, "xmltojson", args);
+//        Assert.assertTrue(returns[0] instanceof BJSON);
+//        final String expected = "{\"name\":\"chanaka\"}";
+//        Assert.assertEquals(returns[0].stringValue(), expected);
+//    }
+
+//    @Test
+//    public void testJSONToXML() {
+//        BValue[] args = {new BJSON("{\"name\":\"chanaka\"}")};
+//        BValue[] returns = Functions.invoke(bFile, "jsontoxml", args);
+//        Assert.assertTrue(returns[0] instanceof BXML);
+//        final String expected = "<name>chanaka</name>";
+//        Assert.assertEquals(returns[0].stringValue(), expected);
+//    }
 
     @Test
     public void testDoubleToFloat() {
@@ -191,6 +201,24 @@ public class TypeCastExprTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
+//    @Test
+//    public void testStringToJSON() {
+//        BValue[] args = {new BString("{\"name\":\"chanaka\"}")};
+//        BValue[] returns = Functions.invoke(bFile, "stringtojson", args);
+//        Assert.assertTrue(returns[0] instanceof BJSON);
+//        final String expected = "{\"name\":\"chanaka\"}";
+//        Assert.assertEquals(returns[0].stringValue(), expected);
+//    }
+//
+//    @Test
+//    public void testStringToXML() {
+//        BValue[] args = {new BString("<name>chanaka</name>")};
+//        BValue[] returns = Functions.invoke(bFile, "stringtoxml", args);
+//        Assert.assertTrue(returns[0] instanceof BXML);
+//        final String expected = "<name>chanaka</name>";
+//        Assert.assertEquals(returns[0].stringValue(), expected);
+//    }
+
     @Test
     public void testIntToString() {
         BValue[] args = {new BInteger(111)};
@@ -225,5 +253,49 @@ public class TypeCastExprTest {
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "111.333";
         Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+//    @Test
+//    public void testXMLToString() {
+//        BValue[] args = {new BXML("<name>chanaka</name>")};
+//        BValue[] returns = Functions.invoke(bFile, "xmltostring", args);
+//        Assert.assertTrue(returns[0] instanceof BString);
+//        final String expected = "<name>chanaka</name>";
+//        Assert.assertEquals(returns[0].stringValue(), expected);
+//    }
+//
+//    @Test
+//    public void testJSONToString() {
+//        BValue[] args = {new BJSON("{\"name\":\"chanaka\"}")};
+//        BValue[] returns = Functions.invoke(bFile, "jsontostring", args);
+//        Assert.assertTrue(returns[0] instanceof BString);
+//        final String expected = "{\"name\":\"chanaka\"}";
+//        Assert.assertEquals(returns[0].stringValue(), expected);
+//    }
+
+    @Test
+    public void testIntArrayToLongArray() {
+        BValue[] returns = Functions.invoke(bFile, "intarrtolongarr");
+        Assert.assertTrue(returns[0] instanceof BArray);
+        BArray result = (BArray) returns[0];
+        Assert.assertTrue(result.get(0) instanceof BLong);
+        Assert.assertEquals(result.get(0).stringValue(), "999");
+        Assert.assertTrue(result.get(1) instanceof BLong);
+        Assert.assertEquals(result.get(1).stringValue(), "95");
+        Assert.assertTrue(result.get(2) instanceof BLong);
+        Assert.assertEquals(result.get(2).stringValue(), "889");
+    }
+
+    @Test
+    public void testFloatArrayToDoubleArray() {
+        BValue[] returns = Functions.invoke(bFile, "floatarrtodoublearr");
+        Assert.assertTrue(returns[0] instanceof BArray);
+        BArray result = (BArray) returns[0];
+        Assert.assertTrue(result.get(0) instanceof BDouble);
+        Assert.assertEquals(result.get(0).stringValue(), "99.98999786376953");
+        Assert.assertTrue(result.get(1) instanceof BDouble);
+        Assert.assertEquals(result.get(1).stringValue(), "4.5");
+        Assert.assertTrue(result.get(2) instanceof BDouble);
+        Assert.assertEquals(result.get(2).stringValue(), "23.559999465942383");
     }
 }

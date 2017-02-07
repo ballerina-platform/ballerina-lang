@@ -77,8 +77,10 @@ import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.types.TypeConstants;
+import org.wso2.ballerina.core.model.types.TypeVertex;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -759,14 +761,18 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void addTypeConverter(NodeLocation location, String name, boolean isPublic) {
+    public void addTypeConverter(String source, String target, String name, NodeLocation location, boolean isPublic) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
         currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setPublic(isPublic);
 
         BTypeConvertor typeConvertor = currentCUBuilder.buildTypeConverter();
-        bFileBuilder.addTypeConverter(typeConvertor);
+        TypeVertex sourceV = new TypeVertex(BTypes.resolveType(new SimpleTypeName(source),
+                currentScope, location), currentPackagePath);
+        TypeVertex targetV = new TypeVertex(BTypes.resolveType(new SimpleTypeName(target),
+                currentScope, location), currentPackagePath);
+        bFileBuilder.addTypeConvertor(sourceV, targetV, typeConvertor, currentPackagePath);
 
         // Define type converter is delayed due to missing type info of Parameters.
 
