@@ -70,6 +70,17 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>@{argLine} -Dfile.encoding=UTF-8</argLine>
+                    <additionalClasspathElements>
+                    <additionalClasspathElement>${basedir}/target/classes/org/wso2/ballerina/nativeimpl
+                        /BallerinaNativeConstructsProvider.class</additionalClasspathElement>
+                    </additionalClasspathElements>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
