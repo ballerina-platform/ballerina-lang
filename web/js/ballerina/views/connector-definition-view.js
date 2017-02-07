@@ -18,7 +18,7 @@
 define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', './point',
         './../ast/connector-definition', './client-life-line', './connector-action-view',
         'ballerina/ast/ballerina-ast-factory', './axis', './connector-declaration-view',
-        './../ast/variable-declaration', './variables-view', './annotation-view', './function-arguments-view'],
+        './../ast/variable-declaration', './variable-definitions-pane-view', './annotation-view', './function-arguments-view'],
     function (_, log, d3, D3utils, $, Alerts, SVGCanvas, Point,
               ConnectorDefinition, ClientLifeLine, ConnectorActionView,
               BallerinaASTFactory, Axis, ConnectorDeclarationView,
