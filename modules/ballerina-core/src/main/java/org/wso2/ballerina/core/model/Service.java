@@ -177,6 +177,7 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
             this.service.location = this.location;
             this.service.name = this.name;
             this.service.pkgPath = this.pkgPath;
+            this.service.symbolName = new SymbolName(name, pkgPath);
 
             this.service.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
             this.service.resources = this.resourceList.toArray(new Resource[this.resourceList.size()]);

@@ -214,6 +214,7 @@ public class BallerinaAction implements Action, SymbolScope, Node {
             bAction.location = this.location;
             bAction.name = this.name;
             bAction.pkgPath = this.pkgPath;
+            bAction.symbolName = new SymbolName(name, pkgPath);
 
             bAction.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
             bAction.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);

@@ -293,23 +293,24 @@ public class Resource implements Node, SymbolScope, CallableUnit {
      * @since 0.8.0
      */
     public static class ResourceBuilder extends CallableUnitBuilder {
-        private Resource bFunc;
+        private Resource resource;
 
         public ResourceBuilder(SymbolScope enclosingScope) {
-            bFunc = new Resource(enclosingScope);
-            currentScope = bFunc;
+            resource = new Resource(enclosingScope);
+            currentScope = resource;
         }
 
         public Resource buildResource() {
-            bFunc.location = this.location;
-            bFunc.name = this.name;
-            bFunc.pkgPath = this.pkgPath;
+            resource.location = this.location;
+            resource.name = this.name;
+            resource.pkgPath = this.pkgPath;
+            resource.symbolName = new SymbolName(name, pkgPath);
 
-            bFunc.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
-            bFunc.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
-            bFunc.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
-            bFunc.resourceBody = this.body;
-            return bFunc;
+            resource.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            resource.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
+            resource.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
+            resource.resourceBody = this.body;
+            return resource;
         }
     }
 }

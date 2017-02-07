@@ -77,20 +77,6 @@ public class BValueUtils {
 //        throw new BallerinaException("Unsupported type: " + type);
 //    }
 
-    public static BValue getDefaultValueForRefType(BType type) {
-        if (type == BTypes.typeJSON) {
-            return new BJSON("{}");
-
-        } else if (type == BTypes.typeXML) {
-            return new BXML();
-
-        } else if (type == BTypes.typeMessage) {
-            return new BMessage();
-        }
-
-        throw new BallerinaException("Unsupported built-in reference type: " + type);
-    }
-
     // TODO we need to improve this logic
     public static BValue clone(BType type, BValue bValue) {
         if (BTypes.isValueType(type)) {

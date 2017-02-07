@@ -293,8 +293,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         //checkForMissingReplyStmt(resource);
 
         for (ParameterDef parameterDef : resource.getParameterDefs()) {
-            currentMemLocation = new StackVarLocation(++stackFrameOffset);
-            visit(parameterDef);
+            parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            parameterDef.accept(this);
         }
 
         BlockStmt blockStmt = resource.getResourceBody();
@@ -334,9 +334,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         BlockStmt blockStmt = function.getCallableUnitBody();
-        currentScope = blockStmt;
         blockStmt.accept(this);
-        currentScope = blockStmt.getEnclosingScope();
 
         // Here we need to calculate size of the BValue array which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
@@ -415,19 +413,18 @@ public class SemanticAnalyzer implements NodeVisitor {
         //checkForMissingReturnStmt(action, "missing return statement at end of action");
 
         for (ParameterDef parameterDef : action.getParameterDefs()) {
-            currentMemLocation = new StackVarLocation(++stackFrameOffset);
-            visit(parameterDef);
+            parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            parameterDef.accept(this);
         }
 
         for (ParameterDef parameterDef : action.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
-            if (parameterDef.getName() == null) {
-                break;
+            if (parameterDef.getName() != null) {
+                parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
             }
 
-            currentMemLocation = new StackVarLocation(++stackFrameOffset);
-            visit(parameterDef);
+            parameterDef.accept(this);
         }
 
         BlockStmt blockStmt = action.getCallableUnitBody();
