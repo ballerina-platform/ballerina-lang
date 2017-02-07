@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel', './debug-point', 'mousetrap', './tools'],
-    function (require, $, Backbone, _ ,EventChannel, Channel, DebugPoint, Mousetrap, Tools) {
+define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel', './debug-point', 'mousetrap', ],
+    function (require, $, Backbone, _ ,EventChannel, Channel, DebugPoint, Mousetrap) {
 	var instance;
 
     var DebugManager = function(args) {
@@ -26,68 +26,67 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
         this.channel = undefined;
 
     	this.on("breakpoint-added",_.bind(this.publishBreakPoints, this));
-        this.on("breakpoint-removed",_.bind(this.publishBreakPoints, this));
-        this.on("connected",_.bind(this.hideModal, this));
+        this.on("breakpoint-removed",_.bind(this.publishBreakPoints, this));        
 
-        this.connectionDialog = $("#modalDebugConnection");
         Mousetrap.bind('alt+c', _.bindKey(this, 'showConnectionDialog'));
         Mousetrap.bind('alt+o', _.bindKey(this, 'stepOver'));
         Mousetrap.bind('alt+r', _.bindKey(this, 'resume'));
-
-        $('.debug-connect-button').on("click", _.bindKey(this, 'connect'));
-
-        this.on("started-debugging", function () {
-            Tools.startDebugging();
-        });
-        Tools.on('show-connection-dialog', function () {
-            self.showConnectionDialog();
-        });
+        Mousetrap.bind('alt+i', _.bindKey(this, 'stepIn'));
+        Mousetrap.bind('alt+u', _.bindKey(this, 'stepOut'));
+        Mousetrap.bind('alt+p', _.bindKey(this, 'stop'));
     };
 
     DebugManager.prototype = Object.create(EventChannel.prototype);
     DebugManager.prototype.constructor = DebugManager;
 
-    DebugManager.prototype.hideModal = function(){
-        this.connectionDialog.modal('hide');
-        this.publishBreakPoints();
-        this.startDebug();
-    },
+    DebugManager.prototype.stepIn = function(){
+        var message = { "command": "STEP_IN" };
+        this.channel.sendMessage(message);
+        this.trigger("resume-execution");
+    };
+
+    DebugManager.prototype.stepOut = function(){
+        var message = { "command": "STEP_OUT" };
+        this.channel.sendMessage(message);
+        this.trigger("resume-execution");
+    };
+
+    DebugManager.prototype.stop = function(){
+        var message = { "command": "STOP" };
+        this.channel.sendMessage(message);
+        this.trigger("resume-execution");
+    };
 
     DebugManager.prototype.stepOver = function(){
         var message = { "command": "STEP_OVER" };
         this.channel.sendMessage(message);
         this.trigger("resume-execution");
-    },
+    };
 
     DebugManager.prototype.resume = function(){
         var message = { "command": "RESUME" };
         this.channel.sendMessage(message);
         this.trigger("resume-execution");
-    },
+    };
 
     DebugManager.prototype.startDebug = function(){
         var message = { "command": "START" };
         this.channel.sendMessage(message);
         this.trigger("resume-execution");
-    },
+    };
 
     DebugManager.prototype.processMesssage = function(message){
         if(message.code == "DEBUG_HIT"){
-            this.trigger("debug-hit", message.position);
+            this.trigger("debug-hit", message);
         }
-    },
+    };
 
-    DebugManager.prototype.connect = function(){
-        var url = $("#debugUrl").val();
+    DebugManager.prototype.connect = function(url){        
         if(url != undefined || url != ""){
             this.channel = new Channel({ endpoint: "ws://" + url + "/debug" , debugger: this});
+            this.channel.connect();
         }
-        this.trigger('started-debugging');
-    },    
-
-    DebugManager.prototype.showConnectionDialog = function(){
-        this.connectionDialog.modal(); 
-    },
+    };
 
     DebugManager.prototype.init = function(options){
         this.enable = true;              

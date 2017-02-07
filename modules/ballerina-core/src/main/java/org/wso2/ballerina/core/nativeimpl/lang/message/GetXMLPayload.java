@@ -26,6 +26,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
+import org.wso2.carbon.messaging.MessageDataSource;
 
 /**
  * Get the payload of the Message as a XML.
@@ -49,17 +50,17 @@ public class GetXMLPayload extends AbstractNativeFunction {
             BMessage msg = (BMessage) getArgument(context, 0);
             
             if (msg.isAlreadyRead()) {
-                BValue payload = msg.getBuiltPayload();
+                MessageDataSource payload = msg.getMessageDataSource();
                 if (payload instanceof BXML) {
                     // if the payload is already xml, return it as it is.
-                    result = (BXML) msg.getBuiltPayload();
+                    result = (BXML) payload;
                 } else {
                     // else, build the xml from the string representation of the payload.
-                    result = new BXML(msg.getBuiltPayload().stringValue());
+                    result = new BXML(msg.getMessageDataSource().getMessageAsString());
                 }
             } else {
                 result = new BXML(msg.value().getInputStream());
-                msg.setBuiltPayload(result);
+                msg.setMessageDataSource(result);
                 msg.setAlreadyRead(true);
             }
         } catch (Throwable e) {
