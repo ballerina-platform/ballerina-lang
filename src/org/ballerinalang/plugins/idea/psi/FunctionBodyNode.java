@@ -19,6 +19,7 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.ResolveResult;
 import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
@@ -37,9 +38,9 @@ public class FunctionBodyNode extends ANTLRPsiNode implements ScopeNode {
     @Override
     public PsiElement resolve(PsiNamedElement element) {
         if (element.getParent() instanceof CallableUnitNameNode) {
-            if (":".equals(element.getPrevSibling().getText())) {
-                return BallerinaPsiImplUtil.findFunctionReference(element);
-            }
+//            if (":".equals(element.getPrevSibling().getText())) {
+//                return BallerinaPsiImplUtil.findFunctionReference(element);
+//            }
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//functionDefinition/Identifier");
         } else if (element.getParent() instanceof VariableReferenceNode) {
@@ -49,5 +50,10 @@ public class FunctionBodyNode extends ANTLRPsiNode implements ScopeNode {
             return BallerinaPsiImplUtil.findPackageNameReference(element);
         }
         return null;
+    }
+
+    @Override
+    public ResolveResult[] multiResolve(IdentifierPSINode myElement) {
+        return new ResolveResult[0];
     }
 }

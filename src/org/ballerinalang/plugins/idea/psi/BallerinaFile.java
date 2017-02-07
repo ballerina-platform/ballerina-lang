@@ -21,6 +21,7 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.ResolveResult;
 import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
@@ -69,10 +70,16 @@ public class BallerinaFile extends PsiFileBase implements ScopeNode {
         if (element.getParent() instanceof CallableUnitNameNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//functionDefinition/Identifier");
-        }else if (element.getParent() instanceof PackageNameNode) {
+        } else if (element.getParent() instanceof PackageNameNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//packageName/Identifier");
+                    "//functionDefinition/Identifier");
         }
+
         return null;
+    }
+
+    @Override
+    public ResolveResult[] multiResolve(IdentifierPSINode myElement) {
+        return new ResolveResult[0];
     }
 }

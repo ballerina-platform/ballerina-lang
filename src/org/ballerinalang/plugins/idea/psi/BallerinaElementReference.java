@@ -21,14 +21,17 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiNameIdentifierOwner;
+import com.intellij.psi.PsiPolyVariantReference;
 import com.intellij.psi.PsiReferenceBase;
+import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class BallerinaElementReference extends PsiReferenceBase<IdentifierPSINode> {
+public abstract class BallerinaElementReference extends PsiReferenceBase<IdentifierPSINode>
+        implements PsiPolyVariantReference {
 
     public BallerinaElementReference(@NotNull IdentifierPSINode element) {
         /** WARNING: You must send up the text range or you get this error:
@@ -75,6 +78,18 @@ public abstract class BallerinaElementReference extends PsiReferenceBase<Identif
         if (scope == null) return null;
 
         return scope.resolve(myElement);
+    }
+
+    @NotNull
+    @Override
+    public ResolveResult[] multiResolve(boolean incompleteCode) {
+        ScopeNode scope = (ScopeNode) myElement.getContext();
+        if (scope == null) {
+            return new ResolveResult[0];
+        }
+
+        return scope.multiResolve(myElement);
+        //        return new ResolveResult[0];
     }
 
     @Override

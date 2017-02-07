@@ -101,26 +101,34 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
         // do not return a reference for the ID nodes in a definition
         if (elType instanceof RuleIElementType) {
             switch (((RuleIElementType) elType).getRuleIndex()) {
-                //                case RULE_compilationUnit:
-                //                    return new CompilationUnitReference(this);
+                case RULE_compilationUnit:
+                    return new CompilationUnitReference(this);
                 case RULE_importDeclaration:
                     return new ImportReference(this);
                 case RULE_callableUnitName:
                     //                case RULE_functionDefinition:
+
                     return new FunctionReference(this);
                 case RULE_variableReference:
                     return new VariableReference(this);
                 case RULE_packageName:
                     return new PackageNameReference(this);
+                case RULE_statement:
+                    return new StatementReference(this);
+                case RULE_simpleType:
+                    return new SimpleTypeReference(this);
+                case RULE_packagePath:
+                    break;
                 default:
-                    return new Reference(this);
+                    //                    return new Reference(this);
+                    return null;
             }
         }
 
         if (parent instanceof PsiErrorElement) {
             if (parent.getParent() instanceof CompilationUnitNode) {
-                return new Reference(this);
-            }else  if (parent.getParent() instanceof StatementNode) {
+                return new CompilationUnitReference(this);
+            } else if (parent.getParent() instanceof StatementNode) {
                 return new StatementReference(this);
             }
         }

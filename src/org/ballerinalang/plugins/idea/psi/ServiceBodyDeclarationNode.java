@@ -19,6 +19,7 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.ResolveResult;
 import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
@@ -40,5 +41,10 @@ public class ServiceBodyDeclarationNode extends ANTLRPsiNode implements ScopeNod
                     "//variableDefinitionStatement/Identifier");
         }
         return null;
+    }
+
+    @Override
+    public ResolveResult[] multiResolve(IdentifierPSINode myElement) {
+        return new ResolveResult[0];
     }
 }

@@ -17,6 +17,8 @@
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiErrorElement;
+import com.intellij.psi.PsiWhiteSpace;
 import org.jetbrains.annotations.NotNull;
 
 public class CompilationUnitReference extends BallerinaElementReference {
@@ -33,6 +35,54 @@ public class CompilationUnitReference extends BallerinaElementReference {
     @NotNull
     @Override
     public Object[] getVariants() {
-        return new Object[]{"package","import","function"};
+
+        PsiElement previousElement = getElement().getParent().getPrevSibling();
+
+
+        PsiElement previousSibling = getElement().getPrevSibling();
+
+        if (previousElement == null) {
+            // First element
+            if (previousSibling == null && getElement().getParent() instanceof PsiErrorElement) {
+                return new Object[]{"public", "package", "import", "service", "function", "connector", "struct",
+                        "typeconverter", "const"};
+            }
+            if (getElement().getParent() instanceof SimpleTypeNode) {
+                return new Object[]{"int", "boolean", "string"};
+            }
+
+            while (previousSibling instanceof PsiWhiteSpace) {
+                if (previousSibling.getPrevSibling() != null) {
+                    previousSibling = previousSibling.getPrevSibling();
+                }
+            }
+
+            if ("public".equals(previousSibling.getText())) {
+                return new Object[]{"function", "connector", "struct", "const"};
+            }
+
+            return new Object[0];
+        }
+
+        // Get non whitespace previous sibling
+        while (previousElement instanceof PsiWhiteSpace) {
+            previousElement = previousElement.getPrevSibling();
+        }
+
+        //        if (previousElement == null) {
+        //
+        //            return new Object[]{"package", "import", "service", "function", "connector", "struct",
+        // "typeconverter"};
+        //        }
+        if (previousElement instanceof ImportDeclarationNode || previousElement instanceof PackageDeclarationNode) {
+
+            if (previousSibling == null) {
+                return new Object[]{"public", "import", "service", "function", "connector", "struct", "typeconverter",
+                        "const"};
+            }
+            return new Object[0];
+            //            if(getElement().getPrevSibling().getPrevSibling())
+        }
+        return new Object[]{"public", "service", "function", "connector", "struct", "typeconverter", "const"};
     }
 }

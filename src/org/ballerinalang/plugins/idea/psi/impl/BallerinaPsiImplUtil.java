@@ -16,8 +16,10 @@
 
 package org.ballerinalang.plugins.idea.psi.impl;
 
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
@@ -31,12 +33,16 @@ import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.psi.ArgumentListNode;
+import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
+import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -167,4 +173,38 @@ public class BallerinaPsiImplUtil {
         }
         return parent;
     }
+
+    public static Collection getAllFunctions(PsiElement element) {
+        PsiFile file = element.getContainingFile();
+        Collection ruleSpecNodes =
+                PsiTreeUtil.findChildrenOfAnyType(file,
+                        FunctionDefinitionNode.class);
+
+        return ruleSpecNodes;
+    }
+
+    public static Collection getAllPackages(PsiElement element) {
+        PsiFile file = element.getContainingFile();
+
+        final Collection<String> added = new ArrayList<>();
+        Collection<PackageNameNode> allPackages = PsiTreeUtil.findChildrenOfAnyType(file, PackageNameNode.class);
+        Collection<PackageNameNode> filteredPackages = new ArrayList<>();
+
+        for (PackageNameNode node : allPackages) {
+            String text = node.getText();
+            if (!added.contains(text)) {
+                added.add(text);
+                filteredPackages.add(node);
+            }
+        }
+        return filteredPackages;
+    }
+
+//    public static PsiDirectory resolveDirectory(PsiElement element) {
+//        Project project = element.getProject();
+//
+//        Collection<VirtualFile> fileList = FileBasedIndex.getInstance().getContainingFiles(FileTypeIndex.NAME,
+//                BallerinaFileType.INSTANCE, GlobalSearchScope.allScope(project));
+//        return null;
+//    }
 }

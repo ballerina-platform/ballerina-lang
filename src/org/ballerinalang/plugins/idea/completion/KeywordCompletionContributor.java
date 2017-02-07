@@ -94,74 +94,71 @@ public class KeywordCompletionContributor extends CompletionContributor implemen
         //                }
         //        );
 
-//        extend(CompletionType.BASIC,
-//                psiElement(),
-//                new CompletionProvider<CompletionParameters>() {
-//                    public void addCompletions(@NotNull CompletionParameters parameters,
-//                                               ProcessingContext context,
-//                                               @NotNull CompletionResultSet resultSet) {
-//                        resultSet.addElement(LookupElementBuilder.create(""));
-//                    }
-//                }
-//        );
-//
-//        extend(CompletionType.BASIC,
-//                psiElement().inside(false, psiElement(FunctionDefinitionNode.class)),
-//                new CompletionProvider<CompletionParameters>() {
-//                    public void addCompletions(@NotNull CompletionParameters parameters,
-//                                               ProcessingContext context,
-//                                               @NotNull CompletionResultSet resultSet) {
-//                        resultSet.addElement(LookupElementBuilder.create("test1"));
-//                    }
-//                }
-//        );
-//
-//        extend(CompletionType.BASIC,
-//                psiElement().withParent(psiElement(PsiErrorElement.class)),
-//                new CompletionProvider<CompletionParameters>() {
-//                    public void addCompletions(@NotNull CompletionParameters parameters,
-//                                               ProcessingContext context,
-//                                               @NotNull CompletionResultSet resultSet) {
-//                        resultSet.addElement(LookupElementBuilder.create("test2"));
-//                    }
-//                }
-//        );
-//
-//        extend(CompletionType.BASIC,
-//                psiElement().withSuperParent(2, psiElement(FunctionBodyNode.class)),
-//                new CompletionProvider<CompletionParameters>() {
-//                    public void addCompletions(@NotNull CompletionParameters parameters,
-//                                               ProcessingContext context,
-//                                               @NotNull CompletionResultSet resultSet) {
-//                        resultSet.addElement(LookupElementBuilder.create("test2"));
-//                    }
-//                }
-//        );
-//
-//        extend(CompletionType.BASIC,
-//                psiElement().withSuperParent(3, psiElement(FunctionBodyNode.class)),
-//                new CompletionProvider<CompletionParameters>() {
-//                    public void addCompletions(@NotNull CompletionParameters parameters,
-//                                               ProcessingContext context,
-//                                               @NotNull CompletionResultSet resultSet) {
-//                        resultSet.addElement(LookupElementBuilder.create("test3"));
-//                    }
-//                }
-//        );
-//
-//        extend(CompletionType.BASIC,
-//                psiElement().withSuperParent(4, psiElement(FunctionBodyNode.class)),
-//                new CompletionProvider<CompletionParameters>() {
-//                    public void addCompletions(@NotNull CompletionParameters parameters,
-//                                               ProcessingContext context,
-//                                               @NotNull CompletionResultSet resultSet) {
-//                        resultSet.addElement(LookupElementBuilder.create("test4"));
-//                    }
-//                }
-//        );
-
-
-
+        //        extend(CompletionType.BASIC,
+        //                psiElement(),
+        //                new CompletionProvider<CompletionParameters>() {
+        //                    public void addCompletions(@NotNull CompletionParameters parameters,
+        //                                               ProcessingContext context,
+        //                                               @NotNull CompletionResultSet resultSet) {
+        //                        resultSet.addElement(LookupElementBuilder.create(""));
+        //                    }
+        //                }
+        //        );
+        //
+        //        extend(CompletionType.BASIC,
+        //                psiElement().inside(false, psiElement(FunctionDefinitionNode.class)),
+        //                new CompletionProvider<CompletionParameters>() {
+        //                    public void addCompletions(@NotNull CompletionParameters parameters,
+        //                                               ProcessingContext context,
+        //                                               @NotNull CompletionResultSet resultSet) {
+        //                        resultSet.addElement(LookupElementBuilder.create("test1"));
+        //                    }
+        //                }
+        //        );
+        //
+        //        extend(CompletionType.BASIC,
+        //                psiElement().withParent(psiElement(PsiErrorElement.class)),
+        //                new CompletionProvider<CompletionParameters>() {
+        //                    public void addCompletions(@NotNull CompletionParameters parameters,
+        //                                               ProcessingContext context,
+        //                                               @NotNull CompletionResultSet resultSet) {
+        //                        resultSet.addElement(LookupElementBuilder.create("test2"));
+        //                    }
+        //                }
+        //        );
+        //
+        //        extend(CompletionType.BASIC,
+        //                psiElement().withSuperParent(2, psiElement(FunctionBodyNode.class)),
+        //                new CompletionProvider<CompletionParameters>() {
+        //                    public void addCompletions(@NotNull CompletionParameters parameters,
+        //                                               ProcessingContext context,
+        //                                               @NotNull CompletionResultSet resultSet) {
+        //                        resultSet.addElement(LookupElementBuilder.create("test2"));
+        //                    }
+        //                }
+        //        );
+        //
+        //        extend(CompletionType.BASIC,
+        //                psiElement().withSuperParent(3, psiElement(FunctionBodyNode.class)),
+        //                new CompletionProvider<CompletionParameters>() {
+        //                    public void addCompletions(@NotNull CompletionParameters parameters,
+        //                                               ProcessingContext context,
+        //                                               @NotNull CompletionResultSet resultSet) {
+        //                        resultSet.addElement(LookupElementBuilder.create("test3"));
+        //                    }
+        //                }
+        //        );
+        //
+        //        extend(CompletionType.BASIC,
+        //                psiElement().withSuperParent(4, psiElement(FunctionBodyNode.class)),
+        //                new CompletionProvider<CompletionParameters>() {
+        //                    public void addCompletions(@NotNull CompletionParameters parameters,
+        //                                               ProcessingContext context,
+        //                                               @NotNull CompletionResultSet resultSet) {
+        //                        resultSet.addElement(LookupElementBuilder.create("test4"));
+        //                    }
+        //                }
+        //        );
 
 
         //        extend(CompletionType.BASIC,
@@ -395,10 +392,10 @@ public class KeywordCompletionContributor extends CompletionContributor implemen
         //        );
     }
 
-//        @Override
-//        public boolean invokeAutoPopup(@NotNull PsiElement position, char typeChar) {
-//            return super.invokeAutoPopup(position, ':');
-//        }
+    @Override
+    public boolean invokeAutoPopup(@NotNull PsiElement position, char typeChar) {
+        return typeChar == ':';
+    }
 
     @Override
     public void fillCompletionVariants(@NotNull CompletionParameters parameters, @NotNull CompletionResultSet result) {
