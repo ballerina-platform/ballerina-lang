@@ -95,16 +95,17 @@ public class BallerinaDocGeneratorMain {
                 continue;
             }
 
+            String packageName = balFile.getPackagePath();
             if ((packageFilter != null) && (packageFilter.trim().length() > 0) &&
-                    (balFile.getPackageName().startsWith(packageFilter.replace(".*", "")))) {
-                out.println("Package " + balFile.getPackageName() + " excluded");
+                    (packageName.startsWith(packageFilter.replace(".*", "")))) {
+                out.println("Package " + packageName + " excluded");
                 continue;
             }
 
-            Package balPackage = dataHolder.getPackageMap().get(balFile.getPackageName());
+            Package balPackage = dataHolder.getPackageMap().get(packageName);
             if (balPackage == null) {
-                balPackage = new Package(balFile.getPackageName());
-                dataHolder.getPackageMap().put(balFile.getPackageName(), balPackage);
+                balPackage = new Package(packageName);
+                dataHolder.getPackageMap().put(packageName, balPackage);
             }
             balPackage.addFiles(balFile);
         }

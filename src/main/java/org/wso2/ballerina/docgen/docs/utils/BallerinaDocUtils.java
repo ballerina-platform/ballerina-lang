@@ -33,7 +33,6 @@ import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
-import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 
@@ -87,15 +86,13 @@ public class BallerinaDocUtils {
             BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
             ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
 
-            BLangModelBuilder bLangModelBuilder = new BLangModelBuilder();
+            BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(null);
             BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
             ballerinaParser.addParseListener(ballerinaBaseListener);
             ballerinaParser.compilationUnit();
             BallerinaFile balFile = bLangModelBuilder.build();
 
-            BuiltInNativeConstructLoader.loadConstructs();
             SymScope globalScope = GlobalScopeHolder.getInstance().getScope();
-
             SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(balFile, globalScope);
             balFile.accept(semanticAnalyzer);
 

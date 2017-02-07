@@ -25,10 +25,10 @@ import com.github.jknack.handlebars.io.TemplateLoader;
 
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaAction;
-import org.wso2.ballerina.core.model.BallerinaConnector;
+import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Package;
-import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.docgen.docs.DocumentWriter;
 
 import java.io.File;
@@ -105,14 +105,14 @@ public class HtmlDocumentWriter implements DocumentWriter {
                         return options.inverse(null);
                     })
                     .registerHelper("hasConnectors", (Helper<Package>) (balPackage, options) -> {
-                        if ((balPackage.getFiles().stream().filter(p -> p.getConnectors().size() > 0).count() > 0)) {
+                        if ((balPackage.getFiles().stream().filter(p -> p.getConnectors().length > 0).count() > 0)) {
                             return options.fn(this);
                         }
                         return options.inverse(null);
                     })
                     .registerHelper("hasStructs", (Helper<Package>) (balPackage, options) -> {
                         if ((balPackage.getFiles().stream().filter(
-                                p -> p.getStructs().length > 0).count() > 0)) {
+                                p -> p.getStructDefs().length > 0).count() > 0)) {
                             return options.fn(this);
                         }
                         return options.inverse(null);
@@ -126,12 +126,12 @@ public class HtmlDocumentWriter implements DocumentWriter {
                     // eg: {{paramAnnotation this "param"}}
                     .registerHelper(
                             "paramAnnotation",
-                            (Helper<Parameter>) (param, options) -> {
+                            (Helper<ParameterDef>) (param, options) -> {
                                 String annotationName = options.param(0);
                                 if (annotationName == null || param.getName() == null) {
                                     return "";
                                 }
-                                String subName = param.getName().getName();
+                                String subName = param.getName();
                                 for (Annotation annotation : getAnnotations(dataHolder)) {
                                     if (annotationName.equalsIgnoreCase(annotation.getName())
                                             && annotation.getValue().startsWith(subName)) {
@@ -172,8 +172,8 @@ public class HtmlDocumentWriter implements DocumentWriter {
     private Annotation[] getAnnotations(DataHolder dataHolder) {
         if (dataHolder.getCurrentObject() instanceof BallerinaFunction) {
             return ((BallerinaFunction) dataHolder.getCurrentObject()).getAnnotations();
-        } else if (dataHolder.getCurrentObject() instanceof BallerinaConnector) {
-            return ((BallerinaConnector) dataHolder.getCurrentObject()).getAnnotations();
+        } else if (dataHolder.getCurrentObject() instanceof BallerinaConnectorDef) {
+            return ((BallerinaConnectorDef) dataHolder.getCurrentObject()).getAnnotations();
         } else if (dataHolder.getCurrentObject() instanceof BallerinaAction) {
             return ((BallerinaAction) dataHolder.getCurrentObject()).getAnnotations();
         } else {

@@ -51,7 +51,7 @@ public class BallerinaFunctionDocGenTest {
             Assert.assertEquals(functions.size(), 1);
 
             BallerinaFunction function = (BallerinaFunction) functions.iterator().next();
-            Assert.assertEquals(function.getParameters().length, 1);
+            Assert.assertEquals(function.getParameterDefs().length, 1);
             Assert.assertEquals(function.getReturnParameters().length, 1);
         } catch (IOException e) {
             Assert.fail();
@@ -74,11 +74,11 @@ public class BallerinaFunctionDocGenTest {
             Assert.assertEquals(functions.size(), 2);
 
             BallerinaFunction function = (BallerinaFunction) functions.iterator().next();
-            Assert.assertEquals(function.getParameters().length, 1);
+            Assert.assertEquals(function.getParameterDefs().length, 1);
             Assert.assertEquals(function.getReturnParameters().length, 1);
 
             BallerinaFunction function1 = (BallerinaFunction) functions.iterator().next();
-            Assert.assertEquals(function1.getParameters().length, 1);
+            Assert.assertEquals(function1.getParameterDefs().length, 1);
             Assert.assertEquals(function1.getReturnParameters().length, 1);
         } catch (IOException e) {
             Assert.fail();
