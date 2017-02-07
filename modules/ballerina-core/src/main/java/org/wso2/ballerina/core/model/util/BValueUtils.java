@@ -20,7 +20,10 @@ package org.wso2.ballerina.core.model.util;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
+import org.wso2.ballerina.core.model.values.BJSON;
+import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.model.values.BXML;
 
 /**
  * BValue utility methods.
@@ -73,6 +76,20 @@ public class BValueUtils {
 //
 //        throw new BallerinaException("Unsupported type: " + type);
 //    }
+
+    public static BValue getDefaultValueForRefType(BType type) {
+        if (type == BTypes.typeJSON) {
+            return new BJSON("{}");
+
+        } else if (type == BTypes.typeXML) {
+            return new BXML();
+
+        } else if (type == BTypes.typeMessage) {
+            return new BMessage();
+        }
+
+        throw new BallerinaException("Unsupported built-in reference type: " + type);
+    }
 
     // TODO we need to improve this logic
     public static BValue clone(BType type, BValue bValue) {
