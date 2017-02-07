@@ -36,15 +36,23 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
            this._content = _.get(args, 'content');
        };
 
+       var initSwaggerEditor = function(self, content){
+           self._swaggerHolder = new SwaggerHolder();
+           parent.SwaggerHolder = self._swaggerHolder;// Allowing Swagger Editor to inject this swagger holder
+           var swaggerEditor = $(self._container).find('div.swaggerEditor');
+           swaggerEditor.html('<iframe class="se-iframe" width=100% height="100%"></iframe>');
+           swaggerEditor.find('iframe.se-iframe').attr("src", swaggerEditor.data("editor-url"));
+           swaggerEditor.ready(function () {
+               self._swaggerHolder.setSwaggerAsText(content);
+               self._swaggerHolder.getEditor().updateSwaggerEditor();
+           });
+       };
+
        SwaggerView.prototype = Object.create(EventChannel.prototype);
        SwaggerView.prototype.constructor = SwaggerView;
 
        SwaggerView.prototype.render = function () {
-           this._swaggerHolder = new SwaggerHolder();
-           parent.SwaggerHolder = this._swaggerHolder;// Allowing Swagger Editor to inject this swagger holder
-           var swaggerEditor = $(this._container).find('div.swaggerEditor');
-           swaggerEditor.html('<iframe class="se-iframe" width=100% height="100%"></iframe>');
-           swaggerEditor.find('iframe.se-iframe').attr("src", swaggerEditor.data("editor-url"));
+           initSwaggerEditor(this, {swagger: '2.0', info: {version: '1.0.0', title: 'Swagger Resource'}, paths: {}});
        };
 
        /**
@@ -53,7 +61,12 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
         *
         */
        SwaggerView.prototype.setContent = function(content){
-           this._swaggerHolder.setSwaggerAsText(content);
+           if (!this._swaggerHolder.getEditor()) {
+               initSwaggerEditor(this, content);
+           } else {
+               this._swaggerHolder.setSwaggerAsText(content);
+               this._swaggerHolder.getEditor().updateSwaggerEditor();
+           }
        };
 
        SwaggerView.prototype.getContent = function(){
