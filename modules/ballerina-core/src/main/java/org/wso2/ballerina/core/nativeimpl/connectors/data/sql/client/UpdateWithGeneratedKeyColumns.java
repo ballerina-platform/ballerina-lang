@@ -39,23 +39,16 @@ import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.SQLConnector;
         packageName = "ballerina.data.sql",
         actionName = "updateWithGeneratedKeys",
         connectorName = SQLConnector.CONNECTOR_NAME,
-        args = {
-                @Argument(name = "connector",
-                          type = TypeEnum.CONNECTOR),
-                @Argument(name = "query",
-                          type = TypeEnum.STRING),
-                @Argument(name = "keyColumns",
-                          type = TypeEnum.ARRAY,
-                          elementType = TypeEnum.STRING) /*, //TODO:Add Parameter []
-                @Argument(name = "optionalProperties",
-                          type = TypeEnum.MAP)*/
-        },
-        returnType = { TypeEnum.INT, TypeEnum.STRING }) //TODO:array of generated kyes
+        args = {@Argument(name = "connector", type = TypeEnum.CONNECTOR),
+                @Argument(name = "query", type = TypeEnum.STRING),
+                @Argument(name = "keyColumns", type = TypeEnum.ARRAY, elementType = TypeEnum.STRING)},
+        returnType = { TypeEnum.INT, TypeEnum.STRING })
 @Component(
         name = "action.data.sql.UpdateWithGeneratedKeyColumns",
         immediate = true,
         service = AbstractNativeAction.class)
 public class UpdateWithGeneratedKeyColumns extends AbstractSQLAction {
+
     @Override
     public BValue execute(Context context) {
         BConnector bConnector = (BConnector) getArgument(context, 0);

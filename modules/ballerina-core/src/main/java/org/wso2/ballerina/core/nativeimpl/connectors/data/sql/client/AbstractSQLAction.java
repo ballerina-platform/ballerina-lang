@@ -51,7 +51,6 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     private static final Logger logger = LoggerFactory.getLogger(AbstractSQLAction.class);
 
     protected void executeQuery(Context context, SQLConnector connector, String query) {
-
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -61,7 +60,6 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 logger.error("Error in Connecting to the DB");
                 return;
             }
-
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
 
@@ -75,7 +73,6 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     }
 
     protected void executeUpdate(Context context, SQLConnector connector, String query) {
-
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -100,7 +97,6 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
 
     protected void executeUpdateWithKeys(Context context, SQLConnector connector, String query,
             BArray<BString> keyColumns) {
-
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -143,7 +139,6 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     }
 
     protected void executeProcedure(Context context, SQLConnector connector, String query) {
-
         Connection conn = null;
         CallableStatement stmt = null;
         ResultSet rs = null;

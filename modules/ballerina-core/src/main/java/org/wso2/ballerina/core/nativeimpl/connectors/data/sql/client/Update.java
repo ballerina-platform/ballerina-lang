@@ -37,20 +37,15 @@ import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.SQLConnector;
         packageName = "ballerina.data.sql",
         actionName = "update",
         connectorName = SQLConnector.CONNECTOR_NAME,
-        args = {
-                @Argument(name = "connector",
-                          type = TypeEnum.CONNECTOR),
-                @Argument(name = "query",
-                          type = TypeEnum.STRING)/*, //TODO:Add Parameter struct
-                @Argument(name = "optionalProperties",
-                          type = TypeEnum.MAP)*/
-        },
+        args = {@Argument(name = "connector", type = TypeEnum.CONNECTOR),
+                @Argument(name = "query", type = TypeEnum.STRING)},
         returnType = { TypeEnum.INT })
 @Component(
         name = "action.data.sql.update",
         immediate = true,
         service = AbstractNativeAction.class)
 public class Update extends AbstractSQLAction {
+
     @Override
     public BValue execute(Context context) {
         BConnector bConnector = (BConnector) getArgument(context, 0);

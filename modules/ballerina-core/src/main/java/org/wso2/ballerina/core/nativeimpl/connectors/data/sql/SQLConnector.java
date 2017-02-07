@@ -43,10 +43,7 @@ import java.util.Set;
 @BallerinaConnector(
         packageName = "ballerina.data.sql",
         connectorName = SQLConnector.CONNECTOR_NAME,
-        args = {
-                @Argument(name = "options",
-                          type = TypeEnum.MAP)
-        })
+        args = {@Argument(name = "options", type = TypeEnum.MAP)})
 @Component(
         name = "ballerina.data.connectors.sql",
         immediate = true,

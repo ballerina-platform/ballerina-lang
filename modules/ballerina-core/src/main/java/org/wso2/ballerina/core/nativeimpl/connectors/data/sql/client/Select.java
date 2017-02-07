@@ -37,14 +37,8 @@ import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.SQLConnector;
         packageName = "ballerina.data.sql",
         actionName = "select",
         connectorName = SQLConnector.CONNECTOR_NAME,
-        args = {
-                @Argument(name = "connector",
-                          type = TypeEnum.CONNECTOR),
-                @Argument(name = "query",
-                          type = TypeEnum.STRING)/*, //TODO:Add Parameter struct
-                @Argument(name = "optionalProperties",
-                          type = TypeEnum.MAP)*/
-        },
+        args = {@Argument(name = "connector", type = TypeEnum.CONNECTOR),
+                @Argument(name = "query", type = TypeEnum.STRING)},
         returnType = { TypeEnum.DATATABLE })
 @Component(
         name = "action.data.sql.select",
