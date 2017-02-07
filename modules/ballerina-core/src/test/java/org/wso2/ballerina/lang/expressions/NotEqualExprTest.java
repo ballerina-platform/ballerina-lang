@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BBoolean;
+import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
@@ -126,6 +127,26 @@ public class NotEqualExprTest {
         actual = ((BInteger) returns[0]).intValue();
         expected = 2;
         Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test Float and Double equal expression")
+    public void testFloatAndDoubleEqualExpr() {
+        float a = 20.2f;
+        double b = 20.2d;
+
+        // Should be false since float is a approximation, not an exact number
+        boolean expectedResult = (a == b);
+
+        BValue[] args = {new BFloat(a), new BDouble(b)};
+        BValue[] returns = Functions.invoke(bFile, "checkFloatAndDoubleEquality", args);
+
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+
+        boolean actualResult = ((BBoolean) returns[0]).booleanValue();
+
+        Assert.assertEquals(actualResult, expectedResult);
     }
     
     /*

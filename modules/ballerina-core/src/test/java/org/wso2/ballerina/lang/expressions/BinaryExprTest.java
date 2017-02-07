@@ -86,4 +86,55 @@ public class BinaryExprTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Test multiple binary AND expressions")
+    public void multiBinaryAndExpressionTest() {
+        boolean one = true;
+        boolean two = false;
+        boolean three = true;
+
+        boolean expectedResult = one & two & three;
+
+        BValue[] args = { new BBoolean(one), new BBoolean(two), new BBoolean(three) };
+        BValue[] returns = Functions.invoke(bFile, "multiBinaryANDExpression", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        boolean actualResult = ((BBoolean) returns[0]).booleanValue();
+
+        Assert.assertEquals(actualResult, expectedResult);
+    }
+
+    @Test(description = "Test multiple binary OR expressions")
+    public void multiBinaryORExpressionTest() {
+        boolean one = true;
+        boolean two = false;
+        boolean three = true;
+
+        boolean expectedResult = one || two || three;
+
+        BValue[] args = { new BBoolean(one), new BBoolean(two), new BBoolean(three) };
+        BValue[] returns = Functions.invoke(bFile, "multiBinaryORExpression", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        boolean actualResult = ((BBoolean) returns[0]).booleanValue();
+
+        Assert.assertEquals(actualResult, expectedResult);
+    }
+
+    @Test(description = "Test multiple binary expressions")
+    public void multiBinaryExpressionTest() {
+        boolean one = true;
+        boolean two = false;
+        boolean three = true;
+
+        boolean expectedResult = (!one || (two && three)) || (!three || (one && two));
+
+        BValue[] args = { new BBoolean(one), new BBoolean(two), new BBoolean(three) };
+        BValue[] returns = Functions.invoke(bFile, "multiBinaryExpression", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        boolean actualResult = ((BBoolean) returns[0]).booleanValue();
+
+        Assert.assertEquals(actualResult, expectedResult);
+    }
+
 }

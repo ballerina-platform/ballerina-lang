@@ -16,3 +16,15 @@ function makeChild(boolean stone, boolean value) (boolean) {
     }
     return result;
 }
+
+function multiBinaryANDExpression(boolean one, boolean two, boolean three) (boolean) {
+    return one && two && three;
+}
+
+function multiBinaryORExpression(boolean one, boolean two, boolean three) (boolean) {
+    return one || two || three;
+}
+
+function multiBinaryExpression(boolean one, boolean two, boolean three) (boolean) {
+    return (!one || (two && three)) || (!three || (one && two));
+}
