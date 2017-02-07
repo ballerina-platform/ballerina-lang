@@ -21,6 +21,8 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.ConstDef;
+import org.wso2.ballerina.core.model.Function;
+import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
@@ -46,35 +48,34 @@ public class RuntimeEnvironment {
 
     public static RuntimeEnvironment get(BallerinaFile bFile) {
         StaticMemory staticMemory = new StaticMemory(bFile.getSizeOfStaticMem());
+        RuntimeEnvironment runtimeEnvironment = new RuntimeEnvironment(staticMemory);
 
         int staticMemOffset = 0;
         for (ConstDef constant : bFile.getConstants()) {
-
-            // TODO Evaluate the constant expression here.
             staticMemory.setValue(staticMemOffset, constant.getValue());
             staticMemOffset++;
         }
 
-//        for (Service service : bFile.getServices()) {
-//            for (ConnectorDcl connectorDcl : service.getConnectorDcls()) {
-//                BConnector bConnector = populateConnectorDcls(staticMemory, connectorDcl);
-//                staticMemory.setValue(staticMemOffset, bConnector);
-//                staticMemOffset++;
-//            }
-//
-//            staticMemOffset = initVariableDcls(staticMemory, staticMemOffset, service);
-//        }
+        if (bFile.getServices().length == 0) {
+            return runtimeEnvironment;
+        }
+
+        Context bContext = new Context();
+        BLangExecutor bLangExecutor = new BLangExecutor(runtimeEnvironment, bContext);
+
+        for (Service service : bFile.getServices()) {
+            Function initFunction = service.getInitFunction();
+            CallableUnitInfo functionInfo = new CallableUnitInfo(initFunction.getName(),
+                    initFunction.getPackagePath(), initFunction.getNodeLocation());
+
+            StackFrame currentStackFrame = new StackFrame(new BValue[0], new BValue[0], functionInfo);
+            bContext.getControlStack().pushFrame(currentStackFrame);
+            initFunction.getCallableUnitBody().execute(bLangExecutor);
+        }
 
         return new RuntimeEnvironment(staticMemory);
     }
 
-//    private static int initVariableDcls(StaticMemory staticMemory, int staticMemOffset, Service service) {
-//        for (VariableDef variableDef : service.getVariableDefs()) {
-//            staticMemory.setValue(staticMemOffset, variableDef.getType().getDefaultValue());
-//            staticMemOffset++;
-//        }
-//        return staticMemOffset;
-//    }
 
     private static BConnector populateConnectorDcls(StaticMemory staticMemory, ConnectorDcl connectorDcl) {
         Connector connector = connectorDcl.getConnector();

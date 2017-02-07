@@ -59,7 +59,7 @@ public class RuntimeErrorsTest {
                 "\t at test.lang:testStackTrace(runtime-errors.bal:15)\n";
         try {
             Functions.invoke(bFile, "testStackTrace", bContext);
-        } catch (BallerinaException e) {
+        } catch (Exception e) {
             ex = e;
         } finally {
             Assert.assertTrue(ex instanceof BallerinaException, "Expected a " + BallerinaException.class.getName() +
@@ -110,7 +110,7 @@ public class RuntimeErrorsTest {
         try {
             CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/test/error", "GET");
             Services.invoke(cMsg);
-        } catch (BallerinaException e) {
+        } catch (Exception e) {
             ex = e;
         } finally {
             // Check exception type
@@ -126,6 +126,24 @@ public class RuntimeErrorsTest {
             String stackTrace = ErrorHandlerUtils.getServiceStackTrace(
                     ((BallerinaException) ex.getCause()).getContext(), ex);
             Assert.assertEquals(stackTrace, expectedStackTrace);
+        }
+    }
+
+    @Test(description = "Test if a cast exception is thrown in an invalid type cast")
+    public void testTypeCastError() {
+        Throwable ex = null;
+        Context bContext = new Context();
+
+        try {
+            Functions.invoke(bFile, "testTypeCastException", bContext);
+        } catch (Exception e) {
+            ex = e;
+        } finally {
+            Assert.assertTrue(ex != null);
+            Assert.assertTrue(ex instanceof BallerinaException, "Expected a " + BallerinaException.class.getName() +
+                    ", but found: " + ex.getClass() + ".");
+            Assert.assertEquals(ex.getMessage(), "input value value cannot be cast to integer");
+
         }
     }
     

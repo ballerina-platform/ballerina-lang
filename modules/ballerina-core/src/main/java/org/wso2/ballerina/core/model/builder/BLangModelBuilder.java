@@ -898,13 +898,20 @@ public class BLangModelBuilder {
 
         if (blockStmtBuilderStack.size() == 0 && currentCUGroupBuilder != null) {
             if (rhsExpr != null) {
-                if (rhsExpr instanceof BasicLiteral || rhsExpr instanceof VariableRefExpr) {
-                    currentCUGroupBuilder.addVariableDef(variableDefStmt);
-                } else {
+                if (rhsExpr instanceof ActionInvocationExpr) {
                     String errMsg = getNodeLocationStr(location) +
-                            "only a basic literal or a variable reference is allowed here ";
+                            "action invocation is not allowed here";
                     errorMsgs.add(errMsg);
                 }
+                currentCUGroupBuilder.addVariableDef(variableDefStmt);
+
+//                if (rhsExpr instanceof BasicLiteral || rhsExpr instanceof VariableRefExpr) {
+//                    currentCUGroupBuilder.addVariableDef(variableDefStmt);
+//                } else {
+//                    String errMsg = getNodeLocationStr(location) +
+//                            "only a basic literal or a variable reference is allowed here ";
+//                    errorMsgs.add(errMsg);
+//                }
             }
         } else {
             addToBlockStmt(variableDefStmt);

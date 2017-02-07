@@ -23,6 +23,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -93,6 +94,24 @@ public class GreaterLessThanExprTest {
         actual = ((BInteger) returns[0]).intValue();
         expected = 3;
         Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test Integer and long comparison")
+    public void testIntAndFloatComparison() {
+        int a = 10;
+        float b = 20f;
+
+        boolean expectedResult = a > b;
+
+        BValue[] args = {new BInteger(a), new BFloat(b)};
+        BValue[] returns = Functions.invoke(bFile, "testIntAndFloatCompare", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+
+        boolean actualResult = ((BBoolean) returns[0]).booleanValue();
+
+        Assert.assertEquals(actualResult, expectedResult);
     }
     
     /*

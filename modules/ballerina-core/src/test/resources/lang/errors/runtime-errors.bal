@@ -1,8 +1,5 @@
 package test.lang;
 
-import ballerina.lang.json;
-import ballerina.net.http;
-
 function arrayIndexOutOfBoundTest() {
     string name;
     string[] animals;
@@ -36,4 +33,10 @@ function testStackOverflow() {
 
 function infiniteRecurse() {
 	infiniteRecurse();
+}
+
+function testTypeCastException() {
+    string x = "value";
+
+    int y = (int) x;
 }

@@ -21,6 +21,9 @@ import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.SymbolScope;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+import org.wso2.ballerina.core.nativeimpl.NativeUnitProxy;
+import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
 import static org.wso2.ballerina.core.model.types.TypeConstants.BOOLEAN_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.DOUBLE_TNAME;
@@ -87,7 +90,15 @@ public class BTypes {
     }
 
     public static BType resolveType(SimpleTypeName typeName, SymbolScope symbolScope, NodeLocation location) {
-        BType bType = (BType) symbolScope.resolve(typeName.getSymbolName());
+        BType bType;
+        BLangSymbol symbol = symbolScope.resolve(typeName.getSymbolName());
+        if (symbol instanceof NativeUnitProxy) {
+            AbstractNativeConnector connector = (AbstractNativeConnector) ((NativeUnitProxy) symbol).load();
+            bType = connector;
+        } else {
+            bType = (BType) symbol;
+        }
+
         if (bType != null) {
             return bType;
         }

@@ -25,6 +25,7 @@ import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.Function;
+import org.wso2.ballerina.core.model.NativeUnit;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
@@ -81,7 +82,9 @@ import org.wso2.ballerina.core.model.values.BValueType;
 import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
+import org.wso2.ballerina.core.nativeimpl.NativeUnitProxy;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
 /**
  * {@code BLangExecutor} executes a Ballerina application.
@@ -484,13 +487,14 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public BValue visit(ConnectorInitExpr connectorInitExpr) {
-        BConnector bConnector;
+        BConnector bConnector = null;
         BValue[] connectorMemBlock;
         Connector connector = (Connector) connectorInitExpr.getType();
-//        if (connectorInitExpr.getType() instanceof AbstractNativeConnector) {
+        if (connector instanceof AbstractNativeConnector) {
 
 //            //TODO Fix Issue#320
-//            AbstractNativeConnector nativeConnector = ((AbstractNativeConnector) connector).getInstance();
+            NativeUnit nativeUnit = ((NativeUnitProxy) connector).load();
+//            AbstractNativeConnector nativeConnector = (AbstractNativeConnector) ((NativeUnitProxy) connector).load();
 //            Expression[] argExpressions = connectorDcl.getArgExprs();
 //            connectorMemBlock = new BValue[argExpressions.length];
 //
@@ -501,7 +505,7 @@ public class BLangExecutor implements NodeExecutor {
 //            nativeConnector.init(connectorMemBlock);
 //            connector = nativeConnector;
 
-//        } else {
+        } else {
             BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
 
             int offset = 0;
@@ -511,12 +515,12 @@ public class BLangExecutor implements NodeExecutor {
                 offset++;
             }
 
-            bConnector =  new BConnector(connector, connectorMemBlock);
+            bConnector = new BConnector(connector, connectorMemBlock);
 
             // Invoke the <init> function
             invokeConnectorInitFunction(connectorDef, bConnector);
 
-//        }
+        }
 
         return bConnector;
     }
