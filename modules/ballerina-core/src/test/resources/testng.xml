@@ -52,6 +52,7 @@ under the License.
             <class name="org.wso2.ballerina.lang.expressions.TemplateExpressionTest"/>
             <class name="org.wso2.ballerina.lang.expressions.TypeCastExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.TypeConvertorTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.TypeDivisionTest"/>
             <class name="org.wso2.ballerina.lang.expressions.UnaryExprTest"/>
 
 
