@@ -145,7 +145,6 @@ public class SemanticAnalyzer implements NodeVisitor {
     private String currentPkg;
     private TypeLattice packageTypeLattice;
     private CallableUnit currentCallableUnit = null;
-    private MemoryLocation currentMemLocation = null;
 
     // following pattern matches ${anyString} or ${anyString[int]} or ${anyString["anyString"]}
     private static final String patternString = "\\$\\{((\\w+)(\\[(\\d+|\\\"(\\w+)\\\")\\])?)\\}";
@@ -159,13 +158,12 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     public SemanticAnalyzer(BallerinaFile bFile, SymbolScope packageScope) {
         currentScope = packageScope;
-
         currentPkg = bFile.getPackagePath();
         importPkgMap = bFile.getImportPackageMap();
-
-        defineFunctions(bFile.getFunctions());
         packageTypeLattice = bFile.getTypeLattice();
+
         resolveStructFieldTypes(bFile.getStructDefs());
+        defineFunctions(bFile.getFunctions());
         defineConnectors(bFile.getConnectors());
         defineTypeConvertors(packageTypeLattice);
 
@@ -175,6 +173,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 //        });
 //
 //        Arrays.asList(bFile.getTypeConvertors()).forEach(this::addTypeConverterSymbol);
+        defineServices(bFile.getServices());
     }
 
     public SemanticAnalyzer(BallerinaFile bFile, SymScope globalScope) {
@@ -239,7 +238,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Open a new symbol scope
         openScope(service);
 
-        // TODO Analyze service level variable definition statements
         for (VariableDefStmt variableDefStmt : service.getVariableDefStmts()) {
             variableDefStmt.accept(this);
         }
@@ -259,11 +257,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         openScope(connector);
 
         for (ParameterDef parameterDef : connector.getParameterDefs()) {
-            connectorMemAddrOffset++;
-            visit(parameterDef);
+            parameterDef.setMemoryLocation(new ConnectorVarLocation(++connectorMemAddrOffset));
+            parameterDef.accept(this);
         }
 
-        // TODO Analyze connector level variable definition statements
+        for (VariableDefStmt variableDefStmt : connector.getVariableDefStmts()) {
+            variableDefStmt.accept(this);
+        }
 
         for (BallerinaAction action : connector.getActions()) {
             action.accept(this);
@@ -526,16 +526,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
 
     // Visit statements
-
-    private void setMemoryLocation(VariableDef variableDef) {
-        if (currentScope.getScopeName() == SymbolScope.ScopeName.LOCAL) {
-            variableDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
-        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.SERVICE) {
-            variableDef.setMemoryLocation(new ServiceVarLocation(++staticMemAddrOffset));
-        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.CONNECTOR) {
-            variableDef.setMemoryLocation(new ConnectorVarLocation(++connectorMemAddrOffset));
-        }
-    }
 
     @Override
     public void visit(VariableDefStmt varDefStmt) {
@@ -1242,6 +1232,11 @@ public class SemanticAnalyzer implements NodeVisitor {
                     "connector initializer is not allowed here");
         }
         connectorInitExpr.setType(inheritedType);
+
+        Expression[] argExprs = connectorInitExpr.getArgExprs();
+        for (Expression argExpr : argExprs) {
+            visitSingleValueExpr(argExpr);
+        }
     }
 
     @Override
@@ -1300,7 +1295,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             VariableDef varDef = (VariableDef) structDef.resolveMembers(varRefExpr.getSymbolName());
             if (varDef == null) {
                 throw new SemanticException(getNodeLocationStr(keyExpr.getNodeLocation()) +
-                        "unknown field '" + varRefExpr.getVarName() + "' in struct '"  + structDef.getName() + "'");
+                        "unknown field '" + varRefExpr.getVarName() + "' in struct '" + structDef.getName() + "'");
             }
             varRefExpr.setVariableDef(varDef);
             Expression valueExpr = keyValueExpr.getValueExpr();
@@ -1928,12 +1923,12 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(StructFieldAccessExpr structFieldAccessExpr) {
         visitStructField(structFieldAccessExpr, currentScope);
     }
-    
+
     private void visitStructField(StructFieldAccessExpr structFieldAccessExpr, SymbolScope currentScope) {
         ReferenceExpr varRefExpr = structFieldAccessExpr.getVarRef();
         SymbolName symbolName = varRefExpr.getSymbolName();
         BLangSymbol fieldSymbol = currentScope.resolve(symbolName);
-        
+
         if (fieldSymbol == null) {
             if (currentScope instanceof StructDef) {
                 throw new SemanticException(getNodeLocationStr(structFieldAccessExpr.getNodeLocation()) + "field '" +
@@ -1943,7 +1938,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                         symbolName.getName() + "' not found.");
             }
         }
-        
+
         // Set expression type
         VariableDef varDef = (VariableDef) fieldSymbol;
         BType exprType;
@@ -1957,7 +1952,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (varRefExpr instanceof ArrayMapAccessExpr) {
             Expression rExpr = ((ArrayMapAccessExpr) varRefExpr).getRExpr();
             ((VariableRefExpr) rExpr).setVariableDef(varDef);
-            
+
             exprType = varDef.getType();
             if (exprType instanceof BArrayType) {
                 exprType = ((BArrayType) varDef.getType()).getElementType();
@@ -1967,12 +1962,12 @@ public class SemanticAnalyzer implements NodeVisitor {
             ((VariableRefExpr) varRefExpr).setVariableDef(varDef);
             exprType = (varDef).getType();
         }
-        
+
         // Go to the referenced field of this struct
         StructFieldAccessExpr fieldExpr = structFieldAccessExpr.getFieldExpr();
         if (fieldExpr != null) {
             if (!(exprType instanceof StructDef)) {
-                throw new SemanticException(getNodeLocationStr(structFieldAccessExpr.getNodeLocation()) + "'" + 
+                throw new SemanticException(getNodeLocationStr(structFieldAccessExpr.getNodeLocation()) + "'" +
                         symbolName.getName() + "' must be of struct type");
             }
             visitStructField(fieldExpr, ((StructDef) exprType).getSymbolScope());
@@ -2018,7 +2013,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                     if (typeConvertorSymbol == null) {
                         String funcName = (typeCastExpression.getPackageName() != null) ?
                                 typeCastExpression.getPackageName() + ":" +
-                                typeCastExpression.getName() : typeCastExpression.getName();
+                                        typeCastExpression.getName() : typeCastExpression.getName();
                         throw new SemanticException(typeCastExpression.getNodeLocation().getFileName() + ":" +
                                 typeCastExpression.getNodeLocation().getLineNumber() +
                                 ": undefined function '" + funcName + "'");
@@ -2075,6 +2070,16 @@ public class SemanticAnalyzer implements NodeVisitor {
         return newExpr;
     }
 
+    private void setMemoryLocation(VariableDef variableDef) {
+        if (currentScope.getScopeName() == SymbolScope.ScopeName.LOCAL) {
+            variableDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.SERVICE) {
+            variableDef.setMemoryLocation(new ServiceVarLocation(++staticMemAddrOffset));
+        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.CONNECTOR) {
+            variableDef.setMemoryLocation(new ConnectorVarLocation(++connectorMemAddrOffset));
+        }
+    }
+
     private void defineFunctions(Function[] functions) {
         for (Function function : functions) {
             // Resolve input parameters
@@ -2093,9 +2098,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             function.setSymbolName(symbolName);
 
             if (currentScope.resolve(symbolName) != null) {
-                throw new SemanticException(function.getNodeLocation().getFileName() + ":" +
-                        function.getNodeLocation().getLineNumber() +
-                        ": duplicate function '" + function.getName() + "'");
+                throw new SemanticException(getNodeLocationStr(function.getNodeLocation()) +
+                        "redeclared function '" + function.getName() + "'");
             }
             currentScope.define(symbolName, function);
 
@@ -2150,14 +2154,34 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
-    private void defineConnectors(BallerinaConnectorDef[] connectorDefArrya) {
-        for (BallerinaConnectorDef connectorDef : connectorDefArrya) {
+    private void defineConnectors(BallerinaConnectorDef[] connectorDefArray) {
+        for (BallerinaConnectorDef connectorDef : connectorDefArray) {
             String connectorName = connectorDef.getName();
 
             // Define ConnectorDef Symbol in the package scope..
             SymbolName connectorSymbolName = new SymbolName(connectorName);
+            if (currentScope.resolve(connectorSymbolName) != null) {
+                throw new SemanticException(getNodeLocationStr(connectorDef.getNodeLocation()) +
+                        "redeclared symbol '" + connectorDef.getName() + "'");
+            }
             currentScope.define(connectorSymbolName, connectorDef);
 
+            // Create the '<init>' function and inject it to the connector;
+            BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(
+                    connectorDef.getNodeLocation(), connectorDef);
+            for (VariableDefStmt variableDefStmt : connectorDef.getVariableDefStmts()) {
+                blockStmtBuilder.addStmt(variableDefStmt);
+            }
+
+            BallerinaFunction.BallerinaFunctionBuilder functionBuilder =
+                    new BallerinaFunction.BallerinaFunctionBuilder(connectorDef);
+            functionBuilder.setNodeLocation(connectorDef.getNodeLocation());
+            functionBuilder.setName(connectorName + ".<init>");
+            functionBuilder.setPkgPath(connectorDef.getPackagePath());
+            functionBuilder.setBody(blockStmtBuilder.build());
+            connectorDef.setInitFunction(functionBuilder.buildFunction());
+
+            // Define actions
             openScope(connectorDef);
 
             for (BallerinaAction bAction : connectorDef.getActions()) {
@@ -2184,9 +2208,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         action.setSymbolName(symbolName);
 
         if (currentScope.resolve(symbolName) != null) {
-            throw new SemanticException(action.getNodeLocation().getFileName() + ":" +
-                    action.getNodeLocation().getLineNumber() +
-                    ": duplicate action '" + action.getName() + "'");
+            throw new SemanticException(getNodeLocationStr(action.getNodeLocation()) +
+                    "redeclared symbol '" + action.getName() + "'");
         }
         currentScope.define(symbolName, action);
 
@@ -2200,6 +2223,64 @@ public class SemanticAnalyzer implements NodeVisitor {
             returnTypes[i] = bType;
         }
         action.setReturnParamTypes(returnTypes);
+    }
+
+    private void defineServices(Service[] services) {
+        for (Service service : services) {
+
+            // Define Service Symbol in the package scope..
+            if (currentScope.resolve(service.getSymbolName()) != null) {
+                throw new SemanticException(getNodeLocationStr(service.getNodeLocation()) +
+                        "redeclared symbol '" + service.getName() + "'");
+            }
+            currentScope.define(service.getSymbolName(), service);
+
+            // Create the '<init>' function and inject it to the connector;
+            BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(
+                    service.getNodeLocation(), service);
+            for (VariableDefStmt variableDefStmt : service.getVariableDefStmts()) {
+                blockStmtBuilder.addStmt(variableDefStmt);
+            }
+
+            BallerinaFunction.BallerinaFunctionBuilder functionBuilder =
+                    new BallerinaFunction.BallerinaFunctionBuilder(service);
+            functionBuilder.setNodeLocation(service.getNodeLocation());
+            functionBuilder.setName(service.getName() + ".<init>");
+            functionBuilder.setPkgPath(service.getPackagePath());
+            functionBuilder.setBody(blockStmtBuilder.build());
+            service.setInitFunction(functionBuilder.buildFunction());
+
+            // Define resources
+            openScope(service);
+
+            for (Resource resource : service.getResources()) {
+                defineResource(resource, service);
+            }
+
+            closeScope();
+        }
+    }
+
+    private void defineResource(Resource resource, Service service) {
+        ParameterDef[] paramDefArray = resource.getParameterDefs();
+        BType[] paramTypes = new BType[paramDefArray.length];
+        for (int i = 0; i < paramDefArray.length; i++) {
+            ParameterDef paramDef = paramDefArray[i];
+            BType bType = BTypes.resolveType(paramDef.getTypeName(), currentScope, paramDef.getNodeLocation());
+            paramDef.setType(bType);
+            paramTypes[i] = bType;
+        }
+
+        resource.setParameterTypes(paramTypes);
+        SymbolName symbolName = LangModelUtils.getActionSymName(resource.getName(), service.getName(),
+                resource.getPackagePath(), paramTypes);
+        resource.setSymbolName(symbolName);
+
+        if (currentScope.resolve(symbolName) != null) {
+            throw new SemanticException(getNodeLocationStr(resource.getNodeLocation()) +
+                    "redeclared symbol '" + resource.getName() + "'");
+        }
+        currentScope.define(symbolName, resource);
     }
 
     private void resolveStructFieldTypes(StructDef[] structDefs) {

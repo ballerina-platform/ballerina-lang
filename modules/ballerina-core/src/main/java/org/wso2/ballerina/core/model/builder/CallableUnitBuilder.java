@@ -63,7 +63,7 @@ public class CallableUnitBuilder {
         this.location = location;
     }
 
-    void setName(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -95,7 +95,7 @@ public class CallableUnitBuilder {
         this.workerList.add(worker);
     }
 
-    void setBody(BlockStmt body) {
+    public void setBody(BlockStmt body) {
         this.body = body;
     }
 
