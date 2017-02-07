@@ -90,18 +90,22 @@ public class SwaggerResourceMapper {
             }
             String httpOperation = operationAdaptor.getHttpOperation();
             Operation operation = operationAdaptor.getOperation();
-            if (Constants.ANNOTATION_METHOD_GET.equalsIgnoreCase(httpOperation)) {
-                path.get(operation);
-            } else if (Constants.ANNOTATION_METHOD_PUT.equalsIgnoreCase(httpOperation)) {
-                path.put(operation);
-            } else if (Constants.ANNOTATION_METHOD_POST.equalsIgnoreCase(httpOperation)) {
-                path.post(operation);
-            } else if (Constants.ANNOTATION_METHOD_DELETE.equalsIgnoreCase(httpOperation)) {
-                path.delete(operation);
-            } else if (Constants.ANNOTATION_METHOD_OPTIONS.equalsIgnoreCase(httpOperation)) {
-                path.options(operation);
-            } else if (Constants.ANNOTATION_METHOD_PATCH.equalsIgnoreCase(httpOperation)) {
-                path.patch(operation);
+            switch (httpOperation) {
+                case Constants.ANNOTATION_METHOD_GET:
+                    path.get(operation);
+                case Constants.ANNOTATION_METHOD_PUT:
+                    path.put(operation);
+                case Constants.ANNOTATION_METHOD_POST:
+                    path.post(operation);
+                case Constants.ANNOTATION_METHOD_DELETE:
+                    path.delete(operation);
+                case Constants.ANNOTATION_METHOD_OPTIONS:
+                    path.options(operation);
+                case Constants.ANNOTATION_METHOD_PATCH:
+                    path.patch(operation);
+                    break;
+                default:
+                    break;
             }
         }
         return map;
@@ -138,12 +142,9 @@ public class SwaggerResourceMapper {
             op.setPath(path);
             Map<String, Annotation> annotationMap = resource.getAnnotationMap();
             if (annotationMap != null) {
-                for (Map.Entry<String, Annotation> operationEntry : annotationMap.entrySet()) {
-                    if (operationEntry.getKey().matches(HTTP_VERB_MATCHING_PATTERN)) {
-                        op.setHttpOperation(operationEntry.getKey());
-                    }
-
-                }
+                annotationMap.entrySet().stream().filter
+                        (operationEntry -> operationEntry.getKey().matches(HTTP_VERB_MATCHING_PATTERN)).
+                        forEach(operationEntry -> op.setHttpOperation(operationEntry.getKey()));
             }
             if (resourceAnnotations != null) {
                 //TODO add all supported annotation mapping after annotation model finalized.
