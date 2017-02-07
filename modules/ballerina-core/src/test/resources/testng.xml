@@ -23,13 +23,14 @@ under the License.
 
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
-        <!--<packages>-->
+        <packages>
         <!--<package name="org.wso2.ballerina.lang.values"/>-->
         <!--<package name="org.wso2.ballerina.lang.expressions"/>-->
         <!--<package name="org.wso2.ballerina.lang.statements"/>-->
         <!--<package name="org.wso2.ballerina.lang.service"/>-->
-        <!--<package name="org.wso2.ballerina.lang.structs"/>-->
-        <!--</packages>-->
+            <package name="org.wso2.ballerina.lang.structs"/>
+        </packages>
+        
         <classes>
             <!-- Expressions -->
             <class name="org.wso2.ballerina.lang.expressions.AddExprTest"/>
@@ -43,15 +44,15 @@ under the License.
             <class name="org.wso2.ballerina.lang.expressions.GreaterLessThanExprTest"/>
             <!-- Not used at the moment -->
             <!--<class name="org.wso2.ballerina.lang.expressions.InstanceCreationExprTest"/>-->
-            <class name="org.wso2.ballerina.lang.expressions.MapAccessExprTest"/>
+            <!--class name="org.wso2.ballerina.lang.expressions.MapAccessExprTest"/-->
             <class name="org.wso2.ballerina.lang.expressions.MapInitializerExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.MultiplyExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.NotEqualExprTest"/>
             <!--<class name="org.wso2.ballerina.lang.expressions.StructTypeConvertorTest"/>-->
             <class name="org.wso2.ballerina.lang.expressions.SubstractExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.TemplateExpressionTest"/>
-            <!--<class name="org.wso2.ballerina.lang.expressions.TypeCastExprTest"/>-->
-            <!--<class name="org.wso2.ballerina.lang.expressions.TypeConvertorTest"/>-->
+            <class name="org.wso2.ballerina.lang.expressions.TypeCastExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.TypeConvertorTest"/>
             <class name="org.wso2.ballerina.lang.expressions.UnaryExprTest"/>
 
 

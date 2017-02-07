@@ -587,10 +587,6 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     public void visit(StructDef structDef) {
         //TODO
     }
-    @Override
-    public void visit(StructDcl structDcl) {
-        //TODO
-    }
 
     @Override
     public void visit(VariableDefStmt varDefStmt) {

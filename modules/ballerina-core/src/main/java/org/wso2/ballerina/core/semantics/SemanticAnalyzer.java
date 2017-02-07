@@ -46,7 +46,6 @@ import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -113,11 +112,12 @@ import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.types.BXMLType;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.types.TypeConstants;
+import org.wso2.ballerina.core.model.types.TypeEdge;
+import org.wso2.ballerina.core.model.types.TypeLattice;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.nativeimpl.NativeUnitProxy;
-import org.wso2.ballerina.core.nativeimpl.convertors.NativeCastConvertor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -143,8 +143,8 @@ public class SemanticAnalyzer implements NodeVisitor {
     private int structMemAddrOffset = -1;
     private SymTable symbolTable;
     private String currentPkg;
+    private TypeLattice packageTypeLattice;
     private CallableUnit currentCallableUnit = null;
-    private MemoryLocation currentMemLocation = null;
 
     // following pattern matches ${anyString} or ${anyString[int]} or ${anyString["anyString"]}
     private static final String patternString = "\\$\\{((\\w+)(\\[(\\d+|\\\"(\\w+)\\\")\\])?)\\}";
@@ -158,13 +158,13 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     public SemanticAnalyzer(BallerinaFile bFile, SymbolScope packageScope) {
         currentScope = packageScope;
-
         currentPkg = bFile.getPackagePath();
         importPkgMap = bFile.getImportPackageMap();
+        packageTypeLattice = bFile.getTypeLattice();
 
-        defineFunctions(bFile.getFunctions());
         resolveStructFieldTypes(bFile.getStructDefs());
-//        defineConnectors(bFile.getConnectors());
+        defineFunctions(bFile.getFunctions());
+        defineConnectors(bFile.getConnectors());
 
 //        bFile.getConnectorList().forEach(connector -> {
 //            addConnectorSymbol(connector);
@@ -173,12 +173,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 //
 //        Arrays.asList(bFile.getTypeConvertors()).forEach(this::addTypeConverterSymbol);
     }
-
-//    private void defineConnectors(BallerinaConnectorDef[] connectorDefArrya) {
-//        for (BallerinaConnectorDef connectorDef : connectorDefArrya) {
-//            String connectorName = connectorDef.getName();
-//        }
-//    }
 
     public SemanticAnalyzer(BallerinaFile bFile, SymScope globalScope) {
         SymScope pkgScope = bFile.getPackageScope();
@@ -196,7 +190,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             Arrays.asList(connector.getActions()).forEach(this::addActionSymbol);
         });
 
-        Arrays.asList(bFile.getTypeConvertors()).forEach(this::addTypeConverterSymbol);
+        packageTypeLattice = bFile.getTypeLattice();
     }
 
     @Override
@@ -262,11 +256,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         openScope(connector);
 
         for (ParameterDef parameterDef : connector.getParameterDefs()) {
-            connectorMemAddrOffset++;
-            visit(parameterDef);
+            parameterDef.setMemoryLocation(new ConnectorVarLocation(++connectorMemAddrOffset));
+            parameterDef.accept(this);
         }
 
-        // TODO Analyze connector level variable definition statements
+        for (VariableDefStmt variableDefStmt : connector.getVariableDefStmts()) {
+            variableDefStmt.accept(this);
+        }
 
         for (BallerinaAction action : connector.getActions()) {
             action.accept(this);
@@ -285,6 +281,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Visit the contents within a resource
         // Open a new symbol scope
         openScope(resource);
+        currentCallableUnit = resource;
 
         // TODO Check whether the reply statement is missing. Ignore if the function does not return anything.
         //checkForMissingReplyStmt(resource);
@@ -302,6 +299,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Close the symbol scope
         stackFrameOffset = -1;
+        currentCallableUnit = null;
         closeScope();
     }
 
@@ -360,8 +358,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         //checkForMissingReturnStmt(function, "missing return statement at end of function");
 
         for (ParameterDef parameterDef : typeConvertor.getParameterDefs()) {
-            stackFrameOffset++;
-            visit(parameterDef);
+            parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            parameterDef.accept(this);
         }
 
 //        for (VariableDef variableDef : typeConvertor.getVariableDefs()) {
@@ -372,16 +370,17 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (ParameterDef parameterDef : typeConvertor.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
-            if (parameterDef.getName() == null) {
-                break;
+            if (parameterDef.getName() != null) {
+                parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
             }
 
-            stackFrameOffset++;
-            visit(parameterDef);
+            parameterDef.accept(this);
         }
 
         BlockStmt blockStmt = typeConvertor.getCallableUnitBody();
+        currentScope = blockStmt;
         blockStmt.accept(this);
+        currentScope = blockStmt.getEnclosingScope();
 
         // Here we need to calculate size of the BValue array which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
@@ -403,6 +402,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(BallerinaAction action) {
         // Open a new symbol scope
         openScope(action);
+        currentCallableUnit = action;
 
         // Check whether the return statement is missing. Ignore if the function does not return anything.
         // TODO Define proper error message codes
@@ -438,6 +438,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Close the symbol scope
         stackFrameOffset = -1;
+        currentCallableUnit = null;
         closeScope();
     }
 
@@ -525,16 +526,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     // Visit statements
 
-    private void setMemoryLocation(VariableDef variableDef) {
-        if (currentScope.getScopeName() == SymbolScope.ScopeName.LOCAL) {
-            variableDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
-        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.SERVICE) {
-            variableDef.setMemoryLocation(new ServiceVarLocation(++staticMemAddrOffset));
-        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.CONNECTOR) {
-            variableDef.setMemoryLocation(new ConnectorVarLocation(++connectorMemAddrOffset));
-        }
-    }
-
     @Override
     public void visit(VariableDefStmt varDefStmt) {
         // Resolves the type of the variable
@@ -590,7 +581,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             } else if ((varBType != BTypes.typeMap) && (returnTypes[0] != BTypes.typeMap) &&
                     (!varBType.equals(returnTypes[0]))) {
 
-                TypeCastExpression newExpr = checkWideningPossibleForAssign(varBType, rExpr);
+                TypeCastExpression newExpr = checkWideningPossible(varBType, rExpr, null);
                 if (newExpr != null) {
                     newExpr.accept(this);
                     varDefStmt.setRExpr(newExpr);
@@ -640,11 +631,16 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         visitSingleValueExpr(rExpr);
+        BType rType = rExpr.getType();
+        if (rExpr instanceof TypeCastExpression && rType == null) {
+            rType = BTypes.resolveType(((TypeCastExpression) rExpr).getTypeName(), currentScope, null);
+        }
 
         // TODO Remove the MAP related logic when type casting is implemented
-        if ((lExpr.getType() != BTypes.typeMap) && (rExpr.getType() != BTypes.typeMap) &&
-                (!lExpr.getType().equals(rExpr.getType()))) {
-            TypeCastExpression newExpr = checkWideningPossibleForAssign(lExpr.getType(), rExpr);
+        if ((lExprType != BTypes.typeMap) && (rType != BTypes.typeMap) &&
+                (!lExprType.equals(rType))) {
+
+            TypeCastExpression newExpr = checkWideningPossible(lExpr.getType(), rExpr, null);
             if (newExpr != null) {
                 newExpr.accept(this);
                 assignStmt.setRhsExpr(newExpr);
@@ -1234,6 +1230,12 @@ public class SemanticAnalyzer implements NodeVisitor {
             throw new SemanticException(getNodeLocationStr(connectorInitExpr.getNodeLocation()) +
                     "connector initializer is not allowed here");
         }
+        connectorInitExpr.setType(inheritedType);
+
+        Expression[] argExprs = connectorInitExpr.getArgExprs();
+        for (Expression argExpr : argExprs) {
+            visitSingleValueExpr(argExpr);
+        }
     }
 
     @Override
@@ -1256,7 +1258,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             // Types are defined only once, hence the following object equal should work.
             if (argExprs[i].getType() != expectedElementType) {
-                TypeCastExpression typeCastExpr = checkWideningPossibleForAssign(expectedElementType, argExprs[i]);
+                TypeCastExpression typeCastExpr = checkWideningPossible(expectedElementType, argExprs[i], null);
                 if (typeCastExpr == null) {
                     throw new SemanticException(getNodeLocationStr(arrayInitExpr.getNodeLocation()) +
                             "incompatible types: '" + argExprs[i].getType() +
@@ -1292,22 +1294,17 @@ public class SemanticAnalyzer implements NodeVisitor {
             VariableDef varDef = (VariableDef) structDef.resolveMembers(varRefExpr.getSymbolName());
             if (varDef == null) {
                 throw new SemanticException(getNodeLocationStr(keyExpr.getNodeLocation()) +
-                        "unknown '" + structDef.getName() + "' field '" + varRefExpr.getVarName() + "' in struct");
+                        "unknown field '" + varRefExpr.getVarName() + "' in struct '" + structDef.getName() + "'");
             }
-
+            varRefExpr.setVariableDef(varDef);
             Expression valueExpr = keyValueExpr.getValueExpr();
             visitSingleValueExpr(valueExpr);
 
-            if (valueExpr.getType() != varDef.getType()) {
-                throw new SemanticException(getNodeLocationStr(keyExpr.getNodeLocation()) +
-                        "incompatible type: '" + varDef.getType() + "' expected, found '" + valueExpr.getType() + "'");
+            if (!valueExpr.getType().equals(varDef.getType())) {
+                throw new SemanticException(getNodeLocationStr(keyExpr.getNodeLocation()) + "incompatible type: '" +
+                        varDef.getType() + "' expected, found '" + valueExpr.getType() + "'");
             }
         }
-
-//
-//        // Struct type is not known at this stage
-//        structInitExpr.setType(null);
-//        visit(structInitExpr.getStructDcl());
     }
 
     @Override
@@ -1434,86 +1431,15 @@ public class SemanticAnalyzer implements NodeVisitor {
         visitSingleValueExpr(typeCastExpression.getRExpr());
         BType sourceType = typeCastExpression.getRExpr().getType();
         BType targetType = typeCastExpression.getTargetType();
+        if (targetType == null) {
+            targetType = BTypes.resolveType(typeCastExpression.getTypeName(), currentScope, null);
+        }
         // Check whether this is a native conversion
         if (BTypes.isValueType(sourceType) &&
                 BTypes.isValueType(targetType)) {
-            if (sourceType == BTypes.typeString) {
-                if (targetType == BTypes.typeInt) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_INT_FUNC);
-                } else if (targetType == BTypes.typeLong) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_LONG_FUNC);
-                } else if (targetType == BTypes.typeFloat) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_FLOAT_FUNC);
-                } else if (targetType == BTypes.typeDouble) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_DOUBLE_FUNC);
-                } else if (targetType == BTypes.typeBoolean) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_BOOLEAN_FUNC);
-                } else {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_STRING_FUNC);
-                }
-            } else if (sourceType == BTypes.typeInt) {
-                if (targetType == BTypes.typeString) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_STRING_FUNC);
-                } else if (targetType == BTypes.typeLong) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_LONG_FUNC);
-                } else if (targetType == BTypes.typeFloat) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_FLOAT_FUNC);
-                } else if (targetType == BTypes.typeDouble) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_DOUBLE_FUNC);
-                } else if (targetType == BTypes.typeInt) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_INT_FUNC);
-                }
-            } else if (sourceType == BTypes.typeLong) {
-                if (targetType == BTypes.typeInt) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_INT_FUNC);
-                } else if (targetType == BTypes.typeString) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_STRING_FUNC);
-                } else if (targetType == BTypes.typeFloat) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_FLOAT_FUNC);
-                } else if (targetType == BTypes.typeDouble) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_DOUBLE_FUNC);
-                } else if (targetType == BTypes.typeLong) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_LONG_FUNC);
-                }
-            } else if (sourceType == BTypes.typeFloat) {
-                if (targetType == BTypes.typeInt) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_INT_FUNC);
-                } else if (targetType == BTypes.typeLong) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_LONG_FUNC);
-                } else if (targetType == BTypes.typeFloat) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_FLOAT_FUNC);
-                } else if (targetType == BTypes.typeDouble) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_DOUBLE_FUNC);
-                } else if (targetType == BTypes.typeString) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_STRING_FUNC);
-                }
-            } else if (sourceType == BTypes.typeDouble) {
-                if (targetType == BTypes.typeInt) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_INT_FUNC);
-                } else if (targetType == BTypes.typeLong) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_LONG_FUNC);
-                } else if (targetType == BTypes.typeFloat) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_FLOAT_FUNC);
-                } else if (targetType == BTypes.typeDouble) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_DOUBLE_FUNC);
-                } else if (targetType == BTypes.typeString) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_STRING_FUNC);
-                }
-            } else if (sourceType == BTypes.typeBoolean) {
-                if (targetType == BTypes.typeString) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.BOOLEAN_TO_STRING_FUNC);
-                } else if (targetType == BTypes.typeBoolean) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.BOOLEAN_TO_BOOLEAN_FUNC);
-                }
-            } else if (sourceType == BTypes.typeXML) {
-                if (targetType == BTypes.typeString) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.XML_TO_STRING_FUNC);
-                }
-            } else if (sourceType == BTypes.typeJSON) {
-                if (targetType == BTypes.typeString) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.JSON_TO_STRING_FUNC);
-                }
-            }
+            TypeEdge newEdge = null;
+            newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
+            typeCastExpression.setEvalFunc(newEdge.getTypeConvertorFunction());
         } else {
             linkTypeConverter(typeCastExpression, sourceType, targetType);
         }
@@ -1705,8 +1631,18 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression rExpr = binaryExpr.getRExpr();
         Expression lExpr = binaryExpr.getLExpr();
 
-        if (lExpr.getType() != rExpr.getType()) {
-            TypeCastExpression newExpr = checkWideningPossibleForBinary(lExpr, rExpr, binaryExpr.getOperator());
+        BType rType = rExpr.getType();
+        if (rExpr instanceof TypeCastExpression && rType == null) {
+            rType = BTypes.resolveType(((TypeCastExpression) rExpr).getTypeName(), currentScope, null);
+        }
+
+        BType lType = lExpr.getType();
+        if (lExpr instanceof TypeCastExpression && lType == null) {
+            lType = BTypes.resolveType(((TypeCastExpression) lExpr).getTypeName(), currentScope, null);
+        }
+
+        if (!(rType.equals(lType))) {
+            TypeCastExpression newExpr = checkWideningPossible(lExpr.getType(), rExpr, binaryExpr.getOperator());
             if (newExpr != null) {
                 newExpr.accept(this);
                 binaryExpr.setRExpr(newExpr);
@@ -1767,7 +1703,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (expr instanceof ArrayMapAccessExpr) {
             return ((ArrayMapAccessExpr) expr).getSymbolName().getName();
         } else if (expr instanceof StructFieldAccessExpr) {
-            return ((StructFieldAccessExpr) expr).getSymbolName().getName();
+            return getVarNameFromExpression(((StructFieldAccessExpr) expr).getVarRef());
         } else {
             return ((VariableRefExpr) expr).getSymbolName().getName();
         }
@@ -1877,6 +1813,19 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private void linkAction(ActionInvocationExpr actionIExpr) {
         String pkgPath = actionIExpr.getPackagePath();
+        String connectorName = actionIExpr.getConnectorName();
+
+        SymbolName connectorSymbolName = new SymbolName(connectorName, pkgPath);
+        BLangSymbol connectorSymbol = currentScope.resolve(connectorSymbolName);
+        if (connectorSymbol == null) {
+            String connectorWithPkgName = (actionIExpr.getPackageName() != null) ? actionIExpr.getPackageName() +
+                    ":" + actionIExpr.getConnectorName() : actionIExpr.getConnectorName();
+            throw new SemanticException(getNodeLocationStr(actionIExpr.getNodeLocation()) + "" +
+                    "undefined connector '" + connectorWithPkgName + "'");
+        }
+
+        // TODO Handle Native connectors here ;
+        BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connectorSymbol;
 
         Expression[] exprs = actionIExpr.getArgExprs();
         BType[] paramTypes = new BType[exprs.length];
@@ -1884,21 +1833,42 @@ public class SemanticAnalyzer implements NodeVisitor {
             paramTypes[i] = exprs[i].getType();
         }
 
-        SymbolName symName = LangModelUtils.getActionSymName(actionIExpr.getName(), actionIExpr.getConnectorName(),
+        SymbolName symbolName = LangModelUtils.getActionSymName(actionIExpr.getName(), actionIExpr.getConnectorName(),
                 pkgPath, paramTypes);
 
-        Symbol symbol = symbolTable.lookup(symName);
-        if (symbol == null) {
+
+        BLangSymbol actionSymbol = connectorDef.resolveMembers(symbolName);
+        if (actionSymbol == null) {
             String actionWithConnector = actionIExpr.getConnectorName() + "." + actionIExpr.getName();
             String actionName = (actionIExpr.getPackageName() != null) ? actionIExpr.getPackageName() + ":" +
                     actionWithConnector : actionWithConnector;
             throw new SemanticException(actionIExpr.getNodeLocation().getFileName() + ":" +
                     actionIExpr.getNodeLocation().getLineNumber() +
-                    ": undefined function '" + actionName + "'");
+                    ": undefined action '" + actionName + "'");
         }
 
         // Link
-        Action action = symbol.getAction();
+        Action action;
+        if (actionSymbol instanceof NativeUnitProxy) {
+            action = (Action) ((NativeUnitProxy) actionSymbol).load();
+            // TODO We need to find a way to load input parameter types
+
+            // Loading return parameter types of this native function
+            NativeUnit nativeUnit = (NativeUnit) action;
+            SimpleTypeName[] returnParamTypeNames = nativeUnit.getReturnParamTypeNames();
+            BType[] returnTypes = new BType[returnParamTypeNames.length];
+            for (int i = 0; i < returnParamTypeNames.length; i++) {
+                SimpleTypeName typeName = returnParamTypeNames[i];
+                BType bType = BTypes.resolveType(typeName, currentScope, actionIExpr.getNodeLocation());
+                returnTypes[i] = bType;
+            }
+            action.setReturnParamTypes(returnTypes);
+
+        } else {
+            action = (Action) actionSymbol;
+        }
+
+        // Link the action with the action invocation expression
         actionIExpr.setCallableUnit(action);
     }
 
@@ -1924,245 +1894,177 @@ public class SemanticAnalyzer implements NodeVisitor {
                 " not defined on '" + rExprType + "'");
     }
 
-
-    /**
-     * Visit and analyze allerina Struct declaration expression.
+    /*
+     * Struct related methods
      */
-    @Override
-    public void visit(StructDcl structDcl) {
-        // No need to validate struct instance variable names. It will happen in var declaration phase.
-
-        // Setting the struct name with the package name
-        SymbolName structName = structDcl.getStructName();
-        String pkgPath = getPackagePath(structName);
-        structName = LangModelUtils.getConnectorSymName(structName.getName(), pkgPath);
-        structDcl.setStructName(structName);
-
-        Symbol structSymbol = symbolTable.lookup(structName);
-        if (structSymbol == null) {
-            throw new SemanticException(getNodeLocationStr(structDcl.getNodeLocation()) + "struct '" + structName +
-                    "' not found.");
-        }
-        structDcl.setStructDef(structSymbol.getStructDef());
-    }
 
     /**
      * visit and analyze ballerina struc-field-access-expressions.
      */
     @Override
     public void visit(StructFieldAccessExpr structFieldAccessExpr) {
-        // Check whether this access expression is in left hand side of an assignment expression
-        // If yes, skip assigning a stack frame offset
-        if (!structFieldAccessExpr.isLHSExpr()) {
-            visitSingleValueExpr(structFieldAccessExpr);
+        visitStructField(structFieldAccessExpr, currentScope);
+    }
+
+    private void visitStructField(StructFieldAccessExpr structFieldAccessExpr, SymbolScope currentScope) {
+        ReferenceExpr varRefExpr = structFieldAccessExpr.getVarRef();
+        SymbolName symbolName = varRefExpr.getSymbolName();
+        BLangSymbol fieldSymbol = currentScope.resolve(symbolName);
+
+        if (fieldSymbol == null) {
+            if (currentScope instanceof StructDef) {
+                throw new SemanticException(getNodeLocationStr(structFieldAccessExpr.getNodeLocation()) + "field '" +
+                        symbolName.getName() + "' not found in struct '" + ((StructDef) currentScope).getName() + "'.");
+            } else {
+                throw new SemanticException(getNodeLocationStr(structFieldAccessExpr.getNodeLocation()) + "struct '" +
+                        symbolName.getName() + "' not found.");
+            }
         }
 
-        Symbol fieldSymbol = getFieldSymbol(structFieldAccessExpr);
-
         // Set expression type
-        BType exprType = fieldSymbol.getType();
-        structFieldAccessExpr.setType(exprType);
+        VariableDef varDef = (VariableDef) fieldSymbol;
+        BType exprType;
+        
 
         /* Get the actual var representation of this field, and semantically analyze. This will check for semantic
          * errors of array/map accesses, used in this struct field.
          * eg: in dpt.employee[2].name , below will check for semantics of 'employee[2]',
          * treating them as individual array/map variables.
          */
-        if (structFieldAccessExpr.getVarRef() instanceof ArrayMapAccessExpr) {
-            ArrayMapAccessExpr arrayMapAcsExpr = (ArrayMapAccessExpr) structFieldAccessExpr.getVarRef();
-            arrayMapAcsExpr.getRExpr().setType(exprType);
-            setMemoryLocation(structFieldAccessExpr, fieldSymbol.getLocation());
+        if (varRefExpr instanceof ArrayMapAccessExpr) {
+            Expression rExpr = ((ArrayMapAccessExpr) varRefExpr).getRExpr();
+            ((VariableRefExpr) rExpr).setVariableDef(varDef);
 
-            // Here we only check for array/map type validation, as symbol validation is already done.
-            handleArrayType((ArrayMapAccessExpr) structFieldAccessExpr.getVarRef());
-        } else if (structFieldAccessExpr.getVarRef() instanceof VariableRefExpr) {
-            VariableRefExpr varRefExpr = (VariableRefExpr) structFieldAccessExpr.getVarRef();
-            varRefExpr.setType(exprType);
-            setMemoryLocation(structFieldAccessExpr, fieldSymbol.getLocation());
+            exprType = varDef.getType();
+            if (exprType instanceof BArrayType) {
+                exprType = ((BArrayType) varDef.getType()).getElementType();
+            }
+            handleArrayType((ArrayMapAccessExpr) varRefExpr);
+        } else {
+            ((VariableRefExpr) varRefExpr).setVariableDef(varDef);
+            exprType = (varDef).getType();
         }
 
         // Go to the referenced field of this struct
-        ReferenceExpr fieldExpr = structFieldAccessExpr.getFieldExpr();
+        StructFieldAccessExpr fieldExpr = structFieldAccessExpr.getFieldExpr();
         if (fieldExpr != null) {
-            fieldExpr.accept(this);
-        }
-    }
-
-    /**
-     * Set the memory location for a expression.
-     *
-     * @param expr        Expression to set the memory location
-     * @param memLocation Memory location
-     */
-    private void setMemoryLocation(Expression expr, MemoryLocation memLocation) {
-        // If the expression is an array-map expression, then set the location to the variable-reference-expression 
-        // of the array-map-access-expression.
-        if (expr instanceof ArrayMapAccessExpr) {
-            setMemoryLocation(((ArrayMapAccessExpr) expr).getRExpr(), memLocation);
-            return;
-        }
-
-        // If the expression is a Struct field access expression, then set the memory location to the variable
-        // referenced by the struct-field-access-expression
-        if (expr instanceof StructFieldAccessExpr) {
-            setMemoryLocation(((StructFieldAccessExpr) expr).getVarRef(), memLocation);
-            return;
-        }
-
-        // Set the memory location to the variable reference expression
-        ((VariableRefExpr) expr).setMemoryLocation(memLocation);
-    }
-
-    /**
-     * Get the symbol of the parent struct to which this field belongs to.
-     *
-     * @param expr Field reference expression
-     * @return Symbol of the parent
-     */
-    private Symbol getFieldSymbol(StructFieldAccessExpr expr) {
-        Symbol fieldSymbol;
-        if (expr.getParent() == null) {
-            fieldSymbol = symbolTable.lookup(new SymbolName(expr.getSymbolName().getName()));
-            // Check for variable existence
-            if (fieldSymbol == null) {
-                throw new SemanticException(getNodeLocationStr(expr.getNodeLocation()) +
-                        "undeclraed struct '" + expr.getSymbolName() + "'.");
+            if (!(exprType instanceof StructDef)) {
+                throw new SemanticException(getNodeLocationStr(structFieldAccessExpr.getNodeLocation()) + "'" +
+                        symbolName.getName() + "' must be of struct type");
             }
-            return fieldSymbol;
+            visitStructField(fieldExpr, ((StructDef) exprType).getSymbolScope());
         }
-        // parent is always a StructAttributeAccessExpr
-        StructFieldAccessExpr parent = expr.getParent();
-        BType parentType = parent.getExpressionType();
-        if (parentType instanceof BArrayType) {
-            parentType = ((BArrayType) parentType).getElementType();
-        }
-        SymbolName structFieldSym = LangModelUtils.getStructFieldSymName(expr.getSymbolName().getName(),
-                parentType.toString(), currentPkg);
-
-        fieldSymbol = symbolTable.lookup(structFieldSym);
-        // Check for field existence
-        if (fieldSymbol == null) {
-            throw new SemanticException(getNodeLocationStr(expr.getNodeLocation()) +
-                    "undeclraed field '" + expr.getSymbolName() + "' for type '" + parentType + "'.");
-        }
-        return fieldSymbol;
     }
 
     private void linkTypeConverter(TypeCastExpression typeCastExpression, BType sourceType, BType targetType) {
-        // Check on the same package
-        SymbolName symbolName = new SymbolName(currentPkg + ":" + "_" + sourceType + "->" + "_" + targetType);
-        typeCastExpression.setTypeConverterName(symbolName);
-        Symbol symbol = symbolTable.lookup(symbolName);
+        TypeEdge newEdge = null;
+        TypeConvertor typeConvertor;
+        // First check on this package
+        newEdge = packageTypeLattice.getEdgeFromTypes(sourceType, targetType, currentPkg);
+        if (newEdge != null) {
+            typeConvertor = newEdge.getTypeConvertor();
+            if (typeConvertor != null) {
+                typeCastExpression.setCallableUnit(typeConvertor);
+            }
+        } else {
+            newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, currentPkg);
+            if (newEdge != null) {
+                typeConvertor = newEdge.getTypeConvertor();
+                if (typeConvertor != null) {
+                    typeCastExpression.setCallableUnit(typeConvertor);
+                }
+            } else {
+                newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
+                if (newEdge != null) {
+                    typeConvertor = newEdge.getTypeConvertor();
+                    if (typeConvertor != null) {
+                        typeCastExpression.setCallableUnit(typeConvertor);
+                    }
+                } else {
+                    String pkgPath = typeCastExpression.getPackagePath();
 
-        if (symbol == null) {
-            // Check on the global scope for native type convertors
-            symbolName = LangModelUtils.getTypeConverterSymNameWithoutPackage
-                    (sourceType, targetType);
-            typeCastExpression.setTypeConverterName(symbolName);
-            symbol = symbolTable.lookup(symbolName);
+                    Expression[] exprs = typeCastExpression.getArgExprs();
+                    BType[] paramTypes = new BType[exprs.length];
+                    for (int i = 0; i < exprs.length; i++) {
+                        paramTypes[i] = exprs[i].getType();
+                    }
+
+                    SymbolName symbolName = LangModelUtils.getTypeConverterSymNameWithoutPackage
+                            (sourceType, targetType);
+                    BLangSymbol typeConvertorSymbol = currentScope.resolve(symbolName);
+                    if (typeConvertorSymbol == null) {
+                        String funcName = (typeCastExpression.getPackageName() != null) ?
+                                typeCastExpression.getPackageName() + ":" +
+                                        typeCastExpression.getName() : typeCastExpression.getName();
+                        throw new SemanticException(typeCastExpression.getNodeLocation().getFileName() + ":" +
+                                typeCastExpression.getNodeLocation().getLineNumber() +
+                                ": undefined function '" + funcName + "'");
+                    }
+
+                    if (typeConvertorSymbol instanceof NativeUnitProxy) {
+                        typeConvertor = (TypeConvertor) ((NativeUnitProxy) typeConvertorSymbol).load();
+                        // TODO We need to find a way to load input parameter types
+
+                        // Loading return parameter types of this native function
+                        NativeUnit nativeUnit = (NativeUnit) typeConvertor;
+                        SimpleTypeName[] returnParamTypeNames = nativeUnit.getReturnParamTypeNames();
+                        BType[] returnTypes = new BType[returnParamTypeNames.length];
+                        for (int i = 0; i < returnParamTypeNames.length; i++) {
+                            SimpleTypeName typeName = returnParamTypeNames[i];
+                            BType bType = BTypes.resolveType(typeName, currentScope,
+                                    typeCastExpression.getNodeLocation());
+                            returnTypes[i] = bType;
+                        }
+                        typeConvertor.setReturnParamTypes(returnTypes);
+
+                    } else {
+                        typeConvertor = (TypeConvertor) typeConvertorSymbol;
+                    }
+
+                    if (typeConvertor != null) {
+                        typeConvertor.setParameterTypes(paramTypes);
+                        // Link the function with the function invocation expression
+                        typeCastExpression.setCallableUnit(typeConvertor);
+                    } else {
+                        throw new LinkerException(typeCastExpression.getNodeLocation().getFileName() + ":" +
+                                typeCastExpression.getNodeLocation().getLineNumber() +
+                                ": type converter cannot be found for '" + sourceType
+                                + " to " + targetType + "'");
+                    }
+                }
+            }
         }
-
-        if (symbol == null) {
-            throw new LinkerException(typeCastExpression.getNodeLocation().getFileName() + ":" +
-                    typeCastExpression.getNodeLocation().getLineNumber() +
-                    ": type converter cannot be found for '" + sourceType
-                    + "to " + targetType + "'");
-        }
-
-        // Link
-        TypeConvertor typeConvertor = symbol.getTypeConvertor();
-        typeCastExpression.setCallableUnit(typeConvertor);
-
     }
 
-    // Function to check whether implicit widening (casting) is possible for binary expression
-    private TypeCastExpression checkWideningPossibleForBinary(Expression lhsExpr, Expression rhsExpr, Operator op) {
+    private TypeCastExpression checkWideningPossible(BType lhsType, Expression rhsExpr, Operator op) {
         BType rhsType = rhsExpr.getType();
-        BType lhsType = lhsExpr.getType();
+        if (rhsType == null && rhsExpr instanceof TypeCastExpression) {
+            rhsType = BTypes.resolveType(((TypeCastExpression) rhsExpr).getTypeName(), currentScope, null);
+        }
         TypeCastExpression newExpr = null;
-        if ((rhsType == BTypes.typeInt && lhsType == BTypes.typeLong) ||
-                (lhsType == BTypes.typeInt && rhsType == BTypes.typeLong)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeLong);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_LONG_FUNC);
-        } else if ((rhsType == BTypes.typeInt && lhsType == BTypes.typeFloat) ||
-                (lhsType == BTypes.typeInt && rhsType == BTypes.typeFloat)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeFloat);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_FLOAT_FUNC);
-        } else if ((rhsType == BTypes.typeInt && lhsType == BTypes.typeDouble) ||
-                (lhsType == BTypes.typeInt && rhsType == BTypes.typeDouble)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeDouble);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_DOUBLE_FUNC);
-        } else if (((rhsType == BTypes.typeInt && lhsType == BTypes.typeString) ||
-                (lhsType == BTypes.typeInt && rhsType == BTypes.typeString)) && op.equals(Operator.ADD)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_STRING_FUNC);
-        } else if ((rhsType == BTypes.typeLong && lhsType == BTypes.typeFloat) ||
-                (lhsType == BTypes.typeLong && rhsType == BTypes.typeFloat)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeFloat);
-            newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_FLOAT_FUNC);
-        } else if ((rhsType == BTypes.typeLong && lhsType == BTypes.typeDouble) ||
-                (lhsType == BTypes.typeLong && rhsType == BTypes.typeDouble)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeDouble);
-            newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_DOUBLE_FUNC);
-        } else if (((rhsType == BTypes.typeLong && lhsType == BTypes.typeString) ||
-                (lhsType == BTypes.typeLong && rhsType == BTypes.typeString)) && op.equals(Operator.ADD)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
-            newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_STRING_FUNC);
-        } else if ((rhsType == BTypes.typeFloat && lhsType == BTypes.typeDouble) ||
-                (lhsType == BTypes.typeFloat && rhsType == BTypes.typeDouble)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeDouble);
-            newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_DOUBLE_FUNC);
-        } else if (((rhsType == BTypes.typeFloat && lhsType == BTypes.typeString) ||
-                (lhsType == BTypes.typeFloat && rhsType == BTypes.typeString)) && op.equals(Operator.ADD)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
-            newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_STRING_FUNC);
-        } else if (((rhsType == BTypes.typeDouble && lhsType == BTypes.typeString) ||
-                (lhsType == BTypes.typeDouble && rhsType == BTypes.typeString)) && op.equals(Operator.ADD)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
-            newExpr.setEvalFunc(NativeCastConvertor.DOUBLE_TO_STRING_FUNC);
+        TypeEdge newEdge = null;
+
+        if (((rhsType.equals(BTypes.typeString) || lhsType.equals(BTypes.typeString)) && op != null
+                && op.equals(Operator.ADD)) || (!(rhsType.equals(BTypes.typeString)) &&
+                !(lhsType.equals(BTypes.typeString)) && op != null) || op == null) {
+            newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rhsType, lhsType, null);
         }
 
+        if (newEdge != null) {
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, lhsType);
+            newExpr.setEvalFunc(newEdge.getTypeConvertorFunction());
+        }
         return newExpr;
     }
 
-    // Function to check whether implicit widening (casting) is possible for assignment statement
-    private TypeCastExpression checkWideningPossibleForAssign(BType lhsType, Expression rhsExpr) {
-        BType rhsType = rhsExpr.getType();
-//        BType lhsType = lhsExpr.getType();
-        TypeCastExpression newExpr = null;
-        if (rhsType == BTypes.typeInt && lhsType == BTypes.typeLong) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeLong);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_LONG_FUNC);
-        } else if (rhsType == BTypes.typeInt && lhsType == BTypes.typeFloat) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeFloat);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_FLOAT_FUNC);
-        } else if (rhsType == BTypes.typeInt && lhsType == BTypes.typeDouble) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeDouble);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_DOUBLE_FUNC);
-        } else if (rhsType == BTypes.typeInt && lhsType == BTypes.typeString) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_STRING_FUNC);
-        } else if (rhsType == BTypes.typeLong && lhsType == BTypes.typeFloat) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeFloat);
-            newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_FLOAT_FUNC);
-        } else if (rhsType == BTypes.typeLong && lhsType == BTypes.typeDouble) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeDouble);
-            newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_DOUBLE_FUNC);
-        } else if (rhsType == BTypes.typeLong && lhsType == BTypes.typeString) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
-            newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_STRING_FUNC);
-        } else if (rhsType == BTypes.typeFloat && lhsType == BTypes.typeDouble) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeDouble);
-            newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_DOUBLE_FUNC);
-        } else if (rhsType == BTypes.typeFloat && lhsType == BTypes.typeString) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
-            newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_STRING_FUNC);
-        } else if (rhsType == BTypes.typeDouble && lhsType == BTypes.typeString) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
-            newExpr.setEvalFunc(NativeCastConvertor.DOUBLE_TO_STRING_FUNC);
+    private void setMemoryLocation(VariableDef variableDef) {
+        if (currentScope.getScopeName() == SymbolScope.ScopeName.LOCAL) {
+            variableDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.SERVICE) {
+            variableDef.setMemoryLocation(new ServiceVarLocation(++staticMemAddrOffset));
+        } else if (currentScope.getScopeName() == SymbolScope.ScopeName.CONNECTOR) {
+            variableDef.setMemoryLocation(new ConnectorVarLocation(++connectorMemAddrOffset));
         }
-
-        return newExpr;
     }
 
     private void defineFunctions(Function[] functions) {
@@ -2183,9 +2085,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             function.setSymbolName(symbolName);
 
             if (currentScope.resolve(symbolName) != null) {
-                throw new SemanticException(function.getNodeLocation().getFileName() + ":" +
-                        function.getNodeLocation().getLineNumber() +
-                        ": duplicate function '" + function.getName() + "'");
+                throw new SemanticException(getNodeLocationStr(function.getNodeLocation()) +
+                        "redeclared function '" + function.getName() + "'");
             }
             currentScope.define(symbolName, function);
 
@@ -2200,6 +2101,77 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
             function.setReturnParamTypes(returnTypes);
         }
+    }
+
+    private void defineConnectors(BallerinaConnectorDef[] connectorDefArray) {
+        for (BallerinaConnectorDef connectorDef : connectorDefArray) {
+            String connectorName = connectorDef.getName();
+
+            // Define ConnectorDef Symbol in the package scope..
+            SymbolName connectorSymbolName = new SymbolName(connectorName);
+            if (currentScope.resolve(connectorSymbolName) != null) {
+                throw new SemanticException(getNodeLocationStr(connectorDef.getNodeLocation()) +
+                        "redeclared symbol '" + connectorDef.getName() + "'");
+            }
+            currentScope.define(connectorSymbolName, connectorDef);
+
+            // Create the '<init>' function and inject it to the connector;
+            BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(
+                    connectorDef.getNodeLocation(), connectorDef);
+            for (VariableDefStmt variableDefStmt : connectorDef.getVariableDefStmts()) {
+                blockStmtBuilder.addStmt(variableDefStmt);
+            }
+
+            BallerinaFunction.BallerinaFunctionBuilder functionBuilder =
+                    new BallerinaFunction.BallerinaFunctionBuilder(connectorDef);
+            functionBuilder.setNodeLocation(connectorDef.getNodeLocation());
+            functionBuilder.setName(connectorName + ".<init>");
+            functionBuilder.setPkgPath(connectorDef.getPackagePath());
+            functionBuilder.setBody(blockStmtBuilder.build());
+            connectorDef.setInitFunction(functionBuilder.buildFunction());
+
+            // Define actions
+            openScope(connectorDef);
+
+            for (BallerinaAction bAction : connectorDef.getActions()) {
+                defineAction(bAction, connectorDef);
+            }
+
+            closeScope();
+        }
+    }
+
+    private void defineAction(BallerinaAction action, BallerinaConnectorDef connectorDef) {
+        ParameterDef[] paramDefArray = action.getParameterDefs();
+        BType[] paramTypes = new BType[paramDefArray.length];
+        for (int i = 0; i < paramDefArray.length; i++) {
+            ParameterDef paramDef = paramDefArray[i];
+            BType bType = BTypes.resolveType(paramDef.getTypeName(), currentScope, paramDef.getNodeLocation());
+            paramDef.setType(bType);
+            paramTypes[i] = bType;
+        }
+
+        action.setParameterTypes(paramTypes);
+        SymbolName symbolName = LangModelUtils.getActionSymName(action.getName(), connectorDef.getName(),
+                action.getPackagePath(), paramTypes);
+        action.setSymbolName(symbolName);
+
+        if (currentScope.resolve(symbolName) != null) {
+            throw new SemanticException(getNodeLocationStr(action.getNodeLocation()) +
+                    "redeclared action '" + action.getName() + "'");
+        }
+        currentScope.define(symbolName, action);
+
+        // Resolve return parameters
+        ParameterDef[] returnParameters = action.getReturnParameters();
+        BType[] returnTypes = new BType[returnParameters.length];
+        for (int i = 0; i < returnParameters.length; i++) {
+            ParameterDef paramDef = returnParameters[i];
+            BType bType = BTypes.resolveType(paramDef.getTypeName(), currentScope, paramDef.getNodeLocation());
+            paramDef.setType(bType);
+            returnTypes[i] = bType;
+        }
+        action.setReturnParamTypes(returnTypes);
     }
 
     private void resolveStructFieldTypes(StructDef[] structDefs) {

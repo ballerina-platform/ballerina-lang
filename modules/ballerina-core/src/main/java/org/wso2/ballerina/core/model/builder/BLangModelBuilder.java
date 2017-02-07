@@ -80,6 +80,7 @@ import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.types.TypeConstants;
+import org.wso2.ballerina.core.model.types.TypeVertex;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -267,7 +268,8 @@ public class BLangModelBuilder {
      * @param fieldName Name of the field in the {@link StructDef}
      */
     public void addStructField(NodeLocation location, String fieldName) {
-        SymbolName symbolName = new SymbolName(fieldName, currentPackagePath);
+        // TODO: add currentPackagePath path to symbol name. i.e:  new SymbolName(fieldName, currentPackagePath);
+        SymbolName symbolName = new SymbolName(fieldName);
 
         // Check whether this constant is already defined.
         StructDef structScope = (StructDef) currentScope;
@@ -297,7 +299,9 @@ public class BLangModelBuilder {
      */
     public void addStructDef(NodeLocation location, String name) {
         currentStructBuilder.setName(name);
-        currentStructBuilder.setPackagePath(currentPackagePath);
+
+        // TODO: Fix the package path
+//        currentStructBuilder.setPackagePath(currentPackagePath);
         StructDef structDef = currentStructBuilder.build();
 
         // Close Struct scope
@@ -305,7 +309,8 @@ public class BLangModelBuilder {
         currentStructBuilder = null;
 
         // Define StructDef Symbol in the package scope..
-        SymbolName symbolName = new SymbolName(name, currentPackagePath);
+        // TODO: add currentPackagePath when creating the SymbolName
+        SymbolName symbolName = new SymbolName(name);
 
         // Check whether this constant is already defined.
         if (currentScope.resolve(symbolName) != null) {
@@ -755,14 +760,18 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void addTypeConverter(NodeLocation location, String name, boolean isPublic) {
+    public void addTypeConverter(String source, String target, String name, NodeLocation location, boolean isPublic) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
         currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setPublic(isPublic);
 
         BTypeConvertor typeConvertor = currentCUBuilder.buildTypeConverter();
-        bFileBuilder.addTypeConverter(typeConvertor);
+        TypeVertex sourceV = new TypeVertex(BTypes.resolveType(new SimpleTypeName(source),
+                currentScope, location), currentPackagePath);
+        TypeVertex targetV = new TypeVertex(BTypes.resolveType(new SimpleTypeName(target),
+                currentScope, location), currentPackagePath);
+        bFileBuilder.addTypeConvertor(sourceV, targetV, typeConvertor, currentPackagePath);
 
         // Define type converter is delayed due to missing type info of Parameters.
 
@@ -908,18 +917,12 @@ public class BLangModelBuilder {
         VariableDefStmt variableDefStmt = new VariableDefStmt(location, variableDef, variableRefExpr, rhsExpr);
 
         if (blockStmtBuilderStack.size() == 0 && currentCUGroupBuilder != null) {
-
             if (rhsExpr != null) {
-                checkArgExprValidity(location, rhsExpr);
-                if (rhsExpr instanceof FunctionInvocationExpr) {
+                if (rhsExpr instanceof ActionInvocationExpr) {
                     String errMsg = getNodeLocationStr(location) +
-                            "function invocation is not allowed here";
+                            "action invocation is not allowed here";
                     errorMsgs.add(errMsg);
 
-                } else if (!(rhsExpr instanceof BasicLiteral) && !(rhsExpr instanceof VariableRefExpr)) {
-                    String errMsg = getNodeLocationStr(location) +
-                            "a basic literal or a variable reference is allowed here";
-                    errorMsgs.add(errMsg);
                 }
             }
 
