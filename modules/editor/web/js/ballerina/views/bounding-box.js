@@ -18,7 +18,7 @@
 define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
 
     /**
-     * @class BoundingBox
+     * @class BBox
      * @augments EventChannel
      * @param x
      * @param y
@@ -44,11 +44,16 @@ define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
         if (newX === undefined) {
             return this._x;
         }
-        var offset = newX - this._x;
+        var deltaX = newX - this._x;
+        if (deltaX === 0) {
+            return this; // X hasn't changed
+        }
+        var oldCenterX = this.getCenterX();
         this._x = newX;
-        this.trigger('moved', {dx: offset, dy: 0});
-        this.trigger('left-edge-moved', offset);
-        this.trigger('right-edge-moved', offset);
+        this.trigger('moved', {dx: deltaX, dy: 0});
+        this.trigger('left-edge-moved', deltaX);
+        this.trigger('right-edge-moved', deltaX);
+        triggerCenterXChanged(oldCenterX, this.getCenterX(), this);
         return this;
     };
 
@@ -60,11 +65,16 @@ define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
         if (newY === undefined) {
             return this._y;
         }
-        var offset = newY - this._y;
+        var deltaY = newY - this._y;
+        if (deltaY === 0) {
+            return this; // Y hasn't changed
+        }
+        var oldCenterY = this.getCenterY();
         this._y = newY;
-        this.trigger('moved', {dx: 0, dy: offset});
-        this.trigger('top-edge-moved', offset);
-        this.trigger('bottom-edge-moved', offset);
+        this.trigger('moved', {dx: 0, dy: deltaY});
+        this.trigger('top-edge-moved', deltaY);
+        this.trigger('bottom-edge-moved', deltaY);
+        triggerCenterYChanged(oldCenterY, this.getCenterY(), this);
         return this;
     };
 
@@ -76,10 +86,15 @@ define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
         if (newW === undefined) {
             return this._w;
         }
-        var delta = newW - this._w;
+        var deltaW = newW - this._w;
+        if (deltaW === 0) {
+            return this; // width hasn't changed
+        }
+        var oldCenterX = this.getCenterX();
         this._w = newW;
-        this.trigger('right-edge-moved', delta);
-        this.trigger('width-changed', delta);
+        this.trigger('right-edge-moved', deltaW);
+        this.trigger('width-changed', deltaW);
+        triggerCenterXChanged(oldCenterX, this.getCenterX(), this);
         return this;
     };
 
@@ -87,14 +102,21 @@ define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
      * Gets or sets h
      * @returns {number|BBox} h
      */
-    BBox.prototype.h =  function (newH) {
+    BBox.prototype.h = function (newH, silent) {
         if (newH === undefined) {
             return this._h;
         }
-        var delta = newH - this._h;
+        var deltaH = newH - this._h;
+        if (deltaH == 0) {
+            return this; // height hasn't changed
+        }
+        var oldCenterY = this.getCenterY();
         this._h = newH;
-        this.trigger('bottom-edge-moved', delta);
-        this.trigger('height-changed', delta);
+        if (!silent) {
+            this.trigger('bottom-edge-moved', deltaH);
+            this.trigger('height-changed', deltaH);
+            triggerCenterYChanged(oldCenterY, this.getCenterY(), this);
+        }
         return this;
     };
 
@@ -113,6 +135,18 @@ define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
         return this;
     };
 
+    /**
+     * Expand/contract this bounding box to the given width whilst keeping the center still.
+     * @param w new width
+     * @returns {BBox} this
+     */
+    BBox.prototype.zoomWidth = function (w) {
+        if (this._w !== w) {
+            this.x(this._x - ((w - this._w)) / 2);
+            this.w(w);
+        }
+        return this;
+    };
 
     /**
      * init from a top center
@@ -159,6 +193,60 @@ define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
     BBox.prototype.getTopCenterX = function () {
         return this.getLeft() + this.w()/2;
     };
+
+    /**
+     * Returns the center point of this bounding box.
+     * @return {{x: number, y: number}} center poin
+     */
+    BBox.prototype.getCenter = function () {
+        return {x: this.getCenterX(), y: this.getCenterY()};
+    };
+
+    /**
+     * Returns X coordinate of the center point of this bounding box.
+     * @return {number} X coordinate
+     */
+    BBox.prototype.getCenterX = function () {
+        return this._x + (this._w / 2);
+    };
+
+    /**
+     * Returns Y coordinate of the center point of this bounding box.
+     * @return {number} Y coordinate
+     */
+    BBox.prototype.getCenterY = function () {
+        return this._y + (this._h / 2);
+    };
+
+    /**
+     * Triggers events for center X coordinate changed.
+     * @param oldCenterX {number} old X coordinate of the center
+     * @param newCenterX {number} new X coordinate of the center
+     * @param eventChannel {EventChannel} event channel to trigger events
+     */
+    function triggerCenterXChanged(oldCenterX, newCenterX, eventChannel) {
+        var deltaCenterX = newCenterX - oldCenterX;
+        if (deltaCenterX === 0) {
+            return; // center X hasn't changed
+        }
+        eventChannel.trigger('center-moved', {dx: deltaCenterX, dy: 0});
+        eventChannel.trigger('center-x-moved', deltaCenterX);
+    }
+
+    /**
+     * Triggers events for center Y coordinate changed.
+     * @param oldCenterY {number} old Y coordinate of the center
+     * @param newCenterY {number} new Y coordinate of the center
+     * @param eventChannel {EventChannel} event channel to trigger events
+     */
+    function triggerCenterYChanged(oldCenterY, newCenterY, eventChannel) {
+        var deltaCenterY = newCenterY - oldCenterY;
+        if (deltaCenterY === 0) {
+            return; // center Y hasn't changed
+        }
+        eventChannel.trigger('center-moved', {dx: 0, dy: deltaCenterY});
+        eventChannel.trigger('center-y-moved', deltaCenterY);
+    }
 
     return BBox;
 });
