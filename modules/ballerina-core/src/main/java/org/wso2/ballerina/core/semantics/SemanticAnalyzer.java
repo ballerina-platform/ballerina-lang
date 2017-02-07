@@ -1294,15 +1294,15 @@ public class SemanticAnalyzer implements NodeVisitor {
             VariableDef varDef = (VariableDef) structDef.resolveMembers(varRefExpr.getSymbolName());
             if (varDef == null) {
                 throw new SemanticException(getNodeLocationStr(keyExpr.getNodeLocation()) +
-                        "unknown '" + structDef.getName() + "' field '" + varRefExpr.getVarName() + "' in struct");
+                        "unknown field '" + varRefExpr.getVarName() + "' in struct '"  + structDef.getName() + "'");
             }
             varRefExpr.setVariableDef(varDef);
             Expression valueExpr = keyValueExpr.getValueExpr();
             visitSingleValueExpr(valueExpr);
 
             if (!valueExpr.getType().equals(varDef.getType())) {
-                throw new SemanticException(getNodeLocationStr(keyExpr.getNodeLocation()) +
-                        "incompatible type: '" + varDef.getType() + "' expected, found '" + valueExpr.getType() + "'");
+                throw new SemanticException(getNodeLocationStr(keyExpr.getNodeLocation()) + "incompatible type: '" +
+                        varDef.getType() + "' expected, found '" + valueExpr.getType() + "'");
             }
         }
     }
