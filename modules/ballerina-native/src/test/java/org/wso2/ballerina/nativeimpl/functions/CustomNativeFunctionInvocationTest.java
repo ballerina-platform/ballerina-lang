@@ -21,13 +21,16 @@ import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.GlobalScope;
+import org.wso2.ballerina.core.model.NativeUnit;
+import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
+import org.wso2.ballerina.core.nativeimpl.NativeUnitProxy;
 import org.wso2.ballerina.core.nativeimpl.exceptions.ArgumentOutOfRangeException;
-import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.runtime.registry.PackageRegistry;
 import org.wso2.ballerina.nativeimpl.util.Functions;
 import org.wso2.ballerina.nativeimpl.util.ParserUtils;
@@ -38,22 +41,59 @@ import org.wso2.ballerina.nativeimpl.util.ParserUtils;
 public class CustomNativeFunctionInvocationTest {
 
     private BallerinaFile bFile;
-    private SymScope symScope;
+    private GlobalScope globalScope = new GlobalScope();
 
     @BeforeClass
     public void setup() {
         // Add Native functions.
-        symScope = GlobalScopeHolder.getInstance().getScope();
-        PackageRegistry.getInstance().registerNativeFunction(new EchoStringNativeFunction());
-        PackageRegistry.getInstance().registerNativeFunction(new IncorrectParamCountNativeFunction());
+        globalScope.define(new SymbolName("echoString.string", "ballerina.test.echo"), new NativeUnitProxy(() -> {
+            NativeUnit nativeCallableUnit = null;
+            try {
+                nativeCallableUnit = new EchoStringNativeFunction();
+                nativeCallableUnit.setName("echoString.string.string");
+                nativeCallableUnit.setPackagePath("ballerina.test.echo");
+                nativeCallableUnit.setArgTypeNames(new SimpleTypeName[] {
+                        new SimpleTypeName("string", false)
+                });
+                nativeCallableUnit.setReturnParamTypeNames(new SimpleTypeName[] {
+                        new SimpleTypeName("string", false)
+                });
+                nativeCallableUnit.setStackFrameSize(1);
+                nativeCallableUnit.setSymbolName(new SymbolName("echoString.string", "ballerina.test.echo"));
+                return nativeCallableUnit;
+            } catch (Exception ignore) {
+            } finally {
+                return nativeCallableUnit;
+            }
+        }));
+        globalScope.define(new SymbolName("paramCount.string", "ballerina.test.incorrect"), new NativeUnitProxy(() -> {
+            NativeUnit nativeCallableUnit = null;
+            try {
+                nativeCallableUnit = new IncorrectParamCountNativeFunction();
+                nativeCallableUnit.setName("paramCount.string.string");
+                nativeCallableUnit.setPackagePath("ballerina.test.incorrect");
+                nativeCallableUnit.setArgTypeNames(new SimpleTypeName[] {
+                        new SimpleTypeName("string", false)
+                });
+                nativeCallableUnit.setReturnParamTypeNames(new SimpleTypeName[] {
+                        new SimpleTypeName("string", false)
+                });
+                nativeCallableUnit.setStackFrameSize(1);
+                nativeCallableUnit.setSymbolName(new SymbolName("paramCount.string", "ballerina.test.incorrect"));
+                return nativeCallableUnit;
+            } catch (Exception ignore) {
+            } finally {
+                return nativeCallableUnit;
+            }
+        }));
     }
 
     @Test
     public void testCustomNativeFunctionInvocation() {
         final String funcName = "invokeNativeFunction";
         final String s1 = "Hello World...!!!";
-        BValueType[] args = {new BString(s1)};
-        bFile = ParserUtils.parseBalFile("samples/customNative.bal", symScope);
+        BValueType[] args = { new BString(s1) };
+        bFile = ParserUtils.parseBalFile("samples/customNative.bal", globalScope);
         BValue[] returns = Functions.invoke(bFile, funcName, args);
         Assert.assertEquals(returns[0].stringValue(), s1);
     }
@@ -63,8 +103,8 @@ public class CustomNativeFunctionInvocationTest {
     public void testInvalidParamCountNativeFunctionInvocation() {
         final String funcName = "incorrectParamCountFunction";
         final String s1 = "Hello World...!!!";
-        BValueType[] args = {new BString(s1)};
-        bFile = ParserUtils.parseBalFile("samples/incorrectParamcustomNative.bal", symScope);
+        BValueType[] args = { new BString(s1) };
+        bFile = ParserUtils.parseBalFile("samples/incorrectParamcustomNative.bal");
         BValue[] returns = Functions.invoke(bFile, funcName, args);
     }
 
