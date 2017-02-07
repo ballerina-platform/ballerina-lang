@@ -83,8 +83,8 @@ public class NetHttpTest {
         int httpSC = 200;
         BValue[] inputArgs = { msg, new BInteger(httpSC) };
         Functions.invoke(bFile, "testSetStatusCode", inputArgs, ctx);
-        String scString = (String) msg.value().getProperty("HTTP_STATUS_CODE");
-        Assert.assertEquals(Integer.parseInt(scString), httpSC);
+        int sc = (int) msg.value().getProperty("HTTP_STATUS_CODE");
+        Assert.assertEquals(sc, httpSC);
     }
 
     @Test(expectedExceptions = { BallerinaException.class },
