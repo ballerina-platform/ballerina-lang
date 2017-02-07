@@ -46,23 +46,23 @@ define(['require', 'lodash', 'jquery', 'log', './../ast/package-definition',
 
             var packageWrapper = $("<div/>", {
                                     class: "package-definition-main-wrapper"
-                                    }).insertBefore($(currentContainer).find('.constant-definition-main-wrapper'));
+                                    }).appendTo($(".top-right-controls-container"));
             
             // Creating package button.
             var packageDefinitionsButton = $("<div class='package-name-btn'></div>")
                                                 .appendTo(packageWrapper);
 
-            var packageButtonIcon = $("<span class='fw-stack fw-lg' data-toggle='tooltip' title='Package Name' " +
+            var packageButtonIcon = $("<span class='fw-stack fw-lg package-icon' data-toggle='tooltip' title='Package Name' " +
                 "data-placement='bottom'> " +
                 "<i class='fw fw-circle fw-stack-2x'></i>" +
                 "<i class='fw fw-package fw-stack-1x fw-inverse'></i> </span>")
                 .appendTo(packageDefinitionsButton).tooltip();
 
             var packageDefinitionsMainWrapper = $("<span class='package-pane'/>")
-                                                    .appendTo(packageDefinitionsButton);
+                                                    .prependTo(packageDefinitionsButton);
 
             $("<span class='package-name-wrapper'>" +
-                "<input type='text' autocomplete='off' id='package-name-input'></span>")
+                "<input type='text' autocomplete='off' id='package-name-input' placeholder='Package Name'></span>")
                 .appendTo(packageDefinitionsMainWrapper);
 
             var packageInput = packageWrapper.find('#package-name-input');
@@ -76,13 +76,33 @@ define(['require', 'lodash', 'jquery', 'log', './../ast/package-definition',
                 currentASTRoot.setPackageName($(this).val());
             });
 
+            packageWrapper.click(function (e) {
+                e.preventDefault();
+                return false;
+            });
+
             //handle click event on package-btn
             $(packageButtonIcon).click(function (e) {
                 $(packageDefinitionsMainWrapper).toggle();
+                if (_.isEqual($(packageButtonIcon).data("is-showing"), true)) {
+                    $(packageButtonIcon).data("is-showing", false);
+                    $(packageButtonIcon).css("opacity", "");
+                } else {
+                    $(packageButtonIcon).data("is-showing", true);
+                    $(packageButtonIcon).css("opacity", "1");
+                }
+                e.preventDefault();
+                return false;
             });
-            
 
-        }
+            $(window).click(function () {
+                if (_.isEqual($(packageButtonIcon).data("is-showing"), true)) {
+                    $(packageDefinitionsMainWrapper).toggle();
+                    $(packageButtonIcon).data("is-showing", false);
+                    $(packageButtonIcon).css("opacity", "");
+                }
+            })
+        };
 
         return PackageDefinitionPaneView;
     });

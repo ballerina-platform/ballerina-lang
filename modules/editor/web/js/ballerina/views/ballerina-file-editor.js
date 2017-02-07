@@ -618,12 +618,12 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 addImportsToView(self.getModel(), importsWrapper);
 
                 // When clicked outside of the property pane.
-                $(window).click(function () {
+                $(window).click(function (e) {
                     log.debug("Window Click");
                     propertyPane.hide();
 
                     // Unbinding all events.
-                    $(this).unbind("click");
+                    $(this).unbind(e);
                     $(addImportButton).unbind("click");
                     $(propertyPane).unbind("click");
 
