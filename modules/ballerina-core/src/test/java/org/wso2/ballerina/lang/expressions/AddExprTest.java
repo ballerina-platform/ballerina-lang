@@ -63,7 +63,7 @@ public class AddExprTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //    @Test(description = "Test two long add expression")
+    @Test(description = "Test two long add expression")
     public void testLongAddExpr() {
         BValue[] args = {new BLong(100), new BLong(200)};
         BValue[] returns = Functions.invoke(bFile, "longAdd", args);
@@ -95,7 +95,7 @@ public class AddExprTest {
         Assert.assertEquals(actual, expected);
     }
 
-    //    @Test(description = "Test two double add expression")
+    @Test(description = "Test two double add expression")
     public void testDoubleAddExpr() {
         BValue[] args = {new BDouble(100), new BDouble(200)};
         BValue[] returns = Functions.invoke(bFile, "doubleAdd", args);
@@ -119,6 +119,47 @@ public class AddExprTest {
         String actual = returns[0].stringValue();
         String expected = "WSO2 Inc.";
         Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test adding negative values")
+    public void testNegativeValues() {
+        int a = -10;
+        int b = -20;
+
+        int expectedResult = a + b;
+
+        BValue[] args = {new BInteger(a), new BInteger(b)};
+
+        BValue[] returns = Functions.invoke(bFile, "intAdd", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        int actualResult = ((BInteger) returns[0]).intValue();
+        Assert.assertEquals(actualResult, expectedResult);
+
+
+        // Subtract
+        expectedResult = a - b;
+        returns = Functions.invoke(bFile, "intSubtract", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        actualResult = ((BInteger) returns[0]).intValue();
+        Assert.assertEquals(actualResult, expectedResult);
+    }
+
+    @Test(description = "Test two int add expression")
+    public void testStringAndIntAddExpr() {
+        String a = "test";
+        int b = 10;
+
+        String expectedResult = a + b;
+
+        BValue[] args = {new BString(a), new BInteger(b)};
+
+        BValue[] returns = Functions.invoke(bFile, "stringAndIntAdd", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        String actualResult = ((BString) returns[0]).stringValue();
+        Assert.assertEquals(actualResult, expectedResult);
     }
     
     
