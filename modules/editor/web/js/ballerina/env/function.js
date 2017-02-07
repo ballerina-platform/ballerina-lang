@@ -24,14 +24,12 @@ define(['log', 'lodash', 'event_channel'],
          * @param {Object} args - data to create the Function
          * @param {string} args.name - name of function
          * @param {string} args.id - id of function
-         * @param {string} args.title - title of function
          * @constructor
          */
         var Function = function (args) {
             EventChannel.call(this, args);
             this._name = _.get(args, 'name', '');
             this._id = _.get(args, 'id', '');
-            this._title = _.get(args, 'title', '');
         };
 
         Function.prototype = Object.create(EventChannel.prototype);
@@ -72,29 +70,12 @@ define(['log', 'lodash', 'event_channel'],
         };
 
         /**
-         * sets the title
-         * @param {string} title
-         */
-        Function.prototype.setTitle = function (title) {
-            this._title = title;
-        };
-
-        /**
-         * returns the title
-         * @returns {string}
-         */
-        Function.prototype.getTitle = function () {
-            return this._title;
-        };
-
-        /**
          * sets values from a json object
          * @param {Object} jsonNode
          */
         Function.prototype.initFromJson = function (jsonNode) {
             this.setName(jsonNode.name);
             this.setId(jsonNode.name);
-            this.setTitle(jsonNode.name);
         };
 
         return Function;
