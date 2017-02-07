@@ -93,9 +93,17 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             nodeFactoryMethod: BallerinaASTFactory.createTypeMapperDefinition
         };
 
+        var createWorkerDecTool = {
+            id: "worker",
+            name: "Worker",
+            icon: "images/tool-icons/worker.svg",
+            title: "Worker",
+            nodeFactoryMethod: BallerinaASTFactory.createWorkerDeclaration
+        };
+
         var mainToolDefArray = [createServiceDefTool, createResourceDefTool, createFunctionDefTool,
             createMainFunctionDefTool, createConnectorDefTool, createConnectorActionTool, createStructsDefTool,
-            createTypeMapperDefTool];
+            createTypeMapperDefTool, createWorkerDecTool];
 
         var elements = new ToolGroup({
             toolGroupName: "Elements",
@@ -135,7 +143,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             name: "VariableDefinition",
             icon: "images/variable.svg",
             title: "Variable Definition",
-            nodeFactoryMethod: BallerinaASTFactory.createVariableDefinitionStatement
+            nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createVariableDefinitionStatement
         };
 
         var createFunctionInvocationTool = {
