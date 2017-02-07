@@ -375,11 +375,11 @@ public class LocgicalTableTestCase {
             checkStockStream.send(new Object[]{"IBM", 150l});
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"IBM", 50l},
-                    new Object[]{"IBM", 100l}
+                    new Object[]{"IBM", 100l},
+                    new Object[]{"IBM", 50l}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected));
             Assert.assertEquals("Number of success events", 2, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
