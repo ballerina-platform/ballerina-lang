@@ -60,16 +60,13 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
     };
 
     Argument.prototype.setIdentifier = function (identifier, options) {
-        if (!_.isNil(identifier) && ASTNode.isValidIdentifier(identifier)) {
+        if (_.isNil(identifier) || ASTNode.isValidIdentifier(identifier)) {
             this.setAttribute('identifier', identifier, options);
         } else {
-            if (!_.isUndefined(identifier)) {
-                //identifier can be undefined at some cases such as unnamed returns
-                var exceptionString = "Invalid identifier: \'" + identifier + "\'. An identifier must match the regex " +
-                    "^[a-zA-Z$_][a-zA-Z0-9$_]*$";
-                log.error(exceptionString);
-                throw exceptionString;
-            }
+            var exceptionString = "Invalid identifier: \'" + identifier + "\'. An identifier must match the regex " +
+                "^[a-zA-Z$_][a-zA-Z0-9$_]*$";
+            log.error(exceptionString);
+            throw exceptionString;
         }
     };
 
