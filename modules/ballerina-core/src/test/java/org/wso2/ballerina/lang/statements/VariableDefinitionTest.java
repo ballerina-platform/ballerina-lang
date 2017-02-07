@@ -51,7 +51,7 @@ public class VariableDefinitionTest {
 
         Assert.assertSame(returns[1].getClass(), BLong.class);
         long l = ((BLong) returns[1]).longValue();
-        Assert.assertEquals(i, 0);
+        Assert.assertEquals(l, 0);
 
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
         boolean b = ((BBoolean) returns[2]).booleanValue();
@@ -70,4 +70,120 @@ public class VariableDefinitionTest {
         Assert.assertEquals(d, 0.0);
 
     }
+
+    @Test
+    public void testInlineVarInit() {
+        BValue[] returns = Functions.invoke(bFile, "inlineVarInit");
+        Assert.assertEquals(returns.length, 6);
+
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        int i = ((BInteger) returns[0]).intValue();
+        Assert.assertEquals(i, 10);
+
+        Assert.assertSame(returns[1].getClass(), BLong.class);
+        long l = ((BLong) returns[1]).longValue();
+        Assert.assertEquals(l, 5);
+
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        boolean b = ((BBoolean) returns[2]).booleanValue();
+        Assert.assertEquals(b, true);
+
+        Assert.assertSame(returns[3].getClass(), BString.class);
+        String s = ((BString) returns[3]).stringValue();
+        Assert.assertEquals(s, "hello");
+
+        Assert.assertSame(returns[4].getClass(), BFloat.class);
+        float f = ((BFloat) returns[4]).floatValue();
+        Assert.assertEquals(f, 2.6f);
+
+        Assert.assertSame(returns[5].getClass(), BDouble.class);
+        double d = ((BDouble) returns[5]).doubleValue();
+        Assert.assertEquals(d, 3.14159265359);
+
+    }
+
+    @Test
+    public void testUpdateDefaultValue() {
+        int v1 = 56;
+        long v2 = 46;
+        boolean v3 = false;
+        String v4 = "newstr";
+        float v5 = 68.3325f;
+        double v6 = 45.32514;
+
+        BValue[] args = {
+                new BInteger(v1), new BLong(v2), new BBoolean(v3), new BString(v4), new BFloat(v5), new BDouble(v6)
+        };
+
+        BValue[] returns = Functions.invoke(bFile, "updateVarValue", args);
+        Assert.assertEquals(returns.length, 6);
+
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        int i = ((BInteger) returns[0]).intValue();
+        Assert.assertEquals(i, v1);
+
+        Assert.assertSame(returns[1].getClass(), BLong.class);
+        long l = ((BLong) returns[1]).longValue();
+        Assert.assertEquals(l, v2);
+
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        boolean b = ((BBoolean) returns[2]).booleanValue();
+        Assert.assertEquals(b, v3);
+
+        Assert.assertSame(returns[3].getClass(), BString.class);
+        String s = ((BString) returns[3]).stringValue();
+        Assert.assertEquals(s, v4);
+
+        Assert.assertSame(returns[4].getClass(), BFloat.class);
+        float f = ((BFloat) returns[4]).floatValue();
+        Assert.assertEquals(f, v5);
+
+        Assert.assertSame(returns[5].getClass(), BDouble.class);
+        double d = ((BDouble) returns[5]).doubleValue();
+        Assert.assertEquals(d, v6);
+    }
+
+    @Test
+    public void testUpdateVarValue() {
+        int v1 = 56;
+        long v2 = 46;
+        boolean v3 = false;
+        String v4 = "newstr";
+        float v5 = 68.3325f;
+        double v6 = 45.32514;
+
+        BValue[] args = {
+                new BInteger(v1), new BLong(v2), new BBoolean(v3), new BString(v4), new BFloat(v5), new BDouble(v6)
+        };
+
+        BValue[] returns = Functions.invoke(bFile, "updateVarValue", args);
+        Assert.assertEquals(returns.length, 6);
+
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        int i = ((BInteger) returns[0]).intValue();
+        Assert.assertEquals(i, v1);
+
+        Assert.assertSame(returns[1].getClass(), BLong.class);
+        long l = ((BLong) returns[1]).longValue();
+        Assert.assertEquals(l, v2);
+
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        boolean b = ((BBoolean) returns[2]).booleanValue();
+        Assert.assertEquals(b, v3);
+
+        Assert.assertSame(returns[3].getClass(), BString.class);
+        String s = ((BString) returns[3]).stringValue();
+        Assert.assertEquals(s, v4);
+
+        Assert.assertSame(returns[4].getClass(), BFloat.class);
+        float f = ((BFloat) returns[4]).floatValue();
+        Assert.assertEquals(f, v5);
+
+        Assert.assertSame(returns[5].getClass(), BDouble.class);
+        double d = ((BDouble) returns[5]).doubleValue();
+        Assert.assertEquals(d, v6);
+
+    }
+
+
 }
