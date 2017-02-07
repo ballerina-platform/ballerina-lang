@@ -103,6 +103,7 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
             connector.setName(connectorDefinition.getConnectorName());
             this.getPackage().addConnectors(connector);
 
+            //TODO : move this to the visit method
             _.each(connectorDefinition.getChildren(), function (child) {
                 if (BallerinaASTFactory.isConnectorAction(child)) {
                     var connectorAction = BallerinaEnvFactory.createConnectorAction();
