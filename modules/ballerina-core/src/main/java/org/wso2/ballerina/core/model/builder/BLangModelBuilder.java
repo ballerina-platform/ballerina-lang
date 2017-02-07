@@ -299,7 +299,7 @@ public class BLangModelBuilder {
      */
     public void addStructDef(NodeLocation location, String name) {
         currentStructBuilder.setName(name);
-        
+
         // TODO: Fix the package path
 //        currentStructBuilder.setPackagePath(currentPackagePath);
         StructDef structDef = currentStructBuilder.build();
@@ -918,18 +918,12 @@ public class BLangModelBuilder {
         VariableDefStmt variableDefStmt = new VariableDefStmt(location, variableDef, variableRefExpr, rhsExpr);
 
         if (blockStmtBuilderStack.size() == 0 && currentCUGroupBuilder != null) {
-
             if (rhsExpr != null) {
-                checkArgExprValidity(location, rhsExpr);
-                if (rhsExpr instanceof FunctionInvocationExpr) {
+                if (rhsExpr instanceof ActionInvocationExpr) {
                     String errMsg = getNodeLocationStr(location) +
-                            "function invocation is not allowed here";
+                            "action invocation is not allowed here";
                     errorMsgs.add(errMsg);
 
-                } else if (!(rhsExpr instanceof BasicLiteral) && !(rhsExpr instanceof VariableRefExpr)) {
-                    String errMsg = getNodeLocationStr(location) +
-                            "a basic literal or a variable reference is allowed here";
-                    errorMsgs.add(errMsg);
                 }
             }
 
