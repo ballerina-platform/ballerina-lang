@@ -153,10 +153,10 @@ define(['lodash', './node'], function(_, ASTNode){
      * @param {Object} jsonNode to initialize from
      */
     ConnectorDeclaration.prototype.initFromJson = function (jsonNode) {
-        this._connectorName = jsonNode.connector_name;
-        this._connectorPkgName = jsonNode.connector_pkg_name;
-        this._connectorVariable = jsonNode.connector_variable;
-        this.setConnectorType('ConnectorDeclaration');
+        this.setConnectorName(jsonNode.connector_name, {doSilently: true});
+        this.setConnectorPkgName(jsonNode.connector_pkg_name, {doSilently: true});
+        this.setConnectorVariable(jsonNode.connector_variable, {doSilently: true});
+        this.setConnectorType('ConnectorDeclaration', {doSilently: true});
         var self = this;
         self._arguments = [];
         if (!_.isUndefined(jsonNode.children[0])) {
