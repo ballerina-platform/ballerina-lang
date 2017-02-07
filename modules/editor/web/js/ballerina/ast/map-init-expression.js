@@ -50,14 +50,16 @@ define(['lodash', './expression'], function (_, Expression) {
 
         for (var itr = 0; itr < jsonNode.children.length; itr++) {
             var childJsonNode = jsonNode.children[itr];
+            var key = childJsonNode.key;
+            var valueExpression = childJsonNode.expression[0];
             //Adding double quotes to key
             indexString += "\"" + childJsonNode.key + "\"" + ":";
-            if (childJsonNode.expression[0].type == "basic_literal_expression") {
-                if(childJsonNode.expression[0].basic_literal_type == "string") {
+            if (valueExpression.type == "basic_literal_expression") {
+                if(valueExpression.basic_literal_type == "string") {
                     // Adding double quotes if it is a string.
-                    indexString += "\"" + childJsonNode.expression[0].basic_literal_value + "\"";
+                    indexString += "\"" + valueExpression.basic_literal_value + "\"";
                 } else {
-                    indexString += childJsonNode.expression[0].basic_literal_value;
+                    indexString += valueExpression.basic_literal_value;
                 }
             }
             indexString += ",";
