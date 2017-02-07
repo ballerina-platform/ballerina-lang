@@ -81,35 +81,31 @@ public class SwaggerResourceMapper {
     protected Map<String, Path> convertResourcesToOperations(Resource[] resources) {
         Map<String, Path> map = new ConcurrentHashMap<>();
         for (Resource subResource : resources) {
-            OperationAdaptor operation = convertResourceToOperation(subResource);
-            Path path = map.get(operation.getPath());
+            OperationAdaptor operationAdaptor = convertResourceToOperation(subResource);
+            Path path = map.get(operationAdaptor.getPath());
             //TODO this check need to be improve to avoid repetition checks and http head support need to add.
             if (path == null) {
-                Path newPath = new Path();
-                map.put(operation.getPath(), newPath);
+                path = new Path();
+                map.put(operationAdaptor.getPath(), path);
             }
-            if (operation.getHttpOperation().equalsIgnoreCase(Constants.ANNOTATION_METHOD_GET)) {
-                map.get(operation.getPath()).get(operation.getOperation());
-            }
-            if (operation.getHttpOperation().equalsIgnoreCase(Constants.ANNOTATION_METHOD_PUT)) {
-                map.get(operation.getPath()).put(operation.getOperation());
-            }
-            if (operation.getHttpOperation().equalsIgnoreCase(Constants.ANNOTATION_METHOD_POST)) {
-                map.get(operation.getPath()).post((operation.getOperation()));
-            }
-            if (operation.getHttpOperation().equalsIgnoreCase(Constants.ANNOTATION_METHOD_DELETE)) {
-                map.get(operation.getPath()).delete(operation.getOperation());
-            }
-            if (operation.getHttpOperation().equalsIgnoreCase(Constants.ANNOTATION_METHOD_OPTIONS)) {
-                map.get(operation.getPath()).options(operation.getOperation());
-            }
-            if (operation.getHttpOperation().equalsIgnoreCase(Constants.ANNOTATION_METHOD_PATCH)) {
-                map.get(operation.getPath()).patch(operation.getOperation());
+            String httpOperation = operationAdaptor.getHttpOperation();
+            Operation operation = operationAdaptor.getOperation();
+            if (Constants.ANNOTATION_METHOD_GET.equalsIgnoreCase(httpOperation)) {
+                path.get(operation);
+            } else if (Constants.ANNOTATION_METHOD_PUT.equalsIgnoreCase(httpOperation)) {
+                path.put(operation);
+            } else if (Constants.ANNOTATION_METHOD_POST.equalsIgnoreCase(httpOperation)) {
+                path.post(operation);
+            } else if (Constants.ANNOTATION_METHOD_DELETE.equalsIgnoreCase(httpOperation)) {
+                path.delete(operation);
+            } else if (Constants.ANNOTATION_METHOD_OPTIONS.equalsIgnoreCase(httpOperation)) {
+                path.options(operation);
+            } else if (Constants.ANNOTATION_METHOD_PATCH.equalsIgnoreCase(httpOperation)) {
+                path.patch(operation);
             }
         }
         return map;
     }
-
 
     /**
      * Converts operation into a resource.
