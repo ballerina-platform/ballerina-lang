@@ -21,6 +21,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.interpreter.SymScope;
+import org.wso2.ballerina.core.message.StringDataSource;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.values.BJSON;
@@ -33,6 +34,7 @@ import org.wso2.ballerina.nativeimpl.util.Functions;
 import org.wso2.ballerina.nativeimpl.util.ParserUtils;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Header;
+import org.wso2.carbon.messaging.MessageDataSource;
 
 import java.util.List;
 
@@ -73,10 +75,10 @@ public class MessageTest {
         BValue[] args = {new BMessage(carbonMsg), new BJSON(payload)};
         BValue[] returns = Functions.invoke(bFile, "testSetJSONPayload", args);
 
-        BValue newPayload = ((BMessage) returns[0]).getBuiltPayload();
+        MessageDataSource newPayload = ((BMessage) returns[0]).getMessageDataSource();
         Assert.assertTrue(newPayload instanceof BJSON);
 
-        String value = newPayload.stringValue();
+        String value = newPayload.toString();
         Assert.assertEquals(value, payload);
     }
 
@@ -118,10 +120,10 @@ public class MessageTest {
         BValue[] args = {new BMessage(carbonMsg)};
         BValue[] returns = Functions.invoke(bFile, "testGetStringPayload", args);
 
-        BValue newPayload = ((BMessage) returns[0]).getBuiltPayload();
-        Assert.assertTrue(newPayload instanceof BString);
+        MessageDataSource newPayload = ((BMessage) returns[0]).getMessageDataSource();
+        Assert.assertTrue(newPayload instanceof StringDataSource);
 
-        String value = newPayload.stringValue();
+        String value = newPayload.getMessageAsString();
         Assert.assertEquals(value, payload);
     }
 
@@ -132,10 +134,10 @@ public class MessageTest {
         BValue[] args = {new BMessage(carbonMsg), new BString(payload)};
         BValue[] returns = Functions.invoke(bFile, "testSetStringPayload", args);
 
-        BValue newPayload = ((BMessage) returns[0]).getBuiltPayload();
-        Assert.assertTrue(newPayload instanceof BString);
+        MessageDataSource newPayload = ((BMessage) returns[0]).getMessageDataSource();
+        Assert.assertTrue(newPayload instanceof StringDataSource);
 
-        String value = newPayload.stringValue();
+        String value = newPayload.getMessageAsString();
         Assert.assertEquals(value, payload);
     }
 
