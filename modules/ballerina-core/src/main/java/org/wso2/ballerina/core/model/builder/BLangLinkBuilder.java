@@ -173,7 +173,7 @@ public class BLangLinkBuilder implements NodeVisitor {
     private boolean nonblockingEnabled = false;
 
     // Iterate/While Statement stack related to break.
-    private Stack<IfElseNode> loopingStack;
+    private Stack<WhileStmt> loopingStack;
     // Function/Action Statement stack related to break.
     private Stack<BlockStmt> returningBlockStmtStack;
     private Stack<OffSetCounter> offSetCounterStack;
@@ -543,26 +543,26 @@ public class BLangLinkBuilder implements NodeVisitor {
     public void visit(WhileStmt whileStmt) {
         offSetCounterStack.peek().reset();
         // While Stmt is modeled using ifElseBranch, where next is pointing to it self.
-        // WhileStmt -> condition -> branch: IfElseNode (true) -> whileBlock -> branch: IfElseNode (goes loop)
+        // WhileStmt -> condition -> ifElseNode: IfElseNode (true) -> whileBlock -> ifElseNode: IfElseNode (goes loop)
         //                                              (false)->  whileStmt.nextSibling. -> ...
         Expression condition = whileStmt.getCondition();
         whileStmt.setNext(condition);
-        IfElseNode branch = new IfElseNode(condition);
+        IfElseNode ifElseNode = new IfElseNode(condition);
         condition.setParent(whileStmt);
-        condition.setNextSibling(branch);
+        condition.setNextSibling(ifElseNode);
 
         condition.accept(this);
 
         BlockStmt blockStmt = whileStmt.getBody();
 
-        branch.setNext(blockStmt);
-        branch.setNextIfFalse(findNext(whileStmt));
-        branch.setParent(whileStmt);
+        ifElseNode.setNext(blockStmt);
+        ifElseNode.setNextIfFalse(findNext(whileStmt));
+        ifElseNode.setParent(whileStmt);
         // After Block statement, it will redirect back to the condition. Act as a loop.
-        branch.setNextSibling(condition);
-        blockStmt.setParent(branch);
+        ifElseNode.setNextSibling(condition);
+        blockStmt.setParent(ifElseNode);
 
-        loopingStack.push(branch);
+        loopingStack.push(whileStmt);
         blockStmt.accept(this);
         loopingStack.pop();
     }
@@ -572,8 +572,7 @@ public class BLangLinkBuilder implements NodeVisitor {
         offSetCounterStack.peek().reset();
         // BreakStmt has to link with looping Statement's blockStmt.
         // Flow : BreakStmt -> LoopingStmt(i.e while).nextSibling -> ...
-        IfElseNode ifElseLink = loopingStack.peek();
-        breakStmt.setNext(findNext(ifElseLink));
+        breakStmt.setNext(findNext(loopingStack.peek()));
     }
 
     @Override
