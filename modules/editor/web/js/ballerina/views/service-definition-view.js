@@ -45,7 +45,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', '.
             //set initial height for the service container svg
             this._totalHeight = 170;
             //set initial connector margin for the service
-            this._lifelineMargin = new Axis(210, false);
+            this._lifelineMargin = new Axis(0, false);
 
             if (_.isNil(this._model) || !(this._model instanceof ServiceDefinition)) {
                 log.error("Service definition is undefined or is of different type." + this._model);
