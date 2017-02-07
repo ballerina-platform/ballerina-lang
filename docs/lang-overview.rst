@@ -137,12 +137,6 @@ In traditional programming languages, developers use commenting as a technique t
 Ballerina instead allows the developer (either visually or textually) to mark any statement or function, action, connector, resource, or service to be disabled by prefixing it with the ``!`` character. Disabling a construct does not prevent the language parser, type checker, and other validations; it simply stops that construct from being executed at runtime.
 
 -----------------
-Using annotations
------------------
-
-TODO
-
------------------
 Testing your code
 -----------------
 
