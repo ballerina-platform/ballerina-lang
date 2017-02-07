@@ -94,11 +94,6 @@ public class SwaggerConverterUtils {
         for (String path : paths.keySet()) {
             List<CodegenOperation> ops = paths.get(path);
             resources1 = mapSwaggerPathsToResources(ops);
-            /*for (CodegenOperation op : ops) {
-                opIds.add(op.operationId);
-                opIds.add(op.consumes.toString();
-
-            }*/
         }
         generator.generate();
         List<Annotation> serviceAnnotationArrayList = new ArrayList<Annotation>();
@@ -177,16 +172,9 @@ public class SwaggerConverterUtils {
             String httpMethodString;
             for (Map.Entry<HttpMethod, Operation> operationEntry : path.getOperationMap().entrySet()) {
                 Operation currentOperation = operationEntry.getValue();
-                //annotationMap.put("Consumes", new Annotation("Consumes", currentOperation.getConsumes().get(0)));
-                //annotationMap.put("Produces", new Annotation("Produces", currentOperation.getProduces().get(0)));
-                // annotationMap.put("Description", new Annotation("Description", currentOperation.getDescription()));
                 annotationMap.put(operationEntry.getKey().toString(),
                         new Annotation(operationEntry.getKey().toString()));
                 resource.setSymbolName(new SymbolName(operationEntry.getKey().name()));
-                //operation1.getExternalDocs();
-                //operation1.getOperationId();
-                //operation1.getResponses();
-                //operation1.getSummary();
             }
             resource.setAnnotations(annotationMap);
             resourceList.add(resource);
