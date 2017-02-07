@@ -87,6 +87,24 @@ public class Annotation implements Node {
         return keyValPairs.get(key);
     }
 
+    /**
+     * Get all element pairs defined with an annotation.
+     * @return all element paris with key-values.
+     */
+    public Map getElementPairs() {
+        return elementPair;
+    }
+
+    /**
+     * Get the value of the symbol in an annotation.
+     * @param symbolName key of the element
+     * @return value of the element
+     */
+    public String getValueOfElementPair(SymbolName symbolName) {
+        return elementPair.get(symbolName);
+    }
+
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
