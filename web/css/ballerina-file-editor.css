@@ -614,3 +614,12 @@
 .tooltip.bottom {
     margin-top: -3px;
 }
+
+.swaggerEditor{
+    height:91%;
+    width:100%;
+}
+
+.swaggerEditor .se-iframe{
+    border:0px;background: #4a4a4a;
+}

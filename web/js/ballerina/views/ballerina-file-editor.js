@@ -350,7 +350,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             });
             this._sourceView.render();
 
-            // container for per-tab source view TODO improve swagger view to wrap this logic
+            // container for per-tab swagger view TODO improve swagger view to wrap this logic
             var swaggerViewContainer = $(this._container).find(_.get(this._viewOptions, 'swagger_view.container'));
             var swaggerEditorContainer = $('<div></div>');
             swaggerViewContainer.append(swaggerEditorContainer);
