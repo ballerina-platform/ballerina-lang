@@ -49,10 +49,14 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
             this._constantDefinitionsButton = $("<div class='constants-btn'></div>")
                 .appendTo(this._paneAppendElement);
 
-            $("<span class='fw-stack fw-lg' data-toggle='tooltip' title='Constants' data-placement='bottom'>" +
-                " <i class='fw fw-circle fw-stack-2x'></i>" +
-                "<i class='fw fw-constant fw-stack-1x fw-inverse'></i> </span>")
+            $("<span class='' data-toggle='tooltip' title='Constants' data-placement='bottom'>" +
+                " Const. </span>")
                 .appendTo(this._constantDefinitionsButton).tooltip();
+
+            //$("<span class='fw-stack fw-lg' data-toggle='tooltip' title='Constants' data-placement='bottom'>" +
+            //    " <i class='fw fw-circle fw-stack-2x'></i>" +
+            //    "<i class='fw fw-constant fw-stack-1x fw-inverse'></i> </span>")
+            //    .appendTo(this._constantDefinitionsButton).tooltip();
 
             this._constantsDefinitionsMainWrapper = $("<div class='constants-pane'/>").appendTo(this._paneAppendElement);
 
@@ -68,8 +72,7 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
             // Creating add constant editor button.
             var addConstantButton = $("<div class='action-icon-wrapper constant-add-icon-wrapper'/>")
                 .appendTo(constantsActionWrapper);
-            $("<span class='fw-stack fw-lg'><i class='fw fw-square fw-stack-2x'></i>" +
-                "<i class='fw fw-add fw-stack-1x fw-inverse'></i></span>").appendTo(addConstantButton);
+            $("<i class='fw fw-add'></i>").appendTo(addConstantButton);
 
             var constantsAddPane = $("<div class='action-content-wrapper-heading constant-add-action-wrapper'/>")
                 .appendTo(constantsActionWrapper);
@@ -225,6 +228,7 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
 
             if (this._model.getConstantDefinitions().length == 0) {
                 collapserWrapper.hide();
+                self._constantsDefinitionsMainWrapper.css("width", "");
             } else {
                 collapserWrapper.show();
                 self._constantsDefinitionsMainWrapper.css("width", "92%");
