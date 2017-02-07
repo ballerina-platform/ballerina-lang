@@ -915,12 +915,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         linkAction(actionIExpr);
 
         //Find the return types of this function invocation expression.
-        ParameterDef[] returnParams = actionIExpr.getCallableUnit().getReturnParameters();
-        BType[] returnTypes = new BType[returnParams.length];
-        for (int i = 0; i < returnParams.length; i++) {
-            returnTypes[i] = returnParams[i].getType();
-        }
-        actionIExpr.setTypes(returnTypes);
+        BType[] returnParamTypes  = actionIExpr.getCallableUnit().getReturnParamTypes();
+        actionIExpr.setTypes(returnParamTypes);
     }
 
     @Override
