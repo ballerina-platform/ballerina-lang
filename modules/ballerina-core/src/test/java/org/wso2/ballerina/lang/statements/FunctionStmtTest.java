@@ -20,7 +20,6 @@ package org.wso2.ballerina.lang.statements;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
-import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.utils.ParserUtils;
@@ -38,8 +37,7 @@ public class FunctionStmtTest {
 
     @BeforeClass
     public void setup() {
-        SymScope globalScope = new SymScope(SymScope.Name.GLOBAL);
-        BallerinaFile bFile = ParserUtils.parseBalFile("lang/statements/function-stmt.bal", globalScope);
+        BallerinaFile bFile = ParserUtils.parseBalFile("lang/statements/function-stmt.bal");
         testHelloWorldPublic = Functions.getFunction(bFile, funcPublic);
         testHelloWorldPrivate = Functions.getFunction(bFile, funcPrivate);
     }

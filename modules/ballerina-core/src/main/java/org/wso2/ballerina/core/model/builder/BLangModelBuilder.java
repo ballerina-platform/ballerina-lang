@@ -740,7 +740,6 @@ public class BLangModelBuilder {
     public void addFunction(NodeLocation location, String name, boolean isPublic) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
-        currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setPublic(isPublic);
 
         List<Annotation> annotationList = annotationListStack.pop();
@@ -1083,8 +1082,6 @@ public class BLangModelBuilder {
         if (importPkg != null) {
             importPkg.markUsed();
             cIExprBuilder.setPkgPath(importPkg.getPath());
-        } else {
-            cIExprBuilder.setPkgPath(currentPackagePath);
         }
 
         cIExprBuilder.setName(callableUnitName.name);
