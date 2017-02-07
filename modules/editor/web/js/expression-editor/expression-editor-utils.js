@@ -29,7 +29,7 @@ define(['require', 'lodash', 'jquery'], function (require, _, $) {
         $(propertyInputValue).css("width", ((propertyValue.length + 1) * widthMultiFactor) + "px");
         $(propertyInputValue).on("change paste keyup", function () {
             $(this).css("width", (($(this).val().length + 1) * widthMultiFactor) + "px");
-            property.setterMethod.call(property.model, $(this).val());
+            // Do not set the value to the model directly, instead fire the event.
             property.model.trigger('update-property-text', $(this).val(), property.key);
         });
     };
