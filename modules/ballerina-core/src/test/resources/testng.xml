@@ -48,7 +48,7 @@ under the License.
     <test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">
         <packages>
             <package name="org.wso2.ballerina.core.nativeimpl.functions" />
-            <package name="org.wso2.ballerina.core.nativeimpl.lang" />
+            <package name="org.wso2.ballerina.core.nativeimpl.lang.xml" />
         </packages>
     </test>
 
