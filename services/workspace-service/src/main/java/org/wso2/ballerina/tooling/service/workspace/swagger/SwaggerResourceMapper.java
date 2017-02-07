@@ -30,12 +30,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * This class will do resource mapping from ballerina to swagger.
  */
 public class SwaggerResourceMapper {
-    private Resource resource;
-    private Operation operation;
-
     private final static String HTTP_VERB_MATCHING_PATTERN = "(?i)|" + Constants.ANNOTATION_METHOD_GET + "|" +
             Constants.ANNOTATION_METHOD_PUT + "|" + Constants.ANNOTATION_METHOD_POST + "|" +
             Constants.ANNOTATION_METHOD_DELETE + "|" + Constants.ANNOTATION_METHOD_OPTIONS;
+    private Resource resource;
+    private Operation operation;
 
     /**
      * Get Swagger operation object associated with current resource
@@ -112,10 +111,9 @@ public class SwaggerResourceMapper {
     }
 
 
-
-
     /**
      * TODO need to implement
+     *
      * @param pathMap
      * @return
      */
@@ -144,7 +142,7 @@ public class SwaggerResourceMapper {
             String path = "/";
             op.setPath(path);
             Map<String, Annotation> annotationMap = resource.getAnnotationMap();
-            if(annotationMap!=null) {
+            if (annotationMap != null) {
                 for (Map.Entry<String, Annotation> operationEntry : annotationMap.entrySet()) {
                     if (operationEntry.getKey().matches(HTTP_VERB_MATCHING_PATTERN)) {
                         op.setHttpOperation(operationEntry.getKey());
@@ -152,7 +150,7 @@ public class SwaggerResourceMapper {
 
                 }
             }
-            if(resourceAnnotations!=null) {
+            if (resourceAnnotations != null) {
                 //TODO add all supported annotation mapping after annotation model finalized.
                 for (Annotation annotation : resourceAnnotations) {
                     if (annotation.getName().equalsIgnoreCase("Consumes")) {

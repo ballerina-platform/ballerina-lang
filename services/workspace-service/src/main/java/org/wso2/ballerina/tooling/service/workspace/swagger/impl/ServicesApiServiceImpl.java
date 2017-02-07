@@ -62,13 +62,17 @@ public class ServicesApiServiceImpl {
     @Consumes({"application/json"})
     @Produces({"application/json"})
     @io.swagger.annotations.ApiOperation(value =
-            "Convert swagger to ballerina service definitions",
-            notes = "This operation can be used to convert service definitions between ballerina and swagger ",
-            response = void.class, tags = {"swagger",})
+                                                 "Convert swagger to ballerina service definitions",
+                                         notes = "This operation can be used to convert service definitions between " +
+                                                 "ballerina and swagger ",
+                                         response = void.class, tags = {"swagger",})
     @io.swagger.annotations.ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 200,
-                    message = "Created.  Successful response with the newly created API as entity in the body. " +
-                            "Location header contains URL of newly created API. ", response = void.class)})
+                                                message =
+                                                        "Created.  Successful response with the newly created API as " +
+                                                                "entity in the body. " +
+                                                                "Location header contains URL of newly created API. ",
+                                                response = void.class)})
     public Response servicesConvertSwaggerPost(@ApiParam(value = "Type to be convert", required = true)
                                                @QueryParam("expectedType") String expectedType
             , @ApiParam(value = "Service definition to be convert ", required = true) Service serviceDefinition)
@@ -84,7 +88,7 @@ public class ServicesApiServiceImpl {
                 serviceDefinition.
                         setBallerinaDefinition(generateBallerinaDataModel(swaggerDefinition, ballerinaDefinition));
             }
-                return Response.ok().entity(serviceDefinition).header("Access-Control-Allow-Origin", '*').build();
+            return Response.ok().entity(serviceDefinition).header("Access-Control-Allow-Origin", '*').build();
         } catch (IOException ex) {
             logger.error("Error while processing service definition at converter service" + ex.getMessage());
             JsonObject entity = new JsonObject();
@@ -101,8 +105,9 @@ public class ServicesApiServiceImpl {
     @Consumes({"application/json"})
     @Produces({"application/json"})
     @io.swagger.annotations.ApiOperation(value = "Convert swagger to ballerina service definitions",
-            notes = "This operation can be used to convert service definitions between ballerina and swagger ",
-            response = void.class, tags = {"swagger",})
+                                         notes = "This operation can be used to convert service definitions between " +
+                                                 "ballerina and swagger ",
+                                         response = void.class, tags = {"swagger",})
     @io.swagger.annotations.ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 200, message = "Created.  " +
                     "Successful response with ballerina JSON representation. " +
@@ -147,7 +152,7 @@ public class ServicesApiServiceImpl {
         return sendCORSHeaders();
     }
 
-    private Response sendCORSHeaders(){
+    private Response sendCORSHeaders() {
         return Response.ok()
                 .header(ACCESS_CONTROL_ALLOW_ORIGIN_NAME, ACCESS_CONTROL_ALLOW_ORIGIN_VALUE)
                 .header(ACCESS_CONTROL_ALLOW_HEADERS_NAME, ACCESS_CONTROL_ALLOW_HEADERS_VALUE)
@@ -157,8 +162,8 @@ public class ServicesApiServiceImpl {
     }
 
     /**
-     * This method will convert ballerina definition to swagger string. Since swagger is subset of ballerina
-     * definition we can implement converter logic without data loss.
+     * This method will convert ballerina definition to swagger string. Since swagger is subset of ballerina definition
+     * we can implement converter logic without data loss.
      *
      * @param ballerinaDefinition String ballerina config to be processed as ballerina service definition
      * @return swagger data model generated from ballerina definition
@@ -181,9 +186,9 @@ public class ServicesApiServiceImpl {
     }
 
     /**
-     * This method will generate ballerina string from swagger definition. Since ballerina service definition
-     * is super set of swagger definition we will take both swagger and ballerina definition and merge swagger
-     * changes to ballerina definition selectively to prevent data loss
+     * This method will generate ballerina string from swagger definition. Since ballerina service definition is super
+     * set of swagger definition we will take both swagger and ballerina definition and merge swagger changes to
+     * ballerina definition selectively to prevent data loss
      *
      * @param swaggerDefinition   @String swagger definition to be processed as swagger
      * @param ballerinaDefinition @String ballerina definition to be process as ballerina definition
