@@ -25,7 +25,6 @@ import org.ballerinalang.launcher.LauncherUtils;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Test command for ballerina launcher
@@ -33,10 +32,9 @@ import java.util.logging.Logger;
 @Parameters(commandNames = "test", commandDescription = "test Ballerina program")
 public class TestCmd implements BLauncherCmd {
 
-    Logger logger = Logger.getLogger("TestCmd");
-
     @Parameter(arity = 1, description = "arguments")
     private List<String> argList;
+    TestRunner testRunner = new TestRunner();
 
     public void execute() {
         if (argList == null || argList.size() == 0) {
@@ -45,7 +43,7 @@ public class TestCmd implements BLauncherCmd {
 
         Path p = Paths.get(argList.get(0));
         p = p.toAbsolutePath();
-        //BMainRunner.runMain(p);
+        testRunner.runMain(p);
     }
 
     @Override

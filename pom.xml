@@ -35,9 +35,9 @@
     <url>http://wso2.org</url>
 
     <scm>
-        <url>https://github.com/wso2/testerina.git</url>
-        <developerConnection>scm:git:https://github.com/wso2/testerina.git</developerConnection>
-        <connection>scm:git:https://github.com/wso2/testerina.git</connection>
+        <url>https://github.com/ballerinalang/testerina.git</url>
+        <developerConnection>scm:git:https://github.com/ballerinalang/testerina.git</developerConnection>
+        <connection>scm:git:https://github.com/ballerinalang/testerina.git</connection>
         <tag>HEAD</tag>
     </scm>
 
@@ -49,12 +49,36 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>${owasp.dependency.check.maven.version}</version>
+                <configuration>
+                    <cveValidForHours>12</cveValidForHours>
+                    <failBuildOnCVSS>4</failBuildOnCVSS>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
     <properties>
+
+        <ballerina.core.version>0.8.0-SNAPSHOT</ballerina.core.version>
+
+        <ballerina.launcher.version>0.8.0-SNAPSHOT</ballerina.launcher.version>
+        <com.beust.jcommander.version>1.60</com.beust.jcommander.version>
+
         <testerina.version>0.8.0-SNAPSHOT</testerina.version>
         <testerina.package.export.version>0.8.0</testerina.package.export.version>
+
+        <owasp.dependency.check.maven.version>1.4.5</owasp.dependency.check.maven.version>
 
     </properties>
 

@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.testerina.core.entity;
 
-import org.wso2.ballerina.core.exception.AssertionException;
+import org.ballerinalang.testerina.core.langutils.Functions;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.lang.util.Functions;
 
 /**
  * TesterinaFunction entity class
@@ -55,7 +55,7 @@ public class TesterinaFunction {
         this.tFile = tFile;
     }
 
-    public BValue[] invoke() throws AssertionException {
+    public BValue[] invoke() throws BallerinaException {
         return Functions.invoke(this.tFile.getBFile(), this.name);
     }
 
