@@ -1,24 +1,24 @@
 package samples.struct.test;
 
-public type Department {
+type Department {
     string dptName;
     Person[] employees;
 }
 
-public type Person {
+type Person {
     string name;
     map adrs;
     int age;
     Family family;
 }
 
-public type Family {
+type Family {
     string spouse;
     int noOfChildren;
     string[] children;
 }
 
-public function testCreateStruct() (string, map, int){
+function testCreateStruct() (string, map, int){
     Person emp;
     emp = new Person;
     emp.name = "Jack";
@@ -27,7 +27,7 @@ public function testCreateStruct() (string, map, int){
     return emp.name, emp.adrs, emp.age;
 }
 
-public function testStructOfStruct() (string) {
+function testStructOfStruct() (string) {
 
     string country;
     Department dpt;
@@ -46,7 +46,7 @@ public function testStructOfStruct() (string) {
     return country;
 }
 
-public function testReturnStructAttributes () (string) {
+function testReturnStructAttributes () (string) {
     string country;
     Department dpt;
     Person emp1;
@@ -68,27 +68,27 @@ public function testReturnStructAttributes () (string) {
 }
 
 
-public function testGetNonInitAttribute() (string) {
+function testGetNonInitAttribute() (string) {
     Department dpt;
     return dpt.employees[0].family.children[0];
 }
 
-public function testGetNonInitLastAttribute() (Person) {
+function testGetNonInitLastAttribute() (Person) {
     Department dpt;
     return dpt.employees[0];
 }
 
-public function testSetNonInitAttribute() {
+function testSetNonInitAttribute() {
     Person person;
     person.family.spouse = "Jane";
 }
 
-public function testSetNonInitLastAttribute() {
+function testSetNonInitLastAttribute() {
     Department dpt;
     dpt.dptName = "HR";
 }
 
-public function testExpressionAsIndex() (string) {
+function testExpressionAsIndex() (string) {
     Family family;
     int a;
     int b;
@@ -121,7 +121,7 @@ function testAction1() (string) {
     return person.name;
 }
 
-public function testStructExpressionAsIndex() (string) {
+function testStructExpressionAsIndex() (string) {
     string country;
     Department dpt;
     Person emp1;

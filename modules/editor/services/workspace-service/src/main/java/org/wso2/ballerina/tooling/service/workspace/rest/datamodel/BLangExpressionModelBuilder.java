@@ -40,31 +40,6 @@ import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.Worker;
-import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
-import org.wso2.ballerina.core.model.expressions.AddExpression;
-import org.wso2.ballerina.core.model.expressions.AndExpression;
-import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
-import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
-import org.wso2.ballerina.core.model.expressions.BacktickExpr;
-import org.wso2.ballerina.core.model.expressions.BasicLiteral;
-import org.wso2.ballerina.core.model.expressions.DivideExpr;
-import org.wso2.ballerina.core.model.expressions.EqualExpression;
-import org.wso2.ballerina.core.model.expressions.Expression;
-import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
-import org.wso2.ballerina.core.model.expressions.GreaterEqualExpression;
-import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
-import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
-import org.wso2.ballerina.core.model.expressions.MapStructInitKeyValueExpr;
-import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
-import org.wso2.ballerina.core.model.expressions.LessThanExpression;
-import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
-import org.wso2.ballerina.core.model.expressions.MultExpression;
-import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
-import org.wso2.ballerina.core.model.expressions.OrExpression;
-import org.wso2.ballerina.core.model.expressions.SubtractExpression;
-import org.wso2.ballerina.core.model.expressions.TypeCastExpression;
-import org.wso2.ballerina.core.model.expressions.UnaryExpression;
-import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
@@ -640,6 +615,11 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     @Override
     public void visit(StructFieldAccessExpr structFieldAccessExpr) {
         //TODO
+    }
+
+    @Override
+    public void visit(ModExpression modExpression) {
+        
     }
 
 }

@@ -29,7 +29,6 @@ import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
-import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.TypeConvertor;
@@ -704,12 +703,12 @@ public class BLangExecutor implements NodeExecutor {
                 }
 
                 // Populate all connector declarations
-                offset = populateConnectorDclValues(connectorDef.getConnectorDcls(), connectorMemBlock, offset);
-
-                for (VariableDef variableDef : connectorDef.getVariableDefs()) {
-                    connectorMemBlock[offset] = variableDef.getType().getDefaultValue();
-                    offset++;
-                }
+//                offset = populateConnectorDclValues(connectorDef.getConnectorDcls(), connectorMemBlock, offset);
+//
+//                for (VariableDef variableDef : connectorDef.getVariableDefs()) {
+//                    connectorMemBlock[offset] = variableDef.getType().getDefaultValue();
+//                    offset++;
+//                }
             }
 
             BConnector connectorValue = new BConnector(connector, connectorMemBlock);
@@ -771,11 +770,13 @@ public class BLangExecutor implements NodeExecutor {
      */
     @Override
     public BValue visit(StructInitExpr structInitExpr) {
-        StructDcl structDcl = structInitExpr.getStructDcl();
+        StructDef structDef = (StructDef) structInitExpr.getType();
         BValue[] structMemBlock;
         int offset = 0;
-        StructDef structDef = structDcl.getStructDef();
         structMemBlock = new BValue[structDef.getStructMemorySize()];
+
+        Expression[] argExpr = structInitExpr.getArgExprs();
+
 
         // create a memory block to hold field of the struct, and populate it with default values
         VariableDef[] fields = structDef.getFields();

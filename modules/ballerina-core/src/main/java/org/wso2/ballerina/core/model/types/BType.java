@@ -39,6 +39,10 @@ public abstract class BType implements BLangSymbol {
     protected SymbolScope symbolScope;
     protected Class<? extends BValue> valueClass;
 
+    protected BType(SymbolScope symbolScope) {
+        this.symbolScope = symbolScope;
+    }
+
     protected BType(String typeName, String pkgPath, SymbolScope symbolScope, Class<? extends BValue> valueClass) {
         this.typeName = typeName;
         this.pkgPath = pkgPath;

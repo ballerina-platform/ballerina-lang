@@ -43,7 +43,16 @@ resourceDefinition
     ;
 
 functionDefinition
-    :   annotation* 'public'? 'native'? 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? functionBody
+    :   nativeFunction
+    |   function
+    ;
+
+nativeFunction
+    :   'native' 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? ';'
+    ;
+
+function
+    :   annotation* 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? functionBody
     ;
 
 //todo rename, this is used in resource, action and funtion
@@ -52,19 +61,36 @@ functionBody
     ;
 
 connectorDefinition
-    :   annotation* 'public'? 'connector' Identifier '(' parameterList ')' connectorBody
+    :   nativeConnector
+    |   connector
+    ;
+
+nativeConnector
+    :   'native' 'connector' Identifier '(' parameterList ')' nativeConnectorBody
+    ;
+
+nativeConnectorBody
+    :   '{' nativeAction+ '}'
+    ;
+
+connector
+    :   annotation* 'connector' Identifier '(' parameterList ')' connectorBody
     ;
 
 connectorBody
-    :   '{' variableDefinitionStatement* actionDefinition+ '}'
+    :   '{' variableDefinitionStatement* action+ '}'
     ;
 
-actionDefinition
+nativeAction
+    :   'native' 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? ';'
+    ;
+
+action
     :   annotation* 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? functionBody
     ;
 
 structDefinition
-    :   'public'? 'struct' Identifier structDefinitionBody
+    :   annotation* 'struct' Identifier structDefinitionBody
     ;
 
 structDefinitionBody
@@ -85,7 +111,7 @@ typeConvertorBody
     ;
 
 constantDefinition
-    :   'public'? 'const' typeName Identifier '=' literalValue ';'
+    :   'const' typeName Identifier '=' literalValue ';'
     ;
 
 // cannot have conector declaration, need to validate at semantic analyzing
@@ -399,22 +425,15 @@ expression
     |   functionName argumentList                       # functionInvocationExpression
     |   actionInvocation argumentList                   # actionInvocationExpression
     |   '(' typeName ')' expression                     # typeCastingExpression
-    |   ('+'|'-'|'!') expression                        # unaryExpression
+    |   ('+' | '-' | '!') expression                    # unaryExpression
     |   '(' expression ')'                              # bracedExpression
     |   expression '^' expression                       # binaryPowExpression
-    |   expression '/' expression                       # binaryDivisionExpression
-    |   expression '*' expression                       # binaryMultiplicationExpression
-    |   expression '%' expression                       # binaryModExpression
+    |   expression ('/' | '*' | '%') expression         # binaryDivMulModExpression
+    |   expression ('+' | '-') expression               # binaryAddSubExpression
+    |   expression ('<=' | '>=' | '>' | '<') expression # binaryCompareExpression
+    |   expression ('==' | '!=') expression             # binaryEqualExpression
     |   expression '&&' expression                      # binaryAndExpression
-    |   expression '+' expression                       # binaryAddExpression
-    |   expression '-' expression                       # binarySubExpression
     |   expression '||' expression                      # binaryOrExpression
-    |   expression '>' expression                       # binaryGTExpression
-    |   expression '>=' expression                      # binaryGEExpression
-    |   expression '<' expression                       # binaryLTExpression
-    |   expression '<=' expression                      # binaryLEExpression
-    |   expression '==' expression                      # binaryEqualExpression
-    |   expression '!=' expression                      # binaryNotEqualExpression
     |   '[]'                                            # arrayInitExpression
     |   '[' expressionList ']'                          # arrayInitExpression // couldn't match empty array with:  '[' expressionList? ']' hence writing in two branches
     |   '{' mapStructInitKeyValueList? '}'              # refTypeInitExpression
@@ -450,7 +469,6 @@ ITERATE         : 'iterate';
 JOIN            : 'join';
 NULL            : 'null';
 PACKAGE         : 'package';
-PUBLIC          : 'public';
 REPLY           : 'reply';
 RESOURCE        : 'resource';
 RETURN          : 'return';

@@ -84,13 +84,11 @@ public class Functions {
             VariableRefExpr variableRefExpr = new VariableRefExpr(function.getNodeLocation(),
                     new SymbolName("arg" + i));
 
-            /*LocalVarLocation location = new LocalVarLocation(i);
-            variableRefExpr.setMemoryLocation(location);*/
-            // TODO Set the type
-//            variableRefExpr.setType();
             variableRefExpr.setVariableDef(function.getParameterDefs()[i]);
             StackVarLocation location = new StackVarLocation(i);
             variableRefExpr.setMemoryLocation(location);
+            // TODO Set the type
+            // variableRefExpr.setType();
             exprs[i] = variableRefExpr;
         }
 

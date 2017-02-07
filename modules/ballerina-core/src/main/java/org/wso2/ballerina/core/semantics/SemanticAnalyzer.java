@@ -41,7 +41,6 @@ import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NativeUnit;
-import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.ParameterDef;
@@ -78,6 +77,7 @@ import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
 import org.wso2.ballerina.core.model.expressions.LessThanExpression;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MapStructInitKeyValueExpr;
+import org.wso2.ballerina.core.model.expressions.ModExpression;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
@@ -108,7 +108,6 @@ import org.wso2.ballerina.core.model.types.BConnectorType;
 import org.wso2.ballerina.core.model.types.BJSONType;
 import org.wso2.ballerina.core.model.types.BMapType;
 import org.wso2.ballerina.core.model.types.BMessageType;
-import org.wso2.ballerina.core.model.types.BStructType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.types.BXMLType;
@@ -167,6 +166,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         defineFunctions(bFile.getFunctions());
         packageTypeLattice = bFile.getTypeLattice();
+        resolveStructFieldTypes(bFile.getStructDefs());
 //        defineConnectors(bFile.getConnectors());
 
 //        bFile.getConnectorList().forEach(connector -> {
@@ -446,6 +446,17 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
+    public void visit(StructDef structDef) {
+        for (VariableDef field : structDef.getFields()) {
+            MemoryLocation location = new StructVarLocation(++structMemAddrOffset);
+            field.setMemoryLocation(location);
+        }
+
+        structDef.setStructMemorySize(structMemAddrOffset + 1);
+        structMemAddrOffset = -1;
+    }
+
+    @Override
     public void visit(Worker worker) {
 
     }
@@ -463,27 +474,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(VariableDef varDef) {
-    }
-
-    /**
-     * Check whether the Type is a valid one.
-     * A valid type can be either a primitive type, or a user defined type.
-     *
-     * @param type         type name
-     * @param nodeLocation source location
-     */
-    private void validateType(BType type, NodeLocation nodeLocation) {
-        if (type instanceof BArrayType) {
-            type = ((BArrayType) type).getElementType();
-        }
-        if (type instanceof BStructType) {
-            // If the type of the variable is a user defined type, then check whether the
-            // type is defined.
-            Symbol structSymbol = symbolTable.lookup(new SymbolName(type.toString()));
-            if (structSymbol == null) {
-                throw new SemanticException(getNodeLocationStr(nodeLocation) + "type '" + type + "' is undefined.");
-            }
-        }
     }
 
     @Override
@@ -555,6 +545,16 @@ public class SemanticAnalyzer implements NodeVisitor {
         VariableDef varDef = varDefStmt.getVariableDef();
         BType varBType = BTypes.resolveType(varDef.getTypeName(), currentScope, varDef.getNodeLocation());
         varDef.setType(varBType);
+
+        // Check whether this variable is already defined, if not define it.
+        SymbolName symbolName = new SymbolName(varDef.getName());
+        BLangSymbol varSymbol = currentScope.resolve(symbolName);
+        if (varSymbol != null && varSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
+            String errMsg = getNodeLocationStr(varDefStmt.getNodeLocation()) +
+                    "redeclared symbol '" + varDef.getName() + "'";
+            throw new SemanticException(errMsg);
+        }
+        currentScope.define(symbolName, varDef);
 
         // Set memory location
         setMemoryLocation(varDef);
@@ -659,8 +659,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                 assignStmt.setRhsExpr(newExpr);
             } else {
                 throw new SemanticException(lExpr.getNodeLocation().getFileName() + ":"
-                        + lExpr.getNodeLocation().getLineNumber() + ": incompatible types: " + rExpr.getType() +
-                        " cannot be converted to " + lExpr.getType());
+                        + lExpr.getNodeLocation().getLineNumber() + ": incompatible types: '" + rExpr.getType() +
+                        "' cannot be converted to '" + lExpr.getType() + "'");
             }
         }
     }
@@ -907,6 +907,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         linkFunction(funcIExpr);
 
+        //Find the return types of this function invocation expression.
         BType[] returnParamTypes = funcIExpr.getCallableUnit().getReturnParamTypes();
         funcIExpr.setTypes(returnParamTypes);
     }
@@ -954,6 +955,27 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else {
             throwInvalidBinaryOpError(divideExpr);
+        }
+    }
+
+    @Override
+    public void visit(ModExpression modExpression) {
+        BType arithmeticExprType = verifyBinaryArithmeticExprType(modExpression);
+
+        if (arithmeticExprType == BTypes.typeInt) {
+            modExpression.setEvalFunc(ModExpression.MOD_INT_FUNC);
+
+        } else if (arithmeticExprType == BTypes.typeFloat) {
+            modExpression.setEvalFunc(ModExpression.MOD_FLOAT_FUNC);
+
+        } else if (arithmeticExprType == BTypes.typeDouble) {
+            modExpression.setEvalFunc(ModExpression.MOD_DOUBLE_FUNC);
+
+        } else if (arithmeticExprType == BTypes.typeLong) {
+            modExpression.setEvalFunc(ModExpression.MOD_LONG_FUNC);
+
+        } else {
+            throwInvalidBinaryOpError(modExpression);
         }
     }
 
@@ -1255,11 +1277,42 @@ public class SemanticAnalyzer implements NodeVisitor {
      */
     @Override
     public void visit(StructInitExpr structInitExpr) {
+        BType inheritedType = structInitExpr.getInheritedType();
+        structInitExpr.setType(inheritedType);
+        Expression[] argExprs = structInitExpr.getArgExprs();
+        if (argExprs.length == 0) {
+            return;
+        }
 
-        // TODO Improve this
-        // Struct type is not known at this stage
-        structInitExpr.setType(null);
-        visit(structInitExpr.getStructDcl());
+        StructDef structDef = (StructDef) inheritedType;
+        for (Expression argExpr : argExprs) {
+            MapStructInitKeyValueExpr keyValueExpr = (MapStructInitKeyValueExpr) argExpr;
+            Expression keyExpr = keyValueExpr.getKeyExpr();
+            if (!(keyExpr instanceof VariableRefExpr)) {
+                throw new SemanticException(getNodeLocationStr(keyExpr.getNodeLocation()) +
+                        "invalid field name in struct initializer");
+            }
+
+            VariableRefExpr varRefExpr = (VariableRefExpr) keyExpr;
+            VariableDef varDef = (VariableDef) structDef.resolveMembers(varRefExpr.getSymbolName());
+            if (varDef == null) {
+                throw new SemanticException(getNodeLocationStr(keyExpr.getNodeLocation()) +
+                        "unknown '" + structDef.getName() + "' field '" + varRefExpr.getVarName() + "' in struct");
+            }
+
+            Expression valueExpr = keyValueExpr.getValueExpr();
+            visitSingleValueExpr(valueExpr);
+
+            if (valueExpr.getType() != varDef.getType()) {
+                throw new SemanticException(getNodeLocationStr(keyExpr.getNodeLocation()) +
+                        "incompatible type: '" + varDef.getType() + "' expected, found '" + valueExpr.getType() + "'");
+            }
+        }
+
+//
+//        // Struct type is not known at this stage
+//        structInitExpr.setType(null);
+//        visit(structInitExpr.getStructDcl());
     }
 
     @Override
@@ -1430,8 +1483,8 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(MainInvoker mainInvoker) {
     }
 
-    // Private methods.
 
+    // Private methods.
 
     private void openScope(SymbolScope symbolScope) {
         currentScope = symbolScope;
@@ -1815,53 +1868,6 @@ public class SemanticAnalyzer implements NodeVisitor {
                 " not defined on '" + rExprType + "'");
     }
 
-    
-    /*
-     * Struct related methods
-     */
-
-    /**
-     * Visit and semantically analyze a ballerina Struct definition.
-     */
-    @Override
-    public void visit(StructDef structDef) {
-        String structName = structDef.getName();
-        String structStructPackage = structDef.getPackagePath();
-
-        for (VariableDef field : structDef.getFields()) {
-            structMemAddrOffset++;
-            BType type = field.getType();
-            validateType(type, field.getNodeLocation());
-
-            SymbolName fieldSym = LangModelUtils.getStructFieldSymName(field.getName(),
-                    structName, structStructPackage);
-            Symbol symbol = symbolTable.lookup(fieldSym);
-            if (symbol != null && isSymbolInCurrentScope(symbol)) {
-                throw new SemanticException(getNodeLocationStr(field.getNodeLocation()) + "duplicate field '" +
-                        fieldSym.getName() + "'.");
-            }
-            MemoryLocation location = new StructVarLocation(structMemAddrOffset);
-            symbol = new Symbol(type, currentScopeName(), location);
-            symbolTable.insert(fieldSym, symbol);
-        }
-
-        structDef.setStructMemorySize(structMemAddrOffset + 1);
-        structMemAddrOffset = -1;
-    }
-
-//    /**
-//     * Add the struct to the symbol table.
-//     *
-//     * @param structDef Ballerina struct
-//     */
-//    private void addStructSymbol(StructDef structDef) {
-//        if (symbolTable.lookup(structDef.getSymbolName()) != null) {
-//            throw new SemanticException(getNodeLocationStr(structDef.getNodeLocation()) +
-//                    "duplicate struct '" + structDef.getName() + "'");
-//        }
-//        Symbol symbol = new Symbol(structDef);
-//        symbolTable.insert(structDef.getSymbolName(), symbol);
-//    }
 
     /**
      * Visit and analyze allerina Struct declaration expression.
@@ -2121,6 +2127,16 @@ public class SemanticAnalyzer implements NodeVisitor {
                 returnTypes[i] = bType;
             }
             function.setReturnParamTypes(returnTypes);
+        }
+    }
+
+    private void resolveStructFieldTypes(StructDef[] structDefs) {
+        for (StructDef structDef : structDefs) {
+            for (VariableDef variableDef : structDef.getFields()) {
+                BType fieldType = BTypes.resolveType(variableDef.getTypeName(), currentScope,
+                        variableDef.getNodeLocation());
+                variableDef.setType(fieldType);
+            }
         }
     }
 }
