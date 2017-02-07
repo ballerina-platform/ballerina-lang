@@ -29,6 +29,7 @@ public enum Operator {
     MUL("*"),
     DIV("/"),
     MOD("%"),
+    POW("^"),
     AND("&&"),
     OR("||"),
     EQUAL("=="),

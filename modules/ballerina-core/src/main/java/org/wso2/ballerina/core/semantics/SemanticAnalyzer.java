@@ -80,6 +80,7 @@ import org.wso2.ballerina.core.model.expressions.ModExpression;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
+import org.wso2.ballerina.core.model.expressions.PowExpression;
 import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
 import org.wso2.ballerina.core.model.expressions.ReferenceExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
@@ -964,6 +965,27 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else {
             throwInvalidBinaryOpError(modExpression);
+        }
+    }
+
+    @Override
+    public void visit(PowExpression powExpression) {
+        BType arithmeticExprType = verifyBinaryArithmeticExprType(powExpression);
+
+        if (arithmeticExprType == BTypes.typeInt) {
+            powExpression.setEvalFunc(PowExpression.POW_INT_FUNC);
+
+        } else if (arithmeticExprType == BTypes.typeLong) {
+            powExpression.setEvalFunc(PowExpression.POW_LONG_FUNC);
+
+        } else if (arithmeticExprType == BTypes.typeFloat) {
+            throw new SemanticException("Error: operator ^ cannot be applied to type float");
+
+        } else if (arithmeticExprType == BTypes.typeDouble) {
+            throw new SemanticException("Error: operator ^ cannot be applied to type double");
+
+        } else {
+            throwInvalidBinaryOpError(powExpression);
         }
     }
 
