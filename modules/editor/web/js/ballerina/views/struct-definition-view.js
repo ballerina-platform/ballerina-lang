@@ -140,6 +140,13 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                     event.stopPropagation();
                     return false;
                 }
+            }).keydown(function(e){
+                var enteredKey = e.which || e.charCode || e.keyCode;
+
+                // If tab pressed.
+                if (e.shiftKey && _.isEqual(enteredKey, 9)) {
+                    typeDropdown.dropdownButton.trigger("click");
+                }
             }).appendTo(structOperationsWrapper);
 
             // Creating cancelling add new constant button.
