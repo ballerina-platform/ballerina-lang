@@ -85,8 +85,17 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             nodeFactoryMethod: BallerinaASTFactory.createStructDefinition
         };
 
+        var createTypeMapperDefTool = {
+            id: "typeMapper",
+            name: "Type Mapper",
+            icon: "images/tool-icons/type-converter.svg",
+            title: "Type Mapper",
+            nodeFactoryMethod: BallerinaASTFactory.createTypeMapperDefinition
+        };
+
         var mainToolDefArray = [createServiceDefTool, createResourceDefTool, createFunctionDefTool,
-            createMainFunctionDefTool, createConnectorDefTool, createConnectorActionTool, createStructsDefTool];
+            createMainFunctionDefTool, createConnectorDefTool, createConnectorActionTool, createStructsDefTool,
+            createTypeMapperDefTool];
 
         var elements = new ToolGroup({
             toolGroupName: "Elements",
@@ -126,7 +135,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             name: "VariableDefinition",
             icon: "images/variable.svg",
             title: "Variable Definition",
-            nodeFactoryMethod: BallerinaASTFactory.createVariableDefinitionStatement
+            nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createVariableDefinitionStatement
         };
 
         var createFunctionInvocationTool = {
@@ -140,7 +149,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
         var createReplyStatementTool = {
             id: "Reply",
             name: "Reply",
-            icon: "images/tool-icons/left-arrow.svg",
+            icon: "images/tool-icons/reply.svg",
             title: "Reply",
             nodeFactoryMethod: BallerinaASTFactory.createReplyStatement
         };

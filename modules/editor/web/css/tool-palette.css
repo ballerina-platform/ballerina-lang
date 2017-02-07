@@ -6,7 +6,7 @@
     left: 0;
     top: 0;
     background-color: #fff;
-    height: 92%; /* reduce the toolbar, breadcrumb and tab heading height  */
+    height: calc(100% - 80px);
 }
 
 .tool-group{
@@ -140,9 +140,8 @@
 }
 
 .tool-connector-action {
-    border-left: 2px solid #AAA;
     padding-left: 5px;
-    margin-left: 10px;
+    margin-left: 30px;
 }
 
 .tool-group-import-header{

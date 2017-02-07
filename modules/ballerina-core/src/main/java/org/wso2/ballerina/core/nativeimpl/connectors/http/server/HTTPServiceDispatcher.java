@@ -24,13 +24,18 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.uri.URIUtil;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.ServerConnector;
+import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -111,7 +116,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         for (Annotation annotation : service.getAnnotations()) {
             if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
                 String sourceInterfaceVal = annotation
-                        .getValueOfKeyValuePair(Constants.ANNOTATION_SOURCE_KEY_INTERFACE);
+                        .getValueOfElementPair(new SymbolName(Constants.ANNOTATION_SOURCE_KEY_INTERFACE));
                 if (sourceInterfaceVal != null) {   //TODO: Filter non-http protocols
                     listenerInterface = sourceInterfaceVal;
                 }
@@ -132,7 +137,17 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             // Assumption : this is always sequential, no two simultaneous calls can get here
             servicesOnInterface = new HashMap<>();
             services.put(listenerInterface, servicesOnInterface);
-            HTTPListenerManager.getInstance().bindInterface(listenerInterface);
+            ServerConnector connector = BallerinaConnectorManager.getInstance().getServerConnector(listenerInterface);
+            if (connector == null) {
+                throw new BallerinaException(
+                        "ServerConnector interface not registered for : " + listenerInterface);
+            }
+            try {
+                connector.start(Collections.emptyMap());
+            } catch (ServerConnectorException e) {
+                throw new BallerinaException("Cannot start the connector for the interface : " +
+                        listenerInterface, e);
+            }
         }
         if (servicesOnInterface.containsKey(basePath)) {
             throw new BallerinaException(
@@ -158,7 +173,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         for (Annotation annotation : service.getAnnotations()) {
             if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
                 String sourceInterfaceVal = annotation
-                        .getValueOfKeyValuePair(Constants.ANNOTATION_SOURCE_KEY_INTERFACE);
+                        .getValueOfElementPair(new SymbolName(Constants.ANNOTATION_SOURCE_KEY_INTERFACE));
                 if (sourceInterfaceVal != null) {   //TODO: Filter non-http protocols
                     listenerInterface = sourceInterfaceVal;
                 }
@@ -180,7 +195,16 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             servicesOnInterface.remove(basePath);
             if (servicesOnInterface.isEmpty()) {
                 services.remove(listenerInterface);
-                HTTPListenerManager.getInstance().unbindInterface(listenerInterface);
+                ServerConnector connector =
+                        BallerinaConnectorManager.getInstance().getServerConnector(listenerInterface);
+                if (connector != null) {
+                    try {
+                        connector.stop();
+                    } catch (ServerConnectorException e) {
+                        throw new BallerinaException("Cannot stop the connector for the interface : " +
+                                listenerInterface, e);
+                    }
+                }
             }
         }
     }
