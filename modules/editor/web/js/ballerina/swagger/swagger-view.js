@@ -40,10 +40,11 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
        SwaggerView.prototype.constructor = SwaggerView;
 
        SwaggerView.prototype.render = function () {
-           parent.SwaggerHolder = new SwaggerHolder();
-           var swaggerEditor = $("#swaggerEditor");
-           swaggerEditor.html('<iframe id="se-iframe"  style="border:0px;background: #4a4a4a;" width=100% height="100%"></iframe>');
-           document.getElementById('se-iframe').src = swaggerEditor.data("editor-url");
+           this._swaggerHolder = new SwaggerHolder();
+           parent.SwaggerHolder = this._swaggerHolder;// Allowing Swagger Editor to inject this swagger holder
+           var swaggerEditor = $(this._container).find('div.swaggerEditor');
+           swaggerEditor.html('<iframe class="se-iframe" width=100% height="100%"></iframe>');
+           swaggerEditor.find('iframe.se-iframe').attr("src", swaggerEditor.data("editor-url"));
        };
 
        /**
@@ -52,12 +53,11 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
         *
         */
        SwaggerView.prototype.setContent = function(content){
-           parent.SwaggerHolder.setSwaggerAsText(content);
-           top.updateSwaggerEditor();
+           this._swaggerHolder.setSwaggerAsText(content);
        };
 
        SwaggerView.prototype.getContent = function(){
-           return parent.SwaggerHolder.getSwagger();
+           return this._swaggerHolder.getSwagger();
        };
 
        SwaggerView.prototype.show = function(){
