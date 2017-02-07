@@ -214,7 +214,7 @@ define(['require', 'lodash', 'jquery'],
                     // Removes the value of the annotation in the model and rebind the annotations to the dropdown and
                     // to the annotation view.
                     deleteIcon.click(function () {
-                        annotation.value = "";
+                        model.addAnnotation(annotation.key, "");
                         $(annotationWrapper).remove();
                         _addAnnotationsToDropdown(model, annotationTypeDropDown, headerWrapper);
                         _createCurrentAnnotationView(model, wrapper, annotationTypeDropDown, headerWrapper);
@@ -253,7 +253,7 @@ define(['require', 'lodash', 'jquery'],
 
                         // Gets the user input and set it as the annotation value
                         annotationValueTextArea.on("change keyup input", function (e) {
-                            annotation.value = e.target.value;
+                            model.addAnnotation(annotation.key, e.target.value);
                         });
 
                         // Adding in-line display block to override the hovering css.

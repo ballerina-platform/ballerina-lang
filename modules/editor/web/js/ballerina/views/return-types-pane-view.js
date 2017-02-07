@@ -240,7 +240,7 @@ define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/nod
                     self._createCurrentReturnTypeView(wrapper);
                 });
 
-                $(returnTypeView.getReturnTypeWrapper()).dblclick({
+                $(returnTypeView.getReturnTypeWrapper()).click({
                     modelID: returnType.getID()
                 }, function (event) {
                     self._createCurrentReturnTypeView(wrapper);

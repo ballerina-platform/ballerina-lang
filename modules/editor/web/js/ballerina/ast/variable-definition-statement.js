@@ -16,15 +16,19 @@
  * under the License.
  */
 define(['lodash', './statement'], function (_, Statement) {
+
     /**
      * Class to represent an Variable Definition statement.
+     * @param {Object} [args] - Arguments for creating a variable definition statement.
+     * @param {string} [args.leftExpression] - The left hand expression.
+     * @param {string|undefined} [args.rightExpression] - The right hand expression.
      * @constructor
+     * @augments Statement
      */
     var VariableDefinitionStatement = function (args) {
         Statement.call(this, 'VariableDefinitionStatement');
-        this._leftExpression = _.get(args, 'leftExpression', 'leftExpression');
-        this._rightExpression = _.get(args, 'rightExpression', 'rightExpression');
-        this._variableDefinitionStatementString = _.get(args, 'expressionString', 'int i = 0');
+        this._leftExpression = _.get(args, 'leftExpression');
+        this._rightExpression = _.get(args, 'rightExpression');
     };
 
     VariableDefinitionStatement.prototype = Object.create(Statement.prototype);
@@ -71,10 +75,11 @@ define(['lodash', './statement'], function (_, Statement) {
 
     /**
      * Get the variable definition statement string
-     * @return {string} _variableDefinitionExpressionString - variable definition expression string
+     * @return {string} - Variable definition expression string
      */
     VariableDefinitionStatement.prototype.getVariableDefinitionStatementString = function () {
-        return this._variableDefinitionStatementString;
+        return _.isNil(this._rightExpression) ? this._leftExpression : this._leftExpression + " = " +
+            this._rightExpression;
     };
 
     /**
@@ -82,7 +87,7 @@ define(['lodash', './statement'], function (_, Statement) {
      * @param {string} leftExpression - Left expression
      */
     VariableDefinitionStatement.prototype.setLeftExpression = function (leftExpression) {
-        this._leftExpression = leftExpression;
+        this.setAttribute("_leftExpression", leftExpression.trim());
     };
 
     /**
@@ -90,16 +95,32 @@ define(['lodash', './statement'], function (_, Statement) {
      * @param {string} rightExpression - Right expression
      */
     VariableDefinitionStatement.prototype.setRightExpression = function (rightExpression) {
-        this._rightExpression = rightExpression;
+        this.setAttribute("_rightExpression", rightExpression.trim());
+    };
+
+    /**
+     * Gets the ballerina type of the variable definition statement.
+     * @return {string} - The ballerina type.
+     */
+    VariableDefinitionStatement.prototype.getBType = function() {
+        return (this._leftExpression.split(" ")[0]).trim();
+    };
+
+    /**
+     * Gets the identifier of the variable definition statement.
+     * @return {string} - The identifier.
+     */
+    VariableDefinitionStatement.prototype.getIdentifier = function() {
+        return (this._leftExpression.split(" ")[1]).trim();
     };
 
     /**
      * Set the variable definition expression string
      * @param {string} variableDefinitionStatementString - variable definition expression string
      */
-    VariableDefinitionStatement.prototype.setVariableDefinitionStatementString = function (variableDefinitionStatementString) {
-        this._variableDefinitionStatementString = variableDefinitionStatementString;
-        var tokens = this._variableDefinitionStatementString.split("=");
+    VariableDefinitionStatement.prototype.setVariableDefinitionStatementString =
+                                                                        function (variableDefinitionStatementString) {
+        var tokens = variableDefinitionStatementString.split("=");
         this.setLeftExpression(!_.isNil(tokens[0]) ? tokens[0].trim() : "");
         this.setRightExpression(!_.isNil(tokens[1]) ? tokens[1].trim() : "");
     };
