@@ -38,19 +38,18 @@ import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.core.utils.XMLUtils;
+import org.wso2.ballerina.core.utils.SQLDBUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.io.File;
 
 /**
  * Test Native functions in ballerina.lang.datatable.
  */
 public class DataTableTest {
+
     private BallerinaFile bFile;
+    private static final String DB_NAME = "TEST_DATA_TABLE_DB2";
 
     @BeforeClass
     public void setup() {
@@ -60,7 +59,8 @@ public class DataTableTest {
             BuiltInNativeConstructLoader.loadConstructs();
         }
         bFile = ParserUtils.parseBalFile("samples/nativeimpl/datatableTest.bal", symScope);
-        initDatabase();
+        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
+        SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/DataTableDataFile.sql");
     }
 
     @Test(description = "Check getByIndex methods for primitive types.")
@@ -244,35 +244,6 @@ public class DataTableTest {
 
     @AfterSuite
     public void cleanup() {
-        //DeleteDbFiles.execute("./target/TEST_DATA_TABLE_DB2", null, true);
-    }
-
-    private void initDatabase() {
-        Connection connection = null;
-        Statement st = null;
-        try {
-            Class.forName("org.hsqldb.jdbcDriver");
-            connection = DriverManager.getConnection("jdbc:hsqldb:file:./target/TEST_DATA_TABLE_DB2", "root", "root");
-            String sql = XMLUtils.readFileToString("datafiles/DataTableDataFile.sql");
-            String[] sqlQuery = sql.split(";");
-
-            st = connection.createStatement();
-            for (String query : sqlQuery) {
-                st.executeUpdate(query.trim());
-            }
-        } catch (ClassNotFoundException | SQLException e) {
-            //Do nothing
-        } finally {
-            try {
-                if (st != null) {
-                    st.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                //Do nothing
-            }
-        }
+        SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));
     }
 }

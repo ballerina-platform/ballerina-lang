@@ -30,20 +30,18 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.MessageUtils;
-import org.wso2.ballerina.core.utils.XMLUtils;
+import org.wso2.ballerina.core.utils.SQLDBUtils;
 import org.wso2.ballerina.lang.util.Services;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * Test Class for SQL Connector.
  */
 public class SQLConnectorTest {
+
+    private static final String DB_NAME = "TEST_SQL_CONNECTOR";
 
     @BeforeClass()
     public void setup() {
@@ -52,7 +50,8 @@ public class SQLConnectorTest {
             BuiltInNativeConstructLoader.loadConstructs();
         }
         EnvironmentInitializer.initialize("lang/connectors/sqlconnector.bal");
-        initDatabase();
+        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
+        SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/SQLConnetorDataFile.sql");
     }
 
     //Update Action Tests
@@ -187,48 +186,8 @@ public class SQLConnectorTest {
         Services.invoke(cMsg);
     }
 
-    private void initDatabase() {
-        Connection connection = null;
-        Statement st = null;
-        try {
-            Class.forName("org.hsqldb.jdbcDriver");
-            connection = DriverManager.getConnection("jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR", "SA", "");
-            String sql = XMLUtils.readFileToString("datafiles/SQLConnetorDataFile.sql");
-            String[] sqlQuery = sql.trim().split("/");
-            st = connection.createStatement();
-            for (String query : sqlQuery) {
-                st.executeUpdate(query.trim());
-            }
-        } catch (ClassNotFoundException | SQLException e) {
-            //Do nothing
-        } finally {
-            try {
-                if (st != null) {
-                    st.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                //Do nothing
-            }
-        }
-    }
-
     @AfterSuite
     public void cleanup() {
-        deleteDirectory(new File("./target/tempdb"));
-    }
-
-    private boolean deleteDirectory(File directory) {
-        if (directory.isDirectory()) {
-            for (File f : directory.listFiles()) {
-                boolean success = deleteDirectory(f);
-                if (!success) {
-                    return false;
-                }
-            }
-        }
-        return directory.delete();
+        SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));
     }
 }

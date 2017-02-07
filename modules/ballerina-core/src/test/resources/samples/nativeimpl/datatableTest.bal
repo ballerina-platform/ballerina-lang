@@ -2,7 +2,7 @@ import ballerina.lang.datatable;
 import ballerina.data.sql;
 
 function getXXXByIndex()(int, long, float, double, boolean, string) {
-    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/TEST_DATA_TABLE_DB2", "username":"root", "password":"root", "maximumPoolSize": 1});
+    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB2", "username":"SA", "password":"", "maximumPoolSize": 1});
     datatable df;
     int i;
     long l;
@@ -25,7 +25,7 @@ function getXXXByIndex()(int, long, float, double, boolean, string) {
 }
 
 function getXXXByName()(int, long, float, double, boolean, string) {
-    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/TEST_DATA_TABLE_DB2", "username":"root", "password":"root", "maximumPoolSize": 1});
+    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB2", "username":"SA", "password":"", "maximumPoolSize": 1});
     datatable df;
     int i;
     long l;
@@ -48,7 +48,7 @@ function getXXXByName()(int, long, float, double, boolean, string) {
 }
 
 function toJson()(json) {
-    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/TEST_DATA_TABLE_DB2", "username":"root", "password":"root", "maximumPoolSize": 1});
+    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB2", "username":"SA", "password":"", "maximumPoolSize": 1});
     datatable df;
     json result;
 
@@ -58,7 +58,7 @@ function toJson()(json) {
 }
 
 function toXmlWithWrapper()(xml) {
-    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/TEST_DATA_TABLE_DB2", "username":"root", "password":"root", "maximumPoolSize": 1});
+    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB2", "username":"SA", "password":"", "maximumPoolSize": 1});
     datatable df;
     xml result;
 
@@ -68,7 +68,7 @@ function toXmlWithWrapper()(xml) {
 }
 
 function getByName()(string, string, long, long, long) {
-    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/TEST_DATA_TABLE_DB2", "username":"root", "password":"root", "maximumPoolSize": 1});
+    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB2", "username":"SA", "password":"", "maximumPoolSize": 1});
     datatable df;
     string blob;
     string clob;
@@ -89,7 +89,7 @@ function getByName()(string, string, long, long, long) {
 }
 
 function getByIndex()(string, string, long, long, long) {
-    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/TEST_DATA_TABLE_DB2", "username":"root", "password":"root", "maximumPoolSize": 1});
+    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB2", "username":"SA", "password":"", "maximumPoolSize": 1});
     datatable df;
     string blob;
     string clob;
@@ -112,7 +112,7 @@ function getByIndex()(string, string, long, long, long) {
 }
 
 function getObjectAsStringByIndex()(string, string, string, string, string) {
-    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/TEST_DATA_TABLE_DB2", "username":"root", "password":"root", "maximumPoolSize": 1});
+    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB2", "username":"SA", "password":"", "maximumPoolSize": 1});
     datatable df;
     string blob;
     string clob;
@@ -133,7 +133,7 @@ function getObjectAsStringByIndex()(string, string, string, string, string) {
 }
 
 function getObjectAsStringByName()(string, string, string, string, string) {
-    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/TEST_DATA_TABLE_DB2", "username":"root", "password":"root", "maximumPoolSize": 1});
+    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB2", "username":"SA", "password":"", "maximumPoolSize": 1});
     datatable df;
     string blob;
     string clob;
@@ -155,7 +155,7 @@ function getObjectAsStringByName()(string, string, string, string, string) {
 
 
 function getArrayByName()(int[], long[], double[], string[], boolean[]) {
-    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/TEST_DATA_TABLE_DB2", "username":"root", "password":"root", "maximumPoolSize": 1});
+    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB2", "username":"SA", "password":"", "maximumPoolSize": 1});
     datatable df;
     int[] int_arr;
     long[] long_arr;
@@ -176,7 +176,7 @@ function getArrayByName()(int[], long[], double[], string[], boolean[]) {
 }
 
 function getArrayByIndex()(int[], long[], double[], string[], boolean[]) {
-    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/TEST_DATA_TABLE_DB2", "username":"root", "password":"root", "maximumPoolSize": 1});
+    sql:Connector testDB = new sql:Connector({"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB2", "username":"SA", "password":"", "maximumPoolSize": 1});
     datatable df;
     int[] int_arr;
     long[] long_arr;
