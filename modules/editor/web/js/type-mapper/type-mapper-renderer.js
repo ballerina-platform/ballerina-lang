@@ -375,10 +375,6 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             },
 
             onDrop: function () {
-
-
-
-
                 positionFunction(placeHolderName, jsPlumbInst);
             }
         });
