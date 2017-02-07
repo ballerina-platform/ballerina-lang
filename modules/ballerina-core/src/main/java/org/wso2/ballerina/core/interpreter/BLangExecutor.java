@@ -387,14 +387,14 @@ public class BLangExecutor implements NodeExecutor {
         int valueCounter = 1;
 
         // Populate values for Connector declarations
-        valueCounter = populateConnectorDclValues(resource.getConnectorDcls(), valueParams, valueCounter);
+//        valueCounter = populateConnectorDclValues(resource.getConnectorDcls(), valueParams, valueCounter);
 
         // Create default values for all declared local variables
-        VariableDef[] variableDefs = resource.getVariableDefs();
-        for (VariableDef variableDef : variableDefs) {
-            valueParams[valueCounter] = variableDef.getType().getDefaultValue();
-            valueCounter++;
-        }
+//        VariableDef[] variableDefs = resource.getVariableDefs();
+//        for (VariableDef variableDef : variableDefs) {
+//            valueParams[valueCounter] = variableDef.getType().getDefaultValue();
+//            valueCounter++;
+//        }
 
         BValue[] ret = new BValue[1];
 
@@ -503,34 +503,8 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public BValue visit(RefTypeInitExpr refTypeInitExpr) {
-        Expression[] argExprs = refTypeInitExpr.getArgExprs();
-        BValue result = null;
-
-        if (refTypeInitExpr.getArgExprs().length == 0) {
-            // This means empty initialization {}
-            BType type = refTypeInitExpr.getType();
-            if (type != null) {
-                result = BValueUtils.getDefaultValueForRefType(type);
-            } else {
-                type = refTypeInitExpr.getInheritedType();
-                if (type != null) {
-                    result = BValueUtils.getDefaultValueForRefType(type);
-                }
-            }
-        } else {
-            // Creating a new map
-            BMap<BString, BValue> bMap = new BMap<>();
-
-            for (int i = 0; i < argExprs.length; i++) {
-                MapStructInitKeyValueExpr expr = (MapStructInitKeyValueExpr) argExprs[i];
-                BString key = new BString(expr.getKey());
-                Expression expression = expr.getValueExpr();
-                BValue value = expression.execute(this);
-                bMap.put(key, value);
-            }
-            result = bMap;
-        }
-        return result;
+        BType bType = refTypeInitExpr.getType();
+        return bType.getDefaultValue();
     }
 
     @Override
