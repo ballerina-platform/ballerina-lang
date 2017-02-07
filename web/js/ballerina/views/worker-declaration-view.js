@@ -16,8 +16,9 @@
  * under the License.
  */
 
-define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', 'log', 'd3utils', './life-line', 'd3'],
-    function (_, $, BallerinaView, WorkerDeclaration, log, D3Utils, LifeLine, d3) {
+define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', 'log', 'd3utils', './life-line', 'd3',
+        './statement-container', 'ballerina/ast/ballerina-ast-factory'],
+    function (_, $, BallerinaView, WorkerDeclaration, log, D3Utils, LifeLine, d3, StatementContainer, BallerinaASTFactory) {
 
         /**
          * The view to represent a worker declaration which is an AST visitor.
@@ -28,27 +29,53 @@ define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', '
          * @constructor
          */
         var WorkerDeclarationView = function (args) {
+            this._totalHeightGap = 50;
+            this._parent = _.get(args, "parent");
+            this._LifeLineCenterGap = 180;
+            this._statementContainer = undefined;
 
-            BallerinaView.call(this, args);
-            this._workerLifeLine = undefined;
+            if (_.isNil(_.get(args, 'toolPalette'))) {
+                log.error("Tool Palette is undefined");
+                throw "Tool Palette is undefined";
+            }
+            this._toolPalette = _.get(args, 'toolPalette');
+
+            if (_.isNil(_.get(args, 'messageManager'))) {
+                log.error("Message Manager is undefined");
+                throw "Message Manager is undefined";
+            }
+            this._messageManager = _.get(args, 'messageManager');
+            _.set(args, 'name',  _.get(args, 'name') || 'worker1');
+            _.set(args, 'cssClass.group',  _.get(args, 'cssClass.group', 'worker-life-line'));
+            _.set(args, 'line.height',  _.get(args, 'lineHeight', 290));
+            LifeLine.call(this, args);
 
             if (_.isNil(this._model) || !(this._model instanceof WorkerDeclaration)) {
-                log.error("Worker declaration definition undefined or is of different type." + this._model);
-                throw "Worker declaration definition undefined or is of different type." + this._model;
+                log.error("Worker declaration is undefined or is of different type." + this._model);
+                throw "Worker declaration is undefined or is of different type." + this._model;
             }
 
             if (_.isNil(this._container)) {
-                log.error("Container for worker declaration is undefined." + this._container);
-                throw "Container for worker declaration is undefined." + this._container;
+                log.error("Container for Worker declaration is undefined." + this._container);
+                throw "Container for Worker declaration is undefined." + this._container;
             }
-
+            this.init();
         };
 
-        WorkerDeclarationView.prototype = Object.create(BallerinaView.prototype);
+        WorkerDeclarationView.prototype = Object.create(LifeLine.prototype);
         WorkerDeclarationView.prototype.constructor = WorkerDeclarationView;
 
+        WorkerDeclarationView.prototype.init = function () {
+            var self = this;
+            this._model.on('child-added', function(child){
+                self.visit(child);
+            });
+            this._model.on('child-removed', this.childRemovedCallback, this);
+            this._model.on('before-remove', this.onBeforeModelRemove, this);
+        };
+
         WorkerDeclarationView.prototype.setModel = function (model) {
-            if (!_.isNil(model) && this._model instanceof WorkerDeclaration) {
+            if (!_.isNil(model)) {
                 this._model = model;
             } else {
                 log.error("Worker declaration definition undefined or is of different type." + model);
@@ -74,19 +101,49 @@ define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', '
         };
 
         /**
-         * Rendering the view of the worker declaration.
-         * @returns {Object} - The svg group which the worker declaration view resides in.
+         * Render the statement container
          */
-        WorkerDeclarationView.prototype.render = function () {
-
+        WorkerDeclarationView.prototype.renderStatementContainer = function () {
+            var statementContainerOpts = {};
+            _.set(statementContainerOpts, 'model', this._model);
+            _.set(statementContainerOpts, 'topCenter', this.getTopCenter());
+            _.set(statementContainerOpts, 'bottomCenter', this.getBottomCenter());
+            _.set(statementContainerOpts, 'width', this.width());
+            _.set(statementContainerOpts, 'container', this.getContentArea().node());
+            _.set(statementContainerOpts, 'toolPalette', this._toolPalette);
+            this._statementContainer = new StatementContainer(statementContainerOpts);
+            this._statementContainer.render(this.diagramRenderingContext);
+            return this._statementContainer;
         };
 
         /**
-         * @inheritDoc
-         * return {_workerLifeLine}
+         * @param {BallerinaStatementView} statement
          */
-        WorkerDeclarationView.prototype.getWorkerLifeLine = function () {
-            return this._workerLifeLine;
+        WorkerDeclarationView.prototype.visitStatement = function (statement) {
+            var args = {model: statement, container: this._container, viewOptions: {},
+                toolPalette: this._toolPalette, messageManager: this._messageManager, parent: this};
+            this._statementContainer.renderStatement(statement, args);
+        };
+
+        /**
+         * Get the statement contianer
+         * @return {StatementContainerView} _statementContainer - Statement Container of the worker declaration
+         */
+        WorkerDeclarationView.prototype.getStatementContainer = function () {
+            return this._statementContainer;
+        };
+
+        /**
+         * Child remove callback
+         * @param {ASTNode} child - removed child
+         */
+        WorkerDeclarationView.prototype.childRemovedCallback = function (child) {
+            var self = this;
+            if (BallerinaASTFactory.isStatement(child)) {
+                this.getStatementContainer().childStatementRemovedCallback(child);
+            }
+            // Remove the connector/ worker from the diagram rendering context
+            delete this.diagramRenderingContext.getViewModelMap()[child.id];
         };
 
         return WorkerDeclarationView;
