@@ -287,7 +287,7 @@ public class BLangExecutor implements NodeExecutor {
         }
 
         // Create an array in the stack frame to hold return values;
-        BValue[] returnVals = new BValue[function.getReturnParameters().length];
+        BValue[] returnVals = new BValue[function.getReturnParamTypes().length];
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
         // return values and function invocation location;
@@ -697,12 +697,12 @@ public class BLangExecutor implements NodeExecutor {
                 }
 
                 // Populate all connector declarations
-                offset = populateConnectorDclValues(connectorDef.getConnectorDcls(), connectorMemBlock, offset);
-
-                for (VariableDef variableDef : connectorDef.getVariableDefs()) {
-                    connectorMemBlock[offset] = variableDef.getType().getDefaultValue();
-                    offset++;
-                }
+//                offset = populateConnectorDclValues(connectorDef.getConnectorDcls(), connectorMemBlock, offset);
+//
+//                for (VariableDef variableDef : connectorDef.getVariableDefs()) {
+//                    connectorMemBlock[offset] = variableDef.getType().getDefaultValue();
+//                    offset++;
+//                }
             }
 
             BConnector connectorValue = new BConnector(connector, connectorMemBlock);

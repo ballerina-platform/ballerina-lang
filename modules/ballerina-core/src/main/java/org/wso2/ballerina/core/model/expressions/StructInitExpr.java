@@ -20,7 +20,6 @@ package org.wso2.ballerina.core.model.expressions;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
@@ -32,21 +31,11 @@ import org.wso2.ballerina.core.model.values.BValue;
  * @since 1.0.0
  */
 public class StructInitExpr extends RefTypeInitExpr {
-    private StructDcl structDcl;
-
-    public StructInitExpr(NodeLocation location, StructDcl structDcl) {
-        super(location, null);
-        this.structDcl = structDcl;
-    }
 
     public StructInitExpr(NodeLocation location, Expression[] argExprs) {
         super(location, argExprs);
     }
 
-    public StructDcl getStructDcl() {
-        return structDcl;
-    }
-    
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
