@@ -46,7 +46,7 @@ define(['lodash', 'jquery'], function (_, $) {
 
         $("<i/>").addClass("icon-caret").addClass("fw").addClass("fw-down").addClass("icon-caret")
             .addClass("pull-right").appendTo(this.dropdownButton);
-        this.dropdownItemWrapper = $("<ul class='dropdown-menu'/>").appendTo(this.dropdownMainWrapper);
+        this.dropdownItemWrapper = $("<ul class='dropdown-menu' role='menu'/>").appendTo(this.dropdownMainWrapper);
 
         var self = this;
 
@@ -54,7 +54,7 @@ define(['lodash', 'jquery'], function (_, $) {
         _.forEach(_.get(args, "items"), function (item) {
             var dropdownItem = $("<li><a href='#' data-key='" + item.key + "'>" + item.value.trim() + "</a><li/>");
             dropdownItem.appendTo(self.dropdownItemWrapper);
-            dropdownItem.click(function() {
+            dropdownItem.click(function () {
                 $(self.dropdownMainWrapper).removeClass("open");
                 if (!_.isNil(self.onDropdownClosed)) {
                     self.onDropdownClosed();
@@ -67,29 +67,23 @@ define(['lodash', 'jquery'], function (_, $) {
                 self.setSelectedValue(item.value.trim());
             });
 
+            // Custom type ahead
+            $(dropdownItem).find("a").keydown(function (e) {
+                var enteredKey = e.which || e.charCode || e.keyCode;
+                // Disabling enter key
+                if (enteredKey == 13) {
+                    $(self.dropdownButton).focus();
+                }
+            });
+
             $(self.dropdownButton).removeClass("disabled");
         });
 
         // Adding the "open" class to the main wrapper when the dropdown button is clicked. If its already open, then
         // remove the "open" class.
         $(self.dropdownButton).click(function (e) {
-            if ($(self.dropdownMainWrapper).hasClass("open")) {
-                $(self.dropdownMainWrapper).removeClass("open");
-                if (!_.isNil(self.onDropdownClosed)) {
-                    self.onDropdownClosed();
-                }
-            } else {
-                if (!_.isNil(self.onDropdownOpen)) {
-                    self.onDropdownOpen();
-                }
-                if ($(self.dropdownMainWrapper).find("li").length != 0) {
-                    $(self.dropdownButton).removeClass("disabled");
-                    $(self.dropdownMainWrapper).addClass("open");
-                }
-            }
-
-            e.preventDefault();
-            return false;
+            self.openDropdown();
+            e.stopPropagation();
         });
 
         // Adding onlick listener for dropdown items.
@@ -120,6 +114,30 @@ define(['lodash', 'jquery'], function (_, $) {
                 if (!_.isNil(self.onDropdownClosed)) {
                     self.onDropdownClosed();
                 }
+            }
+        });
+
+        // Open dropdown when enter is clicked.
+        $(this.dropdownButton).keypress(function (e) {
+            var enteredKey = e.which || e.charCode || e.keyCode;
+            // Disabling enter key
+            if (enteredKey == 13) {
+                $(this).click();
+                e.stopPropagation();
+            }
+        });
+
+        // Custom type ahead.
+        $(self.dropdownItemWrapper).keypress(function (e) {
+            if ($(self.dropdownMainWrapper).hasClass("open")) {
+                // get the key that was pressed
+                var key = String.fromCharCode(e.which);
+                self.dropdownItemWrapper.find("li").each(function (idx, item) {
+                    if ($(item).text().charAt(0) == key) {
+                        $(item).find("a").trigger('focus');
+                        return false;
+                    }
+                });
             }
         });
     };
@@ -170,7 +188,7 @@ define(['lodash', 'jquery'], function (_, $) {
         var self = this;
         var dropdownItem = $("<li><a href='#' data-key='" + item.key + "'>" + item.value.trim() + "</a><li/>")
             .appendTo(self.dropdownItemWrapper);
-        dropdownItem.click(function() {
+        dropdownItem.click(function () {
             $(self.dropdownMainWrapper).removeClass("open");
             if (!_.isNil(self.onDropdownClosed)) {
                 self.onDropdownClosed();
@@ -197,7 +215,7 @@ define(['lodash', 'jquery'], function (_, $) {
         _.forEach(items, function (item) {
             var dropdownItem = $("<li><a href='#' data-key='" + item.key + "'>" + item.value.trim() + "</a><li/>")
                 .appendTo(self.dropdownItemWrapper);
-            dropdownItem.click(function() {
+            dropdownItem.click(function () {
                 $(self.dropdownMainWrapper).removeClass("open");
                 if (!_.isNil(self.onDropdownClosed)) {
                     self.onDropdownClosed();
@@ -245,6 +263,52 @@ define(['lodash', 'jquery'], function (_, $) {
      */
     Dropdown.prototype.setSelectedValue = function (value) {
         this.dropdownButtonText.text(value);
+    };
+
+    /**
+     * Set focused item.
+     * @param {string} itemName - The name of the item.
+     */
+    Dropdown.prototype.focusOnItem = function (itemName) {
+        // Removing selected items.
+        this.dropdownItemWrapper.find("li").removeClass("active");
+
+        // Setting selected item.
+        if (_.isUndefined(itemName)) {
+            // this.dropdownItemWrapper.find("li:first").addClass("active");
+            this.dropdownItemWrapper.find("li:eq(2) a").trigger('focus');
+        } else {
+            this.dropdownItemWrapper.find("li").each(function () {
+                if (_.isEqual($(this).text(), itemName)) {
+                    $(this).addClass("active");
+                    $(this).find("a").trigger('focus');
+                }
+            });
+        }
+    };
+
+    /**
+     * Opens the dropdown.
+     */
+    Dropdown.prototype.openDropdown = function() {
+        var self = this;
+        if ($(self.dropdownMainWrapper).hasClass("open")) {
+            $(self.dropdownMainWrapper).removeClass("open");
+            if (!_.isNil(self.onDropdownClosed)) {
+                self.onDropdownClosed();
+            }
+        } else {
+            var selectVal = self.getSelectedValue();
+            if (!_.isNil(self.onDropdownOpen)) {
+                self.onDropdownOpen();
+            }
+            if ($(self.dropdownMainWrapper).find("li").length != 0) {
+                $(self.dropdownButton).removeClass("disabled");
+                $(self.dropdownMainWrapper).addClass("open");
+                self.setSelectedValue(selectVal);
+                self.focusOnItem(selectVal);
+            }
+        }
     };
 
     return Dropdown;

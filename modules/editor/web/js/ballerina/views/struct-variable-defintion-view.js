@@ -149,6 +149,13 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                     event.stopPropagation();
                     return false;
                 }
+            }).keydown(function(e){
+                var enteredKey = e.which || e.charCode || e.keyCode;
+
+                // If tab pressed.
+                if (e.shiftKey && _.isEqual(enteredKey, 9)) {
+                    typeDropdown.dropdownButton.trigger("click");
+                }
             }).keyup(function(){
                 self.getModel().setIdentifier($(this).val());
             }).appendTo($(this._identifierWrapper));
