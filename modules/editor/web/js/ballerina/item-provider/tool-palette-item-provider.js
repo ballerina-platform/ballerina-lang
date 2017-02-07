@@ -140,6 +140,13 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     action.id = connector.getName() + '-' + action.getAction();
                     definitions.push(action);
                 });
+                connector.on('connector-action-added', function (action) {
+                    var actionIcon = "images/tool-icons/action.svg";
+                    var toolGroupID = package.getName() + "-tool-group";
+                    action.classNames = "tool-connector-action";
+                    var actionNodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression;
+                    self.addToToolGroup(toolGroupID, action, actionNodeFactoryMethod, actionIcon);
+                });
             });
 
             _.each(package.getFunctionDefinitions(), function (functionDef) {
