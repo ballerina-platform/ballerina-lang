@@ -22,6 +22,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.utils.ParserUtils;
@@ -151,4 +152,32 @@ public class OperatorPrecedenceTest {
         int actual = ((BInteger) returns[0]).intValue();
         Assert.assertEquals(actual, expected);
     }
+
+    @Test
+    public void testComparatorPrecedence() {
+
+        // false && true || false
+        comparatorPrecedence(10, 20, 30, 40, 50, 60);
+
+        // true && true || false
+        comparatorPrecedence(0, 5, 5, 9, 34, 80);
+
+        // true && true || true
+        comparatorPrecedence(0, 5, 5, 9, 34, 6);
+    }
+
+    private void comparatorPrecedence(int a, int b, int c, int d, int e, int f) {
+        boolean expected = (a > b) && (c < d) || (e > f);
+
+        BValue[] args = {
+                new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d), new BInteger(e), new BInteger(f)
+        };
+
+        BValue[] returns = Functions.invoke(bFile, "comparatorPrecedence", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        boolean actual = ((BBoolean) returns[0]).booleanValue();
+        Assert.assertEquals(actual, expected);
+    }
+
 }
