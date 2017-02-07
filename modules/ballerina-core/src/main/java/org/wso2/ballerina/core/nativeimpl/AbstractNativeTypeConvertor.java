@@ -109,7 +109,7 @@ public abstract class AbstractNativeTypeConvertor implements NativeUnit, TypeCon
      * @return BValue;
      */
     public BValue getArgument(Context context, int index) {
-        if (index > -1 && index < parameterDefs.size()) {
+        if (index > -1 && index < parameterTypes.length) {
             return context.getControlStack().getCurrentFrame().values[index];
         }
         throw new ArgumentOutOfRangeException(index);

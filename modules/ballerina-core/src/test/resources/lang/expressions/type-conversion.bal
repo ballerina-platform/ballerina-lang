@@ -94,6 +94,7 @@ function stringtodouble(string value)(double) {
     return result;
 }
 
+
 function inttostring(int value)(string) {
     string result;
     result = (string)value;
@@ -116,4 +117,17 @@ function doubletostring(double value)(string) {
     string result;
     result = (string)value;
     return result;
+}
+
+
+function intarrtolongarr()(long[]) {
+    long[] numbers;
+    numbers = [999,95,889];
+    return numbers;
+}
+
+function floatarrtodoublearr()(double[]) {
+    double[] numbers;
+    numbers = [99.99,4.5,23.56];
+    return numbers;
 }
