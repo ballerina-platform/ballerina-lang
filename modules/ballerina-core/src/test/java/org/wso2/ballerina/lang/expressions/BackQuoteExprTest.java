@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BJSON;
+import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.ParserUtils;
@@ -47,8 +48,8 @@ public class BackQuoteExprTest {
 
         BValue[] returns = Functions.invoke(bFile, "getProduct");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BJSON.class);
-        String actual = ((BJSON) returns[0]).toString();
+        Assert.assertSame(returns[0].getClass(), BMessage.class);
+        String actual = ((BMessage) returns[0]).getMessageDataSource().getMessageAsString();
         String expected = "{\"Product\":{\"ID\":\"123456\",\"Name\":\"XYZ\",\"Description\":\"Sample product.\"}}";
         Assert.assertEquals(actual, expected);
     }

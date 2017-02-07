@@ -42,7 +42,7 @@ public class InstanceCreationExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BMessage.class);
 
-        String actual = ((BMessage) returns[0]).getBuiltPayload().stringValue();
+        String actual = ((BMessage) returns[0]).getMessageDataSource().getMessageAsString();
         String expected = "Test Payload";
         Assert.assertEquals(actual, expected);
     }*/
