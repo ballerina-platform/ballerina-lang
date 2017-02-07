@@ -243,6 +243,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         openScope(service);
 
         // TODO Analyze service level variable definition statements
+        for (VariableDefStmt variableDefStmt : service.getVariableDefStmts()) {
+            variableDefStmt.accept(this);
+        }
 
         // Visit the set of resources in a service
         for (Resource resource : service.getResources()) {
@@ -545,7 +548,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Check whether this variable is already defined, if not define it.
         SymbolName symbolName = new SymbolName(varDef.getName());
         BLangSymbol varSymbol = currentScope.resolve(symbolName);
-        if (varSymbol != null && varSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
+        if (varSymbol != null && varSymbol.getSymbolScope().getScopeName() == currentScope.getScopeName()) {
             String errMsg = getNodeLocationStr(varDefStmt.getNodeLocation()) +
                     "redeclared symbol '" + varDef.getName() + "'";
             throw new SemanticException(errMsg);
@@ -658,9 +661,13 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BlockStmt blockStmt) {
+        openScope(blockStmt);
+
         for (Statement stmt : blockStmt.getStatements()) {
             stmt.accept(this);
         }
+
+        closeScope();
     }
 
     @Override
