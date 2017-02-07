@@ -33,9 +33,12 @@ define(['log', 'lodash', 'jquery', '../views/backend', 'yaml'],
            this._editor = editor;
        };
 
+       SwaggerHolder.prototype.getEditor = function () {
+           return this._editor;
+       };
+
        SwaggerHolder.prototype.setSwaggerAsText = function (swaggerText) {
            this._apiDoc = YAML.safeDump(YAML.safeLoad(swaggerText));
-           this._editor.updateSwaggerEditor();
        };
 
        SwaggerHolder.prototype.setSwagger = function (apiDoc) {
