@@ -53,7 +53,6 @@ public class SQLConnectorTest {
             BuiltInNativeConstructLoader.loadConstructs();
         }
         application = EnvironmentInitializer.setup("lang/connectors/sqlconnector.bal");
-        initDatabase();
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/SQLConnetorDataFile.sql");
     }
@@ -189,35 +188,6 @@ public class SQLConnectorTest {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/keyUpdateExceptionTest", "GET");
         Services.invoke(cMsg);
     }
-
-    private void initDatabase() {
-        Connection connection = null;
-        Statement st = null;
-        try {
-            Class.forName("org.hsqldb.jdbcDriver");
-            connection = DriverManager.getConnection("jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR", "SA", "");
-            String sql = XMLUtils.readFileToString("datafiles/SQLConnetorDataFile.sql");
-            String[] sqlQuery = sql.trim().split("/");
-            st = connection.createStatement();
-            for (String query : sqlQuery) {
-                st.executeUpdate(query.trim());
-            }
-        } catch (ClassNotFoundException | SQLException e) {
-            //Do nothing
-        } finally {
-            try {
-                if (st != null) {
-                    st.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                //Do nothing
-            }
-        }
-    }
-
 
     @AfterClass
     public void tearDown() {
