@@ -27,6 +27,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
@@ -56,6 +57,8 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     private static final String PACKAGE_NAME = "packageName";
     private static final String IS_PROCESSED = "balAnnotationProcessed";
     private static final String TRUE = "true";
+    
+    Map<String, Connector> connectors = new HashMap<String, Connector>();
     
     public BallerinaAnnotationProcessor() throws IOException {
         super();
@@ -108,6 +111,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         processNativeActions(balActionElements, classBuilder);
         processNativeTypeConvertors(balTypeConvertorElements, classBuilder);
         
+        classBuilder.addConnectors(connectors);
         classBuilder.build();
         System.setProperty(IS_PROCESSED, TRUE);
         
@@ -142,11 +146,8 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
             ConstructProviderClassBuilder classBuilder) {
         for (Element element : balConnectorElements) {
             BallerinaConnector balConnector = element.getAnnotation(BallerinaConnector.class);
-            String connectorName = balConnector.connectorName();
-            String packageName = balConnector.packageName();
             String className = getClassName(element);
-            classBuilder.addNativeConstruct(packageName, connectorName, className, balConnector.args(), null, 
-                    balConnector.args().length);
+            connectors.put(balConnector.connectorName(), new Connector(balConnector, className));
         }
     }
     
@@ -159,11 +160,9 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     private void processNativeActions(Set<Element> balActionElements, ConstructProviderClassBuilder classBuilder) {
         for (Element element : balActionElements) {
             BallerinaAction balAction = element.getAnnotation(BallerinaAction.class);
-            String actionName = balAction.connectorName() + ":" + balAction.actionName();
-            String packageName = balAction.packageName();
             String className = getClassName(element);
-            classBuilder.addNativeConstruct(packageName, actionName, className, balAction.args(), null,
-                    balAction.args().length);
+            Action action = new Action(balAction, className);
+            connectors.get(balAction.connectorName()).addAction(action);
         }
     }
     

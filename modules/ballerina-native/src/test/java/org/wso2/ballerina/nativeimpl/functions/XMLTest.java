@@ -30,6 +30,8 @@ import org.wso2.ballerina.nativeimpl.util.Functions;
 import org.wso2.ballerina.nativeimpl.util.ParserUtils;
 import org.wso2.ballerina.nativeimpl.util.XMLUtils;
 
+import javax.xml.namespace.QName;
+
 /**
  * Test Native function in ballerina.lang.xml.
  */
@@ -334,6 +336,28 @@ public class XMLTest {
         BValue[] returns = Functions.invoke(bFile, "toString", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), s1);
+    }
+
+    @Test(description = "Test xml element string value replacement")
+    public void testSetXmlElementText() {
+        BValue[] returns = Functions.invoke(bFile, "xmlSetString1");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BXML.class);
+        BXML returnedXml = (BXML) returns[0];
+        OMElement xmlMessage = returnedXml.value();
+        String actualDName = xmlMessage.getFirstChildWithName(new QName("doctorName")).getText();
+        Assert.assertEquals(actualDName, "DName1", "XML Element text not set properly");
+    }
+
+    @Test(description = "Test xml text value replacement")
+    public void testSetXmlText() {
+        BValue[] returns = Functions.invoke(bFile, "xmlSetString2");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BXML.class);
+        BXML returnedXml = (BXML) returns[0];
+        OMElement xmlMessage = returnedXml.value();
+        String actualDName = xmlMessage.getFirstChildWithName(new QName("doctorName")).getText();
+        Assert.assertEquals(actualDName, "DName2", "XML Element text not set properly");
     }
 
 }

@@ -24,8 +24,7 @@ under the License.
     <!-- Native Function Related Test Cases. -->
     <test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.wso2.ballerina.nativeimpl.functions" />
-            <package name="org.wso2.ballerina.nativeimpl.lang" />
+            <package name="org.wso2.ballerina.nativeimpl.functions.*" />
         </packages>
     </test>
 

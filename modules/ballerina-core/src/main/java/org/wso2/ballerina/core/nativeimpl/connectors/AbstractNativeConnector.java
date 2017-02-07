@@ -20,19 +20,23 @@ import org.wso2.ballerina.core.model.NativeUnit;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.SymbolScope;
+import org.wso2.ballerina.core.model.SymbolScope.ScopeName;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.values.BValue;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@code AbstractNativeConnector} represents a Native Ballerina Connector.
  *
  * @since 0.8.0
  */
-public abstract class AbstractNativeConnector implements NativeUnit, Connector, BLangSymbol {
+public abstract class AbstractNativeConnector extends BType implements NativeUnit, Connector, BLangSymbol {
     // BLangSymbol related attributes
     protected String name;
     protected String pkgPath;
@@ -44,8 +48,14 @@ public abstract class AbstractNativeConnector implements NativeUnit, Connector, 
     private SimpleTypeName[] returnParamTypeNames;
     private SimpleTypeName[] argTypeNames;
     
-    public AbstractNativeConnector() {
-        parameterDefs = new ArrayList<>();
+    // Scope related variables
+    protected SymbolScope enclosingScope;
+    private Map<SymbolName, BLangSymbol> symbolMap;
+    
+    public AbstractNativeConnector(SymbolScope enclosingScope) {
+        super(enclosingScope);
+        this.parameterDefs = new ArrayList<>();
+        this.symbolMap = new HashMap<>();
     }
 
     public abstract boolean init(BValue[] bValueRefs);
@@ -135,5 +145,43 @@ public abstract class AbstractNativeConnector implements NativeUnit, Connector, 
     @Override
     public void setSymbolName(SymbolName symbolName) {
         this.symbolName = symbolName;
+    }
+    
+    // Methods in the SymbolScope interface
+
+    @Override
+    public ScopeName getScopeName() {
+        return ScopeName.CONNECTOR;
+    }
+
+    @Override
+    public SymbolScope getEnclosingScope() {
+        return enclosingScope;
+    }
+
+    @Override
+    public void define(SymbolName name, BLangSymbol symbol) {
+        symbolMap.put(name, symbol);
+    }
+
+    @Override
+    public BLangSymbol resolve(SymbolName name) {
+        return resolve(symbolMap, name);
+    }
+
+    // Methods in the BType interface
+    @Override
+    public <V extends BValue> V getDefaultValue() {
+        return null;
+    }
+    
+    /**
+     * Resolve a symbol in the current scope only. SymbolName will not be resolved in the enclosing scopes.
+     * 
+     * @param name SymbolName to lookup.
+     * @return Symbol in the current scope. Null if the symbol name is not available in the current scope
+     */
+    public BLangSymbol resolveMembers(SymbolName name) {
+        return symbolMap.get(name);
     }
 }
