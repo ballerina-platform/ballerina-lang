@@ -218,6 +218,26 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#nativeTypeConvertor}.
+	 * @param ctx the parse tree
+	 */
+	void enterNativeTypeConvertor(BallerinaParser.NativeTypeConvertorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#nativeTypeConvertor}.
+	 * @param ctx the parse tree
+	 */
+	void exitNativeTypeConvertor(BallerinaParser.NativeTypeConvertorContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#typeConvertor}.
+	 * @param ctx the parse tree
+	 */
+	void enterTypeConvertor(BallerinaParser.TypeConvertorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#typeConvertor}.
+	 * @param ctx the parse tree
+	 */
+	void exitTypeConvertor(BallerinaParser.TypeConvertorContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#typeConvertorInput}.
 	 * @param ctx the parse tree
 	 */
