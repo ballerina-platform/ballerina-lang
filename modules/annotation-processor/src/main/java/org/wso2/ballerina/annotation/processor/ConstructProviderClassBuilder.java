@@ -72,23 +72,25 @@ public class ConstructProviderClassBuilder {
     
     private String symbolNameStr = "new %s(\"%s\",\"%s\")";
     
-    private String getsuplierInsertionStr(String varName) {
+    private String getsuplierInsertionStr(String nativeUnitVarName, String classVarName) {
         String supplierInsertStr = "%s.define(%s,%n" +
                 "  new %s(() -> {%n" +
-                "      %s " + varName + " = null;%n" +
+                "      %s " + nativeUnitVarName + " = null;%n" +
                 "      try {%n" +
-                "          " + varName + " = ((%s) Class.forName(\"%s\").newInstance());%n" +
-                "          " + varName + ".setName(\"%s\");%n" +
-                "          " + varName + ".setPackagePath(\"%s\");%n" +
-                "          " + varName + ".setArgTypeNames(%s);%n" +
-                "          " + varName + ".setReturnParamTypeNames(%s);%n" +
-                "          " + varName + ".setStackFrameSize(%s);%n" +
-                "          " + varName + ".setSymbolName(%s);%n" +
+                "          Class " + classVarName + " = Class.forName(\"%s\");%n" +
+                "          " + nativeUnitVarName + " = ((%s) " + classVarName + 
+                ".getConstructor(%s).newInstance(%s));%n" +
+                "          " + nativeUnitVarName + ".setName(\"%s\");%n" +
+                "          " + nativeUnitVarName + ".setPackagePath(\"%s\");%n" +
+                "          " + nativeUnitVarName + ".setArgTypeNames(%s);%n" +
+                "          " + nativeUnitVarName + ".setReturnParamTypeNames(%s);%n" +
+                "          " + nativeUnitVarName + ".setStackFrameSize(%s);%n" +
+                "          " + nativeUnitVarName + ".setSymbolName(%s);%n" +
                 "          %s" +
-                "          return " + varName + ";%n" +
+                "          return " + nativeUnitVarName + ";%n" +
                 "      } catch (Exception ignore) {%n" +
                 "      } finally {%n" +
-                "          return " + varName + ";%n" +
+                "          return " + nativeUnitVarName + ";%n" +
                 "      }%n" +
                 "  })%n" +
                 ");%n%n";
@@ -154,8 +156,9 @@ public class ConstructProviderClassBuilder {
      */
     public void addNativeConstruct(String packageName, String constructName, String className, Argument[] arguments,
             ReturnType[] returnTypes, int stackFrameSize) {
-        String functionSupplier = getConstructInsertStr(GLOBAL_SCOPE, packageName, constructName, className, arguments, 
-                returnTypes, stackFrameSize, "nativeCallableUnit", null, nativeUnitClassName);
+        String functionSupplier = getConstructInsertStr(GLOBAL_SCOPE, packageName, constructName, null, null, 
+                className, arguments, returnTypes, stackFrameSize, "nativeCallableUnit", null, nativeUnitClassName,
+                "nativeUnitClass");
         try {
             sourceFileWriter.write(functionSupplier);
         } catch (IOException e) {
@@ -163,19 +166,26 @@ public class ConstructProviderClassBuilder {
         }
     }
     
-    private String getConstructInsertStr(String scope, String packageName, String constructName, String className,
-            Argument[] arguments, ReturnType[] returnTypes, int stackFrameSize, String constructVarName, 
-            String scopeElements, String nativeUnitClassName) {
+    private String getConstructInsertStr(String scope, String packageName, String constructName, 
+            String constructArgType, String constructArg, String className, Argument[] arguments, 
+            ReturnType[] returnTypes, int stackFrameSize, String constructVarName, String scopeElements, 
+            String nativeUnitClassName, String nativeUnitCLassVarName) {
         String createSymbolStr = String.format(symbolNameStr, symbolNameClassName, constructName, packageName);
         String retrunTypesArrayStr = getReturnTypes(returnTypes);
         String argsTypesArrayStr = getArgTypes(arguments);
-        String supplierInsertStr = getsuplierInsertionStr(constructVarName);
+        String supplierInsertStr = getsuplierInsertionStr(constructVarName, nativeUnitCLassVarName);
         if (scopeElements == null) {
             scopeElements = "";
         }
+        if (constructArgType == null) {
+            constructArgType = "";
+        }
+        if (constructArg == null) {
+            constructArg = "";
+        }
         return String.format(supplierInsertStr, scope, createSymbolStr, nativeProxyClassName, 
-            nativeUnitClassName, nativeUnitClassName, className, constructName, packageName, 
-            argsTypesArrayStr, retrunTypesArrayStr, stackFrameSize, createSymbolStr, scopeElements);
+            nativeUnitClassName, className, nativeUnitClassName, constructArgType, constructArg, constructName, 
+            packageName, argsTypesArrayStr, retrunTypesArrayStr, stackFrameSize, createSymbolStr, scopeElements);
     }
     
     
@@ -332,15 +342,17 @@ public class ConstructProviderClassBuilder {
                 String actionClassName = action.getClassName();
                 addNativeConstruct(actionPkgName, actionName, actionClassName, balAction.args(), null,
                         balAction.args().length);
-                String actionAddStr = getConstructInsertStr(connectorVarName, actionPkgName, actionName, 
+                String actionAddStr = getConstructInsertStr(connectorVarName, actionPkgName, actionName, null, null,
                         actionClassName, balAction.args(), null, balAction.args().length, "nativeAction", null, 
-                        nativeUnitClassName);
+                        nativeUnitClassName, "nativeActionClass");
                 strBuilder.append(actionAddStr);
             }
-
+            String nativeConnectorClassName = AbstractNativeConnector.class.getSimpleName();
+            String symbolScopClass = SymbolScope.class.getName() + ".class";
             String connectorAddStr = getConstructInsertStr(GLOBAL_SCOPE, connectorPkgName, connectorName, 
-                    connectorClassName, balConnector.args(), null, balConnector.args().length, connectorVarName, 
-                    strBuilder.toString(), AbstractNativeConnector.class.getSimpleName());
+                    symbolScopClass, GLOBAL_SCOPE, connectorClassName, balConnector.args(), null, 
+                    balConnector.args().length, connectorVarName, strBuilder.toString(), nativeConnectorClassName, 
+                    "nativeConnectorClass");
             
             addNativeConstruct(connectorPkgName, connectorName, connectorClassName, balConnector.args(), null, 
                     balConnector.args().length);
