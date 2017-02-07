@@ -18,14 +18,14 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.model.builder.CallableUnitGroupBuilder;
+import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.types.BType;
-import org.wso2.ballerina.core.model.values.BConnector;
 import org.wso2.ballerina.core.model.values.BValue;
 
+import java.util.HashMap;
 import java.util.Map;
-
-import static org.wso2.ballerina.core.model.types.TypeConstants.CONNECTOR_TNAME;
 
 /**
  * A {@code Connector} represents a participant in the integration and is used to interact with an external system.
@@ -46,57 +46,22 @@ public class BallerinaConnectorDef extends BType implements Connector, SymbolSco
     private NodeLocation location;
 
     // BLangSymbol related attributes
-    protected String name;
     protected String pkgPath;
     protected boolean isPublic;
     protected SymbolName symbolName;
 
     private Annotation[] annotations;
     private ParameterDef[] parameterDefs;
-    private ConnectorDcl[] connectorDcls;
-    private VariableDef[] variableDefs;
     private BallerinaAction[] actions;
+    private VariableDefStmt[] variableDefStmts;
     private int sizeOfConnectorMem;
 
     // Scope related variables
-    private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
 
-    public BallerinaConnectorDef(NodeLocation location,
-                                 String name,
-                                 String pkgPath,
-                                 Boolean isPublic,
-                                 SymbolName symbolName,
-                                 Annotation[] annotations,
-                                 ParameterDef[] parameterDefs,
-                                 ConnectorDcl[] connectorDcls,
-                                 VariableDef[] variableDefs,
-                                 BallerinaAction[] actions,
-                                 SymbolScope enclosingScope,
-                                 Map<SymbolName, BLangSymbol> symbolMap) {
-
-        super(CONNECTOR_TNAME, pkgPath, enclosingScope, BConnector.class);
-
-        this.location = location;
-        this.name = name;
-        this.pkgPath = pkgPath;
-        this.isPublic = isPublic;
-        this.symbolName = symbolName;
-
-        this.parameterDefs = parameterDefs;
-        this.annotations = annotations;
-        this.connectorDcls = connectorDcls;
-        this.variableDefs = variableDefs;
-        this.actions = actions;
-
-        this.enclosingScope = enclosingScope;
-        this.symbolMap = symbolMap;
-
-        // Set the connector name for all the actions
-        // TODO Figure out a way to handle this
-//        for (Action action : actions) {
-//            action.getSymbolName().setConnectorName(name.getName());
-//        }
+    private BallerinaConnectorDef(SymbolScope enclosingScope) {
+        super(enclosingScope);
+        this.symbolMap = new HashMap<>();
     }
 
     /**
@@ -113,30 +78,16 @@ public class BallerinaConnectorDef extends BType implements Connector, SymbolSco
     }
 
     /**
-     * Get all Connections declared within the Connector scope.
-     *
-     * @return list of all the Connections belongs to a Service
-     */
-    public ConnectorDcl[] getConnectorDcls() {
-        return connectorDcls;
-    }
-
-    /**
-     * Get all the variables declared in the scope of Connector.
-     *
-     * @return list of all Connector scoped variables
-     */
-    public VariableDef[] getVariableDefs() {
-        return variableDefs;
-    }
-
-    /**
      * Get all the Actions can be performed in the Connector.
      *
      * @return array of all Actions
      */
     public BallerinaAction[] getActions() {
         return actions;
+    }
+
+    public VariableDefStmt[] getVariableDefStmts() {
+        return variableDefStmts;
     }
 
     public void setSizeOfConnectorMem(int sizeOfConnectorMem) {
@@ -170,7 +121,7 @@ public class BallerinaConnectorDef extends BType implements Connector, SymbolSco
 
     @Override
     public String getName() {
-        return name;
+        return typeName;
     }
 
     @Override
@@ -208,7 +159,7 @@ public class BallerinaConnectorDef extends BType implements Connector, SymbolSco
 
     @Override
     public SymbolScope getEnclosingScope() {
-        return enclosingScope;
+        return symbolScope;
     }
 
     @Override
@@ -219,5 +170,34 @@ public class BallerinaConnectorDef extends BType implements Connector, SymbolSco
     @Override
     public BLangSymbol resolve(SymbolName name) {
         return resolve(symbolMap, name);
+    }
+
+    /**
+     * {@code BallerinaConnectorDefBuilder} is responsible for building a {@cdoe BallerinaConnectorDef} node.
+     *
+     * @since 0.8.0
+     */
+    public static class BallerinaConnectorDefBuilder extends CallableUnitGroupBuilder {
+        private BallerinaConnectorDef connectorDef;
+
+        public BallerinaConnectorDefBuilder(SymbolScope enclosingScope) {
+            connectorDef = new BallerinaConnectorDef(enclosingScope);
+            currentScope = connectorDef;
+        }
+
+        public BallerinaConnectorDef buildConnector() {
+            this.connectorDef.location = this.location;
+            this.connectorDef.typeName = this.name;
+            this.connectorDef.pkgPath = this.pkgPath;
+            this.connectorDef.symbolName = new SymbolName(name, pkgPath);
+
+            this.connectorDef.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            this.connectorDef.parameterDefs = this.parameterDefList.toArray(
+                    new ParameterDef[this.parameterDefList.size()]);
+            this.connectorDef.actions = this.actionList.toArray(new BallerinaAction[this.actionList.size()]);
+            this.connectorDef.variableDefStmts = this.variableDefStmtList.toArray(
+                    new VariableDefStmt[variableDefStmtList.size()]);
+            return connectorDef;
+        }
     }
 }
