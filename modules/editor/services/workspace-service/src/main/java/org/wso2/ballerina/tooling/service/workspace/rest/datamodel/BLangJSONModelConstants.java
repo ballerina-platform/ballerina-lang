@@ -176,6 +176,10 @@ public class BLangJSONModelConstants {
 
     public static final String BACK_QUOTE_ENCLOSED_STRING = "back_quote_enclosed_string";
 
+    public static final String MAP_INIT_EXPRESSION = "map_init_expression";
+
+    public static final String MAP_ENCLOSED_EXPRESSION = "map_enclosed_expression";
+
     public static final String INSTANCE_CREATION_EXPRESSION = "instance_creation_expression";
 
     public static final String INSTANCE_CREATION_EXPRESSION_INSTANCE_TYPE = "instance_type";
@@ -198,4 +202,5 @@ public class BLangJSONModelConstants {
     
     public static final String STRUCT_NAME = "struct_name";
 
+    public static final String KEY_VALUE_EXPRESSION_KEY = "key";
 }
