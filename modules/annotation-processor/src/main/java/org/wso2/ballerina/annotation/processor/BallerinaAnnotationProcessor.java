@@ -127,12 +127,11 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     private void processNativeFunctions(Set<Element> balFunctionElements, ConstructProviderClassBuilder classBuilder) {
         for (Element element : balFunctionElements) {
             BallerinaFunction balFunction = element.getAnnotation(BallerinaFunction.class);
-            String functionName = getFunctionQualifiedName(balFunction);
-//            String functionName = balFunction.functionName();
+            String functionQualifiedName = getFunctionQualifiedName(balFunction);
             String packageName = balFunction.packageName();
             String className = getClassName(element);
-            classBuilder.addNativeConstruct(packageName, functionName, className, balFunction.args(), 
-                    balFunction.returnType(), balFunction.args().length);
+            classBuilder.addNativeConstruct(packageName, balFunction.functionName(), functionQualifiedName, className,
+                balFunction.args(), balFunction.returnType(), balFunction.args().length);
         }
     }
     
@@ -176,11 +175,12 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
             ConstructProviderClassBuilder classBuilder) {
         for (Element element : balTypeConvertorElements) {
             BallerinaTypeConvertor balTypeConvertor = element.getAnnotation(BallerinaTypeConvertor.class);
-            String typeConvertorName = getTypeConverterQualifiedName(balTypeConvertor);
+            String typeConvertorQualifiedName = getTypeConverterQualifiedName(balTypeConvertor);
             String packageName = balTypeConvertor.packageName();
             String className = getClassName(element);
-            classBuilder.addNativeConstruct(packageName, typeConvertorName, className, balTypeConvertor.args(), 
-                    balTypeConvertor.returnType(), balTypeConvertor.args().length);
+            classBuilder.addNativeConstruct(packageName, balTypeConvertor.typeConverterName(), 
+                typeConvertorQualifiedName, className, balTypeConvertor.args(), balTypeConvertor.returnType(),
+                balTypeConvertor.args().length);
         }
     }
     
