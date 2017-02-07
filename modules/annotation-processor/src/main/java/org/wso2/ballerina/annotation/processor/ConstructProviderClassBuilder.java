@@ -78,7 +78,8 @@ public class ConstructProviderClassBuilder {
                 "      %s " + nativeUnitVarName + " = null;%n" +
                 "      try {%n" +
                 "          Class " + classVarName + " = Class.forName(\"%s\");%n" +
-                "          " + nativeUnitVarName + " = ((%s) " + classVarName + ".getConstructor(%s).newInstance(%s));%n" +
+                "          " + nativeUnitVarName + " = ((%s) " + classVarName + 
+                ".getConstructor(%s).newInstance(%s));%n" +
                 "          " + nativeUnitVarName + ".setName(\"%s\");%n" +
                 "          " + nativeUnitVarName + ".setPackagePath(\"%s\");%n" +
                 "          " + nativeUnitVarName + ".setArgTypeNames(%s);%n" +
