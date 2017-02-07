@@ -96,6 +96,7 @@ import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.model.statements.ThrowStmt;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
@@ -603,8 +604,32 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(BlockStmt blockStmt) {
         openScope(blockStmt);
 
+        Statement lastStmt = null;
         for (Statement stmt : blockStmt.getStatements()) {
+            if (lastStmt != null) {
+                if (lastStmt instanceof ReplyStmt) {
+                    throw new SemanticException("error: " + stmt.getNodeLocation().getFileName() + ":" +
+                            stmt.getNodeLocation().getLineNumber() + " Unreachable Statement after reply.");
+                } else if (lastStmt instanceof ReturnStmt) {
+                    throw new SemanticException("error: " + stmt.getNodeLocation().getFileName() + ":" +
+                            stmt.getNodeLocation().getLineNumber() + " Unreachable Statement after return.");
+                } else if (lastStmt instanceof BreakStmt) {
+                    throw new SemanticException("error: " + stmt.getNodeLocation().getFileName() + ":" +
+                            stmt.getNodeLocation().getLineNumber() + " Unreachable Statement after break.");
+                } else if (lastStmt instanceof ThrowStmt) {
+                    throw new SemanticException("error: " + stmt.getNodeLocation().getFileName() + ":" +
+                            stmt.getNodeLocation().getLineNumber() + " Unreachable Statement after throw.");
+                }
+                if (lastStmt instanceof BlockStmt) {
+                    // Liked statement implementation assume there is no Sibling block statements.
+                    // Execution shouldn't reach here.
+                    throw new SemanticException("Internal Error. Broken Link in "
+                            + stmt.getNodeLocation().getFileName() + ":"
+                            + stmt.getNodeLocation().getLineNumber() + ". Found Sibling Block statements.");
+                }
+            }
             stmt.accept(this);
+            lastStmt = stmt;
         }
 
         closeScope();
