@@ -114,11 +114,12 @@ import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.types.BXMLType;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.types.TypeConstants;
+import org.wso2.ballerina.core.model.types.TypeEdge;
+import org.wso2.ballerina.core.model.types.TypeLattice;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.nativeimpl.NativeUnitProxy;
-import org.wso2.ballerina.core.nativeimpl.convertors.NativeCastConvertor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -144,6 +145,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     private int structMemAddrOffset = -1;
     private SymTable symbolTable;
     private String currentPkg;
+    private TypeLattice packageTypeLattice;
     private CallableUnit currentCallableUnit = null;
     private MemoryLocation currentMemLocation = null;
 
@@ -164,6 +166,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         importPkgMap = bFile.getImportPackageMap();
 
         defineFunctions(bFile.getFunctions());
+        packageTypeLattice = bFile.getTypeLattice();
 //        defineConnectors(bFile.getConnectors());
 
 //        bFile.getConnectorList().forEach(connector -> {
@@ -196,7 +199,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             Arrays.asList(connector.getActions()).forEach(this::addActionSymbol);
         });
 
-        Arrays.asList(bFile.getTypeConvertors()).forEach(this::addTypeConverterSymbol);
+        packageTypeLattice = bFile.getTypeLattice();
     }
 
     @Override
@@ -359,8 +362,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         //checkForMissingReturnStmt(function, "missing return statement at end of function");
 
         for (ParameterDef parameterDef : typeConvertor.getParameterDefs()) {
-            stackFrameOffset++;
-            visit(parameterDef);
+            parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            parameterDef.accept(this);
         }
 
 //        for (VariableDef variableDef : typeConvertor.getVariableDefs()) {
@@ -371,16 +374,17 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (ParameterDef parameterDef : typeConvertor.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
-            if (parameterDef.getName() == null) {
-                break;
+            if (parameterDef.getName() != null) {
+                parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
             }
 
-            stackFrameOffset++;
-            visit(parameterDef);
+            parameterDef.accept(this);
         }
 
         BlockStmt blockStmt = typeConvertor.getCallableUnitBody();
+        currentScope = blockStmt;
         blockStmt.accept(this);
+        currentScope = blockStmt.getEnclosingScope();
 
         // Here we need to calculate size of the BValue array which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
@@ -590,7 +594,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             } else if ((varBType != BTypes.typeMap) && (returnTypes[0] != BTypes.typeMap) &&
                     (!varBType.equals(returnTypes[0]))) {
 
-                TypeCastExpression newExpr = checkWideningPossibleForAssign(varBType, rExpr);
+                TypeCastExpression newExpr = checkWideningPossible(varBType, rExpr, null);
                 if (newExpr != null) {
                     newExpr.accept(this);
                     varDefStmt.setRExpr(newExpr);
@@ -640,11 +644,16 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         visitSingleValueExpr(rExpr);
+        BType rType = rExpr.getType();
+        if (rExpr instanceof TypeCastExpression && rType == null) {
+            rType = BTypes.resolveType(((TypeCastExpression) rExpr).getTypeName(), currentScope, null);
+        }
 
         // TODO Remove the MAP related logic when type casting is implemented
-        if ((lExpr.getType() != BTypes.typeMap) && (rExpr.getType() != BTypes.typeMap) &&
-                (!lExpr.getType().equals(rExpr.getType()))) {
-            TypeCastExpression newExpr = checkWideningPossibleForAssign(lExpr.getType(), rExpr);
+        if ((lExprType != BTypes.typeMap) && (rType != BTypes.typeMap) &&
+                (!lExprType.equals(rType))) {
+
+            TypeCastExpression newExpr = checkWideningPossible(lExpr.getType(), rExpr, null);
             if (newExpr != null) {
                 newExpr.accept(this);
                 assignStmt.setRhsExpr(newExpr);
@@ -898,13 +907,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         linkFunction(funcIExpr);
 
-        //Find the return types of this function invocation expression.
-        ParameterDef[] returnParams = funcIExpr.getCallableUnit().getReturnParameters();
-        BType[] returnTypes = new BType[returnParams.length];
-        for (int i = 0; i < returnParams.length; i++) {
-            returnTypes[i] = returnParams[i].getType();
-        }
-        funcIExpr.setTypes(returnTypes);
+        BType[] returnParamTypes = funcIExpr.getCallableUnit().getReturnParamTypes();
+        funcIExpr.setTypes(returnParamTypes);
     }
 
     // TODO Duplicate code. fix me
@@ -1235,7 +1239,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             // Types are defined only once, hence the following object equal should work.
             if (argExprs[i].getType() != expectedElementType) {
-                TypeCastExpression typeCastExpr = checkWideningPossibleForAssign(expectedElementType, argExprs[i]);
+                TypeCastExpression typeCastExpr = checkWideningPossible(expectedElementType, argExprs[i], null);
                 if (typeCastExpr == null) {
                     throw new SemanticException(getNodeLocationStr(arrayInitExpr.getNodeLocation()) +
                             "incompatible types: '" + argExprs[i].getType() +
@@ -1382,86 +1386,15 @@ public class SemanticAnalyzer implements NodeVisitor {
         visitSingleValueExpr(typeCastExpression.getRExpr());
         BType sourceType = typeCastExpression.getRExpr().getType();
         BType targetType = typeCastExpression.getTargetType();
+        if (targetType == null) {
+            targetType = BTypes.resolveType(typeCastExpression.getTypeName(), currentScope, null);
+        }
         // Check whether this is a native conversion
         if (BTypes.isValueType(sourceType) &&
                 BTypes.isValueType(targetType)) {
-            if (sourceType == BTypes.typeString) {
-                if (targetType == BTypes.typeInt) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_INT_FUNC);
-                } else if (targetType == BTypes.typeLong) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_LONG_FUNC);
-                } else if (targetType == BTypes.typeFloat) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_FLOAT_FUNC);
-                } else if (targetType == BTypes.typeDouble) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_DOUBLE_FUNC);
-                } else if (targetType == BTypes.typeBoolean) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_BOOLEAN_FUNC);
-                } else {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.STRING_TO_STRING_FUNC);
-                }
-            } else if (sourceType == BTypes.typeInt) {
-                if (targetType == BTypes.typeString) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_STRING_FUNC);
-                } else if (targetType == BTypes.typeLong) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_LONG_FUNC);
-                } else if (targetType == BTypes.typeFloat) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_FLOAT_FUNC);
-                } else if (targetType == BTypes.typeDouble) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_DOUBLE_FUNC);
-                } else if (targetType == BTypes.typeInt) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.INT_TO_INT_FUNC);
-                }
-            } else if (sourceType == BTypes.typeLong) {
-                if (targetType == BTypes.typeInt) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_INT_FUNC);
-                } else if (targetType == BTypes.typeString) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_STRING_FUNC);
-                } else if (targetType == BTypes.typeFloat) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_FLOAT_FUNC);
-                } else if (targetType == BTypes.typeDouble) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_DOUBLE_FUNC);
-                } else if (targetType == BTypes.typeLong) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.LONG_TO_LONG_FUNC);
-                }
-            } else if (sourceType == BTypes.typeFloat) {
-                if (targetType == BTypes.typeInt) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_INT_FUNC);
-                } else if (targetType == BTypes.typeLong) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_LONG_FUNC);
-                } else if (targetType == BTypes.typeFloat) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_FLOAT_FUNC);
-                } else if (targetType == BTypes.typeDouble) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_DOUBLE_FUNC);
-                } else if (targetType == BTypes.typeString) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.FLOAT_TO_STRING_FUNC);
-                }
-            } else if (sourceType == BTypes.typeDouble) {
-                if (targetType == BTypes.typeInt) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_INT_FUNC);
-                } else if (targetType == BTypes.typeLong) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_LONG_FUNC);
-                } else if (targetType == BTypes.typeFloat) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_FLOAT_FUNC);
-                } else if (targetType == BTypes.typeDouble) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_DOUBLE_FUNC);
-                } else if (targetType == BTypes.typeString) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.DOUBLE_TO_STRING_FUNC);
-                }
-            } else if (sourceType == BTypes.typeBoolean) {
-                if (targetType == BTypes.typeString) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.BOOLEAN_TO_STRING_FUNC);
-                } else if (targetType == BTypes.typeBoolean) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.BOOLEAN_TO_BOOLEAN_FUNC);
-                }
-            } else if (sourceType == BTypes.typeXML) {
-                if (targetType == BTypes.typeString) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.XML_TO_STRING_FUNC);
-                }
-            } else if (sourceType == BTypes.typeJSON) {
-                if (targetType == BTypes.typeString) {
-                    typeCastExpression.setEvalFunc(NativeCastConvertor.JSON_TO_STRING_FUNC);
-                }
-            }
+            TypeEdge newEdge = null;
+            newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
+            typeCastExpression.setEvalFunc(newEdge.getTypeConvertorFunction());
         } else {
             linkTypeConverter(typeCastExpression, sourceType, targetType);
         }
@@ -1653,8 +1586,18 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression rExpr = binaryExpr.getRExpr();
         Expression lExpr = binaryExpr.getLExpr();
 
-        if (lExpr.getType() != rExpr.getType()) {
-            TypeCastExpression newExpr = checkWideningPossibleForBinary(lExpr, rExpr, binaryExpr.getOperator());
+        BType rType = rExpr.getType();
+        if (rExpr instanceof TypeCastExpression && rType == null) {
+            rType = BTypes.resolveType(((TypeCastExpression) rExpr).getTypeName(), currentScope, null);
+        }
+
+        BType lType = lExpr.getType();
+        if (lExpr instanceof TypeCastExpression && lType == null) {
+            lType = BTypes.resolveType(((TypeCastExpression) lExpr).getTypeName(), currentScope, null);
+        }
+
+        if (!(rType.equals(lType))) {
+            TypeCastExpression newExpr = checkWideningPossible(lExpr.getType(), rExpr, binaryExpr.getOperator());
             if (newExpr != null) {
                 newExpr.accept(this);
                 binaryExpr.setRExpr(newExpr);
@@ -2044,119 +1987,103 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private void linkTypeConverter(TypeCastExpression typeCastExpression, BType sourceType, BType targetType) {
-        // Check on the same package
-        SymbolName symbolName = new SymbolName(currentPkg + ":" + "_" + sourceType + "->" + "_" + targetType);
-        typeCastExpression.setTypeConverterName(symbolName);
-        Symbol symbol = symbolTable.lookup(symbolName);
+        TypeEdge newEdge = null;
+        TypeConvertor typeConvertor;
+        // First check on this package
+        newEdge = packageTypeLattice.getEdgeFromTypes(sourceType, targetType, currentPkg);
+        if (newEdge != null) {
+            typeConvertor = newEdge.getTypeConvertor();
+            if (typeConvertor != null) {
+                typeCastExpression.setCallableUnit(typeConvertor);
+            }
+        } else {
+            newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, currentPkg);
+            if (newEdge != null) {
+                typeConvertor = newEdge.getTypeConvertor();
+                if (typeConvertor != null) {
+                    typeCastExpression.setCallableUnit(typeConvertor);
+                }
+            } else {
+                newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
+                if (newEdge != null) {
+                    typeConvertor = newEdge.getTypeConvertor();
+                    if (typeConvertor != null) {
+                        typeCastExpression.setCallableUnit(typeConvertor);
+                    }
+                } else {
+                    String pkgPath = typeCastExpression.getPackagePath();
 
-        if (symbol == null) {
-            // Check on the global scope for native type convertors
-            symbolName = LangModelUtils.getTypeConverterSymNameWithoutPackage
-                    (sourceType, targetType);
-            typeCastExpression.setTypeConverterName(symbolName);
-            symbol = symbolTable.lookup(symbolName);
+                    Expression[] exprs = typeCastExpression.getArgExprs();
+                    BType[] paramTypes = new BType[exprs.length];
+                    for (int i = 0; i < exprs.length; i++) {
+                        paramTypes[i] = exprs[i].getType();
+                    }
+
+                    SymbolName symbolName = LangModelUtils.getTypeConverterSymNameWithoutPackage
+                            (sourceType, targetType);
+                    BLangSymbol typeConvertorSymbol = currentScope.resolve(symbolName);
+                    if (typeConvertorSymbol == null) {
+                        String funcName = (typeCastExpression.getPackageName() != null) ?
+                                typeCastExpression.getPackageName() + ":" +
+                                typeCastExpression.getName() : typeCastExpression.getName();
+                        throw new SemanticException(typeCastExpression.getNodeLocation().getFileName() + ":" +
+                                typeCastExpression.getNodeLocation().getLineNumber() +
+                                ": undefined function '" + funcName + "'");
+                    }
+
+                    if (typeConvertorSymbol instanceof NativeUnitProxy) {
+                        typeConvertor = (TypeConvertor) ((NativeUnitProxy) typeConvertorSymbol).load();
+                        // TODO We need to find a way to load input parameter types
+
+                        // Loading return parameter types of this native function
+                        NativeUnit nativeUnit = (NativeUnit) typeConvertor;
+                        SimpleTypeName[] returnParamTypeNames = nativeUnit.getReturnParamTypeNames();
+                        BType[] returnTypes = new BType[returnParamTypeNames.length];
+                        for (int i = 0; i < returnParamTypeNames.length; i++) {
+                            SimpleTypeName typeName = returnParamTypeNames[i];
+                            BType bType = BTypes.resolveType(typeName, currentScope,
+                                    typeCastExpression.getNodeLocation());
+                            returnTypes[i] = bType;
+                        }
+                        typeConvertor.setReturnParamTypes(returnTypes);
+
+                    } else {
+                        typeConvertor = (TypeConvertor) typeConvertorSymbol;
+                    }
+
+                    if (typeConvertor != null) {
+                        typeConvertor.setParameterTypes(paramTypes);
+                        // Link the function with the function invocation expression
+                        typeCastExpression.setCallableUnit(typeConvertor);
+                    } else {
+                        throw new LinkerException(typeCastExpression.getNodeLocation().getFileName() + ":" +
+                                typeCastExpression.getNodeLocation().getLineNumber() +
+                                ": type converter cannot be found for '" + sourceType
+                                + " to " + targetType + "'");
+                    }
+                }
+            }
         }
-
-        if (symbol == null) {
-            throw new LinkerException(typeCastExpression.getNodeLocation().getFileName() + ":" +
-                    typeCastExpression.getNodeLocation().getLineNumber() +
-                    ": type converter cannot be found for '" + sourceType
-                    + "to " + targetType + "'");
-        }
-
-        // Link
-        TypeConvertor typeConvertor = symbol.getTypeConvertor();
-        typeCastExpression.setCallableUnit(typeConvertor);
-
     }
 
-    // Function to check whether implicit widening (casting) is possible for binary expression
-    private TypeCastExpression checkWideningPossibleForBinary(Expression lhsExpr, Expression rhsExpr, Operator op) {
+    private TypeCastExpression checkWideningPossible(BType lhsType, Expression rhsExpr, Operator op) {
         BType rhsType = rhsExpr.getType();
-        BType lhsType = lhsExpr.getType();
+        if (rhsType == null && rhsExpr instanceof TypeCastExpression) {
+            rhsType = BTypes.resolveType(((TypeCastExpression) rhsExpr).getTypeName(), currentScope, null);
+        }
         TypeCastExpression newExpr = null;
-        if ((rhsType == BTypes.typeInt && lhsType == BTypes.typeLong) ||
-                (lhsType == BTypes.typeInt && rhsType == BTypes.typeLong)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeLong);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_LONG_FUNC);
-        } else if ((rhsType == BTypes.typeInt && lhsType == BTypes.typeFloat) ||
-                (lhsType == BTypes.typeInt && rhsType == BTypes.typeFloat)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeFloat);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_FLOAT_FUNC);
-        } else if ((rhsType == BTypes.typeInt && lhsType == BTypes.typeDouble) ||
-                (lhsType == BTypes.typeInt && rhsType == BTypes.typeDouble)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeDouble);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_DOUBLE_FUNC);
-        } else if (((rhsType == BTypes.typeInt && lhsType == BTypes.typeString) ||
-                (lhsType == BTypes.typeInt && rhsType == BTypes.typeString)) && op.equals(Operator.ADD)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_STRING_FUNC);
-        } else if ((rhsType == BTypes.typeLong && lhsType == BTypes.typeFloat) ||
-                (lhsType == BTypes.typeLong && rhsType == BTypes.typeFloat)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeFloat);
-            newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_FLOAT_FUNC);
-        } else if ((rhsType == BTypes.typeLong && lhsType == BTypes.typeDouble) ||
-                (lhsType == BTypes.typeLong && rhsType == BTypes.typeDouble)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeDouble);
-            newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_DOUBLE_FUNC);
-        } else if (((rhsType == BTypes.typeLong && lhsType == BTypes.typeString) ||
-                (lhsType == BTypes.typeLong && rhsType == BTypes.typeString)) && op.equals(Operator.ADD)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
-            newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_STRING_FUNC);
-        } else if ((rhsType == BTypes.typeFloat && lhsType == BTypes.typeDouble) ||
-                (lhsType == BTypes.typeFloat && rhsType == BTypes.typeDouble)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeDouble);
-            newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_DOUBLE_FUNC);
-        } else if (((rhsType == BTypes.typeFloat && lhsType == BTypes.typeString) ||
-                (lhsType == BTypes.typeFloat && rhsType == BTypes.typeString)) && op.equals(Operator.ADD)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
-            newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_STRING_FUNC);
-        } else if (((rhsType == BTypes.typeDouble && lhsType == BTypes.typeString) ||
-                (lhsType == BTypes.typeDouble && rhsType == BTypes.typeString)) && op.equals(Operator.ADD)) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
-            newExpr.setEvalFunc(NativeCastConvertor.DOUBLE_TO_STRING_FUNC);
+        TypeEdge newEdge = null;
+
+        if (((rhsType.equals(BTypes.typeString) || lhsType.equals(BTypes.typeString)) && op != null
+                && op.equals(Operator.ADD)) || (!(rhsType.equals(BTypes.typeString)) &&
+                !(lhsType.equals(BTypes.typeString)) && op != null) || op == null) {
+            newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rhsType, lhsType, null);
         }
 
-        return newExpr;
-    }
-
-    // Function to check whether implicit widening (casting) is possible for assignment statement
-    private TypeCastExpression checkWideningPossibleForAssign(BType lhsType, Expression rhsExpr) {
-        BType rhsType = rhsExpr.getType();
-//        BType lhsType = lhsExpr.getType();
-        TypeCastExpression newExpr = null;
-        if (rhsType == BTypes.typeInt && lhsType == BTypes.typeLong) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeLong);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_LONG_FUNC);
-        } else if (rhsType == BTypes.typeInt && lhsType == BTypes.typeFloat) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeFloat);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_FLOAT_FUNC);
-        } else if (rhsType == BTypes.typeInt && lhsType == BTypes.typeDouble) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeDouble);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_DOUBLE_FUNC);
-        } else if (rhsType == BTypes.typeInt && lhsType == BTypes.typeString) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
-            newExpr.setEvalFunc(NativeCastConvertor.INT_TO_STRING_FUNC);
-        } else if (rhsType == BTypes.typeLong && lhsType == BTypes.typeFloat) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeFloat);
-            newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_FLOAT_FUNC);
-        } else if (rhsType == BTypes.typeLong && lhsType == BTypes.typeDouble) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeDouble);
-            newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_DOUBLE_FUNC);
-        } else if (rhsType == BTypes.typeLong && lhsType == BTypes.typeString) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
-            newExpr.setEvalFunc(NativeCastConvertor.LONG_TO_STRING_FUNC);
-        } else if (rhsType == BTypes.typeFloat && lhsType == BTypes.typeDouble) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeDouble);
-            newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_DOUBLE_FUNC);
-        } else if (rhsType == BTypes.typeFloat && lhsType == BTypes.typeString) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
-            newExpr.setEvalFunc(NativeCastConvertor.FLOAT_TO_STRING_FUNC);
-        } else if (rhsType == BTypes.typeDouble && lhsType == BTypes.typeString) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, BTypes.typeString);
-            newExpr.setEvalFunc(NativeCastConvertor.DOUBLE_TO_STRING_FUNC);
+        if (newEdge != null) {
+            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, lhsType);
+            newExpr.setEvalFunc(newEdge.getTypeConvertorFunction());
         }
-
         return newExpr;
     }
 

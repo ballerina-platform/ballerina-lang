@@ -287,7 +287,7 @@ public class BLangExecutor implements NodeExecutor {
         }
 
         // Create an array in the stack frame to hold return values;
-        BValue[] returnVals = new BValue[function.getReturnParameters().length];
+        BValue[] returnVals = new BValue[function.getReturnParamTypes().length];
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
         // return values and function invocation location;
@@ -556,11 +556,11 @@ public class BLangExecutor implements NodeExecutor {
             // Get values for all the function arguments
             int valueCounter = populateArgumentValues(typeCastExpression.getArgExprs(), localVals);
 
-            // Create default values for all declared local variables
-            for (VariableDef variableDef : typeConvertor.getVariableDefs()) {
-                localVals[valueCounter] = variableDef.getType().getDefaultValue();
-                valueCounter++;
-            }
+//            // Create default values for all declared local variables
+//            for (VariableDef variableDef : typeConvertor.getVariableDefs()) {
+//                localVals[valueCounter] = variableDef.getType().getDefaultValue();
+//                valueCounter++;
+//            }
 
             for (ParameterDef returnParam : typeConvertor.getReturnParameters()) {
                 // Check whether these are unnamed set of return types.
@@ -578,9 +578,15 @@ public class BLangExecutor implements NodeExecutor {
 
             // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
             // return values and function invocation location;
-            SymbolName functionSymbolName = typeCastExpression.getCallableUnit().getSymbolName();
-            CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
-                    functionSymbolName.getPkgPath(), typeCastExpression.getNodeLocation());
+            CallableUnitInfo functionInfo;
+            SymbolName typeconvertorSymbolName = typeCastExpression.getTypeConverterName();
+            if (typeconvertorSymbolName != null) {
+                functionInfo = new CallableUnitInfo(typeconvertorSymbolName.getName(),
+                        typeconvertorSymbolName.getPkgPath(), typeCastExpression.getNodeLocation());
+            } else {
+                functionInfo = new CallableUnitInfo(typeConvertor.getTypeConverterName(),
+                        typeConvertor.getPackagePath(), typeCastExpression.getNodeLocation());
+            }
 
             StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
             controlStack.pushFrame(stackFrame);

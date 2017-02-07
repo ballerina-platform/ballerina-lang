@@ -314,10 +314,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
             if (identifier != null) {
                 String fileName = identifier.getSymbol().getInputStream().getSourceName();
                 int lineNo = identifier.getSymbol().getLine();
-                NodeLocation functionLocation = new NodeLocation(fileName, lineNo);
-                String typeConverterName = "_" + ctx.typeConvertorInput().typeConvertorType().getText() + "->" + "_" +
-                        ctx.typeConvertorType().getText();
-                modelBuilder.addTypeConverter(functionLocation, typeConverterName, isPublic);
+                NodeLocation typeconvertorLocation = new NodeLocation(fileName, lineNo);
+                modelBuilder.addTypeConverter(ctx.typeConvertorInput().typeConvertorType().getText()
+                        , ctx.typeConvertorType().getText(), identifier.getText(), typeconvertorLocation, isPublic);
             }
         }
     }
@@ -455,6 +454,17 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitTypeConvertorType(BallerinaParser.TypeConvertorTypeContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        if (isSimpleType) {
+            modelBuilder.addSimpleTypeName(getCurrentLocation(ctx), typeName, currentPkgName, isArrayType);
+            typeName = null;
+            currentPkgName = null;
+            isArrayType = false;
+            isSimpleType = false;
+        }
 
     }
 
