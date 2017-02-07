@@ -122,7 +122,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this.renderMiddleRectangle();
         this.renderContentArea();
         this.listenTo(this._model, 'update-property-text', this.updateTitleText);
-        this.getBoundingBox().on('right-edge-moved', function (dx) {
+        // When the center of the bounding box moves, we need to move the life line as well.
+        this.getBoundingBox().on('center-x-moved', function (dx) {
             self.move(dx, 0);
         });
         return this;
