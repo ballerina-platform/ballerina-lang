@@ -57,6 +57,7 @@ import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MapStructInitKeyValueExpr;
 import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
+import org.wso2.ballerina.core.model.expressions.ReferenceExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
@@ -102,6 +103,7 @@ import org.wso2.ballerina.core.model.statements.ThrowStmt;
 import org.wso2.ballerina.core.model.statements.TryCatchStmt;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.types.BMapType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.util.BValueUtils;
@@ -351,18 +353,6 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
 
         valueParams[0] = messageValue;
 
-        int valueCounter = 1;
-
-        // Populate values for Connector declarations
-        valueCounter = populateConnectorDclValues(resource.getConnectorDcls(), valueParams, valueCounter);
-
-        // Create default values for all declared local variables
-        VariableDef[] variableDefs = resource.getVariableDefs();
-        for (VariableDef variableDef : variableDefs) {
-            valueParams[valueCounter] = variableDef.getType().getDefaultValue();
-            valueCounter++;
-        }
-
         BValue[] ret = new BValue[1];
 
         SymbolName resourceSymbolName = resource.getSymbolName();
@@ -408,7 +398,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         if (logger.isDebugEnabled()) {
             logger.debug("Executing VariableRefExpr");
         }
-        MemoryLocation memoryLocation = variableRefExpr.getMemoryLocation();
+        MemoryLocation memoryLocation = variableRefExpr.getVariableDef().getMemoryLocation();
         setTempResult(variableRefExpr.getTempOffset(), memoryLocation.executeLNode(this));
     }
 
@@ -445,11 +435,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
 
     @Override
     public BValue visit(StructVarLocation structLocation) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Executing StructVarLocation");
-        }
-        BStruct bStruct = (BStruct) controlStack.getValue(structLocation.getStructMemAddrOffset());
-        return bStruct.getValue(structLocation.getStructMemAddrOffset());
+        throw new IllegalArgumentException("struct value is required to get the value of a field");
     }
 
     @Override
@@ -792,11 +778,21 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         int offset = 0;
         structMemBlock = new BValue[structDef.getStructMemorySize()];
 
+        Expression[] argExprs = structInitExpr.getArgExprs();
+
         // create a memory block to hold field of the struct, and populate it with default values
         VariableDef[] fields = structDef.getFields();
         for (VariableDef field : fields) {
             structMemBlock[offset] = field.getType().getDefaultValue();
             offset++;
+        }
+
+        // iterate through initialized values and re-populate the memory block
+        for (int i = 0; i < argExprs.length; i++) {
+            MapStructInitKeyValueExpr expr = (MapStructInitKeyValueExpr) argExprs[i];
+            VariableRefExpr varRefExpr = (VariableRefExpr) expr.getKeyExpr();
+            StructVarLocation structVarLoc = (StructVarLocation) (varRefExpr).getVariableDef().getMemoryLocation();
+            structMemBlock[structVarLoc.getStructMemAddrOffset()] = getTempResult(expr.getValueExpr().getTempOffset());
         }
         setTempResult(structInitExpr.getTempOffset(), new BStruct(structDef, structMemBlock));
     }
@@ -821,12 +817,6 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
             // Get values for all the function arguments
             int valueCounter = populateArgumentValues(typeCastExpression.getArgExprs(), localVals);
 
-            // Create default values for all declared local variables
-            for (VariableDef variableDef : typeConvertor.getVariableDefs()) {
-                localVals[valueCounter] = variableDef.getType().getDefaultValue();
-                valueCounter++;
-            }
-
             for (ParameterDef returnParam : typeConvertor.getReturnParameters()) {
                 // Check whether these are unnamed set of return types.
                 // If so break the loop. You can't have a mix of unnamed and named returns parameters.
@@ -843,9 +833,16 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
 
             // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
             // return values and function invocation location;
-            SymbolName functionSymbolName = typeCastExpression.getCallableUnit().getSymbolName();
-            CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
-                    functionSymbolName.getPkgPath(), typeCastExpression.getNodeLocation());
+            CallableUnitInfo functionInfo;
+            SymbolName typeconvertorSymbolName = typeCastExpression.getTypeConverterName();
+            if (typeconvertorSymbolName != null) {
+                functionInfo = new CallableUnitInfo(typeconvertorSymbolName.getName(),
+                        typeconvertorSymbolName.getPkgPath(), typeCastExpression.getNodeLocation());
+            } else {
+                functionInfo = new CallableUnitInfo(typeConvertor.getTypeConverterName(),
+                        typeConvertor.getPackagePath(), typeCastExpression.getNodeLocation());
+            }
+
             BValue[] tempValues = new BValue[typeCastExpression.getCallableUnit().getTempStackFrameSize() + 1];
             StackFrame stackFrame = new StackFrame(localVals, returnVals, tempValues, functionInfo);
             controlStack.pushFrame(stackFrame);
@@ -872,18 +869,8 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         if (logger.isDebugEnabled()) {
             logger.debug("Executing RefTypeInitExpr - EndNode");
         }
-        Expression[] argExprs = refTypeInitExpr.getArgExprs();
-        // Creating a new map
-        BMap<BString, BValue> bMap = new BMap<>();
-
-        for (int i = 0; i < argExprs.length; i++) {
-            MapStructInitKeyValueExpr expr = (MapStructInitKeyValueExpr) argExprs[i];
-            BString key = new BString(expr.getKey());
-            Expression expression = expr.getValueExpr();
-            BValue value = getTempResult(expression.getTempOffset());
-            bMap.put(key, value);
-        }
-        setTempResult(refTypeInitExpr.getTempOffset(), bMap);
+        BType bType = refTypeInitExpr.getType();
+        setTempResult(refTypeInitExpr.getTempOffset(), bType.getDefaultValue());
     }
 
     @Override
@@ -1178,7 +1165,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         BValue arrayMapValue = lExprValue.getValue(memoryLocation);
 
         // Set the value to array/map's index location
-        if (fieldExpr.getRefVarType() == BTypes.typeMap) {
+        if (fieldExpr.getRefVarType() instanceof BMapType) {
             ((BMap) arrayMapValue).put(indexValue, rValue);
         } else {
             ((BArray) arrayMapValue).add(((BInteger) indexValue).intValue(), rValue);
@@ -1237,14 +1224,19 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
      * @return Unit value of the current value
      */
     private BValue getUnitValue(BValue currentVal, StructFieldAccessExpr fieldExpr) {
+        ReferenceExpr currentVarRefExpr = fieldExpr.getVarRef();
+        if (currentVal == null) {
+            throw new BallerinaException("field '" + currentVarRefExpr.getVarName() + "' is null");
+        }
+
         if (!(currentVal instanceof BArray || currentVal instanceof BMap<?, ?>)) {
             return currentVal;
         }
 
         // If the lExprValue value is not a struct array/map, then the unit value is same as the struct
         Expression indexExpr;
-        if (fieldExpr.getVarRef() instanceof ArrayMapAccessExpr) {
-            indexExpr = ((ArrayMapAccessExpr) fieldExpr.getVarRef()).getIndexExpr();
+        if (currentVarRefExpr instanceof ArrayMapAccessExpr) {
+            indexExpr = ((ArrayMapAccessExpr) currentVarRefExpr).getIndexExpr();
         } else {
             return currentVal;
         }
@@ -1252,12 +1244,20 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         // Evaluate the index expression and get the value
         BValue indexValue = getTempResult(indexExpr.getTempOffset());
 
+        BValue unitVal;
         // Get the value from array/map's index location
-        if (fieldExpr.getRefVarType() == BTypes.typeMap) {
-            return ((BMap) currentVal).get(indexValue);
+        if (fieldExpr.getRefVarType() instanceof BMapType) {
+            unitVal = ((BMap) currentVal).get(indexValue);
         } else {
-            return ((BArray) currentVal).get(((BInteger) indexValue).intValue());
+            unitVal = ((BArray) currentVal).get(((BInteger) indexValue).intValue());
         }
+
+        if (unitVal == null) {
+            throw new BallerinaException("field '" + currentVarRefExpr.getSymbolName().getName() + "[" +
+                    indexValue.stringValue() + "]' is null");
+        }
+
+        return unitVal;
     }
 
     private BValue getTempResult(int offset) {
