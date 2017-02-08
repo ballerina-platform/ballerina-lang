@@ -66,9 +66,8 @@ public class BalProgramExecutor {
     public static void execute(CarbonMessage cMsg, CarbonCallback callback, Resource resource, Service service,
                                Context balContext) {
 
-        SymbolName symbolName = service.getSymbolName();
         balContext.setServiceInfo(
-                new CallableUnitInfo(symbolName.getName(), symbolName.getPkgPath(), service.getNodeLocation()));
+                new CallableUnitInfo(service.getName(), service.getPackagePath(), service.getNodeLocation()));
 
         balContext.setBalCallback(new DefaultBalCallback(callback));
         Expression[] exprs = new Expression[resource.getParameterDefs().length];
@@ -177,9 +176,8 @@ public class BalProgramExecutor {
                         mainFun.getName(), null, mainFun.getPackagePath(), exprs);
                 funcIExpr.setCallableUnit(mainFun);
 
-                SymbolName functionSymbolName = funcIExpr.getCallableUnit().getSymbolName();
-                CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
-                        functionSymbolName.getPkgPath(), mainFuncLocation);
+                CallableUnitInfo functionInfo = new CallableUnitInfo(funcIExpr.getName(), funcIExpr.getPackagePath(),
+                        mainFuncLocation);
 
                 StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], functionInfo);
                 bContext.getControlStack().pushFrame(currentStackFrame);

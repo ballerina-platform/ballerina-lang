@@ -30,3 +30,8 @@ function arrayIndexOutOfBoundTest() {
     name = animals[5];
     return;
 }
+
+function testNonInitArrayAccess()(string){
+    string[] fruits;
+    return fruits[5];
+}
