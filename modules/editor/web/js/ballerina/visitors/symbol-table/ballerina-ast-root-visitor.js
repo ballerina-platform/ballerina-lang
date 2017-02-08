@@ -41,7 +41,7 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
                 }
             }, this);
         };
-
+        
         BallerinaASTRootVisitor.prototype.canVisitBallerinaASTRoot = function (serviceDefinition) {
             return true;
         };
@@ -65,7 +65,6 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
         BallerinaASTRootVisitor.prototype.visitFunctionDefinition = function (functionDefinition) {
             var functionDef = BallerinaEnvFactory.createFunction();
             functionDef.setName(functionDefinition.getFunctionName());
-            functionDef.setTitle(functionDefinition.getFunctionName());
             functionDef.setId(functionDefinition.getFunctionName());
             this.getPackage().addFunctionDefinitions(functionDef);
 
@@ -74,7 +73,7 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
                 var attributeName = modifiedData.data.attributeName;
                 var newValue = modifiedData.data.newValue;
                 var oldValue = modifiedData.data.oldValue;
-                if (_.isEqual(attributeName, '_functionName')) {
+                if (BallerinaASTFactory.isFunctionDefinition(modifiedData.origin) && _.isEqual(attributeName, '_functionName')) {
                     self.updateFunctionDefinition(oldValue, newValue);
                 }
             });
@@ -100,10 +99,25 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
          * @param {Object} connectorDefinition - connector definition model
          */
         BallerinaASTRootVisitor.prototype.visitConnectorDefinition = function (connectorDefinition) {
-            var connector = new Connector();
+            var connector = BallerinaEnvFactory.createConnector();
             connector.setName(connectorDefinition.getConnectorName());
-            connector.setTitle(connectorDefinition.getConnectorName());
             this.getPackage().addConnectors(connector);
+
+            //TODO : move this to the visit method
+            _.each(connectorDefinition.getChildren(), function (child) {
+                if (BallerinaASTFactory.isConnectorAction(child)) {
+                    var connectorAction = BallerinaEnvFactory.createConnectorAction();
+                    connectorAction.setName(child.getActionName());
+                    connector.addAction(connectorAction);
+                }
+            });
+            connectorDefinition.on('child-added', function (child) {
+                if (BallerinaASTFactory.isConnectorAction(child)) {
+                    var connectorAction = BallerinaEnvFactory.createConnectorAction();
+                    connectorAction.setName(child.getActionName());
+                    connector.addAction(connectorAction);
+                }
+            }, this);
         };
 
         /**

@@ -65,8 +65,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 var bodyDiv = $('<div></div>');
                 var newButton = $('<button></button>');
                 var openButton = $('<button></button>');
-                var buttonGroup1 = $('<div></div>');
-                var buttonGroup2 = $('<div></div>');
+                var buttonGroup1 = $('<div></div>');                
 
                 var bodyTitleSpan = $('<span></span>');
                 var samplesDiv = $('<div></div>');
@@ -81,7 +80,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 openButton.addClass(_.get(this._options, 'cssClass.buttonOpen'));
                 headingGroup1.addClass(_.get(this._options, 'cssClass.headingTop'));
                 buttonGroup1.addClass(_.get(this._options, 'cssClass.btnWrap1'));
-                buttonGroup2.addClass(_.get(this._options, 'cssClass.btnWrap2'));
+                
 
                 bodyDiv.addClass(_.get(this._options, 'cssClass.body'));
                 bodyTitleSpan.addClass(_.get(this._options, 'cssClass.bodyTitle'));
@@ -100,11 +99,10 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 headingGroup1.append(wrapImage);
 
                 buttonGroup1.append(newButton);
-                buttonGroup2.append(openButton);
+                buttonGroup1.append(openButton);
 
                 headingDiv.append(headingGroup1);
-                headingDiv.append(buttonGroup1);
-                headingDiv.append(buttonGroup2);
+                headingDiv.append(buttonGroup1);                
 
                 bodyDiv.append(bodyTitleSpan);
                 bodyDiv.append(samplesDiv);

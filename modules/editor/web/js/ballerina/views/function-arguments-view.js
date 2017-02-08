@@ -209,7 +209,7 @@ define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
 
                     // Gets the user input and set it as the argument identifier.
                     argumentValueTextbox.on("change keyup input", function (e) {
-                        argument.identifier = e.target.value;
+                        argument.setIdentifier(e.target.value);
                     });
 
                     // Adding in-line display block to override the hovering css.
