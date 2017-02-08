@@ -17,7 +17,7 @@ import static java.util.ServiceLoader.load;
 public class Langs implements Runnable {
     @Override
     public void run() {
-        //LambdaIterable<String> langs = with(load(CodegenConfig.class)).extract(on(CodegenConfig.class).getName());
+        LambdaIterable<String> langs = with(load(CodegenConfig.class)).extract(on(CodegenConfig.class).getName());
         System.out.printf("Available languages: Ballerina Connector");
     }
 }

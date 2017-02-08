@@ -18,7 +18,7 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
     private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaConnectorCodeGenerator.class);
 
     protected String apiVersion = "1.0.0";
-    protected String apiPath = "ballerina";
+    protected String apiPath = "";
 
     public BallerinaConnectorCodeGenerator() {
         super();
@@ -79,28 +79,22 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
         );
 
         instantiationTypes.clear();
-        instantiationTypes.put("array", "BArray");
-        instantiationTypes.put("map", "BMap");
-
+        instantiationTypes.put("array", "array");
+        instantiationTypes.put("map", "map");
         typeMapping.clear();
-        typeMapping.put("integer", "BInteger");
-        typeMapping.put("long", "BInteger");
-        typeMapping.put("number", "BFloat");
-        typeMapping.put("float", "BFloat");
-        typeMapping.put("double", "BFloat");
-        typeMapping.put("boolean", "BBoolean");
-        typeMapping.put("string", "BString");
-        typeMapping.put("date", "BLong");
-        typeMapping.put("DateTime", "BLong");
-        typeMapping.put("password", "BString");
-        //typeMapping.put("File", "*os.File");
-        //typeMapping.put("file", "*os.File");
-        typeMapping.put("binary", "BString");
-        typeMapping.put("ByteArray", "BString");
+        typeMapping.put("integer", "integer");
+        typeMapping.put("long", "long");
+        typeMapping.put("number", "float");
+        typeMapping.put("float", "float");
+        typeMapping.put("double", "double");
+        typeMapping.put("boolean", "boolean");
+        typeMapping.put("string", "string");
+        typeMapping.put("date", "string");
+        typeMapping.put("DateTime", "long");
+        typeMapping.put("password", "string");
+        typeMapping.put("binary", "string");
+        typeMapping.put("ByteArray", "string");
         importMapping = new HashMap<String, String>();
-        //importMapping.put("time.Time", "time");
-       // importMapping.put("*os.File", "os");
-       // importMapping.put("os", "io/ioutil");
 
         cliOptions.clear();
         cliOptions.add(new CliOption(CodegenConstants.PACKAGE_NAME, "Ballerina package name (convention: lowercase).")
@@ -116,10 +110,10 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
          * entire object tree available.  If the input file has a suffix of `.mustache
          * it will be processed by the template engine.  Otherwise, it will be copied
          */
-        supportingFiles.add(new SupportingFile("model.mustache", apiPath, "types.bal"));
+        //supportingFiles.add(new SupportingFile("model.mustache", apiPath, "types.bal"));
         supportingFiles.add(new SupportingFile("json-model.mustache", apiPath, "types.json"));
         writeOptional(outputFolder, new SupportingFile("README.mustache", apiPath, "README.md"));
-        //writeOptional(outputFolder, new SupportingFile("json-model.mustache", apiPath, "types.json"));
+        writeOptional(outputFolder, new SupportingFile("json-model.mustache", apiPath, "types.json"));
     }
 
     @Override
@@ -146,7 +140,7 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
      */
     @Override
     public String getName() {
-        return "ballerina-connector2";
+        return "ballerina-connector";
     }
 
     /**
