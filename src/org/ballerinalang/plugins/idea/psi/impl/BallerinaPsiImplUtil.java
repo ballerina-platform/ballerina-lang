@@ -40,6 +40,8 @@ import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
+import org.ballerinalang.plugins.idea.psi.FunctionReference;
+import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameReference;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
@@ -511,4 +513,91 @@ public class BallerinaPsiImplUtil {
         }
         return results;
     }
+
+    public static List<PsiElement> resolveAction(PsiElement element) {
+        List<PsiElement> results = new ArrayList<>();
+
+        // Todo - Add null checks
+        Collection<? extends PsiElement> callableUnits =
+                XPath.findAll(BallerinaLanguage.INSTANCE, element.getParent(), "//callableUnitName");
+
+        if (callableUnits.isEmpty()) {
+            return results;
+        }
+        PsiElement callableUnit = callableUnits.iterator().next();
+
+        PsiElement identifier = ((IdentifierDefSubtree) callableUnit).getNameIdentifier();
+
+        // Get the reference.
+        PsiReference reference = identifier.getReference();
+        // Resolve the reference. This will mostly point to the connector.
+        PsiElement resolvedConnector = reference.resolve();
+
+        if (resolvedConnector == null) {
+            // Package is not imported. Return the empty results.
+            PsiReference[] references = identifier.getReferences();
+
+            if(references.length==0){
+                return results;
+            }
+            for (PsiReference psiReference : references) {
+
+//                PsiElement resolved = psiReference.resolve();
+
+                ResolveResult[] resolveResults = ((FunctionReference) psiReference).multiResolve(false);
+
+                for (ResolveResult resolveResult : resolveResults) {
+                    Collection<? extends PsiElement> actionDefinitions =
+                            XPath.findAll(BallerinaLanguage.INSTANCE, resolveResult.getElement().getParent(), "//actionDefinition");
+
+                    for (PsiElement actionDefinition : actionDefinitions) {
+
+                        PsiElement nameIdentifier = ((IdentifierDefSubtree) actionDefinition).getNameIdentifier();
+                        if (element.getText().equals(nameIdentifier.getText())) {
+                            results.add(actionDefinition);
+                        }
+                    }
+
+                    Collection<? extends PsiElement> functionDefinitions =
+                            XPath.findAll(BallerinaLanguage.INSTANCE, resolveResult.getElement().getParent(), "//functionDefinition");
+                    for (PsiElement functionDefinition : functionDefinitions) {
+
+                        PsiElement nameIdentifier = ((IdentifierDefSubtree) functionDefinition).getNameIdentifier();
+                        if (element.getText().equals(nameIdentifier.getText())) {
+                            results.add(functionDefinition);
+                        }
+                    }
+                }
+
+            }
+
+            return results;
+        }
+
+        Collection<? extends PsiElement> actionDefinitions =
+                XPath.findAll(BallerinaLanguage.INSTANCE, resolvedConnector, "//actionDefinition");
+
+        for (PsiElement actionDefinition : actionDefinitions) {
+
+            PsiElement nameIdentifier = ((IdentifierDefSubtree) actionDefinition).getNameIdentifier();
+            if (element.getText().equals(nameIdentifier.getText())) {
+                results.add(actionDefinition);
+            }
+        }
+
+        Collection<? extends PsiElement> functionDefinitions =
+                XPath.findAll(BallerinaLanguage.INSTANCE, resolvedConnector, "//functionDefinition");
+        for (PsiElement functionDefinition : functionDefinitions) {
+
+            PsiElement nameIdentifier = ((IdentifierDefSubtree) functionDefinition).getNameIdentifier();
+            if (element.getText().equals(nameIdentifier.getText())) {
+                results.add(functionDefinition);
+            }
+        }
+
+
+        return results;
+    }
+
+
 }

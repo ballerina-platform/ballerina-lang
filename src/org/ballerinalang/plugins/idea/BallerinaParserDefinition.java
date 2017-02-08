@@ -39,6 +39,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.ballerinalang.plugins.idea.grammar.BallerinaLexer;
 import org.ballerinalang.plugins.idea.grammar.BallerinaParser;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationNameNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationNode;
 import org.ballerinalang.plugins.idea.psi.ArgumentListNode;
@@ -216,6 +217,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new SimpleTypeNode(node);
             case BallerinaParser.RULE_qualifiedTypeName:
                 return new QualifiedTypeNameNode(node);
+            case BallerinaParser.RULE_actionInvocation:
+                return new ActionInvocationNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }
