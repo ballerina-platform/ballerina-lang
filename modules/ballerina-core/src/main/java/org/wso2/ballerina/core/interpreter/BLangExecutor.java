@@ -93,6 +93,7 @@ public class BLangExecutor implements NodeExecutor {
     private RuntimeEnvironment runtimeEnv;
     private Context bContext;
     private ControlStack controlStack;
+    private boolean returnedOrReplied;
 
     public BLangExecutor(RuntimeEnvironment runtimeEnv, Context bContext) {
         this.runtimeEnv = runtimeEnv;
@@ -102,11 +103,11 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public void visit(BlockStmt blockStmt) {
-        //TODO Improve this to support non-blocking behaviour.
-        //TODO Possibly a linked set of statements would do.
-
         Statement[] stmts = blockStmt.getStatements();
         for (Statement stmt : stmts) {
+            if (returnedOrReplied) {
+                break;
+            }
             stmt.execute(this);
         }
     }
@@ -138,7 +139,6 @@ public class BLangExecutor implements NodeExecutor {
             assignValueToStructFieldAccessExpr(rValue, (StructFieldAccessExpr) lExpr);
         }
     }
-
 
     @Override
     public void visit(AssignStmt assignStmt) {
@@ -230,6 +230,7 @@ public class BLangExecutor implements NodeExecutor {
                 for (int i = 0; i < returnVals.length; i++) {
                     controlStack.setReturnValue(i, returnVals[i]);
                 }
+                returnedOrReplied = true;
                 return;
             }
         }
@@ -239,6 +240,8 @@ public class BLangExecutor implements NodeExecutor {
             BValue returnVal = expr.execute(this);
             controlStack.setReturnValue(i, returnVal);
         }
+
+        returnedOrReplied = true;
     }
 
     @Override
@@ -247,6 +250,7 @@ public class BLangExecutor implements NodeExecutor {
         Expression expr = replyStmt.getReplyExpr();
         BMessage bMessage = (BMessage) expr.execute(this);
         bContext.getBalCallback().done(bMessage.value());
+        returnedOrReplied = true;
     }
 
     @Override
@@ -277,7 +281,7 @@ public class BLangExecutor implements NodeExecutor {
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
         // return values and function invocation location;
-        CallableUnitInfo functionInfo = new CallableUnitInfo(function.getName(), function.getPackagePath(), 
+        CallableUnitInfo functionInfo = new CallableUnitInfo(function.getName(), function.getPackagePath(),
                 funcIExpr.getNodeLocation());
 
         StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
@@ -295,6 +299,7 @@ public class BLangExecutor implements NodeExecutor {
         controlStack.popFrame();
 
         // Setting return values to function invocation expression
+        returnedOrReplied = false;
         return returnVals;
     }
 
@@ -341,6 +346,7 @@ public class BLangExecutor implements NodeExecutor {
         controlStack.popFrame();
 
         // Setting return values to function invocation expression
+        returnedOrReplied = false;
         return returnVals;
     }
 
@@ -353,7 +359,7 @@ public class BLangExecutor implements NodeExecutor {
         ControlStack controlStack = bContext.getControlStack();
         BValue[] valueParams = new BValue[resource.getStackFrameSize()];
 
-        int valueCounter =  populateArgumentValues(resourceIExpr.getArgExprs(), valueParams);
+        int valueCounter = populateArgumentValues(resourceIExpr.getArgExprs(), valueParams);
         // Populate values for Connector declarations
 //        valueCounter = populateConnectorDclValues(resource.getConnectorDcls(), valueParams, valueCounter);
 
@@ -409,7 +415,7 @@ public class BLangExecutor implements NodeExecutor {
         if (collectionValue == null) {
             throw new BallerinaException("variable '" + arrayVarRefExpr.getVarName() + "' is null");
         }
-        
+
         Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
         BValue indexValue = indexExpr.execute(this);
 
@@ -583,7 +589,7 @@ public class BLangExecutor implements NodeExecutor {
 
             // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
             // return values and function invocation location;
-            CallableUnitInfo functionInfo = new CallableUnitInfo(typeConvertor.getTypeConverterName(), 
+            CallableUnitInfo functionInfo = new CallableUnitInfo(typeConvertor.getTypeConverterName(),
                     typeConvertor.getPackagePath(), typeCastExpression.getNodeLocation());
 
             StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
@@ -601,6 +607,7 @@ public class BLangExecutor implements NodeExecutor {
             controlStack.popFrame();
 
             // Setting return values to function invocation expression
+            returnedOrReplied = false;
             return returnVals[0];
         }
     }
