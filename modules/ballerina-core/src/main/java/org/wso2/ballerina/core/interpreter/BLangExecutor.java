@@ -29,7 +29,6 @@ import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.StructDef;
-import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.TypeConvertor;
 import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
@@ -278,9 +277,8 @@ public class BLangExecutor implements NodeExecutor {
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
         // return values and function invocation location;
-        SymbolName functionSymbolName = funcIExpr.getCallableUnit().getSymbolName();
-        CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
-                functionSymbolName.getPkgPath(), funcIExpr.getNodeLocation());
+        CallableUnitInfo functionInfo = new CallableUnitInfo(function.getName(), function.getPackagePath(), 
+                funcIExpr.getNodeLocation());
 
         StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
         controlStack.pushFrame(stackFrame);
@@ -326,8 +324,7 @@ public class BLangExecutor implements NodeExecutor {
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression values and
         // return values;
-        SymbolName actionSymbolName = actionIExpr.getCallableUnit().getSymbolName();
-        CallableUnitInfo actionInfo = new CallableUnitInfo(actionSymbolName.getName(), actionSymbolName.getPkgPath(),
+        CallableUnitInfo actionInfo = new CallableUnitInfo(action.getName(), action.getPackagePath(),
                 actionIExpr.getNodeLocation());
         StackFrame stackFrame = new StackFrame(localVals, returnVals, actionInfo);
         controlStack.pushFrame(stackFrame);
@@ -369,10 +366,8 @@ public class BLangExecutor implements NodeExecutor {
 
         BValue[] ret = new BValue[1];
 
-        SymbolName resourceSymbolName = resource.getSymbolName();
-        CallableUnitInfo resourceInfo = new CallableUnitInfo(resourceSymbolName.getName(),
-                resourceSymbolName.getPkgPath(), resource.getNodeLocation());
-
+        CallableUnitInfo resourceInfo = new CallableUnitInfo(resource.getName(), resource.getPackagePath(),
+                resource.getNodeLocation());
         StackFrame stackFrame = new StackFrame(valueParams, ret, resourceInfo);
         controlStack.pushFrame(stackFrame);
 
@@ -540,9 +535,8 @@ public class BLangExecutor implements NodeExecutor {
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
         // return values and function invocation location;
-        SymbolName functionSymbolName = initFunction.getSymbolName();
-        CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
-                functionSymbolName.getPkgPath(), initFunction.getNodeLocation());
+        CallableUnitInfo functionInfo = new CallableUnitInfo(initFunction.getName(), initFunction.getPackagePath(),
+                initFunction.getNodeLocation());
 
         StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
         controlStack.pushFrame(stackFrame);
@@ -605,15 +599,8 @@ public class BLangExecutor implements NodeExecutor {
 
             // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
             // return values and function invocation location;
-            CallableUnitInfo functionInfo;
-            SymbolName typeconvertorSymbolName = typeCastExpression.getTypeConverterName();
-            if (typeconvertorSymbolName != null) {
-                functionInfo = new CallableUnitInfo(typeconvertorSymbolName.getName(),
-                        typeconvertorSymbolName.getPkgPath(), typeCastExpression.getNodeLocation());
-            } else {
-                functionInfo = new CallableUnitInfo(typeConvertor.getTypeConverterName(),
-                        typeConvertor.getPackagePath(), typeCastExpression.getNodeLocation());
-            }
+            CallableUnitInfo functionInfo = new CallableUnitInfo(typeConvertor.getTypeConverterName(), 
+                    typeConvertor.getPackagePath(), typeCastExpression.getNodeLocation());
 
             StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
             controlStack.pushFrame(stackFrame);
