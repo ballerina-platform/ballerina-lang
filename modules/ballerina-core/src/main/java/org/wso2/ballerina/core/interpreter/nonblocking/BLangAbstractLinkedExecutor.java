@@ -394,7 +394,8 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
     @Override
     public void visit(VariableRefExpr variableRefExpr) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing VariableRefExpr");
+            logger.debug("Executing VariableRefExpr - {}, loc-{}", variableRefExpr.getSymbolName().getName(),
+                    variableRefExpr.getMemoryLocation().getClass().getSimpleName());
         }
         MemoryLocation memoryLocation = variableRefExpr.getVariableDef().getMemoryLocation();
         setTempResult(variableRefExpr.getTempOffset(), memoryLocation.executeLNode(this));
@@ -534,17 +535,20 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         Expression[] exprs = returnStmt.getExprs();
 
         // Check whether the first argument is a multi-return function
+        // Check whether the first argument is a multi-return function
         if (exprs.length == 1 && exprs[0] instanceof FunctionInvocationExpr) {
             FunctionInvocationExpr funcIExpr = (FunctionInvocationExpr) exprs[0];
-            int returnLength = funcIExpr.getCallableUnit().getReturnParameters().length;
-            for (int i = 0; i < returnLength; i++) {
-                controlStack.setReturnValue(i, getTempResult(funcIExpr.getTempOffset() + i));
+            if (funcIExpr.getTypes().length > 1) {
+                for (int i = 0; i < funcIExpr.getTypes().length; i++) {
+                    controlStack.setReturnValue(i, getTempResult(funcIExpr.getTempOffset() + i));
+                }
+                return;
             }
-        } else {
-            for (int i = 0; i < exprs.length; i++) {
-                Expression expr = exprs[i];
-                controlStack.setReturnValue(i, getTempResult(expr.getTempOffset()));
-            }
+        }
+        for (int i = 0; i < exprs.length; i++) {
+            Expression expr = exprs[i];
+            BValue returnVal = getTempResult(expr.getTempOffset());
+            controlStack.setReturnValue(i, returnVal);
         }
     }
 
