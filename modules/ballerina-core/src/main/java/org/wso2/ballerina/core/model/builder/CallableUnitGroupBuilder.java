@@ -62,7 +62,7 @@ public class CallableUnitGroupBuilder {
         this.location = location;
     }
 
-    void setName(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -74,19 +74,19 @@ public class CallableUnitGroupBuilder {
         this.isPublic = isPublic;
     }
 
-    void addAnnotation(Annotation annotation) {
+    public void addAnnotation(Annotation annotation) {
         this.annotationList.add(annotation);
     }
 
-    void addParameter(ParameterDef param) {
+    public void addParameter(ParameterDef param) {
         this.parameterDefList.add(param);
     }
 
-    void addResource(Resource resource) {
+    public void addResource(Resource resource) {
         this.resourceList.add(resource);
     }
 
-    void addAction(BallerinaAction action) {
+    public void addAction(BallerinaAction action) {
         this.actionList.add(action);
     }
 
