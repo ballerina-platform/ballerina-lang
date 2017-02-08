@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 import javax.websocket.Session;
 
 /**
- * Internal session manager for WebSocket messages
+ * Internal session manager for WebSocket messages.
  * This is a singleton class which is used to store all the {@link Session} details in a single place.
  */
 
@@ -49,7 +49,9 @@ public class SessionManager {
     }
 
     /**
-     * @return requested {@link Session} for given channel
+     * @param uri uri of the WebSocket endpoint.
+     * @param sessionId session id for the given channel.
+     * @return requested {@link Session} for given channel.
      */
     public Session getSession(String uri, String sessionId) {
         if (sessionMap.containsKey(uri) && sessionMap.get(uri).containsKey(sessionId)) {
@@ -62,6 +64,8 @@ public class SessionManager {
     /**
      * This method creates session for a given channel.
      * Here unlike http channel ID was taken as the session ID.
+     * @param uri uri of the WebSocket endpoint.
+     * @param session session to add for the given channel.
      * @return Created new {@link Session}.
      */
     public Session add(String uri, Session session) {
@@ -89,6 +93,8 @@ public class SessionManager {
 
     /**
      * Checks whether the session is contained in the session manager.
+     * @param uri uri of the WebSocket endpoint.
+     * @param sessionId session id for the given channel.
      * @return true if the session is in the {@link SessionManager}.
      */
     public boolean containsSession(String uri, String sessionId) {
@@ -96,8 +102,10 @@ public class SessionManager {
     }
 
     /**
-     * Close the channel for given session.
      * Remove session from the session manager.
+     * @param uri uri of the WebSocket endpoint.
+     * @param sessionId session id for the given channel.
+     * @return removed session from the session map.
      */
     public Session removeSession(String uri, String sessionId) {
         if (sessionMap.get(uri).containsKey(sessionId)) {
