@@ -66,7 +66,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             if (this.isInSourceView()) {
                 return this._sourceView.getContent();
             } else if (this.isInSwaggerView()) {
-             return this._swaggerView.getContent();
+                return this._swaggerView.getContent();
             } else {
                 return this.generateSource();
             }
@@ -423,8 +423,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 // re-parse if there are modifications to source
                 var isSourceChanged = !self._sourceView.isClean(),
                     savedWhileInSourceView = lastRenderedTimestamp < self._file.getLastPersisted();
+                var isSwaggerChanged = !self._swaggerView.isClean();
                 if (isSourceChanged || savedWhileInSourceView) {
-                    var source = self.getContent();
+                    var source = self._sourceView.getContent();
                     var response = self.backend.parse(source);
                     //if there are errors display the error.
                     //@todo: proper error handling need to get the service specs
@@ -438,6 +439,11 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     self.setModel(root);
                     // reset source editor delta stack
                     self._sourceView.markClean();
+                } else if (isSwaggerChanged) {
+                    var astModal = self._swaggerView.getContent();
+                    self.setModel(self.deserializer.getASTModel(astModal));
+                    // reset source editor delta stack
+                    self._swaggerView.markClean();
                 }
                 //canvas should be visible before you can call reDraw. drawing dependednt on attr:offsetWidth
                 self.toolPalette.show();
@@ -449,7 +455,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 designViewBtn.hide();
                 self.setInSourceView(false);
                 self.setInSwaggerView(false);
-                if(isSourceChanged || savedWhileInSourceView){
+                if(isSourceChanged || isSwaggerChanged || savedWhileInSourceView){
                     // reset undo manager for the design view
                     self.getUndoManager().reset();
                     self.reDraw();
