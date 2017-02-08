@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -33,6 +34,7 @@ import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
+import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
@@ -154,5 +156,10 @@ public class HTTPClientConnector implements ClientConnector {
     public String getProtocol() {
         //hardcoded because there is always one sender with set of configurations
         return "http";
+    }
+
+    @Override
+    public void setMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
+        HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
     }
 }
