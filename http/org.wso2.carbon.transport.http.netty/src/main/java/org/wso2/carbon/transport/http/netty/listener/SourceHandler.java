@@ -36,6 +36,8 @@ import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
+import io.netty.util.concurrent.EventExecutorGroup;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -169,7 +171,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
             //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
             ChannelPipeline pipeline = ctx.pipeline();
-            pipeline.addLast("ws_handler",
+            int maxThreads = 15;
+            EventExecutorGroup executorGroup = new DefaultEventExecutorGroup(maxThreads);
+            pipeline.addLast(executorGroup, "ws_handler",
                              new WebSocketSourceHandler(generateWebSocketChannelID(),
                                                         this.connectionManager,
                                                         this.listenerConfiguration,
