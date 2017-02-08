@@ -207,6 +207,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
 
                 var self = this;
 
+                connectorModel.addConnectorActionReference(this);
+
                 this.arrowHeadEndPoint.on("mousedown", function () {
                     d3.event.preventDefault();
                     d3.event.stopPropagation();
@@ -218,6 +220,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
 
                     var sourcePoint = self.toGlobalCoordinates(new Point(x, y));
                     var connectorPoint = self.toGlobalCoordinates(new Point(x1, y1));
+                    
+                    connectorModel.removeConnectorActionReference(self.getModel().id);
 
                     self.messageManager.startDrawMessage(actionInvocationModel, sourcePoint, connectorPoint);
                     self.messageManager.setTypeBeingDragged(true);

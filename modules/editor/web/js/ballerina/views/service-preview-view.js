@@ -38,7 +38,7 @@ define(['require', 'jquery', 'd3', 'd3utils', 'backbone', 'lodash','log'], funct
         this._sampleName = config.sampleName;
         //create the parent for drawn svg
         var previewDiv = $("<div class='preview-div'></div>");
-        var image = $("<img id='previewImg' class='preview-img' src='images/preview.png'/>");
+        var image = $("<img id='previewImg' class='preview-img' src='images/preview_"+config.sampleName.split('.')[0]+".png'/>");
         previewDiv.prepend(image);
         previewDiv.bind('click', config.clickEventCallback);
 
