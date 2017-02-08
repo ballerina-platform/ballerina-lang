@@ -27,12 +27,13 @@ import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
-import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
+import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Headers;
 import org.wso2.carbon.messaging.MessageDataSource;
-import org.wso2.carbon.messaging.MessageProcessorException;
+import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -133,7 +134,14 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                     logger.debug("Sending an empty message");
                 }
             }
-            ServiceContextHolder.getInstance().getSender().send(message, balConnectorCallback);
+            ClientConnector clientConnector = BallerinaConnectorManager.getInstance().
+                    getClientConnector(Constants.PROTOCOL_HTTP);
+
+            if (clientConnector == null) {
+                throw new BallerinaException("Http client connector is not available");
+            }
+
+            clientConnector.send(message, balConnectorCallback);
 
             while (!balConnectorCallback.isResponseArrived()) {
                 synchronized (context) {
@@ -145,7 +153,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             }
             handleTransportException(balConnectorCallback.getValueRef());
             return balConnectorCallback.getValueRef();
-        } catch (MessageProcessorException e) {
+        } catch (ClientConnectorException e) {
             throw new BallerinaException("Failed to send the message to an endpoint ", context);
         } catch (InterruptedException ignore) {
         } catch (Throwable e) {

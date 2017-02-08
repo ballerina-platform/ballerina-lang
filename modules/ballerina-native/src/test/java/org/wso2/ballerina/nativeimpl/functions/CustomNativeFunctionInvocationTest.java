@@ -44,7 +44,7 @@ import org.wso2.ballerina.nativeimpl.util.ParserUtils;
 public class CustomNativeFunctionInvocationTest {
 
     private BallerinaFile bFile;
-    private GlobalScope globalScope = new GlobalScope();
+    private GlobalScope globalScope = GlobalScope.getInstance();
 
     @BeforeClass
     public void setup() {
