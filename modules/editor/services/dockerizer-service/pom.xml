@@ -53,12 +53,12 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <!--<argLine>@{argLine} -Dfile.encoding=UTF-8</argLine>-->
-                    <environmentVariables>
-                        <testEnvironmentVariable>EnvironmentVariable</testEnvironmentVariable>
-                    </environmentVariables>
-                    <suiteXmlFiles>
-                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
-                    </suiteXmlFiles>
+                    <!--<environmentVariables>-->
+                        <!--<testEnvironmentVariable>EnvironmentVariable</testEnvironmentVariable>-->
+                    <!--</environmentVariables>-->
+                    <!--<suiteXmlFiles>-->
+                        <!--<suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>-->
+                    <!--</suiteXmlFiles>-->
                 </configuration>
             </plugin>
         </plugins>
@@ -76,6 +76,69 @@
         <!--<artifactId>commons-cli</artifactId>-->
         <!--<version>${commons-cli.version}</version>-->
         <!--</dependency>-->
+
+
+        <!--<dependency>-->
+            <!--<groupId>com.fasterxml.jackson.module</groupId>-->
+            <!--<artifactId>jackson-module-jaxb-annotations</artifactId>-->
+            <!--<version>2.8.6</version>-->
+        <!--</dependency>-->
+        <!--&lt;!&ndash;<dependency>&ndash;&gt;-->
+            <!--&lt;!&ndash;<groupId>com.squareup.okhttp3</groupId>&ndash;&gt;-->
+            <!--&lt;!&ndash;<artifactId>okhttp</artifactId>&ndash;&gt;-->
+            <!--&lt;!&ndash;<version>3.6.0</version>&ndash;&gt;-->
+        <!--&lt;!&ndash;</dependency>&ndash;&gt;-->
+        <!--&lt;!&ndash;<dependency>&ndash;&gt;-->
+            <!--&lt;!&ndash;<groupId>com.github.jnr</groupId>&ndash;&gt;-->
+            <!--&lt;!&ndash;<artifactId>jnr-unixsocket</artifactId>&ndash;&gt;-->
+            <!--&lt;!&ndash;<version>0.15</version>&ndash;&gt;-->
+        <!--&lt;!&ndash;</dependency>&ndash;&gt;-->
+        <!--<dependency>-->
+            <!--<groupId>com.squareup.okhttp3</groupId>-->
+            <!--<artifactId>logging-interceptor</artifactId>-->
+            <!--<version>3.6.0</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>com.squareup.okhttp3</groupId>-->
+            <!--<artifactId>okhttp-ws</artifactId>-->
+            <!--<version>3.4.2</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>commons-codec</groupId>-->
+            <!--<artifactId>commons-codec</artifactId>-->
+            <!--<version>1.10</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>io.fabric8</groupId>-->
+            <!--<artifactId>docker-dsl</artifactId>-->
+            <!--<version>1.2.1</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>io.sundr</groupId>-->
+            <!--<artifactId>builder-annotations</artifactId>-->
+            <!--<version>0.5.0</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.commons</groupId>-->
+            <!--<artifactId>commons-compress</artifactId>-->
+            <!--<version>1.13</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.felix</groupId>-->
+            <!--<artifactId>org.apache.felix.scr.annotations</artifactId>-->
+            <!--<version>1.12.0</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.slf4j</groupId>-->
+            <!--<artifactId>slf4j-api</artifactId>-->
+            <!--<version>1.7.22</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.slf4j</groupId>-->
+            <!--<artifactId>jul-to-slf4j</artifactId>-->
+            <!--<version>1.7.22</version>-->
+        <!--</dependency>-->
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
@@ -115,9 +178,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>docker-client</artifactId>
-            <version>${docker.client.version}</version>
+            <groupId>org.wso2.ballerina</groupId>
+            <artifactId>container-support</artifactId>
+            <version>0.8.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
@@ -133,6 +196,6 @@
         <ballerina.version>0.8.0-SNAPSHOT</ballerina.version>
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
         <testng.version>6.9.4</testng.version>
-        <docker.client.version>1.2.1</docker.client.version>
+        <docker.client.version>1.2-SNAPSHOT</docker.client.version>
     </properties>
 </project>

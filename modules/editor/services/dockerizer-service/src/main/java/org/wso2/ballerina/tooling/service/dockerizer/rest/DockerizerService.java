@@ -17,12 +17,14 @@
 
 package org.wso2.ballerina.tooling.service.dockerizer.rest;
 
+import org.wso2.ballerina.containers.docker.BallerinaDockerClient;
+import org.wso2.ballerina.containers.docker.exception.DockerHandlerException;
 import org.wso2.ballerina.tooling.service.dockerizer.Constants;
 import org.wso2.ballerina.tooling.service.dockerizer.bean.DockerRequest;
-import org.wso2.ballerina.tooling.service.dockerizer.handler.DockerHandler;
 import org.wso2.ballerina.tooling.service.dockerizer.utils.Utils;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
@@ -37,7 +39,11 @@ import javax.ws.rs.core.Response;
  */
 @Path("/docker")
 public class DockerizerService {
+    private BallerinaDockerClient dockerClient;
 
+    public DockerizerService(BallerinaDockerClient dockerClient) {
+        this.dockerClient = dockerClient;
+    }
 
     @POST
     @Path("/{" + Constants.REST.SERVICE_NAME + "}")
@@ -45,24 +51,26 @@ public class DockerizerService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createImage(@PathParam(Constants.REST.SERVICE_NAME) String serviceName, DockerRequest request) {
         try {
-            String ballerinaConfig = Utils.getBase64DecodedString(request.getBallerinaConfig());
+            String bPackagePath = Utils.getBase64DecodedString(request.getPackagePath());
+            java.nio.file.Path packagePath = Paths.get(bPackagePath);
             String dockerEnv = Utils.getBase64DecodedString(request.getDockerEnv());
-            boolean buildSuccessful;
+            String type = Utils.getBase64DecodedString(request.getType());
+            String imageName;
 
-            switch (request.getType()) {
-                case Constants.REST.TYPE_BALLERINA_SERVICE:
-                    buildSuccessful = DockerHandler.createServiceImage(
-                            dockerEnv,serviceName, ballerinaConfig);
+            switch (type) {
+                case org.wso2.ballerina.containers.Constants.TYPE_BALLERINA_SERVICE:
+                    imageName = dockerClient.createServiceImage(
+                            serviceName, dockerEnv, packagePath);
                     break;
-                case Constants.REST.TYPE_BALLERINA_FUNCTION:
-                    buildSuccessful = DockerHandler.createFunctionImage(
-                            dockerEnv, serviceName, ballerinaConfig);
+                case org.wso2.ballerina.containers.Constants.TYPE_BALLERINA_FUNCTION:
+                    imageName = dockerClient.createFunctionImage(
+                            serviceName, dockerEnv, packagePath);
                     break;
                 default:
                     return Response.status(Response.Status.BAD_REQUEST).build();
             }
 
-            if (buildSuccessful) {
+            if (imageName != null) {
                 // TODO: figure out return status later
                 return Response.status(Response.Status.OK).build();
             } else {
@@ -71,6 +79,9 @@ public class DockerizerService {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } catch (DockerHandlerException e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.BAD_REQUEST).build();
         }
     }
 
@@ -78,9 +89,59 @@ public class DockerizerService {
     @Path("/{" + Constants.REST.SERVICE_NAME + "}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response deleteImage(@PathParam(Constants.REST.SERVICE_NAME) String imageName, DockerRequest request) {
-        boolean deleteSuccessful = DockerHandler.deleteImage(request.getDockerEnv(), imageName);
+        String dockerEnv = Utils.getBase64DecodedString(request.getDockerEnv());
+        boolean deleteSuccessful = dockerClient.deleteImage(imageName, dockerEnv);
         return deleteSuccessful ?
                 Response.status(Response.Status.OK).build() :
                 Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
+
+    @POST
+    @Path("/{" + Constants.REST.SERVICE_NAME + "}/run")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response runServiceWithDocker(@PathParam(Constants.REST.SERVICE_NAME) String serviceName, DockerRequest request) throws InterruptedException, IOException {
+        String dockerEnv = Utils.getBase64DecodedString(request.getDockerEnv());
+        String bPackagePath = Utils.getBase64DecodedString(request.getPackagePath());
+        java.nio.file.Path packagePath = Paths.get(bPackagePath);
+        String type = Utils.getBase64DecodedString(request.getType());
+
+        // Build image, if not already built
+        if (dockerClient.getImage(serviceName.toLowerCase(), dockerEnv) == null) {
+            try {
+                switch (type) {
+                    case org.wso2.ballerina.containers.Constants.TYPE_BALLERINA_SERVICE:
+                        dockerClient.createServiceImage(
+                                serviceName, dockerEnv, packagePath);
+                        dockerClient.runServiceContainer(dockerEnv, serviceName);
+                        break;
+                    case org.wso2.ballerina.containers.Constants.TYPE_BALLERINA_FUNCTION:
+                        dockerClient.createFunctionImage(
+                                serviceName, dockerEnv, packagePath);
+                        dockerClient.runFunctionContainer(dockerEnv, serviceName);
+                        break;
+                    default:
+                        return Response.status(Response.Status.BAD_REQUEST).build();
+                }
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            } catch (DockerHandlerException e) {
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+        }
+
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
+
+    @POST
+    @Path("/{" + Constants.REST.SERVICE_NAME + "}/stop")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response stopDockerContainer(@PathParam(Constants.REST.SERVICE_NAME) String serviceName, DockerRequest request) {
+        String dockerEnv = Utils.getBase64DecodedString(request.getDockerEnv());
+        dockerClient.stopContainer(serviceName, dockerEnv);
+
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
 }

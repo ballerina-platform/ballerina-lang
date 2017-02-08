@@ -20,15 +20,15 @@ package org.wso2.ballerina.tooling.service.dockerizer.bean;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * Dockerize Request bean from the UI
+ * Dockerize Request bean from the UI.
  */
 public class DockerRequest {
 
     @SerializedName("type")
     private String type;
 
-    @SerializedName("config")
-    private String ballerinaConfig;
+    @SerializedName("packagePath")
+    private String packagePath;
 
     @SerializedName("docker-env")
     private String dockerEnv;
@@ -49,11 +49,11 @@ public class DockerRequest {
         this.dockerEnv = dockerEnv;
     }
 
-    public String getBallerinaConfig() {
-        return ballerinaConfig;
+    public String getPackagePath() {
+        return packagePath;
     }
 
-    public void setBallerinaConfig(String ballerinaConfig) {
-        this.ballerinaConfig = ballerinaConfig;
+    public void setPackagePath(String packagePath) {
+        this.packagePath = packagePath;
     }
 }

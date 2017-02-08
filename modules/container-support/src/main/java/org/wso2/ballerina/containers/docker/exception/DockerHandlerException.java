@@ -15,25 +15,17 @@
  *
  */
 
-package org.wso2.ballerina.tooling.service.dockerizer;
+package org.wso2.ballerina.containers.docker.exception;
 
 /**
- * Constants for the service.
+ * Generic exception in Dockerizer Service.
  */
-public class Constants {
-    /**
-     * Arguments for Service Runner.
-     */
-    public static final String SYS_BAL_HOME = "ballerina.home";
-    public static final String SYS_DOCKERIZER_PORT = "dockerizer.port";
+public class DockerHandlerException extends Throwable {
+    public DockerHandlerException(String message) {
+        super(message);
+    }
 
-    public static final int DEFAULT_DOCKERIZER_PORT = 8290;
-
-
-    /**
-     * Service related constants.
-     */
-    public class REST {
-        public static final String SERVICE_NAME = "service-name";
+    public DockerHandlerException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

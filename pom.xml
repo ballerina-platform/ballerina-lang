@@ -462,6 +462,7 @@
         <module>modules/distribution</module>
         <!--<module>modules/tests</module>-->
         <module>modules/tests/test-integration</module>
+        <module>modules/container-support</module>
     </modules>
 
 </project>

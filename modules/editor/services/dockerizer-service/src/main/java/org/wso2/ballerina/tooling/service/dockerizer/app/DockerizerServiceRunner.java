@@ -19,6 +19,8 @@ package org.wso2.ballerina.tooling.service.dockerizer.app;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.containers.docker.BallerinaDockerClient;
+import org.wso2.ballerina.containers.docker.impl.DefaultBallerinaDockerClient;
 import org.wso2.ballerina.tooling.service.dockerizer.Constants;
 import org.wso2.ballerina.tooling.service.dockerizer.rest.DockerizerService;
 import org.wso2.msf4j.MicroservicesRunner;
@@ -28,19 +30,22 @@ import org.wso2.msf4j.MicroservicesRunner;
  * services.
  */
 public class DockerizerServiceRunner {
-	private static final Logger logger = LoggerFactory.getLogger(DockerizerServiceRunner.class);
+    private static final Logger logger = LoggerFactory.getLogger(DockerizerServiceRunner.class);
 
-	public static void main(String[] args) {
-		String balHome = System.getProperty(Constants.SYS_BAL_HOME);
-		if (balHome == null) {
-			balHome = System.getenv(Constants.SYS_BAL_HOME);
-		}
-		if (balHome == null) {
-			logger.error("BALLERINA_HOME is not set. Please set ballerina.home system variable.");
-			return;
-		}
+    public static void main(String[] args) {
+        String balHome = System.getProperty(Constants.SYS_BAL_HOME);
+        if (balHome == null) {
+            balHome = System.getenv(Constants.SYS_BAL_HOME);
+        }
+        if (balHome == null) {
+            logger.error("BALLERINA_HOME is not set. Please set ballerina.home system variable.");
+            return;
+        }
 
-		new MicroservicesRunner(Integer.getInteger(Constants.SYS_DOCKERIZER_PORT, Constants.DEFAULT_DOCKERIZER_PORT))
-				.deploy(new DockerizerService()).start();
-	}
+        BallerinaDockerClient dockerClient = new DefaultBallerinaDockerClient();
+        new MicroservicesRunner(
+                Integer.getInteger(Constants.SYS_DOCKERIZER_PORT, Constants.DEFAULT_DOCKERIZER_PORT))
+                .deploy(new DockerizerService(dockerClient))
+                .start();
+    }
 }

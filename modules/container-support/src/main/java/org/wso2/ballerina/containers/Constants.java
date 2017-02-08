@@ -15,25 +15,12 @@
  *
  */
 
-package org.wso2.ballerina.tooling.service.dockerizer;
+package org.wso2.ballerina.containers;
 
 /**
- * Constants for the service.
+ * Constants.
  */
 public class Constants {
-    /**
-     * Arguments for Service Runner.
-     */
-    public static final String SYS_BAL_HOME = "ballerina.home";
-    public static final String SYS_DOCKERIZER_PORT = "dockerizer.port";
-
-    public static final int DEFAULT_DOCKERIZER_PORT = 8290;
-
-
-    /**
-     * Service related constants.
-     */
-    public class REST {
-        public static final String SERVICE_NAME = "service-name";
-    }
+    public static final String TYPE_BALLERINA_SERVICE = "BALLERINA_SERVICE";
+    public static final String TYPE_BALLERINA_FUNCTION = "BALLERINA_FUNCTION";
 }

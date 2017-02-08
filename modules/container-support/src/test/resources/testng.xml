@@ -15,15 +15,10 @@
   ~ limitations under the License.
   ~
   -->
-
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
-
-<suite name="dockerizer-test-suite">
-
-    <!-- Dockerizer test cases -->
-    <test name="dockerizer-handler-test-suite" preserve-order="true" parallel="false">
-        <packages>
-            <package name="org.wso2.ballerina.tooling.service.dockerizer.handler.DockerHandlerTest"/>
-        </packages>
+<suite name="dockerizer-test-suite" thread-count="1" parallel="classes">
+    <test name="dockerizer-handler-test-suite" preserve-order="true">
+        <classes>
+            <class name="org.wso2.ballerina.tooling.service.dockerizer.handler.DockerHandlerTest"/>
+        </classes>
     </test>
 </suite>

@@ -17,9 +17,6 @@
 
 package org.wso2.ballerina.tooling.service.dockerizer.utils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.net.URL;
 import java.util.Base64;
 
 /**
@@ -34,15 +31,5 @@ public class Utils {
     public static String getBase64DecodedString(String encodedString, String defaultValue) {
         byte[] decodedArr = Base64.getDecoder().decode(encodedString);
         return decodedArr.length == 0 ? defaultValue : new String(decodedArr);
-    }
-
-    public static File getResourceFile(String resourceName) throws FileNotFoundException {
-        ClassLoader classLoader = Utils.class.getClassLoader();
-        URL resource = classLoader.getResource(resourceName);
-        if (resource != null) {
-            return new File(resource.getFile());
-        } else {
-            throw new FileNotFoundException("Couldn't find file in resources: " + resourceName);
-        }
     }
 }
