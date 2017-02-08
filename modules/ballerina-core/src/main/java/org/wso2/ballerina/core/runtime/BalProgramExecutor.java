@@ -34,6 +34,7 @@ import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
@@ -76,8 +77,12 @@ public class BalProgramExecutor {
 
         int locationCounter = 0;
         for (ParameterDef parameter : resource.getParameterDefs()) {
-            VariableRefExpr variableRefExpr = new VariableRefExpr(parameter.getNodeLocation(), parameter.getName());
+            NodeLocation nodeLocation = parameter.getNodeLocation();
+            String parameterName = parameter.getName();
+            VariableRefExpr variableRefExpr = new VariableRefExpr(nodeLocation, parameterName);
             StackVarLocation location = new StackVarLocation(locationCounter);
+            VariableDef variableDef = new VariableDef(nodeLocation, parameter.getType(), new SymbolName(parameterName));
+            variableRefExpr.setVariableDef(variableDef);
             variableRefExpr.setMemoryLocation(location);
             variableRefExpr.setType(parameter.getType());
             exprs[locationCounter] = variableRefExpr;
