@@ -18,8 +18,8 @@
 define(['lodash', './expression'], function (_, Expression) {
 
     /**
-     * Constructor for ArrayMapAccessExpression
-     * @param {Object} args - Arguments to create the ArrayMapAccessExpression
+     * Constructor for MapInitializerExpression
+     * @param {Object} args - Arguments to create MapInitializerExpression
      * @constructor
      * @augments Expression
      */
