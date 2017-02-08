@@ -70,6 +70,10 @@
         <codeInsight.lineMarkerProvider language="Ballerina"
                                         implementationClass="org.ballerinalang.plugins.idea.marker.GoRecursiveCallMarkerProvider"/>
 
+        <!--find org.ballerinalang.plugins.idea.usage-->
+        <lang.findUsagesProvider language="Ballerina"
+                                 implementationClass="org.ballerinalang.plugins.idea.usage.BallerinaFindUsageProvider"/>
+
         <!-- templates -->
         <internalFileTemplate name="Ballerina Application"/>
         <internalFileTemplate name="Ballerina File"/>
