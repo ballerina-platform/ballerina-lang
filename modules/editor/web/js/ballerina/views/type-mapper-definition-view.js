@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-definition-view',
-        'ballerina/ast/ballerina-ast-factory', './svg-canvas','typeMapper'],
-    function (_, log,BallerinaView, VariablesView, TypeStructDefinition, BallerinaASTFactory, SVGCanvas,
+define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-definition-view',
+        'ballerina/ast/ballerina-ast-factory', './svg-canvas', 'typeMapper'],
+    function (_, log, BallerinaView, VariablesView, TypeStructDefinition, BallerinaASTFactory, SVGCanvas,
               TypeMapper) {
         var TypeMapperDefinitionView = function (args) {
             SVGCanvas.call(this, args);
@@ -57,7 +57,7 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             // Draws the outlying body of the function.
             this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().type.toLowerCase(),
                 this.getModel().getTypeMapperName());
-            
+
             this._package = diagramRenderingContext.getPackagedScopedEnvironment().getCurrentPackage();
 
             // Setting the styles for the canvas icon.
@@ -92,30 +92,30 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             //Get all the structs which are defined for current package
             var predefinedStructs = diagramRenderingContext.getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
 
-            var dataMapperContainerId = "data-mapper-container-" + this._model.id;
+            var dataMapperContainerId = "data-mapper-container___" + this._model.id;
             var sourceId = 'sourceStructs' + this._model.id;
             var targetId = 'targetStructs' + this._model.id;
             var selectorContainer = $('<div class="selector">' +
-                                            '<div class="source-view">' +
-                                                '<span>Source :</span>' +
-                                                    '<select id="' + sourceId + '">' +
-                                                        '<option value="-1">--Select--</option>' +
-                                                    '</select>' +
-                                            '</div>' +
-                                            '<div class="target-view">' +
-                                                '<span>Target :</span>' +
-                                                    '<select id="' + targetId + '">' +
-                                                        '<option value="-1">--Select--</option>' +
-                                                    '</select>' +
-                                            '</div>' +
-                                        '</div>');
+                '<div class="source-view">' +
+                '<span>Source :</span>' +
+                '<select id="' + sourceId + '">' +
+                '<option value="-1">--Select--</option>' +
+                '</select>' +
+                '</div>' +
+                '<div class="target-view">' +
+                '<span>Target :</span>' +
+                '<select id="' + targetId + '">' +
+                '<option value="-1">--Select--</option>' +
+                '</select>' +
+                '</div>' +
+                '</div>');
 
             var dataMapperContainer = $('<div id="' + dataMapperContainerId + '" class="data-mapper-container"></div>');
 
             currentContainer.find('svg').parent().append(selectorContainer).append(dataMapperContainer);
             currentContainer.find('svg').remove();
 
-            this.loadSchemasToComboBox(currentContainer, "#" + sourceId,"#"+targetId, predefinedStructs);
+            this.loadSchemasToComboBox(currentContainer, "#" + sourceId, "#" + targetId, predefinedStructs);
 
             $(currentContainer).find("#" + sourceId).change(function () {
                 var sourceDropDown = $("#" + sourceId + " option:selected");
@@ -190,7 +190,7 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             });
         };
 
-        TypeMapperDefinitionView.prototype.loadSchemasToComboBox = function (parentId, selectSourceId,selectTargetId,schemaArray) {
+        TypeMapperDefinitionView.prototype.loadSchemasToComboBox = function (parentId, selectSourceId, selectTargetId, schemaArray) {
             for (var i = 0; i < schemaArray.length; i++) {
                 $(parentId).find(selectSourceId).append('<option value="' + i + '">' + schemaArray[i].getStructName() + '</option>');
                 $(parentId).find(selectTargetId).append('<option value="' + i + '">' + schemaArray[i].getStructName() + '</option>');
@@ -218,12 +218,18 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
         TypeMapperDefinitionView.prototype.onAttributesConnect = function (connection) {
             var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
             var leftOp = BallerinaASTFactory.createLeftOperandExpression();
-            var leftOperandExpression = "x." + connection.targetProperty;
+            var leftOperandExpression = "x";
+            _.forEach(connection.targetProperty, function (property) {
+                leftOperandExpression = leftOperandExpression + "." + property;
+            });
             leftOp.setLeftOperandExpressionString(leftOperandExpression);
             var rightOp = BallerinaASTFactory.createRightOperandExpression();
-            var rightOperandExpression = "y." + connection.sourceProperty;
+            var rightOperandExpression = "y";
+            _.forEach(connection.sourceProperty, function (property) {
+                rightOperandExpression = rightOperandExpression + "." + property;
+            });
             if (connection.isComplexMapping) {
-                rightOperandExpression = "(" + connection.complexMapperName + ":" + connection.targetType + ")" + 
+                rightOperandExpression = "(" + connection.complexMapperName + ":" + connection.targetType + ")" +
                     rightOperandExpression;
             }
             rightOp.setRightOperandExpressionString(rightOperandExpression);
@@ -242,9 +248,17 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
          * @param connection object
          */
         TypeMapperDefinitionView.prototype.onAttributesDisConnect = function (connection) {
-
-            connection.targetReference.getParent().removeAssignmentDefinition(connection.sourceProperty,
-                connection.targetProperty);
+            var sourceProperty = "";
+            _.forEach(connection.sourceProperty, function (property) {
+                sourceProperty = sourceProperty + "." + property;
+            });
+            sourceProperty = sourceProperty.slice(1);
+            var targetProperty = "";
+            _.forEach(connection.targetProperty, function (property) {
+                targetProperty = targetProperty + "." + property;
+            });
+            targetProperty = targetProperty.slice(1);
+            connection.targetReference.getParent().removeAssignmentDefinition(sourceProperty, targetProperty);
         };
 
         TypeMapperDefinitionView.prototype.getModel = function () {
@@ -265,6 +279,14 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
 
         TypeMapperDefinitionView.prototype.setViewOptions = function (viewOptions) {
             this._viewOptions = viewOptions;
+        };
+
+        TypeMapperDefinitionView.prototype.getPackage = function () {
+            return this._package;
+        };
+
+        TypeMapperDefinitionView.prototype.getTypes = function () {
+            return this.getDiagramRenderingContext().getEnvironment().getTypes();
         };
 
         return TypeMapperDefinitionView;

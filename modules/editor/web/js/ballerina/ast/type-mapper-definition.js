@@ -201,7 +201,8 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         var ballerinaASTFactory = this.getFactory();
         var assignmentStatement = _.find(this.getChildren(), function (child) {
             return ballerinaASTFactory.isAssignmentStatement(child) &&
-                (('x.' + targetProperty + ' = ' + 'y.' + sourceProperty) === child.getStatementString());
+                child.getStatementString().split("=")[0].includes('x.' + targetProperty) &&
+                child.getStatementString().split("=")[1].includes('y.' + sourceProperty)
         });
         if (!_.isUndefined(assignmentStatement)) {
             this.removeChild(assignmentStatement);
