@@ -49,14 +49,34 @@ public class BallerinaConnectorManager {
         return instance;
     }
 
+    /**
+     * Returns the server connector instance associated with the given protocol.
+     * @param id the identifier of the server connector.
+     * @return server connector instance.
+     */
     public ServerConnector getServerConnector(String id) {
         return connectorManager.getServerConnector(id);
     }
 
+    /**
+     * Returns the client connector instance associated with the given protocol.
+     * @param protocol of the client connector.
+     * @return client connector instance.
+     */
     public ClientConnector getClientConnector(String protocol) {
         return connectorManager.getClientConnector(protocol);
     }
 
+    /**
+     * Creates and return a server connector using the given protocol and id. The protocol is used with acquiring the
+     * correct server connector provider. An error will be thrown, if there are no server connector provider registered
+     * for the given protocol. Throws {@code BallerinaException} error if there were any issues trying to create a new
+     * connector instance.
+     *
+     * @param protocol transport protocol used with finding the correct server connector provider.
+     * @param id unique id to use when creating the server connector instance.
+     * @return returns the newly created instance.
+     */
     public ServerConnector createServerConnector(String protocol, String id) {
         ServerConnector serverConnector;
         try {
@@ -68,15 +88,32 @@ public class BallerinaConnectorManager {
         return serverConnector;
     }
 
-
+    /**
+     * Register the given server connector error handler instance with the manager. Protocol of the handler will be
+     * used with registering the handler.
+     * @param serverConnectorErrorHandler handler instance to register.
+     */
     public void registerServerConnectorErrorHandler(ServerConnectorErrorHandler serverConnectorErrorHandler) {
         connectorManager.registerServerConnectorErrorHandler(serverConnectorErrorHandler);
     }
 
+    /**
+     * Returns an {@code Optional} value of the server connector error handler registered against the given transport
+     * protocol.
+     * @param protocol the transport protocol associated with the error handler.
+     * @return error handler instance.
+     */
     public Optional<ServerConnectorErrorHandler> getServerConnectorErrorHandler(String protocol) {
         return connectorManager.getServerConnectorErrorHandler(protocol);
     }
 
+    /**
+     * Initialize and load all the server and client connectors. The given instance of the message processor will
+     * be used to initialize all the default server connectors and it will be used with subsequent new connector
+     * creation as-well.
+     *
+     * @param messageProcessor message processor instance used with initializing the server connectors.
+     */
     public void initialize(MessageProcessor messageProcessor) {
         if (connectorsInitialized) {
             return;
