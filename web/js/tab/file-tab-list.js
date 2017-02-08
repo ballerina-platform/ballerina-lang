@@ -93,21 +93,58 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace/file'
             }
             $('[data-toggle="tooltip"]').tooltip();
         },
+
         removeTab: function (tab) {
-            TabList.prototype.removeTab.call(this, tab);
-            if(tab instanceof FileTab){
-                _.remove(this._workingFileSet, function(fileID){
-                    return _.isEqual(fileID, tab.getFile().id);
-                });
-                this.getBrowserStorage().destroy(tab.getFile());
-                this.getBrowserStorage().put('workingFileSet', this._workingFileSet);
-                // open welcome page upon last tab close
-                if(_.isEmpty(this.getTabList())){
-                    var commandManager = _.get(this, 'options.application.commandManager');
-                    commandManager.dispatch("go-to-welcome-page");
+            var commandManager = _.get(this, 'options.application.commandManager');
+            var self = this;
+            var remove = function() {
+              TabList.prototype.removeTab.call(self, tab);
+              if(tab instanceof FileTab) {
+                  _.remove(self._workingFileSet, function(fileID){
+                      return _.isEqual(fileID, tab.getFile().id);
+                  });
+                  self.getBrowserStorage().destroy(tab.getFile());
+                  self.getBrowserStorage().put('workingFileSet', self._workingFileSet);
+                  // open welcome page upon last tab close
+                  if(_.isEmpty(self.getTabList())){
+                      var commandManager = _.get(self, 'options.application.commandManager');
+                      commandManager.dispatch("go-to-welcome-page");
+                  }
+              }
+            }
+
+            if(!_.isFunction(this.activeTab.getFile)){
+                remove();
+                return;
+            }
+
+            var file = this.activeTab.getFile();
+            if(file.isPersisted() && !file.isDirty()){
+                // if file is not dirty no need to ask for confirmation
+                remove();
+                return;
+            }
+
+            var handleConfirm = function(shouldSave) {
+                if(shouldSave) {
+                    var done = function(saved) {
+                        if(saved) {
+                          remove();
+                        }
+                        // saved is false if cancelled. Then don't close the tab
+                    }
+                    commandManager.dispatch('save', {callback: done});
+                } else {
+                    remove();
                 }
             }
+
+            commandManager.dispatch('open-close-file-confirm-dialog', {
+                file: file,
+                handleConfirm: handleConfirm
+            });
         },
+
         newTab: function(opts) {
             var options = opts || {};
             if(_.has(options, 'tabOptions.file')){

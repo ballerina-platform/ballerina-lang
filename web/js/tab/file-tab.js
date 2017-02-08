@@ -77,6 +77,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
         renderAST: function(astRoot){
             var self = this;
             var ballerinaEditorOptions = _.get(this.options, 'ballerina_editor');
+            var backendEndpointsOptions = _.get(this.options, 'application.config.services');
             var diagramRenderingContext = new DiagramRenderContext();
 
             var fileEditor = new Ballerina.views.BallerinaFileEditor({
@@ -84,6 +85,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
                 file: self._file,
                 container: this.$el.get(0),
                 viewOptions: ballerinaEditorOptions,
+                backendEndpointsOptions: backendEndpointsOptions,
                 debugger: DebugManager
             });
 

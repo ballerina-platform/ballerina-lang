@@ -99,6 +99,7 @@ public class SwaggerResourceMapper {
                     break;
                 case Constants.ANNOTATION_METHOD_POST:
                     path.post(operation);
+                    break;
                 case Constants.ANNOTATION_METHOD_DELETE:
                     path.delete(operation);
                     break;

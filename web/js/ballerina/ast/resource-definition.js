@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'require', 'log', './node'],
-    function (_, require, log, ASTNode) {
+define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
+    function (_, require, log, ASTNode, CommonUtils) {
 
     /**
      * Constructor for ResourceDefinition
@@ -28,7 +28,7 @@ define(['lodash', 'require', 'log', './node'],
      * @constructor
      */
     var ResourceDefinition = function (args) {
-        this._resourceName = _.get(args, 'resourceName', 'newResource');
+        this._resourceName = _.get(args, 'resourceName');
         this._annotations = _.get(args, 'annotations', []);
 
         // Adding available annotations and their default values.
@@ -72,16 +72,16 @@ define(['lodash', 'require', 'log', './node'],
         }
     };
 
-    ResourceDefinition.prototype.getVariableDeclarations = function () {
-        var variableDeclarations = [];
+    ResourceDefinition.prototype.getVariableDefinitionStatements = function () {
+        var variableDefinitionStatements = [];
         var self = this;
 
         _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isVariableDeclaration(child)) {
-                variableDeclarations.push(child);
+            if (self.BallerinaASTFactory.isVariableDefinitionStatement(child)) {
+                variableDefinitionStatements.push(child);
             }
         });
-        return variableDeclarations;
+        return variableDefinitionStatements;
     };
 
     ResourceDefinition.prototype.getParameters = function () {
@@ -245,6 +245,20 @@ define(['lodash', 'require', 'log', './node'],
         }
     };
 
+    ResourceDefinition.prototype.getConnectionDeclarations = function () {
+        var connectorDeclaration = [];
+        var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.getFactory().isConnectorDeclaration(child)) {
+                connectorDeclaration.push(child);
+            }
+        });
+        return _.sortBy(connectorDeclaration, [function (connectorDeclaration) {
+            return connectorDeclaration.getConnectorVariable();
+        }]);
+    };
+
     /**
      * Validates possible immediate child types.
      * @override
@@ -367,6 +381,27 @@ define(['lodash', 'require', 'log', './node'],
         }
 
         Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, indexNew);
+    };
+
+    /**
+     * @inheritDoc
+     * @override
+     */
+    ResourceDefinition.prototype.generateUniqueIdentifiers = function () {
+        CommonUtils.generateUniqueIdentifier({
+            node: this,
+            attributes: [{
+                defaultValue: "newResource",
+                setter: this.setResourceName,
+                getter: this.getResourceName,
+                parents: [{
+                    // service definition
+                    node: this.parent,
+                    getChildrenFunc: this.parent.getResourceDefinitions,
+                    getter: this.getResourceName
+                }]
+            }]
+        });
     };
 
     return ResourceDefinition;

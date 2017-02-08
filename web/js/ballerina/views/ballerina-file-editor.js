@@ -46,18 +46,22 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 throw "Ballerina AST Root is undefined or is of different type." + this._model;
             }
 
+           if (!_.has(args, 'viewOptions.backend')){
+               log.error("Backend is not defined.");
+               // not throwing an exception for now since we need to work without a backend.
+           }
 
-            if (!_.has(args, 'viewOptions.backend')){
-                log.error("Backend is not defined.");
-                // not throwing an exception for now since we need to work without a backend.
-            }
-            this.backend = new Backend(_.get(args, 'viewOptions.backend', {}));
-            this._isInSourceView = false;
-            this._isInSwaggerView = false;
-            this._constantDefinitionsPane = undefined;
-            this.deserializer = BallerinaASTDeserializer;
-            this.init();
-        };
+           if (!_.has(args, 'backendEndpointsOptions')){
+               log.error("Backend endpoints options not defined.");
+               // not throwing an exception for now since we need to work without a backend.
+           }
+           this.backend = new Backend(_.get(args, 'viewOptions.backend', {}));
+           this._isInSourceView = false;
+           this._isInSwaggerView = false;
+           this._constantDefinitionsPane = undefined;
+           this.deserializer = BallerinaASTDeserializer;
+           this.init();
+       };
 
         BallerinaFileEditor.prototype = Object.create(BallerinaView.prototype);
         BallerinaFileEditor.prototype.constructor = BallerinaFileEditor;
@@ -66,7 +70,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             if (this.isInSourceView()) {
                 return this._sourceView.getContent();
             } else if (this.isInSwaggerView()) {
-             return this._swaggerView.getContent();
+                return this._swaggerView.getContent();
             } else {
                 return this.generateSource();
             }
@@ -110,9 +114,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             if (!_.isNil(model) && model instanceof BallerinaASTRoot) {
                 this._model = model;
                 //Registering event listeners
-                this._model.on('child-removed', this.childViewRemovedCallback, this);
                 this._model.on('child-added', function(child){
-                     this.visit(child);
+                    this.visit(child);
                 }, this);
                 // make undo-manager capture all tree modifications after initial rendering
                 this._model.on('tree-modified', function(event){
@@ -380,6 +383,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var swaggerViewOpts = _.clone(_.get(this._viewOptions, 'swagger_view'));
             _.set(swaggerViewOpts, 'container', swaggerViewContainer);
             _.set(swaggerViewOpts, 'content', "");
+            _.set(swaggerViewOpts, 'backend', new Backend({url : _.get(this._backendEndpointsOptions, 'swagger.endpoint')}));
             this._swaggerView = new SwaggerView(swaggerViewOpts);
             this._swaggerView.render();
             
@@ -399,27 +403,14 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self.setInSwaggerView(false);
          });
 
-             var swaggerViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_swagger_btn'));
-             swaggerViewBtn.click(function () {
-                 self.toolPalette.hide();
-                 var generatedSource = self.generateSource();
-                 var generatedSwagger = {swagger: 2.0, info: {title: "Ballerina Default API", version : ""}, paths: {}};
-
-                 var backend = new Backend({url : "http://localhost:8289/services/convert-ballerina"});
-                 var response = backend.call("POST", {
-                     "name": "CalculatorService",
-                     "description": "null",
-                     "swaggerDefinition": "null",
-                     "ballerinaDefinition": generatedSource
-                 }, [{name: "expectedType", value: "ballerina"}]);
-
-                 if (!response.error) {
-                     generatedSwagger = response.swaggerDefinition;
-                 }
+           var swaggerViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_swagger_btn'));
+           swaggerViewBtn.click(function () {
+               self.toolPalette.hide();
+               var generatedSource = self.generateSource();
 
                  self.toolPalette.hide();
                  // Get the generated swagger and append it to the swagger view container's content
-                 self._swaggerView.setContent(generatedSwagger);
+                 self._swaggerView.setContent(generatedSource);
     
                  swaggerViewContainer.show();
                  sourceViewContainer.hide();
@@ -435,8 +426,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 // re-parse if there are modifications to source
                 var isSourceChanged = !self._sourceView.isClean(),
                     savedWhileInSourceView = lastRenderedTimestamp < self._file.getLastPersisted();
+                var isSwaggerChanged = !self._swaggerView.isClean();
                 if (isSourceChanged || savedWhileInSourceView) {
-                    var source = self.getContent();
+                    var source = self._sourceView.getContent();
                     var response = self.backend.parse(source);
                     //if there are errors display the error.
                     //@todo: proper error handling need to get the service specs
@@ -450,6 +442,11 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     self.setModel(root);
                     // reset source editor delta stack
                     self._sourceView.markClean();
+                } else if (isSwaggerChanged) {
+                    var astModal = self._swaggerView.getContent();
+                    self.setModel(self.deserializer.getASTModel(astModal));
+                    // reset source editor delta stack
+                    self._swaggerView.markClean();
                 }
                 //canvas should be visible before you can call reDraw. drawing dependednt on attr:offsetWidth
                 self.toolPalette.show();
@@ -461,7 +458,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 designViewBtn.hide();
                 self.setInSourceView(false);
                 self.setInSwaggerView(false);
-                if(isSourceChanged || savedWhileInSourceView){
+                if(isSourceChanged || isSwaggerChanged || savedWhileInSourceView){
                     // reset undo manager for the design view
                     self.getUndoManager().reset();
                     self.reDraw();
