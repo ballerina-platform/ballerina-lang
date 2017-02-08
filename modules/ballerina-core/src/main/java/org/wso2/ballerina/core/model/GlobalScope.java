@@ -29,8 +29,14 @@ import java.util.Map;
 public class GlobalScope implements SymbolScope {
     private Map<SymbolName, BLangSymbol> symbolMap;
 
-    public GlobalScope() {
+    private static GlobalScope instance = new GlobalScope();
+
+    private GlobalScope() {
         symbolMap = new HashMap<>();
+    }
+
+    public static GlobalScope getInstance() {
+        return instance;
     }
 
     @Override

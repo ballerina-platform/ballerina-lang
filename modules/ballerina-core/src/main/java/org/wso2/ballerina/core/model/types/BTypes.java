@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.types;
 
 import org.wso2.ballerina.core.exception.SemanticException;
+import org.wso2.ballerina.core.model.GlobalScope;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.SymbolScope;
@@ -54,20 +55,15 @@ public class BTypes {
     public static BType typeMessage;
     public static BType typeMap;
 
+    private static boolean initialized = false;
+
     private BTypes() {
     }
 
-    public static void loadBuiltInTypes(SymbolScope globalScope) {
-        typeInt = new BIntegerType(INT_TNAME, null, globalScope);
-        typeLong = new BLongType(LONG_TNAME, null, globalScope);
-        typeFloat = new BFloatType(FLOAT_TNAME, null, globalScope);
-        typeDouble = new BDoubleType(DOUBLE_TNAME, null, globalScope);
-        typeBoolean = new BBooleanType(BOOLEAN_TNAME, null, globalScope);
-        typeString = new BStringType(STRING_TNAME, null, globalScope);
-        typeXML = new BXMLType(XML_TNAME, null, globalScope);
-        typeJSON = new BJSONType(JSON_TNAME, null, globalScope);
-        typeMessage = new BMessageType(MESSAGE_TNAME, null, globalScope);
-        typeMap = new BMapType(MAP_TNAME, null, globalScope);
+    public static synchronized void loadBuiltInTypes(GlobalScope globalScope) {
+        if (!initialized) {
+            createBuiltInTypes(globalScope);
+        }
 
         globalScope.define(typeInt.getSymbolName(), typeInt);
         globalScope.define(typeLong.getSymbolName(), typeLong);
@@ -83,6 +79,20 @@ public class BTypes {
         TypeLattice.loadImplicitCastLattice(globalScope);
         TypeLattice.loadExplicitCastLattice(globalScope);
 
+    }
+
+    private static void createBuiltInTypes(GlobalScope globalScope) {
+        typeInt = new BIntegerType(INT_TNAME, null, globalScope);
+        typeLong = new BLongType(LONG_TNAME, null, globalScope);
+        typeFloat = new BFloatType(FLOAT_TNAME, null, globalScope);
+        typeDouble = new BDoubleType(DOUBLE_TNAME, null, globalScope);
+        typeBoolean = new BBooleanType(BOOLEAN_TNAME, null, globalScope);
+        typeString = new BStringType(STRING_TNAME, null, globalScope);
+        typeXML = new BXMLType(XML_TNAME, null, globalScope);
+        typeJSON = new BJSONType(JSON_TNAME, null, globalScope);
+        typeMessage = new BMessageType(MESSAGE_TNAME, null, globalScope);
+        typeMap = new BMapType(MAP_TNAME, null, globalScope);
+        initialized = true;
     }
 
     public static BArrayType getArrayType(String elementTypeName) {
