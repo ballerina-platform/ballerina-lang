@@ -2316,14 +2316,14 @@ public class SemanticAnalyzer implements NodeVisitor {
                 if (ifElseStmt.getElseBody() == null && ifElseStmt.getElseIfBlocks().length == 0
                         && !returnStmtCounter.hasOne()) {
                     throw new SemanticException(
-                            "missing return statement in branch " + statement.getNodeLocation().getFileName() + ":"
+                            "missing return statement in " + statement.getNodeLocation().getFileName() + ":"
                                     + statement.getNodeLocation().getLineNumber());
                 }
                 returnStmtCounter.reset();
                 checkFunctionReturnStmtLocations((BlockStmt) ifElseStmt.getThenBody(), returnStmtCounter);
                 if (!returnStmtCounter.hasOne()) {
                     throw new SemanticException(
-                            "missing return statement in branch " + statement.getNodeLocation().getFileName() + ":"
+                            "missing return statement in " + statement.getNodeLocation().getFileName() + ":"
                                     + statement.getNodeLocation().getLineNumber());
                 }
                 if (((IfElseStmt) statement).getElseBody() != null) {
@@ -2336,21 +2336,21 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
                 if (!returnStmtCounter.hasOne()) {
                     throw new SemanticException(
-                            "missing return statement in branch " + statement.getNodeLocation().getFileName() + ":"
+                            "missing return statement in " + statement.getNodeLocation().getFileName() + ":"
                                     + statement.getNodeLocation().getLineNumber());
                 }
             } else if (statement instanceof WhileStmt) {
                 //return statement must be in out of loop
                 if (!returnStmtCounter.hasOne()) {
                     throw new SemanticException(
-                            "missing return statement of parent in " + statement.getNodeLocation().getFileName() + ":"
+                            "missing return statement in " + statement.getNodeLocation().getFileName() + ":"
                                     + statement.getNodeLocation().getLineNumber());
                 }
                 returnStmtCounter.reset();
                 checkFunctionReturnStmtLocations(((WhileStmt) statement).getBody(), returnStmtCounter);
                 if (!returnStmtCounter.hasOne()) {
                     throw new SemanticException(
-                            "missing return statement in while loop " + statement.getNodeLocation().getFileName() + ":"
+                            "missing return statement in " + statement.getNodeLocation().getFileName() + ":"
                                     + statement.getNodeLocation().getLineNumber());
                 }
             }
