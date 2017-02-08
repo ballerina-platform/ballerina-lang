@@ -64,7 +64,6 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
            swaggerEditor.html('<iframe class="se-iframe" width=100% height="100%"></iframe>');
            swaggerEditor.find('iframe.se-iframe').attr("src", swaggerEditor.data("editor-url"));
            var swaggerEditorWindow = $(self._container).find('div.swaggerEditor').find('iframe.se-iframe')[0].contentWindow;
-           self._swaggerEditorWindow = swaggerEditorWindow;
            swaggerEditor.ready(function () {
                if (swaggerEditorWindow.setSwaggerHolder) {
                    swaggerEditorWindow.setSwaggerHolder(self._swaggerHolder);
