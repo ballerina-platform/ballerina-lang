@@ -27,6 +27,7 @@ define(['log', 'lodash', 'require', 'event_channel'],
         var Connector = function (args) {
             EventChannel.call(this, args);
             this._name = _.get(args, 'name', '');
+            this._id = _.get(args, 'id', '');
             this._actions = _.get(args, 'actions', []);
             this.BallerinaEnvFactory = require('./ballerina-env-factory');
         };
@@ -35,11 +36,29 @@ define(['log', 'lodash', 'require', 'event_channel'],
         Connector.prototype.constructor = Connector;
 
         Connector.prototype.setName = function (name) {
+            var oldName = this._name;
             this._name = name;
+            this.trigger("name-modified", name, oldName);
         };
 
         Connector.prototype.getName = function () {
             return this._name;
+        };
+
+        /**
+         * sets the id
+         * @param {string} id
+         */
+        Connector.prototype.setId = function (id) {
+            this._id = id;
+        };
+
+        /**
+         * returns the id
+         * @returns {string}
+         */
+        Connector.prototype.getId = function () {
+            return this._id;
         };
 
         Connector.prototype.addAction = function (action) {
@@ -49,6 +68,16 @@ define(['log', 'lodash', 'require', 'event_channel'],
 
         Connector.prototype.getActions = function (action) {
             return this._actions;
+        };
+
+        /**
+         * returns the action by name
+         * @param {string} actionName - name of the action
+         */
+        Connector.prototype.getActionByName = function (actionName) {
+            return _.find(this.getActions(), function (action) {
+                return _.isEqual(action.getName(),actionName);
+            });
         };
 
         Connector.prototype.initFromJson = function (jsonNode) {

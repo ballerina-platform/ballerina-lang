@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node', 'log'],
-    function (_, ASTNode, log) {
+define(['lodash', './node', 'log', '../utils/common-utils'],
+    function (_, ASTNode, log, CommonUtils) {
 
     /**
      * Constructor for ServiceDefinition
@@ -27,7 +27,7 @@ define(['lodash', './node', 'log'],
      * @constructor
      */
     var ServiceDefinition = function (args) {
-        this._serviceName = _.get(args, 'serviceName', 'newService');
+        this._serviceName = _.get(args, 'serviceName');
         this._annotations = _.get(args, 'annotations', []);
 
         // Adding available annotations and their default values.
@@ -86,7 +86,18 @@ define(['lodash', './node', 'log'],
 
 
     ServiceDefinition.prototype.getConnectionDeclarations = function () {
-        return this._connectionDeclarations;
+        var connectorDeclaration = [];
+        var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.getFactory().isConnectorDeclaration(child)) {
+                connectorDeclaration.push(child);
+            }
+        });
+
+        return _.sortBy(connectorDeclaration, [function (connectorDeclaration) {
+            return connectorDeclaration.getConnectorVariable();
+        }]);
     };
 
     /**
@@ -246,6 +257,43 @@ define(['lodash', './node', 'log'],
         } else {
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, newIndex);
         }
+    };
+
+    //// Start of resource definitions functions
+
+    ServiceDefinition.prototype.getResourceDefinitions = function () {
+        var resourceDefinitions = [];
+        var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.getFactory().isResourceDefinition(child)) {
+                resourceDefinitions.push(child);
+            }
+        });
+        return resourceDefinitions;
+    };
+
+    //// End of resource definitions functions
+
+    /**
+     * @inheritDoc
+     * @override
+     */
+    ServiceDefinition.prototype.generateUniqueIdentifiers = function () {
+        CommonUtils.generateUniqueIdentifier({
+            node: this,
+            attributes: [{
+                defaultValue: "newService",
+                setter: this.setServiceName,
+                getter: this.getServiceName,
+                parents: [{
+                    // ballerina-ast-root
+                    node: this.parent,
+                    getChildrenFunc: this.parent.getServiceDefinitions,
+                    getter: this.getServiceName
+                }]
+            }]
+        });
     };
 
     return ServiceDefinition;
