@@ -47,20 +47,40 @@ define(['require', 'lodash', 'jquery', 'log', './../ast/package-definition',
             var packageWrapper = $("<div/>", {
                                     class: "package-definition-main-wrapper"
                                     }).insertBefore($(currentContainer).find('.constant-definition-main-wrapper'));
-            
-            // Creating package button.
-            var packageDefinitionsButton = $("<div class='package-name-btn'></div>")
-                                                .appendTo(packageWrapper);
+            var packageDefinitionsButton = $("<div class='package-name-btn' data-toggle='tooltip' title='Package Name' data-placement='bottom'></div>")
+                .appendTo(packageWrapper);
+
+            var packageButtonIcon = $("<span class='btn-icon'>Package</span>")
+                .appendTo(packageDefinitionsButton);
+
+            var packageDefinitionsMainWrapper = $("<span class='package-pane'/>")
+                .appendTo(packageWrapper);
 
             var collpaser = $("<div class='package-add-icon-wrapper btn-icon'/>").appendTo(packageWrapper);
 
-            $("<i class='fw fw-right'></i>").appendTo(collpaser);
+            var collpaserIcon = $("<i class='fw fw-right'></i>").appendTo(collpaser);
 
-            var packageButtonIcon = $("<span class='btn-icon' data-toggle='tooltip' title='Package Name' data-placement='bottom'>Package</span>")
-                .appendTo(packageDefinitionsButton).tooltip();
+            $(collpaser).click(function(){
+                packageButtonIcon.trigger("click");
+            });
 
-            var packageDefinitionsMainWrapper = $("<span class='package-pane'/>")
-                                                    .appendTo(packageDefinitionsButton);
+            // Creating package button.
+            //var packageDefinitionsButton = $("<div class='package-name-btn'></div>")
+            //                                    .appendTo(packageWrapper);
+
+            //var packageButtonIcon = $("<span class='btn-icon' data-toggle='tooltip' title='Package Name' data-placement='bottom'>Package</span>")
+            //    .appendTo(packageDefinitionsButton).tooltip();
+
+            //var packageDefinitionsMainWrapper = $("<span class='package-pane'/>")
+            //                                        .appendTo(packageDefinitionsButton);
+
+            //var collpaser = $("<div class='package-add-icon-wrapper btn-icon'/>").appendTo(packageDefinitionsButton);
+            //
+            //$("<i class='fw fw-right'></i>").appendTo(collpaser);
+            //
+            //$(collpaser).click(function(){
+            //    packageButtonIcon.trigger("click");
+            //});
 
             $("<span class='package-name-wrapper'>" +
                 "<input type='text' autocomplete='off' id='package-name-input'></span>")
@@ -78,12 +98,19 @@ define(['require', 'lodash', 'jquery', 'log', './../ast/package-definition',
             });
 
             //handle click event on package-btn
-            $(packageButtonIcon).click(function (e) {
+            $(packageDefinitionsButton).click(function (e) {
+                if (collpaserIcon.hasClass("fw-right")) {
+                    $(this).css("opacity", "1");
+                    collpaser.css("opacity", "1");
+                    collpaserIcon.removeClass("fw-right").addClass("fw-left");
+                } else {
+                    $(this).css("opacity", "");
+                    collpaser.css("opacity", "");
+                    collpaserIcon.addClass("fw-right").removeClass("fw-left");
+                }
                 $(packageDefinitionsMainWrapper).toggle();
             });
-            
-
-        }
+        };
 
         return PackageDefinitionPaneView;
     });

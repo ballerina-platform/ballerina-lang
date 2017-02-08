@@ -930,12 +930,12 @@ button.variable-list {
     border: 1px solid #ddd;
     background-color: #fff;
     margin: auto;
-    top: -34px;
+    top: -26px;
     left: 68px;
     position: relative;
     float: left;
     border-radius: 0 5px 5px 0;
-    min-height: 34px;
+    min-height: 27px;
 }
 
 .constants-wrapper {
@@ -955,7 +955,7 @@ button.variable-list {
     font-size: 11px;
     float: left;
     padding: 5px;
-    margin: 5px 3px 0 3px;
+    margin: 3px 3px 0 3px;
 }
 
 .constant-add-action-wrapper {
@@ -1000,9 +1000,9 @@ button.variable-list {
     width: 23px;
     margin-left: 4px;
     position: absolute;
-    right: -23px;
-    top: 2px;
-    border-radius: 0 10px 10px 0;
+    right: -24px;
+    top: -1px;
+    border-radius: 0 5px 5px 0;
 }
 
 .constant-pane-collapser-wrapper:hover {
@@ -1066,6 +1066,9 @@ button.variable-list {
 
 .constant-definition-main-wrapper {
     padding-bottom: 47px;
+    position: absolute;
+    top: 60px;
+    width: 83%;
 }
 
 /** End of Constants view **/
@@ -1424,21 +1427,29 @@ span.fw-stack.fw-lg {
     background: #333;
     width: 69px;
     color: #fff;
-    padding: 8px 10px;
+    padding: 5px 10px;
     border-radius: 5px 0 0 5px;
-    height: 34px;
+    height: 26px;
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+.constants-btn:hover, .package-name-btn:hover {
+    cursor: pointer;
+    opacity: 1;
 }
 
 .package-add-icon-wrapper {
     position: relative;
-    top: -34px;
+    top: -26px;
     left: 69px;
     border: 1px solid #ddd;
-    background-color: #fff;
+    background-color: #efefef;
     border-radius: 0 5px 5px 0;
-    min-height: 34px;
+    min-height: 26px;
     width: 26px;
-    padding: 9px 3px 0 8px;
+    padding: 6px 3px 0 9px;
+    font-size: 12px;
 }
 
 

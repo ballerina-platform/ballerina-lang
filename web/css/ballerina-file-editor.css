@@ -607,13 +607,10 @@ span.package-pane {
     border: 1px solid #f0f0f0;
     display: none;
     position: absolute;
-    top: 20px;
-    left: 309px;
+    top: 0px;
+    left: 90px;
     color: #333;
-}
-
-span.package-name-wrapper {
-    margin-left: 10px;
+    float: left;
 }
 
 .action-content-wrapper-heading input[type=text] {
@@ -634,6 +631,7 @@ input#package-name-input {
 
 .package-definition-main-wrapper {
     height: 50px;
+    position: absolute;
 }
 
 .tooltip-inner {
