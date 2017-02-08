@@ -138,7 +138,7 @@
         <com.fasterxml.jackson.datatype.version>2.4.1</com.fasterxml.jackson.datatype.version>
         <com.fasterxml.jackson.version>2.7.4</com.fasterxml.jackson.version>
         <swagger-parser-version>1.0.25</swagger-parser-version>
-        <swagger-parser-version>1.0.26-SNAPSHOT</swagger-parser-version>
+        <!--<swagger-parser-version>1.0.26-SNAPSHOT</swagger-parser-version>-->
         <testng.version>6.9.4</testng.version>
         <scala-version>2.11.1</scala-version>
         <felix-version>2.3.4</felix-version>
@@ -161,6 +161,7 @@
     <modules>
         <module>modules/swagger-ballerina-convertor</module>
         <module>modules/swagger-connector-generator</module>
+        <module>modules/swagger-command</module>
     </modules>
 
 </project>
