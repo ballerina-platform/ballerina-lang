@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 
 /**
- * The {@link Runnable} which executes a periodic poll.
+ * The {@link PollingTaskRunner} which executes a periodic poll.
  */
 public class PollingTaskRunner implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(PollingTaskRunner.class);

@@ -31,9 +31,10 @@ import java.util.Optional;
 import java.util.ServiceLoader;
 
 /**
- * {@code ServerConnectorManager} is responsible for managing all the server connectors with an application runtime.
- * For an application that uses the transport framework, this manager uses the same message processor instance
- * used with initializing.
+ * {@code ConnectorManager} is responsible for managing all the server connectors and client connectors with an
+ * application runtime. For an application that uses the transport framework, this manager uses the same message
+ * processor instance used with initializing server connectors. The server connectors are loaded using
+ * {@code ServerConnectorProvider} SPI and client connectors are loaded using {@code ClientConnector} SPI.
  */
 public class ConnectorManager {
 

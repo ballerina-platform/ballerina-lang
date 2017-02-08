@@ -23,7 +23,7 @@ import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import java.util.Map;
 
 /**
- * Abstract class for the polling type of server connectors.
+ * Abstract class which should be extended when writing polling type of server connectors such as file, jms, etc.
  */
 public abstract class PollingServerConnector extends ServerConnector {
     private static final String POLLING_INTERVAL = "pollingInterval";
