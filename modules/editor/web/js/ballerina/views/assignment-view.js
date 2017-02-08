@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd3utils', 'd3'],
-    function (_, log, BallerinaStatementView, AssignmentStatement, D3Utils, d3) {
+define(['lodash', 'log', './simple-statement-view', './../ast/assignment', 'd3utils', 'd3'],
+    function (_, log, SimpleStatementView, AssignmentStatement, D3Utils, d3) {
 
         /**
          * The view to represent a assignment definition which is an AST visitor.
@@ -27,20 +27,15 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
          * @constructor
          */
         var AssignmentStatementView = function (args) {
-            BallerinaStatementView.call(this, args);
+            SimpleStatementView.call(this, args);
 
             if (_.isNil(this._container)) {
                 log.error("Container for Assignment statement is undefined." + this._container);
                 throw "Container for Assignment statement is undefined." + this._container;
             }
-
-            // View options for height and width of the assignment statement box.
-            this._viewOptions.height = _.get(args, "viewOptions.height", 30);
-            this._viewOptions.width = _.get(args, "viewOptions.width", 120);
-            this.getBoundingBox().fromTopCenter(this._topCenter, this._viewOptions.width, this._viewOptions.height);
         };
 
-        AssignmentStatementView.prototype = Object.create(BallerinaStatementView.prototype);
+        AssignmentStatementView.prototype = Object.create(SimpleStatementView.prototype);
         AssignmentStatementView.prototype.constructor = AssignmentStatementView;
 
         AssignmentStatementView.prototype.canVisitStatement = function(){
@@ -49,28 +44,11 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
 
         AssignmentStatementView.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof AssignmentStatement) {
-                this._model = model;
+                (this.__proto__.__proto__).setModel(model);
             } else {
                 log.error("Assignment statement undefined or is of different type." + model);
                 throw "Assignment statement undefined or is of different type." + model;
             }
-        };
-
-        AssignmentStatementView.prototype.setContainer = function (container) {
-            if (!_.isNil(container)) {
-                this._container = container;
-            } else {
-                log.error("Container for assignment statement is undefined." + container);
-                throw "Container for assignment statement is undefined." + container;
-            }
-        };
-
-        AssignmentStatementView.prototype.getModel = function () {
-            return this._model;
-        };
-
-        AssignmentStatementView.prototype.getContainer = function () {
-            return this._container;
         };
 
         /**
@@ -78,60 +56,37 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
          * @returns {group} - The SVG group which holds the elements of the assignment statement.
          */
         AssignmentStatementView.prototype.render = function (diagramRenderingContext) {
-            this.setDiagramRenderingContext(diagramRenderingContext);
-            this.setStatementGroup(D3Utils.group(d3.select(this._container)));
-            this.getStatementGroup().attr("id","_" +this._model.id);//added attribute 'id' starting with '_' to be compatible with HTML4
-            var width = this.getBoundingBox().w();
-            var height = this.getBoundingBox().h();
+            // Calling super class's render function.
+            (this.__proto__.__proto__).render.call(this, diagramRenderingContext);
+            // Update model.
+            var model = this.getModel();
+            model.accept(this);
+            // Setting display text.
+            this.renderDisplayText(model.getStatementString());
 
-            var x = this.getBoundingBox().getLeft();
-            var y = this.getBoundingBox().getTop();
-
-            var expressionRect = D3Utils.rect(x, y, width, height, 0, 0, this.getStatementGroup()).classed('statement-rect', true);
-            var assignmentText = this._model.getStatementString();
-            assignmentText = ((assignmentText.length) > 11 ? (assignmentText.substring(0,11) + '...') : assignmentText);
-            var expressionText = D3Utils.textElement(x + width/2, y + height/2, assignmentText, this.getStatementGroup()).classed('statement-text', true);
-            this.getStatementGroup().expression_rect = expressionRect;
-            this.getStatementGroup().expression_text = expressionText;
-            this.setStatementGroup(this.getStatementGroup());
-            this.listenTo(this._model, 'update-property-text', this.updateStatementText);
-            this._model.accept(this);
-
-            // Creating property pane
-            var editableProperties = [];
+            var statementGroup = this.getStatementGroup();
+            // Creating property pane.
             var editableProperty = {
                 propertyType: "text",
                 key: "Assignment",
-                model: this._model,
-                getterMethod: this._model.getStatementString,
-                setterMethod: this._model.setStatementString
+                model: model,
+                getterMethod: model.getStatementString,
+                setterMethod: model.setStatementString
             };
-            editableProperties.push(editableProperty);
             this._createPropertyPane({
-                model: this._model,
-                statementGroup:this.getStatementGroup(),
-                editableProperties: editableProperty
-            });
+                                         model: model,
+                                         statementGroup: statementGroup,
+                                         editableProperties: editableProperty
+                                     });
+            this.listenTo(model, 'update-property-text', this.updateStatementText);
 
-            this.getBoundingBox().on('top-edge-moved', function(dy){
-                expressionRect.attr('y',  parseFloat(expressionRect.attr('y')) + dy);
-                expressionText.attr('y',  parseFloat(expressionText.attr('y')) + dy);
-            });
+            return statementGroup;
         };
 
-        AssignmentStatementView.prototype.setViewOptions = function (viewOptions) {
-            this._viewOptions = viewOptions;
-        };
-
-        AssignmentStatementView.prototype.getViewOptions = function () {
-            return this._viewOptions;
-        };
-
-        AssignmentStatementView.prototype.updateStatementText = function (updatedText) {
-            if (!_.isUndefined(updatedText) && updatedText !== '') {
-                updatedText = ((updatedText.length) > 11 ? (updatedText.substring(0, 11) + '..') : updatedText);
-                this.getStatementGroup().expression_text.node().textContent = updatedText;
-            }
+        AssignmentStatementView.prototype.updateStatementText = function (newStatementText, propertyKey) {
+            this._model.setStatementString(newStatementText);
+            var displayText = this._model.getStatementString();
+            this.renderDisplayText(displayText);
         };
 
         return AssignmentStatementView;

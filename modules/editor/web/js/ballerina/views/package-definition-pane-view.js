@@ -32,7 +32,6 @@ define(['require', 'lodash', 'jquery', 'log', './../ast/package-definition',
             this._paneAppendElement = _.get(args, "paneAppendElement");
             this._viewOfModel = _.get(args, "view");
             this._container = _.get(args, "container");
-            this._packageDefinitionsButton = undefined;
         };
 
         PackageDefinitionPaneView.prototype.constructor = PackageDefinitionPaneView;
@@ -50,20 +49,22 @@ define(['require', 'lodash', 'jquery', 'log', './../ast/package-definition',
                                     }).insertBefore($(currentContainer).find('.constant-definition-main-wrapper'));
             
             // Creating package button.
-            this._packageDefinitionsButton = $("<div class='package-name-btn'></div>")
+            var packageDefinitionsButton = $("<div class='package-name-btn'></div>")
                                                 .appendTo(packageWrapper);
 
-            $("<span class='fw-stack fw-lg' data-toggle='tooltip' title='Package Name'> " +
-                "<i class='fw fw-circle fw-stack-2x'></i>" +
-                "<i class='fw fw-package fw-stack-1x fw-inverse'></i> </span>")
-                .appendTo(this._packageDefinitionsButton).tooltip();
+            var collpaser = $("<div class='package-add-icon-wrapper'/>").appendTo(packageWrapper);
 
-            this._packageDefinitionsMainWrapper = $("<span class='package-pane'/>")
-                                                    .appendTo(this._packageDefinitionsButton);
+            $("<i class='fw fw-right'></i>").appendTo(collpaser);
+
+            var packageButtonIcon = $("<span class='' data-toggle='tooltip' title='Package Name' data-placement='bottom'>Package</span>")
+                .appendTo(packageDefinitionsButton).tooltip();
+
+            var packageDefinitionsMainWrapper = $("<span class='package-pane'/>")
+                                                    .appendTo(packageDefinitionsButton);
 
             $("<span class='package-name-wrapper'>" +
                 "<input type='text' autocomplete='off' id='package-name-input'></span>")
-                .appendTo(this._packageDefinitionsMainWrapper);
+                .appendTo(packageDefinitionsMainWrapper);
 
             var packageInput = packageWrapper.find('#package-name-input');
 
@@ -75,6 +76,12 @@ define(['require', 'lodash', 'jquery', 'log', './../ast/package-definition',
             packageInput.on("change", function () {
                 currentASTRoot.setPackageName($(this).val());
             });
+
+            //handle click event on package-btn
+            $(packageButtonIcon).click(function (e) {
+                $(packageDefinitionsMainWrapper).toggle();
+            });
+            
 
         }
 

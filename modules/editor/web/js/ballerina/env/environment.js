@@ -86,93 +86,198 @@ define(['lodash', 'event_channel', './ballerina-env-factory'], function(_, Event
 
         //TODO : invoke backend service to get packages
         var packagesJson = [{
-            name: "org.wso2.http.OAuth",
-            connectors: [
-                {
-                    id: "oauth-connector",
-                    name: "OAuthConnector",
-                    icon: "images/tool-icons/http-connector.svg",
-                    title: "OAuthConnector",
-                    actions: [
-                        {
-                            id: "authorize",
-                            name: "Authorize",
-                            icon: "images/tool-icons/http.svg",
-                            title: "Authorize",
-                            meta: {
-                                action: "authorize"
-                            }
-                        }
-                    ]
-                }
-            ],
-            functions: [],
-            structs: []
-        }, {
-            name: "org.wso2.salesforce",
-            connectors: [
-                {
-                    id: "sf-connector",
-                    name: "Salesforce",
-                    icon: "images/tool-icons/http-connector.svg",
-                    title: "Salesforce",
-                    actions: [
-                        {
-                            id: "add",
-                            name: "Add",
-                            icon: "images/tool-icons/http.svg",
-                            title: "Add",
-                            meta: {
-                                action: "add"
-                            }
-                        }
-                    ]
-                }
-            ],
-            functions: [],
-            structs: []
-        }, {
             name: "ballerina.net.http",
             connectors: [{
-                id: 'http',
                 name: "HTTPConnector",
-                title: "HTTPConnector",
-                icon: "images/tool-icons/http-connector.svg",
-                actions: [{
-                    id: "get",
-                    name: "Get",
-                    icon: "images/tool-icons/http.svg",
-                    title: "GET",
-                    meta: {
-                        action: "get"
-                    },
-                }, {
-                    id: "post",
-                    name: "Post",
-                    icon: "images/tool-icons/http.svg",
-                    title: "POST",
-                    meta: {
-                        action: "post"
-                    },
-                }, {
-                    id: "put",
-                    name: "Put",
-                    icon: "images/tool-icons/http.svg",
-                    title: "PUT",
-                    meta: {
-                        action: "put"
+                annotations: [
+                    {
+                        name: "Description",
+                        value: ""
                     }
-                }, {
-                    id: "delete",
-                    name: "Delete",
-                    icon: "images/tool-icons/http.svg",
-                    title: "DELETE",
-                    meta: {
-                        action: "delete"
+                ],
+                parameters: [
+                    {
+                        name: "message",
+                        type: "message"
+                    },
+                    {
+                        name: "reasonPhrase",
+                        type: "string"
                     }
-                }]
+                ],
+                actions: [
+                    {
+                        name: "get",
+                        annotations: [
+                            {
+                                name: "Description",
+                                value: ""
+                            }
+                        ],
+                        parameters: [
+                            {
+                                name: "h",
+                                type: "HttpConnector"
+                            },
+                            {
+                                name: "path",
+                                type: "string"
+                            },
+                            {
+                                name: "m",
+                                type: "message"
+                            }
+                        ],
+                        returnParams: [
+                            {
+                                type: "message"
+                            }
+                        ]
+                    },
+                    {
+                        name: "put",
+                        annotations: [
+                            {
+                                name: "Description",
+                                value: ""
+                            }
+                        ],
+                        parameters: [
+                            {
+                                name: "h",
+                                type: "HttpConnector"
+                            },
+                            {
+                                name: "path",
+                                type: "string"
+                            },
+                            {
+                                name: "m",
+                                type: "message"
+                            }
+                        ],
+                        returnParams: [
+                            {
+                                type: "message"
+                            }
+                        ]
+                    },
+                    {
+                        name: "post",
+                        annotations: [
+                            {
+                                name: "Description",
+                                value: ""
+                            }
+                        ],
+                        parameters: [
+                            {
+                                name: "h",
+                                type: "HttpConnector"
+                            },
+                            {
+                                name: "path",
+                                type: "string"
+                            },
+                            {
+                                name: "m",
+                                type: "message"
+                            }
+                        ],
+                        returnParams: [
+                            {
+                                type: "message"
+                            }
+                        ]
+                    },
+                    {
+                        name: "delete",
+                        annotations: [
+                            {
+                                name: "Description",
+                                value: ""
+                            }
+                        ],
+                        parameters: [
+                            {
+                                name: "h",
+                                type: "HttpConnector"
+                            },
+                            {
+                                name: "path",
+                                type: "string"
+                            },
+                            {
+                                name: "m",
+                                type: "message"
+                            }
+                        ],
+                        returnParams: [
+                            {
+                                type: "message"
+                            }
+                        ]
+                    }
+                ]
             }],
-            functions: [],
+            functions: [
+                {
+                    name: "setStatusCode",
+                    annotations: [
+                        {
+                            name: "Description",
+                            value: ""
+                        },
+                        {
+                            name: "Param",
+                            value: "message"
+                        },
+                        {
+                            name: "Param",
+                            value: "status code"
+                        }
+                    ],
+                    parameters: [
+                        {
+                            name: "message",
+                            type: "message"
+                        },
+                        {
+                            name: "statusCode",
+                            type: "int"
+                        }
+                    ],
+                    returnParams: []
+                },
+                {
+                    name: "getStatusCode",
+                    annotations: [
+                        {
+                            name: "Description",
+                            value: ""
+                        },
+                        {
+                            name: "Param",
+                            value: "message"
+                        },
+                        {
+                            name: "Return",
+                            value: "status code"
+                        }
+                    ],
+                    parameters: [
+                        {
+                            name: "message",
+                            type: "message"
+                        }
+                    ],
+                    returnParams: [
+                        {
+                            type: "int"
+                        }
+                    ]
+                }
+            ],
             structs: []
         }];
 

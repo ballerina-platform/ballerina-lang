@@ -16,10 +16,10 @@
  * under the License.
  */
 define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definition', './../ast/function-definition',
-        './../ast/type-definition', './../ast/type-converter-definition', './../ast/constant-definition',
+        './../ast/type-definition', './../ast/type-mapper-definition', './../ast/constant-definition',
         './../ast/struct-definition'],
     function(log, _, require, EventChannel, ServiceDefinition, FunctionDefinition,
-             TypeDefinition, TypeConverterDefinition, ConstantDefinition,
+             TypeDefinition, TypeMapperDefinition, ConstantDefinition,
              StructDefinition){
 
         /**
@@ -32,9 +32,10 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
             this.setName(_.get(args, 'name', ''));
             this.addServiceDefinitions(_.get(args, 'serviceDefinitions', []));
             this.addFunctionDefinitions(_.get(args, 'functionDefinitions', []));
+            this.addStructDefinitions(_.get(args, 'structDefinitions', []));
             this._connectors = _.get(args, 'connectors', []);
             this.addTypeDefinitions(_.get(args, 'typeDefinitions', []));
-            this.addTypeConverterDefinitions(_.get(args, 'typeConverterDefinitions', []));
+            this.addTypeMapperDefinitions(_.get(args, 'typeMapperDefinitions', []));
             this.addConstantDefinitions(_.get(args, 'constantDefinitions', []));
             this.BallerinaEnvFactory = require('./ballerina-env-factory');
         };
@@ -106,54 +107,55 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
         };
 
         /**
-         * Add type converter defs
-         * @param typeConverterDefinitions - can be an array of typeDefinitions or a single typeDefinition
-         * @fires Package#type--converter-defs-added
+         * Add type mapper defs
+         * @param typeMapperDefinitions - can be an array of typeDefinitions or a single typeDefinition
+         * @fires Package#type--mapper-defs-added
          */
-        Package.prototype.addTypeConverterDefinitions = function(typeConverterDefinitions){
+        Package.prototype.addTypeMapperDefinitions = function(typeMapperDefinitions){
             var err;
-            if(!_.isArray(typeConverterDefinitions) && !(typeConverterDefinitions instanceof  TypeConverterDefinition)){
-                err = "Adding type converter def failed. Not an instance of TypeConverterDefinition" + typeConverterDefinitions;
+            var self = this;
+            if(!_.isArray(typeMapperDefinitions) && !(typeMapperDefinitions instanceof  TypeMapperDefinition)){
+                err = "Adding type mapper def failed. Not an instance of TypeMapperDefinition" + typeMapperDefinitions;
                 log.error(err);
                 throw err;
             }
-            if(_.isArray(typeConverterDefinitions)){
-                if(!_.isEmpty(typeConverterDefinitions)){
-                    _.each(typeConverterDefinitions, function(typeConverterDefinition){
-                        if(!(typeConverterDefinition instanceof  TypeConverterDefinition)){
-                            err = "Adding type converter def failed. Not an instance of TypeConverterDefinition" + typeConverterDefinition;
+            if(_.isArray(typeMapperDefinitions)){
+                if(!_.isEmpty(typeMapperDefinitions)){
+                    _.each(typeMapperDefinitions, function(typeMapperDefinition){
+                        if(!(typeMapperDefinition instanceof  TypeMapperDefinition)){
+                            err = "Adding type mapper def failed. Not an instance of TypeMapperDefinition" + typeMapperDefinition;
                             log.error(err);
                             throw err;
                         }
                     });
                 }
             }
-            this._typeConverterDefinitions = this._typeConverterDefinitions || [];
-            this._typeConverterDefinitions = _.concat(this._typeConverterDefinitions , typeConverterDefinitions);
+            this._typeMapperDefinitions = this._typeMapperDefinitions || [];
+            this._typeMapperDefinitions = _.concat(this._typeMapperDefinitions , typeMapperDefinitions);
             /**
-             * fired when new type converter defs are added to the package.
-             * @event Package#type-converter-defs-added
-             * @type {[TypeConverterDefinition]}
+             * fired when new type mapper defs are added to the package.
+             * @event Package#type-mapper-defs-added
+             * @type {[TypeMapperDefinition]}
              */
-            this.trigger("type-converter-defs-added", typeConverterDefinitions);
+            this.trigger("type-mapper-defs-added", typeMapperDefinitions);
         };
 
         /**
-         * Set type converter defs
+         * Set type mapper defs
          *
-         * @param typeConverterDefs
+         * @param typeMapperDefs
          */
-        Package.prototype.setTypeConverterDefinitions = function(typeConverterDefs){
-            this._typeConverterDefinitions = null;
-            this.addTypeConverterDefinitions(typeConverterDefs);
+        Package.prototype.setTypeMapperDefinitions = function(typeMapperDefs){
+            this._typeMapperDefinitions = null;
+            this.addTypeMapperDefinitions(typeMapperDefs);
         };
 
         /**
          *
-         * @returns {[TypeConverterDefinition]}
+         * @returns {[TypeMapperDefinition]}
          */
-        Package.prototype.getTypeConverterDefinitions = function() {
-            return this._typeConverterDefinitions;
+        Package.prototype.getTypeMapperDefinitions = function() {
+            return this._typeMapperDefinitions;
         };
 
         /**
@@ -249,6 +251,16 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
         };
 
         /**
+         * returns function definition
+         * @param {string} functionName - name of the function to be retrieved
+         */
+        Package.prototype.getConnectorByName = function (connectorName) {
+            return _.find(this.getConnectors(), function (connector) {
+                return _.isEqual(connector.getName(),connectorName);
+            });
+        };
+
+        /**
          * Add service defs
          * @param serviceDefinitions - can be an array of serviceDefs or a single serviceDef
          */
@@ -315,7 +327,7 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
                 if(!_.isEmpty(functionDefinitions)){
                     _.each(functionDefinitions, function(functionDefinition){
                         if(!(functionDefinition instanceof  FunctionDefinition)){
-                            err = "Adding funciton def failed. Not an instance of FunctionDefinition" + functionDefinition;
+                            err = "Adding function def failed. Not an instance of FunctionDefinition" + functionDefinition;
                             log.error(err);
                             throw err;
                         }
@@ -330,6 +342,18 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
              * @type {[FunctionDefinition]}
              */
             this.trigger("function-defs-added", functionDefinitions);
+        };
+
+        /**
+         * remove function definition
+         * @param functionDefinition - function definition to be removed
+         */
+        Package.prototype.removeFunctionDefinition = function (functionDefinition) {
+            _.remove(this._functionDefinitions, function (functionDefinitionItem) {
+                //TODO Need to check param types along with function name to support overloaded functions
+                return _.isEqual(functionDefinitionItem.getName(), functionDefinition.getFunctionName());
+            });
+            this.trigger("function-def-removed", functionDefinition);
         };
 
         /**
@@ -348,6 +372,16 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
          */
         Package.prototype.getFunctionDefinitions = function() {
             return this._functionDefinitions;
+        };
+
+        /**
+         * returns function definition
+         * @param {string} functionName - name of the function to be retrieved
+         */
+        Package.prototype.getFunctionDefinitionByName = function (functionName) {
+            return _.find(this._functionDefinitions, function (functionDefinition) {
+                return _.isEqual(functionDefinition.getName(),functionName);
+            });
         };
 
         /**
@@ -415,6 +449,7 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
                 functionDef.initFromJson(functionNode);
                 self.addFunctionDefinitions(functionDef);
             });
+
         };
 
         return Package;

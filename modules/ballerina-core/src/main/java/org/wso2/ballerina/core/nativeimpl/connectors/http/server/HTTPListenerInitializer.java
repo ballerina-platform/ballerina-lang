@@ -18,8 +18,10 @@
 
 package org.wso2.ballerina.core.nativeimpl.connectors.http.server;
 
+import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.TransportConfigProvider;
 import org.wso2.ballerina.core.runtime.MessageProcessor;
+import org.wso2.ballerina.core.runtime.dispatching.HTTPErrorHandler;
 import org.wso2.carbon.messaging.handler.HandlerExecutor;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
@@ -44,7 +46,7 @@ public class HTTPListenerInitializer {
         httpTransportContextHolder.setHandlerExecutor(new HandlerExecutor());
         httpTransportContextHolder.setMessageProcessor(new MessageProcessor());
 
-//        BallerinaConnectorManager.getInstance().registerServerConnectorErrorHandler(new HTTPErrorHandler());
+        BallerinaConnectorManager.getInstance().registerServerConnectorErrorHandler(new HTTPErrorHandler());
 
         TransportsConfiguration trpConfig = TransportConfigProvider.getConfiguration();
         Set<ListenerConfiguration> listenerConfigurations = trpConfig.getListenerConfigurations();

@@ -113,7 +113,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         ConnectorActionView.prototype.onBeforeModelRemove = function () {
             d3.select("#_" +this._model.id).remove();
             $(this._nameDiv).remove();
-            this.getBoundingBox().w(0, 0);
+            this.getBoundingBox().move(0, -this.getBoundingBox().h() - 25);
         };
 
         /**
@@ -353,8 +353,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // Creating connector action heading collapse icon.
             var headingCollapseIcon = D3utils.rect(xForCollpaseIcon, yForIcons,
-                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Collapse pane")
-                .classed("headingExpandIcon", true);
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Collapse Pane")
+                .classed("headingExpandIcon", true).attr("style", "opacity: 0.4");
 
             // Creating separator for collapse icon.
             D3utils.line(xEndOfHeadingRect - this._viewOptions.heading.icon.width, parseFloat(headingRect.attr("y")) + 5,
@@ -389,9 +389,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var xForDeleteIcon = xEndOfHeadingRect - (2 * this._viewOptions.heading.icon.width) + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
 
             // Connector Action heading delete icon
+            // TODO: removed the tooltip temporarily
             var headingDeleteIcon = D3utils.rect(xForDeleteIcon, yForIcons,
-                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Delete")
-                .classed("headingDeleteIcon", true);
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup)
+                .classed("headingDeleteIcon", true).attr("style", "opacity: 0.4");
 
             // Creating wrapper for annotation icon.
             var headingAnnotationIconWrapper = D3utils.rect(
@@ -404,7 +405,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             // Connector Action heading annotation icon
             var headingAnnotationIcon = D3utils.rect(xForAnnotationIcon, yForIcons,
                 iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Annotations")
-                .classed("headingAnnotationBlackIcon", true);
+                .classed("headingAnnotationBlackIcon", true).attr("style", "opacity: 0.4");
 
             // Creating wrapper for arguments icon.
             var headingArgumentsIconWrapper = D3utils.rect(
@@ -417,7 +418,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             // Connector Action heading arguments icon.
             var headingArgumentsIcon = D3utils.rect(xForArgumentsIcon, yForIcons,
                 iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Arguments")
-                .classed("headingArgumentsBlackIcon", true);
+                .classed("headingArgumentsBlackIcon", true).attr("style", "opacity: 0.4");
 
             // Creating wrapper for Return Types icon.
             var headingReturnTypesIconWrapper = D3utils.rect(
@@ -429,8 +430,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // Connector Action heading Return Types icon.
             var headingReturnTypesIcon = D3utils.rect(xForReturnTypesIcon, yForIcons,
-                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Return types")
-                .classed("headingReturnTypeBlackIcon", true);
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Return Types")
+                .classed("headingReturnTypeBlackIcon", true).attr("style", "opacity: 0.4");
 
             // UI changes when the annotation button is clicked.
             $(headingAnnotationIcon.node()).click(function () {
@@ -721,6 +722,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             _.set(statementContainerOpts, 'width', this._defaultWorker.width());
             _.set(statementContainerOpts, 'container', this._defaultWorker.getContentArea().node());
             _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
+            _.set(statementContainerOpts, 'offset', {top: 40, bottom: 40});
             this._statementContainer = new StatementContainer(statementContainerOpts);
             this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy){
                 this._defaultWorker.getBottomCenter().y(this._statementContainer.getBoundingBox().getBottom());
@@ -846,26 +848,17 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             }
 
             // Creating property pane
-            var editableProperties = [
-                {
+            var editableProperty = {
                     propertyType: "text",
-                    key: "Name",
+                    key: "ConnectorDeclaration",
                     model: connectorDeclarationView._model,
-                    getterMethod: connectorDeclarationView._model.getConnectorVariable,
-                    setterMethod: connectorDeclarationView._model.setConnectorVariable
-                },
-                {
-                    propertyType: "text",
-                    key: "Uri",
-                    model: connectorDeclarationView._model,
-                    getterMethod: connectorDeclarationView._model.getUri,
-                    setterMethod: connectorDeclarationView._model.setUri
-                }
-            ];
+                    getterMethod: connectorDeclarationView._model.getConnectorExpression,
+                    setterMethod: connectorDeclarationView._model.setConnectorExpression
+            };
             connectorDeclarationView.createPropertyPane({
                 model: connectorDeclarationView._model,
                 lifeLineGroup:connectorDeclarationView._rootGroup,
-                editableProperties: editableProperties
+                editableProperties: editableProperty
             });
 
             connectorDeclarationView.setParent(this);

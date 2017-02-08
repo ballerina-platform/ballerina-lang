@@ -85,9 +85,15 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
     BallerinaStatementView.prototype.getStatementGroup = function () {
         return this._statementGroup;
     };
-    BallerinaStatementView.prototype.setStatementGroup = function (getStatementGroup) {
-        this._statementGroup = getStatementGroup;
+
+    /**
+     * Sets the statement group of this view.
+     * @param statementGroup {object} statement group to be set
+     */
+    BallerinaStatementView.prototype.setStatementGroup = function (statementGroup) {
+        this._statementGroup = statementGroup;
     };
+
     BallerinaStatementView.prototype.getChildrenViewsList = function () {
         return this._childrenViewsList;
     };
@@ -110,7 +116,6 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
             viewOptions.actionButton.class = _.get(args, "actionButton.class", "property-pane-action-button");
             viewOptions.actionButton.wrapper = _.get(args, "actionButton.wrapper", {});
             viewOptions.actionButton.wrapper.class = _.get(args, "actionButton.wrapper.class", "property-pane-action-button-wrapper");
-            viewOptions.actionButton.editClass = _.get(args, "viewOptions.actionButton.editClass", "property-pane-action-button-edit");
             viewOptions.actionButton.disableClass = _.get(args, "viewOptions.actionButton.disableClass", "property-pane-action-button-disable");
             viewOptions.actionButton.deleteClass = _.get(args, "viewOptions.actionButton.deleteClass", "property-pane-action-button-delete");
 
@@ -148,13 +153,14 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
                 // Creating an SVG group for the edit and delete buttons.
                 var propertyButtonPaneGroup = D3Utils.group(statementGroup);
 
+                // Delete button pane group
                 var deleteButtonPaneGroup = D3Utils.group(statementGroup);
 
                 // Adding svg definitions needed for styling delete button.
                 var svgDefinitions = deleteButtonPaneGroup.append("defs");
 
                 var deleteButtonPattern = svgDefinitions.append("pattern")
-                    .attr("id", "editIcon")
+                    .attr("id", "deleteIcon")
                     .attr("width", "100%")
                     .attr("height", "100%");
 
@@ -193,7 +199,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
                 // Creating the edit action button.
                 var deleteButtonRect = D3Utils.rect(centerPointX - (propertyButtonPaneRectWidth / 2), centerPointY + 3,
                     propertyButtonPaneRectWidth, viewOptions.actionButton.height, 0, 0, deleteButtonPaneGroup)
-                    .classed(viewOptions.actionButton.class, true).classed(viewOptions.actionButton.editClass, true);
+                    .classed(viewOptions.actionButton.class, true).classed(viewOptions.actionButton.deleteClass, true);
 
                 // When the outside of the propertyButtonPaneRect is clicked.
                 $(window).click(function (event) {
@@ -220,15 +226,15 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
                     var propertyPaneWrapper = $("<div/>", {
                     class: viewOptions.propertyForm.wrapper.class,
                         css : {
-                        "width": statementBoundingBox.w(),
-                        "height": 30/*statementBoundingBox.h()*/
+                        "width": (statementBoundingBox.w() + 1), // Making the text box bit bigger than the statement box
+                        "height": 32 // Height for the expression editor box.
                         },
                         click : function(event){
                             event.stopPropagation();
                         }
                 }).offset({
-                    top: statementBoundingBox.y(),
-                    left: statementBoundingBox.x()
+                    top: (statementBoundingBox.y() - 1), // Adding the textbox bit bigger than the statement box.
+                    left: (statementBoundingBox.x() - 1)
                 }).appendTo(parentSVG.parentElement);
 
                     // When the outside of the propertyPaneWrapper is clicked.
@@ -277,6 +283,10 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         return this._viewOptions;
     };
 
+    /**
+     * Returns the bounding box of this view.
+     * @return {BBox}
+     */
     BallerinaStatementView.prototype.getBoundingBox = function () {
         return this._boundingBox;
     };

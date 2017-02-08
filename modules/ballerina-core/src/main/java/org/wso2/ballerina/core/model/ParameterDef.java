@@ -21,6 +21,7 @@ package org.wso2.ballerina.core.model;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -55,6 +56,18 @@ public class ParameterDef extends VariableDef implements Node {
 
     public void setAnnotations(List<Annotation> annotations) {
         this.annotations = annotations;
+    }
+
+    /**
+     * Add an {@code Annotation} to the Argument.
+     *
+     * @param annotation Annotation to be added to the Argument
+     */
+    public void addAnnotation(Annotation annotation) {
+        if (annotations == null) {
+            annotations = new ArrayList<>();
+        }
+        annotations.add(annotation);
     }
 
     @Override

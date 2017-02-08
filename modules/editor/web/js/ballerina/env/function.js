@@ -24,14 +24,14 @@ define(['log', 'lodash', 'event_channel'],
          * @param {Object} args - data to create the Function
          * @param {string} args.name - name of function
          * @param {string} args.id - id of function
-         * @param {string} args.title - title of function
          * @constructor
          */
         var Function = function (args) {
             EventChannel.call(this, args);
             this._name = _.get(args, 'name', '');
             this._id = _.get(args, 'id', '');
-            this._title = _.get(args, 'title', '');
+            this._parameters = _.get(args, 'parameters', []);
+            this._returnParams = _.get(args, 'returnParams', []);
         };
 
         Function.prototype = Object.create(EventChannel.prototype);
@@ -42,7 +42,9 @@ define(['log', 'lodash', 'event_channel'],
          * @param {string} name
          */
         Function.prototype.setName = function (name) {
+            var oldName = this._name;
             this._name = name;
+            this.trigger("name-modified", name, oldName);
         };
 
         /**
@@ -70,20 +72,36 @@ define(['log', 'lodash', 'event_channel'],
         };
 
         /**
-         * sets the title
-         * @param {string} title
+         * sets the parameters
+         * @param [object] parameters
          */
-        Function.prototype.setTitle = function (title) {
-            this._title = title;
+        Function.prototype.setParameters = function (parameters) {
+            this._parameters = parameters;
         };
 
         /**
-         * returns the title
-         * @returns {string}
+         * returns the parameters
+         * @returns [object]
          */
-        Function.prototype.getTitle = function () {
-            return this._title;
-        };
+         Function.prototype.getParameters = function () {
+             return this._parameters;
+         };
+
+         /**
+          * sets the returnParams
+          * @param [object] returnParams
+          */
+          Function.prototype.setReturnParams = function (returnParams) {
+              this._returnParams = returnParams;
+          };
+
+          /**
+           * returns the returnParams
+           * @returns [object]
+           */
+           Function.prototype.getReturnParams = function () {
+               return this._returnParams;
+           };
 
         /**
          * sets values from a json object
@@ -91,8 +109,9 @@ define(['log', 'lodash', 'event_channel'],
          */
         Function.prototype.initFromJson = function (jsonNode) {
             this.setName(jsonNode.name);
-            this.setId(jsonNode.id);
-            this.setTitle(jsonNode.title);
+            this.setId(jsonNode.name);
+            this.setParameters(jsonNode.parameters);
+            this.setReturnParams(jsonNode.returnParams);
         };
 
         return Function;

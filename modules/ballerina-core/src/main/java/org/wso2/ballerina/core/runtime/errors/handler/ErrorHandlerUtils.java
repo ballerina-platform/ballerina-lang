@@ -44,7 +44,7 @@ public class ErrorHandlerUtils {
         if (throwable instanceof StackOverflowError) {
             errorMsg = "fatal " + errorPrefix + "stack overflow ";
         } else if (throwable.getMessage() != null) {
-            errorMsg = errorPrefix + makeFirstLetterUpperCase(throwable.getMessage());
+            errorMsg = errorPrefix + makeFirstLetterLowerCase(throwable.getMessage());
         } else {
             errorMsg = errorPrefix;
         }
@@ -67,7 +67,7 @@ public class ErrorHandlerUtils {
             return "";
         }
         
-        String stackTrace = getStackTrace(context, throwable, 0);
+        String stackTrace = getStackTrace(context, throwable, 1);
 
         // print the service info
         CallableUnitInfo serviceInfo = context.getServiceInfo();
@@ -155,7 +155,7 @@ public class ErrorHandlerUtils {
         }
     }
 
-    private static String makeFirstLetterUpperCase(String s) {
+    private static String makeFirstLetterLowerCase(String s) {
         char c[] = s.toCharArray();
         c[0] = Character.toLowerCase(c[0]);
         return new String(c);

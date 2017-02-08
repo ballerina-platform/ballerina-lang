@@ -88,7 +88,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './canvas'],
          * @param {number} newHeight - Height
          */
         SVGCanvas.prototype.setSVGHeight = function (newHeight) {
-            var dn = newHeight < this._minHeight ? this._minHeight : newHeight;
+            var dn = newHeight < this._minSVGHeight ? this._minSVGHeight : newHeight;
             this._svg.attr('height', dn);
             this.getBoundingBox().h(dn);
 
