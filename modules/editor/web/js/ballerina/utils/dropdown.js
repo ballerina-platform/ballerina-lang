@@ -186,7 +186,7 @@ define(['lodash', 'jquery'], function (_, $) {
      */
     Dropdown.prototype.addItem = function (item) {
         var self = this;
-        var dropdownItem = $("<li><a href='#' data-key='" + item.key + "'>" + item.value.trim() + "</a><li/>")
+        var dropdownItem = $("<li><a href='#' data-key='" + item.key + "'>" + item.value.trim() + "</a></li>")
             .appendTo(self.dropdownItemWrapper);
         dropdownItem.click(function () {
             $(self.dropdownMainWrapper).removeClass("open");
@@ -213,7 +213,7 @@ define(['lodash', 'jquery'], function (_, $) {
     Dropdown.prototype.addItems = function (items) {
         var self = this;
         _.forEach(items, function (item) {
-            var dropdownItem = $("<li><a href='#' data-key='" + item.key + "'>" + item.value.trim() + "</a><li/>")
+            var dropdownItem = $("<li><a href='#' data-key='" + item.key + "'>" + item.value.trim() + "</a></li>")
                 .appendTo(self.dropdownItemWrapper);
             dropdownItem.click(function () {
                 $(self.dropdownMainWrapper).removeClass("open");
@@ -275,8 +275,7 @@ define(['lodash', 'jquery'], function (_, $) {
 
         // Setting selected item.
         if (_.isUndefined(itemName)) {
-            // this.dropdownItemWrapper.find("li:first").addClass("active");
-            this.dropdownItemWrapper.find("li:eq(2) a").trigger('focus');
+            this.dropdownItemWrapper.find("li:eq(1) a").trigger('focus');
         } else {
             this.dropdownItemWrapper.find("li").each(function () {
                 if (_.isEqual($(this).text(), itemName)) {
