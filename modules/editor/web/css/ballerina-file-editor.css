@@ -380,6 +380,8 @@
 .return-types-detail-wrapper input[type=text] {
     width: 175px;
     margin-left: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 .return-types-heading-separator {
