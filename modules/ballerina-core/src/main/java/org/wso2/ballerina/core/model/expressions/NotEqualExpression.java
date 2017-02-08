@@ -17,8 +17,8 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BValueType;
 
@@ -51,8 +51,8 @@ public class NotEqualExpression extends BinaryEqualityExpression {
     public static final BiFunction<BValueType, BValueType, BValueType> NOT_EQUAL_STRING_FUNC =
             (lVal, rVal) -> new BBoolean(!lVal.stringValue().equals(rVal.stringValue()));
 
-    public NotEqualExpression(Expression lExpr, Expression rExpr, Position location) {
-        super(lExpr, NOT_EQUAL, rExpr, location);
+    public NotEqualExpression(NodeLocation location, Expression lExpr, Expression rExpr) {
+        super(location, lExpr, NOT_EQUAL, rExpr);
     }
 
     @Override

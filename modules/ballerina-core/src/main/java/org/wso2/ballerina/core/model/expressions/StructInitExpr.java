@@ -18,8 +18,8 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
@@ -30,18 +30,12 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 1.0.0
  */
-public class StructInitExpr extends AbstractExpression {
+public class StructInitExpr extends RefTypeInitExpr {
 
-    private StructDcl structDcl;
-
-    public StructInitExpr(StructDcl structDcl) {
-        this.structDcl = structDcl;
+    public StructInitExpr(NodeLocation location, Expression[] argExprs) {
+        super(location, argExprs);
     }
 
-    public StructDcl getStructDcl() {
-        return structDcl;
-    }
-    
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -49,25 +43,5 @@ public class StructInitExpr extends AbstractExpression {
 
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this);
-    }
-
-    /**
-     * {@code StructInitExprBuilder} represents a struct initializer expression builder
-     *
-     * @since 1.0.0
-     */
-    public static class StructInitExprBuilder {
-        StructDcl structDcl;
-
-        public StructInitExprBuilder() {
-        }
-        
-        public void setStructDcl(StructDcl structDcl) {
-            this.structDcl = structDcl;
-        }
-        
-        public StructInitExpr build() {
-            return new StructInitExpr(structDcl);
-        }
     }
 }

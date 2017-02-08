@@ -63,30 +63,38 @@ public class DivideExprTest {
         Functions.invoke(bFile, "intDivide", args);
     }
 
-//    @Test(description = "Test two long divide expression")
+    @Test(description = "Test two long divide expression")
     public void testLongDivideExpr() {
-        BValue[] args = { new BLong(100), new BLong(50) };
+        long a = Long.MAX_VALUE;
+        long b = 123456789L;
+
+        long expectedResult = a / b;
+
+        BValue[] args = { new BLong(a), new BLong(b) };
         BValue[] returns = Functions.invoke(bFile, "longDivide", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BLong.class);
 
         long actual = ((BLong) returns[0]).longValue();
-        long expected = 2;
-        Assert.assertEquals(actual, expected);
+        Assert.assertEquals(actual, expectedResult);
     }
 
     @Test(description = "Test two float divide expression")
     public void testFloatDivideExpr() {
-        BValue[] args = { new BFloat(300.0f), new BFloat(150.0f) };
+        float a = 8.5f;
+        float b = 4.1f;
+
+        float expectedResult = a / b;
+
+        BValue[] args = { new BFloat(a), new BFloat(b) };
         BValue[] returns = Functions.invoke(bFile, "floatDivide", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
 
         float actual = ((BFloat) returns[0]).floatValue();
-        float expected = 2.0f;
-        Assert.assertEquals(actual, expected);
+        Assert.assertEquals(actual, expectedResult);
     }
 
     @Test(description = "Test two float divide expression", expectedExceptions = BallerinaException.class)
@@ -95,17 +103,225 @@ public class DivideExprTest {
         Functions.invoke(bFile, "floatDivide", args);
     }
 
-//    @Test(description = "Test two double divide expression")
+    @Test(description = "Test two double divide expression")
     public void testDoubleDivideExpr() {
-        BValue[] args = { new BDouble(8), new BDouble(2) };
+        double a = 8.5;
+        double b = 4.1;
+
+        double expectedResult = a / b;
+
+        BValue[] args = { new BDouble(a), new BDouble(b) };
         BValue[] returns = Functions.invoke(bFile, "doubleDivide", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
 
         double actual = ((BDouble) returns[0]).doubleValue();
-        double expected = 4;
-        Assert.assertEquals(actual, expected);
+        Assert.assertEquals(actual, expectedResult);
+    }
+
+    @Test(description = "Test integer division by long")
+    public void testIntDivideByLong() {
+        int a = Integer.MAX_VALUE;
+        long b = 123456789L;
+
+        long expectedResult = a / b;
+
+        BValue[] args = { new BInteger(a), new BLong(b) };
+        BValue[] returns = Functions.invoke(bFile, "intDivideByLong", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BLong.class, "Return type of the division is invalid");
+
+        long actualResult = ((BLong) returns[0]).longValue();
+        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
+    }
+
+    @Test(description = "Test integer division by float")
+    public void testIntDivideByFloat() {
+        int a = Integer.MAX_VALUE;
+        float b = 1.23456789f;
+
+        float expectedResult = a / b;
+
+        BValue[] args = { new BInteger(a), new BFloat(b) };
+        BValue[] returns = Functions.invoke(bFile, "intDivideByFloat", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BFloat.class, "Return type of the division is invalid");
+
+        float actualResult = ((BFloat) returns[0]).floatValue();
+        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
+    }
+
+    @Test(description = "Test integer division by double")
+    public void testIntDivideByDouble() {
+        int a = Integer.MAX_VALUE;
+        double b = 1.23456789d;
+
+        double expectedResult = a / b;
+
+        BValue[] args = { new BInteger(a), new BDouble(b) };
+        BValue[] returns = Functions.invoke(bFile, "intDivideByDouble", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BDouble.class, "Return type of the division is invalid");
+
+        double actualResult = ((BDouble) returns[0]).doubleValue();
+        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
+    }
+
+    @Test(description = "Test long number division by int")
+    public void testLongDivideByInt() {
+        long a = Long.MAX_VALUE;
+        int b = 123456789;
+
+        long expectedResult = a / b;
+
+        BValue[] args = { new BLong(a), new BInteger(b) };
+        BValue[] returns = Functions.invoke(bFile, "longDivideByInt", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BLong.class, "Return type of the division is invalid");
+
+        long actualResult = ((BLong) returns[0]).longValue();
+        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
+    }
+
+    @Test(description = "Test long number division by float")
+    public void testLongDivideByFloat() {
+        long a = Long.MAX_VALUE;
+        float b = 1.23456789f;
+
+        float expectedResult = a / b;
+
+        BValue[] args = { new BLong(a), new BFloat(b) };
+        BValue[] returns = Functions.invoke(bFile, "longDivideByFloat", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BFloat.class, "Return type of the division is invalid");
+
+        float actualResult = ((BFloat) returns[0]).floatValue();
+        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
+    }
+
+    @Test(description = "Test long number division by double")
+    public void testLongDivideByDouble() {
+        long a = Long.MAX_VALUE;
+        double b = 1.23456789d;
+
+        double expectedResult = a / b;
+
+        BValue[] args = { new BLong(a), new BDouble(b) };
+        BValue[] returns = Functions.invoke(bFile, "longDivideByDouble", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BDouble.class, "Return type of the division is invalid");
+
+        double actualResult = ((BDouble) returns[0]).doubleValue();
+        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
+    }
+
+    @Test(description = "Test float number division by integer")
+    public void testFloatDivideByInt() {
+        float a = Float.MAX_VALUE;
+        int b = 123456789;
+
+        float expectedResult = a / b;
+
+        BValue[] args = { new BFloat(a), new BInteger(b) };
+        BValue[] returns = Functions.invoke(bFile, "floatDivideByInt", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BFloat.class, "Return type of the division is invalid");
+
+        float actualResult = ((BFloat) returns[0]).floatValue();
+        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
+    }
+
+    @Test(description = "Test float number division by long value")
+    public void testFloatDivideByLong() {
+        float a = Float.MAX_VALUE;
+        long b = 123456789L;
+
+        float expectedResult = a / b;
+
+        BValue[] args = { new BFloat(a), new BLong(b) };
+        BValue[] returns = Functions.invoke(bFile, "floatDivideByLong", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BFloat.class, "Return type of the division is invalid");
+
+        float actualResult = ((BFloat) returns[0]).floatValue();
+        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
+    }
+
+    @Test(description = "Test float number division by double value")
+    public void testFloatDivideByDouble() {
+        float a = Float.MAX_VALUE;
+        double b = 1.23456789d;
+
+        double expectedResult = a / b;
+
+        BValue[] args = { new BFloat(a), new BDouble(b) };
+        BValue[] returns = Functions.invoke(bFile, "floatDivideByDouble", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BDouble.class, "Return type of the division is invalid");
+
+        double actualResult = ((BDouble) returns[0]).doubleValue();
+        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
+    }
+
+    @Test(description = "Test double number division by integer")
+    public void testDoubleDividedByInt() {
+        double a = Double.MAX_VALUE;
+        int b = 123456789;
+
+        double expectedResult = a / b;
+
+        BValue[] args = { new BDouble(a), new BInteger(b) };
+        BValue[] returns = Functions.invoke(bFile, "doubleDividedByInt", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BDouble.class, "Return type of the division is invalid");
+
+        double actualResult = ((BDouble) returns[0]).doubleValue();
+        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
+    }
+
+    @Test(description = "Test double number division by long value")
+    public void testDoubleDividedByLong() {
+        double a = Double.MAX_VALUE;
+        long b = 123456789L;
+
+        double expectedResult = a / b;
+
+        BValue[] args = { new BDouble(a), new BLong(b) };
+        BValue[] returns = Functions.invoke(bFile, "doubleDividedByLong", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BDouble.class, "Return type of the division is invalid");
+
+        double actualResult = ((BDouble) returns[0]).doubleValue();
+        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
+    }
+
+    @Test(description = "Test double number division by long value")
+    public void testDoubleDividedByFloat() {
+        double a = Double.MAX_VALUE;
+        float b = 1.23456789f;
+
+        double expectedResult = a / b;
+
+        BValue[] args = { new BDouble(a), new BFloat(b) };
+        BValue[] returns = Functions.invoke(bFile, "doubleDividedByFloat", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BDouble.class, "Return type of the division is invalid");
+
+        double actualResult = ((BDouble) returns[0]).doubleValue();
+        Assert.assertEquals(actualResult, expectedResult, "Result of the division operation is incorrect");
     }
     
     /*
@@ -114,16 +330,16 @@ public class DivideExprTest {
     
     @Test(description = "Test dividing values of two types",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "divide-incompatible-types.bal:5: incompatible types in " +
-                    "binary expression: string vs float")
+            expectedExceptionsMessageRegExp = "divide-incompatible-types.bal:5: invalid operation: " +
+                    "incompatible types 'string' and 'float'")
     public void testAddIncompatibleTypes() {
         ParserUtils.parseBalFile("lang/expressions/divide-incompatible-types.bal");
     }
     
     @Test(description = "Test dividing values of unsupported types (json)",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Divide operation is not supported for type: json in " +
-            "divide-unsupported-types.bal:10")
+            expectedExceptionsMessageRegExp = "divide-unsupported-types.bal:10: invalid operation: " +
+                    "operator / not defined on 'json'")
     public void testAddUnsupportedTypes() {
         ParserUtils.parseBalFile("lang/expressions/divide-unsupported-types.bal");
     }

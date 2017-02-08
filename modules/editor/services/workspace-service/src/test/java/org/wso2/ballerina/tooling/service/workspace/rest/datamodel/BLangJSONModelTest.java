@@ -43,11 +43,7 @@ public class BLangJSONModelTest {
     private MicroservicesRunner microservicesRunner;
     //private HashMap<String, Package> packages = new HashMap<String, Package>();
     private String exptdStrFunc = "{\"root\":[{\"type\":\"package\",\"package_name\":\"test.samples\"}," +
-                                  "{\"type\":\"import\",\"import_package_name\":\"twitter\"," +
-                                  "\"import_package_path\":\"ballerina.connectors.twitter\"},{\"type\":\"import\"," +
-                                  "\"import_package_name\":\"sf\",\"import_package_path\":\"ballerina.connectors" +
-                                  ".salesforce\"},{\"type\":\"import\",\"import_package_name\":\"samples\"," +
-                                  "\"import_package_path\":\"test.samples\"},{\"type\":\"service_definition\"," +
+                                  "{\"type\":\"service_definition\"," +
                                   "\"service_name\":\"HelloService\",\"annotations\":[]," +
                                   "\"children\":[{\"type\":\"resource_definition\",\"resource_name\":\"tweet\"," +
                                   "\"annotations\":[{\"type\":\"annotation\",\"annotation_name\":\"GET\"," +
@@ -111,7 +107,7 @@ public class BLangJSONModelTest {
 
     public void registerNativeAction(AbstractNativeAction action) {
         Package aPackage = packages
-                .computeIfAbsent(action.getPackageName(), k -> new Package(action.getPackageName()));
+                .computeIfAbsent(action.getPackageName(), k -> new Package(action.getPackagePath()));
         aPackage.getActions().put(action.getName(), action);
 
         String actionName = action.getSymbolName().getName();

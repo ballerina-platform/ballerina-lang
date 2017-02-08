@@ -1,17 +1,3 @@
-import ballerina.lang.convertors;
-
-function xmltojson(xml input)(json) {
-    json result;
-    result = (json)input;
-    return result;
-}
-
-function jsontoxml(json input)(xml) {
-    xml result;
-    result = (xml)input;
-    return result;
-}
-
 function doubletofloat(double value)(float) {
     float result;
     result = (float)value;
@@ -108,17 +94,6 @@ function stringtodouble(string value)(double) {
     return result;
 }
 
-function stringtoxml(string value)(xml) {
-    xml result;
-    result = (xml)value;
-    return result;
-}
-
-function stringtojson(string value)(json) {
-    json result;
-    result = (json)value;
-    return result;
-}
 
 function inttostring(int value)(string) {
     string result;
@@ -144,14 +119,26 @@ function doubletostring(double value)(string) {
     return result;
 }
 
-function xmltostring(xml value)(string) {
+function booleantostring(boolean value)(string) {
     string result;
     result = (string)value;
     return result;
 }
 
-function jsontostring(json value)(string) {
+function booleanappendtostring(boolean value)(string) {
     string result;
-    result = (string)value;
+    result = value + "-append-" + value;
     return result;
+}
+
+function intarrtolongarr()(long[]) {
+    long[] numbers;
+    numbers = [999,95,889];
+    return numbers;
+}
+
+function floatarrtodoublearr()(double[]) {
+    double[] numbers;
+    numbers = [99.99,4.5,23.56];
+    return numbers;
 }

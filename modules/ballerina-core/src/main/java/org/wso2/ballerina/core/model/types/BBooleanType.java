@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -32,8 +33,8 @@ class BBooleanType extends BType {
      *
      * @param typeName string name of the type
      */
-    BBooleanType(String typeName) {
-        super(typeName, BBoolean.class);
+    BBooleanType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BBoolean.class);
     }
 
     @SuppressWarnings("unchecked")

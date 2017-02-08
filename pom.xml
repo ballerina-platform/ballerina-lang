@@ -72,6 +72,16 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.ballerina</groupId>
+                <artifactId>ballerina-native</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.ballerina</groupId>
+                <artifactId>annotation-processor</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.ballerina</groupId>
                 <artifactId>ballerina-core-feature</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
@@ -339,7 +349,7 @@
                                 <failsOnError>true</failsOnError>
                                 <includeTestSourceDirectory>true</includeTestSourceDirectory>
                                 <!--Exclude generated sources-->
-                                <excludes>**/parser/*</excludes>
+                                <excludes>**/parser/*,**/${native.constructs.provider.class}.java</excludes>
                             </configuration>
                             <goals>
                                 <goal>check</goal>
@@ -450,15 +460,20 @@
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <jcommander.version>1.60</jcommander.version>
+        
+        <native.constructs.provider.package>org.wso2.ballerina.nativeimpl</native.constructs.provider.package>
+        <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
 
     </properties>
 
     <modules>
         <module>modules/ballerina-core</module>
         <module>modules/launcher</module>
+        <module>modules/ballerina-native</module>
+        <module>modules/annotation-processor</module>
         <!--<module>modules/gson-fragment</module>-->
         <!--<module>modules/features</module>-->
-        <module>modules/editor/services/workspace-service</module>
+        <!--<module>modules/editor/services/workspace-service</module>-->
         <module>modules/distribution</module>
         <!--<module>modules/tests</module>-->
         <module>modules/tests/test-integration</module>
