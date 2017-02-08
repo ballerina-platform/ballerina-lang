@@ -36,7 +36,8 @@ connector TestConnector(string consumerKey, string consumerSecret, string access
     }
 
     @Description("test connector action2")
-    @Param("args: arguments")
+    @Param("t: a string argument")
+    @Param("msg: a string message")
     @Return("response object")
     action testAction2(string t, string msg) (message) {
         message request;

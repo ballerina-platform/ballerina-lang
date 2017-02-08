@@ -72,9 +72,9 @@
                         {{#hasConnectors}}
                         <!-- Connectors -->
                         <h2>Connectors of {{fullyQualifiedName}} package</h2>
-                        {{#each files}} {{#each connectorList}} {{currentObject this}}
+                        {{#each files}} {{#each connectors}} {{currentObject this}}
                         <h3 id="{{name}}">
-                            connector {{#with this}}{{this.name}} ({{#each parameters}}<a href="">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/with}}
+                            connector {{#with this}}{{this.name}} ({{#each parameterDefs}}<a href="">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/with}}
                         </h3>
                         <p>{{oneValueAnnotation "description"}}</p>
                         <p>
@@ -83,7 +83,7 @@
                                 <tr>
                                     <th>Parameter Name</th><th>Data Type</th><th>Description</th>
                                 </tr>
-                                {{#each parameters}}
+                                {{#each parameterDefs}}
                                 <tr>
                                     <td>{{name}}</td><td><a href="">{{type}}</a></td><td>{{paramAnnotation this "param"}}</td>
                                 </tr>
@@ -99,7 +99,7 @@
                                 <tr>
                                     <th>Parameter Name</th><th>Data Type</th><th>Description</th>
                                 </tr>
-                                {{#each parameters}}
+                                {{#each parameterDefs}}
                                 <tr>
                                     <td>{{name}}</td><td><a href="">{{type}}</a></td><td>{{paramAnnotation this "param"}}</td>
                                 </tr>
@@ -124,17 +124,17 @@
                         <br>{{/hasConnectors}} 
                         {{#hasStructs}}
                         <!-- Structs -->
-                        {{#each files}} {{#each structs}} {{#public}}
+                        {{#each files}} {{#each structDefs}}
                         <h2>Structs of {{fullyQualifiedName}} package</h2>
                         <h3 id="{{symbolName.name}}">
                             struct {{symbolName.name}}({{#each fields}}<a href="">{{type}}</a> {{name}}{{#unless @last}},
                             {{/unless}}{{/each}} )
                         </h3>
                         <p>
-                            <b>Variables:</b>
+                            <b>Fields:</b>
                             <table>
                                 <tr>
-                                    <th>Variable Name</th><th>Data Type</th>
+                                    <th>Field Name</th><th>Data Type</th>
                                 </tr>
                                 {{#each fields}}
                                 <tr>
@@ -143,7 +143,7 @@
                                 {{/each}}
                             </table>
                         </p>
-                        {{/public}} {{/each}} {{/each}} {{/hasStructs}}
+                        {{/each}} {{/each}} {{/hasStructs}}
                     </div>
                 </section>
             </div>
@@ -171,11 +171,11 @@
                         <li>
                             <span class="opener">Connectors</span>
                             <ul>
-                                {{#each files}}{{#each connectorList}}
-                                <li><a href="#{{this.name}} ">{{#with this}}{{this.name}} ({{#each parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/with}}</a>
+                                {{#each files}}{{#each connectors}}
+                                <li><a href="#{{this.name}} ">{{#with this}}{{this.name}} ({{#each parameterDefs}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/with}}</a>
                                     <ul>
                                         {{#each actions}}
-                                        <li><a href="#{{name}}{{../name}}">{{this.name}}({{#each parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}})</a></li>
+                                        <li><a href="#{{name}}{{../name}}">{{this.name}}({{#each parameterDefs}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}})</a></li>
                                         {{/each}}
                                     </ul>
                                 </li>{{/each}}{{/each}}
@@ -184,7 +184,7 @@
                         <li>
                             <span class="opener">Structs</span>
                             <ul>
-                                {{#each files}}{{#each structs}}
+                                {{#each files}}{{#each structDefs}}
                                 <li>
                                     <a href="#{{symbolName.name}} ">{{symbolName.name}} ({{#each fields}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}})</a>
                                 </li>{{/each}} {{/each}}
