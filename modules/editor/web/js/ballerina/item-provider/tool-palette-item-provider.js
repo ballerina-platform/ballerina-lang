@@ -157,7 +157,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     functionDef.nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationStatement;
                 }
                 functionDef.meta = {
-                    function: packageName + ":" + functionDef.getName()
+                    functionName: packageName + ":" + functionDef.getName()
                 };
                 functionDef.icon = "images/tool-icons/function.svg";
                 functionDef.title = functionDef.getName();
@@ -197,6 +197,11 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 if (functionDef.getReturnParams().length > 0){
                     nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationExpression;
                 }
+                // since functions are added to the current package, function name does not need
+                // packageName:functionName format
+                functionDef.meta = {
+                    functionName: functionDef.getName()
+                };
                 var toolGroupID = package.getName() + "-tool-group";
                 var icon = "images/tool-icons/function.svg";
                 this.addToToolGroup(toolGroupID, functionDef, nodeFactoryMethod, icon);
@@ -229,6 +234,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
             tool.title = toolItem.getName();
             tool.id = toolItem.getName();
             tool.classNames = toolItem.classNames;
+            tool.meta = toolItem.meta;
             this._toolPalette.addNewToolToGroup(toolGroupID, tool);
         };
 
