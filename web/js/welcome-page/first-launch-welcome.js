@@ -137,7 +137,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                             var content = {"content": fileContentAsString};
                             var config =
                                 {
-                                    "sampleName": samples[i].replace(/^.*[\\\/]/, ''),
+                                    "sampleName": samples[i].replace(/^.*[\\\/]/, '').match(/[^.]*/i)[0],
                                     "parentContainer": "#innerSamples",
                                     "firstItem": i === 0,
                                     "clickEventCallback": function () {
