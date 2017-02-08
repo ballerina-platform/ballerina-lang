@@ -135,8 +135,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                     logger.debug("Sending an empty message");
                 }
             }
-            BallerinaConnectorManager.getInstance().getClientConnector("http/s").send(message, balConnectorCallback,
-                    Collections.emptyMap());
+            BallerinaConnectorManager.getInstance().getClientConnector("http/s").send(message, balConnectorCallback);
 
             while (!balConnectorCallback.isResponseArrived()) {
                 synchronized (context) {
