@@ -29,10 +29,17 @@ import javax.ws.rs.core.Response;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.AccessDeniedException;
+import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.NotDirectoryException;
 import java.nio.file.Paths;
+import java.nio.file.ReadOnlyFileSystemException;
 import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -172,9 +179,8 @@ public class WorkspaceService {
 			byte[] base64Config = Base64.getDecoder().decode(config);
 			byte[] base64ConfigName = Base64.getDecoder().decode(configName);
 			byte[] base64Location = Base64.getDecoder().decode(location);
-			Files.write(
-					Paths.get(new String(base64Location) + System.getProperty(FILE_SEPARATOR)
-							+ new String(base64ConfigName)), base64Config);
+			Files.write(Paths.get(new String(base64Location) + System.getProperty(FILE_SEPARATOR)
+                            + new String(base64ConfigName)), base64Config);
 			JsonObject entity = new JsonObject();
 			entity.addProperty(STATUS, SUCCESS);
 			return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*')
@@ -248,7 +254,23 @@ public class WorkspaceService {
 
     private Response getErrorResponse(Throwable ex){
         JsonObject entity = new JsonObject();
-        entity.addProperty("Error", ex.getMessage());
+        String errMsg = ex.getMessage();
+        if(ex instanceof AccessDeniedException) {
+            errMsg = "Access Denied to " + ex.getMessage();
+        } else if (ex instanceof NoSuchFileException) {
+            errMsg = "No such file: " + ex.getMessage();
+        } else if (ex instanceof FileAlreadyExistsException) {
+            errMsg = "File already exists: " + ex.getMessage();
+        } else if (ex instanceof NotDirectoryException) {
+            errMsg = "Not a directory: " + ex.getMessage();
+        } else if (ex instanceof ReadOnlyFileSystemException) {
+            errMsg = "Read only: " + ex.getMessage();
+        } else if (ex instanceof DirectoryNotEmptyException) {
+            errMsg = "Directory not empty: " + ex.getMessage();
+        } else if (ex instanceof FileNotFoundException) {
+            errMsg = "File not found: " + ex.getMessage();
+        }
+        entity.addProperty("Error", errMsg);
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity(entity)
                 .header("Access-Control-Allow-Origin", '*')

@@ -251,6 +251,16 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
         };
 
         /**
+         * returns function definition
+         * @param {string} functionName - name of the function to be retrieved
+         */
+        Package.prototype.getConnectorByName = function (connectorName) {
+            return _.find(this.getConnectors(), function (connector) {
+                return _.isEqual(connector.getName(),connectorName);
+            });
+        };
+
+        /**
          * Add service defs
          * @param serviceDefinitions - can be an array of serviceDefs or a single serviceDef
          */
@@ -317,7 +327,7 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
                 if(!_.isEmpty(functionDefinitions)){
                     _.each(functionDefinitions, function(functionDefinition){
                         if(!(functionDefinition instanceof  FunctionDefinition)){
-                            err = "Adding funciton def failed. Not an instance of FunctionDefinition" + functionDefinition;
+                            err = "Adding function def failed. Not an instance of FunctionDefinition" + functionDefinition;
                             log.error(err);
                             throw err;
                         }
