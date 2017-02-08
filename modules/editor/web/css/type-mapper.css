@@ -47,11 +47,19 @@
 .property {
     padding: 5;
     font-size: 16px;
-    border: 1px solid #D8D8D8;
     background-color: #ffffff;
     cursor: pointer;
+    color: black;
 }
 
 svg.plumbConnect path {
     stroke:#3d3d3d;
+}
+
+.jstree-default .jstree-last {
+    background: #ffffff;
+}
+
+.typeMapperList {
+    display: none;
 }
