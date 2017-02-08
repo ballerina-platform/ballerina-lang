@@ -42,7 +42,6 @@ import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
-import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -92,8 +91,8 @@ public class BalDeployer {
                 BallerinaFile balFile = bLangModelBuilder.build();
 
                 SymScope globalScope = GlobalScopeHolder.getInstance().getScope();
-                SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(balFile, globalScope);
-                balFile.accept(semanticAnalyzer);
+//                SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(balFile, globalScope);
+//                balFile.accept(semanticAnalyzer);
 
                 if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
                     BallerinaFunction function = (BallerinaFunction) balFile.getMainFunction();

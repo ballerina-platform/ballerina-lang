@@ -529,27 +529,6 @@ public class BLangExecutor implements NodeExecutor {
         return bConnector;
     }
 
-    private void invokeConnectorInitFunction(BallerinaConnectorDef connectorDef, BConnector bConnector) {
-        // Create the Stack frame
-        Function initFunction = connectorDef.getInitFunction();
-        BValue[] localVals = new BValue[1];
-        localVals[0] = bConnector;
-
-        // Create an array in the stack frame to hold return values;
-        BValue[] returnVals = new BValue[0];
-
-        // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
-        // return values and function invocation location;
-        SymbolName functionSymbolName = initFunction.getSymbolName();
-        CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
-                functionSymbolName.getPkgPath(), initFunction.getNodeLocation());
-
-        StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
-        controlStack.pushFrame(stackFrame);
-        initFunction.getCallableUnitBody().execute(this);
-        controlStack.popFrame();
-    }
-
     @Override
     public BValue visit(BacktickExpr backtickExpr) {
         // Evaluate the variable references before creating objects
@@ -675,6 +654,7 @@ public class BLangExecutor implements NodeExecutor {
         // Now get the connector variable value from the memory block allocated to the BConnector instance.
         return bConnector.getValue(connectorVarLocation.getConnectorMemAddrOffset());
     }
+
 
     // Private methods
 
@@ -973,4 +953,24 @@ public class BLangExecutor implements NodeExecutor {
         return unitVal;
     }
 
+    private void invokeConnectorInitFunction(BallerinaConnectorDef connectorDef, BConnector bConnector) {
+        // Create the Stack frame
+        Function initFunction = connectorDef.getInitFunction();
+        BValue[] localVals = new BValue[1];
+        localVals[0] = bConnector;
+
+        // Create an array in the stack frame to hold return values;
+        BValue[] returnVals = new BValue[0];
+
+        // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
+        // return values and function invocation location;
+        SymbolName functionSymbolName = initFunction.getSymbolName();
+        CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
+                functionSymbolName.getPkgPath(), initFunction.getNodeLocation());
+
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
+        controlStack.pushFrame(stackFrame);
+        initFunction.getCallableUnitBody().execute(this);
+        controlStack.popFrame();
+    }
 }
