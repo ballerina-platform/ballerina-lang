@@ -29,7 +29,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
         './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression',
         './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
-        './if-condition', './array-map-access-expression', './map-init-expression', './binary-expression', './connector-action', './struct-definition',
+        './if-condition', './array-map-access-expression', './map-init-expression', './key-value-expression', './binary-expression', './connector-action', './struct-definition',
         './constant-definition', './variable-definition-statement','./type-struct-definition'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
@@ -39,7 +39,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               functionInvocationExpression, variableReferenceExpression, actionInvocationStatement, arithmeticExpression,
               logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
-              thenBody, ifCondition, arrayMapAccessExpression, mapInitExpression, binaryExpression, connectorAction, structDefinition,
+              thenBody, ifCondition, arrayMapAccessExpression, mapInitExpression, keyValueExpression, binaryExpression, connectorAction, structDefinition,
               constantDefinition, variableDefinitionStatement,typeStructDefinition) {
 
 
@@ -149,6 +149,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createMapInitExpression = function (args) {
             return new mapInitExpression(args);
+        };
+
+        /**
+         * creates keyValueExpression
+         * @param {Object} args - object for keyValueExpression creation
+         * @returns {KeyValueExpression}
+         */
+        BallerinaASTFactory.createKeyValueExpression = function (args) {
+            return new keyValueExpression(args);
         };
 
         /**
@@ -1139,6 +1148,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'map_init_expression':
                         node = BallerinaASTFactory.createMapInitExpression();
+                        break;
+                    case 'key_value_expression':
+                        node = BallerinaASTFactory.createKeyValueExpression();
                         break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;

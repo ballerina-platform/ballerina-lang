@@ -1019,10 +1019,14 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     @Override
     public void visit(KeyValueExpression arrayMapAccessExpr) {
         JsonObject keyValueEprObj = new JsonObject();
-        keyValueEprObj.addProperty(BLangJSONModelConstants.KEY_VALUE_EXPRESSION_KEY, arrayMapAccessExpr.getKey());
+        keyValueEprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.KEY_VALUE_EXPRESSION);
         tempJsonArrayRef.push(new JsonArray());
+        JsonObject keyObject= new JsonObject();
+        keyObject.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, "quoted_literal_string");
+        keyObject.addProperty(BLangJSONModelConstants.KEY_VALUE_EXPRESSION_KEY, arrayMapAccessExpr.getKey());
         arrayMapAccessExpr.getValueExpression().accept(this);
-        keyValueEprObj.add("expression", tempJsonArrayRef.peek());
+        tempJsonArrayRef.peek().add(keyObject);
+        keyValueEprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(keyValueEprObj);
     }
