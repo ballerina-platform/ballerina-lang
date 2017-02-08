@@ -29,7 +29,6 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
-import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
@@ -131,7 +130,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             }
 
             clientConnector.send(message, balConnectorCallback);
-            ServiceContextHolder.getInstance().getSender().send(message, balConnectorCallback);
 
             while (!balConnectorCallback.isResponseArrived()) {
                 synchronized (context) {
@@ -166,7 +164,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             }
 
             clientConnector.send(message, balNativeActionCallback);
-            ServiceContextHolder.getInstance().getSender().send(message, balNativeActionCallback);
 
         } catch (ClientConnectorException e) {
             throw new BallerinaException("Failed to send the message to an endpoint ", context);

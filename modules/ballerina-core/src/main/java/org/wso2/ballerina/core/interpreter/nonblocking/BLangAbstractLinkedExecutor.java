@@ -934,8 +934,12 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
             CallableUnitInfo functionInfo = new CallableUnitInfo(initFunction.getName(), initFunction.getPackagePath(),
                     initFunction.getNodeLocation());
 
-            StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
+            BValue[] tempValues = new BValue[initFunction.getTempStackFrameSize() + 1];
+            StackFrame stackFrame = new StackFrame(localVals, returnVals, tempValues, functionInfo);
             controlStack.pushFrame(stackFrame);
+            if (connectorInitExprEndNode.hasGotoBranchID()) {
+                branchIDStack.push(connectorInitExprEndNode.getGotoBranchID());
+            }
         }
 
     }
