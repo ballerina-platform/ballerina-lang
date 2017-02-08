@@ -32,10 +32,8 @@ import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
 import org.wso2.ballerina.core.model.Action;
-import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.Connector;
-import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.LinkedNodeExecutor;
 import org.wso2.ballerina.core.model.ParameterDef;
@@ -346,7 +344,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
 
         Resource resource = resourceInvocationExpr.getResource();
 
-        ControlStack controlStack = bContext.getControlStack();
+//        ControlStack controlStack = bContext.getControlStack();
         BValue[] valueParams = new BValue[resource.getStackFrameSize()];
 
         BMessage messageValue = new BMessage(bContext.getCarbonMessage());
@@ -589,23 +587,10 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         }
         // Create the Stack frame
         Action action = actionIExpr.getCallableUnit();
-
         BValue[] localVals = new BValue[action.getStackFrameSize()];
 
         // Create default values for all declared local variables
         int valueCounter = populateArgumentValues(actionIExpr.getArgExprs(), localVals);
-
-        // Populate values for Connector declarations
-        if (action instanceof BallerinaAction) {
-            BallerinaAction ballerinaAction = (BallerinaAction) action;
-            valueCounter = populateConnectorDclValues(ballerinaAction.getConnectorDcls(), localVals, valueCounter);
-        }
-
-        // Create default values for all declared local variables
-        for (VariableDef variableDef : action.getVariableDefs()) {
-            localVals[valueCounter] = variableDef.getType().getDefaultValue();
-            valueCounter++;
-        }
 
         for (ParameterDef returnParam : action.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
@@ -626,6 +611,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         SymbolName actionSymbolName = actionIExpr.getCallableUnit().getSymbolName();
         CallableUnitInfo actionInfo = new CallableUnitInfo(actionSymbolName.getName(), actionSymbolName.getPkgPath(),
                 actionIExpr.getNodeLocation());
+
         BValue[] tempValues = new BValue[actionIExpr.getCallableUnit().getTempStackFrameSize() + 1];
         StackFrame stackFrame = new StackFrame(localVals, returnVals, tempValues, actionInfo);
         controlStack.pushFrame(stackFrame);
@@ -741,7 +727,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         }
 
         // Create an array in the stack frame to hold return values;
-        BValue[] returnVals = new BValue[function.getReturnParameters().length];
+        BValue[] returnVals = new BValue[function.getReturnParamTypes().length];
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
         // return values and function invocation location;
@@ -891,6 +877,68 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
 
     @Override
     public void visit(ConnectorInitExprEndNode connectorInitExprEndNode) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing ConnectorInitExpr - EndNode");
+        }
+        ConnectorInitExpr connectorInitExpr = connectorInitExprEndNode.getExpression();
+        BConnector bConnector;
+        BValue[] connectorMemBlock;
+        Connector connector = (Connector) connectorInitExpr.getType();
+
+        if (connector instanceof AbstractNativeConnector) {
+
+            AbstractNativeConnector nativeConnector = ((AbstractNativeConnector) connector).getInstance();
+            Expression[] argExpressions = connectorInitExpr.getArgExprs();
+            connectorMemBlock = new BValue[argExpressions.length];
+            for (int j = 0; j < argExpressions.length; j++) {
+                connectorMemBlock[j] = getTempResult(argExpressions[j].getTempOffset());
+            }
+
+            nativeConnector.init(connectorMemBlock);
+            bConnector = new BConnector(nativeConnector, connectorMemBlock);
+
+//            //TODO Fix Issue#320
+//            NativeUnit nativeUnit = ((NativeUnitProxy) connector).load();
+//            AbstractNativeConnector nativeConnector = (AbstractNativeConnector) ((NativeUnitProxy) connector).load();
+//            Expression[] argExpressions = connectorDcl.getArgExprs();
+//            connectorMemBlock = new BValue[argExpressions.length];
+//
+//            for (int j = 0; j < argExpressions.length; j++) {
+//                connectorMemBlock[j] = argExpressions[j].execute(this);
+//            }
+//
+//            nativeConnector.init(connectorMemBlock);
+//            connector = nativeConnector;
+            setTempResult(connectorInitExpr.getTempOffset(), bConnector);
+        } else {
+            BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
+
+            int offset = 0;
+            connectorMemBlock = new BValue[connectorDef.getSizeOfConnectorMem()];
+            for (Expression expr : connectorInitExpr.getArgExprs()) {
+                connectorMemBlock[offset] = getTempResult(expr.getTempOffset());
+                offset++;
+            }
+
+            bConnector = new BConnector(connector, connectorMemBlock);
+            setTempResult(connectorInitExpr.getTempOffset(), bConnector);
+            // Create the Stack frame
+            Function initFunction = connectorDef.getInitFunction();
+            BValue[] localVals = new BValue[1];
+            localVals[0] = bConnector;
+
+            // Create an array in the stack frame to hold return values;
+            BValue[] returnVals = new BValue[0];
+
+            // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
+            // return values and function invocation location;
+            SymbolName functionSymbolName = initFunction.getSymbolName();
+            CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
+                    functionSymbolName.getPkgPath(), initFunction.getNodeLocation());
+
+            StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
+            controlStack.pushFrame(stackFrame);
+        }
 
     }
 
@@ -962,52 +1010,6 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
             i++;
         }
         return i;
-    }
-
-    private int populateConnectorDclValues(ConnectorDcl[] connectorDcls, BValue[] valueParams, int valueCounter) {
-        for (ConnectorDcl connectorDcl : connectorDcls) {
-
-            BValue[] connectorMemBlock;
-            Connector connector = connectorDcl.getConnector();
-            if (connector instanceof AbstractNativeConnector) {
-
-                //TODO Fix Issue#320
-                AbstractNativeConnector nativeConnector = ((AbstractNativeConnector) connector).getInstance();
-                Expression[] argExpressions = connectorDcl.getArgExprs();
-                connectorMemBlock = new BValue[argExpressions.length];
-
-                for (int j = 0; j < argExpressions.length; j++) {
-                    connectorMemBlock[j] = getTempResult(argExpressions[j].getTempOffset());
-                }
-
-                nativeConnector.init(connectorMemBlock);
-                connector = nativeConnector;
-
-            } else {
-                BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
-
-                int offset = 0;
-                connectorMemBlock = new BValue[connectorDef.getSizeOfConnectorMem()];
-                for (Expression expr : connectorDcl.getArgExprs()) {
-                    connectorMemBlock[offset] = getTempResult(expr.getTempOffset());
-                    offset++;
-                }
-
-                // Populate all connector declarations
-//                offset = populateConnectorDclValues(connectorDef.getConnectorDcls(), connectorMemBlock, offset);
-//
-//                for (VariableDef variableDef : connectorDef.getVariableDefs()) {
-//                    connectorMemBlock[offset] = variableDef.getType().getDefaultValue();
-//                    offset++;
-//                }
-            }
-
-            BConnector connectorValue = new BConnector(connector, connectorMemBlock);
-            valueParams[valueCounter] = connectorValue;
-            valueCounter++;
-        }
-
-        return valueCounter;
     }
 
     private String evaluteBacktickString(BacktickExpr backtickExpr) {
