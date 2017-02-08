@@ -16,8 +16,15 @@
 
 package org.ballerinalang.plugins.idea.psi;
 
+import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiElementResolveResult;
+import com.intellij.psi.ResolveResult;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FunctionReference extends BallerinaElementReference {
 
@@ -34,5 +41,17 @@ public class FunctionReference extends BallerinaElementReference {
     @Override
     public Object[] getVariants() {
         return new Object[]{"function1","function2"};
+    }
+
+    @NotNull
+    @Override
+    public ResolveResult[] multiResolve(boolean incompleteCode) {
+        //Todo: Use java8
+        List<PsiElement> functions = BallerinaPsiImplUtil.resolveFunction(getElement());
+        List<ResolveResult> results = new ArrayList<>();
+        for (PsiElement function : functions) {
+            results.add(new PsiElementResolveResult(function));
+        }
+        return results.toArray(new ResolveResult[results.size()]);
     }
 }

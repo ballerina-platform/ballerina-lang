@@ -40,6 +40,9 @@ public class ResourceDefinitionNode extends IdentifierDefSubtree implements Scop
         if (element.getParent() instanceof VariableReferenceNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//parameter/Identifier");
+        } else if (element.getParent() instanceof CallableUnitNameNode) {
+            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
+                    "//functionDefinition/Identifier");
         }
         return null;
     }

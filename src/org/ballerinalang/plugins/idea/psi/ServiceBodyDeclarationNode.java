@@ -39,6 +39,9 @@ public class ServiceBodyDeclarationNode extends ANTLRPsiNode implements ScopeNod
         if (element.getParent() instanceof VariableReferenceNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//variableDefinitionStatement/Identifier");
+        } else if (element.getParent() instanceof CallableUnitNameNode) {
+            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
+                    "//functionDefinition/Identifier");
         }
         return null;
     }

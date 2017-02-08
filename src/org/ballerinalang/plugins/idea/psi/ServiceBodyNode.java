@@ -20,8 +20,10 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.ResolveResult;
+import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
+import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,6 +36,10 @@ public class ServiceBodyNode extends ANTLRPsiNode implements ScopeNode {
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
+        if (element.getParent() instanceof CallableUnitNameNode) {
+            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
+                    "//functionDefinition/Identifier");
+        }
         return null;
     }
 

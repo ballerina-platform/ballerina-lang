@@ -28,20 +28,26 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.PsiReference;
+import com.intellij.psi.ResolveResult;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.indexing.FileBasedIndex;
+import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.Trees;
 import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.psi.ArgumentListNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
+import org.ballerinalang.plugins.idea.psi.CallableUnitNameNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
+import org.ballerinalang.plugins.idea.psi.PackageNameReference;
+import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.jetbrains.annotations.Nullable;
 
@@ -76,7 +82,7 @@ public class BallerinaPsiImplUtil {
         String packageName = element.getParent().getFirstChild().getText();
         String functionName = element.getText();
 
-        // Get all files which matches the filename
+        // Get all files in the project including the files in the libraries.
         Collection<VirtualFile> fileList = FileBasedIndex.getInstance().getContainingFiles(FileTypeIndex.NAME,
                 BallerinaFileType.INSTANCE, GlobalSearchScope.allScope(project));
 
@@ -280,7 +286,7 @@ public class BallerinaPsiImplUtil {
             sibling = sibling.getPrevSibling();
         }
 
-        // Get any matching directrory in the project root
+        // Get any matching directory in the project root
         List<VirtualFile> matches = suggestDirectory(project.getBaseDir(), packages);
         // If there is matches, add it to the results.
         if (matches != null) {
@@ -326,6 +332,82 @@ public class BallerinaPsiImplUtil {
                 root = match;
             }
             count++;
+        }
+        return results;
+    }
+
+
+    public static List<PsiElement> resolveFunction(PsiElement element) {
+        List<PsiElement> results = new ArrayList<>();
+
+        // Todo - Add null checks
+        Collection<? extends PsiElement> packagePaths =
+                XPath.findAll(BallerinaLanguage.INSTANCE, element.getParent(), "//packagePath");
+
+        if (packagePaths.isEmpty()) {
+            return results;
+        }
+        PsiElement packagePathNode = packagePaths.iterator().next();
+        // Todo - Check for 'import as' as well
+        PsiElement packageNameNode = packagePathNode.getLastChild();
+
+        //        PsiReference reference = packageName.getReference();
+
+        PsiElement identifier = ((IdentifierDefSubtree) packageNameNode).getNameIdentifier();
+
+        // Get the reference.
+        PsiReference reference = identifier.getReference();
+        // Resolve the reference. This will mostly point to the import statement package name.
+        PsiElement resolvedImportPackageName = reference.resolve();
+
+        if (resolvedImportPackageName == null) {
+            // Package is not imported. Return the empty results.
+            return results;
+        }
+
+        PsiElement packageIdentifier = ((IdentifierDefSubtree) resolvedImportPackageName.getParent())
+                .getNameIdentifier();
+
+        PsiReference packageReference = packageIdentifier.getReference();
+        //        PsiElement resolvedPackage = packageReference.resolve();
+
+        ResolveResult[] resolveResults = ((PackageNameReference) packageReference).multiResolve(false);
+        // Todo - Resolve result cannot be more than one because all package imports are unique
+        for (ResolveResult resolveResult : resolveResults) {
+            PsiElement element1 = resolveResult.getElement();
+            if (!(element1 instanceof PsiDirectory)) {
+                continue;
+            }
+
+            List<PsiElement> allFunctionsInAPackage = getAllFunctionsInAPackage(((PsiDirectory) element1));
+            for (PsiElement psiElement : allFunctionsInAPackage) {
+                if (element.getText().equals(psiElement.getText())) {
+                    results.add(psiElement);
+                }
+            }
+        }
+
+        return results;
+    }
+
+    public static List<PsiElement> getAllFunctionsInAPackage(PsiDirectory directory) {
+
+        Project project = directory.getProject();
+
+        List<PsiElement> results = new ArrayList<>();
+
+        VirtualFile virtualFile = directory.getVirtualFile();
+        VirtualFile[] children = virtualFile.getChildren();
+
+        for (VirtualFile child : children) {
+            if (child.isDirectory()) {
+                continue;
+            }
+            PsiFile psiFile = PsiManager.getInstance(project).findFile(child);
+            Collection<? extends PsiElement> functions =
+                    XPath.findAll(BallerinaLanguage.INSTANCE, psiFile, "//functionDefinition/Identifier");
+
+            results.addAll(functions);
         }
         return results;
     }

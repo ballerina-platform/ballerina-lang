@@ -34,6 +34,7 @@ public class PackageNameReference extends BallerinaElementReference {
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
+        // Todo - Check whether the node is the last node in the packagePath
         return def.getParent() instanceof PackagePathNode && def instanceof PackageNameNode;
     }
 
