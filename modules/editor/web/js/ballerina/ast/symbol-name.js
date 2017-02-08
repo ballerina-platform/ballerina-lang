@@ -1,0 +1,97 @@
+/**
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+define(['lodash', './node'], function (_, ASTNode) {
+
+    var SymbolName = function (args) {
+        ASTNode.call(this, 'name');
+        this._name = _.get(args, 'name', 'newName');
+        this._pkgName = _.get(args, 'pkgName', 'newPkgName');
+        this._connectorName = _.get(args, 'connectorName', 'newConnectorName');
+    };
+
+    SymbolName.prototype = Object.create(ASTNode.prototype);
+    SymbolName.prototype.constructor = StructType;
+
+    /**
+     * set the name of the symbol
+     * @param name
+     * @param options
+     */
+    SymbolName.prototype.setName = function (name, options) {
+        if (!_.isNil(name)) {
+            this.setAttribute('_typeName', name, options);
+        } else {
+            log.error('Invalid Name [' + name + '] Provided');
+            throw 'Invalid Name [' + name + '] Provided';
+        }
+    };
+
+    /**
+     * returns the  name
+     * @returns {*}
+     */
+    SymbolName.prototype.getName = function () {
+        return this._name;
+    };
+
+    /**
+     * set the Pkg Name of the symbol
+     * @param pkgName
+     * @param options
+     */
+    SymbolName.prototype.setPkgName = function (pkgName, options) {
+        if (!_.isNil(pkgName)) {
+            this.setAttribute('_pkg', pkgName, options);
+        } else {
+            log.error('Invalid Name [' + pkgName + '] Provided');
+            throw 'Invalid Name [' + pkgName + '] Provided';
+        }
+    };
+
+    /**
+     * returns the  pkgName
+     * @returns {string}
+     */
+    SymbolName.prototype.getPkgName = function () {
+        return this._pkgName;
+    };
+
+    /**
+     * set the connector name of the symbol
+     * @param connectorName
+     * @param options
+     */
+    SymbolName.prototype.setConnectorName = function (connectorName, options) {
+        if (!_.isNil(connectorName)) {
+            this.setAttribute('_connectorName', connectorName, options);
+        } else {
+            log.error('Invalid connector name [' + connectorName + '] Provided');
+            throw 'Invalid connector name [' + connectorName + '] Provided';
+        }
+    };
+
+    /**
+     * returns the  Connector Name
+     * @returns {string}
+     */
+    SymbolName.prototype.getConnectorName = function () {
+        return this._connectorName;
+    };
+    
+    return SymbolName;
+});
