@@ -51,21 +51,9 @@ define(['lodash', './expression'], function (_, Expression) {
 
         for (var itr = 0; itr < jsonNode.children.length; itr++) {
             var childJsonNode = jsonNode.children[itr];
-            //TODO : Need to remove this if/else ladder by delegating expression string calculation to child classes
-            if (childJsonNode.type == "basic_literal_expression") {
-                if(childJsonNode.basic_literal_type == "string") {
-                    // Adding double quotes if it is a string.
-                    expString += "\"" + childJsonNode.basic_literal_value + "\"";
-                } else {
-                    expString += childJsonNode.basic_literal_value;
-                }
-            } else if (childJsonNode.type == "variable_reference_expression") {
-                expString += childJsonNode.variable_reference_name;
-            } else {
-                var child = self.getFactory().createFromJson(childJsonNode);
-                child.initFromJson(childJsonNode);
-                expString += child.getExpression();
-            }
+            var child = self.getFactory().createFromJson(childJsonNode);
+            child.initFromJson(childJsonNode);
+            expString += child.getExpression();
 
             if (itr !== jsonNode.children.length - 1) {
                 expString += " " + this.getOperator() + " ";

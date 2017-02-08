@@ -225,6 +225,22 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
             return assignmentStmt;
         };
 
+        /* Create the particular assignment statement for the function invocation
+         * @param args
+         * @returns {AssignmentStatement}
+         */
+        BallerinaASTFactory.createAggregatedFunctionInvocationExpression = function(args) {
+            var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
+            var leftOp = BallerinaASTFactory.createLeftOperandExpression(args);
+            var rightOp = BallerinaASTFactory.createRightOperandExpression(args);
+            var functionInExp = BallerinaASTFactory.createFunctionInvocationExpression(args);
+            rightOp.addChild(functionInExp);
+            rightOp.setRightOperandExpressionString(functionInExp.getExpression());
+            assignmentStmt.addChild(leftOp);
+            assignmentStmt.addChild(rightOp);
+            return assignmentStmt;
+        };
+
         /**
          * creates If-Else Statement
          * @param args
@@ -278,8 +294,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * creates Variable Definition Statement
-         * @param {Object} args
+         * Creates Variable Definition Statement
+         * @param {Object} [args]
          * @returns {VariableDefinitionStatement}
          */
         BallerinaASTFactory.createVariableDefinitionStatement = function (args) {
@@ -970,6 +986,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.isConstantDefinition = function (child) {
             return child instanceof constantDefinition;
+        };
+
+        /**
+         * instanceof check for variableDefinitionStatement
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isVariableDefinitionStatement = function (child) {
+            return child instanceof variableDefinitionStatement;
         };
 
         BallerinaASTFactory.createFromJson = function (jsonNode) {

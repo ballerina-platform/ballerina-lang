@@ -55,7 +55,7 @@ define(['require', 'jquery', 'd3', 'd3utils', 'backbone', 'lodash','log'], funct
         else{
             var listItem = $("<div class='item'></div>");
         }
-        var previewParent = $("<div class='col-md-3 preview-parent'></div>");
+        var previewParent = $("<div class='col-xs-3 preview-parent'></div>");
         var fileName = $("<div class='file-name'></div>");
         var fileNameContent = $("<span></span>");
         fileNameContent.text(this._sampleName);

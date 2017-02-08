@@ -30,32 +30,37 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.idNameSeperator = "-";
         this.onConnection = onConnectionCallback;
         this.typeConverterView = typeConverterView;
-        this.jsPlumbInstance = jsPlumb.getInstance();
+        this.midpoint= 0.01;
+        this.midpointVariance = 0.02;
+        var self  = this;
 
-        var strokeWidth = 1;
-        var pointSize = 0.5;
 
-        this.jsPlumbInstance.Defaults.Container = $("#" + this.placeHolderName);
-
-        this.jsPlumbInstance.Defaults.PaintStyle = {
-            lineWidth: strokeWidth,
-            cssClass:"plumbConnect"
-        };
-
-        this.jsPlumbInstance.Defaults.EndpointStyle = {
-            radius: pointSize
-        };
-        this.jsPlumbInstance.Defaults.Overlays = [
-            ["Arrow", {location: 1, width: 10, length: 10}]
-        ];
-
-        this.jsPlumbInstance.importDefaults({
-            Connector: ["Flowchart",
-                {
-                    cornerRadius: 20,
-                    stub: 1, alwaysRespectStubs: false, midpoint: 0.2,
-                    cssClass:"plumbConnect"
-                }]
+        this.jsPlumbInstance = jsPlumb.getInstance({
+            Connector :  self.getConnectorConfig(self.midpoint),
+            Container :this.placeHolderName ,
+            PaintStyle : {
+                strokeWidth: 2,
+                //todo : load colors from css
+                stroke : "#3d3d3d",
+                cssClass:"plumbConnect",
+                outlineStroke: "#F7F7F7",
+                outlineWidth: 2
+            },
+            HoverPaintStyle : {
+                strokeWidth: 3,
+                stroke: "#216477",
+                outlineWidth: 4,
+                outlineStroke: "white"
+            },
+            EndpointStyle : { radius:1 },
+            ConnectionOverlays: [
+                [ "Arrow", {
+                    location: 1,
+                    visible:true,
+                    width:11,
+                    length:11
+                } ]
+            ]
         });
 
         var positionFunc = this.dagrePosition;
@@ -92,6 +97,9 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 targetType: targetParts[7],
                 targetReference: targetRefObj
             };
+
+            self.midpoint= self.midpoint - self.midpointVariance;
+            self.jsPlumbInstance.importDefaults({ Connector : self.getConnectorConfig(self.midpoint)});
 
             jsPlumbInst.detach(connection);
             positionFunc(viewId, jsPlumbInst);
@@ -299,6 +307,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         var placeHolderName = this.placeHolderName;
         var jsPlumbInst = this.jsPlumbInstance;
         var positionFunction = this.dagrePosition;
+        var self = this;
 
         this.jsPlumbInstance.makeTarget(this.makeProperty(parentId, name, type), {
             maxConnections: 1,
@@ -336,6 +345,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 };
 
                 if (isValidTypes) {
+                    self.midpoint= self.midpoint + self.midpointVariance;
+                    self.jsPlumbInstance.importDefaults({ Connector : self.getConnectorConfig(self.midpoint)});
                     callback(connection);
                 } else {
                     var compatibleTypeConverters = [];
@@ -433,7 +444,15 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         }
     };
 
+    /**
+     * Give the flow chart object array for given midpoint
+     * @param {int} midPoint point which flow chart connection should bend
+     * @returns {*[]} flow chart object array
+     */
+    TypeMapperRenderer.prototype.getConnectorConfig = function (midPoint) {
+        return [ "Flowchart", { midpoint: midPoint,
+            stub: [40, 60], cornerRadius: 5, alwaysRespectStubs: true }]
+    }
+
     return TypeMapperRenderer;
 });
-
-
