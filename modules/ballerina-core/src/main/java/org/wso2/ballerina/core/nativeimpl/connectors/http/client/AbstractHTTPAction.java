@@ -50,8 +50,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     private static final String BALLERINA_USER_AGENT;
 
-    private static final String HTTP_CLIENT_CONNECTOR_ID = "http/s";
-
     static {
         String version = System.getProperty(BALLERINA_VERSION);
         if (version != null) {
@@ -138,7 +136,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 }
             }
             ClientConnector clientConnector = BallerinaConnectorManager.getInstance().
-                    getClientConnector(HTTP_CLIENT_CONNECTOR_ID);
+                    getClientConnector(Constants.PROTOCOL_HTTP);
 
             if (clientConnector == null) {
                 throw new BallerinaException("Http client connector is not available");
