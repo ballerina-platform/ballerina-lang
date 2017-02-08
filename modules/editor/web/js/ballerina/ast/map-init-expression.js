@@ -47,23 +47,15 @@ define(['lodash', './expression'], function (_, Expression) {
     MapInitExpression.prototype.generateMapInitExpressionString = function (jsonNode) {
         var self = this;
         var indexString = "";
-
+        //go through all key-value pairs
         for (var itr = 0; itr < jsonNode.children.length; itr++) {
             var childJsonNode = jsonNode.children[itr];
-            var key = childJsonNode.key;
-            var valueExpression = childJsonNode.expression[0];
-            //Adding double quotes to key
-            indexString += "\"" + childJsonNode.key + "\"" + ":";
-            if (valueExpression.type == "basic_literal_expression") {
-                if(valueExpression.basic_literal_type == "string") {
-                    // Adding double quotes if it is a string.
-                    indexString += "\"" + valueExpression.basic_literal_value + "\"";
-                } else {
-                    indexString += valueExpression.basic_literal_value;
-                }
-            }
-            indexString += ",";
+            var child = self.getFactory().createFromJson(childJsonNode);
+            child.initFromJson(childJsonNode);
+            //appending a keyvalue pair handing over the ob to key-value-expression
+            indexString += child.getExpression() + ",";
         }
+        //finally remove the additional command and append curly brackets
         return "{" + indexString.substring(0, indexString.length-1) + "}";
     };
     return MapInitExpression;
