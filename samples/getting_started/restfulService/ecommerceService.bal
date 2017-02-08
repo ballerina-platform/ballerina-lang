@@ -1,7 +1,3 @@
-import ballerina.lang.message;
-import ballerina.net.http;
-import ballerina.lang.system;
-import ballerina.lang.string;
 
 @BasePath ("/ecommerceservice")
 service Ecommerce {

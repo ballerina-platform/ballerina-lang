@@ -1,5 +1,3 @@
-import ballerina.lang.message;
-import ballerina.net.http;
 
 @BasePath ("/passthrough")
 service passthrough {

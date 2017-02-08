@@ -22,6 +22,7 @@ import org.wso2.ballerina.core.model.SymbolName;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * {@code SymScope} represents a data structure which allows us to manage scopes.
@@ -79,6 +80,44 @@ public class SymScope {
         return null;
     }
     
+    /**
+     * Resolve all ballerina.* packages
+     *
+     * @param symName symbol to get resolved
+     * @return resolved package name
+     */
+    public String resolveBallerinaPackageName(SymbolName symName) {
+        //when connector name is not available it can be either function or action
+        if (symName.getConnectorName() == null) {
+            Pattern pattern = Pattern.compile("^ballerina\\..*\\." + symName.getPkgName() + ":" +
+                    symName.getName() + "[_|\\.].*");
+            for (SymScope t = this; t != null; t = t.parent) {
+                for (Map.Entry<SymbolName, Symbol> symbolNameAndSymbol : t.symbolMap.entrySet()) {
+                    if (pattern.matcher(symbolNameAndSymbol.getKey().getName()).matches()) {
+                        if (symbolNameAndSymbol.getValue().getFunction() != null) {
+                            return symbolNameAndSymbol.getValue().getFunction().getPackageName();
+                        } else {
+                            return symbolNameAndSymbol.getValue().getAction().getPackageName();
+                        }
+                    }
+                }
+            }
+        } else {
+            //when connector name is not provided
+            Pattern pattern = Pattern.compile("^ballerina\\..*\\." + symName.getPkgName() + ":" +
+                    symName.getConnectorName() + "\\." + symName.getName() + "_.*");
+            for (SymScope t = this; t != null; t = t.parent) {
+                for (Map.Entry<SymbolName, Symbol> symbolNameAndSymbol : t.symbolMap.entrySet()) {
+                    if (pattern.matcher(symbolNameAndSymbol.getKey().getName()).matches()) {
+                        return symbolNameAndSymbol.getValue().getAction().getPackageName();
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     /**
      * {@code Name} represents a name of an scope.
      * <p>

@@ -1652,7 +1652,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Function name should be in one of the following formats
         //      1)  sayHello                        ->  No package name. must be a function in the same package.
         //      2)  hello:sayHello                  ->  Function is defined in the 'hello' package.  User must have
-        //                                              added import declaration. 'import wso2.connector.hello'.
+        //                                              added import declaration as 'import wso2.connector.hello' or
+        //                                              hello should be package in ballerina.* .
         //      3)  wso2.connector.hello:sayHello   ->  Function is defined in the wso2.connector.hello package.
 
         // First check whether there is a packaged name attached to the function.
@@ -1669,10 +1670,13 @@ public class SemanticAnalyzer implements NodeVisitor {
                 pkgPath = importPkg.getPath();
 
             } else {
-                // Package name is not listed in the imported packages.
-                // User may have used the fully qualified package path.
-                // If this package is not available, linker will throw an error.
-                pkgPath = pkgName;
+                pkgPath = symbolTable.resolveBallerinaPackageName(symbolName);
+                if (pkgPath == null) {
+                    // Package name is not listed in the imported packages.
+                    // User may have used the fully qualified package path.
+                    // If this package is not available, linker will throw an error.
+                    pkgPath = pkgName;
+                }
             }
         }
 
