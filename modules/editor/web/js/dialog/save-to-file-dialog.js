@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'bootstrap'], function (require, $, log, Backbone, FileBrowser) {
+define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'bootstrap'], function (require, _, $, log, Backbone, FileBrowser) {
     var SaveToFileDialog = Backbone.View.extend(
         /** @lends SaveToFileDialog.prototype */
         {
@@ -153,16 +153,15 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'bootstrap'], fu
                     var _location = location.val();
                     var _configName = configName.val();
                     if (_.isEmpty(_location)) {
-                        newWizardError.text("Please enter valid file location");
+                        newWizardError.text("Please enter a valid file location");
                         newWizardError.show();
                         return;
                     }
                     if (_.isEmpty(_configName)) {
-                        newWizardError.text("Please enter valid file name");
+                        newWizardError.text("Please enter a valid file name");
                         newWizardError.show();
                         return;
                     }
-                    saveConfigModal.modal('hide');
                     saveConfiguration({location: location, configName:configName});
                 });
 
@@ -184,6 +183,15 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'bootstrap'], fu
                         errorNotification.slideUp(1000);
                     });
                 };
+
+                function isJsonString(str) {
+                    try {
+                        JSON.parse(str);
+                    } catch (e) {
+                        return false;
+                    }
+                    return true;
+                }
 
                 function saveConfiguration() {
                     var workspaceServiceURL = "http://localhost:8289/service/workspace";
@@ -207,6 +215,7 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'bootstrap'], fu
                                             .setName(configName.val())
                                             .setContent(config)
                                             .setPersisted(true)
+                                            .setLastPersisted(_.now())
                                             .setDirty(false)
                                             .save();
                                 if(app.workspaceExplorer.isEmpty()){
@@ -216,13 +225,23 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'bootstrap'], fu
                                     }
                                 }
                                 app.breadcrumbController.setPath(location.val(), configName.val());
+                                saveConfigModal.modal('hide');
                                 log.debug('file saved successfully')
                             } else {
-                                alertError(data.Error);
+                                newWizardError.text(data.Error);
+                                newWizardError.show();
                             }
                         },
                         error: function(res, errorCode, error){
-                            alertError(JSON.parse(res.responseText).Error);
+                            var msg = _.isString(error) ? error : res.statusText;
+                            if(isJsonString(res.responseText)){
+                                var resObj = JSON.parse(res.responseText);
+                                if(_.has(resObj, 'Error')){
+                                    msg = _.get(resObj, 'Error');
+                                }
+                            }
+                            newWizardError.text(msg);
+                            newWizardError.show();
                         }
                     });
                 };

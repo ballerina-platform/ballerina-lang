@@ -66,6 +66,34 @@
             <version>${gson.version}</version>
         </dependency>
         <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.ballerina</groupId>
+            <artifactId>ballerina-core</artifactId>
+            <version>${ballerina.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.wso2.carbon.transport</groupId>
+                    <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+            <version>${antlr4.runtime.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${testng.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-core</artifactId>
             <version>${io.swagger.version}</version>
@@ -122,32 +150,15 @@
             <version>${com.fasterxml.jackson.datatype.version}</version>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-parser</artifactId>
+            <version>${swagger-parser-version}</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.wso2.ballerina</groupId>
-            <artifactId>ballerina-core</artifactId>
-            <version>${ballerina.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.wso2.carbon.transport</groupId>
-                    <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.orbit.org.antlr</groupId>
-            <artifactId>antlr4-runtime</artifactId>
-            <version>${antlr4.runtime.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>${testng.version}</version>
-            <scope>test</scope>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-codegen</artifactId>
+            <version>2.2.1</version>
         </dependency>
     </dependencies>
 
@@ -186,11 +197,13 @@
         <ballerina.version>0.8.0-SNAPSHOT</ballerina.version>
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
         <testng.version>6.9.4</testng.version>
+
         <servlet-api-version>2.5</servlet-api-version>
         <io.swagger.version>1.5.8</io.swagger.version>
         <com.fasterxml.jackson.datatype.version>2.4.1</com.fasterxml.jackson.datatype.version>
-        <io.swagger.version.range>[1.5.0,1.6.0)</io.swagger.version.range>
         <com.fasterxml.jackson.version>2.7.4</com.fasterxml.jackson.version>
+        <io.swagger.version.range>[1.5.0,1.6.0)</io.swagger.version.range>
         <com.fasterxml.jackson.version.range>[2.7.0,2.8.0)</com.fasterxml.jackson.version.range>
+        <swagger-parser-version>1.0.25</swagger-parser-version>
     </properties>
 </project>

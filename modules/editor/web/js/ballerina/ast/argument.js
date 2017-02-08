@@ -60,7 +60,7 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
     };
 
     Argument.prototype.setIdentifier = function (identifier, options) {
-        if (!_.isNil(identifier) && ASTNode.isValidIdentifier(identifier)) {
+        if (_.isNil(identifier) || ASTNode.isValidIdentifier(identifier)) {
             this.setAttribute('identifier', identifier, options);
         } else {
             var exceptionString = "Invalid identifier: \'" + identifier + "\'. An identifier must match the regex " +
