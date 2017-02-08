@@ -17,7 +17,7 @@
 
 package org.wso2.ballerina.containers.docker;
 
-import org.wso2.ballerina.containers.docker.exception.DockerHandlerException;
+import org.wso2.ballerina.containers.docker.exception.BallerinaDockerClientException;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -27,23 +27,94 @@ import java.nio.file.Path;
  */
 public interface BallerinaDockerClient {
 
+    /**
+     * Create a Ballerina Service Docker image from a Ballerina Service Package.
+     * @param packageName
+     * @param dockerEnv
+     * @param bPackagePath
+     * @param imageName
+     * @param imageVersion
+     * @return
+     * @throws BallerinaDockerClientException
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public String createServiceImage(String packageName, String dockerEnv, Path bPackagePath,
                                      String imageName, String imageVersion)
-            throws DockerHandlerException, IOException, InterruptedException;
+            throws BallerinaDockerClientException, IOException, InterruptedException;
 
+    /**
+     * Create a Ballerina Service Docker image from a Ballerina configuration.
+     * @param serviceName
+     * @param dockerEnv
+     * @param ballerinaConfig
+     * @param imageName
+     * @param imageVersion
+     * @return
+     * @throws InterruptedException
+     * @throws BallerinaDockerClientException
+     * @throws IOException
+     */
+    public String createServiceImage(String serviceName, String dockerEnv, String ballerinaConfig,
+                                     String imageName, String imageVersion)
+            throws InterruptedException, BallerinaDockerClientException, IOException;
+
+    /**
+     * Create a Ballerina Main Docker image from a Ballerina Main Package.
+     * @param packageName
+     * @param dockerEnv
+     * @param bPackagePath
+     * @param imageName
+     * @param imageVersion
+     * @return
+     * @throws BallerinaDockerClientException
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public String createMainImage(String packageName, String dockerEnv, Path bPackagePath,
                                   String imageName, String imageVersion)
-            throws DockerHandlerException, IOException, InterruptedException;
+            throws BallerinaDockerClientException, IOException, InterruptedException;
 
+    /**
+     * Create a Ballerina Main Docker image from a Ballerina configuration.
+     * @param mainPackageName
+     * @param dockerEnv
+     * @param ballerinaConfig
+     * @param imageName
+     * @param imageVersion
+     * @return
+     * @throws InterruptedException
+     * @throws BallerinaDockerClientException
+     * @throws IOException
+     */
+    public String createMainImage(String mainPackageName, String dockerEnv, String ballerinaConfig,
+                                  String imageName, String imageVersion)
+            throws InterruptedException, BallerinaDockerClientException, IOException;
+
+    /**
+     * Delete the Docker image of a created Ballerina package.
+     * @param packageName
+     * @param dockerEnv
+     * @param imageName
+     * @param version
+     * @return
+     * @throws BallerinaDockerClientException
+     */
     public boolean deleteImage(String packageName, String dockerEnv, String imageName, String version)
-            throws DockerHandlerException;
+            throws BallerinaDockerClientException;
 
+    /**
+     * Retrieve Docker image name of a created Ballerina package.
+     * @param packageName
+     * @param dockerEnv
+     * @return
+     */
     public String getImage(String packageName, String dockerEnv);
 
 //    public String runMainContainer(String dockerEnv, String serviceName)
-//            throws InterruptedException, IOException, DockerHandlerException;
+//            throws InterruptedException, IOException, BallerinaDockerClientException;
 //
-//    public String runServiceContainer(String packageName, String dockerEnv) throws DockerHandlerException;
+//    public String runServiceContainer(String packageName, String dockerEnv) throws BallerinaDockerClientException;
 //
-//    public void stopContainer(String packageName, String dockerEnv) throws DockerHandlerException;
+//    public void stopContainer(String packageName, String dockerEnv) throws BallerinaDockerClientException;
 }

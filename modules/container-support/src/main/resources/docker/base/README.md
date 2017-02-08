@@ -6,6 +6,6 @@ This Dockerfile can be used to create a Ballerina base Docker distribution that 
 # Copy the Ballerina distribution 
 cp <BALLERINA_HOME>/modules/distribution/target/ballerina-0.8.0-SNAPSHOT.zip .
 
-# bash build.sh -v <ballerina_version>
-bash build.sh -v 0.8.0-SNAPSHOT
+# bash build.sh -d <ballerina-dist>
+bash build.sh -d ballerina-0.8.0-SNAPSHOT.zip
 ```

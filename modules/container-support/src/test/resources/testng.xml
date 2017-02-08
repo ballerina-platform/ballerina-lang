@@ -15,10 +15,13 @@
   ~ limitations under the License.
   ~
   -->
-<suite name="dockerizer-test-suite" thread-count="1" parallel="classes">
-    <test name="dockerizer-handler-test-suite" preserve-order="true">
+<suite name="container-support-test-suite">
+    <test name="docker-support-test-suite" preserve-order="true">
         <classes>
-            <class name="org.wso2.ballerina.tooling.service.dockerizer.handler.DockerHandlerTest"/>
+            <class name="org.wso2.ballerina.containers.DefaultBallerinaDockerClientGenericTest"/>
+            <class name="org.wso2.ballerina.containers.DefaultBallerinaDockerClientSingleFileTest"/>
+            <!-- TODO: temporary until ballerina build logic is complete -->
+            <!--<class name="org.wso2.ballerina.containers.DefaultBallerinaDockerClientPackageBasedTestt/>-->
         </classes>
     </test>
 </suite>

@@ -18,7 +18,7 @@
 package org.wso2.ballerina.tooling.service.dockerizer.rest;
 
 import org.wso2.ballerina.containers.docker.BallerinaDockerClient;
-import org.wso2.ballerina.containers.docker.exception.DockerHandlerException;
+import org.wso2.ballerina.containers.docker.exception.BallerinaDockerClientException;
 import org.wso2.ballerina.tooling.service.dockerizer.Constants;
 import org.wso2.ballerina.tooling.service.dockerizer.bean.DockerRequest;
 import org.wso2.ballerina.tooling.service.dockerizer.utils.Utils;
@@ -81,7 +81,7 @@ public class DockerizerService {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        } catch (DockerHandlerException e) {
+        } catch (BallerinaDockerClientException e) {
             e.printStackTrace();
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
@@ -91,7 +91,7 @@ public class DockerizerService {
     @Path("/{" + Constants.REST.SERVICE_NAME + "}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response deleteImage(@PathParam(Constants.REST.SERVICE_NAME) String packageName, DockerRequest request)
-            throws DockerHandlerException {
+            throws BallerinaDockerClientException {
 
         String dockerEnv = Utils.getBase64DecodedString(request.getDockerEnv());
         String imageName = Utils.getBase64DecodedString(request.getImageName());
@@ -135,7 +135,7 @@ public class DockerizerService {
 //            } catch (IOException | InterruptedException e) {
 //                e.printStackTrace();
 //                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-//            } catch (DockerHandlerException e) {
+//            } catch (BallerinaDockerClientException e) {
 //                return Response.status(Response.Status.BAD_REQUEST).build();
 //            }
 //        }
@@ -152,7 +152,7 @@ public class DockerizerService {
 //        String dockerEnv = Utils.getBase64DecodedString(request.getDockerEnv());
 //        try {
 //            dockerClient.stopContainer(serviceName, dockerEnv);
-//        } catch (DockerHandlerException e) {
+//        } catch (BallerinaDockerClientException e) {
 //            e.printStackTrace();
 //            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
 //        }
