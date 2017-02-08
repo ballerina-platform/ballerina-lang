@@ -900,7 +900,21 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(TypeCastExpression typeCastExpression) {
+        JsonObject typeCastEprObj = new JsonObject();
+        typeCastEprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.TYPE_CASTING_EXPRESSION);
 
+        JsonObject targetTypeObj = new JsonObject();
+        targetTypeObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.TYPE_NAME);
+        targetTypeObj.addProperty(BLangJSONModelConstants.TARGET_TYPE, typeCastExpression.getTargetType().toString());
+        tempJsonArrayRef.push(new JsonArray());
+        if(typeCastExpression.getArgExprs() != null) {
+            typeCastExpression.getArgExprs()[0].accept(this);
+        }
+        tempJsonArrayRef.peek().add(targetTypeObj);
+        typeCastEprObj.add(BLangJSONModelConstants.CHILDREN,tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(typeCastEprObj);
     }
 
     @Override
@@ -954,7 +968,17 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(MapInitExpr mapInitExpr) {
-        //TODO
+        JsonObject mapInitExprObj = new JsonObject();
+        mapInitExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.MAP_INIT_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        if(mapInitExpr.getArgExprs() != null) {
+            for(Expression expression : mapInitExpr.getArgExprs()) {
+                expression.accept(this);
+            }
+        }
+        mapInitExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(mapInitExprObj);
     }
 
     @Override
@@ -1008,7 +1032,17 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(KeyValueExpression arrayMapAccessExpr) {
-        //TODO
+        JsonObject keyValueEprObj = new JsonObject();
+        keyValueEprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.KEY_VALUE_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        JsonObject keyObject= new JsonObject();
+        keyObject.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.QUOTED_LITERAL_STRING);
+        keyObject.addProperty(BLangJSONModelConstants.KEY_VALUE_EXPRESSION_KEY, arrayMapAccessExpr.getKey());
+        arrayMapAccessExpr.getValueExpression().accept(this);
+        tempJsonArrayRef.peek().add(keyObject);
+        keyValueEprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(keyValueEprObj);
     }
     
     @Override
