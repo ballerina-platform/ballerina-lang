@@ -47,7 +47,7 @@ public class BallerinaFunctionDocGenTest {
             BallerinaDocGenTestUtils.printDocMap(docsMap);
             
             Package doc = docsMap.get("a.b");
-            Collection<Function> functions = doc.getPublicFunctions().values();
+            Collection<Function> functions = doc.getPrivateFunctions().values();
             Assert.assertEquals(functions.size(), 1);
 
             BallerinaFunction function = (BallerinaFunction) functions.iterator().next();
@@ -70,7 +70,7 @@ public class BallerinaFunctionDocGenTest {
             BallerinaDocGenTestUtils.printDocMap(docsMap);
             
             Package doc = docsMap.get("a.b");
-            Collection<Function> functions = doc.getPublicFunctions().values();
+            Collection<Function> functions = doc.getPrivateFunctions().values();
             Assert.assertEquals(functions.size(), 2);
 
             BallerinaFunction function = (BallerinaFunction) functions.iterator().next();

@@ -99,7 +99,8 @@ public class HtmlDocumentWriter implements DocumentWriter {
             DataHolder dataHolder = DataHolder.getInstance();
             handlebars
                     .registerHelper("hasFunctions", (Helper<Package>) (balPackage, options) -> {
-                        if (balPackage.getPublicFunctions().size() > 0) {
+                        // TODO temporary making this getPrivateFunctions since ballerina runtime has a bug
+                        if (balPackage.getPrivateFunctions().size() > 0) {
                             return options.fn(balPackage);
                         }
                         return options.inverse(null);
