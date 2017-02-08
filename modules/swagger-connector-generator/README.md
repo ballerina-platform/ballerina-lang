@@ -10,7 +10,7 @@ First you need to build this project and have ballerina-connector code generatio
 
 Then run following command and execute jar file to generate connector.
 ```
->> java -jar target/swagger2ballerina-connector-1.0-SNAPSHOT.jar generate -i http://petstore.swagger.io/v2/swagger.json -l ballerina-connector -o samples/server/petstore/
+>> java -jar target/swagger2ballerina-connector-0.8-SNAPSHOT.jar generate -i http://petstore.swagger.io/v2/swagger.json -l ballerina-connector -d samples/server/petstore/ -p wso2.carbon.test
 
 ```
 when you type above command you can poit online swagger definition or local swagger file.
