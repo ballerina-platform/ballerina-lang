@@ -60,6 +60,10 @@ define(['require', 'jquery', 'event_channel', 'bootstrap'], function (require, $
         this._$submitBtn.text(text);
     };
 
+    ModalDialog.prototype.setCloseBtnText = function (text) {
+        this._$closeBtn.text(text);
+    };
+
     ModalDialog.prototype.show = function () {
         var self = this;
         this._$modalContainer.modal('show').on('shown.bs.modal', function(){
@@ -109,6 +113,7 @@ define(['require', 'jquery', 'event_channel', 'bootstrap'], function (require, $
         this._$header = modalHeader;
         this._$footer = modalFooter;
         this._$submitBtn = modalSubmitBtn;
+        this._$closeBtn = modalCloseBtnBottom;
         this._$modalContainer = modalContainer;
         this._$errorContainer = errorContainer;
 
