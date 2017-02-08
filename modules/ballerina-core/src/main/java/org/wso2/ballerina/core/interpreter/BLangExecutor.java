@@ -29,6 +29,7 @@ import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -46,6 +47,7 @@ import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
 import org.wso2.ballerina.core.model.expressions.KeyValueExpression;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
+import org.wso2.ballerina.core.model.expressions.NullLiteral;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
@@ -71,6 +73,7 @@ import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BMessage;
+import org.wso2.ballerina.core.model.values.BNull;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BStruct;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -548,6 +551,11 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     @Override
+    public BValue visit(NullLiteral nullLiteral) {
+        return nullLiteral.getBValue();
+    }
+
+    @Override
     public BValue visit(LocalVarLocation localVarLocation) {
         int offset = localVarLocation.getStackFrameOffset();
         return controlStack.getValue(offset);
@@ -900,6 +908,10 @@ public class BLangExecutor implements NodeExecutor {
      * @return              Unit value of the current value
      */
     private BValue getUnitValue(BValue currentVal, StructFieldAccessExpr fieldExpr) {
+        if (currentVal instanceof BNull) {
+            throw new BallerinaException(
+                    getLocationStr(fieldExpr.getLocation()) + "Symbol " + fieldExpr.getSymbolName() + " is null");
+        }
         if (!(currentVal instanceof BArray || currentVal instanceof BMap<?, ?>)) {
             return currentVal;
         }
@@ -921,6 +933,10 @@ public class BLangExecutor implements NodeExecutor {
         } else {
             return ((BArray) currentVal).get(((BInteger) indexValue).intValue());
         }
+    }
+
+    private String getLocationStr(Position location) {
+        return location.getFileName() + ":" +  location.getLine() + ": ";
     }
     
 }

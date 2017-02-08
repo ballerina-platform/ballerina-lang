@@ -63,6 +63,7 @@ import org.wso2.ballerina.core.model.expressions.LessThanExpression;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
+import org.wso2.ballerina.core.model.expressions.NullLiteral;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
@@ -718,6 +719,10 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         basicLiteralObj.addProperty(BLangJSONModelConstants.BASIC_LITERAL_VALUE,
                 basicLiteral.getBValue().stringValue());
         tempJsonArrayRef.peek().add(basicLiteralObj);
+    }
+
+    @Override
+    public void visit(NullLiteral nullLiteral) {
     }
 
     @Override

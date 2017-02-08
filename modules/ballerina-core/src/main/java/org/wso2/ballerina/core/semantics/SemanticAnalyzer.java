@@ -76,6 +76,7 @@ import org.wso2.ballerina.core.model.expressions.LessThanExpression;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
+import org.wso2.ballerina.core.model.expressions.NullLiteral;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
 import org.wso2.ballerina.core.model.expressions.ReferenceExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
@@ -651,6 +652,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Now we know that this is a single value assignment statement.
         Expression lExpr = assignStmt.getLExprs()[0];
+        nullExprCheck(lExpr, rExpr);
 
         // If the rExpr typ is not set, then check whether it is a BacktickExpr
         if (rExpr.getType() == null && rExpr instanceof BacktickExpr) {
@@ -818,7 +820,16 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (int i = 0; i < returnArgExprs.length; i++) {
             Expression returnArgExpr = returnArgExprs[i];
             returnArgExpr.accept(this);
-            typesOfReturnExprs[i] = returnArgExpr.getType();
+            if (returnArgExpr instanceof NullLiteral) {
+                Parameter parameter = returnParamsOfCU[i];
+                if (BTypes.isValueType(parameter.getType())) {
+                    throw  new SemanticException(getLocationStr(returnParamsOfCU[i].getLocation())
+                                                 + "cannot return null for  " + parameter.getType());
+                }
+                typesOfReturnExprs[i] = parameter.getType();
+            } else {
+                typesOfReturnExprs[i] = returnArgExpr.getType();
+            }
         }
 
         // Now check whether this return contains a function invocation expression which returns multiple values
@@ -949,6 +960,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BasicLiteral basicLiteral) {
+    }
+
+    @Override
+    public void visit(NullLiteral nullLiteral) {
     }
 
     @Override
@@ -1118,6 +1133,9 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else if (compareExprType == BTypes.STRING_TYPE) {
             expr.setEvalFunc(EqualExpression.EQUAL_STRING_FUNC);
+
+        } else if (expr.getRExpr() instanceof NullLiteral || expr.getLExpr() instanceof NullLiteral) {
+            expr.setEvalFunc(EqualExpression.EQUAL_NULL_FUNC);
 
         } else {
             throw new SemanticException("Equals operation is not supported for type: " + compareExprType + " in " +
@@ -1617,7 +1635,9 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         Expression rExpr = binaryExpr.getRExpr();
         Expression lExpr = binaryExpr.getLExpr();
-
+        if (Operator.EQUAL.equals(binaryExpr.getOperator())) {
+            nullExprCheck(lExpr, rExpr);
+        }
         if (lExpr.getType() != rExpr.getType()) {
             TypeCastExpression newExpr = checkWideningPossibleForBinary(lExpr, rExpr, binaryExpr.getOperator());
             if (newExpr != null) {
@@ -2170,6 +2190,22 @@ public class SemanticAnalyzer implements NodeVisitor {
             newExpr.setLocation(rhsExpr.getLocation());
         }
         return newExpr;
+    }
+
+    private void nullExprCheck(Expression lExpr, Expression rExpr) {
+        if (rExpr instanceof NullLiteral) {
+            if (BTypes.isValueType(lExpr.getType())) {
+                throw new SemanticException(
+                        getLocationStr(rExpr.getLocation()) + lExpr.getType() + " cannot be null ");
+            }
+            rExpr.setType(lExpr.getType());
+        } else if (lExpr instanceof NullLiteral) {
+            if (BTypes.isValueType(rExpr.getType())) {
+                throw new SemanticException(
+                        getLocationStr(lExpr.getLocation()) + rExpr.getType() + " cannot be null ");
+            }
+            lExpr.setType(rExpr.getType());
+        }
     }
 
 }

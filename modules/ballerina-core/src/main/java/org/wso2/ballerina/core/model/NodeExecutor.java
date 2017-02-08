@@ -31,6 +31,7 @@ import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
+import org.wso2.ballerina.core.model.expressions.NullLiteral;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
@@ -95,6 +96,8 @@ public interface NodeExecutor {
     BValue visit(TypeCastExpression typeCastExpression);
 
     BValue visit(BasicLiteral basicLiteral);
+
+    BValue visit(NullLiteral nullLiteral);
 
     BValue visit(LocalVarLocation localVarLocation);
 

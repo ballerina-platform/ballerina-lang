@@ -41,6 +41,7 @@ import org.wso2.ballerina.core.model.expressions.LessThanExpression;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
+import org.wso2.ballerina.core.model.expressions.NullLiteral;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
@@ -126,6 +127,8 @@ public interface NodeVisitor {
     void visit(AndExpression andExpression);
 
     void visit(BasicLiteral basicLiteral);
+
+    void visit(NullLiteral nullLiteral);
 
     void visit(DivideExpr divideExpr);
 

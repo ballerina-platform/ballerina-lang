@@ -59,6 +59,7 @@ import org.wso2.ballerina.core.model.expressions.LessThanExpression;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
+import org.wso2.ballerina.core.model.expressions.NullLiteral;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
 import org.wso2.ballerina.core.model.expressions.ReferenceExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
@@ -863,9 +864,10 @@ public class BLangModelBuilder {
         createLiteral(bValue, BTypes.BOOLEAN_TYPE, sourceLocation);
     }
 
-    public void createNullLiteral(String value, Position sourceLocation) {
-        throw new RuntimeException("Null values are not yet supported in Ballerina in " + sourceLocation.getFileName()
-                + ":" + sourceLocation.getLine());
+    public void createNullLiteral(Position sourceLocation) {
+        NullLiteral nullLiteral = new NullLiteral();
+        nullLiteral.setLocation(sourceLocation);
+        exprStack.push(nullLiteral);
     }
 
     // Private methods
