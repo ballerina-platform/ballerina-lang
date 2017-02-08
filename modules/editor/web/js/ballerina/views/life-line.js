@@ -402,6 +402,17 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             $(deleteButtonRect.node()).click(function(event){
                 event.stopPropagation();
                 model.remove();
+
+                _.each(model._connectorActionsReference, function(actionInvocationModel){
+                    //Remove connected arrows
+                    d3.select(actionInvocationModel._arrowGroup.node()).remove();
+                    //Enable arrow redraw point on action invocation
+                    d3.select(actionInvocationModel.processorConnectPoint.node()).style("display", "block");
+                    //Remove message target from action invocation
+                    actionInvocationModel.messageManager.setMessageSource(actionInvocationModel._model.children[1].children[0]);
+                    actionInvocationModel.messageManager.updateActivatedTarget();
+                });
+
                 // Hiding property button pane.
                 $(propertyButtonPaneGroup.node()).remove();
                 $(deleteButtonPaneGroup.node()).remove();
