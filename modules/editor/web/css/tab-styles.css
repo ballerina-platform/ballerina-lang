@@ -26,14 +26,14 @@ button.close {
 
 .bottom-right-controls-container {
     position: absolute;
-    bottom: 90px;
-    right: 25px;
+    bottom: 80px;
+    right: 0px;
     z-index: 30;
-    width: 21%;
+    width: 20%;
     background: #333;
     color: #fff;
     padding: 5px 0;
-    border-radius: 2px;
+    border-radius: 2px 0 0 0;
 }
 
 .top-right-controls-container {
@@ -180,3 +180,4 @@ button.close {
     font-size: 12px;
     padding-left: 5px;
 }
+
