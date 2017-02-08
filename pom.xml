@@ -111,6 +111,11 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.wso2.carbon.transport</groupId>
+                <artifactId>org.wso2.carbon.transport.jms</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.wso2.carbon.messaging</groupId>
                 <artifactId>org.wso2.carbon.messaging</artifactId>
                 <version>${carbon.messaging.version}</version>
@@ -171,11 +176,6 @@
                 <artifactId>activemq-broker</artifactId>
                 <version>${activemq.broker.vesion}</version>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.transport</groupId>
-                <artifactId>org.wso2.carbon.transport.jms</artifactId>
-                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -294,6 +294,7 @@
         <netty.transport.package.export.version>${project.version}</netty.transport.package.export.version>
         <connector.framework.package.export.version>${project.version}
         </connector.framework.package.export.version>
+        <jms.transport.package.export.version>${project.version}</jms.transport.package.export.version>
 
         <!-- Following two properties should be removed once the versions are added the wso2 parent pom CARBON-15729 -->
         <maven.checkstyle.plugin.version>2.17</maven.checkstyle.plugin.version>
