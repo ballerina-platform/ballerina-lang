@@ -18,53 +18,45 @@
 define(['lodash', './expression'], function (_, Expression) {
 
     /**
-     * Constructor for BinaryExpression
-     * @param {Object} args - Arguments to create the BinaryExpression
+     * Constructor for MapInitializerExpression
+     * @param {Object} args - Arguments to create MapInitializerExpression
      * @constructor
      * @augments Expression
      */
-    var BinaryExpression = function (args) {
-        Expression.call(this, 'BinaryExpression');
-        this._operator = _.get(args, 'operator');
+    var MapInitExpression = function (args) {
+        Expression.call(this, 'MapInitExpression');
     };
 
-    BinaryExpression.prototype = Object.create(Expression.prototype);
-    BinaryExpression.prototype.constructor = BinaryExpression;
+    MapInitExpression.prototype = Object.create(Expression.prototype);
+    MapInitExpression.prototype.constructor = MapInitExpression;
 
     /**
      * setting parameters from json
      * @param {Object} jsonNode to initialize from
      */
-    BinaryExpression.prototype.initFromJson = function (jsonNode) {
-        this.setExpression(this.generateExpressionString(jsonNode), {doSilently: true});
+    MapInitExpression.prototype.initFromJson = function (jsonNode) {
+        this.setExpression(this.generateMapInitExpressionString(jsonNode), {doSilently: true});
     };
 
     /**
-     * Generates the binary expression as a string.
-     * @param {Object} jsonNode - A node explaining the structure of binary expression.
+     * Generates the map init expression as a string.
+     * @param {Object} jsonNode - A node explaining the structure of map init expression.
      * @return {string} - Arguments as a string.
      * @private
      */
-    BinaryExpression.prototype.generateExpressionString = function (jsonNode) {
+    MapInitExpression.prototype.generateMapInitExpressionString = function (jsonNode) {
         var self = this;
-        var expString = "";
-
+        var indexString = "";
+        //go through all key-value pairs
         for (var itr = 0; itr < jsonNode.children.length; itr++) {
             var childJsonNode = jsonNode.children[itr];
             var child = self.getFactory().createFromJson(childJsonNode);
             child.initFromJson(childJsonNode);
-            expString += child.getExpression();
-
-            if (itr !== jsonNode.children.length - 1) {
-                expString += " " + this.getOperator() + " ";
-            }
+            //appending a keyvalue pair handing over the ob to key-value-expression
+            indexString += child.getExpression() + ",";
         }
-        return expString;
+        //finally remove the additional command and append curly brackets
+        return "{" + indexString.substring(0, indexString.length-1) + "}";
     };
-
-    BinaryExpression.prototype.getOperator = function (){
-        return this._operator;
-    };
-
-    return BinaryExpression;
+    return MapInitExpression;
 });

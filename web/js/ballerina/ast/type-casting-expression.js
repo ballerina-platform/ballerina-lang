@@ -18,53 +18,47 @@
 define(['lodash', './expression'], function (_, Expression) {
 
     /**
-     * Constructor for BinaryExpression
-     * @param {Object} args - Arguments to create the BinaryExpression
+     * Constructor for TypeCastingExpression
+     * @param {Object} args - Arguments to create the TypeCastingExpression
      * @constructor
      * @augments Expression
      */
-    var BinaryExpression = function (args) {
-        Expression.call(this, 'BinaryExpression');
-        this._operator = _.get(args, 'operator');
+    var TypeCastingExpression = function (args) {
+        Expression.call(this, 'TypeCastingExpression');
+        this._targetType = _.get(args, 'targetType');
     };
 
-    BinaryExpression.prototype = Object.create(Expression.prototype);
-    BinaryExpression.prototype.constructor = BinaryExpression;
+    TypeCastingExpression.prototype = Object.create(Expression.prototype);
+    TypeCastingExpression.prototype.constructor = TypeCastingExpression;
 
     /**
      * setting parameters from json
      * @param {Object} jsonNode to initialize from
      */
-    BinaryExpression.prototype.initFromJson = function (jsonNode) {
+    TypeCastingExpression.prototype.initFromJson = function (jsonNode) {
         this.setExpression(this.generateExpressionString(jsonNode), {doSilently: true});
     };
 
     /**
-     * Generates the binary expression as a string.
-     * @param {Object} jsonNode - A node explaining the structure of binary expression.
+     * Generates the type casting expression as a string.
+     * @param {Object} jsonNode - A node explaining the structure of type casting expression.
      * @return {string} - Arguments as a string.
      * @private
      */
-    BinaryExpression.prototype.generateExpressionString = function (jsonNode) {
+    TypeCastingExpression.prototype.generateExpressionString = function (jsonNode) {
         var self = this;
         var expString = "";
-
-        for (var itr = 0; itr < jsonNode.children.length; itr++) {
-            var childJsonNode = jsonNode.children[itr];
-            var child = self.getFactory().createFromJson(childJsonNode);
-            child.initFromJson(childJsonNode);
-            expString += child.getExpression();
-
-            if (itr !== jsonNode.children.length - 1) {
-                expString += " " + this.getOperator() + " ";
-            }
-        }
+        var targetType = jsonNode.children[1].target_type;
+        var child = self.getFactory().createFromJson(jsonNode.children[0]);
+        child.initFromJson(jsonNode.children[0]);
+        var castingExpression = jsonNode.children[1].target_type;
+        expString += "(" + targetType + ")" + child.getExpression();
         return expString;
     };
 
-    BinaryExpression.prototype.getOperator = function (){
+    TypeCastingExpression.prototype.getOperator = function (){
         return this._operator;
     };
 
-    return BinaryExpression;
+    return TypeCastingExpression;
 });
