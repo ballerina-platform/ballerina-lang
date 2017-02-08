@@ -38,7 +38,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
            this._container = _.get(args, 'container');
            this._content = _.get(args, 'content');
            this._backend = _.get(args, 'backend');
-           this._generatedSource = "";
+           this._generatedNodeTree = "";
            this._clean = true;
        };
 
@@ -51,6 +51,11 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
                        "swaggerDefinition": content,
                        "ballerinaDefinition": self._generatedSource
                    }, [{name: "expectedType", value: "ballerina"}]);
+
+                   if(!response.error){
+                       self._generatedNodeTree = JSON.parse(response.ballerinaDefinition);
+                       self._clean = false;
+                   }
                }
            });
 
@@ -87,7 +92,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
         */
        SwaggerView.prototype.setContent = function(content){
            this._generatedSource = content;
-           var generatedSwagger = '{swagger: 2.0, info: {title: "Ballerina Default API", version : ""}, paths: {}}';
+           var generatedSwagger = {swagger: 2.0, info: {title: "Ballerina Default API", version : ""}, paths: {}};
 
            var response = this._backend.call("convert-ballerina", "POST", {
                "name": "CalculatorService",
@@ -105,15 +110,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
        };
 
        SwaggerView.prototype.getContent = function(){
-           return this._swaggerHolder.getSwagger();
-       };
-
-       SwaggerView.prototype.isClean = function(){
-           return this._clean;
-       };
-
-       SwaggerView.prototype.markClean = function(){
-           this._clean = true;
+           return this._generatedNodeTree;
        };
 
        SwaggerView.prototype.show = function(){
@@ -126,6 +123,14 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
 
        SwaggerView.prototype.isVisible = function(){
            return  $(this._container).is(':visible')
+       };
+
+       SwaggerView.prototype.isClean = function(){
+           return this._clean;
+       };
+
+       SwaggerView.prototype.markClean = function(){
+           this._clean = true;
        };
 
        return SwaggerView;
