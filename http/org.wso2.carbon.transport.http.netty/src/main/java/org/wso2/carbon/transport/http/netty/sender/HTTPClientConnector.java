@@ -86,8 +86,18 @@ public class HTTPClientConnector implements ClientConnector {
     }
 
     @Override
+    public boolean send(CarbonMessage msg, CarbonCallback callback) throws ClientConnectorException {
+        return invokeSend(msg, callback);
+    }
+
+
+    @Override
     public boolean send(CarbonMessage msg, CarbonCallback callback, Map<String, String> parameters)
             throws ClientConnectorException {
+        return invokeSend(msg, callback);
+    }
+
+    private boolean invokeSend(CarbonMessage msg, CarbonCallback callback) throws ClientConnectorException {
         String protocol = (String) msg.getProperty(Constants.PROTOCOL);
         SenderConfiguration defaultSenderConfiguration = senderConfigurationMap
                 .get(protocol.toLowerCase(Locale.getDefault()));
