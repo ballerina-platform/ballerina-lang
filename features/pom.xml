@@ -26,7 +26,7 @@
     <artifactId>org.wso2.carbon.transport.feature.parent</artifactId>
     <name>WSO2 Carbon Transport Feature Parent</name>
     <modules>
-        <module>server-connector-framework</module>
+        <module>connector-framework</module>
         <module>http</module>
         <module>jms</module>
     </modules>

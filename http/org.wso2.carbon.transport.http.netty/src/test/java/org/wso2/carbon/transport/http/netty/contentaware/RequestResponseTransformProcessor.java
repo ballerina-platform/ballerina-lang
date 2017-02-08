@@ -24,8 +24,8 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.ClientConnector;
-import org.wso2.carbon.messaging.MessageProcessorException;
 import org.wso2.carbon.messaging.TransportSender;
+import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
@@ -45,7 +45,7 @@ public class RequestResponseTransformProcessor implements CarbonMessageProcessor
 
     private String responseValue;
 
-    private TransportSender transportSender;
+    private ClientConnector clientConnector;
 
     public RequestResponseTransformProcessor(String responseValue) {
         this.responseValue = responseValue;
@@ -82,12 +82,12 @@ public class RequestResponseTransformProcessor implements CarbonMessageProcessor
                             carbonMessage.addMessageBody(byteBuffer);
                             carbonMessage.setEndOfMsgAdded(true);
                             EngineCallBack engineCallBack = new EngineCallBack(requestValue, carbonCallback);
-                            transportSender.send(carbonMessage, engineCallBack);
+                            clientConnector.send(carbonMessage, engineCallBack);
                         }
                     }
                 } catch (IOException e) {
                     logger.error("Error while reading stream", e);
-                } catch (MessageProcessorException e) {
+                } catch (ClientConnectorException e) {
                     logger.error("MessageProcessor is not supported ", e);
                 }
             }
@@ -98,12 +98,11 @@ public class RequestResponseTransformProcessor implements CarbonMessageProcessor
 
     @Override
     public void setTransportSender(TransportSender transportSender) {
-        this.transportSender = transportSender;
     }
 
     @Override
     public void setClientConnector(ClientConnector clientConnector) {
-
+        this.clientConnector = clientConnector;
     }
 
     @Override

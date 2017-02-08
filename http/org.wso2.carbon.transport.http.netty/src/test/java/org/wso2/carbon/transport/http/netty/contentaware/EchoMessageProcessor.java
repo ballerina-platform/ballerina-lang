@@ -40,7 +40,7 @@ import java.util.concurrent.Executors;
 public class EchoMessageProcessor implements CarbonMessageProcessor {
     private static final Logger logger = LoggerFactory.getLogger(EchoMessageProcessor.class);
 
-    private TransportSender transportSender;
+    private ClientConnector clientConnector;
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -77,12 +77,11 @@ public class EchoMessageProcessor implements CarbonMessageProcessor {
 
     @Override
     public void setTransportSender(TransportSender transportSender) {
-        this.transportSender = transportSender;
     }
 
     @Override
     public void setClientConnector(ClientConnector clientConnector) {
-
+        this.clientConnector = clientConnector;
     }
 
     @Override
