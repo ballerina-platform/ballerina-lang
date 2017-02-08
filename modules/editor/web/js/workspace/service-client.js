@@ -167,6 +167,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file'],
                 success: function (response) {
                     data = response;
                     file.setDirty(false)
+                        .setLastPersisted(_.now())
                         .save();
                     log.debug("File " + file.getName() + ' saved successfully at '+ file.getPath());
                 },

@@ -34,7 +34,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.placeHolderName = "data-mapper-container" + this.viewIdSeperator + this.viewId;
         this.onConnection = onConnectionCallback;
         this.typeConverterView = typeConverterView;
-        this.midpoint = 0.01;
+        this.midpoint = 0.1;
         this.midpointVariance = 0.02;
         this.disconnectCallback = onDisconnectCallback;
         this.connectCallback = onConnectionCallback;
@@ -42,7 +42,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
 
         this.jsPlumbInstance = jsPlumb.getInstance({
-            Connector: ["Flowchart", {midpoint: self.midpoint}],
+            Connector: self.getConnectorConfig(self.midpoint),
             Container: this.placeHolderName,
             PaintStyle: {
                 strokeWidth: 2,
@@ -51,6 +51,12 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 cssClass: "plumbConnect",
                 outlineStroke: "#F7F7F7",
                 outlineWidth: 2
+            },
+            HoverPaintStyle : {
+                strokeWidth: 3,
+                stroke: "#ff9900",
+                outlineWidth: 3,
+                outlineStroke: "#ffe0b3"
             },
             EndpointStyle: {radius: 1},
             ConnectionOverlays: [
@@ -90,9 +96,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @param connection
      */
     TypeMapperRenderer.prototype.disconnect = function (connection) {
+        var self = this;
         var propertyConnection = this.getConnectionObject(connection.sourceId, connection.targetId);
         this.midpoint = this.midpoint - this.midpointVariance;
-        this.jsPlumbInstance.importDefaults({Connector: ["Flowchart", {midpoint: this.midpoint}]});
+        this.jsPlumbInstance.importDefaults({ Connector : self.getConnectorConfig(self.midpoint)});
         this.jsPlumbInstance.detach(connection);
         this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
         this.disconnectCallback(propertyConnection);
@@ -493,7 +500,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 var connection = self.getConnectionObject(params.sourceId, params.targetId);
                 if (isValidTypes) {
                     self.midpoint = self.midpoint + self.midpointVariance;
-                    self.jsPlumbInstance.importDefaults({Connector: ["Flowchart", {midpoint: self.midpoint}]});
+                    self.jsPlumbInstance.importDefaults({ Connector : self.getConnectorConfig(self.midpoint)});
                     self.onConnection(connection);
                     self.disableParentsJsTree(params.sourceId, self);
                     self.disableParentsJsTree(params.targetId, self);
@@ -636,6 +643,16 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             $("#" + viewId).height(maxTypeHeight + maxYPosition);
         }
     };
+
+    /**
+     * Give the flow chart object array for given midpoint
+     * @param {int} midPoint point which flow chart connection should bend
+     * @returns {*[]} flow chart object array
+     */
+    TypeMapperRenderer.prototype.getConnectorConfig = function (midPoint) {
+        return [ "Flowchart", { midpoint: midPoint,
+            stub: [40, 60], cornerRadius: 5, alwaysRespectStubs: true }]
+    }
 
     return TypeMapperRenderer;
 });

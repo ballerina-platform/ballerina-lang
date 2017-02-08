@@ -25,8 +25,10 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPResourceDispatcher;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPServiceDispatcher;
+import org.wso2.ballerina.core.runtime.MessageProcessor;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
@@ -38,8 +40,10 @@ import org.wso2.ballerina.core.utils.ParserUtils;
  */
 public class EnvironmentInitializer {
 
-    public static void initialize(String sourcePath) {
-
+    public static Application setup(String sourcePath) {
+        // Initialize server connectors before starting the test cases
+        BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
+        BallerinaConnectorManager.getInstance().registerServerConnectorErrorHandler(new TestErrorHandler());
         // Resister HTTP Dispatchers
         DispatcherRegistry.getInstance().registerServiceDispatcher(new HTTPServiceDispatcher());
         DispatcherRegistry.getInstance().registerResourceDispatcher(new HTTPResourceDispatcher());
@@ -70,9 +74,11 @@ public class EnvironmentInitializer {
             }
         }
         ApplicationRegistry.getInstance().registerApplication(app);
+        return app;
     }
 
-    public static void cleanup() {
+    public static void cleanup(Application application) {
+        ApplicationRegistry.getInstance().unregisterApplication(application);
         DispatcherRegistry.getInstance().clearDispatchers();
     }
 

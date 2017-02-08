@@ -33,9 +33,9 @@ import org.wso2.ballerina.core.runtime.BalProgramExecutor;
 import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.MessageProcessor;
 import org.wso2.ballerina.core.runtime.deployer.BalDeployer;
-import org.wso2.ballerina.core.runtime.errors.handler.ServerConnectorErrorHandler;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
+import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 import org.wso2.carbon.messaging.TransportListenerManager;
 import org.wso2.carbon.messaging.TransportSender;
 

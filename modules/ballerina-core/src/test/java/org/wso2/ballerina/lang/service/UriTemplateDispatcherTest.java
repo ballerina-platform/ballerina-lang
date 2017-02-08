@@ -20,11 +20,13 @@ package org.wso2.ballerina.lang.service;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.EnvironmentInitializer;
 import org.wso2.ballerina.core.exception.BallerinaException;
+import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.utils.MessageUtils;
 import org.wso2.ballerina.lang.util.Services;
@@ -36,9 +38,11 @@ import org.wso2.carbon.messaging.CarbonMessage;
  */
 public class UriTemplateDispatcherTest {
 
+    private Application application;
+
     @BeforeClass()
     public void setup() {
-        EnvironmentInitializer.initialize("lang/service/uri-template.bal");
+        application = EnvironmentInitializer.setup("lang/service/uri-template.bal");
     }
 
     @Test(description = "Test accessing the variables parsed with URL. /products/{productId}/{regId}",
@@ -197,5 +201,10 @@ public class UriTemplateDispatcherTest {
                 , {"/ecommerceservice/products/PID123/?param=value"}
                 , {"/ecommerceservice/products/PID123?regId=value1&param2=value2"}
         };
+    }
+
+    @AfterClass
+    public void tearDown() {
+        EnvironmentInitializer.cleanup(application);
     }
 }
