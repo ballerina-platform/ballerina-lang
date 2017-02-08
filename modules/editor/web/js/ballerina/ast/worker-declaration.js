@@ -21,6 +21,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         this._isDefaultWorker = _.get(args, "isDefaultWorker", false);
         this._reply = _.get(args, "replyStatement", null);
         this._childrenList = [];
+        this._workerDeclarationStatement = _.get(args, 'declarationStatement', 'worker1(message m)');
 
         ASTNode.call(this, "WorkerDeclaration");
     };
@@ -40,6 +41,26 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
 
     WorkerDeclaration.prototype.isDefaultWorker = function () {
         return this._isDefaultWorker;
+    };
+
+    /**
+     * Set the worker declaration statement [workerName(message m)]
+     * @param {string} declarationStatement
+     */
+    WorkerDeclaration.prototype.setWorkerDeclarationStatement = function (declarationStatement) {
+        this._workerDeclarationStatement = declarationStatement;
+    };
+
+    /**
+     * Get the worker declaration statement
+     * @return {string} _workerDeclarationStatement
+     */
+    WorkerDeclaration.prototype.getWorkerDeclarationStatement = function () {
+        return this._workerDeclarationStatement;
+    };
+
+    WorkerDeclaration.prototype.getWorkerName = function () {
+        return "workerName";
     };
 
     /**

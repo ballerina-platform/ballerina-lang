@@ -30,7 +30,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression',
         './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
         './if-condition', './array-map-access-expression', './map-init-expression', './key-value-expression', './binary-expression', './connector-action', './struct-definition',
-        './constant-definition', './variable-definition-statement','./type-struct-definition', './type-casting-expression'],
+        './constant-definition', './variable-definition-statement','./type-struct-definition', './type-casting-expression', './worker-invoke'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -40,7 +40,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
               thenBody, ifCondition, arrayMapAccessExpression, mapInitExpression, keyValueExpression, binaryExpression, connectorAction, structDefinition,
-              constantDefinition, variableDefinitionStatement,typeStructDefinition, typeCastingExpression) {
+              constantDefinition, variableDefinitionStatement,typeStructDefinition, typeCastingExpression, workerInvoke) {
 
 
         /**
@@ -413,6 +413,14 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createReturnStatement = function (args) {
             return new returnStatement(args);
+        };
+
+        /**
+         * creates WorkerInvokeStatement
+         * @param args
+         */
+        BallerinaASTFactory.createWorkerInvokeStatement = function (args) {
+            return new workerInvoke(args);
         };
 
         /**
