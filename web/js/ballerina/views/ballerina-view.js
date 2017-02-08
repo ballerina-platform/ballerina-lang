@@ -35,6 +35,7 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
             this.setModel(_.get(args, "model"));
             this._container = _.get(args, "container");
             this._viewOptions = _.get(args, "viewOptions", {});
+            this._backendEndpointsOptions = _.get(args, "backendEndpointsOptions", {});
             this._boundingBox = new BBox();
             this.toolPalette = _.get(args, "toolPalette");
             this.messageManager =  _.get(args, "messageManager");
