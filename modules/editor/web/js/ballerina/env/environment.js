@@ -247,11 +247,7 @@ define(['lodash', 'event_channel', './ballerina-env-factory'], function(_, Event
                             type: "int"
                         }
                     ],
-                    returnParams: [
-                        {
-                            type: "int"
-                        }
-                    ]
+                    returnParams: []
                 },
                 {
                     name: "getStatusCode",

@@ -37,6 +37,9 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
                 this._fileSaveModal.modal('show').on('shown.bs.modal', function(){
                     self.trigger('loaded');
                 });
+                this._fileSaveModal.on('hidden.bs.modal', function(){
+                    self.trigger('unloaded');
+                })
             },
 
             setSelectedFile: function(path, fileName){
@@ -48,6 +51,7 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
 
             render: function () {
                 //TODO : this render method should be rewritten with improved UI
+                var self = this;
                 var fileBrowser;
                 var app = this.app;
                 var notification_container = this.notification_container;
@@ -64,12 +68,12 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
                     "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
                     "<span aria-hidden='true'>&times;</span>" +
                     "</button>" +
-                    "<h4 class='modal-title file-dialog-title' id='newConfigModalLabel'>Ballerina File Save Wizard</h4>" +
+                    "<h4 class='modal-title file-dialog-title' id='newConfigModalLabel'>save file</h4>" +
                     "<hr class='style1'>"+
                     "</div>" +
                     "<div class='modal-body'>" +
                     "<div class='container-fluid'>" +
-                    "<form class='form-horizontal'>" +
+                    "<form class='form-horizontal' onsubmit='return false'>" +
                     "<div class='form-group'>" +
                     "<label for='configName' class='col-sm-2 file-dialog-label'>File Name :</label>" +
                     "<div class='col-sm-9'>" +
@@ -162,7 +166,12 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
                         newWizardError.show();
                         return;
                     }
-                    saveConfiguration({location: location, configName:configName});
+
+                    var callback = function(isSaved) {
+                        self.trigger('save-completed', isSaved);
+                        saveConfigModal.modal('hide');
+                    }
+                    saveConfiguration({location: location, configName:configName}, callback);
                 });
 
                 $(this.dialog_container).append(fileSave);
@@ -193,7 +202,7 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
                     return true;
                 }
 
-                function saveConfiguration() {
+                function saveConfiguration(options, callback) {
                     var workspaceServiceURL = "http://localhost:8289/service/workspace";
                     var saveServiceURL = workspaceServiceURL + "/write";
                     var activeTab = app.tabController.activeTab;
@@ -227,9 +236,11 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
                                 app.breadcrumbController.setPath(location.val(), configName.val());
                                 saveConfigModal.modal('hide');
                                 log.debug('file saved successfully')
+                                callback(true);
                             } else {
                                 newWizardError.text(data.Error);
                                 newWizardError.show();
+                                callback(false);
                             }
                         },
                         error: function(res, errorCode, error){
@@ -242,6 +253,7 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
                             }
                             newWizardError.text(msg);
                             newWizardError.show();
+                            callback(false);
                         }
                     });
                 };
