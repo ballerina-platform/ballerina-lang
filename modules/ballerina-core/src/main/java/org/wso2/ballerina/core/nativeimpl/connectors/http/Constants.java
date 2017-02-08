@@ -65,6 +65,16 @@ public class Constants {
     public static final String ANNOTATION_METHOD_DELETE = HTTP_METHOD_DELETE;
     public static final String ANNOTATION_METHOD_OPTIONS = HTTP_METHOD_OPTIONS;
 
+    /* WebSocket Annotations */
+    public static final String PROTOCOL_WEBSOCKET = "ws";
+    public static final String ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH = "WebSocketUpgradePath";
+    public static final String ANNOTATION_NAME_ON_OPEN = "OnOpen";
+    public static final String ANNOTATION_NAME_ON_TEXT_MESSAGE = "OnTextMessage";
+    public static final String ANNOTATION_NAME_ON_BINARY_MESSAGE = "OnBinaryMessage";
+    public static final String ANNOTATION_NAME_ON_PONG_MESSAGE = "OnPongMessage";
+    public static final String ANNOTATION_NAME_ON_CLOSE = "OnClose";
+    public static final String ANNOTATION_NAME_ON_ERROR = "OnError";
+
 
     public static final String ANNOTATION_SOURCE_KEY_INTERFACE = "interface";
 }
