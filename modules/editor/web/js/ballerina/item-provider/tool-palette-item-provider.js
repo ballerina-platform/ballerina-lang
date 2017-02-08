@@ -151,14 +151,14 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
 
             _.each(package.getFunctionDefinitions(), function (functionDef) {
                 var packageName = _.last(_.split(package.getName(), '.'));
-                functionDef.nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationStatement;
-
+                if (functionDef.getReturnParams().length > 0){
+                    functionDef.nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationExpression;
+                } else {
+                    functionDef.nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationStatement;
+                }
                 functionDef.meta = {
-                    package: functionDef.getName(),
-                    function: functionDef.getName(),
-                    params: functionDef.getName()
+                    function: packageName + ":" + functionDef.getName()
                 };
-                //TODO : use a generic icon
                 functionDef.icon = "images/tool-icons/function.svg";
                 functionDef.title = functionDef.getName();
                 functionDef.id = functionDef.getName();
@@ -192,14 +192,17 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 });
             }, this);
 
-            package.on('function-defs-added', function (child) {
+            package.on('function-defs-added', function (functionDef) {
                 var nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationStatement;
+                if (functionDef.getReturnParams().length > 0){
+                    nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationExpression;
+                }
                 var toolGroupID = package.getName() + "-tool-group";
                 var icon = "images/tool-icons/function.svg";
-                this.addToToolGroup(toolGroupID, child, nodeFactoryMethod, icon);
+                this.addToToolGroup(toolGroupID, functionDef, nodeFactoryMethod, icon);
 
-                child.on('name-modified', function(newName, oldName){
-                    self.updateToolItem(toolGroupID, child, newName);
+                functionDef.on('name-modified', function(newName, oldName){
+                    self.updateToolItem(toolGroupID, functionDef, newName);
                 });
             }, this);
 
