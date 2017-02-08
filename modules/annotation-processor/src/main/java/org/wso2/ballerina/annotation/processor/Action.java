@@ -17,18 +17,24 @@
 package org.wso2.ballerina.annotation.processor;
 
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * DTO to hold Ballerina Annotations
+ * DTO to hold Ballerina Action
  */
 public class Action {
     
     BallerinaAction action;
     private String actionClassName;
+    private List<Annotation> annotations;
     
     public Action(BallerinaAction action, String className) {
         this.action = action;
         this.actionClassName = className;
+        annotations = new ArrayList<>();
     }
     
     public String getClassName() {
@@ -37,5 +43,13 @@ public class Action {
     
     public BallerinaAction getBalAction() {
         return action;
+    }
+
+    public void setAnnotations(BallerinaAnnotation[] annotations) {
+        this.annotations = Utils.getAnnotations(annotations);
+    }
+
+    public List<Annotation> getAnnotations() {
+        return annotations;
     }
 }
