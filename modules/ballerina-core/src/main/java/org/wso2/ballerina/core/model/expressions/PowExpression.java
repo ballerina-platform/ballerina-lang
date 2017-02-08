@@ -20,6 +20,8 @@ package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.values.BDouble;
+import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BValueType;
@@ -36,10 +38,16 @@ import static org.wso2.ballerina.core.model.Operator.POW;
 public class PowExpression extends BinaryArithmeticExpression {
 
     public static final BiFunction<BValueType, BValueType, BValueType> POW_INT_FUNC =
-            (lVal, rVal) -> new BInteger(lVal.intValue() ^ rVal.intValue());
+            (lVal, rVal) -> new BInteger((int) Math.pow(lVal.intValue(), rVal.intValue()));
 
     public static final BiFunction<BValueType, BValueType, BValueType> POW_LONG_FUNC =
-            (lVal, rVal) -> new BLong(lVal.longValue() ^ rVal.longValue());
+            (lVal, rVal) -> new BLong((long) Math.pow(lVal.longValue(), rVal.longValue()));
+
+    public static final BiFunction<BValueType, BValueType, BValueType> POW_FLOAT_FUNC =
+            (lVal, rVal) -> new BFloat((float) Math.pow(lVal.floatValue(), rVal.floatValue()));
+
+    public static final BiFunction<BValueType, BValueType, BValueType> POW_DOUBLE_FUNC =
+            (lVal, rVal) -> new BDouble(Math.pow(lVal.doubleValue(), rVal.doubleValue()));
 
     public PowExpression(NodeLocation location, Expression lExpr, Expression rExpr) {
         super(location, lExpr, POW, rExpr);

@@ -979,10 +979,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             powExpression.setEvalFunc(PowExpression.POW_LONG_FUNC);
 
         } else if (arithmeticExprType == BTypes.typeFloat) {
-            throwInvalidBinaryOpError(powExpression);
+            powExpression.setEvalFunc(PowExpression.POW_FLOAT_FUNC);
 
         } else if (arithmeticExprType == BTypes.typeDouble) {
-            throwInvalidBinaryOpError(powExpression);
+            powExpression.setEvalFunc(PowExpression.POW_DOUBLE_FUNC);
 
         } else {
             throwInvalidBinaryOpError(powExpression);
