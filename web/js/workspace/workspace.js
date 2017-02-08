@@ -235,7 +235,11 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
                 var file = activeTab.getFile();
                 if(file.isPersisted()){
                     if(file.isDirty()){
-                        self._serviceClient.writeFile(file);
+                        var response = self._serviceClient.writeFile(file);
+                        if(response.error){
+                            alerts.error(response.message);
+                            return;
+                        }
                         if(activeTab.getBallerinaFileEditor().isInSourceView()){
                             activeTab.getBallerinaFileEditor().getSourceView().markClean();
                         }
