@@ -79,7 +79,7 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                     "</div>" +
                     "<div class='modal-body'>" +
                     "<div class='container-fluid'>" +
-                    "<form class='form-horizontal'>" +
+                    "<form class='form-horizontal' onsubmit='return false'>" +
                     "<div class='form-group'>" +
                     "<label for='location' class='col-sm-2 file-dialog-label'>File Name :</label>" +
                     "<div class='col-sm-9'>" +
