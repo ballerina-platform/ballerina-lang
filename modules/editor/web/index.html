@@ -19,14 +19,14 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
+
     <title>Ballerina Editor</title>
 
     <!-- Favion -->
     <link href="images/favicon.png" rel="icon" type="image/png" sizes="16x16" />
 
     <script src="lib/css-browser-selector_0.4.0/css_browser_selector.js"></script>
-    
+
     <link href="lib/font-wso2-1.2.1/css/font-wso2.min.css" rel="stylesheet" type="text/css"/>
     <link href="lib/theme-wso2-2.0.0/css/theme-wso2.css" rel="stylesheet" type="text/css"/>
     <link href="lib/jquery-ui_v1.12.1.custom/jquery-ui.css" rel="stylesheet" type="text/css"/>
@@ -676,7 +676,7 @@
                     buttonOpen: " btn btn-block open-welcome-button",
                     samples: "welcome-samples",
                     headingTop: "top-heading",
-                    btnWrap1: "btn-wrap"                    
+                    btnWrap1: "btn-wrap"
                 },
                 samples: ["resources/samples/echoService.bal", "resources/samples/helloWorld.bal",
                     "resources/samples/passthroughService.bal", "resources/samples/routingServices.bal"]
@@ -687,6 +687,9 @@
                 },
                 packages:  {
                     endpoint: "http://localhost:8289/ballerina/editor/packages"
+                },
+                swagger:  {
+                    endpoint: "http://localhost:8289/service/swagger/"
                 },
                 parser:  {
                     endpoint: "http://localhost:8289/ballerina/model/content"
