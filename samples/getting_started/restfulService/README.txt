@@ -28,9 +28,9 @@ Invoking the service
 ====================
 
 
-curl -X GET "http://localhost:9090/ecommerceservice/products/123456"
+curl -X GET "http://localhost:9090/ecommerceservice/products/123001"
 
-curl -X POST -d '{ "Product": { "ID": "123456", "Name": "XYZ", "Description": "Sample product."}}'  "http://localhost:9090/ecommerceservice/products"
+curl -X POST -d '{ "Product": { "ID": "147", "Name": "XYZ-Kas", "Description": "Sample product."}}'  "http://localhost:9090/ecommerceservice/products/"
 
 
 
