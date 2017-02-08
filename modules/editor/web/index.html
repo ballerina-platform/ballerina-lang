@@ -37,7 +37,6 @@
     <link href="css/tab-styles.css" rel="stylesheet" type="text/css"/>
     <link href="css/notification.css" rel="stylesheet" type="text/css"/>
     <link href="css/fileDialog.css" rel="stylesheet" type="text/css"/>
-    <link href="lib/nanoscroller_0.8.7/nanoscroller.css" rel="stylesheet" type="text/css"/>
     <link href="lib/mCustomScrollbar_v3.1.5/css/jquery.mCustomScrollbar.css" rel="stylesheet" type="text/css"/>
     <link href="lib/context-menu_v2.4.2/jquery.contextMenu.min.css" rel="stylesheet" type="text/css"/>
 
@@ -570,6 +569,7 @@
             beautify: "lib/beautify/beautify",
             mousetrap: "lib/mousetrap_v1.6.0/mousetrap.min",
             mcustom_scroller: "lib/mCustomScrollbar_v3.1.5/js/jquery.mCustomScrollbar",
+            jquery_mousewheel: "lib/jquery-mousewheel_v3.1.13/jquery.mousewheel",
             jquery_context_menu: "lib/context-menu_v2.4.2/jquery.contextMenu.min",
             html5_shiv: "lib/html5shiv_3.7.2/html5shiv.min",
             respond: "lib/respond_1.4.2/respond.min",
@@ -604,7 +604,8 @@
             "jsPlumb": {
                 deps: ['jquery','jquery_ui'],
                 exports: 'jsPlumb'
-            }
+            },
+            "mcustom_scroller":{"deps": ['jquery', "jquery_mousewheel"]}
         },
         map: {
             "*": {
