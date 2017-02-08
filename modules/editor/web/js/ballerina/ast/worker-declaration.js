@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, CommonUtils) {
 
     var WorkerDeclaration = function (args) {
         this._isDefaultWorker = _.get(args, "isDefaultWorker", false);
@@ -61,6 +61,28 @@ define(['lodash', './node'], function (_, ASTNode) {
 
     WorkerDeclaration.prototype.getWorkerName = function () {
         return "workerName";
+    };
+
+    /**
+     * @inheritDoc
+     * @override
+     */
+    WorkerDeclaration.prototype.generateUniqueIdentifiers = function () {
+        // TODO : Implement
+        // CommonUtils.generateUniqueIdentifier({
+        //     node: this,
+        //     attributes: [{
+        //         defaultValue: "newAction",
+        //         setter: this.setActionName,
+        //         getter: this.getActionName,
+        //         parents: [{
+        //             // ballerina-ast-node
+        //             node: this.parent,
+        //             getChildrenFunc: this.parent.getConnectorActionDefinitions,
+        //             getter: this.getActionName
+        //         }]
+        //     }]
+        // });
     };
 
     return WorkerDeclaration;

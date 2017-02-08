@@ -22,7 +22,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', '.
     function (_, log, d3, D3utils, $, Alerts, SVGCanvas, Point,
               ConnectorDefinition, ClientLifeLine, ConnectorActionView,
               BallerinaASTFactory, Axis, ConnectorDeclarationView,
-              VariableDeclaration, VariablesView, AnnotationView, ArgumentsView) {
+              VariableDeclaration, VariableDefinitionsPaneView, AnnotationView, ArgumentsView) {
 
         /**
          * The view to represent a connector definition which is an AST visitor.
@@ -225,6 +225,22 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', '.
 
             // Adding separator for arguments icon.
             $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(operationsPane);
+
+            var variableProperties = {
+                model: this._model,
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+                viewOfModel: this,
+                viewOptions: {
+                    position: {
+                        x: 8,
+                        y: 7
+                    },
+                    width: $(this.getChildContainer().node().ownerSVGElement.parentElement).width() - (2 * 36)
+                }
+            };
+
+            var variableDefinitionsPaneView = new VariableDefinitionsPaneView(variableProperties);
+            variableDefinitionsPaneView.createVariablePane();
 
             var argumentsProperties = {
                 model: this._model,
