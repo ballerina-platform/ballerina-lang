@@ -21,6 +21,7 @@ package org.wso2.ballerina.core.nativeimpl.lang.datatable;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BDataTable;
+import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
@@ -29,22 +30,22 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
- * Native function to get any object in their native toString in a given a given column name.
- * ballerina.lang.datatable:getObjectAsString(datatable, string)
+ * Native function to get any object in their native toString in a given column index.
+ * ballerina.lang.datatable:getValueAsString(datatable, int)
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.datatable",
-        functionName = "getObjectAsString",
+        functionName = "getValueAsString",
         args = {@Argument(name = "datatable", type = TypeEnum.DATATABLE),
-                @Argument(name = "name", type = TypeEnum.STRING)},
+                @Argument(name = "index", type = TypeEnum.INT)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
-public class GetObjectAsStringByName extends AbstractNativeFunction {
+public class GetValueAsStringByIndex extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataTable dataframe = (BDataTable) getArgument(ctx, 0);
-        String columnName = (getArgument(ctx, 1)).stringValue();
-        return getBValues(new BString(dataframe.getObjectAsString(columnName)));
+        int index = ((BInteger) getArgument(ctx, 1)).intValue();
+        return getBValues(new BString(dataframe.getObjectAsString(index)));
     }
 }

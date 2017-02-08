@@ -46,6 +46,6 @@ public class GetByNameLongReturn extends AbstractNativeFunction {
         BDataTable dataframe = (BDataTable) getArgument(ctx, 0);
         String columnName = (getArgument(ctx, 1)).stringValue();
         String type = (getArgument(ctx, 2)).stringValue();
-        return getBValues(dataframe.get(columnName, type));
+        return getBValues(dataframe.get(columnName, type.toLowerCase()));
     }
 }
