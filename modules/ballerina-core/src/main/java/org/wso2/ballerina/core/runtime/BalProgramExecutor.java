@@ -27,6 +27,7 @@ import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.nonblocking.BLangNonBlockingExecutor;
 import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;

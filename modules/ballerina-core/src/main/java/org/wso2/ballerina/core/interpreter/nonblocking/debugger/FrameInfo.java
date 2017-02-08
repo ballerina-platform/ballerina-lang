@@ -34,7 +34,6 @@ public class FrameInfo {
         return frameName + "(" + packageName + ") " + fileName + ":" + lineID;
     }
 
-
     public void addVariableInfo(VariableInfo variableInfo) {
         this.variableInfos.add(variableInfo);
     }

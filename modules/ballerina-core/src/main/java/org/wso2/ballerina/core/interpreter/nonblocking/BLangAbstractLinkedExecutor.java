@@ -359,8 +359,6 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         BValue[] tempValues = new BValue[resource.getTempStackFrameSize() + 1];
         StackFrame stackFrame = new StackFrame(valueParams, ret, tempValues, resourceInfo);
         controlStack.pushFrame(stackFrame);
-
-        resource.getResourceBody().executeLNode(this);
     }
 
     @Override
