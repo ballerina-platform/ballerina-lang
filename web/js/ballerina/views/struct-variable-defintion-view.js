@@ -25,6 +25,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
          */
         var StructVariableDefinitionView = function (args) {
             BallerinaView.call(this, args);
+            this._parentView = _.get(args, "parentView");
             this._structVariableWrapper = undefined;
             this._typeWrapper = undefined;
             this._identifierWrapper = undefined;
@@ -95,15 +96,32 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                 class: {mainWrapper: "struct-variable-type-dropdown-wrapper"},
                 onSelectCallBackFunction: function(key, value) {
                     self.getModel().setType(key)
+                },
+                onDropdownOpen: function() {
+                    self._parentView.getBodyWrapper().css("height", $(self._parentView.getBodyWrapper()).height());
+                    self._parentView.getBodyWrapper().css("overflow-x", "visible");
+                    $(self._parentView.getBodyWrapper()).closest(".canvas-container").css("overflow", "visible");
+
+                    this.removeAllItems();
+
+                    // Adding items to the type dropdown.
+                    var bTypes = self.getDiagramRenderingContext().getEnvironment().getTypes();
+                    _.forEach(bTypes, function (bType) {
+                        typeDropdown.addItem({key: bType, value: bType});
+                    });
+
+                    var structTypes = self.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
+                    _.forEach(structTypes, function (sType) {
+                        typeDropdown.addItem({key: sType.getStructName(), value: sType.getStructName()});
+                    });
+                },
+                onDropdownClosed: function() {
+                    self._parentView.getBodyWrapper().css("height", "");
+                    self._parentView.getBodyWrapper().css("overflow-x", "");
+                    $(self._parentView.getBodyWrapper()).closest(".canvas-container").css("overflow", "");
                 }
             });
             typeDropdown.getElement().appendTo($(this._typeWrapper));
-
-            // Adding items to the type dropdown.
-            var bTypes = this.getDiagramRenderingContext().getEnvironment().getTypes();
-            _.forEach(bTypes, function (bType) {
-                typeDropdown.addItem({key: bType, value: bType});
-            });
 
             typeDropdown.setSelectedValue(this.getModel().getType());
 
@@ -130,6 +148,13 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                     Alerts.error(error);
                     event.stopPropagation();
                     return false;
+                }
+            }).keydown(function(e){
+                var enteredKey = e.which || e.charCode || e.keyCode;
+
+                // If tab pressed.
+                if (e.shiftKey && _.isEqual(enteredKey, 9)) {
+                    typeDropdown.dropdownButton.trigger("click");
                 }
             }).keyup(function(){
                 self.getModel().setIdentifier($(this).val());

@@ -17,10 +17,10 @@
  */
 define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', './point', './../ast/service-definition',
         './client-life-line', './resource-definition-view', 'ballerina/ast/ballerina-ast-factory', './axis',
-        './connector-declaration-view', './../ast/variable-declaration', './variables-view', './annotation-view'],
+        './connector-declaration-view', './../ast/variable-declaration', './variable-definitions-pane-view', './annotation-view'],
     function (_, log, d3, D3utils, $, Alerts, SVGCanvas, Point, ServiceDefinition,
               ClientLifeLine, ResourceDefinitionView, BallerinaASTFactory, Axis,
-              ConnectorDeclarationView, VariableDeclaration, VariablesView, AnnotationView) {
+              ConnectorDeclarationView, VariableDeclaration, VariableDefinitionsPaneView, AnnotationView) {
 
         /**
          * The view to represent a service definition which is an AST visitor.
@@ -45,7 +45,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', '.
             //set initial height for the service container svg
             this._totalHeight = 170;
             //set initial connector margin for the service
-            this._lifelineMargin = new Axis(210, false);
+            this._lifelineMargin = new Axis(0, false);
 
             if (_.isNil(this._model) || !(this._model instanceof ServiceDefinition)) {
                 log.error("Service definition is undefined or is of different type." + this._model);
@@ -211,6 +211,22 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', '.
                 }
             };
 
+            var variableProperties = {
+                model: this._model,
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+                viewOfModel: this,
+                viewOptions: {
+                    position: {
+                        x: 8,
+                        y: 7
+                    },
+                    width: $(this.getChildContainer().node().ownerSVGElement.parentElement).width() - (2 * 36)
+                }
+            };
+
+            var variableDefinitionsPaneView = new VariableDefinitionsPaneView(variableProperties);
+            variableDefinitionsPaneView.createVariablePane();
+
             this.setSVGWidth(this._container.width());
             AnnotationView.createAnnotationPane(annotationProperties);
             this.getModel().accept(this);
@@ -356,33 +372,27 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', '.
             _.set(connectorOpts, 'centerPoint', center);
             connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
-            connectorDeclarationView.render();
             
             // Creating property pane
-            var editableProperties = [
-                {
-                    propertyType: "text",
-                    key: "Name",
-                    model: connectorDeclarationView._model,
-                    getterMethod: connectorDeclarationView._model.getConnectorVariable,
-                    setterMethod: connectorDeclarationView._model.setConnectorVariable
-                },
-                {
-                    propertyType: "text",
-                    key: "Uri",
-                    model: connectorDeclarationView._model,
-                    getterMethod: connectorDeclarationView._model.getUri,
-                    setterMethod: connectorDeclarationView._model.setUri
-                }
-            ];
+            var editableProperty = {
+                propertyType: "text",
+                key: "ConnectorDeclaration",
+                model: connectorDeclarationView._model,
+                getterMethod: connectorDeclarationView._model.getConnectorExpression,
+                setterMethod: connectorDeclarationView._model.setConnectorExpression
+            };
 
             connectorDeclarationView.createPropertyPane({
                 model: connectorDeclarationView._model,
                 lifeLineGroup:connectorDeclarationView._rootGroup,
-                editableProperties: editableProperties
+                editableProperties: editableProperty
             });
 
             connectorDeclarationView.setParent(this);
+
+            var siblingConnectors = connectorDeclarationView._parent._model.children;
+
+            connectorDeclarationView.render();
 
             if (this._connectorViewList.length === 0) {
                 // Always the first connector is listening to the lifeline margin

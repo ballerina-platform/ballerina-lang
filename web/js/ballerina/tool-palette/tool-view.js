@@ -80,6 +80,8 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
             var dragCursorOffset = _.isUndefined(this.model.dragCursorOffset) ?  { left: 30, top: -10 } : this.model.dragCursorOffset;
             this._dragCursorOffset = dragCursorOffset;
             var self = this;
+            // setting id for the div
+            this.$el.attr('id', this.model.id);
             if (orderVertical) {
                 this.$el.html(this.toolTemplateVertical(this.model.attributes));
             } else {
@@ -101,6 +103,8 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
                 drag:this.createHandleOnDragEvent()
             });
 
+            // registering id-modified event
+            this.model.on('id-modified', this.updateToolId, this);
             return this;
         },
 
@@ -135,8 +139,16 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
             }
 
             return cloneCallBack;
-        }
+        },
 
+        /**
+         * updates tool id and change view attributes of the tool item
+         * @param {string} id - id of the tool
+         */
+        updateToolId: function (id) {
+            this.$el.find('.tool-container-vertical-title').text(id);
+            this.$el.attr('id', id);
+        }
     });
 
     return toolView;

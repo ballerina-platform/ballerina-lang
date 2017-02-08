@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['jquery', 'backbone', 'lodash', 'log', './channel','./variable-tree'], function ($, Backbone, _, log, Channel, VariableTree) {
+define(['jquery', 'backbone', 'lodash', 'log','./variable-tree', './debug-manager', './tools', './frames'], function ($, Backbone, _, log, VariableTree, DebugManager, Tools, Frames) {
     var Debugger = Backbone.View.extend({
         initialize: function(config) {
             var errMsg;
@@ -46,24 +46,11 @@ define(['jquery', 'backbone', 'lodash', 'log', './channel','./variable-tree'], f
             this._lastWidth = undefined;
             this._verticalSeparator = $(_.get(this._options, 'separator'));
             this._containerToAdjust = $(_.get(this._options, 'containerToAdjust'));
-            this.initPanels();
-            this.channel = new Channel({debuggerServiceUrl: this.debuggerServiceUrl, debugger: this});
-            this.channel.on("debug-hit", function (executionPoint) {
-                // TODO use FileTab 's instance to hightLight
-               var currentTab = self.application.tabController.getActiveTab();
-               if(currentTab) {
-                   currentTab._fileEditor.highlightExecutionPoint(executionPoint);
-               }
-            });
-
+            
             // register command
             this.application.commandManager.registerCommand(config.command.id, {shortcuts: config.command.shortcuts});
             this.application.commandManager.registerHandler(config.command.id, this.toggleDebugger, this);
 
-        },
-        initPanels: function () {
-            var variableTreeOpts = this._options;
-            this.variableTreePanel = new VariableTree(variableTreeOpts, this);
         },
         isActive: function(){
             return this._activateBtn.parent('li').hasClass('active');
@@ -83,6 +70,7 @@ define(['jquery', 'backbone', 'lodash', 'log', './channel','./variable-tree'], f
                 this._verticalSeparator.css('left',  width + _.get(this._options, 'leftOffset') - _.get(this._options, 'separatorOffset'));
             }
         },
+
         render: function() {
             var self = this;
             var activateBtn = $(_.get(this._options, 'activateBtn'));
@@ -131,25 +119,29 @@ define(['jquery', 'backbone', 'lodash', 'log', './channel','./variable-tree'], f
             return this;
 
         },
+
         renderContent: function () {
-            var debuggerContainer = $('<div></div>');
+            var debuggerContainer = $('<div>'
+                                    + '<div class="debug-tools-container"></div>'
+                                    + '<div class="debug-frams-container"></div>'
+                                    + '<div class="debug-variables-container"></div>'
+                                    + '</div>');
             debuggerContainer.addClass(_.get(this._options, 'cssClass.container'));
             debuggerContainer.attr('id', _.get(this._options, ('containerId')));
             this._$parent_el.append(debuggerContainer);
-            this.variableTreePanel.render();
+
+            Tools.render(debuggerContainer.find('.debug-tools-container'));
+            
+            Frames.setContainer(debuggerContainer.find('.debug-frams-container'));
+            VariableTree.setContainer(debuggerContainer.find('.debug-variables-container'));
 
             this._debuggerContainer = debuggerContainer;
             debuggerContainer.mCustomScrollbar({
                 theme: "minimal",
                 scrollInertia: 0
             });
-        },
-        addBreakPoint: function (row, file) {
-            var fileId = file.getFile().id;
-            this._breakPoints[fileId] = this._breakPoints[fileId] || [];
-            this._breakPoints[fileId].push(row);
-            this.channel.updateBreakPoints(fileId, this._breakPoints[fileId]);
         }
+
     });
 
     return Debugger;

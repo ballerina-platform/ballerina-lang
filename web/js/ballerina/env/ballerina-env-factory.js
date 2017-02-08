@@ -19,8 +19,8 @@
 /**
  * A module representing the factory for Ballerina Env
  */
-define(['./package', './connector', './connector-action', './function'],
-    function (Package, Connector, ConnectorAction, Function ) {
+define(['./package', './connector', './connector-action', './function','./type-mapper'],
+    function (Package, Connector, ConnectorAction, Function, TypeMapper ) {
 
         /**
          * @class BallerinaEnvFactory
@@ -63,12 +63,34 @@ define(['./package', './connector', './connector-action', './function'],
             return functionDef;
         };
 
+        /**
+         * creates TypeMapper
+         * @param jsonNode
+         */
+        BallerinaEnvFactory.createTypeMapper = function (args) {
+            var typeMapperDef = new TypeMapper(args);
+            return typeMapperDef;
+        };
+
         BallerinaEnvFactory.isConnector = function (connector) {
             return (connector instanceof Connector);
         };
 
         BallerinaEnvFactory.isFunction = function (functionDef) {
             return (functionDef instanceof Function);
+        };
+
+        BallerinaEnvFactory.isConnectorAction = function (connectorAction) {
+            return (connectorAction instanceof ConnectorAction);
+        };
+
+        /**
+         * instanceof check for TypeMapper
+         * @param {function object} typeMapperDef - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaEnvFactory.isTypeMapper = function (typeMapperDef) {
+            return (typeMapperDef instanceof TypeMapper);
         };
 
         return BallerinaEnvFactory;

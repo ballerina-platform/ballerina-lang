@@ -35,7 +35,7 @@ define(['lodash', './expression'], function (_, Expression) {
      * @param {Object} jsonNode to initialize from
      */
     ArrayMapAccessExpression.prototype.initFromJson = function (jsonNode) {
-        this.setExpression(this.generateArrayMapAccessExpressionString(jsonNode));
+        this.setExpression(this.generateArrayMapAccessExpressionString(jsonNode), {doSilently: true});
     };
 
     /**
@@ -50,17 +50,9 @@ define(['lodash', './expression'], function (_, Expression) {
 
         for (var itr = 0; itr < jsonNode.children.length; itr++) {
             var childJsonNode = jsonNode.children[itr];
-            //TODO : Need to remove this if/else ladder by delegating expression string calculation to child classes
-            if (childJsonNode.type == "basic_literal_expression") {
-                if(childJsonNode.basic_literal_type == "string") {
-                    // Adding double quotes if it is a string.
-                    indexString += "\"" + childJsonNode.basic_literal_value + "\"";
-                } else {
-                    indexString += childJsonNode.basic_literal_value;
-                }
-            } else if (childJsonNode.type == "variable_reference_expression") {
-                indexString += childJsonNode.variable_reference_name;
-            }
+            var child = self.getFactory().createFromJson(childJsonNode);
+            child.initFromJson(childJsonNode);
+            indexString = child.getExpression();
         }
         return jsonNode.array_map_access_expression_name + "[" + indexString + "]";
     };

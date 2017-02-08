@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'lodash', './modal-dialog', 'alerts'], function (require, $, _, ModalDialog, alerts) {
+define(['require', 'jquery', 'lodash', './modal-dialog', 'log'], function (require, $, _, ModalDialog, log) {
 
     var NewItemDialog = function (options) {
         _.set(options, 'class', 'create-new-item-wizard');
@@ -44,7 +44,7 @@ define(['require', 'jquery', 'lodash', './modal-dialog', 'alerts'], function (re
                 if(_.isFunction(successCallBack)){
                     successCallBack.call();
                 }
-                alerts.success(path + " created successfully");
+                log.debug('file' + path + " created successfully");
                 if(!_.isEqual('folder', data.type)){
                     var file = this._serviceClient.readFile(path);
                     app.commandManager.dispatch("create-new-tab", {tabOptions: {file: file}});
@@ -62,7 +62,7 @@ define(['require', 'jquery', 'lodash', './modal-dialog', 'alerts'], function (re
         this.clearError();
         var modalBody = $("<hr class='file-dialog-hr'>"+
                             "<div class='container-fluid'>" +
-                            "<form class='form-horizontal'>" +
+                            "<form class='form-horizontal' onsubmit='return false'>" +
                                 "<div class='form-group'>" +
                                     "<label for='item-name' class='col-sm-2 file-dialog-form-label'>Enter Name</label>" +
                                     "<div class='file-dialog-input-field'>" +

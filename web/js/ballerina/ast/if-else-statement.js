@@ -47,8 +47,8 @@ define(['lodash', 'log','./statement', './else-statement', './else-if-statement'
         return this._elseIfStatements;
     };
 
-    IfElseStatement.prototype.setIfStatement = function (ifStatement) {
-        this.setAttribute('_ifStatement', ifStatement);
+    IfElseStatement.prototype.setIfStatement = function (ifStatement, options) {
+        this.setAttribute('_ifStatement', ifStatement, options);
     };
 
     /**
