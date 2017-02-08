@@ -1854,9 +1854,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                         String funcName = (typeCastExpression.getPackageName() != null) ?
                                 typeCastExpression.getPackageName() + ":" +
                                         typeCastExpression.getName() : typeCastExpression.getName();
-                        throw new SemanticException(typeCastExpression.getNodeLocation().getFileName() + ":" +
-                                typeCastExpression.getNodeLocation().getLineNumber() +
-                                ": undefined function '" + funcName + "'");
+                        throw new SemanticException(getNodeLocationStr(typeCastExpression.getNodeLocation()) +
+                                "'" + sourceType + "' cannot be cast to '" + targetType + "'");
                     }
 
                     if (typeConvertorSymbol instanceof NativeUnitProxy) {
@@ -1884,10 +1883,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                         // Link the function with the function invocation expression
                         typeCastExpression.setCallableUnit(typeConvertor);
                     } else {
-                        throw new LinkerException(typeCastExpression.getNodeLocation().getFileName() + ":" +
-                                typeCastExpression.getNodeLocation().getLineNumber() +
-                                ": type converter cannot be found for '" + sourceType
-                                + " to " + targetType + "'");
+                        throw new SemanticException(getNodeLocationStr(typeCastExpression.getNodeLocation()) +
+                                "'" + sourceType + "' cannot be cast to '" + targetType + "'");
                     }
                 }
             }
