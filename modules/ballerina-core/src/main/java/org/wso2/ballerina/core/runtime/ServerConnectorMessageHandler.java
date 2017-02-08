@@ -34,6 +34,7 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 
+import java.io.PrintStream;
 import java.util.Optional;
 
 /**
@@ -45,6 +46,7 @@ public class ServerConnectorMessageHandler {
 
     private static final Logger log = LoggerFactory.getLogger(ServerConnectorMessageHandler.class);
 
+    private static PrintStream outStream = System.err;
 
     public static void handleInbound(CarbonMessage cMsg, CarbonCallback callback) {
         // Create the Ballerina Context
@@ -111,7 +113,9 @@ public class ServerConnectorMessageHandler {
             Throwable throwable) {
         String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
         String stacktrace = ErrorHandlerUtils.getServiceStackTrace(balContext, throwable);
-        log.error(errorMsg + "\n" + stacktrace);
+        String errorWithTrace = errorMsg + "\n" + stacktrace;
+        log.error(errorWithTrace);
+        outStream.println(errorWithTrace);
 
         Object protocol = cMsg.getProperty("PROTOCOL");
         Optional<ServerConnectorErrorHandler> optionalErrorHandler =
