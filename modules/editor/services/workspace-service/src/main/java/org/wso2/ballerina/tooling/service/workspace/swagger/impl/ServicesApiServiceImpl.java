@@ -124,6 +124,7 @@ public class ServicesApiServiceImpl {
                     String response = generateSwaggerDataModel(ballerinaDefinition);
                     serviceDefinition.setSwaggerDefinition(response);
                 } else {
+                    return Response.noContent().entity("Please provide valid ballerina source").build();
                     //ballerina source cannot be null or empty.
                 }
             } catch (IOException e) {
@@ -201,7 +202,7 @@ public class ServicesApiServiceImpl {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
         org.wso2.ballerina.core.model.Service swaggerService = SwaggerConverterUtils.
                 getServiceFromSwaggerDefinition(swaggerDefinition);
-        org.wso2.ballerina.core.model.Service ballerinaService = ballerinaFile.getServices().get(0);
+        org.wso2.ballerina.core.model.Service ballerinaService = ballerinaFile.getServices()[0];
         String serviceName = swaggerService.getSymbolName().getName();
         for (org.wso2.ballerina.core.model.Service currentService : ballerinaFile.getServices()) {
             if (currentService.getSymbolName().getName().equalsIgnoreCase(serviceName)) {
@@ -212,8 +213,8 @@ public class ServicesApiServiceImpl {
         //JSON representation and send back to client.
         //for the moment we directly add swagger service to ballerina service.
 
-        ballerinaFile.getServices().set(0, SwaggerConverterUtils.
-                mergeBallerinaService(ballerinaService, swaggerService));
+        ballerinaFile.getServices()[0] = SwaggerConverterUtils.
+                mergeBallerinaService(ballerinaService, swaggerService);
         //Now we have to convert ballerina file to JSON object model editor require.
         JsonObject response = new JsonObject();
         BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(response);

@@ -26,9 +26,9 @@ import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPResourceDispatcher;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPServiceDispatcher;
 import org.wso2.ballerina.core.runtime.MessageProcessor;
+import org.wso2.ballerina.core.runtime.dispatching.HTTPResourceDispatcher;
+import org.wso2.ballerina.core.runtime.dispatching.HTTPServiceDispatcher;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
@@ -60,8 +60,8 @@ public class EnvironmentInitializer {
         app.setRuntimeEnv(runtimeEnv);
 
         Package aPackage;
-        if (bFile.getPackageName() != null) {
-            aPackage = new Package(bFile.getPackageName());
+        if (bFile.getPackagePath() != null) {
+            aPackage = new Package(bFile.getPackagePath());
         } else {
             aPackage = new Package("default");
         }

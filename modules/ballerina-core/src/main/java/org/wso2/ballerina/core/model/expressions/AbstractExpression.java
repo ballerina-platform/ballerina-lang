@@ -18,7 +18,7 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
-import org.wso2.ballerina.core.model.Position;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -30,10 +30,14 @@ import org.wso2.ballerina.core.model.values.BValue;
  * @since 0.8.0
  */
 public abstract class AbstractExpression implements Expression {
-
+    protected NodeLocation location;
     protected BType type;
+    protected boolean multipleReturnsAvailable;
     protected int offset;
-    protected Position expressionLocation;
+
+    public AbstractExpression(NodeLocation location) {
+        this.location = location;
+    }
 
     public BType getType() {
         return type;
@@ -43,29 +47,20 @@ public abstract class AbstractExpression implements Expression {
         this.type = type;
     }
 
-    public int getOffset() {
-        return this.offset;
-    }
-
     public void setOffset(int offset) {
         this.offset = offset;
+    }
+
+    public boolean isMultiReturnExpr() {
+        return multipleReturnsAvailable;
     }
 
     public BValue execute(NodeExecutor executor) {
         return null;
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public Position getLocation() {
-        return expressionLocation;
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void setLocation(Position location) {
-        this.expressionLocation = location;
+    @Override
+    public NodeLocation getNodeLocation() {
+        return location;
     }
 }

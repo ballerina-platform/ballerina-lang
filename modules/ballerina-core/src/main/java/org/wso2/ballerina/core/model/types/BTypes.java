@@ -17,7 +17,15 @@
 */
 package org.wso2.ballerina.core.model.types;
 
-import static org.wso2.ballerina.core.model.types.TypeConstants.ARRAY_TNAME;
+import org.wso2.ballerina.core.exception.SemanticException;
+import org.wso2.ballerina.core.model.GlobalScope;
+import org.wso2.ballerina.core.model.NodeLocation;
+import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.SymbolScope;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+import org.wso2.ballerina.core.nativeimpl.NativeUnitProxy;
+import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+
 import static org.wso2.ballerina.core.model.types.TypeConstants.BOOLEAN_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.DOUBLE_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.FLOAT_TNAME;
@@ -27,8 +35,8 @@ import static org.wso2.ballerina.core.model.types.TypeConstants.LONG_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.MAP_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.MESSAGE_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.STRING_TNAME;
-import static org.wso2.ballerina.core.model.types.TypeConstants.STRUCT_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.XML_TNAME;
+import static org.wso2.ballerina.core.model.util.LangModelUtils.getNodeLocationStr;
 
 /**
  * This class contains various methods manipulate {@link BType}s in Ballerina.
@@ -36,55 +44,103 @@ import static org.wso2.ballerina.core.model.types.TypeConstants.XML_TNAME;
  * @since 0.8.0
  */
 public class BTypes {
+    public static BType typeInt;
+    public static BType typeLong;
+    public static BType typeFloat;
+    public static BType typeDouble;
+    public static BType typeBoolean;
+    public static BType typeString;
+    public static BType typeXML;
+    public static BType typeJSON;
+    public static BType typeMessage;
+    public static BType typeMap;
 
-    public static final BType INT_TYPE = new BIntegerType(INT_TNAME);
-    public static final BType LONG_TYPE = new BLongType(LONG_TNAME);
-    public static final BType FLOAT_TYPE = new BFloatType(FLOAT_TNAME);
-    public static final BType DOUBLE_TYPE = new BDoubleType(DOUBLE_TNAME);
-    public static final BType BOOLEAN_TYPE = new BBooleanType(BOOLEAN_TNAME);
-    public static final BType STRING_TYPE = new BStringType(STRING_TNAME);
-    public static final BType XML_TYPE = new BXMLType(XML_TNAME);
-    public static final BType JSON_TYPE = new BJSONType(JSON_TNAME);
-    public static final BType MESSAGE_TYPE = new BMessageType(MESSAGE_TNAME);
-    public static final BType MAP_TYPE = new BMapType(MAP_TNAME);
-    public static final BType STRUCT_TYPE = new BStructType(STRUCT_TNAME);
+    private static boolean initialized = false;
 
     private BTypes() {
     }
 
-    public static BArrayType getArrayType(String elementTypeName) {
-        String arrayTypeName = elementTypeName + ARRAY_TNAME;
-
-        BArrayType type = BType.getType(arrayTypeName);
-        if (type == null) {
-            type = new BArrayType(arrayTypeName, elementTypeName);
+    public static synchronized void loadBuiltInTypes(GlobalScope globalScope) {
+        if (!initialized) {
+            createBuiltInTypes(globalScope);
         }
 
-        return type;
+        globalScope.define(typeInt.getSymbolName(), typeInt);
+        globalScope.define(typeLong.getSymbolName(), typeLong);
+        globalScope.define(typeFloat.getSymbolName(), typeFloat);
+        globalScope.define(typeDouble.getSymbolName(), typeDouble);
+        globalScope.define(typeBoolean.getSymbolName(), typeBoolean);
+        globalScope.define(typeString.getSymbolName(), typeString);
+        globalScope.define(typeXML.getSymbolName(), typeXML);
+        globalScope.define(typeJSON.getSymbolName(), typeJSON);
+        globalScope.define(typeMessage.getSymbolName(), typeMessage);
+        globalScope.define(typeMap.getSymbolName(), typeMap);
+
+        TypeLattice.loadImplicitCastLattice(globalScope);
+        TypeLattice.loadExplicitCastLattice(globalScope);
+
     }
 
-    public static void addConnectorType(String connectorName) {
-        new BConnectorType(connectorName);
+    private static void createBuiltInTypes(GlobalScope globalScope) {
+        typeInt = new BIntegerType(INT_TNAME, null, globalScope);
+        typeLong = new BLongType(LONG_TNAME, null, globalScope);
+        typeFloat = new BFloatType(FLOAT_TNAME, null, globalScope);
+        typeDouble = new BDoubleType(DOUBLE_TNAME, null, globalScope);
+        typeBoolean = new BBooleanType(BOOLEAN_TNAME, null, globalScope);
+        typeString = new BStringType(STRING_TNAME, null, globalScope);
+        typeXML = new BXMLType(XML_TNAME, null, globalScope);
+        typeJSON = new BJSONType(JSON_TNAME, null, globalScope);
+        typeMessage = new BMessageType(MESSAGE_TNAME, null, globalScope);
+        typeMap = new BMapType(MAP_TNAME, null, globalScope);
+        initialized = true;
+    }
+
+    public static BArrayType getArrayType(String elementTypeName) {
+        return null;
+    }
+
+    public static BType resolveType(SimpleTypeName typeName, SymbolScope symbolScope, NodeLocation location) {
+        BType bType;
+        BLangSymbol symbol = symbolScope.resolve(typeName.getSymbolName());
+        if (symbol instanceof NativeUnitProxy) {
+            AbstractNativeConnector connector = (AbstractNativeConnector) ((NativeUnitProxy) symbol).load();
+            bType = connector;
+        } else {
+            bType = (BType) symbol;
+        }
+
+        if (bType != null) {
+            return bType;
+        }
+
+        // Now check whether this is an array type
+        if (typeName.isArrayType()) {
+            bType = (BType) symbolScope.resolve(new SymbolName(typeName.getName(), typeName.getPackagePath()));
+        }
+
+        // If bType is not null, then element type of this array type is available.
+        // We should define the array type here.
+        if (bType != null) {
+            BArrayType bArrayType = new BArrayType(typeName.getSymbolName().toString(),
+                    bType, typeName.getPackagePath(), bType.getSymbolScope());
+            bType.getSymbolScope().define(typeName.getSymbolName(), bArrayType);
+            return bArrayType;
+        }
+
+
+        throw new SemanticException(getNodeLocationStr(location) + "undefined type '" + typeName + "'");
     }
 
     public static boolean isValueType(BType type) {
-        if (type == BTypes.INT_TYPE ||
-                type == BTypes.STRING_TYPE ||
-                type == BTypes.LONG_TYPE ||
-                type == BTypes.FLOAT_TYPE ||
-                type == BTypes.DOUBLE_TYPE ||
-                type == BTypes.BOOLEAN_TYPE) {
+        if (type == BTypes.typeInt ||
+                type == BTypes.typeString ||
+                type == BTypes.typeLong ||
+                type == BTypes.typeFloat ||
+                type == BTypes.typeDouble ||
+                type == BTypes.typeBoolean) {
             return true;
         }
 
         return false;
-    }
-
-    public static <T extends BType> T getType(String typeName) {
-        return BType.getType(typeName);
-    }
-    
-    public static void addStructType(String structName) {
-        new BStructType(structName);
     }
 }

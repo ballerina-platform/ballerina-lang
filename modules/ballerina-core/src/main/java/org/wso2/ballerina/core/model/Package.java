@@ -84,7 +84,7 @@ public class Package {
         files.add(file);
 
         // Add references of top level entities in the Ballerina file to the package
-        services.addAll(file.getServices());
+        services.addAll(Arrays.asList(file.getServices()));
 
         Arrays.asList(file.getFunctions()).forEach(function -> {
             if (function.isPublic()) {

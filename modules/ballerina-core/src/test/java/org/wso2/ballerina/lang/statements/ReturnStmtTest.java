@@ -129,11 +129,11 @@ public class ReturnStmtTest {
 
     @Test(description = "Test one parameter and one return value")
     public void testToUpperUtil() {
-        BValue[] args = {new BString("name1")};
+        BValue[] args = {new BString("section")};
         BValue[] returns = Functions.invoke(bFile, "testToUpperUtil", args);
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals("NAME1", ((BString) returns[0]).stringValue());
+        Assert.assertEquals("SECTION", ((BString) returns[0]).stringValue());
     }
 
     @Test(description = "Test one parameter and one return value")
@@ -161,7 +161,7 @@ public class ReturnStmtTest {
         BValue[] returns = Functions.invoke(bFile, "testToUpper1", args);
 
         Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals("NAME1", ((BString) returns[0]).stringValue());
+        Assert.assertEquals("SECTION", ((BString) returns[0]).stringValue());
         Assert.assertEquals("name2", ((BString) returns[1]).stringValue());
     }
 
@@ -172,7 +172,7 @@ public class ReturnStmtTest {
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals("name1", ((BString) returns[0]).stringValue());
-        Assert.assertEquals("NAME2", ((BString) returns[1]).stringValue());
+        Assert.assertEquals("SECTION", ((BString) returns[1]).stringValue());
     }
 
     @Test(description = "Test one parameter and one return value")
@@ -181,8 +181,8 @@ public class ReturnStmtTest {
         BValue[] returns = Functions.invoke(bFile, "testToUpper3", args);
 
         Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals("NAME1", ((BString) returns[0]).stringValue());
-        Assert.assertEquals("NAME2", ((BString) returns[1]).stringValue());
+        Assert.assertEquals("SECTION", ((BString) returns[0]).stringValue());
+        Assert.assertEquals("SECTION", ((BString) returns[1]).stringValue());
     }
 
     @Test(description = "Test one parameter and one return value")

@@ -1,4 +1,4 @@
-public type Department {
+struct Department {
 	string dptName;
 	int id;
 	string id;

@@ -36,13 +36,13 @@ public class EcommerceSampleTestCase extends IntegrationTestCase {
 
     @Test(description = "Test resource GET products in E-Commerce sample")
     public void testGetProducts() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(getServiceURLHttp("ecommerceservice/products"));
+        HttpResponse response = HttpClientRequest.doGet(getServiceURLHttp("ecommerceservice/products/123001"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
-                , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
-        Assert.assertEquals(response.getData(), "{\"Product\":{\"ID\":\"123456\",\"Name\":\"XYZ\"," +
-                                                "\"Description\":\"Sample product.\"}}"
-                , "Message content mismatched");
+        Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE), TestConstant.CONTENT_TYPE_JSON,
+                "Content-Type mismatched");
+        Assert.assertEquals(response.getData(),
+                "{\"Product\":{\"ID\":\"123001\",\"Name\":\"ABC_2\",\"Description\":\"Sample product.\"}}",
+                "Message content mismatched");
     }
 
     @Test(description = "Test resource GET orders in E-Commerce sample")

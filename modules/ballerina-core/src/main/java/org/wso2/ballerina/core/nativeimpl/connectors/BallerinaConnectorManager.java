@@ -92,7 +92,7 @@ public class BallerinaConnectorManager {
         }
 
         //3. Initialize client connectors
-        connectorManager.initializeClientConnectors();
+        connectorManager.initializeClientConnectors(messageProcessor);
 
         connectorsInitialized = true;
     }
