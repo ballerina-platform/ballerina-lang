@@ -81,4 +81,8 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
         }
     }
 
+    @Override
+    public boolean isSecure() {
+        return isSecure;
+    }
 }

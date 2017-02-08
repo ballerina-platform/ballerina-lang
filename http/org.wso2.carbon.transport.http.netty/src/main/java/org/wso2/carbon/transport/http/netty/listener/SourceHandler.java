@@ -155,9 +155,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     }
 
-
-
-
+    /*
+    This handles the WebSocket Handshake.
+     */
     private void handleWebSocketHandshake(HttpRequest httpRequest) throws ProtocolException {
         try {
             WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
@@ -188,9 +188,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             Code 1002 : indicates that an endpoint is terminating the connection
             due to a protocol error.
              */
-            ctx.channel().write(new CloseWebSocketFrame(1003, ""));
+            ctx.channel().write(new CloseWebSocketFrame(1002, ""));
             ctx.close();
-            throw new ProtocolException("Error occurred in HTTP to WebSocket Upgrade");
+            throw new ProtocolException("Error occurred in HTTP to WebSocket Upgrade.");
         }
     }
 

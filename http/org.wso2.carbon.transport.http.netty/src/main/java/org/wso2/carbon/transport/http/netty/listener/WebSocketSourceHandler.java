@@ -137,6 +137,9 @@ public class WebSocketSourceHandler extends SourceHandler {
 
     }
 
+    /*
+    This method runs when initiating a connection.
+     */
     private void sendOnOpenMessage(ChannelHandlerContext ctx, boolean isSecured, String uri) {
         cMsg = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_OPEN, 0, null);
         setupCarbonMessage(ctx);
