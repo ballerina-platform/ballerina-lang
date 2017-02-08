@@ -66,9 +66,9 @@ function testClone(message msg, string payload2) (int) {
     system:log(3, v1);
     system:log(3, v2);
     if( v1 != payload2 ) {
-     state = 1;
+        state = 1;
     } else {
-     state = 2;
+        state = 2;
     }
     return state;
 }

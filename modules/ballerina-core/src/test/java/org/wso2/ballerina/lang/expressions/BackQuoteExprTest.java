@@ -48,7 +48,7 @@ public class BackQuoteExprTest {
         BValue[] returns = Functions.invoke(bFile, "getProduct");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
-        String actual = ((BJSON) returns[0]).toString();
+        String actual = ((BJSON) returns[0]).getMessageAsString();
         String expected = "{\"Product\":{\"ID\":\"123456\",\"Name\":\"XYZ\",\"Description\":\"Sample product.\"}}";
         Assert.assertEquals(actual, expected);
     }
