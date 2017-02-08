@@ -25,7 +25,6 @@ import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.GlobalScope;
-import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
@@ -71,7 +70,7 @@ public class LauncherUtils {
             BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
             ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
 
-            GlobalScope globalScope = new GlobalScope();
+            GlobalScope globalScope = GlobalScope.getInstance();
             loadGlobalSymbols(globalScope);
             BLangPackage bLangPackage = new BLangPackage(globalScope);
 
@@ -108,8 +107,8 @@ public class LauncherUtils {
         return launcherException;
     }
 
-    private static void loadGlobalSymbols(SymbolScope symbolScope) {
-        BTypes.loadBuiltInTypes(symbolScope);
+    private static void loadGlobalSymbols(GlobalScope globalScope) {
+        BTypes.loadBuiltInTypes(globalScope);
     }
 
     private static ANTLRInputStream getAntlrInputStream(Path sourceFilePath) {

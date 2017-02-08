@@ -53,7 +53,7 @@ public class ParserUtils {
      * @return BallerinaFile instance.
      */
     public static BallerinaFile parseBalFile(String sourceFilePath) {
-        GlobalScope globalScope = new GlobalScope();
+        GlobalScope globalScope = GlobalScope.getInstance();
         return parseBalFile(sourceFilePath, globalScope);
     }
 
