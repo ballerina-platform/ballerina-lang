@@ -25,6 +25,7 @@ import org.wso2.ballerina.core.runtime.threadpool.ThreadPoolFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
+import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.TransportSender;
 
 /**
@@ -52,6 +53,11 @@ public class MessageProcessor implements CarbonMessageProcessor {
     }
 
     public void setTransportSender(TransportSender transportSender) {
+    }
+
+    @Override
+    public void setClientConnector(ClientConnector clientConnector) {
+
     }
 
     public String getId() {

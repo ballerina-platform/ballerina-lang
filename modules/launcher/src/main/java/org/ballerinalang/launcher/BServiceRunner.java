@@ -52,9 +52,6 @@ class BServiceRunner {
             }
         }
 
-        // Starting http transport listener
-        //HTTPListenerInitializer.initialize();
-
         // TODO
         //outStream.println("ballerina: server startup in 500 ms");
     }
