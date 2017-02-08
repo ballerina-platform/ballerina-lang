@@ -25,8 +25,8 @@ import org.ballerinalang.testerina.core.langutils.ParserUtils;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnInt;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnString;
+import org.wso2.ballerina.nativeimpl.lang.system.PrintlnInt;
+import org.wso2.ballerina.nativeimpl.lang.system.PrintlnString;
 //import org.wso2.ballerina.core.model.BallerinaFile;
 //import org.wso2.ballerina.core.model.values.BValue;
 
@@ -34,6 +34,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 /**
  * TestRunner entity class
@@ -42,7 +43,7 @@ public class TestRunner {
 
     private BallerinaFile bFile;
 
-    java.util.logging.Logger logger = java.util.logging.Logger.getLogger("TestRunner");
+    private static final Logger logger = java.util.logging.Logger.getLogger("TestRunner");
 
     public void runMain(Path sourceFilePath) {
 

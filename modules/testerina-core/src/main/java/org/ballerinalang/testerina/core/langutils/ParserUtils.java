@@ -19,10 +19,12 @@ package org.ballerinalang.testerina.core.langutils;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.SymScope;
+import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.GlobalScope;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
+import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
@@ -66,7 +68,12 @@ public class ParserUtils {
         BallerinaParser ballerinaParser = getBallerinaParser(sourceFilePath);
 
         // Create Ballerina model builder class
-        BLangModelBuilder modelBuilder = new BLangModelBuilder();
+        GlobalScope globalScope = new GlobalScope();
+        BTypes.loadBuiltInTypes(globalScope);
+        BLangPackage bLangPackage = new BLangPackage(globalScope);
+        BLangModelBuilder modelBuilder = new BLangModelBuilder(bLangPackage);
+
+
         BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
 
         ballerinaParser.addParseListener(langModelBuilder);
@@ -77,7 +84,7 @@ public class ParserUtils {
         BallerinaFile bFile = modelBuilder.build();
 
         // Analyze semantic properties of the source code
-        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, globalSymScope);
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, bLangPackage);
         bFile.accept(semanticAnalyzer);
 
         return bFile;
@@ -140,7 +147,7 @@ public class ParserUtils {
                 antlrInputStream = new ANTLRInputStream(new FileInputStream(file));
                 antlrInputStream.name = file.getName();
             } catch (IOException e) {
-                throw new BallerinaException("Unable to read file: " + path, e);
+                throw new RuntimeException("Unable to read file: " + path, e);
             }
             BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
             CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
