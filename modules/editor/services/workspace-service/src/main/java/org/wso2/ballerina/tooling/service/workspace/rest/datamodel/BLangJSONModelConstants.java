@@ -200,5 +200,7 @@ public class BLangJSONModelConstants {
     
     public static final String STRUCT_NAME = "struct_name";
 
-    public static final String KEY_VALUE_EXPRESSION_KEY = "key";
+    public static final String KEY_VALUE_EXPRESSION_KEY = "key_value_key";
+
+    public static final String KEY_VALUE_EXPRESSION = "key_value_expression";
 }
