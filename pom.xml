@@ -112,7 +112,7 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.transport</groupId>
-                <artifactId>org.wso2.carbon.transport.jms.jndi</artifactId>
+                <artifactId>org.wso2.carbon.transport.jms</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
