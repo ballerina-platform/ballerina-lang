@@ -131,12 +131,14 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
                 $(constantsAddPane).show();
                 $(this).hide();
                 $(constantIdentifierText).focus();
+                self._constantDefinitionsButton.css("opacity", "1");
             });
 
             // Cancel adding a new constant.
             $(constantAddCancelButtonPane).click(function () {
                 $(constantsAddPane).hide();
                 $(addConstantButton).show();
+                self._constantDefinitionsButton.css("opacity", "");
             });
 
             var constantsDefinitionsContentWrapper = $("<div class='constants-content-wrapper'/>")
@@ -180,28 +182,22 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
                     $("<i class='fw fw-right'></i>").appendTo(this);
                     constantsWrapper.hide();
                     self._constantsDefinitionsMainWrapper.css("width", "0%");
+                    addConstantButton.show();
                 } else {
                     $(this).data("collapsed", "false");
                     $("<i class='fw fw-left'></i>").appendTo(this);
                     constantsWrapper.show();
                     self._constantsDefinitionsMainWrapper.css("width", "92%");
+                    addConstantButton.hide();
                 }
             });
 
-            // By default the variable pane is shown on pane load.
-            $(this._constantDefinitionsButton).css("opacity", 1);
-
             // When the variable button is clicked we show and hide the variable pane.
             $(this._constantDefinitionsButton).click(function () {
-                if ($(self._constantsDefinitionsMainWrapper).is(":visible")) {
-                    // Constants pane is already shown.
-                    $(this).css({opacity: ''});
-                    self._constantsDefinitionsMainWrapper.hide();
-
+                if (addConstantButton.is(":visible")) {
+                    addConstantButton.trigger("click");
                 } else {
-                    // Constants pane is hidden.
-                    $(this).css("opacity", 1);
-                    self._constantsDefinitionsMainWrapper.show();
+                    constantAddCancelButtonPane.trigger("click");
                 }
             });
 
