@@ -38,7 +38,8 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
            this._container = _.get(args, 'container');
            this._content = _.get(args, 'content');
            this._backend = _.get(args, 'backend');
-           self._generatedSource = "";
+           this._generatedSource = "";
+           this._clean = true;
        };
 
        var initSwaggerEditor = function(self, content){
@@ -65,8 +66,8 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
                    swaggerEditorWindow.updateSwaggerEditor();
                } else {
                    swaggerEditorWindow.onEditorLoad = function () {
-                       window.setSwaggerHolder(self._swaggerHolder);
-                       window.updateSwaggerEditor();
+                       self._swaggerEditorWindow.setSwaggerHolder(self._swaggerHolder);
+                       self._swaggerEditorWindow.updateSwaggerEditor();
                    };
                }
            });
@@ -105,6 +106,14 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
 
        SwaggerView.prototype.getContent = function(){
            return this._swaggerHolder.getSwagger();
+       };
+
+       SourceView.prototype.isClean = function(){
+           return this._clean;
+       };
+
+       SourceView.prototype.markClean = function(){
+           this._clean = true;
        };
 
        SwaggerView.prototype.show = function(){
