@@ -123,6 +123,13 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 connector.title = connector.getName();
                 connector.id = connector.getName();
                 definitions.push(connector);
+
+                var toolGroupID = package.getName() + "-tool-group";
+                // registering connector name-modified event
+                connector.on('name-modified', function(newName, oldName){
+                    self.updateToolItem(toolGroupID, connector, newName);
+                });
+
                 _.each(connector.getActions(), function (action, index, collection) {
                     /* We need to add a special class to actions to indent them in tool palette. */
                     action.classNames = "tool-connector-action";
@@ -139,6 +146,12 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     action.nodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression;
                     action.id = connector.getName() + '-' + action.getAction();
                     definitions.push(action);
+
+                    var toolGroupID = package.getName() + "-tool-group";
+                    // registering connector action name-modified event
+                    action.on('name-modified', function(newName, oldName){
+                        self.updateToolItem(toolGroupID, action, newName);
+                    });
                 });
                 connector.on('connector-action-added', function (action) {
                     var actionIcon = "images/tool-icons/action.svg";
@@ -184,11 +197,21 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 var icon = "images/tool-icons/connector.svg";
                 this.addToToolGroup(toolGroupID, connector, nodeFactoryMethod, icon);
 
+                connector.on('name-modified', function (newName, oldName) {
+                    self.updateToolItem(toolGroupID, connector, newName);
+                });
+
                 connector.on('connector-action-added', function (action) {
                     var actionIcon = "images/tool-icons/action.svg";
                     action.classNames = "tool-connector-action";
+                    action.setId(action.getId());
                     var actionNodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression;
                     self.addToToolGroup(toolGroupID, action, actionNodeFactoryMethod, actionIcon);
+
+                    action.on('name-modified', function (newName, oldName) {
+                        self.updateToolItem(toolGroupID, action, newName);
+                    });
+
                 });
             }, this);
 
