@@ -22,6 +22,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BArray;
+import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -252,6 +253,24 @@ public class TypeCastExprTest {
         BValue[] returns = Functions.invoke(bFile, "doubletostring", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "111.333";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    @Test
+    public void testBooleanToString() {
+        BValue[] args = {new BBoolean(true)};
+        BValue[] returns = Functions.invoke(bFile, "booleantostring", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        final String expected = "true";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    @Test
+    public void testBooleanAppendToString() {
+        BValue[] args = {new BBoolean(true)};
+        BValue[] returns = Functions.invoke(bFile, "booleanappendtostring", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        final String expected = "true-append-true";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
