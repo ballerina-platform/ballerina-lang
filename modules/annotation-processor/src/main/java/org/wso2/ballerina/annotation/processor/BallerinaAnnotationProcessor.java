@@ -21,6 +21,7 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
@@ -30,6 +31,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.RoundEnvironment;
@@ -138,13 +140,22 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
             NativeBallerinaFileBuilder nativeBallerinaFileBuilder) {
         for (Element element : balFunctionElements) {
             BallerinaFunction balFunction = element.getAnnotation(BallerinaFunction.class);
+            BallerinaAnnotation[] annot = getBallerinaAnnotations(element);
             String functionQualifiedName = getFunctionQualifiedName(balFunction);
             String packageName = balFunction.packageName();
             String className = getClassName(element);
             classBuilder.addNativeConstruct(packageName, balFunction.functionName(), functionQualifiedName, className,
                 balFunction.args(), balFunction.returnType(), balFunction.args().length);
-            nativeBallerinaFileBuilder.addNativeConstruct(packageName, balFunction);
+            nativeBallerinaFileBuilder.addNativeConstruct(packageName, balFunction, annot);
         }
+    }
+
+    private BallerinaAnnotation[] getBallerinaAnnotations(Element element) {
+        BallerinaAnnotation[] annot = new BallerinaAnnotation[0];
+        if (element.getAnnotationsByType(BallerinaAnnotation.class).length > 0) {
+            annot = element.getAnnotationsByType(BallerinaAnnotation.class);
+        }
+        return annot;
     }
     
     /**
@@ -159,8 +170,9 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         for (Element element : balConnectorElements) {
             BallerinaConnector balConnector = element.getAnnotation(BallerinaConnector.class);
             String className = getClassName(element);
-            connectors.put(balConnector.connectorName(), new Connector(balConnector, className));
-            nativeBallerinaFileBuilder.addNativeConstruct(balConnector.packageName(), balConnector);
+            Connector connector = new Connector(balConnector, className);
+            connector.setAnnotations(getBallerinaAnnotations(element));
+            connectors.put(balConnector.connectorName(), connector);
         }
     }
     
@@ -177,8 +189,8 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
             BallerinaAction balAction = element.getAnnotation(BallerinaAction.class);
             String className = getClassName(element);
             Action action = new Action(balAction, className);
+            action.setAnnotations(getBallerinaAnnotations(element));
             connectors.get(balAction.connectorName()).addAction(action);
-            nativeBallerinaFileBuilder.addNativeConstruct(balAction.packageName(), balAction);
         }
     }
     
@@ -193,13 +205,14 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
             ConstructProviderClassBuilder classBuilder, NativeBallerinaFileBuilder nativeBallerinaFileBuilder) {
         for (Element element : balTypeConvertorElements) {
             BallerinaTypeConvertor balTypeConvertor = element.getAnnotation(BallerinaTypeConvertor.class);
+            BallerinaAnnotation[] annot = getBallerinaAnnotations(element);
             String typeConvertorQualifiedName = getTypeConverterQualifiedName(balTypeConvertor);
             String packageName = balTypeConvertor.packageName();
             String className = getClassName(element);
             classBuilder.addNativeConstruct(packageName, balTypeConvertor.typeConverterName(), 
                 typeConvertorQualifiedName, className, balTypeConvertor.args(), balTypeConvertor.returnType(),
                 balTypeConvertor.args().length);
-            nativeBallerinaFileBuilder.addNativeConstruct(packageName, balTypeConvertor);
+            nativeBallerinaFileBuilder.addNativeConstruct(packageName, balTypeConvertor, annot);
         }
     }
     
