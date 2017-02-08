@@ -62,12 +62,18 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
             this.getMessageSource().setActionPackageName(target.getConnectorPkgName());
             this.getMessageSource().setActionConnectorName(target.getConnectorName());
             this.getMessageSource().setConnectorVariableReference(target.getConnectorVariable());
-            //set the right hand expression to set the statement string of the assignment-statement containing the
-            //action invocation expression. This is to keep action invocation statement UI and source-gen in sync
-            //when action invocation is configured
-            if (BallerinaASTFactory.isRightOperandExpression(rightOp = this.getMessageSource().getParent())){
-                rightOp.setRightOperandExpressionString(this.getMessageSource().getExpression());
-            }
+        }
+        else {
+            this.getMessageSource().setConnector(undefined);
+            this.getMessageSource().setActionPackageName(undefined);
+            this.getMessageSource().setActionConnectorName(undefined);
+            this.getMessageSource().setConnectorVariableReference(undefined);
+        }
+        //set the right hand expression to set the statement string of the assignment-statement containing the
+        //action invocation expression. This is to keep action invocation statement UI and source-gen in sync
+        //when action invocation is configured
+        if (BallerinaASTFactory.isRightOperandExpression(rightOp = this.getMessageSource().getParent())){
+            rightOp.setRightOperandExpressionString(this.getMessageSource().getExpression());
         }
     };
 

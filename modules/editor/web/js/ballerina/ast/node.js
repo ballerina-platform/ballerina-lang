@@ -39,7 +39,9 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
               log.debug("Cannot find the parent node to propagate tree modified event up. Node: " + this.getType()
                   + ", EventType: " + event.type + ", EventTitle: " + event.title)
             }
-        })
+        });
+
+        this._generateUniqueIdentifiers = undefined;
     };
 
     ASTNode.prototype = Object.create(EventChannel.prototype);
@@ -87,6 +89,11 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
         } else {
             this.children.splice(index, 0, child);
         }
+
+        //setting the parent node - doing silently avoid subsequent change events
+        child.setParent(this, {doSilently:true});
+        child.generateUniqueIdentifiers();
+
         /**
          * @event ASTNode#child-added
          */
@@ -105,8 +112,6 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
                 }
             });
         }
-        //setting the parent node - doing silently avoid subsequent change events
-        child.setParent(this, {doSilently:true});
     };
 
     /**
@@ -332,6 +337,11 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
         }
     };
 
+    /**
+     * Checks if an string is valid as an identifier.
+     * @param {string} identifier - The string value.
+     * @return {boolean} - True if valid, else false.
+     */
     ASTNode.isValidIdentifier = function (identifier) {
         return _.isUndefined(identifier) ? false : /^[a-zA-Z$_][a-zA-Z0-9$_]*$/.test(identifier);
     };
@@ -348,6 +358,11 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
             this.trigger('after-remove');
         }
     };
+
+    /**
+     * Function which should be used to generate unique values for attributes. Ex: newStruct, newStruct1, newStruct2.
+     */
+    ASTNode.prototype.generateUniqueIdentifiers = function() {};
 
     return ASTNode;
 

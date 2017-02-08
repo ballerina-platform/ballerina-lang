@@ -22,16 +22,16 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
 import org.wso2.ballerina.core.interpreter.ConstantLocation;
-import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
+import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
-import org.wso2.ballerina.core.model.*;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
+import org.wso2.ballerina.core.model.CompilationUnit;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.ImportPackage;
@@ -39,6 +39,7 @@ import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
@@ -56,23 +57,23 @@ import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.GreaterEqualExpression;
 import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
+import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
+import org.wso2.ballerina.core.model.expressions.LessThanExpression;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MapStructInitKeyValueExpr;
 import org.wso2.ballerina.core.model.expressions.ModExpression;
-import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
-import org.wso2.ballerina.core.model.expressions.LessThanExpression;
-import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
+import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
+import org.wso2.ballerina.core.model.expressions.StructInitExpr;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.TypeCastExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
-import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
-import org.wso2.ballerina.core.model.expressions.StructInitExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
@@ -899,7 +900,21 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(TypeCastExpression typeCastExpression) {
+        JsonObject typeCastEprObj = new JsonObject();
+        typeCastEprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.TYPE_CASTING_EXPRESSION);
 
+        JsonObject targetTypeObj = new JsonObject();
+        targetTypeObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.TYPE_NAME);
+        targetTypeObj.addProperty(BLangJSONModelConstants.TARGET_TYPE, typeCastExpression.getTargetType().toString());
+        tempJsonArrayRef.push(new JsonArray());
+        if(typeCastExpression.getArgExprs() != null) {
+            typeCastExpression.getArgExprs()[0].accept(this);
+        }
+        tempJsonArrayRef.peek().add(targetTypeObj);
+        typeCastEprObj.add(BLangJSONModelConstants.CHILDREN,tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(typeCastEprObj);
     }
 
     @Override
@@ -916,6 +931,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         arrayInitExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(arrayInitExprObj);
+    }
+
+    @Override
+    public void visit(RefTypeInitExpr refTypeInitExpr) {
+
     }
 
     @Override
@@ -952,8 +972,33 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(RefTypeInitExpr refTypeInitExpr) {
-        //TODO
+    public void visit(MapInitExpr mapInitExpr) {
+        JsonObject mapInitExprObj = new JsonObject();
+        mapInitExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.MAP_INIT_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        if(mapInitExpr.getArgExprs() != null) {
+            for(Expression expression : mapInitExpr.getArgExprs()) {
+                expression.accept(this);
+            }
+        }
+        mapInitExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(mapInitExprObj);
+    }
+
+    @Override
+    public void visit(MapStructInitKeyValueExpr keyValueExpr) {
+        JsonObject keyValueEprObj = new JsonObject();
+        keyValueEprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.KEY_VALUE_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        JsonObject keyObject= new JsonObject();
+        keyObject.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.QUOTED_LITERAL_STRING);
+        keyObject.addProperty(BLangJSONModelConstants.KEY_VALUE_EXPRESSION_KEY, keyValueExpr.getKey());
+        keyValueExpr.getValueExpr().accept(this);
+        tempJsonArrayRef.peek().add(keyObject);
+        keyValueEprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(keyValueEprObj);
     }
 
     @Override
@@ -1011,11 +1056,6 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(MapStructInitKeyValueExpr arrayMapAccessExpr) {
-        //TODO
-    }
-    
-    @Override
     public void visit(StructVarLocation structVarLocation) {
         // TODO
     }
@@ -1023,11 +1063,6 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     @Override
     public void visit(StructInitExpr structInitExpr) {
         // TODO
-    }
-
-    @Override
-    public void visit(MapInitExpr mapInitExpr) {
-
     }
 
     @Override
