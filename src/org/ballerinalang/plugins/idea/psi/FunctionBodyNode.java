@@ -38,16 +38,24 @@ public class FunctionBodyNode extends ANTLRPsiNode implements ScopeNode {
     @Override
     public PsiElement resolve(PsiNamedElement element) {
         if (element.getParent() instanceof CallableUnitNameNode) {
-//            if (":".equals(element.getPrevSibling().getText())) {
-//                return BallerinaPsiImplUtil.findFunctionReference(element);
-//            }
-            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
+            //            if (":".equals(element.getPrevSibling().getText())) {
+            //                return BallerinaPsiImplUtil.findFunctionReference(element);
+            //            }
+            PsiElement resolved = SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//functionDefinition/Identifier");
+            if (resolved == null) {
+                resolved = SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
+                        "//connectorDefinition/Identifier");
+            }
+            return resolved;
         } else if (element.getParent() instanceof VariableReferenceNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//variableDefinitionStatement/Identifier");
         } else if (element.getParent() instanceof PackageNameNode) {
             return BallerinaPsiImplUtil.findPackageNameReference(element);
+        } else if (element.getParent() instanceof SimpleTypeNode) {
+            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
+                    "//connectorDefinition/Identifier");
         }
         return null;
     }

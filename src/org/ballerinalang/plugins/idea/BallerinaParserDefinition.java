@@ -57,6 +57,7 @@ import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
+import org.ballerinalang.plugins.idea.psi.QualifiedTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
@@ -213,6 +214,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new StatementNode(node);
             case BallerinaParser.RULE_simpleType:
                 return new SimpleTypeNode(node);
+            case BallerinaParser.RULE_qualifiedTypeName:
+                return new QualifiedTypeNameNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

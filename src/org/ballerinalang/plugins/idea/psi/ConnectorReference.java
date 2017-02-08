@@ -33,7 +33,9 @@ public class ConnectorReference extends BallerinaElementReference {
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof ConnectorDefinitionNode;
+        return def instanceof ConnectorDefinitionNode
+                || def instanceof SimpleTypeNode || def instanceof CallableUnitNameNode
+                ;
     }
 
     @NotNull

@@ -42,6 +42,9 @@ public class ConnectorDefinitionNode extends IdentifierDefSubtree implements Sco
         } else if (element.getParent() instanceof CallableUnitNameNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//functionDefinition/Identifier");
+        } else if (element.getParent() instanceof SimpleTypeNode) {
+            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
+                    "//connectorDefinition/Identifier");
         }
         return null;
     }

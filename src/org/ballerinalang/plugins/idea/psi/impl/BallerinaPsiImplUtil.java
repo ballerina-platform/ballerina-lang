@@ -66,6 +66,21 @@ public class BallerinaPsiImplUtil {
         return resolvedElement;
     }
 
+    public static PsiElement findConnectorReference(PsiNamedElement element) {
+        Collection<? extends PsiElement> declarations =
+                XPath.findAll(BallerinaLanguage.INSTANCE, element.getContainingFile(),
+                        "//simpleType/Identifier");
+        String id = element.getName();
+        PsiElement resolvedElement = Trees.toMap(declarations).get(id);
+
+        if (resolvedElement == null) {
+            declarations = XPath.findAll(BallerinaLanguage.INSTANCE, element.getContainingFile(),
+                    "//connectorDefinition/Identifier");
+            resolvedElement = Trees.toMap(declarations).get(id);
+        }
+        return resolvedElement;
+    }
+
     public static PsiElement findFunctionReference(PsiNamedElement element) {
 
         Project project = element.getProject();

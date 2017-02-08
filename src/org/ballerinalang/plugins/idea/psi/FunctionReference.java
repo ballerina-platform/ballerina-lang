@@ -33,13 +33,14 @@ public class FunctionReference extends BallerinaElementReference {
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof FunctionDefinitionNode;
+        return def instanceof FunctionDefinitionNode || def instanceof ConnectorDefinitionNode
+                || def instanceof CallableUnitNameNode || def instanceof SimpleTypeNode;
     }
 
     @NotNull
     @Override
     public Object[] getVariants() {
-        return new Object[]{"function1","function2"};
+        return new Object[]{"function1", "function2"};
     }
 
     @NotNull
@@ -49,6 +50,10 @@ public class FunctionReference extends BallerinaElementReference {
         List<PsiElement> functions = BallerinaPsiImplUtil.resolveFunction(getElement());
         List<ResolveResult> results = new ArrayList<>();
         for (PsiElement function : functions) {
+            results.add(new PsiElementResolveResult(function));
+        }
+        List<PsiElement> connectors = BallerinaPsiImplUtil.resolveConnector(getElement());
+        for (PsiElement function : connectors) {
             results.add(new PsiElementResolveResult(function));
         }
         return results.toArray(new ResolveResult[results.size()]);

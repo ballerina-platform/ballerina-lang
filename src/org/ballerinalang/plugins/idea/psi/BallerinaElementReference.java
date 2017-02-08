@@ -22,13 +22,19 @@ import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.PsiPolyVariantReference;
+import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
+import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
+import org.antlr.jetbrains.adaptor.xpath.XPath;
+import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
 
 public abstract class BallerinaElementReference extends PsiReferenceBase<IdentifierPSINode>
         implements PsiPolyVariantReference {
@@ -121,6 +127,34 @@ public abstract class BallerinaElementReference extends PsiReferenceBase<Identif
                 if (!(commonContext instanceof FunctionBodyNode || commonContext instanceof ConnectorBodyNode)) {
                     return false;
                 }
+            } else if (definitionElement instanceof CallableUnitNameNode) {
+
+//
+//                if (!(myElement.getParent() instanceof CallableUnitNameNode)) {
+//                    Collection<? extends PsiElement> packagePaths =
+//                            XPath.findAll(BallerinaLanguage.INSTANCE, myElement.getParent().getParent().getParent(),
+//                                    "//packagePath");
+//
+//                    if (packagePaths.isEmpty()) {
+//                        return false;
+//                    }
+//                    PsiElement packagePathNode = packagePaths.iterator().next();
+//
+//                    PsiElement packageNameNode = packagePathNode.getLastChild();
+//
+//                    //        PsiReference reference = packageName.getReference();
+//
+//                    PsiElement identifier = ((IdentifierDefSubtree) packageNameNode).getNameIdentifier();
+//
+//                    // Get the reference.
+//                    PsiReference reference = identifier.getReference();
+//                    // Resolve the reference. This will mostly point to the import statement package name.
+//                    PsiElement resolvedImportPackageName = reference.resolve();
+//                }
+
+            } else if (definitionElement instanceof SimpleTypeNode) {
+
+                //3^
             }
 
             PsiElement id = ((PsiNameIdentifierOwner) definitionElement).getNameIdentifier();
