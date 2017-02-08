@@ -42,10 +42,17 @@ public class PackagesApiServiceImpl extends PackagesApiService {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkspaceService.class);
 
+    private static final String ACCESS_CONTROL_ALLOW_ORIGIN_NAME = "Access-Control-Allow-Origin";
+    private static final String ACCESS_CONTROL_ALLOW_ORIGIN_VALUE = "*";
+    private static final String ACCESS_CONTROL_ALLOW_HEADERS_NAME = "Access-Control-Allow-Headers";
+    private static final String ACCESS_CONTROL_ALLOW_HEADERS_VALUE = "content-type";
+    private static final String ACCESS_CONTROL_ALLOW_METHODS_NAME = "Access-Control-Allow-Methods";
+    private static final String ACCESS_CONTROL_ALLOW_METHODS_VALUE = "OPTIONS, GET, POST";
+
     @Override
     public Response packagesGet(Integer limit, Integer offset, String query, String accept, String ifNoneMatch)
             throws NotFoundException {
-        return Response.ok(getAllPackages().values()).header("Access-Control-Allow-Origin", '*').build();
+        return setCORSHeaders(Response.ok(getAllPackages().values())).build();
     }
 
     @Override
@@ -56,7 +63,7 @@ public class PackagesApiServiceImpl extends PackagesApiService {
         if (modelPackage == null) {
             return Response.status(Response.Status.NOT_FOUND).header("Access-Control-Allow-Origin", '*').build();
         }
-        return Response.ok(modelPackage).header("Access-Control-Allow-Origin", '*').build();
+        return setCORSHeaders(Response.ok(modelPackage)).build();
     }
 
     @Override
@@ -220,5 +227,12 @@ public class PackagesApiServiceImpl extends PackagesApiService {
         connector.setParameters(params);
         connector.setAnnotations(annotations);
         return connector;
+    }
+
+    private Response.ResponseBuilder setCORSHeaders(Response.ResponseBuilder responseBuilder) {
+        return responseBuilder
+                .header(ACCESS_CONTROL_ALLOW_ORIGIN_NAME, ACCESS_CONTROL_ALLOW_ORIGIN_VALUE)
+                .header(ACCESS_CONTROL_ALLOW_HEADERS_NAME, ACCESS_CONTROL_ALLOW_HEADERS_VALUE)
+                .header(ACCESS_CONTROL_ALLOW_METHODS_NAME, ACCESS_CONTROL_ALLOW_METHODS_VALUE);
     }
 }
