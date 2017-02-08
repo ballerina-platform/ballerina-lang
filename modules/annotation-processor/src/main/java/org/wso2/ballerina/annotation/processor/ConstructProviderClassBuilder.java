@@ -32,11 +32,8 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -54,8 +51,8 @@ import javax.tools.StandardLocation;
  */
 public class ConstructProviderClassBuilder {
     
-    private static final String SERVICES_PREFIX = File.separator + "services" + File.separator;
-    private static final String META_INF = "META-INF";
+    private static final String SERVICES = "services" + File.separator;
+    private static final String META_INF = "META-INF" + File.separator;
     private static final String GLOBAL_SCOPE = "globalScope";
     private Writer sourceFileWriter;
     private String className;
@@ -293,41 +290,19 @@ public class ConstructProviderClassBuilder {
      * @param filer {@link Filer} associated with this annotation processor.
      */
     private void createServiceMetaFile(Filer filer) {
-        Writer condfigWriter = null;
-        
-        /* 
-         * Here were cannot use JavaFileObject to write the config file, as META-INF is
-         * treated as an unsupported path by the JavaFileObject implementation.
-         * Hence using native java.io operations to generate the resource file.
-         */
+        Writer configWriter = null;
         try {
             //Find the location of the resource/META-INF directory.
-            FileObject metaFile = filer.getResource(StandardLocation.CLASS_OUTPUT, "", META_INF);
-
-            // Create a new file, having the NativeConstructLoader class's fully qualified path, as the name.
-            File config = new File(metaFile.toUri().getPath() + SERVICES_PREFIX + 
+            FileObject metaFile = filer.createResource(StandardLocation.CLASS_OUTPUT, "",  META_INF + SERVICES + 
                     NativeConstructLoader.class.getCanonicalName());
-            if (!config.getParentFile().exists() || !config.getParentFile().isDirectory()) {
-                boolean created = config.getParentFile().mkdirs();
-                if (!created) {
-                    throw new BallerinaException("error creating the package structure for " + 
-                            config.getParentFile().getPath());
-                }
-            }
-            boolean fileCreated = config.createNewFile();
-            if (!fileCreated) {
-                throw new BallerinaException("failed to create the file: " + config.getPath());
-            }
-            
-            // write the fully qualified name of the generate class, to the created file
-            condfigWriter = new OutputStreamWriter(new FileOutputStream(config), StandardCharsets.UTF_8);
-            condfigWriter.write(packageName + "." + className);
+            configWriter = metaFile.openWriter();
+            configWriter.write(packageName + "." + className);
         } catch (IOException e) {
             throw new BallerinaException("error while generating config file: " + e.getMessage());
         } finally {
-            if (condfigWriter != null) {
+            if (configWriter != null) {
                 try {
-                    condfigWriter.close();
+                    configWriter.close();
                 } catch (IOException ignore) {
                 }
             }
