@@ -380,7 +380,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var swaggerViewOpts = _.clone(_.get(this._viewOptions, 'swagger_view'));
             _.set(swaggerViewOpts, 'container', swaggerViewContainer);
             _.set(swaggerViewOpts, 'content', "");
-            this._swaggerView = new SwaggerView(swaggerViewOpts);
+           _.set(swaggerViewOpts, 'backend', new Backend({url : "http://localhost:8289/services/"}));
+           this._swaggerView = new SwaggerView(swaggerViewOpts);
             this._swaggerView.render();
             
             var sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
@@ -399,27 +400,14 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self.setInSwaggerView(false);
          });
 
-             var swaggerViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_swagger_btn'));
-             swaggerViewBtn.click(function () {
-                 self.toolPalette.hide();
-                 var generatedSource = self.generateSource();
-                 var generatedSwagger = {swagger: 2.0, info: {title: "Ballerina Default API", version : ""}, paths: {}};
-
-                 var backend = new Backend({url : "http://localhost:8289/services/convert-ballerina"});
-                 var response = backend.call("POST", {
-                     "name": "CalculatorService",
-                     "description": "null",
-                     "swaggerDefinition": "null",
-                     "ballerinaDefinition": generatedSource
-                 }, [{name: "expectedType", value: "ballerina"}]);
-
-                 if (!response.error) {
-                     generatedSwagger = response.swaggerDefinition;
-                 }
+           var swaggerViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_swagger_btn'));
+           swaggerViewBtn.click(function () {
+               self.toolPalette.hide();
+               var generatedSource = self.generateSource();
 
                  self.toolPalette.hide();
                  // Get the generated swagger and append it to the swagger view container's content
-                 self._swaggerView.setContent(generatedSwagger);
+                 self._swaggerView.setContent(generatedSource);
     
                  swaggerViewContainer.show();
                  sourceViewContainer.hide();
