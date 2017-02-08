@@ -21,6 +21,7 @@ define(['require', 'log', 'jquery', 'd3', 'backbone', './tool-view'], function (
 
         initialize: function (options) {
             log.debug("toolGroupview init");
+            _.set(options, 'animationTime', 200);
             this._options = options;
             _.extend(this, _.pick(options, ["toolPalette"]));
         },
@@ -63,7 +64,7 @@ define(['require', 'log', 'jquery', 'd3', 'backbone', './tool-view'], function (
 
             groupHeaderDiv.click(function () {
                 groupHeaderDiv.toggleClass("tool-group-header-collapse");
-                groupBodyDiv.slideToggle(500, function () {
+                groupBodyDiv.slideToggle(_.get(self._options, 'animationTime'), function () {
                     if (groupHeaderDiv.hasClass("tool-group-header-collapse")) {
                         groupCollapseIcon.removeClass('fw-up');
                         groupCollapseIcon.removeClass("glyphicon-chevron-up");
