@@ -1,3 +1,5 @@
+package test;
+
 typeconvertor jsonToXmlConvertor(json input) (xml) {
     xml result;
     result = `<name>chanaka</name>`;

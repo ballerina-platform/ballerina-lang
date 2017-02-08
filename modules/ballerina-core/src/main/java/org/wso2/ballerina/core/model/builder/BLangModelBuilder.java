@@ -763,14 +763,14 @@ public class BLangModelBuilder {
     public void addTypeConverter(String source, String target, String name, NodeLocation location, boolean isPublic) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
-        currentCUBuilder.setPkgPath(currentPackagePath);
+        //currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setPublic(isPublic);
 
         BTypeConvertor typeConvertor = currentCUBuilder.buildTypeConverter();
         TypeVertex sourceV = new TypeVertex(BTypes.resolveType(new SimpleTypeName(source),
-                currentScope, location), currentPackagePath);
+                currentScope, location));
         TypeVertex targetV = new TypeVertex(BTypes.resolveType(new SimpleTypeName(target),
-                currentScope, location), currentPackagePath);
+                currentScope, location));
         bFileBuilder.addTypeConvertor(sourceV, targetV, typeConvertor, currentPackagePath);
 
         // Define type converter is delayed due to missing type info of Parameters.
