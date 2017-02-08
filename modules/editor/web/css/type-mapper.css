@@ -63,3 +63,16 @@ svg.plumbConnect path {
 .typeMapperList {
     display: none;
 }
+
+.tree-container{
+    background: #ffffff;
+}
+
+.jstree-default .jstree-hovered {
+    color : #000000;
+}
+
+.jstree-default .jstree-clicked {
+    background : #ffffff;
+    color: #000000;
+}
