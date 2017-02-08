@@ -16,6 +16,9 @@
  */
 package org.wso2.ballerina.annotation.processor;
 
+import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector;
 
 import java.util.ArrayList;
@@ -50,5 +53,31 @@ public class Connector {
     
     public String getClassName() {
         return connectorClassName;
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder().append("connector ").append(balConnector.connectorName());
+        Utils.getInputParams(balConnector.args(), sb);
+        sb.append(" {\n");
+        for (Action action : actions) {
+            BallerinaAction ballerinaAction = action.getBalAction();
+            sb.append("\n\tnative action ").append(ballerinaAction.actionName()).append(" (");
+            for (int i = 1; i <= ballerinaAction.args().length; i++) {
+                Argument arg = ballerinaAction.args()[i - 1];
+                sb.append(
+                        TypeEnum.CONNECTOR.toString().equals(Utils.getArgumentType(arg.type(), arg.elementType()))
+                                ? balConnector.connectorName() : Utils.getArgumentType(arg.type(), arg.elementType()))
+                        .append(" ").append(arg.name());
+                if (i != ballerinaAction.args().length) {
+                    sb.append(", ");
+                }
+            }
+            sb.append(")");
+            Utils.getReturnParams(ballerinaAction.returnType(), sb);
+            sb.append(";\n");
+        }
+
+        sb.append("\n}");
+        return sb.toString();
     }
 }

@@ -17,13 +17,8 @@
 
 package org.wso2.ballerina.annotation.processor;
 
-import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
-import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -33,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +46,20 @@ public class NativeBallerinaFileBuilder {
     public NativeBallerinaFileBuilder(String targetDir) {
         this.targetDirectory = targetDir;
         nativePackages = new HashMap<String, NativeBallerinaPackage>();
+    }
+
+    /**
+     * Adds connectors to the {@link NativeBallerinaPackage}
+     *
+     * @param connectors connectors to be added
+     */
+    public void addConnectors(Collection<Connector> connectors) {
+        nativePackages.forEach((k, v) -> {
+            List<Connector> pkgsConnectors =
+                    connectors.stream().filter(p -> k.equals(p.getBalConnector().packageName()))
+                            .collect(Collectors.toList());
+            v.setNativeConnectors(pkgsConnectors);
+        });
     }
 
     /**
@@ -72,6 +82,7 @@ public class NativeBallerinaFileBuilder {
 
     /**
      * Add a native construct to the ballerina file builder.
+     *
      * @param packageName name of the package which the construct is belong to
      * @param construct native construct to be added.
      */
@@ -85,15 +96,6 @@ public class NativeBallerinaFileBuilder {
         if (construct instanceof BallerinaFunction) {
             NativeBallerinaFunction func = new NativeBallerinaFunction((BallerinaFunction) construct);
             nativeBallerinaPackage.addNativeFunction(func);
-        } else if (construct instanceof BallerinaConnector) {
-            NativeBallerinaConnector conn = new NativeBallerinaConnector((BallerinaConnector) construct);
-            nativeBallerinaPackage.addNativeConnector(conn);
-        } else if (construct instanceof BallerinaAction) {
-            BallerinaAction action = (BallerinaAction) construct;
-            NativeBallerinaConnector conn = nativeBallerinaPackage.getNativeConnector(action.connectorName());
-            if (conn != null) {
-                conn.addAction(action);
-            }
         } else if (construct instanceof BallerinaTypeConvertor) {
             NativeBallerinaTypeConverter converter =
                     new NativeBallerinaTypeConverter((BallerinaTypeConvertor) construct);
@@ -107,13 +109,13 @@ public class NativeBallerinaFileBuilder {
     static class NativeBallerinaPackage {
         private String packageName;
         private List<NativeBallerinaFunction> nativeFunctions;
-        private List<NativeBallerinaConnector> nativeConnectors;
+        private List<Connector> nativeConnectors;
         private List<NativeBallerinaTypeConverter> nativeBallerinaTypeConverters;
 
         public NativeBallerinaPackage(String pkgName) {
             this.setPackageName(pkgName);
             nativeFunctions = new ArrayList<NativeBallerinaFunction>();
-            nativeConnectors = new ArrayList<NativeBallerinaConnector>();
+            nativeConnectors = new ArrayList<Connector>();
             nativeBallerinaTypeConverters = new ArrayList<NativeBallerinaTypeConverter>();
         }
 
@@ -121,17 +123,8 @@ public class NativeBallerinaFileBuilder {
             nativeFunctions.add(func);
         }
 
-        public void addNativeConnector(NativeBallerinaConnector connector) {
-            nativeConnectors.add(connector);
-        }
-
         public void addNativeTypeConverter(NativeBallerinaTypeConverter converter) {
             nativeBallerinaTypeConverters.add(converter);
-        }
-
-        public NativeBallerinaConnector getNativeConnector(String name) {
-            return name == null ? null : nativeConnectors.stream().filter(p -> name.equals(p.getName())).findFirst()
-                    .get();
         }
 
         public String getPackageName() {
@@ -140,6 +133,10 @@ public class NativeBallerinaFileBuilder {
 
         public void setPackageName(String packageName) {
             this.packageName = packageName;
+        }
+
+        public void setNativeConnectors(List<Connector> nativeConnectors) {
+            this.nativeConnectors = nativeConnectors;
         }
 
         @Override
@@ -151,6 +148,7 @@ public class NativeBallerinaFileBuilder {
                     + (nativeBallerinaTypeConverters.size() > 0 ? "\n\n" : "")
                     + nativeConnectors.stream().map(k -> k.toString()).collect(Collectors.joining("\n\n"));
         }
+
     }
 
     /**
@@ -165,71 +163,9 @@ public class NativeBallerinaFileBuilder {
 
         public String toString() {
             StringBuilder sb = new StringBuilder().append("native function ").append(balFunc.functionName());
-            getInputParams(balFunc.args(), sb);
-            getReturnParams(balFunc.returnType(), sb);
+            Utils.getInputParams(balFunc.args(), sb);
+            Utils.getReturnParams(balFunc.returnType(), sb);
             sb.append(";");
-            return sb.toString();
-        }
-    }
-
-    /**
-     * Holds a native ballerina connector
-     */
-    static class NativeBallerinaConnector {
-        private String name;
-        private BallerinaConnector balConn;
-        private List<BallerinaAction> balActions;
-
-        public NativeBallerinaConnector(BallerinaConnector conn) {
-            balConn = conn;
-            setName(conn.connectorName());
-            balActions = new ArrayList<BallerinaAction>();
-        }
-
-        public void addAction(BallerinaAction act) {
-            balActions.add(act);
-        }
-
-        public void setBalConn(BallerinaConnector balConn) {
-            this.balConn = balConn;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String toString() {
-            StringBuilder sb = new StringBuilder().append("connector ").append(balConn.connectorName());
-            getInputParams(balConn.args(), sb);
-            sb.append(" {\n");
-            for (BallerinaAction ballerinaAction : balActions) {
-                sb.append("\n\tnative action ").append(ballerinaAction.actionName()).append(" (");
-                for (int i = 1; i <= ballerinaAction.args().length; i++) {
-                    Argument arg = ballerinaAction.args()[i - 1];
-                    sb.append(
-                            TypeEnum.CONNECTOR.toString().equals(getArgumentType(arg.type(), arg.elementType()))
-                                    ? balConn.connectorName() : getArgumentType(arg.type(), arg.elementType()))
-                            .append(" ").append(arg.name());
-                    if (i != ballerinaAction.args().length) {
-                        sb.append(", ");
-                    }
-                }
-                sb.append(") (");
-                for (int i = 1; i <= ballerinaAction.returnType().length; i++) {
-                    TypeEnum arg = ballerinaAction.returnType()[i - 1];
-                    sb.append(arg.getName());
-                    if (i != ballerinaAction.returnType().length) {
-                        sb.append(", ");
-                    }
-                }
-                sb.append(");\n");
-            }
-
-            sb.append("\n}");
             return sb.toString();
         }
     }
@@ -247,41 +183,11 @@ public class NativeBallerinaFileBuilder {
         public String toString() {
             StringBuilder sb =
                     new StringBuilder().append("native typeconvertor ").append(balTypeConverter.typeConverterName());
-            getInputParams(balTypeConverter.args(), sb);
-            getReturnParams(balTypeConverter.returnType(), sb);
+            Utils.getInputParams(balTypeConverter.args(), sb);
+            Utils.getReturnParams(balTypeConverter.returnType(), sb);
             sb.append(";");
             return sb.toString();
         }
     }
 
-    private static void getInputParams(Argument[] args, StringBuilder sb) {
-        sb.append(" (");
-        for (int i = 1; i <= args.length; i++) {
-            Argument arg = args[i - 1];
-            sb.append(getArgumentType(arg.type(), arg.elementType())).append(" ").append(arg.name());
-            if (i != args.length) {
-                sb.append(", ");
-            }
-        }
-        sb.append(")");
-    }
-
-    private static void getReturnParams(ReturnType[] args, StringBuilder sb) {
-        sb.append(" (");
-        for (int i = 1; i <= args.length; i++) {
-            ReturnType arg = args[i - 1];
-            sb.append(getArgumentType(arg.type(), arg.elementType()));
-            if (i != args.length) {
-                sb.append(", ");
-            }
-        }
-        sb.append(")");
-    }
-
-    private static String getArgumentType(TypeEnum argType, TypeEnum argEltType) {
-        if (TypeEnum.ARRAY.equals(argType)) {
-            return argEltType.getName() + "[]";
-        }
-        return argType.getName();
-    }
 }

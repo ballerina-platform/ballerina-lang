@@ -120,6 +120,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         
         classBuilder.addConnectors(connectors);
         classBuilder.build();
+        nativeBallerinaFileBuilder.addConnectors(connectors.values());
         nativeBallerinaFileBuilder.build();
         System.setProperty(IS_PROCESSED, TRUE);
         
