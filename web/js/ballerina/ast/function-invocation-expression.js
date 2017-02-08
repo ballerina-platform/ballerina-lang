@@ -26,6 +26,8 @@ define(['lodash', './expression', './function-invocation'], function (_, Express
     var FunctionInvocationExpression = function (args) {
         Expression.call(this, 'FunctionInvocationExpression');
         this._functionName = _.get(args, 'functionName', 'newFunction');
+        //create the default expression for action invocation
+        this.setExpression(this.generateExpression());
     };
 
     FunctionInvocationExpression.prototype = Object.create(Expression.prototype);
@@ -90,6 +92,24 @@ define(['lodash', './expression', './function-invocation'], function (_, Express
             }
         }
         return argsString;
+    };
+
+    /**
+     * Get the action invocation statement
+     * @return {string} action invocation statement
+     */
+    FunctionInvocationExpression.prototype.generateExpression = function () {
+        var argsString = "";
+        var children = this.getChildren();
+
+        for (var itr = 0; itr < children.length; itr++) {
+            argsString += children[itr];
+            if (itr !== children.length - 1) {
+                argsString += ' , ';
+            }
+        }
+
+        return this.getFunctionName() + '(' + argsString +  ')';
     };
 
     return FunctionInvocationExpression;
