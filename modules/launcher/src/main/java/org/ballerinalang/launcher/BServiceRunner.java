@@ -40,6 +40,7 @@ class BServiceRunner {
     private static PrintStream outStream = System.err;
 
     static void start(Path[] serviceFilePaths) {
+        //Initialize server connectors
         BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
 
         for (Path serviceFilePath : serviceFilePaths) {
@@ -51,9 +52,6 @@ class BServiceRunner {
                 // Continuing service deployment
             }
         }
-
-        // Starting http transport listener
-        //HTTPListenerInitializer.initialize();
 
         // TODO
         //outStream.println("ballerina: server startup in 500 ms");

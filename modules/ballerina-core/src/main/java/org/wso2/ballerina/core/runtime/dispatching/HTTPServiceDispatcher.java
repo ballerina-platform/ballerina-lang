@@ -24,8 +24,8 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.core.runtime.dispatching.uri.URIUtil;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -101,7 +101,6 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     }
 
 
-
     @Override
     public String getProtocol() {
         return Constants.PROTOCOL_HTTP;
@@ -156,9 +155,9 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         servicesOnInterface.put(basePath, service);
 
         log.info("Service deployed : " +
-                 (service.getSymbolName().getPkgPath() != null ?  service.getSymbolName().getPkgPath() + ":" : "") +
-                 service.getSymbolName().getName() +
-                 " with context " +  basePath);
+                (service.getSymbolName().getPkgPath() != null ? service.getSymbolName().getPkgPath() + ":" : "") +
+                service.getSymbolName().getName() +
+                " with context " + basePath);
 
     }
 
@@ -168,7 +167,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         String listenerInterface = Constants.DEFAULT_INTERFACE;
         // String basePath = Constants.DEFAULT_BASE_PATH;
         String basePath = service.getSymbolName().getName();
-        
+
         for (Annotation annotation : service.getAnnotations()) {
             if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
                 String sourceInterfaceVal = annotation
@@ -180,7 +179,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
                 basePath = annotation.getValue();
             }
         }
-        
+
         if (basePath.startsWith("\"")) {
             basePath = basePath.substring(1, basePath.length() - 1);
         }
@@ -188,7 +187,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         if (!basePath.startsWith("/")) {
             basePath = "/".concat(basePath);
         }
-        
+
         Map<String, Service> servicesOnInterface = services.get(listenerInterface);
         if (servicesOnInterface != null) {
             servicesOnInterface.remove(basePath);
