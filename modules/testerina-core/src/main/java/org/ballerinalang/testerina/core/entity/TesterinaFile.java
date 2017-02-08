@@ -47,10 +47,10 @@ public class TesterinaFile {
         this.testFunctions = new ArrayList<TesterinaFunction>();
         Function[] allFunctions = bFile.getFunctions();
         for (int i = 0; i < allFunctions.length; i++) {
-            String name = allFunctions[i].getFunctionName();
+            String name = allFunctions[i].getName();
             if (name.startsWith(TesterinaFunction.PREFIX_TEST)) {
                 Function bFunc = allFunctions[i];
-                TesterinaFunction tFunction = new TesterinaFunction(bFunc.getFunctionName(),
+                TesterinaFunction tFunction = new TesterinaFunction(bFunc.getName(),
                         TesterinaFunction.Type.TEST, bFunc, this);
                 this.testFunctions.add(tFunction);
             }
