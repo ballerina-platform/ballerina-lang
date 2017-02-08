@@ -365,6 +365,16 @@ public class BLangModelBuilder {
 
 
     // Function/action input and out parameters
+    public void startParamList() {
+        annotationListStack.push(new ArrayList<>());
+    }
+
+
+    public void endParamList() {
+        annotationListStack.pop();
+    }
+
+    // Function parameters and types
 
     /**
      * Create a function parameter and a corresponding variable reference expression.
@@ -388,6 +398,13 @@ public class BLangModelBuilder {
 
         SimpleTypeName typeName = typeNameStack.pop();
         ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
+
+        // Annotation list is maintained for each parameter
+        if (!annotationListStack.isEmpty() && !annotationListStack.peek().isEmpty()) {
+            annotationListStack.peek().forEach(paramDef::addAnnotation);
+            // Clear all added annotations for the current parameter.
+            annotationListStack.peek().clear();
+        }
 
         if (currentCUBuilder != null) {
             // Add the parameter to callableUnitBuilder.
@@ -739,7 +756,6 @@ public class BLangModelBuilder {
     public void addFunction(NodeLocation location, String name, boolean isPublic) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
-        currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setPublic(isPublic);
 
         List<Annotation> annotationList = annotationListStack.pop();
@@ -763,14 +779,14 @@ public class BLangModelBuilder {
     public void addTypeConverter(String source, String target, String name, NodeLocation location, boolean isPublic) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
-        currentCUBuilder.setPkgPath(currentPackagePath);
+        //currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setPublic(isPublic);
 
         BTypeConvertor typeConvertor = currentCUBuilder.buildTypeConverter();
         TypeVertex sourceV = new TypeVertex(BTypes.resolveType(new SimpleTypeName(source),
-                currentScope, location), currentPackagePath);
+                currentScope, location));
         TypeVertex targetV = new TypeVertex(BTypes.resolveType(new SimpleTypeName(target),
-                currentScope, location), currentPackagePath);
+                currentScope, location));
         bFileBuilder.addTypeConvertor(sourceV, targetV, typeConvertor, currentPackagePath);
 
         // Define type converter is delayed due to missing type info of Parameters.
@@ -863,16 +879,6 @@ public class BLangModelBuilder {
         Service service = currentCUGroupBuilder.buildService();
         bFileBuilder.addService(service);
 
-        // Define Service Symbol in the package scope..
-        SymbolName symbolName = new SymbolName(name, currentPackagePath);
-
-        // Check whether this constant is already defined.
-        if (currentScope.resolve(symbolName) != null) {
-            String errMsg = getNodeLocationStr(location) +
-                    "redeclared symbol '" + name + "'";
-            errorMsgs.add(errMsg);
-        }
-
         currentScope = service.getEnclosingScope();
         currentCUGroupBuilder = null;
     }
@@ -887,16 +893,6 @@ public class BLangModelBuilder {
 
         BallerinaConnectorDef connector = currentCUGroupBuilder.buildConnector();
         bFileBuilder.addConnector(connector);
-
-        // Define ConnectorDef Symbol in the package scope..
-        SymbolName symbolName = new SymbolName(name);
-
-        // Check whether this constant is already defined.
-        if (currentScope.resolve(symbolName) != null) {
-            String errMsg = getNodeLocationStr(location) +
-                    "redeclared symbol '" + name + "'";
-            errorMsgs.add(errMsg);
-        }
 
         currentScope = connector.getEnclosingScope();
         currentCUGroupBuilder = null;
@@ -922,10 +918,16 @@ public class BLangModelBuilder {
                     String errMsg = getNodeLocationStr(location) +
                             "action invocation is not allowed here";
                     errorMsgs.add(errMsg);
-
                 }
-            }
 
+//                if (rhsExpr instanceof BasicLiteral || rhsExpr instanceof VariableRefExpr) {
+//                    currentCUGroupBuilder.addVariableDef(variableDefStmt);
+//                } else {
+//                    String errMsg = getNodeLocationStr(location) +
+//                            "only a basic literal or a variable reference is allowed here ";
+//                    errorMsgs.add(errMsg);
+//                }
+            }
             currentCUGroupBuilder.addVariableDef(variableDefStmt);
         } else {
             addToBlockStmt(variableDefStmt);
@@ -1076,8 +1078,6 @@ public class BLangModelBuilder {
         if (importPkg != null) {
             importPkg.markUsed();
             cIExprBuilder.setPkgPath(importPkg.getPath());
-        } else {
-            cIExprBuilder.setPkgPath(currentPackagePath);
         }
 
         cIExprBuilder.setName(callableUnitName.name);

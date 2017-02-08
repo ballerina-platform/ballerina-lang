@@ -17,7 +17,7 @@
  */
 
 define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ballerina/diagram-render/diagram-render-context',
-        'ballerina/views/source-view', 'workspace/file'],
+        'ballerina/views/source-view', 'workspace/file', 'bootstrap'],
     function (require, _, $, log, Backbone, FileBrowser, Ballerina, DiagramRenderContext, SourceView, File) {
     var OpenFileDialog = Backbone.View.extend(
         /** @lends SaveToFileDialog.prototype */
@@ -120,13 +120,18 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                     "</span>" +
                     "</div>");
 
-                var errorNotification = $(
-                    "<div style='z-index: 9999;' style='line-height: 20%;' class='alert alert-danger' id='error-alert'>" +
-                    "<span class='notification'>" +
-                    "Error while opening configuration !" +
-                    "</span>" +
-                    "</div>");
-
+                function getErrorNotification(detailedErrorMsg) {
+                    var errorMsg = "Error while opening configuration";
+                    if (!_.isEmpty(detailedErrorMsg)){
+                        errorMsg += (" : " + detailedErrorMsg);
+                    }
+                    return $(
+                        "<div style='z-index: 9999;' style='line-height: 20%;' class='alert alert-danger' id='error-alert'>" +
+                        "<span class='notification'>" +
+                        errorMsg +
+                        "</span>" +
+                        "</div>");
+                }
 
                 var openConfigModal = fileOpen.filter("#openConfigModal");
                 var openFileWizardError = fileOpen.find("#openFileWizardError");
@@ -154,8 +159,6 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                         openFileWizardError.show();
                         return;
                     }
-
-                    openConfigModal.modal('hide');
                     openConfiguration({location: location});
                 });
 
@@ -171,7 +174,8 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                     });
                 };
 
-                function alertError() {
+                function alertError(errorMessage) {
+                    var errorNotification = getErrorNotification(errorMessage);
                     $(notification_container).append(errorNotification);
                     errorNotification.fadeTo(2000, 200).slideUp(1000, function () {
                         errorNotification.slideUp(1000);
@@ -190,17 +194,26 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                             if (xhr.status == 200) {
                                 var BallerinaASTDeserializer = Ballerina.ast.BallerinaASTDeserializer;
                                 var root = BallerinaASTDeserializer.getASTModel(data);
-
+                                openConfigModal.modal('hide');
                                 var command = app.commandManager;
                                 command.dispatch("create-new-tab", root);
                             } else {
-                                alertError();
+                                alertError(data.Error);
                             }
                         },
                         error: function (res, errorCode, error) {
-                            alertError();
+                            alertError(JSON.parse(res.responseText).Error);
                         }
                     });
+                }
+
+                function isJsonString(str) {
+                    try {
+                        JSON.parse(str);
+                    } catch (e) {
+                        return false;
+                    }
+                    return true;
                 }
 
                 function openConfiguration() {
@@ -231,11 +244,20 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                                 });
                                 app.commandManager.dispatch("create-new-tab", {tabOptions: {file: file}});
                             } else {
-                                alertError();
+                                openFileWizardError.text(data.Error);
+                                openFileWizardError.show();
                             }
                         },
                         error: function (res, errorCode, error) {
-                            alertError();
+                            var msg = _.isString(error) ? error : res.statusText;
+                            if(isJsonString(res.responseText)){
+                                var resObj = JSON.parse(res.responseText);
+                                if(_.has(resObj, 'Error')){
+                                    msg = _.get(resObj, 'Error');
+                                }
+                            }
+                            openFileWizardError.text(msg);
+                            openFileWizardError.show();
                         }
                     });
                 };

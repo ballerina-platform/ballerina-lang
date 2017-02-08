@@ -82,6 +82,7 @@ import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
 /**
  * {@code BLangExecutor} executes a Ballerina application.
@@ -321,7 +322,7 @@ public class BLangExecutor implements NodeExecutor {
         }
 
         // Create an array in the stack frame to hold return values;
-        BValue[] returnVals = new BValue[action.getReturnParameters().length];
+        BValue[] returnVals = new BValue[action.getReturnParamTypes().length];
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression values and
         // return values;
@@ -355,12 +356,7 @@ public class BLangExecutor implements NodeExecutor {
         ControlStack controlStack = bContext.getControlStack();
         BValue[] valueParams = new BValue[resource.getStackFrameSize()];
 
-        BMessage messageValue = new BMessage(bContext.getCarbonMessage());
-
-        valueParams[0] = messageValue;
-
-        int valueCounter = 1;
-
+        int valueCounter =  populateArgumentValues(resourceIExpr.getArgExprs(), valueParams);
         // Populate values for Connector declarations
 //        valueCounter = populateConnectorDclValues(resource.getConnectorDcls(), valueParams, valueCounter);
 
@@ -487,10 +483,22 @@ public class BLangExecutor implements NodeExecutor {
         BConnector bConnector;
         BValue[] connectorMemBlock;
         Connector connector = (Connector) connectorInitExpr.getType();
-//        if (connectorInitExpr.getType() instanceof AbstractNativeConnector) {
+
+        if (connector instanceof AbstractNativeConnector) {
+
+            AbstractNativeConnector nativeConnector = ((AbstractNativeConnector) connector).getInstance();
+            Expression[] argExpressions = connectorInitExpr.getArgExprs();
+            connectorMemBlock = new BValue[argExpressions.length];
+            for (int j = 0; j < argExpressions.length; j++) {
+                connectorMemBlock[j] = argExpressions[j].execute(this);
+            }
+
+            nativeConnector.init(connectorMemBlock);
+            bConnector = new BConnector(nativeConnector, connectorMemBlock);
 
 //            //TODO Fix Issue#320
-//            AbstractNativeConnector nativeConnector = ((AbstractNativeConnector) connector).getInstance();
+//            NativeUnit nativeUnit = ((NativeUnitProxy) connector).load();
+//            AbstractNativeConnector nativeConnector = (AbstractNativeConnector) ((NativeUnitProxy) connector).load();
 //            Expression[] argExpressions = connectorDcl.getArgExprs();
 //            connectorMemBlock = new BValue[argExpressions.length];
 //
@@ -501,7 +509,7 @@ public class BLangExecutor implements NodeExecutor {
 //            nativeConnector.init(connectorMemBlock);
 //            connector = nativeConnector;
 
-//        } else {
+        } else {
             BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
 
             int offset = 0;
@@ -511,12 +519,12 @@ public class BLangExecutor implements NodeExecutor {
                 offset++;
             }
 
-            bConnector =  new BConnector(connector, connectorMemBlock);
+            bConnector = new BConnector(connector, connectorMemBlock);
 
             // Invoke the <init> function
             invokeConnectorInitFunction(connectorDef, bConnector);
 
-//        }
+        }
 
         return bConnector;
     }

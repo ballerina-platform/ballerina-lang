@@ -70,7 +70,7 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
      * @return BValue;
      */
     public BValue getArgument(Context context, int index) {
-        if (index > -1 && index < parameterDefs.size()) {
+        if (index > -1 && index < argTypeNames.length) {
             return context.getControlStack().getCurrentFrame().values[index];
         }
         throw new ArgumentOutOfRangeException(index);

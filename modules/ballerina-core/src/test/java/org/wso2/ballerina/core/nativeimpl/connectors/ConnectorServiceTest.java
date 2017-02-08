@@ -24,12 +24,17 @@ package org.wso2.ballerina.core.nativeimpl.connectors;
 public class ConnectorServiceTest {
 
 /*    @BeforeClass()
+=======
+    Application application;
+
+    @BeforeClass()
+>>>>>>> upstream/master
     public void setup() {
         SymScope symScope = GlobalScopeHolder.getInstance().getScope();
         if (symScope.lookup(new SymbolName("ballerina.lang.message:setStringPayload_message_string")) == null) {
             BuiltInNativeConstructLoader.loadConstructs();
         }
-        EnvironmentInitializer.initialize("lang/connectors/connector-in-service.bal");
+        application = EnvironmentInitializer.setup("lang/connectors/connector-in-service.bal");
     }
 
     @Test(description = "Test action3Resource")
@@ -97,5 +102,10 @@ public class ConnectorServiceTest {
         //action level connector declaration not supported yet
         //Assert.assertEquals(stringDataSource.getValue(), "Hello, World");
     }*/
+
+//    @AfterClass
+//    public void tearDown() {
+//        EnvironmentInitializer.cleanup(application);
+//    }
 
 }

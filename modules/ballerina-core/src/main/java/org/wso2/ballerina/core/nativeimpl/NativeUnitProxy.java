@@ -30,6 +30,7 @@ import java.util.function.Supplier;
  */
 public class NativeUnitProxy implements BLangSymbol {
     private Supplier<NativeUnit> nativeFunctionSupplier;
+    private NativeUnit nativeUnit;
 
     public NativeUnitProxy(Supplier<NativeUnit> nativeFunctionSupplier) {
         this.nativeFunctionSupplier = nativeFunctionSupplier;
@@ -66,6 +67,9 @@ public class NativeUnitProxy implements BLangSymbol {
     }
     
     public NativeUnit load() {
-        return this.nativeFunctionSupplier.get();
+        if (nativeUnit == null) {
+            nativeUnit = this.nativeFunctionSupplier.get();
+        }
+        return nativeUnit;
     }
 }

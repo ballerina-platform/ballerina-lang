@@ -17,13 +17,13 @@
 
 @font-face {
 	font-family:"font-wso2";
-	src:local("font-wso2"), url("../fonts/font-wso2.eot?01d275fb1d6848d51fa8b7d7a524cacc");
+	src:local("font-wso2"), url("../fonts/font-wso2.eot?41f7ab27f92dbc040a7eaf9d5f4d1356");
 	src:local("font-wso2"),
         url("../fonts/font-wso2.eot?#iefix") format("embedded-opentype"),
-		url("../fonts/font-wso2.woff2?01d275fb1d6848d51fa8b7d7a524cacc") format("woff2"),
-		url("../fonts/font-wso2.woff?01d275fb1d6848d51fa8b7d7a524cacc") format("woff"),
-		url("../fonts/font-wso2.ttf?01d275fb1d6848d51fa8b7d7a524cacc") format("truetype"),
-		url("../fonts/font-wso2.svg?01d275fb1d6848d51fa8b7d7a524cacc#font-wso2") format("svg");
+		url("../fonts/font-wso2.woff2?41f7ab27f92dbc040a7eaf9d5f4d1356") format("woff2"),
+		url("../fonts/font-wso2.woff?41f7ab27f92dbc040a7eaf9d5f4d1356") format("woff"),
+		url("../fonts/font-wso2.ttf?41f7ab27f92dbc040a7eaf9d5f4d1356") format("truetype"),
+		url("../fonts/font-wso2.svg?41f7ab27f92dbc040a7eaf9d5f4d1356#font-wso2") format("svg");
 	font-weight:normal;
 	font-style:normal;
 }
@@ -436,8 +436,16 @@
     content:"\e61e";
 }
 
+.fw-code-view:before {
+    content:"\e70e";
+}
+
 .fw-code:before {
     content:"\e6f1";
+}
+
+.fw-comment:before {
+    content:"\e710";
 }
 
 .fw-compare:before {
@@ -501,11 +509,19 @@
 }
 
 .fw-design-view:before {
-    content:"\e6f3";
+    content:"\e70f";
 }
 
 .fw-devices:before {
     content:"\e704";
+}
+
+.fw-dgm-action-invoke:before {
+    content:"\e712";
+}
+
+.fw-dgm-action:before {
+    content:"\e711";
 }
 
 .fw-dgm-connector:before {
@@ -526,6 +542,10 @@
 
 .fw-dgm-if-else:before {
     content:"\e6e9";
+}
+
+.fw-dgm-import:before {
+    content:"\e717";
 }
 
 .fw-dgm-lifeline:before {
@@ -570,6 +590,10 @@
 
 .fw-display:before {
     content:"\e626";
+}
+
+.fw-docker:before {
+    content:"\e70c";
 }
 
 .fw-document:before {
@@ -656,6 +680,10 @@
     content:"\e634";
 }
 
+.fw-folder-open:before {
+    content:"\e70b";
+}
+
 .fw-folder:before {
     content:"\e62e";
 }
@@ -666,6 +694,10 @@
 
 .fw-forum:before {
     content:"\e636";
+}
+
+.fw-function-invoke:before {
+    content:"\e713";
 }
 
 .fw-function:before {
@@ -750,6 +782,10 @@
 
 .fw-http:before {
     content:"\e705";
+}
+
+.fw-image:before {
+    content:"\e70a";
 }
 
 .fw-import:before {
@@ -972,6 +1008,10 @@
     content:"\e67d";
 }
 
+.fw-polygon:before {
+    content:"\e70d";
+}
+
 .fw-prototype:before {
     content:"\e6cc";
 }
@@ -1012,6 +1052,10 @@
     content:"\e6fc";
 }
 
+.fw-reply:before {
+    content:"\e714";
+}
+
 .fw-resource:before {
     content:"\e660";
 }
@@ -1026,6 +1070,10 @@
 
 .fw-retire:before {
     content:"\e6cd";
+}
+
+.fw-return:before {
+    content:"\e715";
 }
 
 .fw-retweet:before {
@@ -1156,6 +1204,10 @@
     content:"\e676";
 }
 
+.fw-struct:before {
+    content:"\e716";
+}
+
 .fw-subscribe:before {
     content:"\e677";
 }
@@ -1202,6 +1254,10 @@
 
 .fw-twitter:before {
     content:"\e6df";
+}
+
+.fw-type-converter:before {
+    content:"\e6f3";
 }
 
 .fw-uncheck:before {

@@ -53,6 +53,8 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
     private Resource[] resources;
     private VariableDefStmt[] variableDefStmts;
 
+    private BallerinaFunction initFunction;
+
     // Scope related variables
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
@@ -91,6 +93,15 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
     public VariableDefStmt[] getVariableDefStmts() {
         return variableDefStmts;
     }
+
+    public BallerinaFunction getInitFunction() {
+        return initFunction;
+    }
+
+    public void setInitFunction(BallerinaFunction initFunction) {
+        this.initFunction = initFunction;
+    }
+
 
     // Methods in Node interface
 

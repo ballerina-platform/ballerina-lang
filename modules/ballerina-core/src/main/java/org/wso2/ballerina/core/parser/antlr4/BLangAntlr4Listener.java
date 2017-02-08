@@ -361,13 +361,33 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx) {
+
+    }
+
+    @Override
+    public void exitTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx) {
+
+    }
+
+    @Override
+    public void enterNativeTypeConvertor(BallerinaParser.NativeTypeConvertorContext ctx) {
+
+    }
+
+    @Override
+    public void exitNativeTypeConvertor(BallerinaParser.NativeTypeConvertorContext ctx) {
+
+    }
+
+    @Override
+    public void enterTypeConvertor(BallerinaParser.TypeConvertorContext ctx) {
         if (ctx.exception == null) {
             modelBuilder.startTypeConverterDef();
         }
     }
 
     @Override
-    public void exitTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx) {
+    public void exitTypeConvertor(BallerinaParser.TypeConvertorContext ctx) {
         if (ctx.exception == null) {
             // Create the return type of the type convertor
             modelBuilder.createReturnTypes(getCurrentLocation(ctx));
@@ -669,10 +689,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterParameterList(BallerinaParser.ParameterListContext ctx) {
+        modelBuilder.startParamList();
     }
 
     @Override
     public void exitParameterList(BallerinaParser.ParameterListContext ctx) {
+        modelBuilder.endParamList();
     }
 
     @Override

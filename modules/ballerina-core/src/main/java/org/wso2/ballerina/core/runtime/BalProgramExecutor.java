@@ -26,6 +26,7 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
+import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.NodeLocation;
@@ -39,11 +40,16 @@ import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BArray;
+import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
+
 import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+
+import java.util.Map;
 
 import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_BAL_ARGS;
 
@@ -58,16 +64,59 @@ public class BalProgramExecutor {
 
     public static void execute(CarbonMessage cMsg, CarbonCallback callback, Resource resource, Service service,
                                Context balContext) {
+
         SymbolName symbolName = service.getSymbolName();
         balContext.setServiceInfo(
                 new CallableUnitInfo(symbolName.getName(), symbolName.getPkgPath(), service.getNodeLocation()));
 
         balContext.setBalCallback(new DefaultBalCallback(callback));
+        Expression[] exprs = new Expression[resource.getParameterDefs().length];
+
+        BValue[] argValues = new BValue[resource.getParameterDefs().length];
+
+        int locationCounter = 0;
+        for (ParameterDef parameter : resource.getParameterDefs()) {
+            VariableRefExpr variableRefExpr = new VariableRefExpr(parameter.getNodeLocation(), parameter.getName());
+            StackVarLocation location = new StackVarLocation(locationCounter);
+            variableRefExpr.setMemoryLocation(location);
+            variableRefExpr.setType(parameter.getType());
+            exprs[locationCounter] = variableRefExpr;
+
+            // Set message as the first argument
+            if (locationCounter == 0) {
+                argValues[locationCounter] = new BMessage(cMsg);
+            } else {
+                Map<String, String> resourceArgsMap =
+                        (Map<String, String>) cMsg.getProperty(
+                                org.wso2.ballerina.core.runtime.Constants.RESOURCE_ARGS);
+
+                for (Annotation annotation : parameter.getAnnotations()) {
+                    if (resourceArgsMap.get(annotation.getValue()) != null) {
+                        // ToDo Only String and Int param types are supported.
+                        if (parameter.getType() == BTypes.typeString) {
+                            argValues[locationCounter] = new BString(resourceArgsMap.get(annotation.getValue()));
+                        } else if (parameter.getType() == BTypes.typeInt) {
+                            argValues[locationCounter] = new BInteger(Integer.parseInt(
+                                    resourceArgsMap.get(annotation.getValue())));
+                        }
+                    }
+                }
+            }
+            locationCounter++;
+        }
 
         // Create the interpreter and Execute
         RuntimeEnvironment runtimeEnv = resource.getApplication().getRuntimeEnv();
         BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
-        new ResourceInvocationExpr(resource).executeMultiReturn(executor);
+
+        SymbolName resourceSymbolName = resource.getSymbolName();
+        CallableUnitInfo resourceInfo = new CallableUnitInfo(resourceSymbolName.getName(),
+                resourceSymbolName.getName(), resource.getNodeLocation());
+
+        StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], resourceInfo);
+        balContext.getControlStack().pushFrame(currentStackFrame);
+        new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
+        balContext.getControlStack().popFrame();
     }
 
     /**

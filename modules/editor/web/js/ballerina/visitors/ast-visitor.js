@@ -62,6 +62,10 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.canVisitConnectorAction(node);
         } else if(node instanceof AST.StructDefinition){
             return this.canVisitStructDefinition(node);
+        } else if(node instanceof AST.TypeMapperDefinition){
+            return this.canVisitTypeMapperDefinition(node);
+        } else if(node instanceof AST.TypeStructDefinition){
+            return this.canVisitTypeStructDefinition(node);
         }
     };
 
@@ -75,7 +79,7 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.beginVisitServiceDefinition(node);
         } else if(node instanceof AST.ResourceDefinition){
             return this.beginVisitResourceDefinition(node);
-        }else if(node instanceof AST.FunctionDefinition){
+        } else if(node instanceof AST.FunctionDefinition){
             return this.beginVisitFunctionDefinition(node);
         } else if (node instanceof AST.Statement) {
             return this.beginVisitStatement(node);
@@ -103,6 +107,10 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.beginVisitConnectorAction(node);
         } else if(node instanceof AST.StructDefinition){
             return this.beginVisitStructDefinition(node);
+        } else if(node instanceof AST.TypeMapperDefinition){
+            return this.beginVisitTypeMapperDefinition(node);
+        } else if(node instanceof AST.TypeStructDefinition){
+            return this.beginVisitTypeStructDefinition(node);
         }
     };
 
@@ -144,6 +152,10 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.visitConnectorAction(node);
         } else if(node instanceof AST.StructDefinition){
             return this.visitStructDefinition(node);
+        } else if(node instanceof AST.TypeMapperDefinition){
+            return this.visitTypeMapperDefinition(node);
+        } else if(node instanceof AST.TypeStructDefinition){
+            return this.visitTypeStructDefinition(node);
         }
 
     };
@@ -162,7 +174,7 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.endVisitFunctionDefinition(node);
         } else if(node instanceof AST.Statement){
             return this.endVisitStatement(node);
-        } else if(node instanceof AST.PackageDefinition){
+        }  else if(node instanceof AST.PackageDefinition){
             return this.endVisitPackageDefinition(node);
         } else if(node instanceof AST.ImportDeclaration){
             return this.endVisitImportDeclaration(node);
@@ -186,6 +198,10 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.endVisitConnectorAction(node);
         } else if(node instanceof AST.StructDefinition){
             return this.endVisitStructDefinition(node);
+        } else if(node instanceof AST.TypeMapperDefinition){
+            return this.endVisitTypeMapperDefinition(node);
+        } else if(node instanceof AST.TypeStructDefinition){
+            return this.endVisitTypeStructDefinition(node);
         }
 
     };
@@ -258,6 +274,26 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
     ASTVisitor.prototype.visitStructDefinition = function(structDefinition){
     };
     ASTVisitor.prototype.endVisitStructDefinition = function(structDefinition){
+    };
+
+    ASTVisitor.prototype.canVisitTypeMapperDefinition = function(typeMapperDefinition){
+        return false;
+    };
+    ASTVisitor.prototype.beginVisitTypeMapperDefinition = function(typeMapperDefinition){
+    };
+    ASTVisitor.prototype.visitTypeMapperDefinition = function(typeMapperDefinition){
+    };
+    ASTVisitor.prototype.endVisitTypeMapperDefinition = function(typeMapperDefinition){
+    };
+    
+    ASTVisitor.prototype.canVisitTypeStructDefinition = function(typeStructDefinition){
+        return false;
+    };
+    ASTVisitor.prototype.beginVisitTypeStructDefinition = function(typeStructDefinition){
+    };
+    ASTVisitor.prototype.visitTypeStructDefinition = function(typeStructDefinition){
+    };
+    ASTVisitor.prototype.endVisitTypeStructDefinition = function(typeStructDefinition){
     };
 
     ASTVisitor.prototype.canVisitPackageDefinition = function(packageDefinition){

@@ -25,12 +25,15 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
-import org.wso2.ballerina.core.runtime.listner.HTTPListenerManager;
+import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.runtime.dispatching.uri.URIUtil;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
+
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +56,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             String interfaceId = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID);
             if (interfaceId == null) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Interface id not found on the message, hence using the default interface");
+                    log.debug("interface id not found on the message, hence using the default interface");
                 }
                 interfaceId = Constants.DEFAULT_INTERFACE;
             }
@@ -63,58 +66,41 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
                 throw new BallerinaException("No services found for interface : " + interfaceId);
             }
 
-            String uri = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
-            if (uri == null) {
-                throw new BallerinaException("URI not found in the message");
+            String uriStr = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
+            //replace multiple slashes from single slash if exist in request path to enable
+            // dispatching when request path contains multiple slashes
+            URI requestUri = URI.create(uriStr.replaceAll("//+", "/"));
+            if (requestUri == null) {
+                throw new BallerinaException("uri not found in the message or found an invalid URI.");
             }
-            uri = uri.split("\\?")[0]; //remove if any query parameters, before matching a service
-            if (!uri.startsWith("/")) {
-                uri = "/".concat(uri);
-            }
-            //replacing from single slash if multiple slashes are present in path.
-            uri = uri.replaceAll("//+", "/");
-            String[] path = uri.split("/");
-            String basePath;
-            if (path.length > 1) {
-                basePath = "/".concat(path[1]);
-            } else {
-                basePath = Constants.DEFAULT_BASE_PATH;
-            }
-            String subPath = "";
 
-            //TODO: Add regex support
-            Service service = servicesOnInterface.get(basePath);  // 90% of the time we will find service from here
-            if (service == null) {
-                for (int i = 2; i < path.length; i++) {
-                    basePath = basePath.concat("/").concat(path[i]);
-                    service = servicesOnInterface.get(basePath);
-                    if (service != null) {
-                        break;
-                    }
-                }
-            }
+            String basePath = URIUtil.getFirstPathSegment(requestUri.getPath());
+            String subPath = URIUtil.getSubPath(requestUri.getPath());
+
+            // Most of the time we will find service from here
+            Service service = servicesOnInterface.get("/" + basePath);
 
             // Check if there is a service with default base path ("/")
             if (service == null) {
                 service = servicesOnInterface.get(Constants.DEFAULT_BASE_PATH);
                 basePath = Constants.DEFAULT_BASE_PATH;
-                subPath = uri;
-            } else {
-                subPath = uri.substring(basePath.length());
             }
 
             if (service == null) {
-                throw new BallerinaException("No Service found to handle incoming request recieved to : " + uri);
+                throw new BallerinaException("no service found to handle incoming request recieved to : " + uriStr);
             }
 
             cMsg.setProperty(Constants.BASE_PATH, basePath);
             cMsg.setProperty(Constants.SUB_PATH, subPath);
+            cMsg.setProperty(Constants.QUERY_STR, requestUri.getQuery());
 
             return service;
         } catch (Throwable e) {
             throw new BallerinaException(e.getMessage(), balContext);
         }
     }
+
+
 
     @Override
     public String getProtocol() {
@@ -129,7 +115,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         for (Annotation annotation : service.getAnnotations()) {
             if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
                 String sourceInterfaceVal = annotation
-                        .getValueOfKeyValuePair(Constants.ANNOTATION_SOURCE_KEY_INTERFACE);
+                        .getValueOfElementPair(new SymbolName(Constants.ANNOTATION_SOURCE_KEY_INTERFACE));
                 if (sourceInterfaceVal != null) {   //TODO: Filter non-http protocols
                     listenerInterface = sourceInterfaceVal;
                 }
@@ -164,7 +150,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         }
         if (servicesOnInterface.containsKey(basePath)) {
             throw new BallerinaException(
-                    "Service with base path :" + basePath + " already exists in listener : " + listenerInterface);
+                    "service with base path :" + basePath + " already exists in listener : " + listenerInterface);
         }
 
         servicesOnInterface.put(basePath, service);
@@ -186,7 +172,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         for (Annotation annotation : service.getAnnotations()) {
             if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
                 String sourceInterfaceVal = annotation
-                        .getValueOfKeyValuePair(Constants.ANNOTATION_SOURCE_KEY_INTERFACE);
+                        .getValueOfElementPair(new SymbolName(Constants.ANNOTATION_SOURCE_KEY_INTERFACE));
                 if (sourceInterfaceVal != null) {   //TODO: Filter non-http protocols
                     listenerInterface = sourceInterfaceVal;
                 }

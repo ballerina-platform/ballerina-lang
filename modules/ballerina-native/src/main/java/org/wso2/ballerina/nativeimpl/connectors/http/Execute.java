@@ -28,6 +28,7 @@ import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
+import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -48,7 +49,7 @@ import java.util.Locale;
                 @Argument(name = "path", type = TypeEnum.STRING),
                 @Argument(name = "message", type = TypeEnum.MESSAGE)
         },
-        returnType = {TypeEnum.MESSAGE})
+        returnType = {@ReturnType(type = TypeEnum.MESSAGE)})
 @Component(
         name = "action.net.http.execute",
         immediate = true,

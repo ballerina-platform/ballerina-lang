@@ -42,7 +42,7 @@ import java.util.Map;
  *
  * @since 0.8.0
  */
-public class BallerinaConnectorDef extends BType implements Connector, SymbolScope, CompilationUnit {
+public class BallerinaConnectorDef extends BType implements Connector, CompilationUnit {
     private NodeLocation location;
 
     // BLangSymbol related attributes
