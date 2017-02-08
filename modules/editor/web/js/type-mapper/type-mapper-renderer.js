@@ -529,8 +529,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
             _.forEach(nodes, function (n) {
                 var nodeContent = $("#" + n.id);
-                if (maxTypeHeight < nodeContent.width()) {
-                    maxTypeHeight = nodeContent.width();
+                if (maxTypeHeight < nodeContent.height()) {
+                    maxTypeHeight = nodeContent.height();
                 }
                 graph.setNode(n.id, {width: nodeContent.width(), height: nodeContent.height()});
             });
