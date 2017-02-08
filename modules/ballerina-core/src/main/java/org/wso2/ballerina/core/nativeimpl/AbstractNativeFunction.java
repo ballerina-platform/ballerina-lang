@@ -61,7 +61,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     private List<ParameterDef> parameterDefs;
     private List<ParameterDef> returnParams;
     private int stackFrameSize;
-    
+
     private BType[] returnParamTypes;
     private BType[] parameterTypes;
     private SimpleTypeName[] returnParamTypeNames;
@@ -105,17 +105,23 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
 
     /**
      * Execute this native function and set the values for return parameters.
-     * 
-     * @param context   Ballerina Context
+     *
+     * @param context Ballerina Context
      */
     public void executeNative(Context context) {
         BValue[] retVals = execute(context);
         BValue[] returnRefs = context.getControlStack().getCurrentFrame().returnValues;
         if (returnRefs.length != 0) {
-            returnRefs[0] = retVals[0];
+            for (int i = 0; i < returnRefs.length; i++) {
+                if (i < retVals.length) {
+                    returnRefs[i] = retVals[i];
+                } else {
+                    break;
+                }
+            }
         }
     }
-    
+
     /**
      * Util method to construct BValue array.
      *
@@ -127,11 +133,6 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     }
 
     // Methods in CallableUnit interface
-
-    @Override
-    public void setSymbolName(SymbolName symbolName) {
-        this.symbolName = symbolName;
-    }
 
     /**
      * Get all the Annotations associated with a BallerinaFunction.
@@ -216,28 +217,38 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
         this.parameterTypes = parameterTypes;
     }
 
-    // Methods in Node interface
-
     @Override
-    public void accept(NodeVisitor visitor){
+    public void accept(NodeVisitor visitor) {
     }
+
+    // Methods in Node interface
 
     @Override
     public NodeLocation getNodeLocation() {
         return null;
     }
 
-
-    // Methods in BLangSymbol interface
-
     @Override
     public String getName() {
         return name;
     }
 
+
+    // Methods in BLangSymbol interface
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public String getPackagePath() {
         return pkgPath;
+    }
+
+    @Override
+    public void setPackagePath(String packagePath) {
+        this.pkgPath = packagePath;
     }
 
     @Override
@@ -255,40 +266,35 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
         return symbolName;
     }
 
+    // Methods in NativeCallableUnit interface
+
+    @Override
+    public void setSymbolName(SymbolName symbolName) {
+        this.symbolName = symbolName;
+    }
+
     @Override
     public SymbolScope getSymbolScope() {
         return null;
     }
-    
-    // Methods in NativeCallableUnit interface
-    
-    @Override
-    public void setReturnParamTypeNames(SimpleTypeName[] returnParamTypes) {
-        this.returnParamTypeNames = returnParamTypes;
-    }
-    
+
     @Override
     public void setArgTypeNames(SimpleTypeName[] argTypes) {
         this.argTypeNames = argTypes;
     }
-    
+
     @Override
     public SimpleTypeName[] getArgumentTypeNames() {
         return argTypeNames;
     }
-    
+
     @Override
     public SimpleTypeName[] getReturnParamTypeNames() {
         return returnParamTypeNames;
     }
-    
+
     @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    @Override
-    public void setPackagePath(String packagePath) {
-        this.pkgPath = packagePath;
+    public void setReturnParamTypeNames(SimpleTypeName[] returnParamTypes) {
+        this.returnParamTypeNames = returnParamTypes;
     }
 }

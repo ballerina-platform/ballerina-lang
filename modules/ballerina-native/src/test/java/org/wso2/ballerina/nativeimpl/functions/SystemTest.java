@@ -251,7 +251,9 @@ public class SystemTest {
 
         @Override
         protected void append(LoggingEvent loggingEvent) {
-            events.add(loggingEvent);
+            if (loggingEvent.getLoggerName().contains("ballerina")) {
+                events.add(loggingEvent);
+            }
         }
 
         @Override
