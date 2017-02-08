@@ -55,22 +55,24 @@ public class DockerizerService {
             java.nio.file.Path packagePath = Paths.get(bPackagePath);
             String dockerEnv = Utils.getBase64DecodedString(request.getDockerEnv());
             String type = Utils.getBase64DecodedString(request.getType());
-            String imageName;
+            String imageName = Utils.getBase64DecodedString(request.getImageName());
+            String imageVersion = Utils.getBase64DecodedString(request.getImageVersion());
+            String builtImageName;
 
             switch (type) {
                 case org.wso2.ballerina.containers.Constants.TYPE_BALLERINA_SERVICE:
-                    imageName = dockerClient.createServiceImage(
-                            serviceName, dockerEnv, packagePath);
+                    builtImageName = dockerClient.createServiceImage(
+                            serviceName, dockerEnv, packagePath, imageName, imageVersion);
                     break;
                 case org.wso2.ballerina.containers.Constants.TYPE_BALLERINA_FUNCTION:
-                    imageName = dockerClient.createMainImage(
-                            serviceName, dockerEnv, packagePath);
+                    builtImageName = dockerClient.createMainImage(
+                            serviceName, dockerEnv, packagePath, imageName, imageVersion);
                     break;
                 default:
                     return Response.status(Response.Status.BAD_REQUEST).build();
             }
 
-            if (imageName != null) {
+            if (builtImageName != null) {
                 // TODO: figure out return status later
                 return Response.status(Response.Status.OK).build();
             } else {
@@ -88,9 +90,15 @@ public class DockerizerService {
     @DELETE
     @Path("/{" + Constants.REST.SERVICE_NAME + "}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response deleteImage(@PathParam(Constants.REST.SERVICE_NAME) String imageName, DockerRequest request) {
+    public Response deleteImage(@PathParam(Constants.REST.SERVICE_NAME) String packageName, DockerRequest request)
+            throws DockerHandlerException {
+
         String dockerEnv = Utils.getBase64DecodedString(request.getDockerEnv());
-        boolean deleteSuccessful = dockerClient.deleteImage(imageName, dockerEnv);
+        String imageName = Utils.getBase64DecodedString(request.getImageName());
+        String imageVersion = Utils.getBase64DecodedString(request.getImageVersion());
+
+        boolean deleteSuccessful = dockerClient.deleteImage(packageName, dockerEnv, imageName, imageVersion);
+
         return deleteSuccessful ?
                 Response.status(Response.Status.OK).build() :
                 Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();

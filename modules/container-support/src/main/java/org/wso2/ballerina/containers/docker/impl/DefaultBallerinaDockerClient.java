@@ -26,6 +26,8 @@ import io.fabric8.docker.client.DockerClientException;
 import io.fabric8.docker.dsl.EventListener;
 import io.fabric8.docker.dsl.OutputHandle;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.wso2.ballerina.containers.Constants;
 import org.wso2.ballerina.containers.docker.BallerinaDockerClient;
 import org.wso2.ballerina.containers.docker.exception.DockerHandlerException;
 import org.wso2.ballerina.containers.docker.utils.Utils;
@@ -49,26 +51,29 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
     private final CountDownLatch buildDone = new CountDownLatch(1);
     private final boolean[] buildErrors = {false};
 
-    public String createServiceImage(String packageName, String dockerEnv, Path bPackagePath)
+    public String createServiceImage(String packageName, String dockerEnv, Path bPackagePath,
+                                     String imageName, String imageVersion)
             throws DockerHandlerException, IOException, InterruptedException {
 
-        return createImage(packageName, dockerEnv, bPackagePath, true);
+        return createImage(packageName, dockerEnv, bPackagePath, true, imageName, imageVersion);
     }
 
-    public String createMainImage(String packageName, String dockerEnv, Path bPackagePath)
+    public String createMainImage(String packageName, String dockerEnv, Path bPackagePath,
+                                  String imageName, String imageVersion)
             throws DockerHandlerException, IOException, InterruptedException {
 
-        return createImage(packageName, dockerEnv, bPackagePath, false);
+        return createImage(packageName, dockerEnv, bPackagePath, false, imageName, imageVersion);
     }
 
-    private String createImage(String packageName, String dockerEnv, Path bPackagePath, boolean service)
+    private String createImage(String packageName, String dockerEnv, Path bPackagePath, boolean service,
+                               String imageName, String imageVersion)
             throws DockerHandlerException, IOException, InterruptedException {
 
         if (!Files.exists(bPackagePath)) {
             throw new DockerHandlerException("Cannot find Ballerina Package file: " + bPackagePath.toString());
         }
 
-        String imageName = packageName.toLowerCase(Locale.getDefault()) + ":latest";
+        imageName = getImageName(packageName, imageName, imageVersion);
 
         // 1. Create a tmp docker context
         String tempDirName = "ballerina-docker-" + String.valueOf(Instant.now().getEpochSecond());
@@ -102,11 +107,16 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
 //        return true;
     }
 
-    public boolean deleteImage(String packageName, String dockerEnv) {
+    public boolean deleteImage(String packageName, String dockerEnv, String imageName, String imageVersion)
+            throws DockerHandlerException {
+
+        // TODO: should not be able to delete arbitrary images.
+        imageName = getImageName(packageName, imageName, imageVersion);
         List<ImageDelete> imageDeleteList;
+
         try {
             imageDeleteList = getDockerClient(dockerEnv).image()
-                    .withName(packageName.toLowerCase(Locale.getDefault()) + ":latest")
+                    .withName(imageName)
                     .delete()
                     .force()
                     .andPrune();
@@ -138,7 +148,7 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         List<Image> images = client.image().list().filter(packageName).endImages();
         for (Image image : images) {
             String imageName = image.getRepoTags().get(0);
-            if (imageName.equals(packageName + ":latest")) {
+            if (imageName.equals(packageName + ":" + Constants.IMAGE_VERSION_LATEST)) {
                 return imageName;
             }
         }
@@ -146,7 +156,7 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         return null;
     }
 
-//    public String runMainContainer(String dockerEnv, String serviceName)
+    //    public String runMainContainer(String dockerEnv, String serviceName)
 //            throws InterruptedException, IOException, DockerHandlerException {
 //        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 //        DockerClient client = getDockerClient(dockerEnv);
@@ -218,6 +228,43 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
 //        throw new DockerHandlerException("Not implemented!");
 //    }
 
+    /**
+     * Generate the image name from the given parameters.
+     *
+     * @param packageName  The Ballerina Package name.
+     * @param imageName    The given image name. This can be null, in which case the package name is used as the
+     *                     image name.
+     * @param imageVersion The given image version. If the imageName is not null, this should not be null. If imageName
+     *                     is null, this value is ignored and "latest" is used as the image version.
+     * @return The image name derived from the above information.
+     * @throws DockerHandlerException If any of the required parameters are not found.
+     */
+    private String getImageName(String packageName, String imageName, String imageVersion)
+            throws DockerHandlerException {
+
+        if (StringUtils.isEmpty(packageName)) {
+            throw new DockerHandlerException("Package name should not be null or empty.");
+        }
+
+        if (imageName == null) {
+            imageName = packageName.toLowerCase(Locale.getDefault()) + ":" + Constants.IMAGE_VERSION_LATEST;
+        } else {
+            if (imageVersion == null) {
+                throw new DockerHandlerException("Image version cannot be null when Image name is specified.");
+            }
+
+            imageName = imageName.toLowerCase(Locale.getDefault()) + ":" + imageVersion;
+        }
+        return imageName;
+    }
+
+    /**
+     * Creates a {@link DockerClient} from the given Docker host URL.
+     *
+     * @param env The URL of the Docker host. If this is null, a {@link DockerClient} pointed to the local Docker
+     *            daemon will be created.
+     * @return {@link DockerClient} object.
+     */
     private static DockerClient getDockerClient(String env) {
         DockerClient client;
         if (env == null) {

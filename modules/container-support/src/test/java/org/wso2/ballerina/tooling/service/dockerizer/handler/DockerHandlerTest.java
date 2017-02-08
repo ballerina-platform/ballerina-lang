@@ -50,7 +50,7 @@ public class DockerHandlerTest {
         String imageName = serviceName.toLowerCase();
         Path ballerinaPackage = Paths.get(Utils.getResourceFile("ballerina/TestService.bal").getPath());
 
-        String result = dockerClient.createServiceImage(serviceName, null, ballerinaPackage);
+        String result = dockerClient.createServiceImage(serviceName, null, ballerinaPackage, null, null);
 
         deleteDockerImage(imageName);
         Assert.assertTrue("Docker image creation failed.", (result != null) && (result.equals(imageName)));
@@ -62,7 +62,7 @@ public class DockerHandlerTest {
         String imageName = serviceName.toLowerCase();
         Path ballerinaPackage = Paths.get(Utils.getResourceFile("ballerina/TestFunction.bal").getPath());
 
-        String result = dockerClient.createMainImage(serviceName, null, ballerinaPackage);
+        String result = dockerClient.createMainImage(serviceName, null, ballerinaPackage, null, null);
 
         deleteDockerImage(imageName);
         Assert.assertTrue("Docker image creation failed.", (result != null) && (result.equals(imageName)));
@@ -74,17 +74,17 @@ public class DockerHandlerTest {
         String imageName = serviceName.toLowerCase();
         Path ballerinaPackage = Paths.get(Utils.getResourceFile("ballerina/TestFunction.bal").getPath());
 
-        String result = dockerClient.createMainImage(serviceName, null, ballerinaPackage);
+        String result = dockerClient.createMainImage(serviceName, null, ballerinaPackage, null, null);
         Assert.assertTrue("Docker image creation failed.", (result != null) && (result.equals(imageName)));
-        boolean deleteResult = dockerClient.deleteImage(imageName, null);
+        boolean deleteResult = dockerClient.deleteImage(imageName, null, null, null);
         Assert.assertTrue("Docker image deletion failed.", deleteResult);
 
     }
 
     @Test
-    public void testFailedDeleteImage() throws IOException, InterruptedException {
+    public void testFailedDeleteImage() throws IOException, InterruptedException, DockerHandlerException {
         String nonExistentImageName = "nonexistentimage1";
-        boolean result = dockerClient.deleteImage(nonExistentImageName, null);
+        boolean result = dockerClient.deleteImage(nonExistentImageName, null, null, null);
         Assert.assertFalse("Docker image deletion.", result);
 
     }
@@ -95,7 +95,7 @@ public class DockerHandlerTest {
         String imageName = serviceName.toLowerCase();
         Path ballerinaPackage = Paths.get(Utils.getResourceFile("ballerina/TestFunction.bal").getPath());
 
-        String result = dockerClient.createMainImage(serviceName, null, ballerinaPackage);
+        String result = dockerClient.createMainImage(serviceName, null, ballerinaPackage, null, null);
         Assert.assertTrue("Docker image creation failed.", (result != null) && (result.equals(imageName)));
         result = dockerClient.getImage(imageName, null);
         deleteDockerImage(imageName);

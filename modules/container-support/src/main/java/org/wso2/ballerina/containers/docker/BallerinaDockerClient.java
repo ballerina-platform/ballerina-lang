@@ -27,13 +27,16 @@ import java.nio.file.Path;
  */
 public interface BallerinaDockerClient {
 
-    public String createServiceImage(String packageName, String dockerEnv, Path bPackagePath)
+    public String createServiceImage(String packageName, String dockerEnv, Path bPackagePath,
+                                     String imageName, String imageVersion)
             throws DockerHandlerException, IOException, InterruptedException;
 
-    public String createMainImage(String packageName, String dockerEnv, Path bPackagePath)
+    public String createMainImage(String packageName, String dockerEnv, Path bPackagePath,
+                                  String imageName, String imageVersion)
             throws DockerHandlerException, IOException, InterruptedException;
 
-    public boolean deleteImage(String packageName, String dockerEnv);
+    public boolean deleteImage(String packageName, String dockerEnv, String imageName, String version)
+            throws DockerHandlerException;
 
     public String getImage(String packageName, String dockerEnv);
 

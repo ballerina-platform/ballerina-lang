@@ -33,6 +33,28 @@ public class DockerRequest {
     @SerializedName("docker-env")
     private String dockerEnv;
 
+    @SerializedName("image-name")
+    private String imageName;
+
+    @SerializedName("image-version")
+    private String imageVersion;
+
+    public String getImageName() {
+        return imageName;
+    }
+
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
+    }
+
+    public String getImageVersion() {
+        return imageVersion;
+    }
+
+    public void setImageVersion(String imageVersion) {
+        this.imageVersion = imageVersion;
+    }
+
     public String getType() {
         return type;
     }
