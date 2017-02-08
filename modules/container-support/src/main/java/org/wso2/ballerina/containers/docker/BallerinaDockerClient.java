@@ -42,5 +42,5 @@ public interface BallerinaDockerClient {
 
     public String runServiceContainer(String packageName, String dockerEnv) throws DockerHandlerException;
 
-    public void stopContainer(String packageName, String dockerEnv);
+    public void stopContainer(String packageName, String dockerEnv) throws DockerHandlerException;
 }

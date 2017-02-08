@@ -59,6 +59,8 @@
                     <!--<suiteXmlFiles>-->
                         <!--<suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>-->
                     <!--</suiteXmlFiles>-->
+                    <!-- TODO: temporary until ballerina build logic is complete -->
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>

@@ -27,7 +27,6 @@ import io.fabric8.docker.client.DockerClientException;
 import io.fabric8.docker.dsl.EventListener;
 import io.fabric8.docker.dsl.OutputHandle;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.wso2.ballerina.containers.docker.BallerinaDockerClient;
 import org.wso2.ballerina.containers.docker.exception.DockerHandlerException;
 import org.wso2.ballerina.containers.docker.utils.Utils;
@@ -42,12 +41,17 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * Manage Docker related functionality.
+ * Default implementation of the {@link BallerinaDockerClient}.
  */
 public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
+
+    private final CountDownLatch buildDone = new CountDownLatch(1);
+    private final boolean[] buildErrors = {false};
+
     public String createServiceImage(String packageName, String dockerEnv, Path bPackagePath)
             throws DockerHandlerException, IOException, InterruptedException {
 
@@ -67,71 +71,37 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
             throw new DockerHandlerException("Cannot find Ballerina Package file: " + bPackagePath.toString());
         }
 
-        String imageName = packageName.toLowerCase() + ":latest";
+        String imageName = packageName.toLowerCase(Locale.getDefault()) + ":latest";
 
         // 1. Create a tmp docker context
-        Path tmpDir;
-//        try {
         String tempDirName = "ballerina-docker-" + String.valueOf(Instant.now().getEpochSecond());
-        tmpDir = Files.createTempDirectory(tempDirName);
+        Path tmpDir = Files.createTempDirectory(tempDirName);
         Files.createDirectory(Paths.get(tmpDir.toString() + "/files"));
         Files.copy(Paths.get(Utils.getResourceFile("docker/image/Dockerfile").getAbsolutePath()),
                 Paths.get(tmpDir.toString() + "/Dockerfile"), StandardCopyOption.REPLACE_EXISTING);
 
         // 2. Copy Ballerina package
         Files.copy(bPackagePath, tmpDir.getRoot());
-//        } catch (IOException e) {
-//            throw new DockerHandlerException("Couldn't create temporary Dockerfile context", e);
-//        }
 
         // 3. Create a docker image from the temp context
         DockerClient client = getDockerClient(dockerEnv);
-
-        final CountDownLatch buildDone = new CountDownLatch(1);
-        final boolean[] err = {false};
         OutputHandle buildHandle = client.image()
                 .build()
                 .withRepositoryName(imageName)
                 .withNoCache()
                 .alwaysRemovingIntermediate()
                 .withBuildArgs("{\"SVC_MODE\":\"" + String.valueOf(service) + "\"}")
-                .usingListener(new EventListener() {
-                    @Override
-                    public void onSuccess(String successEvent) {
-////                        ("Docker image " + imageName + " for Service " + packageName +
-//                                " build complete.");
-                        buildDone.countDown();
-                    }
-
-                    @Override
-                    public void onError(String errorEvent) {
-////                        ("Error event while building Docker image " + imageName + " for Service " +
-//                                packageName + ": " + errorEvent);
-                        err[0] = true;
-                        buildDone.countDown();
-                    }
-
-                    @Override
-                    public void onEvent(String event) {
-//                        (event);
-                    }
-                })
+                .usingListener(new DockerBuilderEventListener())
                 .writingOutput(System.out)
                 .fromFolder(tmpDir.toString());
 
-//        try {
         buildDone.await();
         buildHandle.close();
         client.close();
         FileUtils.deleteDirectory(new File(tmpDir.toString()));
-//        } catch (IOException e) {
-//            throw new DockerHandlerException("Couldn't properly close Docker builder", e);
-//        } catch (InterruptedException e) {
-//            throw new DockerHandlerException("Couldn't complete Docker build", e);
-//        }
 
-        return err[0] ? null : imageName;
-//        return (!err[0]);
+        return buildErrors[0] ? null : imageName;
+//        return (!buildErrors[0]);
 //        return true;
     }
 
@@ -139,7 +109,7 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         List<ImageDelete> imageDeleteList;
         try {
             imageDeleteList = getDockerClient(dockerEnv).image()
-                    .withName(packageName.toLowerCase() + ":latest")
+                    .withName(packageName.toLowerCase(Locale.getDefault()) + ":latest")
                     .delete()
                     .force()
                     .andPrune();
@@ -152,12 +122,15 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         }
 
         for (ImageDelete imageDelete : imageDeleteList) {
-            if (StringUtils.isNotEmpty(imageDelete.getDeleted())) {
+            imageDelete.getDeleted();
+            imageDelete.getUntagged();
+
+//            if (StringUtils.isNotEmpty(imageDelete.getDeleted())) {
 ////                ("Deleted:" + imageDelete.getDeleted());
-            }
-            if (StringUtils.isNotEmpty(imageDelete.getUntagged())) {
+//            }
+//            if (StringUtils.isNotEmpty(imageDelete.getUntagged())) {
 ////                ("Untagged:" + imageDelete.getUntagged());
-            }
+//            }
         }
 
         return true;
@@ -181,22 +154,24 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         DockerClient client = getDockerClient(dockerEnv);
         if (!isFunctionImage(client, serviceName)) {
-            throw new DockerHandlerException("Invalid image to run: " + serviceName.toLowerCase() + ":latest");
+            throw new DockerHandlerException("Invalid image to run: " + serviceName.toLowerCase(Locale.getDefault()) +
+                    ":latest");
         }
 
         ContainerCreateResponse container = client.container().createNew()
                 .withName(serviceName + "-latest")
-                .withImage(serviceName.toLowerCase() + ":latest")
+                .withImage(serviceName.toLowerCase(Locale.getDefault()) + ":latest")
                 .done();
 
         // TODO: throws EOFException here.
-        try (OutputHandle logHandle = client.container().
-                withName(container.getId())
-                .logs()
-                .writingOutput(outputStream)
-                .writingError(outputStream)
-                .display())
-        {
+        try (
+                OutputHandle logHandle = client.container().
+                        withName(container.getId())
+                        .logs()
+                        .writingOutput(outputStream)
+                        .writingError(outputStream)
+                        .display()
+        ) {
 
             if (client.container().withName(container.getId()).start()) {
 ////                ("Container started: " + container.getId());
@@ -217,17 +192,19 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
     public String runServiceContainer(String packageName, String dockerEnv) throws DockerHandlerException {
         DockerClient client = getDockerClient(dockerEnv);
         if (isFunctionImage(client, packageName)) {
-            throw new DockerHandlerException("Invalid image to run: " + packageName.toLowerCase() + ":latest");
+            throw new DockerHandlerException("Invalid image to run: " + packageName.toLowerCase(Locale.getDefault()) +
+                    ":latest");
         }
 
         ContainerCreateResponse container = client.container().createNew()
                 .withName(packageName + "-latest")
-                .withImage(packageName.toLowerCase() + ":latest")
+                .withImage(packageName.toLowerCase(Locale.getDefault()) + ":latest")
                 .done();
 
-        if (client.container().withName(container.getId()).start()) {
+        client.container().withName(container.getId()).start();
+//        if (client.container().withName(container.getId()).start()) {
 ////            ("Container started: " + container.getId());
-        }
+//        }
 
         String dockerUrl;
         if (dockerEnv == null) {
@@ -239,9 +216,9 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         return dockerUrl;
     }
 
-    public void stopContainer(String packageName, String dockerEnv) {
-        DockerClient client = getDockerClient(dockerEnv);
-
+    public void stopContainer(String packageName, String dockerEnv) throws DockerHandlerException {
+//        DockerClient client = getDockerClient(dockerEnv);
+        throw new DockerHandlerException("Not implemented!");
     }
 
     private static DockerClient getDockerClient(String env) {
@@ -260,7 +237,7 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
 
     private static boolean isFunctionImage(DockerClient client, String serviceName) {
         for (String envVar : client.image()
-                .withName(serviceName.toLowerCase() + ":latest")
+                .withName(serviceName.toLowerCase(Locale.getDefault()) + ":latest")
                 .inspect()
                 .getConfig()
                 .getEnv()) {
@@ -272,5 +249,26 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         }
 
         return false;
+    }
+
+    /**
+     * An {@link EventListener} implementation to listen to Docker build events.
+     */
+    private class DockerBuilderEventListener implements EventListener {
+        @Override
+        public void onSuccess(String successEvent) {
+            buildDone.countDown();
+        }
+
+        @Override
+        public void onError(String errorEvent) {
+            buildErrors[0] = true;
+            buildDone.countDown();
+        }
+
+        @Override
+        public void onEvent(String event) {
+            //..
+        }
     }
 }

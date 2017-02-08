@@ -20,7 +20,7 @@ package org.wso2.ballerina.containers.docker.exception;
 /**
  * Generic exception in Dockerizer Service.
  */
-public class DockerHandlerException extends Throwable {
+public class DockerHandlerException extends Exception {
     public DockerHandlerException(String message) {
         super(message);
     }

@@ -22,95 +22,103 @@ import io.fabric8.docker.client.DockerClient;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
-import org.wso2.ballerina.containers.Constants;
-import org.wso2.ballerina.containers.docker.impl.DefaultBallerinaDockerClient;
+import org.testng.annotations.BeforeTest;
+import org.wso2.ballerina.containers.docker.BallerinaDockerClient;
 import org.wso2.ballerina.containers.docker.exception.DockerHandlerException;
+import org.wso2.ballerina.containers.docker.impl.DefaultBallerinaDockerClient;
 import org.wso2.ballerina.containers.docker.utils.Utils;
 
 import java.io.IOException;
-import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
 /**
- * Unit tests for DefaultBallerinaDockerClient.
+ * Unit tests for dockerClient.
  */
 public class DockerHandlerTest {
 
+    private BallerinaDockerClient dockerClient;
+
+    @BeforeTest
+    public void setUp() {
+        this.dockerClient = new DefaultBallerinaDockerClient();
+    }
+
     @Test
-    public void testSuccessfulCreateServiceImage() throws IOException, InterruptedException {
+    public void testSuccessfulCreateServiceImage() throws IOException, InterruptedException, DockerHandlerException {
         String serviceName = "TestService1";
         String imageName = serviceName.toLowerCase();
-        String ballerinaConfig = new String(Files.readAllBytes(Paths.get(Utils.getResourceFile("ballerina/TestService.bal").getPath())));
+        Path ballerinaPackage = Paths.get(Utils.getResourceFile("ballerina/TestService.bal").getPath());
 
-        boolean result = DefaultBallerinaDockerClient.createServiceImage(serviceName, null, ballerinaConfig);
+        String result = dockerClient.createServiceImage(serviceName, null, ballerinaPackage);
 
         deleteDockerImage(imageName);
-        Assert.assertTrue("Docker image creation failed.", result);
+        Assert.assertTrue("Docker image creation failed.", (result != null) && (result.equals(imageName)));
     }
 
     @Test
-    public void testSuccessfulCreateFunctionImage() throws IOException, InterruptedException {
+    public void testSuccessfulCreateFunctionImage() throws IOException, InterruptedException, DockerHandlerException {
         String serviceName = "TestFunction1";
         String imageName = serviceName.toLowerCase();
-        String ballerinaConfig = new String(Files.readAllBytes(Paths.get(Utils.getResourceFile("ballerina/TestFunction.bal").getPath())));
+        Path ballerinaPackage = Paths.get(Utils.getResourceFile("ballerina/TestFunction.bal").getPath());
 
-        boolean result = DefaultBallerinaDockerClient.createFunctionImage(serviceName, null, ballerinaConfig);
+        String result = dockerClient.createFunctionImage(serviceName, null, ballerinaPackage);
 
         deleteDockerImage(imageName);
-        Assert.assertTrue("Docker image creation failed.", result);
+        Assert.assertTrue("Docker image creation failed.", (result != null) && (result.equals(imageName)));
     }
 
     @Test
-    public void testSuccessfulDeleteImage() throws IOException, InterruptedException {
+    public void testSuccessfulDeleteImage() throws IOException, InterruptedException, DockerHandlerException {
         String serviceName = "TestFunction2";
         String imageName = serviceName.toLowerCase();
-        String ballerinaConfig = new String(Files.readAllBytes(Paths.get(Utils.getResourceFile("ballerina/TestFunction.bal").getPath())));
+        Path ballerinaPackage = Paths.get(Utils.getResourceFile("ballerina/TestFunction.bal").getPath());
 
-        boolean result = DefaultBallerinaDockerClient.createFunctionImage(serviceName, null, ballerinaConfig);
-        Assert.assertTrue("Docker image creation failed.", result);
-        result = DefaultBallerinaDockerClient.deleteImage(imageName, null);
-        Assert.assertTrue("Docker image deletion failed.", result);
+        String result = dockerClient.createFunctionImage(serviceName, null, ballerinaPackage);
+        Assert.assertTrue("Docker image creation failed.", (result != null) && (result.equals(imageName)));
+        boolean deleteResult = dockerClient.deleteImage(imageName, null);
+        Assert.assertTrue("Docker image deletion failed.", deleteResult);
 
     }
 
     @Test
     public void testFailedDeleteImage() throws IOException, InterruptedException {
         String nonExistentImageName = "nonexistentimage1";
-        boolean result = DefaultBallerinaDockerClient.deleteImage(nonExistentImageName, null);
+        boolean result = dockerClient.deleteImage(nonExistentImageName, null);
         Assert.assertFalse("Docker image deletion.", result);
 
     }
 
     @Test
-    public void testSuccessfulImageExists() throws IOException, InterruptedException {
+    public void testSuccessfulImageExists() throws IOException, InterruptedException, DockerHandlerException {
         String serviceName = "TestFunction3";
         String imageName = serviceName.toLowerCase();
-        String ballerinaConfig = new String(Files.readAllBytes(Paths.get(Utils.getResourceFile("ballerina/TestFunction.bal").getPath())));
+        Path ballerinaPackage = Paths.get(Utils.getResourceFile("ballerina/TestFunction.bal").getPath());
 
-        boolean result = DefaultBallerinaDockerClient.createFunctionImage(serviceName, null, ballerinaConfig);
-        Assert.assertTrue("Docker image creation failed.", result);
-        result = DefaultBallerinaDockerClient.getImage(imageName, null);
+        String result = dockerClient.createFunctionImage(serviceName, null, ballerinaPackage);
+        Assert.assertTrue("Docker image creation failed.", (result != null) && (result.equals(imageName)));
+        result = dockerClient.getImage(imageName, null);
         deleteDockerImage(imageName);
-        Assert.assertTrue("Couldn't find existing image", result);
+        Assert.assertTrue("Couldn't find existing image", (result != null) && (result.equals(imageName)));
     }
 
     @Test
     public void testFailImageExists() throws IOException, InterruptedException {
         String imageName = "nonexistentimage2";
-        boolean result = DefaultBallerinaDockerClient.getImage(imageName, null);
-        Assert.assertFalse("Docker image find", result);
+        String result = dockerClient.getImage(imageName, null);
+        Assert.assertFalse("Docker image find", result == null);
     }
 
     @Test
     public void testSuccesfulFunctionRun() throws IOException, InterruptedException, DockerHandlerException {
         String serviceName = "TestFunction4";
         String imageName = serviceName.toLowerCase();
-        String ballerinaConfig = new String(Files.readAllBytes(Paths.get(Utils.getResourceFile("ballerina/TestFunction.bal").getPath())));
+        Path ballerinaPackage = Paths.get(Utils.getResourceFile("ballerina/TestFunction.bal").getPath());
 
-        boolean result = DefaultBallerinaDockerClient.createFunctionImage(serviceName, null, ballerinaConfig);
-        Assert.assertTrue("Docker image creation failed.", result);
-        String output = DefaultBallerinaDockerClient.runFunctionContainer(null, serviceName, Constants.TYPE_BALLERINA_FUNCTION);
+        String result = dockerClient.createFunctionImage(serviceName, null, ballerinaPackage);
+        Assert.assertTrue("Docker image creation failed.", (result != null) && (result.equals(imageName)));
+        String output = dockerClient.runFunctionContainer(null, serviceName);
         deleteDockerImage(imageName);
         Assert.assertTrue("Running Ballerina function in Docker failed.", "Hello, World!".equals(output));
     }
@@ -120,10 +128,10 @@ public class DockerHandlerTest {
         List<ImageDelete> imageDeleteList = client.image().withName(imageName + ":latest").delete().force().andPrune();
         for (ImageDelete imageDelete : imageDeleteList) {
             if (StringUtils.isNotEmpty(imageDelete.getDeleted())) {
-                System.out.println("Deleted:" + imageDelete.getDeleted());
+                //..
             }
             if (StringUtils.isNotEmpty(imageDelete.getUntagged())) {
-                System.out.println("Untagged:" + imageDelete.getUntagged());
+                //..
             }
         }
     }

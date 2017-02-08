@@ -140,7 +140,12 @@ public class DockerizerService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response stopDockerContainer(@PathParam(Constants.REST.SERVICE_NAME) String serviceName, DockerRequest request) {
         String dockerEnv = Utils.getBase64DecodedString(request.getDockerEnv());
-        dockerClient.stopContainer(serviceName, dockerEnv);
+        try {
+            dockerClient.stopContainer(serviceName, dockerEnv);
+        } catch (DockerHandlerException e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
 
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
