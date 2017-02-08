@@ -23,8 +23,8 @@ define(['log', 'lodash', 'jquery', '../views/backend', 'yaml'],
         * @constructor
         * @class SwaggerHolder
         */
-       var SwaggerHolder = function (args) {
-           // do nothing
+       var SwaggerHolder = function (editorChangedCallback) {
+           this._editorChangedCallback = editorChangedCallback;
        };
 
        SwaggerHolder.prototype.constructor = SwaggerHolder;
@@ -38,15 +38,16 @@ define(['log', 'lodash', 'jquery', '../views/backend', 'yaml'],
        };
 
        SwaggerHolder.prototype.setSwaggerAsText = function (swaggerText) {
-           this._apiDoc = YAML.safeDump(YAML.safeLoad(swaggerText));
+           this._swagger = YAML.safeDump(YAML.safeLoad(swaggerText));
        };
 
-       SwaggerHolder.prototype.setSwagger = function (apiDoc) {
-           this._apiDoc = apiDoc;
+       SwaggerHolder.prototype.setSwagger = function (swagger) {
+           this._swagger = swagger;
+           this._editorChangedCallback(swagger);
        };
 
        SwaggerHolder.prototype.getSwagger = function () {
-           return this._apiDoc;
+           return this._swagger;
        };
 
        return SwaggerHolder;

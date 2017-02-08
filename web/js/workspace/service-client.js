@@ -30,6 +30,22 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file'],
         ServiceClient.prototype = Object.create(EventChannel.prototype);
         ServiceClient.prototype.constructor = EventChannel;
 
+        var getErrorFromResponse = function(xhr, textStatus, errorThrown) {
+            var msg = _.isString(errorThrown) ? errorThrown : xhr.statusText,
+                responseObj;
+            try {
+                responseObj = JSON.parse(xhr.responseText);
+            } catch (e) {
+                // ignore
+            }
+            if(!_.isNil(responseObj)){
+                if(_.has(responseObj, 'Error')){
+                    msg = _.get(responseObj, 'Error');
+                }
+            }
+            return {"error": true, "message": msg};
+        };
+
         /**
          * validate source
          * @param ServiceClient
@@ -49,7 +65,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file'],
                     data = response;
                 },
                 error: function(xhr, textStatus, errorThrown){
-                    data = {"error":true, "message":"Unable to render design view due to parser errors."};
+                    data = getErrorFromResponse(xhr, textStatus, errorThrown);
                     log.error(data.message);
                 }
             });
@@ -73,7 +89,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file'],
                     data = response;
                 },
                 error: function(xhr, textStatus, errorThrown){
-                    data = {"error":true, "message":"Unable to read file " + filePath};
+                    data = getErrorFromResponse(xhr, textStatus, errorThrown);
                     log.error(data.message);
                 }
             });
@@ -107,7 +123,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file'],
                     data = response;
                 },
                 error: function(xhr, textStatus, errorThrown){
-                    data = {"error":true, "message":"Unable to invoke exists file. Status " + textStatus};
+                    data = getErrorFromResponse(xhr, textStatus, errorThrown);
                     log.error(data.message);
                 }
             });
@@ -127,7 +143,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file'],
                     data = response;
                 },
                 error: function(xhr, textStatus, errorThrown){
-                    data = {"error":true, "message":"Unable to invoke create file/folder. Status " + textStatus};
+                    data = getErrorFromResponse(xhr, textStatus, errorThrown);
                     log.error(data.message);
                 }
             });
@@ -147,7 +163,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file'],
                     data = response;
                 },
                 error: function(xhr, textStatus, errorThrown){
-                    data = {"error":true, "message":"Unable to invoke delete file/folder. Status " + textStatus};
+                    data = getErrorFromResponse(xhr, textStatus, errorThrown);
                     log.error(data.message);
                 }
             });
@@ -172,7 +188,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file'],
                     log.debug("File " + file.getName() + ' saved successfully at '+ file.getPath());
                 },
                 error: function(xhr, textStatus, errorThrown){
-                    data = {"error":true, "message":"Unable to write file " + file.getName() + ' at '+ file.getPath()};
+                    data = getErrorFromResponse(xhr, textStatus, errorThrown);
                     log.error(data.message);
                 }
             });
