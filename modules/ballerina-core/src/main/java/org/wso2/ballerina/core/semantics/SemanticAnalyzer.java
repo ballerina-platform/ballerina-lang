@@ -25,8 +25,6 @@ import org.wso2.ballerina.core.interpreter.MemoryLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
-import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.interpreter.SymTable;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BTypeConvertor;
@@ -47,7 +45,6 @@ import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.StructDef;
-import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.TypeConvertor;
@@ -121,7 +118,6 @@ import org.wso2.ballerina.core.nativeimpl.NativeUnitProxy;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -142,7 +138,6 @@ public class SemanticAnalyzer implements NodeVisitor {
     private int staticMemAddrOffset = -1;
     private int connectorMemAddrOffset = -1;
     private int structMemAddrOffset = -1;
-    private SymTable symbolTable;
     private String currentPkg;
     private TypeLattice packageTypeLattice;
     private CallableUnit currentCallableUnit = null;
@@ -163,37 +158,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         importPkgMap = bFile.getImportPackageMap();
         packageTypeLattice = bFile.getTypeLattice();
 
+        defineConnectors(bFile.getConnectors());
         resolveStructFieldTypes(bFile.getStructDefs());
         defineFunctions(bFile.getFunctions());
-        defineConnectors(bFile.getConnectors());
         defineTypeConvertors(packageTypeLattice);
-
-//        bFile.getConnectorList().forEach(connector -> {
-//            addConnectorSymbol(connector);
-//            Arrays.asList(connector.getActions()).forEach(this::addActionSymbol);
-//        });
-//
-//        Arrays.asList(bFile.getTypeConvertors()).forEach(this::addTypeConverterSymbol);
         defineServices(bFile.getServices());
-    }
-
-    public SemanticAnalyzer(BallerinaFile bFile, SymScope globalScope) {
-        SymScope pkgScope = bFile.getPackageScope();
-        pkgScope.setParent(globalScope);
-        symbolTable = new SymTable(pkgScope);
-
-        currentPkg = bFile.getPackagePath();
-        importPkgMap = bFile.getImportPackageMap();
-
-        // TODO Re-visit these definitions with the new implementation
-        Arrays.asList(bFile.getFunctions()).forEach(this::addFuncSymbol);
-
-        Arrays.asList(bFile.getConnectors()).forEach(connector -> {
-            addConnectorSymbol(connector);
-            Arrays.asList(connector.getActions()).forEach(this::addActionSymbol);
-        });
-
-        packageTypeLattice = bFile.getTypeLattice();
     }
 
     @Override
@@ -476,52 +445,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ConnectorDcl connectorDcl) {
-        SymbolName symbolName = connectorDcl.getVarName();
-
-        Symbol symbol = symbolTable.lookup(symbolName);
-        if (symbol != null && isSymbolInCurrentScope(symbol)) {
-            throw new SemanticException(getNodeLocationStr(connectorDcl.getNodeLocation()) +
-                    "duplicate connector declaration '" + symbolName.getName() + "'");
-        }
-
-        MemoryLocation location;
-        if (isInScope(SymScope.Name.CONNECTOR)) {
-            location = new ConnectorVarLocation(connectorMemAddrOffset);
-
-        } else if (isInScope(SymScope.Name.SERVICE)) {
-            location = new ServiceVarLocation(staticMemAddrOffset);
-
-        } else if (isInScope(SymScope.Name.FUNCTION) ||
-                isInScope(SymScope.Name.RESOURCE) ||
-                isInScope(SymScope.Name.ACTION)) {
-
-            location = new StackVarLocation(stackFrameOffset);
-        } else {
-            // This error should not be thrown
-            throw new IllegalStateException("Connector declaration is invalid");
-        }
-
-        symbol = new Symbol(null, currentScopeName(), location);
-        symbolTable.insert(symbolName, symbol);
-
-        // Setting the connector name with the package name
-        SymbolName connectorName = connectorDcl.getConnectorName();
-        String pkgPath = getPackagePath(connectorName);
-        connectorName = LangModelUtils.getConnectorSymName(connectorName.getName(), pkgPath);
-        connectorDcl.setConnectorName(connectorName);
-
-        Symbol connectorSym = symbolTable.lookup(connectorName);
-        if (connectorSym == null) {
-            throw new SemanticException("Connector : " + connectorName + " not found in " +
-                    connectorDcl.getNodeLocation().getFileName() + ":" +
-                    connectorDcl.getNodeLocation().getLineNumber());
-        }
-        connectorDcl.setConnector(connectorSym.getConnector());
-
-        // Visit connector arguments
-        for (Expression argExpr : connectorDcl.getArgExprs()) {
-            argExpr.accept(this);
-        }
     }
 
 
@@ -1486,18 +1409,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         currentScope = currentScope.getEnclosingScope();
     }
 
-    private boolean isInScope(SymScope.Name scopeName) {
-        return symbolTable.getCurrentScope().getScopeName() == scopeName;
-    }
-
-    private SymScope.Name currentScopeName() {
-        return symbolTable.getCurrentScope().getScopeName();
-    }
-
-    private boolean isSymbolInCurrentScope(Symbol symbol) {
-        return symbol.getScopeName() == currentScopeName();
-    }
-
     private void handleArrayType(ArrayMapAccessExpr arrayMapAccessExpr) {
         VariableRefExpr arrayMapVarRefExpr = (VariableRefExpr) arrayMapAccessExpr.getRExpr();
 
@@ -1551,66 +1462,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             throw new SemanticException(getNodeLocationStr(expr.getNodeLocation()) +
                     ": multiple-value '" + nameWithPkgName + "()' in single-value context");
         }
-    }
-
-    private void addFuncSymbol(Function function) {
-        SymbolName symbolName = LangModelUtils.getSymNameWithParams(function.getName(), function.getParameterDefs());
-        function.setSymbolName(symbolName);
-
-        if (symbolTable.lookup(symbolName) != null) {
-            throw new SemanticException(function.getNodeLocation().getFileName() + ":" +
-                    function.getNodeLocation().getLineNumber() +
-                    ": duplicate function '" + function.getName() + "'");
-        }
-
-        Symbol symbol = new Symbol(function);
-        symbolTable.insert(symbolName, symbol);
-    }
-
-    private void addTypeConverterSymbol(TypeConvertor typeConvertor) {
-        SymbolName symbolName = LangModelUtils.getTypeConverterSymName(typeConvertor.getPackagePath(),
-                typeConvertor.getParameterDefs(),
-                typeConvertor.getReturnParameters());
-        typeConvertor.setSymbolName(symbolName);
-
-        if (symbolTable.lookup(symbolName) != null) {
-            throw new SemanticException(typeConvertor.getNodeLocation().getFileName() + ":" +
-                    typeConvertor.getNodeLocation().getLineNumber() + ": duplicate typeConvertor '" +
-                    typeConvertor.getTypeConverterName() + "'");
-        }
-
-        Symbol symbol = new Symbol(typeConvertor);
-        symbolTable.insert(symbolName, symbol);
-    }
-
-    private void addActionSymbol(BallerinaAction action) {
-//        SymbolName actionSymbolName = action.getSymbolName();
-//        BType[] paramTypes = LangModelUtils.getTypesOfParams(action.getParameterDefs());
-//
-//        SymbolName symbolName =
-//                LangModelUtils.getActionSymName(actionSymbolName.getName(),
-//                        actionSymbolName.getConnectorName(),
-//                        actionSymbolName.getPkgPath(), paramTypes);
-//        Symbol symbol = new Symbol(action);
-//
-//        if (symbolTable.lookup(symbolName) != null) {
-//            throw new SemanticException("Duplicate action definition: " + symbolName + " in "
-//                    + action.getNodeLocation().getFileName() + ":" + action.getNodeLocation().getLineNumber());
-//        }
-//
-//        symbolTable.insert(symbolName, symbol);
-    }
-
-    private void addConnectorSymbol(BallerinaConnectorDef connector) {
-        Symbol symbol = new Symbol(connector);
-
-        SymbolName symbolName = connector.getSymbolName();
-        if (symbolTable.lookup(symbolName) != null) {
-            throw new SemanticException("Duplicate connector definition: " + symbolName + " in "
-                    + connector.getNodeLocation().getFileName() + ":" + connector.getNodeLocation().getLineNumber());
-        }
-
-        symbolTable.insert(connector.getSymbolName(), symbol);
     }
 
     private BType verifyBinaryArithmeticExprType(BinaryArithmeticExpression binaryArithmeticExpr) {
@@ -1682,38 +1533,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else {
             throwInvalidBinaryOpError(expr);
         }
-    }
-
-    private String getPackagePath(SymbolName symbolName) {
-        // Extract the package name from the function name.
-        // Function name should be in one of the following formats
-        //      1)  sayHello                        ->  No package name. must be a function in the same package.
-        //      2)  hello:sayHello                  ->  Function is defined in the 'hello' package.  User must have
-        //                                              added import declaration. 'import wso2.connector.hello'.
-        //      3)  wso2.connector.hello:sayHello   ->  Function is defined in the wso2.connector.hello package.
-
-        // First check whether there is a packaged name attached to the function.
-        String pkgPath = null;
-        String pkgName = symbolName.getPkgPath();
-
-        if (pkgName != null) {
-            // A package name is specified. Check whether it is already listed as an imported package.
-            ImportPackage importPkg = importPkgMap.get(pkgName);
-
-            if (importPkg != null) {
-                // Found the imported package of the pkgName.
-                // Retrieve the package path
-                pkgPath = importPkg.getPath();
-
-            } else {
-                // Package name is not listed in the imported packages.
-                // User may have used the fully qualified package path.
-                // If this package is not available, linker will throw an error.
-                pkgPath = pkgName;
-            }
-        }
-
-        return pkgPath;
     }
 
     private String getVarNameFromExpression(Expression expr) {
