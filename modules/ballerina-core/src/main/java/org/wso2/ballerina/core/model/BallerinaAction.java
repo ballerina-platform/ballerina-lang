@@ -57,6 +57,7 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     private ParameterDef[] returnParams;
     private BType[] returnParamTypes;
     private BlockStmt actionBody;
+    private BallerinaConnectorDef connectorDef;
     private int stackFrameSize;
 
     // Scope related variables
@@ -128,6 +129,14 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     @Override
     public void setParameterTypes(BType[] parameterTypes) {
         this.parameterTypes = parameterTypes;
+    }
+
+    public BallerinaConnectorDef getConnectorDef() {
+        return connectorDef;
+    }
+
+    public void setConnectorDef(BallerinaConnectorDef connectorDef) {
+        this.connectorDef = connectorDef;
     }
 
     // Methods in Node interface

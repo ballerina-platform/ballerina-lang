@@ -375,11 +375,17 @@ public class SemanticAnalyzer implements NodeVisitor {
         openScope(action);
         currentCallableUnit = action;
 
-        // TODO Check whether the first argument is the connector
-
         for (ParameterDef parameterDef : action.getParameterDefs()) {
             parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
             parameterDef.accept(this);
+        }
+
+        // First parameter should be of type connector in which these actions are defined.
+        ParameterDef firstParamDef = action.getParameterDefs()[0];
+        if (firstParamDef.getType() != action.getConnectorDef()) {
+            throw new SemanticException(getNodeLocationStr(action.getNodeLocation()) +
+                    "incompatible types: expected '" + action.getConnectorDef() +
+                    "', found '" + firstParamDef.getType() + "'");
         }
 
         for (ParameterDef parameterDef : action.getReturnParameters()) {
@@ -855,7 +861,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         linkAction(actionIExpr);
 
         //Find the return types of this function invocation expression.
-        BType[] returnParamTypes  = actionIExpr.getCallableUnit().getReturnParamTypes();
+        BType[] returnParamTypes = actionIExpr.getCallableUnit().getReturnParamTypes();
         actionIExpr.setTypes(returnParamTypes);
     }
 
@@ -1172,9 +1178,38 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
         connectorInitExpr.setType(inheritedType);
 
-        Expression[] argExprs = connectorInitExpr.getArgExprs();
-        for (Expression argExpr : argExprs) {
+        for (Expression argExpr : connectorInitExpr.getArgExprs()) {
             visitSingleValueExpr(argExpr);
+        }
+
+        if (inheritedType instanceof AbstractNativeConnector) {
+            AbstractNativeConnector nativeConnector = (AbstractNativeConnector) inheritedType;
+            for (int i = 0; i < nativeConnector.getArgumentTypeNames().length; i++) {
+                SimpleTypeName simpleTypeName = nativeConnector.getArgumentTypeNames()[i];
+                BType argType = BTypes.resolveType(simpleTypeName, currentScope, connectorInitExpr.getNodeLocation());
+                if (argType != connectorInitExpr.getArgExprs()[i].getType()) {
+                    throw new SemanticException(getNodeLocationStr(connectorInitExpr.getNodeLocation()) +
+                            "incompatible types: expected '" + argType +
+                            "', found '" + connectorInitExpr.getArgExprs()[i].getType() + "'");
+                }
+
+            }
+            return;
+        }
+
+        Expression[] argExprs = connectorInitExpr.getArgExprs();
+        ParameterDef[] parameterDefs = ((BallerinaConnectorDef) inheritedType).getParameterDefs();
+        for (int i = 0; i < argExprs.length; i++) {
+            SimpleTypeName simpleTypeName = parameterDefs[i].getTypeName();
+            BType paramType = BTypes.resolveType(simpleTypeName, currentScope, connectorInitExpr.getNodeLocation());
+            parameterDefs[i].setType(paramType);
+
+            Expression argExpr = argExprs[i];
+            if (parameterDefs[i].getType() != argExpr.getType()) {
+                throw new SemanticException(getNodeLocationStr(connectorInitExpr.getNodeLocation()) +
+                        "incompatible types: expected '" + parameterDefs[i].getType() +
+                        "', found '" + argExpr.getType() + "'");
+            }
         }
     }
 
@@ -2025,6 +2060,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             openScope(connectorDef);
 
             for (BallerinaAction bAction : connectorDef.getActions()) {
+                bAction.setConnectorDef(connectorDef);
                 defineAction(bAction, connectorDef);
             }
 
