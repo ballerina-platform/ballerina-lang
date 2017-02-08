@@ -27,13 +27,13 @@ button.close {
 .bottom-right-controls-container {
     position: absolute;
     bottom: 80px;
-    right: 0px;
+    right: 30px;
     z-index: 30;
-    width: 20%;
     background: #333;
     color: #fff;
-    padding: 5px 0;
+    padding: 0;
     border-radius: 2px 0 0 0;
+    line-height: 30px
 }
 
 .top-right-controls-container {
@@ -172,12 +172,24 @@ button.close {
 .view-source-btn, .view-swagger-btn, .view-design-btn {
     float: left;
     margin: 1px 0 1px 10px;
-    padding-right: 11px;
     font-size: 12px;
 }
 
 .bottom-view-label {
     font-size: 12px;
     padding-left: 5px;
+}
+
+.bottom-right-controls-container .btn-icon span {
+    padding-right: 10px
+}
+
+.bottom-right-controls-container .btn-icon:first-child:after {
+    content: "|";
+    color: #8f8f8f
+}
+
+.bottom-right-controls-container .btn-icon:hover:after {
+    opacity: 0.5
 }
 
