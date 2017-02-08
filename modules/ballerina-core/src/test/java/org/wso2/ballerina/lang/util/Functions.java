@@ -121,9 +121,8 @@ public class Functions {
         RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bFile);
 
         // 6) Create the control stack and the stack frame to invoke the functions
-        SymbolName functionSymbolName = function.getSymbolName();
-        CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
-                functionSymbolName.getPkgPath(), function.getNodeLocation());
+        CallableUnitInfo functionInfo = new CallableUnitInfo(function.getName(), function.getPackagePath(),
+                function.getNodeLocation());
 
         StackFrame currentStackFrame = new StackFrame(functionArgs, new BValue[0], functionInfo);
         bContext.getControlStack().pushFrame(currentStackFrame);
