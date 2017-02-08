@@ -31,9 +31,14 @@ public class Generate implements Runnable {
             description = "client language to generate (maybe class name in classpath, required)")
     private String lang;
 
-    @Option(name = {"-o", "--output"}, title = "output directory",
+    //@Option(name = {"-o", "--output"}, title = "output directory",
+      //      description = "where to write the generated files (current dir by default)")
+    //private String output = "";
+
+    @Option(name = {"-d", "--directory"}, title = "output directory",
             description = "where to write the generated files (current dir by default)")
     private String output = "";
+
 
     @Option(name = {"-i", "--input-spec"}, title = "spec file", required = true,
             description = "location of the swagger spec, as URL or file (required)")
@@ -61,7 +66,10 @@ public class Generate implements Runnable {
             "overwritten during the generation.")
     private Boolean skipOverwrite;
 
-    @Option(name = {"--api-package"}, title = "api package", description = CodegenConstants.API_PACKAGE_DESC)
+    //@Option(name = {"--api-package"}, title = "api package", description = CodegenConstants.API_PACKAGE_DESC)
+    //private String apiPackage;
+
+    @Option(name = {"-p", "packageName"}, title = "api package", description = CodegenConstants.API_PACKAGE_DESC)
     private String apiPackage;
 
     @Option(name = {"--model-package"}, title = "model package", description = CodegenConstants.MODEL_PACKAGE_DESC)
@@ -166,6 +174,7 @@ public class Generate implements Runnable {
 
         if (isNotEmpty(apiPackage)) {
             configurator.setApiPackage(apiPackage);
+            configurator.setOutputDir(output + "/"+apiPackage.replace(".","/"));
         }
 
         if (isNotEmpty(modelPackage)) {
