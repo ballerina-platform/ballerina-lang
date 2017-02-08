@@ -30,6 +30,8 @@ define(['log', 'lodash', 'event_channel'],
             EventChannel.call(this, args);
             this._name = _.get(args, 'name', '');
             this._id = _.get(args, 'id', '');
+            this._parameters = _.get(args, 'parameters', []);
+            this._returnParams = _.get(args, 'returnParams', []);
         };
 
         Function.prototype = Object.create(EventChannel.prototype);
@@ -70,12 +72,46 @@ define(['log', 'lodash', 'event_channel'],
         };
 
         /**
+         * sets the parameters
+         * @param [object] parameters
+         */
+        Function.prototype.setParameters = function (parameters) {
+            this._parameters = parameters;
+        };
+
+        /**
+         * returns the parameters
+         * @returns [object]
+         */
+         Function.prototype.getParameters = function () {
+             return this._parameters;
+         };
+
+         /**
+          * sets the returnParams
+          * @param [object] returnParams
+          */
+          Function.prototype.setReturnParams = function (returnParams) {
+              this._returnParams = returnParams;
+          };
+
+          /**
+           * returns the returnParams
+           * @returns [object]
+           */
+           Function.prototype.getReturnParams = function () {
+               return this._returnParams;
+           };
+
+        /**
          * sets values from a json object
          * @param {Object} jsonNode
          */
         Function.prototype.initFromJson = function (jsonNode) {
             this.setName(jsonNode.name);
             this.setId(jsonNode.name);
+            this.setParameters(jsonNode.parameters);
+            this.setReturnParams(jsonNode.returnParams);
         };
 
         return Function;

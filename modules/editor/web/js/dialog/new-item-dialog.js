@@ -62,7 +62,7 @@ define(['require', 'jquery', 'lodash', './modal-dialog', 'log'], function (requi
         this.clearError();
         var modalBody = $("<hr class='file-dialog-hr'>"+
                             "<div class='container-fluid'>" +
-                            "<form class='form-horizontal'>" +
+                            "<form class='form-horizontal' onsubmit='return false'>" +
                                 "<div class='form-group'>" +
                                     "<label for='item-name' class='col-sm-2 file-dialog-form-label'>Enter Name</label>" +
                                     "<div class='file-dialog-input-field'>" +

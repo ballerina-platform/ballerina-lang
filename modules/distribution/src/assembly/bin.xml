@@ -142,6 +142,7 @@
             <includes>
                 <include>org.wso2.ballerina:ballerina-core:jar</include>
                 <include>org.wso2.ballerina:ballerina-launcher:jar</include>
+                <include>org.wso2.ballerina:ballerina-native:jar</include>
                 <include>org.wso2.orbit.org.antlr:antlr4-runtime</include>
                 <include>org.wso2.carbon.transport:org.wso2.carbon.transport.http.netty</include>
                 <include>org.wso2.carbon.transport:org.wso2.carbon.connector.framework</include>
@@ -170,7 +171,6 @@
                 <include>commons-logging:commons-logging</include>
                 <include>org.wso2.staxon:staxon-core</include>
                 <include>org.apache.commons:commons-lang3</include>
-
                 <include>org.wso2.carbon:org.wso2.carbon.core:jar</include>
             </includes>
         </dependencySet>

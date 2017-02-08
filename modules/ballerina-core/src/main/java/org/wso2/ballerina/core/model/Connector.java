@@ -19,27 +19,12 @@ package org.wso2.ballerina.core.model;
 /**
  * A common interface represents Ballerina Connectors and Native Connectors.
  */
-public interface Connector {
+public interface Connector extends SymbolScope {
 
     /**
      * Get list of Arguments associated with the action definition.
      *
      * @return list of Arguments
      */
-    Parameter[] getParameters();
-    
-    /**
-     * Get the location of this connector in the ballerina source file.
-     * Returns the ballerina file and line number of the connector.
-     * 
-     * @return  location of this connector in the ballerina source file
-     */
-    Position getLocation();
-
-    /**
-     * Set the location of this action in the ballerina source file.
-     * 
-     * @param location  Location of this action in the ballerina source file
-     */
-    void setLocation(Position location);
+    ParameterDef[] getParameterDefs();
 }

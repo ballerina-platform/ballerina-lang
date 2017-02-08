@@ -2,9 +2,6 @@ body {
     background: #232323;
 }
 
-input[type=text]{
-    border: 0 !important;
-}
 
 #alerts-container {
     display: none
@@ -1425,4 +1422,16 @@ span.fw-stack.fw-lg{
     border-radius: 10px 0 0 10px;
     height: 34px;
 }
+.package-add-icon-wrapper {
+    position: relative;
+    top: -34px;
+    left: 69px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    border-radius: 0 10px 10px 0;
+    min-height: 34px;
+    width: 26px;
+    padding: 9px 3px 0 8px;
+}
+
 

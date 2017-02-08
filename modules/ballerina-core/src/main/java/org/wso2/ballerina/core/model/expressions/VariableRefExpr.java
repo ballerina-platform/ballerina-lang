@@ -19,8 +19,11 @@ package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.interpreter.MemoryLocation;
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.VariableDef;
+import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
@@ -29,25 +32,48 @@ import org.wso2.ballerina.core.model.values.BValue;
  * @since 0.8.0
  */
 public class VariableRefExpr extends AbstractExpression implements ReferenceExpr {
-
+    private String varName;
     private SymbolName symbolName;
+    private VariableDef variableDef;
 
-    private MemoryLocation memoryLocation;
+    public VariableRefExpr(NodeLocation location, String varName) {
+        super(location);
+        this.varName = varName;
+        this.symbolName = new SymbolName(varName);
+    }
 
-    public VariableRefExpr(SymbolName symbolName) {
+    public VariableRefExpr(NodeLocation location, SymbolName symbolName) {
+        super(location);
         this.symbolName = symbolName;
+    }
+
+    @Override
+    public String getVarName() {
+        return varName;
     }
 
     public SymbolName getSymbolName() {
         return symbolName;
     }
 
+    public BType getType() {
+        return variableDef.getType();
+    }
+
     public MemoryLocation getMemoryLocation() {
-        return memoryLocation;
+        return variableDef.getMemoryLocation();
     }
 
     public void setMemoryLocation(MemoryLocation location) {
-        this.memoryLocation = location;
+        this.variableDef.setMemoryLocation(location);
+    }
+
+    public VariableDef getVariableDef() {
+        return variableDef;
+    }
+
+    public void setVariableDef(VariableDef variableDef) {
+        this.variableDef = variableDef;
     }
 
     @Override

@@ -1,11 +1,11 @@
-public function testUndeclaredAttributeAccess() {
+function testUndeclaredAttributeAccess() {
 	string name;
 	Department dpt;
 	
 	dpt.id = "HR";
 }
 
-public type Department {
+struct Department {
 	string dptName;
 	int count;
 }
