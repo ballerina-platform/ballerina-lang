@@ -34,7 +34,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.placeHolderName = "data-mapper-container" + this.viewIdSeperator + this.viewId;
         this.onConnection = onConnectionCallback;
         this.typeConverterView = typeConverterView;
-        this.midpoint = 0.01;
+        this.midpoint = 0.1;
         this.midpointVariance = 0.02;
         this.disconnectCallback = onDisconnectCallback;
         this.connectCallback = onConnectionCallback;
@@ -42,7 +42,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
 
         this.jsPlumbInstance = jsPlumb.getInstance({
-            Connector: ["Flowchart", {midpoint: self.midpoint}],
+            Connector: self.getConnectorConfig(self.midpoint),
             Container: this.placeHolderName,
             PaintStyle: {
                 strokeWidth: 2,
@@ -51,6 +51,12 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 cssClass: "plumbConnect",
                 outlineStroke: "#F7F7F7",
                 outlineWidth: 2
+            },
+            HoverPaintStyle : {
+                strokeWidth: 3,
+                stroke: "#ff9900",
+                outlineWidth: 3,
+                outlineStroke: "#ffe0b3"
             },
             EndpointStyle: {radius: 1},
             ConnectionOverlays: [
@@ -72,12 +78,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         });
 
         this.jsPlumbInstance.bind('dblclick', function (connection, e) {
-            var propertyConnection = self.getConnectionObject(connection.sourceId, connection.targetId);
-            self.midpoint = self.midpoint - self.midpointVariance;
-            self.jsPlumbInstance.importDefaults({Connector: ["Flowchart", {midpoint: self.midpoint}]});
-            self.jsPlumbInstance.detach(connection);
-            self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
-            onDisconnectCallback(propertyConnection);
+            self.disconnect(connection);
         });
 
         this.jsPlumbInstance.bind('connection', function (info, ev) {
@@ -88,6 +89,21 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
 
     TypeMapperRenderer.prototype.constructor = TypeMapperRenderer;
+
+    /**
+     * Disconnects the connection created.
+     *
+     * @param connection
+     */
+    TypeMapperRenderer.prototype.disconnect = function (connection) {
+        var self = this;
+        var propertyConnection = this.getConnectionObject(connection.sourceId, connection.targetId);
+        this.midpoint = this.midpoint - this.midpointVariance;
+        this.jsPlumbInstance.importDefaults({ Connector : self.getConnectorConfig(self.midpoint)});
+        this.jsPlumbInstance.detach(connection);
+        this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
+        this.disconnectCallback(propertyConnection);
+    };
 
     /**
      * Created the connection object from the sourceId and targetId of the connection elements
@@ -295,14 +311,40 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.makeStruct(struct, 50, 50, reference);
         var jsTreeId = 'jstree-container' + this.viewIdSeperator + id;
         this.addComplexProperty(jsTreeId, struct);
+        this.processJSTree(jsTreeId, id, this.addSource)
+    };
+
+
+    TypeMapperRenderer.prototype.processJSTree = function (jsTreeId, structId, callback) {
         var self = this;
         $("#" + jsTreeId).jstree().on('ready.jstree', function () {
-            $("#" + jsTreeId).jstree('open_all');
-            var sourceElements = $("#" + id).find('.jstree-anchor');
+            var sourceElements = $("#" + structId).find('.jstree-anchor');
             _.forEach(sourceElements, function (element) {
-                self.addSource(element);
+                callback(element, self);
+            });
+            $("#" + jsTreeId).jstree('open_all');
+            self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
+        }).on('after_open.jstree', function (event, data) {
+            var parentId = data.node.id;
+            var sourceElements = $("#" + parentId).find('.jstree-anchor');
+            _.forEach(sourceElements, function (element) {
+                callback(element, self);
             });
             self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
+        }).on('close_node.jstree', function (event, data) {
+            //TODO: need to rethink what need to happen when close
+            // var parentId = data.node.id;
+            // var sourceElements = $("#" + parentId).find('.jstree-anchor');
+            // var sourceIds = [];
+            // _.forEach(sourceElements, function (element) {
+            //     sourceIds.push(sourceElements.attr('id').replace('_anchor', ""));
+            // });
+            // var connections = self.jsPlumbInstance.getConnections({source: "jstree-container___newStruct4___ee7433db-99b0-3ed4-c346-1a019d10e350_-_-_-xsxaxax---newStruct2_-_-_-sqsq---string_anchor"});
+            // _.forEach(connections, function (connection) {
+            //     self.disconnect(connection);
+            // })
+        }).on('select_node.jstree', function (event, data) {
+            data.instance.deselect_node(data.node);
         });
     };
 
@@ -342,15 +384,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.makeStruct(struct, 50, posY, reference);
         var jsTreeId = 'jstree-container' + this.viewIdSeperator + id;
         this.addComplexProperty(jsTreeId, struct);
-        var self = this;
-        $("#" + jsTreeId).jstree().on('ready.jstree', function () {
-            $("#" + jsTreeId).jstree('open_all');
-            var sourceElements = $("#" + id).find('.jstree-anchor');
-            _.forEach(sourceElements, function (element) {
-                self.addTarget(element);
-            });
-            self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
-        });
+        this.processJSTree(jsTreeId, id, this.addTarget);
     };
 
     /**
@@ -370,7 +404,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             'top': posX,
             'left': posY
         });
-        var jsTreeContainer = $('<div>').attr('id', 'jstree-container' + this.viewIdSeperator + struct.id);
+        var jsTreeContainer = $('<div>').attr('id', 'jstree-container' + this.viewIdSeperator + struct.id).addClass('tree-container');
         newStruct.append(jsTreeContainer);
         $("#" + this.placeHolderName).append(newStruct);
     };
@@ -422,35 +456,24 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     };
 
     /**
-     * Make Source property
-     * @param {string} parentId identifier of the parent of the property
-     * @param {string} name property name
-     * @param {string} type property type
+     * Make source property
+     *
+     * @param element
+     * @param self
      */
-    TypeMapperRenderer.prototype.addSource = function (element) {
-        this.jsPlumbInstance.makeSource(element, {
+    TypeMapperRenderer.prototype.addSource = function (element, self) {
+        self.jsPlumbInstance.makeSource(element, {
             anchor: ["Continuous", {faces: ["right"]}]
         });
     };
 
     /**
-     * Make Target property
-     * @param {string} parentId identifier of the parent of the property
-     * @param {string} name property name
-     * @param {string} type property type
+     * Make target property
+     * @param element
+     * @param self
      */
-    TypeMapperRenderer.prototype.addTarget = function (element) {
-        var callback = this.onConnection;
-        var refObjects = this.references;
-        var seperator = this.idNameSeperator;
-        var typeConverterObj = this.typeConverterView;
-        var placeHolderName = this.placeHolderName;
-        var jsPlumbInst = this.jsPlumbInstance;
-        var positionFunction = this.dagrePosition;
-        var self = this;
-
-
-        this.jsPlumbInstance.makeTarget(element, {
+    TypeMapperRenderer.prototype.addTarget = function (element, self) {
+        self.jsPlumbInstance.makeTarget(element, {
             maxConnections: 1,
             anchor: ["Continuous", {faces: ["left"]}],
 
@@ -460,16 +483,16 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 var connection = self.getConnectionObject(params.sourceId, params.targetId);
                 if (isValidTypes) {
                     self.midpoint = self.midpoint + self.midpointVariance;
-                    self.jsPlumbInstance.importDefaults({Connector: ["Flowchart", {midpoint: self.midpoint}]});
-                    callback(connection);
+                    self.jsPlumbInstance.importDefaults({ Connector : self.getConnectorConfig(self.midpoint)});
+                    self.onConnection(connection);
                 } else {
-                    var compatibleTypeConverters = self.getExistingTypeMappers(typeConverterObj,
+                    var compatibleTypeConverters = self.getExistingTypeMappers(self.typeConverterView,
                         connection.sourceType, connection.targetType);
                     isValidTypes = compatibleTypeConverters.length > 0;
                     if (isValidTypes) {
                         connection.isComplexMapping = true;
                         connection.complexMapperName = compatibleTypeConverters[0];
-                        callback(connection);
+                        self.onConnection(connection);
                     } else {
                         alerts.error("There is no valid type mapper existing to covert from : " + connection.sourceType
                             + " to: " + connection.targetType);
@@ -479,7 +502,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             },
 
             onDrop: function () {
-                positionFunction(placeHolderName, jsPlumbInst);
+                self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
             }
         })
         ;
@@ -548,6 +571,16 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             $("#" + viewId).height(maxTypeHeight + maxYPosition);
         }
     };
+
+    /**
+     * Give the flow chart object array for given midpoint
+     * @param {int} midPoint point which flow chart connection should bend
+     * @returns {*[]} flow chart object array
+     */
+    TypeMapperRenderer.prototype.getConnectorConfig = function (midPoint) {
+        return [ "Flowchart", { midpoint: midPoint,
+            stub: [40, 60], cornerRadius: 5, alwaysRespectStubs: true }]
+    }
 
     return TypeMapperRenderer;
 });

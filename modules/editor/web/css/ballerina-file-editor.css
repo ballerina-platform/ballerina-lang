@@ -6,14 +6,14 @@
     margin-bottom: 0;
 }
 
-.design-view-container{
+.design-view-container {
     padding-left: 200px;
     padding-top: 0;
     overflow-y: scroll;
     height: 100%;
 }
 
-.canvas-container{
+.canvas-container {
     padding-left: 20px;
     padding-top: 20px;
     padding-bottom: 120px;
@@ -37,10 +37,10 @@
     right: 0;
 }
 
-.panel-title{
-    background:white;
-    border-style:solid;
-    border-width:1px;
+.panel-title {
+    background: white;
+    border-style: solid;
+    border-width: 1px;
     vertical-align: middle;
 }
 
@@ -49,7 +49,7 @@
     text-decoration: none;
 }
 
-.panel-icon, .service-icon, .connector-icon, .function-icon{
+.panel-icon, .service-icon, .connector-icon, .function-icon {
     padding: 5px;
     background-color: #000;
     font-size: 20px;
@@ -61,129 +61,126 @@
     padding-left: 10px;
 }
 
-.delete-icon:hover{
+.delete-icon:hover {
     color: #333;
 }
 
-.panel-collapse .collapse{
-    border:1px solid;
+.panel-collapse .collapse {
+    border: 1px solid;
 }
 
-.tab-pane .panel{
+.tab-pane .panel {
     background: none;
     width: 96%
 }
 
-.headingRect:hover{
+.headingRect:hover {
     cursor: pointer;
 }
 
-
-.btn-icon{
+.btn-icon {
     opacity: 0.5;
 }
-.btn-icon:hover{
+
+.btn-icon:hover {
     opacity: 1;
     cursor: pointer;
 }
 
-.source-container{
+.source-container {
     display: none;
     height: 1000px;
 }
 
-.text-editor{
-    height: 91%;
+.text-editor {
+    height: calc(100% - 80px);
 }
 
-.view-source-btn{
+.view-source-btn {
     z-index: 1000;
 }
 
 .view-design-btn {
     position: relative;
-    color: #000;
+    color: #fff;
     z-index: 1000;
-    background-color: #fff;
-    -moz-border-radius: 50px;
-    -webkit-border-radius: 50px;
-    border-radius: 50px;
+    display: block !important;
 }
 
 /** when on a specific canvas hover **/
-.tab-pane .panel.design-view-hover{
-    background-color:rgba(0, 128, 0, 0.1);
+.tab-pane .panel.design-view-hover {
+    background-color: rgba(0, 128, 0, 0.1);
 }
 
 /** when on main canvas hover **/
-.tab-pane .design-view-hover .panel{
-    background-color:rgba(255, 255, 255, 0.8);
+.tab-pane .design-view-hover .panel {
+    background-color: rgba(255, 255, 255, 0.8);
 }
 
-.tab-pane .panel.design-view-hover .panel-title{
-    background-color:rgba(0, 128, 0, 0.1);
+.tab-pane .panel.design-view-hover .panel-title {
+    background-color: rgba(0, 128, 0, 0.1);
 }
 
-.tab-pane .panel.design-view-hover rect.resource-content{
+.tab-pane .panel.design-view-hover rect.resource-content {
     fill: #fff;
     fill-opacity: 0.8;
 }
 
-.design-view-hover{
-    background-color:rgba(0, 128, 0, 0.1);
+.design-view-hover {
+    background-color: rgba(0, 128, 0, 0.1);
 }
 
-.design-view-hover-svg{
+.design-view-hover-svg {
     fill: #008000;
     fill-opacity: 0.2;
 }
 
 /**  syntax highlight **/
-.ace_ballerina-keyword-control{
+.ace_ballerina-keyword-control {
     color: #CC7832;
 }
 
-.ace_ballerina-numeric{
+.ace_ballerina-numeric {
     color: #6897BB;
 }
 
-.ace_ballerina-keyword-other{
+.ace_ballerina-keyword-other {
     color: #9876AA;
 }
 
-.ace_ballerina-package-reference{
+.ace_ballerina-package-reference {
     color: #9876AA;
 }
 
-.ace_ballerina-keyword-primitive-type{
+.ace_ballerina-keyword-primitive-type {
     color: #FFC66D;
 }
 
-.ace_ballerina-keyword-non-primitive-type{
+.ace_ballerina-keyword-non-primitive-type {
     color: #FFC66D;
 }
 
-.ace_ballerina-keyword-definition{
+.ace_ballerina-keyword-definition {
     color: #CC7832;
 }
 
-.ace_ballerina-annotation{
+.ace_ballerina-annotation {
     color: #BBB529;
 }
 
-.ace_ballerina-strings{
+.ace_ballerina-strings {
     color: #629755;
 }
 
-.ace_ballerina-comments{
+.ace_ballerina-comments {
     color: #808080;
 }
 
-.ace_ballerina-keyword-language{
+.ace_ballerina-keyword-language {
     color: #CC7832;
 }
 
-.ace_ballerina-keyword-identifier{
+.ace_ballerina-keyword-identifier {
     color: #fff;
 }
 
@@ -223,7 +220,7 @@
     border-right: 1px solid #a3a3a3;
 }
 
-.resource-parameters-heading-annotations-wrapper input[type=checkbox]{
+.resource-parameters-heading-annotations-wrapper input[type=checkbox] {
     margin-top: 6px;
 }
 
@@ -246,7 +243,7 @@
     color: #000;
 }
 
-.resource-parameters-detail-wrapper input[type=text]{
+.resource-parameters-detail-wrapper input[type=text] {
     width: 175px;
     margin-left: 5px;
 }
@@ -269,7 +266,7 @@
 }
 
 .resource-parameters-details-wrapper {
-    padding: 0px;
+    padding: 0;
     overflow-y: scroll;
     width: 100%;
     border-left: 1px solid #555;
@@ -357,7 +354,7 @@
     height: auto;
 }
 
-.return-types-heading-named-return-wrapper input[type=checkbox]{
+.return-types-heading-named-return-wrapper input[type=checkbox] {
     margin-top: 6px;
 }
 
@@ -380,7 +377,7 @@
     color: #000;
 }
 
-.return-types-detail-wrapper input[type=text]{
+.return-types-detail-wrapper input[type=text] {
     width: 175px;
     margin-left: 5px;
 }
@@ -473,7 +470,7 @@
 
 .struct-type-dropdown-wrapper {
     float: left;
-    min-width: 150px;
+    min-width: 210px;
     padding-top: 12px;
     padding-left: 10px;
 }
@@ -486,7 +483,7 @@
 .struct-content-operations-wrapper {
     height: 50px;
     background-color: #3d3d3d;
-    padding-right: 10px;
+    padding-right: 6px;
 }
 
 .struct-identifier-text-input {
@@ -547,7 +544,7 @@
 }
 
 .struct-variable-definition-wrapper i {
-    line-height: 18px;
+    line-height: 14px;
     padding: 13px;
     opacity: 0.4;
     cursor: pointer;
@@ -560,7 +557,7 @@
 
 .struct-type-dropdown-wrapper button {
     height: 24px;
-    width: 134px;
+    width: 183px;
     padding-top: 2px;
 }
 
@@ -577,7 +574,7 @@
 }
 
 .struct-variable-identifier-text-input {
-    width: 185px;
+    width: 162px;
     padding-left: 8px;
     padding-right: 8px;
 }
@@ -585,12 +582,12 @@
 .struct-variable-type-dropdown-wrapper button {
     height: 24px;
     padding-top: 1px;
-    width: 140px;
+    width: 170px;
 }
 
 .struct-variable-type-dropdown-wrapper i {
     padding: 0;
-    line-height:20px;
+    line-height: 20px;
 }
 
 .jstree-anchor {
@@ -600,12 +597,17 @@
 /** End of Struct view CSS **/
 
 span.package-pane {
-    padding: 10px;
+    padding: 5px;
     margin-left: -20px;
     background-color: #fff;
     border: 1px solid #f0f0f0;
     display: none;
+    position: absolute;
+    top: 20px;
+    left: 309px;
+    color: #333;
 }
+
 span.package-name-wrapper {
     margin-left: 10px;
 }
@@ -622,17 +624,29 @@ input#package-name-input {
     border: 1px solid #ccc;
 }
 
-.package-name-btn span{
+.package-name-btn span {
     cursor: pointer;
 }
-.package-definition-main-wrapper{
-    margin-bottom: 1em;
+
+.package-definition-main-wrapper {
+    height: 50px;
 }
+
 .tooltip-inner {
-    white-space:nowrap;
-    max-width:none;
+    white-space: nowrap;
+    max-width: none;
 }
 
 .tooltip.bottom {
     margin-top: -3px;
+}
+
+.swaggerEditor {
+    height: 91%;
+    width: 100%;
+}
+
+.swaggerEditor .se-iframe {
+    border: 0;
+    background: #4a4a4a;
 }

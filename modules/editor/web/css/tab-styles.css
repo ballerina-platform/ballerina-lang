@@ -29,6 +29,11 @@ button.close {
     bottom: 90px;
     right: 25px;
     z-index: 30;
+    width: 21%;
+    background: #333;
+    color: #fff;
+    padding: 5px 0;
+    border-radius: 2px;
 }
 
 .top-right-controls-container {
@@ -111,7 +116,7 @@ button.close {
     border-left: 1px solid #333;
 }
 
-#tabs-container > div.tab-headers.tab-headers-bar > ul > li:first-child{
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li:first-child {
     border-left: none;
 }
 
@@ -157,8 +162,21 @@ button.close {
     opacity: 1;
     color: #333;
 }
-#tabs-container > div.tab-headers.tab-headers-bar > ul > li > button.close{
-    top:0px;
+
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li > button.close {
+    top: 0;
     right: 2px;
     font-size: 20px;
+}
+
+.view-source-btn, .view-swagger-btn, .view-design-btn {
+    float: left;
+    margin: 1px 0 1px 10px;
+    padding-right: 11px;
+    font-size: 12px;
+}
+
+.bottom-view-label {
+    font-size: 12px;
+    padding-left: 5px;
 }
