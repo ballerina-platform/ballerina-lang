@@ -87,7 +87,6 @@ public class TypeLattice {
         implicitCastLattice.addEdge(doubleV, stringV, NativeCastConvertor.DOUBLE_TO_STRING_FUNC);
 
         implicitCastLattice.addEdge(booleanV, stringV, NativeCastConvertor.BOOLEAN_TO_STRING_FUNC);
-        implicitCastLattice.addEdge(booleanV, booleanV, NativeCastConvertor.BOOLEAN_TO_BOOLEAN_FUNC);
     }
 
     public static void loadExplicitCastLattice(SymbolScope scope) {
