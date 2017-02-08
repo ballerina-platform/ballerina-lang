@@ -118,7 +118,7 @@ public class BLangFileRestService {
         BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
         ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
 
-        GlobalScope globalScope = new GlobalScope();
+        GlobalScope globalScope = GlobalScope.getInstance();
         BTypes.loadBuiltInTypes(globalScope);
         BLangPackage bLangPackage = new BLangPackage(globalScope);
 

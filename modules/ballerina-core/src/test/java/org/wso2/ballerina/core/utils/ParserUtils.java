@@ -68,7 +68,7 @@ public class ParserUtils {
         BallerinaParser ballerinaParser = getBallerinaParser(sourceFilePath);
 
         // Create Ballerina model builder class
-        GlobalScope globalScope = new GlobalScope();
+        GlobalScope globalScope = GlobalScope.getInstance();
         BTypes.loadBuiltInTypes(globalScope);
         BLangPackage bLangPackage = new BLangPackage(globalScope);
         BLangModelBuilder modelBuilder = new BLangModelBuilder(bLangPackage);

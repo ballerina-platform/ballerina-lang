@@ -18,17 +18,30 @@
 
 package org.wso2.ballerina.lang.service;
 
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import org.wso2.ballerina.core.EnvironmentInitializer;
+import org.wso2.ballerina.core.exception.BallerinaException;
+import org.wso2.ballerina.core.message.StringDataSource;
+import org.wso2.ballerina.core.model.Application;
+import org.wso2.ballerina.core.runtime.dispatching.HTTPResourceDispatcher;
+import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
+import org.wso2.ballerina.core.utils.MessageUtils;
+import org.wso2.ballerina.lang.util.Services;
+import org.wso2.carbon.messaging.CarbonMessage;
+
+import java.nio.ByteBuffer;
+
 /**
  * Service/Resource dispatching test class.
  */
 public class ServiceTest {
 
-/*    @BeforeClass
-=======
     Application application;
 
     @BeforeClass
->>>>>>> upstream/master
     public void setup() {
         application = EnvironmentInitializer.setup("lang/service/echoService.bal");
     }
@@ -123,13 +136,13 @@ public class ServiceTest {
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
         Assert.assertNotNull(stringDataSource);
         Assert.assertEquals(stringDataSource.getValue(), stringPayload);
-    }*/
+    }
 
 
-//    @AfterClass
-//    public void tearDown() {
-//        EnvironmentInitializer.cleanup(application);
-//    }
+    @AfterClass
+    public void tearDown() {
+        EnvironmentInitializer.cleanup(application);
+    }
 
     //TODO: add more test cases
 

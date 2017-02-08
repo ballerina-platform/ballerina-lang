@@ -27,7 +27,6 @@ under the License.
             <!--<package name="org.wso2.ballerina.lang.values"/>-->
             <package name="org.wso2.ballerina.lang.expressions"/>
             <package name="org.wso2.ballerina.lang.statements"/>
-            <package name="org.wso2.ballerina.lang.service"/>
             <package name="org.wso2.ballerina.lang.structs"/>
         </packages>
 
@@ -75,4 +74,10 @@ under the License.
     <!--<package name="org.wso2.ballerina.core.runtime"/>-->
     <!--</packages>-->
     <!--</test>-->
+
+    <test name="ballrina-service-test">
+        <classes>
+            <class name="org.wso2.ballerina.lang.service.ServiceVariableTest"/>
+        </classes>
+    </test>
 </suite>
