@@ -49,7 +49,7 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
             this._constantDefinitionsButton = $("<div class='constants-btn'></div>")
                 .appendTo(this._paneAppendElement);
 
-            $("<span class='' data-toggle='tooltip' title='Constants' data-placement='bottom'>" +
+            $("<span class='btn-icon' data-toggle='tooltip' title='Constants' data-placement='bottom'>" +
                 " Const. </span>")
                 .appendTo(this._constantDefinitionsButton).tooltip();
 
