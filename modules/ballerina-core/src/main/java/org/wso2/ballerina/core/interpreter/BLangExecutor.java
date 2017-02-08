@@ -46,6 +46,7 @@ import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
 import org.wso2.ballerina.core.model.expressions.KeyValueExpression;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
+import org.wso2.ballerina.core.model.expressions.ReferenceExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
@@ -470,7 +471,6 @@ public class BLangExecutor implements NodeExecutor {
         String evaluatedString = evaluteBacktickString(backtickExpr);
         if (backtickExpr.getType() == BTypes.JSON_TYPE) {
             return new BJSON(evaluatedString);
-
         } else {
             return new BXML(evaluatedString);
         }
@@ -657,11 +657,20 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     private String evaluteBacktickString(BacktickExpr backtickExpr) {
-        String varString = "";
+        StringBuilder builder = new StringBuilder();
+        boolean isJson = backtickExpr.getType() == BTypes.JSON_TYPE;
+        String strVal;
+        BValue bVal;
         for (Expression expression : backtickExpr.getExpressionList()) {
-            varString = varString + expression.execute(this).stringValue();
+            bVal = expression.execute(this);
+            strVal = bVal.stringValue();
+            if (isJson && bVal instanceof BString && expression instanceof ReferenceExpr) {
+                builder.append("\"" + strVal + "\"");
+            } else {
+                builder.append(strVal);
+            }
         }
-        return varString;
+        return builder.toString();
     }
 
     private void assignValueToArrayMapAccessExpr(BValue rValue, ArrayMapAccessExpr lExpr) {

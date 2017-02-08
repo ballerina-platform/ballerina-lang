@@ -17,8 +17,7 @@
 */
 package org.wso2.ballerina.lang.service;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import org.apache.tapestry5.json.JSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -56,12 +55,12 @@ public class UriTemplateDispatcherTest {
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"X-ORDER-ID":"ORD12345","ProductID":"PID123","RegID":"RID123"}
         BJSON bJson = ((BJSON) response.getMessageDataSource());
-        JsonObject jsonResponse = new JsonParser().parse(bJson.stringValue()).getAsJsonObject();
-        Assert.assertEquals(jsonResponse.get(xOrderIdHeadeName).getAsString(), xOrderIdHeadeValue
+        JSONObject jsonResponse = new JSONObject(bJson.stringValue());
+        Assert.assertEquals(jsonResponse.get(xOrderIdHeadeName), xOrderIdHeadeValue
                 , "Header value mismatched");
-        Assert.assertEquals(jsonResponse.get("ProductID").getAsString(), "PID123"
+        Assert.assertEquals(jsonResponse.get("ProductID"), "PID123"
                 , "ProductID variable not set properly.");
-        Assert.assertEquals(jsonResponse.get("RegID").getAsString(), "RID123"
+        Assert.assertEquals(jsonResponse.get("RegID"), "RID123"
                 , "RegID variable not set properly.");
     }
 
@@ -84,12 +83,12 @@ public class UriTemplateDispatcherTest {
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"X-ORDER-ID":"ORD12345","ProductID":"PID123","RegID":"RID123"}
         BJSON bJson = ((BJSON) response.getMessageDataSource());
-        JsonObject jsonResponse = new JsonParser().parse(bJson.stringValue()).getAsJsonObject();
-        Assert.assertEquals(jsonResponse.get("Template").getAsString(), "T4"
+        JSONObject jsonResponse = new JSONObject(bJson.stringValue());
+        Assert.assertEquals(jsonResponse.get("Template"), "T4"
                 , "Resource dispatched to wrong template");
-        Assert.assertEquals(jsonResponse.get("ProductID").getAsString(), "PID123"
+        Assert.assertEquals(jsonResponse.get("ProductID"), "PID123"
                 , "ProductID variable not set properly.");
-        Assert.assertEquals(jsonResponse.get("RegID").getAsString(), "RID123"
+        Assert.assertEquals(jsonResponse.get("RegID"), "RID123"
                 , "RegID variable not set properly.");
     }
 
@@ -109,12 +108,12 @@ public class UriTemplateDispatcherTest {
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"Template":"T2","ProductID":"PID125","RegID":"RID125"}
         BJSON bJson = ((BJSON) response.getMessageDataSource());
-        JsonObject jsonResponse = new JsonParser().parse(bJson.stringValue()).getAsJsonObject();
-        Assert.assertEquals(jsonResponse.get("Template").getAsString(), "T2"
+        JSONObject jsonResponse = new JSONObject(bJson.stringValue());
+        Assert.assertEquals(jsonResponse.get("Template"), "T2"
                 , "Resource dispatched to wrong template");
-        Assert.assertEquals(jsonResponse.get("ProductID").getAsString(), "PID125"
+        Assert.assertEquals(jsonResponse.get("ProductID"), "PID125"
                 , "ProductID variable not set properly.");
-        Assert.assertEquals(jsonResponse.get("RegID").getAsString(), "RID125"
+        Assert.assertEquals(jsonResponse.get("RegID"), "RID125"
                 , "RegID variable not set properly.");
     }
 
@@ -126,12 +125,12 @@ public class UriTemplateDispatcherTest {
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"Template":"T3","ProductID":"PID125","RegID":"RID125"}
         BJSON bJson = ((BJSON) response.getMessageDataSource());
-        JsonObject jsonResponse = new JsonParser().parse(bJson.stringValue()).getAsJsonObject();
-        Assert.assertEquals(jsonResponse.get("Template").getAsString(), "T3"
+        JSONObject jsonResponse = new JSONObject(bJson.stringValue());
+        Assert.assertEquals(jsonResponse.get("Template"), "T3"
                 , "Resource dispatched to wrong template");
-        Assert.assertEquals(jsonResponse.get("ProductID").getAsString(), "PID125"
+        Assert.assertEquals(jsonResponse.get("ProductID"), "PID125"
                 , "ProductID variable not set properly.");
-        Assert.assertEquals(jsonResponse.get("RegID").getAsString(), "RID125"
+        Assert.assertEquals(jsonResponse.get("RegID"), "RID125"
                 , "RegID variable not set properly.");
     }
 
@@ -143,12 +142,12 @@ public class UriTemplateDispatcherTest {
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"Template":"T5","ProductID":"PID125","RegID":"RID125"}
         BJSON bJson = ((BJSON) response.getMessageDataSource());
-        JsonObject jsonResponse = new JsonParser().parse(bJson.stringValue()).getAsJsonObject();
-        Assert.assertEquals(jsonResponse.get("Template").getAsString(), "T5"
+        JSONObject jsonResponse = new JSONObject(bJson.stringValue());
+        Assert.assertEquals(jsonResponse.get("Template"), "T5"
                 , "Resource dispatched to wrong template");
-        Assert.assertEquals(jsonResponse.get("ProductID").getAsString(), "PID125"
+        Assert.assertEquals(jsonResponse.get("ProductID"), "PID125"
                 , "ProductID variable not set properly.");
-        Assert.assertEquals(jsonResponse.get("RegID").getAsString(), "RID125"
+        Assert.assertEquals(jsonResponse.get("RegID"), "RID125"
                 , "RegID variable not set properly.");
     }
 

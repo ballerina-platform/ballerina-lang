@@ -107,6 +107,10 @@
             <artifactId>gson-fragment</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.staxon</groupId>
             <artifactId>staxon-core</artifactId>
         </dependency>
@@ -209,6 +213,10 @@
                                 <bundle>
                                     <symbolicName>gson-fragment</symbolicName>
                                     <version>${ballerina.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>com.zaxxer.HikariCP</symbolicName>
+                                    <version>${com.zaxxer.hikaricp.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>staxon-core</symbolicName>

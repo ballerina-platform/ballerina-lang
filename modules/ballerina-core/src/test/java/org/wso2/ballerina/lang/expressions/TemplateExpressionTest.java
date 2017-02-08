@@ -118,15 +118,15 @@ public class TemplateExpressionTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    @Test(description = "Test JSON backtick expression with parts of json added into full JSON")
-    public void testBacktickPartsJSON() {
-        BValue[] args = { new BString("{\"name\":"), new BString("\"chanaka\"}")};
-        BValue[] returns = Functions.invoke(bFile, "backticJSONParts", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BJSON.class);
-        String expected =  "{\"name\":\"chanaka\"}";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }
+//    @Test(description = "Test JSON backtick expression with parts of json added into full JSON")
+//    public void testBacktickPartsJSON() {
+//        BValue[] args = { new BString("{\"name\":"), new BString("\"chanaka\"}")};
+//        BValue[] returns = Functions.invoke(bFile, "backticJSONParts", args);
+//        Assert.assertEquals(returns.length, 1);
+//        Assert.assertSame(returns[0].getClass(), BJSON.class);
+//        String expected =  "{\"name\":\"chanaka\"}";
+//        Assert.assertEquals(returns[0].stringValue(), expected);
+//    }
 
     @Test(description = "Test JSON backtick expression with int and string array variable reference")
     public void testBacktickJSONArrayVariableAccess() {
@@ -161,6 +161,16 @@ public class TemplateExpressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BXML.class);
         String expected = "<root><stringIndex0>value0</stringIndex0><intIndex1>1</intIndex1></root>";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+    
+    @Test(description = "Test JSON backtick expression with boolean and integers as string values")
+    public void testBacktickJSONBooleanIntegerValuesAsStrings() {
+        BValue[] returns = Functions.invoke(bFile, "backtickJSONBooleanIntegerValuesAsStrings");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BJSON.class);
+        String expected = "{\"intStrIndex0\":\"0\",\"intStrIndex1\":\"1\","
+                + "\"boolStrIndex0\":\"true\",\"boolStrIndex1\":\"false\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 }

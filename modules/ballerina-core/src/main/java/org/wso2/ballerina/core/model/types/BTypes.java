@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.model.types;
 
 import static org.wso2.ballerina.core.model.types.TypeConstants.ARRAY_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.BOOLEAN_TNAME;
+import static org.wso2.ballerina.core.model.types.TypeConstants.DATATABLE_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.DOUBLE_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.FLOAT_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.INT_TNAME;
@@ -47,6 +48,7 @@ public class BTypes {
     public static final BType JSON_TYPE = new BJSONType(JSON_TNAME);
     public static final BType MESSAGE_TYPE = new BMessageType(MESSAGE_TNAME);
     public static final BType MAP_TYPE = new BMapType(MAP_TNAME);
+    public static final BType DATATABLE_TYPE = new BDataTableType(DATATABLE_TNAME);
     public static final BType STRUCT_TYPE = new BStructType(STRUCT_TNAME);
 
     private BTypes() {
@@ -83,7 +85,7 @@ public class BTypes {
     public static <T extends BType> T getType(String typeName) {
         return BType.getType(typeName);
     }
-    
+
     public static void addStructType(String structName) {
         new BStructType(structName);
     }

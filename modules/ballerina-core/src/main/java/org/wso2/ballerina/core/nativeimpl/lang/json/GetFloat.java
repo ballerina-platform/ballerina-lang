@@ -18,8 +18,7 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.json;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.JsonPathException;
@@ -63,14 +62,13 @@ public class GetFloat extends AbstractJSONFunction {
 
             // Getting the value from JSON
             ReadContext jsonCtx = JsonPath.parse(json.value());
-            JsonElement element = jsonCtx.read(jsonPath);
+            JsonNode element = jsonCtx.read(jsonPath);
             if (element == null) {
                 throw new BallerinaException("No matching element found for jsonpath: " + jsonPath);
-            } else if (element.isJsonPrimitive()) {
+            } else if (element.isValueNode()) {
                 // if the resulting value is a primitive, return the respective primitive value object
-                JsonPrimitive value = element.getAsJsonPrimitive();
-                if (value.isNumber()) {
-                    Number number = value.getAsNumber();
+                if (element.isNumber()) {
+                    Number number = element.numberValue();
                     if (number instanceof Float || number instanceof Double) {
                         result = new BFloat(number.floatValue());
                     } else {

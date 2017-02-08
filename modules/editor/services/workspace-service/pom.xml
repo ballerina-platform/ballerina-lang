@@ -110,10 +110,10 @@
                     <groupId>com.fasterxml.jackson.datatype</groupId>
                     <artifactId>jackson-datatype-joda</artifactId>
                 </exclusion>
-                <exclusion>
+                <!--<exclusion>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
                     <artifactId>jackson-dataformat-yaml</artifactId>
-                </exclusion>
+                </exclusion>-->
             </exclusions>
         </dependency>
         <dependency>
@@ -129,10 +129,10 @@
                     <groupId>com.google.code.findbugs</groupId>
                     <artifactId>annotations</artifactId>
                 </exclusion>
-                <exclusion>
+                <!--<exclusion>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
                     <artifactId>jackson-dataformat-xml</artifactId>
-                </exclusion>
+                </exclusion>-->
                 <exclusion>
                     <groupId>org.yaml</groupId>
                     <artifactId>snakeyaml</artifactId>
@@ -199,11 +199,11 @@
         <testng.version>6.9.4</testng.version>
 
         <servlet-api-version>2.5</servlet-api-version>
-        <io.swagger.version>1.5.8</io.swagger.version>
-        <com.fasterxml.jackson.datatype.version>2.4.1</com.fasterxml.jackson.datatype.version>
-        <com.fasterxml.jackson.version>2.7.4</com.fasterxml.jackson.version>
+        <io.swagger.version>1.5.12</io.swagger.version>
+        <com.fasterxml.jackson.datatype.version>2.8.6</com.fasterxml.jackson.datatype.version>
+        <com.fasterxml.jackson.version>2.8.6</com.fasterxml.jackson.version>
         <io.swagger.version.range>[1.5.0,1.6.0)</io.swagger.version.range>
-        <com.fasterxml.jackson.version.range>[2.7.0,2.8.0)</com.fasterxml.jackson.version.range>
+        <com.fasterxml.jackson.version.range>[2.8.0,2.9.0)</com.fasterxml.jackson.version.range>
         <swagger-parser-version>1.0.25</swagger-parser-version>
     </properties>
 </project>

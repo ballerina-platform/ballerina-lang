@@ -41,5 +41,6 @@ public class TypeConstants {
     static final String EXCEPTION_TNAME = "exception";
     static final String ITERATOR_TNAME = "iterator";
     static final String STRUCT_TNAME = "struct";
+    static final String DATATABLE_TNAME = "datatable";
 }
 
