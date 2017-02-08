@@ -520,6 +520,25 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         visitSingleValueExpr(rExpr);
+        BType rType = rExpr.getType();
+        if (rExpr instanceof TypeCastExpression && rType == null) {
+            rType = BTypes.resolveType(((TypeCastExpression) rExpr).getTypeName(), currentScope, null);
+        }
+
+        // TODO Remove the MAP related logic when type casting is implemented
+        if ((varBType != BTypes.typeMap) && (rType != BTypes.typeMap) &&
+                (!varBType.equals(rType))) {
+
+            TypeCastExpression newExpr = checkWideningPossible(varBType, rExpr);
+            if (newExpr != null) {
+                newExpr.accept(this);
+                varDefStmt.setRExpr(newExpr);
+            } else {
+                throw new SemanticException(getNodeLocationStr(varDefStmt.getNodeLocation()) +
+                        "incompatible types: '" + rExpr.getType() +
+                        "' cannot be converted to '" + varBType + "'");
+            }
+        }
     }
 
     @Override
