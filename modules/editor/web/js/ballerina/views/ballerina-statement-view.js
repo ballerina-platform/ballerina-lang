@@ -245,7 +245,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
 
                     // Div which contains the form for the properties.
                     var propertyPaneBody = $("<div/>", {
-                        "class": viewOptions.propertyForm.body.class /*+ " nano-content"*/
+                        "class": viewOptions.propertyForm.body.class
                     }).appendTo(propertyPaneWrapper);
 
                 expressionEditor.createEditor(propertyPaneBody,

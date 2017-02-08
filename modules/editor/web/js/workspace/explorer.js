@@ -188,13 +188,13 @@ define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-cli
             if(!_.isEmpty(this._openedFolders)){
                 this._openedFolders.forEach(function(folder){
                     self.createExplorerItem(folder);
-                })
+                });
+                explorerContainer.mCustomScrollbar({
+                    theme: "minimal",
+                    scrollInertia: 0,
+                    axis: "xy"
+                });
             }
-
-            // explorerContainer.mCustomScrollbar({
-            //     theme: "minimal",
-            //     scrollInertia: 0
-            // });
             return this;
         }
     });
