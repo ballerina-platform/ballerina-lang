@@ -46,18 +46,22 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 throw "Ballerina AST Root is undefined or is of different type." + this._model;
             }
 
+           if (!_.has(args, 'viewOptions.backend')){
+               log.error("Backend is not defined.");
+               // not throwing an exception for now since we need to work without a backend.
+           }
 
-            if (!_.has(args, 'viewOptions.backend')){
-                log.error("Backend is not defined.");
-                // not throwing an exception for now since we need to work without a backend.
-            }
-            this.backend = new Backend(_.get(args, 'viewOptions.backend', {}));
-            this._isInSourceView = false;
-            this._isInSwaggerView = false;
-            this._constantDefinitionsPane = undefined;
-            this.deserializer = BallerinaASTDeserializer;
-            this.init();
-        };
+           if (!_.has(args, 'backendEndpointsOptions')){
+               log.error("Backend endpoints options not defined.");
+               // not throwing an exception for now since we need to work without a backend.
+           }
+           this.backend = new Backend(_.get(args, 'viewOptions.backend', {}));
+           this._isInSourceView = false;
+           this._isInSwaggerView = false;
+           this._constantDefinitionsPane = undefined;
+           this.deserializer = BallerinaASTDeserializer;
+           this.init();
+       };
 
         BallerinaFileEditor.prototype = Object.create(BallerinaView.prototype);
         BallerinaFileEditor.prototype.constructor = BallerinaFileEditor;
@@ -111,7 +115,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 this._model = model;
                 //Registering event listeners
                 this._model.on('child-added', function(child){
-                     this.visit(child);
+                    this.visit(child);
                 }, this);
                 // make undo-manager capture all tree modifications after initial rendering
                 this._model.on('tree-modified', function(event){
@@ -379,8 +383,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var swaggerViewOpts = _.clone(_.get(this._viewOptions, 'swagger_view'));
             _.set(swaggerViewOpts, 'container', swaggerViewContainer);
             _.set(swaggerViewOpts, 'content', "");
-           _.set(swaggerViewOpts, 'backend', new Backend({url : "http://localhost:8289/services/"}));
-           this._swaggerView = new SwaggerView(swaggerViewOpts);
+            _.set(swaggerViewOpts, 'backend', new Backend({url : _.get(this._backendEndpointsOptions, 'swagger.endpoint')}));
+            this._swaggerView = new SwaggerView(swaggerViewOpts);
             this._swaggerView.render();
             
             var sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));

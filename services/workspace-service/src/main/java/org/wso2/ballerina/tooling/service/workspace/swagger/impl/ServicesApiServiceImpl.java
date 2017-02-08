@@ -37,7 +37,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
 
-@Path("/services")
+@Path("/service/swagger")
 @Consumes({"application/json"})
 @Produces({"application/json"})
 @io.swagger.annotations.Api(description = "the services API")
