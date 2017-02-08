@@ -22,7 +22,7 @@ package org.wso2.ballerina.core.exception;
  */
 public class LinkerException extends BallerinaException {
     /**
-     * Constructs a new {@link BallerinaException} with the specified detail message.
+     * Constructs a new {@link LinkerException} with the specified detail message.
      *
      * @param message Error Message
      */
@@ -31,7 +31,7 @@ public class LinkerException extends BallerinaException {
     }
 
     /**
-     * Constructs a new {@link BallerinaException} with the specified detail message and cause.
+     * Constructs a new {@link LinkerException} with the specified detail message and cause.
      *
      * @param message Error message
      * @param cause   Cause
@@ -41,7 +41,7 @@ public class LinkerException extends BallerinaException {
     }
 
     /**
-     * Constructs a new {@link BallerinaException} with the cause.
+     * Constructs a new {@link LinkerException} with the cause.
      *
      * @param cause
      */
