@@ -168,10 +168,12 @@ public class ConnectorManager {
         initializeServerConnectors();
     }
 
+    /**
+     * Initialize and load all the client connectors that are register via {@code ClientConnector} SPI.
+     */
     public void initializeClientConnectors() {
         // Loading client connectors
-        ServiceLoader<ClientConnector> clientConnectorLoader =
-                ServiceLoader.load(ClientConnector.class);
+        ServiceLoader<ClientConnector> clientConnectorLoader = ServiceLoader.load(ClientConnector.class);
         clientConnectorLoader.forEach(this::registerClientConnector);
     }
 }
