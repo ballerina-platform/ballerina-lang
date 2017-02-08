@@ -30,10 +30,10 @@
                         {{#hasFunctions}}
                         <!-- Functions -->
                         <h2>Functions of {{fullyQualifiedName}} package</h2>
-                        {{#each publicFunctions}} {{currentObject this}}
+                        {{#each privateFunctions}} {{currentObject this}}
                         <div style="padding-bottom: 30px;">
-                            <h3 id="{{functionName}}">
-                                function {{functionName}}({{#each parameters}}<a href="">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}
+                            <h3 id="{{name}}">
+                                function {{name}}({{#each parameterDefs}}<a href="">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}
                             </h3>
                             <p>{{oneValueAnnotation "description"}}</p>
 
@@ -43,7 +43,7 @@
                                     <tr>
                                         <th>Parameter Name</th><th>Data Type</th><th>Description</th>
                                     </tr>
-                                    {{#each parameters}}
+                                    {{#each parameterDefs}}
                                     <tr>
                                         <td>{{name}}</td><td><a href="">{{type}}</a></td><td>{{paramAnnotation this "param"}}</td>
                                     </tr>
@@ -163,8 +163,8 @@
                         <li>
                             <span class="opener">Functions</span>
                             <ul>
-                                {{#each publicFunctions}}
-                                <li><a href="#{{functionName}}">{{functionName}}({{#each parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}</a>
+                                {{#each privateFunctions}}
+                                <li><a href="#{{name}}">{{name}}({{#each parameterDefs}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}</a>
                                 </li>{{/each}}
                             </ul>
                         </li>{{/hasFunctions}} {{#hasConnectors}}
