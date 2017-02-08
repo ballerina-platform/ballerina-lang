@@ -30,17 +30,17 @@ public interface BallerinaDockerClient {
     public String createServiceImage(String packageName, String dockerEnv, Path bPackagePath)
             throws DockerHandlerException, IOException, InterruptedException;
 
-    public String createFunctionImage(String packageName, String dockerEnv, Path bPackagePath)
+    public String createMainImage(String packageName, String dockerEnv, Path bPackagePath)
             throws DockerHandlerException, IOException, InterruptedException;
 
     public boolean deleteImage(String packageName, String dockerEnv);
 
     public String getImage(String packageName, String dockerEnv);
 
-    public String runFunctionContainer(String dockerEnv, String serviceName)
-            throws InterruptedException, IOException, DockerHandlerException;
-
-    public String runServiceContainer(String packageName, String dockerEnv) throws DockerHandlerException;
-
-    public void stopContainer(String packageName, String dockerEnv) throws DockerHandlerException;
+//    public String runMainContainer(String dockerEnv, String serviceName)
+//            throws InterruptedException, IOException, DockerHandlerException;
+//
+//    public String runServiceContainer(String packageName, String dockerEnv) throws DockerHandlerException;
+//
+//    public void stopContainer(String packageName, String dockerEnv) throws DockerHandlerException;
 }

@@ -63,7 +63,7 @@ public class DockerizerService {
                             serviceName, dockerEnv, packagePath);
                     break;
                 case org.wso2.ballerina.containers.Constants.TYPE_BALLERINA_FUNCTION:
-                    imageName = dockerClient.createFunctionImage(
+                    imageName = dockerClient.createMainImage(
                             serviceName, dockerEnv, packagePath);
                     break;
                 default:
@@ -96,57 +96,59 @@ public class DockerizerService {
                 Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
 
-    @POST
-    @Path("/{" + Constants.REST.SERVICE_NAME + "}/run")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response runServiceWithDocker(@PathParam(Constants.REST.SERVICE_NAME) String serviceName, DockerRequest request) throws InterruptedException, IOException {
-        String dockerEnv = Utils.getBase64DecodedString(request.getDockerEnv());
-        String bPackagePath = Utils.getBase64DecodedString(request.getPackagePath());
-        java.nio.file.Path packagePath = Paths.get(bPackagePath);
-        String type = Utils.getBase64DecodedString(request.getType());
-
-        // Build image, if not already built
-        if (dockerClient.getImage(serviceName.toLowerCase(), dockerEnv) == null) {
-            try {
-                switch (type) {
-                    case org.wso2.ballerina.containers.Constants.TYPE_BALLERINA_SERVICE:
-                        dockerClient.createServiceImage(
-                                serviceName, dockerEnv, packagePath);
-                        dockerClient.runServiceContainer(dockerEnv, serviceName);
-                        break;
-                    case org.wso2.ballerina.containers.Constants.TYPE_BALLERINA_FUNCTION:
-                        dockerClient.createFunctionImage(
-                                serviceName, dockerEnv, packagePath);
-                        dockerClient.runFunctionContainer(dockerEnv, serviceName);
-                        break;
-                    default:
-                        return Response.status(Response.Status.BAD_REQUEST).build();
-                }
-            } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-            } catch (DockerHandlerException e) {
-                return Response.status(Response.Status.BAD_REQUEST).build();
-            }
-        }
-
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-    }
-
-    @POST
-    @Path("/{" + Constants.REST.SERVICE_NAME + "}/stop")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response stopDockerContainer(@PathParam(Constants.REST.SERVICE_NAME) String serviceName, DockerRequest request) {
-        String dockerEnv = Utils.getBase64DecodedString(request.getDockerEnv());
-        try {
-            dockerClient.stopContainer(serviceName, dockerEnv);
-        } catch (DockerHandlerException e) {
-            e.printStackTrace();
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-    }
+//    @POST
+//    @Path("/{" + Constants.REST.SERVICE_NAME + "}/run")
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public Response runServiceWithDocker(@PathParam(Constants.REST.SERVICE_NAME) String serviceName,
+// DockerRequest request) throws InterruptedException, IOException {
+//        String dockerEnv = Utils.getBase64DecodedString(request.getDockerEnv());
+//        String bPackagePath = Utils.getBase64DecodedString(request.getPackagePath());
+//        java.nio.file.Path packagePath = Paths.get(bPackagePath);
+//        String type = Utils.getBase64DecodedString(request.getType());
+//
+//        // Build image, if not already built
+//        if (dockerClient.getImage(serviceName.toLowerCase(), dockerEnv) == null) {
+//            try {
+//                switch (type) {
+//                    case org.wso2.ballerina.containers.Constants.TYPE_BALLERINA_SERVICE:
+//                        dockerClient.createServiceImage(
+//                                serviceName, dockerEnv, packagePath);
+//                        dockerClient.runServiceContainer(dockerEnv, serviceName);
+//                        break;
+//                    case org.wso2.ballerina.containers.Constants.TYPE_BALLERINA_FUNCTION:
+//                        dockerClient.createMainImage(
+//                                serviceName, dockerEnv, packagePath);
+//                        dockerClient.runMainContainer(dockerEnv, serviceName);
+//                        break;
+//                    default:
+//                        return Response.status(Response.Status.BAD_REQUEST).build();
+//                }
+//            } catch (IOException | InterruptedException e) {
+//                e.printStackTrace();
+//                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+//            } catch (DockerHandlerException e) {
+//                return Response.status(Response.Status.BAD_REQUEST).build();
+//            }
+//        }
+//
+//        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+//    }
+//
+//    @POST
+//    @Path("/{" + Constants.REST.SERVICE_NAME + "}/stop")
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public Response stopDockerContainer(@PathParam(Constants.REST.SERVICE_NAME) String serviceName,
+// DockerRequest request) {
+//        String dockerEnv = Utils.getBase64DecodedString(request.getDockerEnv());
+//        try {
+//            dockerClient.stopContainer(serviceName, dockerEnv);
+//        } catch (DockerHandlerException e) {
+//            e.printStackTrace();
+//            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+//        }
+//
+//        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+//    }
 }

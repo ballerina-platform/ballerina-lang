@@ -19,7 +19,6 @@ package org.wso2.ballerina.tooling.service.dockerizer.handler;
 
 import io.fabric8.docker.api.model.ImageDelete;
 import io.fabric8.docker.client.DockerClient;
-import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.testng.annotations.BeforeTest;
@@ -63,7 +62,7 @@ public class DockerHandlerTest {
         String imageName = serviceName.toLowerCase();
         Path ballerinaPackage = Paths.get(Utils.getResourceFile("ballerina/TestFunction.bal").getPath());
 
-        String result = dockerClient.createFunctionImage(serviceName, null, ballerinaPackage);
+        String result = dockerClient.createMainImage(serviceName, null, ballerinaPackage);
 
         deleteDockerImage(imageName);
         Assert.assertTrue("Docker image creation failed.", (result != null) && (result.equals(imageName)));
@@ -75,7 +74,7 @@ public class DockerHandlerTest {
         String imageName = serviceName.toLowerCase();
         Path ballerinaPackage = Paths.get(Utils.getResourceFile("ballerina/TestFunction.bal").getPath());
 
-        String result = dockerClient.createFunctionImage(serviceName, null, ballerinaPackage);
+        String result = dockerClient.createMainImage(serviceName, null, ballerinaPackage);
         Assert.assertTrue("Docker image creation failed.", (result != null) && (result.equals(imageName)));
         boolean deleteResult = dockerClient.deleteImage(imageName, null);
         Assert.assertTrue("Docker image deletion failed.", deleteResult);
@@ -96,7 +95,7 @@ public class DockerHandlerTest {
         String imageName = serviceName.toLowerCase();
         Path ballerinaPackage = Paths.get(Utils.getResourceFile("ballerina/TestFunction.bal").getPath());
 
-        String result = dockerClient.createFunctionImage(serviceName, null, ballerinaPackage);
+        String result = dockerClient.createMainImage(serviceName, null, ballerinaPackage);
         Assert.assertTrue("Docker image creation failed.", (result != null) && (result.equals(imageName)));
         result = dockerClient.getImage(imageName, null);
         deleteDockerImage(imageName);
@@ -110,29 +109,25 @@ public class DockerHandlerTest {
         Assert.assertFalse("Docker image find", result == null);
     }
 
-    @Test
-    public void testSuccesfulFunctionRun() throws IOException, InterruptedException, DockerHandlerException {
-        String serviceName = "TestFunction4";
-        String imageName = serviceName.toLowerCase();
-        Path ballerinaPackage = Paths.get(Utils.getResourceFile("ballerina/TestFunction.bal").getPath());
-
-        String result = dockerClient.createFunctionImage(serviceName, null, ballerinaPackage);
-        Assert.assertTrue("Docker image creation failed.", (result != null) && (result.equals(imageName)));
-        String output = dockerClient.runFunctionContainer(null, serviceName);
-        deleteDockerImage(imageName);
-        Assert.assertTrue("Running Ballerina function in Docker failed.", "Hello, World!".equals(output));
-    }
+//    @Test
+//    public void testSuccesfulMainRun() throws IOException, InterruptedException, DockerHandlerException {
+//        String serviceName = "TestFunction4";
+//        String imageName = serviceName.toLowerCase();
+//        Path ballerinaPackage = Paths.get(Utils.getResourceFile("ballerina/TestFunction.bal").getPath());
+//
+//        String result = dockerClient.createMainImage(serviceName, null, ballerinaPackage);
+//        Assert.assertTrue("Docker image creation failed.", (result != null) && (result.equals(imageName)));
+//        String output = dockerClient.runMainContainer(null, serviceName);
+//        deleteDockerImage(imageName);
+//        Assert.assertTrue("Running Ballerina function in Docker failed.", "Hello, World!".equals(output));
+//    }
 
     private void deleteDockerImage(String imageName) {
         DockerClient client = new io.fabric8.docker.client.DefaultDockerClient();
         List<ImageDelete> imageDeleteList = client.image().withName(imageName + ":latest").delete().force().andPrune();
         for (ImageDelete imageDelete : imageDeleteList) {
-            if (StringUtils.isNotEmpty(imageDelete.getDeleted())) {
-                //..
-            }
-            if (StringUtils.isNotEmpty(imageDelete.getUntagged())) {
-                //..
-            }
+            imageDelete.getDeleted();
+            imageDelete.getUntagged();
         }
     }
 }

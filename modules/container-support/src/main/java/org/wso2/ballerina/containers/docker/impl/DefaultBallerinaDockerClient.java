@@ -17,7 +17,6 @@
 
 package org.wso2.ballerina.containers.docker.impl;
 
-import io.fabric8.docker.api.model.ContainerCreateResponse;
 import io.fabric8.docker.api.model.Image;
 import io.fabric8.docker.api.model.ImageDelete;
 import io.fabric8.docker.client.Config;
@@ -31,10 +30,8 @@ import org.wso2.ballerina.containers.docker.BallerinaDockerClient;
 import org.wso2.ballerina.containers.docker.exception.DockerHandlerException;
 import org.wso2.ballerina.containers.docker.utils.Utils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -58,7 +55,7 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         return createImage(packageName, dockerEnv, bPackagePath, true);
     }
 
-    public String createFunctionImage(String packageName, String dockerEnv, Path bPackagePath)
+    public String createMainImage(String packageName, String dockerEnv, Path bPackagePath)
             throws DockerHandlerException, IOException, InterruptedException {
 
         return createImage(packageName, dockerEnv, bPackagePath, false);
@@ -149,77 +146,77 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         return null;
     }
 
-    public String runFunctionContainer(String dockerEnv, String serviceName)
-            throws InterruptedException, IOException, DockerHandlerException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        DockerClient client = getDockerClient(dockerEnv);
-        if (!isFunctionImage(client, serviceName)) {
-            throw new DockerHandlerException("Invalid image to run: " + serviceName.toLowerCase(Locale.getDefault()) +
-                    ":latest");
-        }
-
-        ContainerCreateResponse container = client.container().createNew()
-                .withName(serviceName + "-latest")
-                .withImage(serviceName.toLowerCase(Locale.getDefault()) + ":latest")
-                .done();
-
-        // TODO: throws EOFException here.
-        try (
-                OutputHandle logHandle = client.container().
-                        withName(container.getId())
-                        .logs()
-                        .writingOutput(outputStream)
-                        .writingError(outputStream)
-                        .display()
-        ) {
-
-            if (client.container().withName(container.getId()).start()) {
-////                ("Container started: " + container.getId());
-                Thread.sleep(10000);
-//                client.container().withName(container.getId()).stop();
-//                return IOUtils.toString(logHandle.getOutput(), "UTF-8");
-                client.container().withName(container.getId()).remove();
-                return new String(outputStream.toByteArray(), Charset.defaultCharset());
-//                return "";
-            }
-        }
-
-        client.container().withName(container.getId()).remove();
-        return "";
-
-    }
-
-    public String runServiceContainer(String packageName, String dockerEnv) throws DockerHandlerException {
-        DockerClient client = getDockerClient(dockerEnv);
-        if (isFunctionImage(client, packageName)) {
-            throw new DockerHandlerException("Invalid image to run: " + packageName.toLowerCase(Locale.getDefault()) +
-                    ":latest");
-        }
-
-        ContainerCreateResponse container = client.container().createNew()
-                .withName(packageName + "-latest")
-                .withImage(packageName.toLowerCase(Locale.getDefault()) + ":latest")
-                .done();
-
-        client.container().withName(container.getId()).start();
-//        if (client.container().withName(container.getId()).start()) {
-////            ("Container started: " + container.getId());
-//        }
-
-        String dockerUrl;
-        if (dockerEnv == null) {
-            dockerUrl = "http://localhost:" + "9090" + "/";
-        } else {
-            dockerUrl = dockerEnv.substring(0, dockerEnv.lastIndexOf(":")) + "9090" + "/";
-        }
-
-        return dockerUrl;
-    }
-
-    public void stopContainer(String packageName, String dockerEnv) throws DockerHandlerException {
+//    public String runMainContainer(String dockerEnv, String serviceName)
+//            throws InterruptedException, IOException, DockerHandlerException {
+//        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 //        DockerClient client = getDockerClient(dockerEnv);
-        throw new DockerHandlerException("Not implemented!");
-    }
+//        if (!isFunctionImage(client, serviceName)) {
+//            throw new DockerHandlerException("Invalid image to run: " + serviceName.toLowerCase(Locale.getDefault()) +
+//                    ":latest");
+//        }
+//
+//        ContainerCreateResponse container = client.container().createNew()
+//                .withName(serviceName + "-latest")
+//                .withImage(serviceName.toLowerCase(Locale.getDefault()) + ":latest")
+//                .done();
+//
+//        // TODO: throws EOFException here.
+//        try (
+//                OutputHandle logHandle = client.container().
+//                        withName(container.getId())
+//                        .logs()
+//                        .writingOutput(outputStream)
+//                        .writingError(outputStream)
+//                        .display()
+//        ) {
+//
+//            if (client.container().withName(container.getId()).start()) {
+//////                ("Container started: " + container.getId());
+//                Thread.sleep(10000);
+////                client.container().withName(container.getId()).stop();
+////                return IOUtils.toString(logHandle.getOutput(), "UTF-8");
+//                client.container().withName(container.getId()).remove();
+//                return new String(outputStream.toByteArray(), Charset.defaultCharset());
+////                return "";
+//            }
+//        }
+//
+//        client.container().withName(container.getId()).remove();
+//        return "";
+//
+//    }
+//
+//    public String runServiceContainer(String packageName, String dockerEnv) throws DockerHandlerException {
+//        DockerClient client = getDockerClient(dockerEnv);
+//        if (isFunctionImage(client, packageName)) {
+//            throw new DockerHandlerException("Invalid image to run: " + packageName.toLowerCase(Locale.getDefault()) +
+//                    ":latest");
+//        }
+//
+//        ContainerCreateResponse container = client.container().createNew()
+//                .withName(packageName + "-latest")
+//                .withImage(packageName.toLowerCase(Locale.getDefault()) + ":latest")
+//                .done();
+//
+//        client.container().withName(container.getId()).start();
+////        if (client.container().withName(container.getId()).start()) {
+//////            ("Container started: " + container.getId());
+////        }
+//
+//        String dockerUrl;
+//        if (dockerEnv == null) {
+//            dockerUrl = "http://localhost:" + "9090" + "/";
+//        } else {
+//            dockerUrl = dockerEnv.substring(0, dockerEnv.lastIndexOf(":")) + "9090" + "/";
+//        }
+//
+//        return dockerUrl;
+//    }
+//
+//    public void stopContainer(String packageName, String dockerEnv) throws DockerHandlerException {
+////        DockerClient client = getDockerClient(dockerEnv);
+//        throw new DockerHandlerException("Not implemented!");
+//    }
 
     private static DockerClient getDockerClient(String env) {
         DockerClient client;
@@ -235,21 +232,21 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         return client;
     }
 
-    private static boolean isFunctionImage(DockerClient client, String serviceName) {
-        for (String envVar : client.image()
-                .withName(serviceName.toLowerCase(Locale.getDefault()) + ":latest")
-                .inspect()
-                .getConfig()
-                .getEnv()) {
-
-            String[] envVarValue = envVar.split("=");
-            if (envVarValue[0].equals("SVC_MODE") && envVarValue[1].equals("false")) {
-                return true;
-            }
-        }
-
-        return false;
-    }
+//    private static boolean isFunctionImage(DockerClient client, String serviceName) {
+//        for (String envVar : client.image()
+//                .withName(serviceName.toLowerCase(Locale.getDefault()) + ":latest")
+//                .inspect()
+//                .getConfig()
+//                .getEnv()) {
+//
+//            String[] envVarValue = envVar.split("=");
+//            if (envVarValue[0].equals("SVC_MODE") && envVarValue[1].equals("false")) {
+//                return true;
+//            }
+//        }
+//
+//        return false;
+//    }
 
     /**
      * An {@link EventListener} implementation to listen to Docker build events.
