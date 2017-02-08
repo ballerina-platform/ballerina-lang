@@ -56,8 +56,7 @@ public class HTTPClientConnector implements ClientConnector {
 
     public HTTPClientConnector() {
         TransportsConfiguration transportsConfiguration = YAMLTransportConfigurationBuilder.build();
-        init(transportsConfiguration.getSenderConfigurations(),
-                transportsConfiguration.getTransportProperties());
+        init(transportsConfiguration.getSenderConfigurations(), transportsConfiguration.getTransportProperties());
     }
 
     public HTTPClientConnector(Set<SenderConfiguration> senderConfiguration,
@@ -154,6 +153,6 @@ public class HTTPClientConnector implements ClientConnector {
     @Override
     public String getProtocol() {
         //hardcoded because there is always one sender with set of configurations
-        return "http/s";
+        return "http";
     }
 }
