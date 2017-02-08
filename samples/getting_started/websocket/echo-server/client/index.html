@@ -25,12 +25,12 @@
     <h3>Chat</h3>
     <div class="row">
         <div class="col-md-6">
-            <form id="chatForm">
+            <form id="echoForm">
                 <div class="form-group">
                     <label for="sendText"></label>
                     <input type="text" class="form-control" id="sendText" placeholder="Type Something and Send">
                 </div>
-                <button class="btn btn-primary" type="button" id="chatBtn" name="send" >send</button>
+                <button class="btn btn-primary" type="button" id="sendBtn" name="send" >send</button>
                 <button class="btn btn-warning" type="button" id="chatClearBtn" name="receivedClear">Clear</button>
             </form>
         </div>
@@ -56,13 +56,13 @@
             name = $('#name').val();
         });
 
-        $('#chatText').keydown(function (e) {
+        $('#sendText').keydown(function (e) {
             if (e.keyCode == 13) { // enter
                 sendMessage();
             }
         });
 
-        $("#chatForm").submit(function() {
+        $("#echoForm").submit(function() {
             return false;
         });
 
@@ -70,7 +70,7 @@
             return false;
         });
 
-        $('#chatBtn').click(function () {
+        $('#sendBtn').click(function () {
             sendMessage();
         });
 
@@ -84,9 +84,9 @@
         });
 
         function sendMessage() {
-            var text = $('#chatText').val();
+            var text = $('#sendText').val();
             ws.send(text);
-            $('#chatText').val("");
+            $('#sendText').val("");
         }
 
         function onMessage(msg) {
