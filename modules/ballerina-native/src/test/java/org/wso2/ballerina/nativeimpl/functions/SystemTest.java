@@ -213,6 +213,29 @@ public class SystemTest {
 
     }
 
+    @Test(description = "Test new line character in string")
+    public void testNewlineCharacter() {
+        java.io.ByteArrayOutputStream out = null;
+        java.io.PrintStream mainStream = System.out;
+        try {
+            out = new java.io.ByteArrayOutputStream();
+            System.setOut(new java.io.PrintStream(out));
+            Functions.invoke(bFile, "printNewline");
+            String outPut = out.toString();
+            Assert.assertNotNull(outPut, "string is not printed");
+            //getting the last new line character
+            Assert.assertEquals(outPut.charAt(outPut.length() - 1), '\n'
+                    , "New line character not found in output string");
+        } finally {
+            System.setOut(mainStream);
+            try {
+                out.close();
+            } catch (IOException e) {
+                //ignore
+            }
+        }
+
+    }
 
     static class TestLogAppender extends AppenderSkeleton {
 
