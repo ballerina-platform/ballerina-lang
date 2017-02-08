@@ -57,6 +57,7 @@ import org.wso2.ballerina.core.nativeimpl.lang.array.MessageArrayRangeCopy;
 import org.wso2.ballerina.core.nativeimpl.lang.array.StringArrayCopyOf;
 import org.wso2.ballerina.core.nativeimpl.lang.array.StringArrayLength;
 import org.wso2.ballerina.core.nativeimpl.lang.array.StringArrayRangeCopy;
+import org.wso2.ballerina.core.nativeimpl.lang.array.StringArraySort;
 import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayCopyOf;
 import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayLength;
 import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayRangeCopy;
@@ -222,6 +223,7 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new StringArrayCopyOf());
         registerFunction(scope, new StringArrayLength());
         registerFunction(scope, new StringArrayRangeCopy());
+        registerFunction(scope, new StringArraySort());
         registerFunction(scope, new XmlArrayCopyOf());
         registerFunction(scope, new XmlArrayLength());
         registerFunction(scope, new XmlArrayRangeCopy());
