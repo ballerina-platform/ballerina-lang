@@ -2303,6 +2303,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     private void checkFunctionReturnStmtLocations(BlockStmt blockStmt, ReturnStmtCounter returnStmtCounter) {
         //check whether return statement is main block.
         //if exist returning hence it is in valid path
+        returnStmtCounter.setLineNumber(getLineNumber(blockStmt));
         for (Statement statement : blockStmt.getStatements()) {
             if (statement instanceof ReturnStmt) {
                 returnStmtCounter.count();
@@ -2316,15 +2317,14 @@ public class SemanticAnalyzer implements NodeVisitor {
                 if (ifElseStmt.getElseBody() == null && ifElseStmt.getElseIfBlocks().length == 0
                         && !returnStmtCounter.hasOne()) {
                     throw new SemanticException(
-                            "missing return statement in " + statement.getNodeLocation().getFileName() + ":"
-                                    + statement.getNodeLocation().getLineNumber());
+                            "missing return statement in " + returnStmtCounter.getLineNumber());
                 }
+                returnStmtCounter.setLineNumber(getLineNumber(statement));
                 returnStmtCounter.reset();
                 checkFunctionReturnStmtLocations((BlockStmt) ifElseStmt.getThenBody(), returnStmtCounter);
                 if (!returnStmtCounter.hasOne()) {
                     throw new SemanticException(
-                            "missing return statement in " + statement.getNodeLocation().getFileName() + ":"
-                                    + statement.getNodeLocation().getLineNumber());
+                            "missing return statement in " + returnStmtCounter.getLineNumber());
                 }
                 if (((IfElseStmt) statement).getElseBody() != null) {
                     returnStmtCounter.reset();
@@ -2336,25 +2336,27 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
                 if (!returnStmtCounter.hasOne()) {
                     throw new SemanticException(
-                            "missing return statement in " + statement.getNodeLocation().getFileName() + ":"
-                                    + statement.getNodeLocation().getLineNumber());
+                            "missing return statement in " + returnStmtCounter.getLineNumber());
                 }
             } else if (statement instanceof WhileStmt) {
                 //return statement must be in out of loop
                 if (!returnStmtCounter.hasOne()) {
                     throw new SemanticException(
-                            "missing return statement in " + statement.getNodeLocation().getFileName() + ":"
-                                    + statement.getNodeLocation().getLineNumber());
+                            "missing return statement in " + returnStmtCounter.getLineNumber());
                 }
+                returnStmtCounter.setLineNumber(getLineNumber(statement));
                 returnStmtCounter.reset();
                 checkFunctionReturnStmtLocations(((WhileStmt) statement).getBody(), returnStmtCounter);
                 if (!returnStmtCounter.hasOne()) {
                     throw new SemanticException(
-                            "missing return statement in " + statement.getNodeLocation().getFileName() + ":"
-                                    + statement.getNodeLocation().getLineNumber());
+                            "missing return statement in " + returnStmtCounter.getLineNumber());
                 }
             }
         }
+    }
+
+    private String getLineNumber(Statement statement) {
+        return statement.getNodeLocation().getFileName() + ":" + statement.getNodeLocation().getLineNumber();
     }
 
     /**
@@ -2362,6 +2364,7 @@ public class SemanticAnalyzer implements NodeVisitor {
      */
     private class ReturnStmtCounter {
         boolean hasOne;
+        String lineNumber;
 
         ReturnStmtCounter() {
             this.hasOne = false;
@@ -2372,8 +2375,14 @@ public class SemanticAnalyzer implements NodeVisitor {
         void reset() {
             this.hasOne = false;
         }
+        void setLineNumber(String lineNumber) {
+            this.lineNumber = lineNumber;
+        }
         boolean hasOne() {
             return this.hasOne;
+        }
+        String getLineNumber() {
+            return this.lineNumber;
         }
     }
 }
