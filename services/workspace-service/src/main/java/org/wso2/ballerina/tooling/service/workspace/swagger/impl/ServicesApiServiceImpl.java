@@ -124,6 +124,7 @@ public class ServicesApiServiceImpl {
                     String response = generateSwaggerDataModel(ballerinaDefinition);
                     serviceDefinition.setSwaggerDefinition(response);
                 } else {
+                    return Response.noContent().entity("Please provide valid ballerina source").build();
                     //ballerina source cannot be null or empty.
                 }
             } catch (IOException e) {
