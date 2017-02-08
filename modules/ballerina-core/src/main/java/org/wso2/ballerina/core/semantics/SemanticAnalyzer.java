@@ -2309,6 +2309,9 @@ public class SemanticAnalyzer implements NodeVisitor {
                 returnStmtCounter.count();
                 return;
             }
+            if (statement instanceof IfElseStmt || statement instanceof WhileStmt) {
+                returnStmtCounter.setProceed(true);
+            }
         }
         for (Statement statement : blockStmt.getStatements()) {
             // return statement must be in all branches.
@@ -2346,12 +2349,14 @@ public class SemanticAnalyzer implements NodeVisitor {
                 if (!returnStmtCounter.hasOne()) {
                     throw new SemanticException(returnStmtCounter.getLineNumber() + "missing return statement");
                 }
+            } else if (!returnStmtCounter.proceed() && !returnStmtCounter.hasOne()) {
+                throw new SemanticException(returnStmtCounter.getLineNumber() + "missing return statement");
             }
         }
     }
 
     private String getLineNumber(Statement statement) {
-        return statement.getNodeLocation().getFileName() + ":" + statement.getNodeLocation().getLineNumber() + ": ";
+        return LangModelUtils.getNodeLocationStr(statement.getNodeLocation());
     }
 
     /**
@@ -2359,10 +2364,12 @@ public class SemanticAnalyzer implements NodeVisitor {
      */
     private class ReturnStmtCounter {
         boolean hasOne;
+        boolean proceed;
         String lineNumber;
 
         ReturnStmtCounter() {
             this.hasOne = false;
+            this.proceed = false;
         }
         void count() {
             this.hasOne = true;
@@ -2370,11 +2377,17 @@ public class SemanticAnalyzer implements NodeVisitor {
         void reset() {
             this.hasOne = false;
         }
+        void setProceed(boolean proceed) {
+            this.proceed = proceed;
+        }
         void setLineNumber(String lineNumber) {
             this.lineNumber = lineNumber;
         }
         boolean hasOne() {
             return this.hasOne;
+        }
+        boolean proceed() {
+            return this.proceed;
         }
         String getLineNumber() {
             return this.lineNumber;

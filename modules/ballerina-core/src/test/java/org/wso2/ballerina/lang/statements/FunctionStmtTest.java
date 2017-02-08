@@ -83,6 +83,7 @@ public class FunctionStmtTest {
                 , { "lang/functions/invalid-return-in-ifelseifblock3.bal" }
                 , { "lang/functions/invalid-return-in-only-while.bal" }
                 , { "lang/functions/invalid-return-in-ifandwhile.bal"}
+                , { "lang/functions/function-with-no-return-stmt.bal"}
         };
     }
 
