@@ -1010,7 +1010,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 key: "ConnectorDeclaration",
                     model: connectorDeclarationView._model,
                 getterMethod: connectorDeclarationView._model.getConnectorExpression,
-                setterMethod: connectorDeclarationView._model.setConnectorExpression
+                setterMethod: connectorDeclarationView._model.setConnectorExpression,
+                getDisplayTitle: connectorDeclarationView._model.getConnectorVariable
             };
             connectorDeclarationView.createPropertyPane({
                 model: connectorDeclarationView._model,
