@@ -32,21 +32,42 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
            if(!_.has(args, 'container')){
                log.error('container is not specified for rendering swagger view.')
            }
+           if(!_.has(args, 'backend')){
+               log.error('backend is not specified for rendering swagger view.')
+           }
            this._container = _.get(args, 'container');
            this._content = _.get(args, 'content');
+           this._backend = _.get(args, 'backend');
+           self._generatedSource = "";
        };
 
        var initSwaggerEditor = function(self, content){
-           self._swaggerHolder = new SwaggerHolder();
+           self._swaggerHolder = new SwaggerHolder(function (content) {
+               if(content && content!="null" && self._generatedSource){
+                   var response = self._backend.call("convert-swagger", "POST", {
+                       "name": "CalculatorService",
+                       "description": "null",
+                       "swaggerDefinition": content,
+                       "ballerinaDefinition": self._generatedSource
+                   }, [{name: "expectedType", value: "ballerina"}]);
+               }
+           });
+
            self._swaggerHolder.setSwaggerAsText(content);
-           parent.SwaggerHolder = self._swaggerHolder;// Allowing Swagger Editor to inject this swagger holder
            var swaggerEditor = $(self._container).find('div.swaggerEditor');
            swaggerEditor.html('<iframe class="se-iframe" width=100% height="100%"></iframe>');
            swaggerEditor.find('iframe.se-iframe').attr("src", swaggerEditor.data("editor-url"));
+           var swaggerEditorWindow = $(self._container).find('div.swaggerEditor').find('iframe.se-iframe')[0].contentWindow;
+           self._swaggerEditorWindow = swaggerEditorWindow;
            swaggerEditor.ready(function () {
-               var editor = self._swaggerHolder.getEditor();
-               if (editor) {
-                   editor.updateSwaggerEditor();
+               if (swaggerEditorWindow.setSwaggerHolder) {
+                   swaggerEditorWindow.setSwaggerHolder(self._swaggerHolder);
+                   swaggerEditorWindow.updateSwaggerEditor();
+               } else {
+                   swaggerEditorWindow.onEditorLoad = function () {
+                       window.setSwaggerHolder(self._swaggerHolder);
+                       window.updateSwaggerEditor();
+                   };
                }
            });
        };
@@ -55,7 +76,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
        SwaggerView.prototype.constructor = SwaggerView;
 
        SwaggerView.prototype.render = function () {
-           initSwaggerEditor(this, {swagger: '2.0', info: {version: '1.0.0', title: 'Swagger Resource'}, paths: {}});
+           initSwaggerEditor(this, "{swagger: '2.0', info: {version: '1.0.0', title: 'Swagger Resource'}, paths: {}}");
        };
 
        /**
@@ -64,12 +85,22 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
         *
         */
        SwaggerView.prototype.setContent = function(content){
-           if (!this._swaggerHolder.getEditor()) {
-               initSwaggerEditor(this, content);
-           } else {
-               this._swaggerHolder.setSwaggerAsText(content);
-               this._swaggerHolder.getEditor().updateSwaggerEditor();
+           this._generatedSource = content;
+           var generatedSwagger = {swagger: 2.0, info: {title: "Ballerina Default API", version : ""}, paths: {}};
+
+           var response = this._backend.call("convert-ballerina", "POST", {
+               "name": "CalculatorService",
+               "description": "null",
+               "swaggerDefinition": "null",
+               "ballerinaDefinition": content
+           }, [{name: "expectedType", value: "ballerina"}]);
+
+           if (!response.error) {
+               generatedSwagger = response.swaggerDefinition;
            }
+
+           this._swaggerHolder.setSwaggerAsText(generatedSwagger);
+           this._swaggerEditorWindow.updateSwaggerEditor();
        };
 
        SwaggerView.prototype.getContent = function(){

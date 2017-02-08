@@ -23,8 +23,8 @@ define(['log', 'lodash', 'jquery', '../views/backend', 'yaml'],
         * @constructor
         * @class SwaggerHolder
         */
-       var SwaggerHolder = function (args) {
-           // do nothing
+       var SwaggerHolder = function (editorChangedCallback) {
+           this._editorChangedCallback = editorChangedCallback;
        };
 
        SwaggerHolder.prototype.constructor = SwaggerHolder;
@@ -43,6 +43,7 @@ define(['log', 'lodash', 'jquery', '../views/backend', 'yaml'],
 
        SwaggerHolder.prototype.setSwagger = function (swagger) {
            this._swagger = swagger;
+           this._editorChangedCallback(swagger);
        };
 
        SwaggerHolder.prototype.getSwagger = function () {
