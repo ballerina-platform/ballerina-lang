@@ -1,29 +1,25 @@
-public function testStructConvertor() (Employee){
-    Person per;
+function testStructConvertor() (Employee){
     Employee emp;
-    per = new Person;
-    per.name = "Jack";
-    per.adrs = {"country":"USA","state":"CA"};
-    per.age = 25;
+    map address = {"country":"USA","state":"CA"};
+    Person per = {name:"Jack", adrs:address, age:25};
     emp = (Employee)per;
     return emp;
 }
 
-public type Person {
+struct Person {
     string name;
     map adrs;
     int age;
 }
 
-public type Employee {
+struct Employee {
     string fname;
     map locations;
     int hoau;
 }
 
 typeconvertor personToEmployee(Person p)(Employee){
-    Employee e;
-    e = new Employee;
+    Employee e = {};
     e.fname = p.name;
     e.locations = p.adrs;
     e.hoau = p.age;

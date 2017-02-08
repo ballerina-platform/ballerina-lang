@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 
 /**
@@ -26,7 +27,8 @@ import org.wso2.ballerina.core.model.NodeVisitor;
 public class CommentStmt extends AbstractStatement {
     private String comment;
 
-    public CommentStmt(String comment) {
+    public CommentStmt(NodeLocation location, String comment) {
+        super(location);
         this.comment = comment;
     }
 

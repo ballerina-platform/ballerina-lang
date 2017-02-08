@@ -28,12 +28,8 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Get;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.client.HTTPConnector;
-import org.wso2.ballerina.core.nativeimpl.lang.json.GetString;
 import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
-import org.wso2.ballerina.core.runtime.registry.PackageRegistry;
 import org.wso2.ballerina.core.utils.MessageUtils;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
@@ -53,9 +49,6 @@ public class RuntimeErrorsTest {
     @BeforeClass
     public void setup() {
         SymScope symScope = GlobalScopeHolder.getInstance().getScope();
-        PackageRegistry.getInstance().registerNativeFunction(new GetString());
-        PackageRegistry.getInstance().registerNativeConnector(new HTTPConnector());
-        PackageRegistry.getInstance().registerNativeAction(new Get());
         bFile = ParserUtils.parseBalFile("lang/errors/runtime-errors.bal", symScope);
         application = EnvironmentInitializer.setup("lang/errors/undeclared-package-errors.bal");
     }
@@ -70,7 +63,7 @@ public class RuntimeErrorsTest {
                 "\t at test.lang:testStackTrace(runtime-errors.bal:15)\n";
         try {
             Functions.invoke(bFile, "testStackTrace", bContext);
-        } catch (BallerinaException e) {
+        } catch (Exception e) {
             ex = e;
         } finally {
             Assert.assertTrue(ex instanceof BallerinaException, "Expected a " + BallerinaException.class.getName() +
@@ -81,20 +74,6 @@ public class RuntimeErrorsTest {
             String stackTrace = ErrorHandlerUtils.getServiceStackTrace(bContext, ex);
             Assert.assertEquals(stackTrace, expectedStackTrace);
         }
-    }
-    
-    @Test(expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "Failed to get string from json. Invalid jsonpath: Path must not end " +
-            "with a '.' or '..'")
-    public void testNativeFunctionError() {
-        Functions.invoke(bFile, "nativeFunctionErrorTest");
-    }
-
-    @Test(expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "Failed to invoke 'get' action in HTTPConnector. Malformed url " +
-            "specified. no protocol: malformed/url/context")
-    public void testNativeConnectorError() {
-        Functions.invoke(bFile, "nativeConnectorErrorTest");
     }
     
     @Test
@@ -128,7 +107,7 @@ public class RuntimeErrorsTest {
         try {
             CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/test/error", "GET");
             Services.invoke(cMsg);
-        } catch (BallerinaException e) {
+        } catch (Exception e) {
             ex = e;
         } finally {
             // Check exception type
@@ -146,6 +125,24 @@ public class RuntimeErrorsTest {
             Assert.assertEquals(stackTrace, expectedStackTrace);
         }
     }
+
+    @Test(description = "Test if a cast exception is thrown in an invalid type cast")
+    public void testTypeCastError() {
+        Throwable ex = null;
+        Context bContext = new Context();
+
+        try {
+            Functions.invoke(bFile, "testTypeCastException", bContext);
+        } catch (Exception e) {
+            ex = e;
+        } finally {
+            Assert.assertTrue(ex != null);
+            Assert.assertTrue(ex instanceof BallerinaException, "Expected a " + BallerinaException.class.getName() +
+                    ", but found: " + ex.getClass() + ".");
+            Assert.assertEquals(ex.getMessage(), "input value value cannot be cast to integer");
+
+        }
+    }
     
     private static String getStackOverflowTrace() {
         StringBuilder sb = new StringBuilder();
@@ -153,11 +150,11 @@ public class RuntimeErrorsTest {
             if (i == 20 || i == 21) {
                 sb.append("\t ...\n");
             } else {
-                sb.append("\t at test.lang:infiniteRecurse(runtime-errors.bal:51)\n");
+                sb.append("\t at test.lang:infiniteRecurse(runtime-errors.bal:38)\n");
             }
         }
-        sb.append("\t at test.lang:infiniteRecurse(runtime-errors.bal:47)\n");
-        sb.append("\t at test.lang:testStackOverflow(runtime-errors.bal:46)\n");
+        sb.append("\t at test.lang:infiniteRecurse(runtime-errors.bal:34)\n");
+        sb.append("\t at test.lang:testStackOverflow(runtime-errors.bal:33)\n");
         return sb.toString();
     }
 

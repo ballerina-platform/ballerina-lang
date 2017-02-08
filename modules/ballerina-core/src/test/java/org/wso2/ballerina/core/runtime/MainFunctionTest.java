@@ -31,7 +31,6 @@ import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 import java.net.URL;
@@ -95,16 +94,7 @@ public class MainFunctionTest {
             BallerinaFile ballerinaFileToExecute = ServiceContextHolder.getInstance().getBallerinaFileToExecute();
 
             Assert.assertNotNull(ballerinaFileToExecute, "There is no Main program to be executed.");
-            ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-            System.setOut(new PrintStream(outContent));
             BalProgramExecutor.execute(ballerinaFileToExecute);
-
-            String soutString = outContent.toString();
-
-            Assert.assertTrue(soutString.startsWith("Starting Main."), "Can't find expected staring string");
-            Assert.assertTrue(soutString.contains("Ballerina"), "Can't find expected input argument.");
-            Assert.assertTrue(soutString.contains("Hello World"), "Can't find expected input argument with space.");
-            Assert.assertTrue(soutString.endsWith("Exiting Main."), "Can't find ending string.");
 
         } finally {
             System.setProperty(SYSTEM_PROP_BAL_ARGS, "");
