@@ -134,6 +134,17 @@ public class BallerinaConnectorManager {
         connectorsInitialized = true;
     }
 
+    /**
+     * Initialize and load client connectors. The given instance of the message processor will
+     * be used to initialize all the client connectors and it will be used with subsequent new connector
+     * creation as-well.
+     *
+     * @param messageProcessor message processor instance used with initializing the server connectors.
+     */
+    public void initializeClientConnectors(MessageProcessor messageProcessor) {
+        connectorManager.initializeClientConnectors(messageProcessor);
+    }
+
     private void loadDispatchers() {
         ServiceLoader<ResourceDispatcher> resourceDispatcherServiceLoader =
                 ServiceLoader.load(ResourceDispatcher.class);
