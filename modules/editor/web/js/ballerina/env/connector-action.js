@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash'],
-    function (log, _) {
+define(['log', 'lodash', 'require', 'event_channel'],
+    function (log, _, require, EventChannel) {
 
         /**
          * @class Package
@@ -25,16 +25,38 @@ define(['log', 'lodash'],
          * @constructor
          */
         var ConnectorAction = function (args) {
-            this.name = _.get(args, 'name', '');
+            this._name = _.get(args, 'name', '');
+            this._id = _.get(args, 'id', '');
             this.action = _.get(args, 'action', '');
         };
 
+        ConnectorAction.prototype = Object.create(EventChannel.prototype);
+        ConnectorAction.prototype.constructor = ConnectorAction;
+
         ConnectorAction.prototype.setName = function (name) {
-            this.name = name;
+            var oldName = this._name;
+            this._name = name;
+            this.trigger("name-modified", name, oldName);
         };
 
         ConnectorAction.prototype.getName = function () {
-            return this.name;
+            return this._name;
+        };
+
+        /**
+         * sets the id
+         * @param {string} id
+         */
+        ConnectorAction.prototype.setId = function (id) {
+            this._id = id;
+        };
+
+        /**
+         * returns the id
+         * @returns {string}
+         */
+        ConnectorAction.prototype.getId = function () {
+            return this._id;
         };
 
         ConnectorAction.prototype.setAction = function (action) {
