@@ -30,16 +30,16 @@ import org.wso2.ballerina.core.nativeimpl.connectors.jms.Constants;
 import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.transport.jms.jndi.exception.JMSServerConnectorException;
-import org.wso2.carbon.transport.jms.jndi.listener.JMSServerConnector;
-import org.wso2.carbon.transport.jms.jndi.utils.JMSConstants;
+import org.wso2.carbon.messaging.ServerConnector;
+import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
+import org.wso2.carbon.transport.jms.utils.JMSConstants;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * Dispatcher which handles the JMS Service
+ * Dispatcher which handles the JMS Service.
  */
 public class JMSServiceDispatcher implements ServiceDispatcher {
     private static final Logger log = LoggerFactory.getLogger(JMSServiceDispatcher.class);
@@ -49,21 +49,17 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
 
     @Override
     public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext) {
-        try {
-            Object serviceIdProperty = cMsg.getProperty(JMSConstants.JMS_SERVICE_ID);
-            String serviceId = (serviceIdProperty != null) ? serviceIdProperty.toString() : null;
-            if (serviceId == null) {
-                throw new BallerinaException("Service Id is not found in JMS Message", balContext);
-            }
-            Service service = serviceMap.get(serviceId);
-            if (service == null) {
-                throw new BallerinaException("No jms service is registered with the service id " + serviceId,
-                        balContext);
-            }
-            return service;
-        } catch (Throwable e) {
-            throw new BallerinaException(e.getMessage(), balContext);
+        Object serviceIdProperty = cMsg.getProperty(JMSConstants.JMS_SERVICE_ID);
+        String serviceId = (serviceIdProperty != null) ? serviceIdProperty.toString() : null;
+        if (serviceId == null) {
+            throw new BallerinaException("Service Id is not found in JMS Message", balContext);
         }
+        Service service = serviceMap.get(serviceId);
+        if (service == null) {
+            throw new BallerinaException("No jms service is registered with the service id " + serviceId,
+                    balContext);
+        }
+        return service;
     }
 
     @Override
@@ -73,44 +69,51 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
 
     @Override
     public void serviceRegistered(Service service) {
-        try {
-            for (Annotation annotation : service.getAnnotations()) {
-                Map elementPairs = annotation.getElementPairs();
-                if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)
-                        && annotation.getElementPairs().size() > 0 && annotation
-                        .getValueOfElementPair(new SymbolName(Constants.ANNOTATION_PROTOCOL))
-                        .equals(JMSConstants.PROTOCOL_JMS)) {
-                    Set<Map.Entry<SymbolName, String>> set = elementPairs.entrySet();
-                    Map<String, String> keyValuePairs = new HashMap<String, String>();
-                    for (Map.Entry<SymbolName, String> entry : set) {
-                        keyValuePairs.put(entry.getKey().getName(), entry.getValue());
-                    }
-                    String serviceId = service.getSymbolName().toString();
-                    serviceMap.put(serviceId, service);;
-                    JMSServerConnector listener =  (JMSServerConnector) BallerinaConnectorManager.getInstance()
-                            .createServerConnector(JMSConstants.PROTOCOL_JMS, serviceId);
-                    listener.start(keyValuePairs);
-                    listener.init();
-                }
+        for (Annotation annotation : service.getAnnotations()) {
+            Map elementPairs = annotation.getElementPairs();
+            if (!annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
+                continue;
             }
-        } catch (Throwable e) {
-            throw new BallerinaException("Ballerina Error : " + e.getMessage());
+            if (annotation.getElementPairs().size() == 0) {
+                continue;
+            }
+            if (!annotation.getValueOfElementPair(new SymbolName(Constants.ANNOTATION_PROTOCOL))
+                    .equals(JMSConstants.PROTOCOL_JMS)) {
+                continue;
+            }
+            Set<Map.Entry<SymbolName, String>> annotationSet = elementPairs.entrySet();
+            Map<String, String> annotationKeyValuePairs = new HashMap<String, String>();
+            for (Map.Entry<SymbolName, String> entry : annotationSet) {
+                annotationKeyValuePairs.put(entry.getKey().getName(), entry.getValue());
+            }
+            String serviceId = service.getSymbolName().toString();
+            serviceMap.put(serviceId, service);
+            annotationKeyValuePairs.putIfAbsent(JMSConstants.JMS_DESTINATION, serviceId);
+            ServerConnector listener = BallerinaConnectorManager.getInstance()
+                    .createServerConnector(JMSConstants.PROTOCOL_JMS, serviceId);
+            try {
+                listener.start(annotationKeyValuePairs);
+                break;
+            } catch (ServerConnectorException e) {
+                throw new BallerinaException("Error when starting to listen to the queue/topic while " + serviceId +
+                        " deployment", e);
+            }
         }
     }
 
     @Override
     public void serviceUnregistered(Service service) {
+        String serviceId = service.getSymbolName().toString();
         try {
-            String serviceId = service.getSymbolName().toString();
             if (serviceMap.get(serviceId) != null) {
-                JMSServerConnector listener = (JMSServerConnector) BallerinaConnectorManager.getInstance()
-                        .getServerConnector(serviceId);
-                if (listener != null) {
-                    listener.destroy();
+                ServerConnector listener = BallerinaConnectorManager.getInstance().getServerConnector(serviceId);
+                if (null != listener) {
+                    listener.stop();
                 }
             }
-        } catch (JMSServerConnectorException e) {
-            throw new BallerinaException("Ballerina Error : " + e.getMessage());
+        } catch (ServerConnectorException e) {
+            throw new BallerinaException("Error while stopping the jms server connector related with the service " +
+                    serviceId, e);
         }
     }
 }

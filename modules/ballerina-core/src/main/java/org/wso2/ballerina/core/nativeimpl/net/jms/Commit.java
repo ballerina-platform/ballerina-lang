@@ -25,10 +25,10 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.transport.jms.jndi.utils.JMSConstants;
+import org.wso2.carbon.transport.jms.utils.JMSConstants;
 
 /**
- * To commit or rollback the jms transacted sessions.
+ * To commit the jms transacted sessions.
  */
 @BallerinaFunction(packageName = "ballerina.net.jms", functionName = "commit", args = {
         @Argument(name = "message", type = TypeEnum.MESSAGE) }, isPublic = true)

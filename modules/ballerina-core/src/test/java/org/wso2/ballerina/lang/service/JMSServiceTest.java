@@ -10,8 +10,7 @@ import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.runtime.ServerConnectorMessageHandler;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
-
-import org.wso2.carbon.transport.jms.jndi.utils.JMSConstants;
+import org.wso2.carbon.transport.jms.utils.JMSConstants;
 
 import javax.jms.ConnectionFactory;
 
@@ -47,16 +46,6 @@ public class JMSServiceTest {
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, JMSConstants.PROTOCOL_JMS);
         cMsg.setProperty(JMSConstants.JMS_SERVICE_ID, "testabc");
         ServerConnectorMessageHandler.handleInbound(cMsg, null);
-    }
-
-    @Test(description = "Test for resource availability check when the given message type is not given",
-            expectedExceptions = { BallerinaException.class },
-            expectedExceptionsMessageRegExp = ".* no resource found to handle the request to Service : jmsService :.*")
-    public void testJMSResourceAvailability() {
-        CarbonMessage cMsg = new TextCarbonMessage("test");
-        cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, JMSConstants.PROTOCOL_JMS);
-        cMsg.setProperty(JMSConstants.JMS_SERVICE_ID, "jmsService");
-        ServerConnectorMessageHandler.handleInbound(cMsg, null);;
     }
 
     @Test(description = "Test for resource availability check when there are all the required information")

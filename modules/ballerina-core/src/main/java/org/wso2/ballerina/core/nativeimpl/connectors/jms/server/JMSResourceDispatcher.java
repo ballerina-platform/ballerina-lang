@@ -28,10 +28,10 @@ import org.wso2.ballerina.core.nativeimpl.connectors.jms.Constants;
 import org.wso2.ballerina.core.runtime.dispatching.ResourceDispatcher;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.transport.jms.jndi.utils.JMSConstants;
+import org.wso2.carbon.transport.jms.utils.JMSConstants;
 
 /**
- * Dispatcher that handles the resources of a JMS Service
+ * Dispatcher that handles the resources of a JMS Service.
  */
 public class JMSResourceDispatcher implements ResourceDispatcher {
     private static final Logger log = LoggerFactory.getLogger(JMSResourceDispatcher.class);
@@ -40,22 +40,19 @@ public class JMSResourceDispatcher implements ResourceDispatcher {
     public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
             throws BallerinaException {
         if (log.isDebugEnabled()) {
-            log.debug("Starting to find resource in the jms service to deliver the message");
-        }
-        Object messageTypeProperty = cMsg.getProperty(JMSConstants.JMS_MESSAGE_TYPE);
-        String messageType = (messageTypeProperty != null) ? messageTypeProperty.toString() : null;
-        if (messageType == null) {
-            throw new BallerinaException("Message type is not found in the JMS message", balContext);
+            log.debug("Starting to find resource in the jms service " + service.getSymbolName().toString() + " to "
+                            + "deliver the message");
         }
         for (Resource resource : service.getResources()) {
             if (resource.getAnnotation(Constants.ANNOTATION_NAME_ONMESSAGE) != null) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Found the relevant resource in the jms service");
+                    log.debug("Found the relevant resource in the jms service " + service.getSymbolName().toString());
                 }
                 return resource;
             }
         }
-        throw new BallerinaException("Resource to handle jms service is not found.", balContext);
+        throw new BallerinaException("Resource to handle the jms message is not found in jms service " + service
+                .getSymbolName().toString(), balContext);
     }
 
     @Override

@@ -25,7 +25,7 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.transport.jms.jndi.utils.JMSConstants;
+import org.wso2.carbon.transport.jms.utils.JMSConstants;
 
 /**
  * To rollback the transactions.
