@@ -103,6 +103,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.jsPlumbInstance.detach(connection);
         this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
         this.disconnectCallback(propertyConnection);
+        this.enableParentsJsTree(connection.sourceId, this, this.jsPlumbInstance.getAllConnections(), true);
+        this.enableParentsJsTree(connection.targetId, this, this.jsPlumbInstance.getAllConnections(), false);
     };
 
     /**
@@ -315,36 +317,42 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     };
 
 
-    TypeMapperRenderer.prototype.processJSTree = function (jsTreeId, structId, callback) {
+    /**
+     * Manipulates the jstree structure and the jsPlumb connections
+     *
+     * @param jsTreeId
+     * @param structId
+     * @param createCallback
+     */
+    TypeMapperRenderer.prototype.processJSTree = function (jsTreeId, structId, createCallback) {
         var self = this;
         $("#" + jsTreeId).jstree().on('ready.jstree', function () {
             var sourceElements = $("#" + structId).find('.jstree-anchor');
             _.forEach(sourceElements, function (element) {
-                callback(element, self);
+                createCallback(element, self);
             });
             $("#" + jsTreeId).jstree('open_all');
             self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
         }).on('after_open.jstree', function (event, data) {
+            self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
             var parentId = data.node.id;
             var sourceElements = $("#" + parentId).find('.jstree-anchor');
             _.forEach(sourceElements, function (element) {
-                callback(element, self);
+                createCallback(element, self);
             });
+            self.jsPlumbInstance.repaintEverything();
+        }).on('after_close.jstree', function (event, data) {
             self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
-        }).on('close_node.jstree', function (event, data) {
-            //TODO: need to rethink what need to happen when close
-            // var parentId = data.node.id;
-            // var sourceElements = $("#" + parentId).find('.jstree-anchor');
-            // var sourceIds = [];
-            // _.forEach(sourceElements, function (element) {
-            //     sourceIds.push(sourceElements.attr('id').replace('_anchor', ""));
-            // });
-            // var connections = self.jsPlumbInstance.getConnections({source: "jstree-container___newStruct4___ee7433db-99b0-3ed4-c346-1a019d10e350_-_-_-xsxaxax---newStruct2_-_-_-sqsq---string_anchor"});
-            // _.forEach(connections, function (connection) {
-            //     self.disconnect(connection);
-            // })
+            self.jsPlumbInstance.repaintEverything();
         }).on('select_node.jstree', function (event, data) {
             data.instance.deselect_node(data.node);
+        });
+    };
+
+    TypeMapperRenderer.prototype.repaintAll = function (jsTreeId) {
+        var children = $("#" + jsTreeId).jstree().get_node('#').children_d;
+        _forEach(children, function (child) {
+            self.jsPlumbInstance.repaint(child.id+"_anchor");
         });
     };
 
@@ -468,6 +476,16 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     };
 
     /**
+     * Remove the source element
+     *
+     * @param elements
+     * @param self
+     */
+    TypeMapperRenderer.prototype.removeSource = function (elements, self) {
+        self.jsPlumbInstance.unmakeSource(elements);
+    };
+
+    /**
      * Make target property
      * @param element
      * @param self
@@ -476,7 +494,6 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         self.jsPlumbInstance.makeTarget(element, {
             maxConnections: 1,
             anchor: ["Continuous", {faces: ["left"]}],
-
             beforeDrop: function (params) {
                 //Checks property types are equal
                 var isValidTypes = self.getPropertyType(params.sourceId) == self.getPropertyType(params.targetId);
@@ -485,6 +502,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                     self.midpoint = self.midpoint + self.midpointVariance;
                     self.jsPlumbInstance.importDefaults({ Connector : self.getConnectorConfig(self.midpoint)});
                     self.onConnection(connection);
+                    self.disableParentsJsTree(params.sourceId, self);
+                    self.disableParentsJsTree(params.targetId, self);
                 } else {
                     var compatibleTypeConverters = self.getExistingTypeMappers(self.typeConverterView,
                         connection.sourceType, connection.targetType);
@@ -493,6 +512,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                         connection.isComplexMapping = true;
                         connection.complexMapperName = compatibleTypeConverters[0];
                         self.onConnection(connection);
+                        self.disableParentsJsTree(params.sourceId, self);
+                        self.disableParentsJsTree(params.targetId, self);
                     } else {
                         alerts.error("There is no valid type mapper existing to covert from : " + connection.sourceType
                             + " to: " + connection.targetType);
@@ -500,12 +521,63 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 }
                 return isValidTypes;
             },
-
             onDrop: function () {
                 self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
             }
         })
         ;
+    };
+
+    TypeMapperRenderer.prototype.disableParentsJsTree = function (connectionId, self) {
+        var jsTreeContainerPrefix = 'jstree-container';
+        var sourceJsTreeId = jsTreeContainerPrefix + self.viewIdSeperator + self.getStructId(connectionId);
+        var sourceJsTree = $("#" + sourceJsTreeId).jstree(true);
+        var node = sourceJsTree.get_node(connectionId.replace('_anchor', ''));
+        _.forEach(node.parents, function (parentNodeId) {
+            if (parentNodeId !== '#') {
+                var parentNode = sourceJsTree.get_node(parentNodeId);
+                parentNode.state = 'leaf';
+            }
+        });
+    };
+
+    TypeMapperRenderer.prototype.enableParentsJsTree = function (connectionId, self, connections, isSource) {
+        var jsTreeContainerPrefix = 'jstree-container';
+        var sourceJsTreeId = jsTreeContainerPrefix + self.viewIdSeperator + self.getStructId(connectionId);
+        var sourceJsTree = $("#" + sourceJsTreeId).jstree(true);
+        var node = sourceJsTree.get_node(connectionId.replace('_anchor', ''));
+        _.forEach(node.parents, function (parentNodeId) {
+            if (parentNodeId !== '#' && !self.isChildConnectionExists(sourceJsTree, self, connections, isSource)) {
+                var parentNode = sourceJsTree.get_node(parentNodeId);
+                parentNode.state = {
+                    disabled: false,
+                    loaded: true,
+                    opened: true,
+                    selected: false
+                };
+            }
+        });
+    };
+
+    TypeMapperRenderer.prototype.isChildConnectionExists = function (jsTreeNode, self, connections, isSource) {
+        var childNodes = jsTreeNode.children_d;
+        var child = _.find(childNodes, function (childId) {
+            var connection = _.find(connections, function (connection) {
+                if (isSource) {
+                    return childId.includes(connection.sourceId);
+                } else {
+                    return childId.includes(connection.targetId);
+                }
+            });
+            if (!_.isUndefined(connection)) {
+                return true;
+            }
+        });
+        return !_.isUndefined(child);
+    };
+
+    TypeMapperRenderer.prototype.removeTarget = function (element, self) {
+        self.jsPlumbInstance.unmakeTarget(element);
     };
 
 
@@ -536,8 +608,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
             _.forEach(nodes, function (n) {
                 var nodeContent = $("#" + n.id);
-                if (maxTypeHeight < nodeContent.width()) {
-                    maxTypeHeight = nodeContent.width();
+                if (maxTypeHeight < nodeContent.height()) {
+                    maxTypeHeight = nodeContent.height();
                 }
                 graph.setNode(n.id, {width: nodeContent.width(), height: nodeContent.height()});
             });

@@ -38,7 +38,7 @@
 .struct {
     cursor: move;
     border: 1px solid gray;
-    width: 200px;
+    width: 500px;
     height: auto;
     background: #3d3d3d;
     color: #ffffff;
