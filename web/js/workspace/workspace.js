@@ -144,8 +144,8 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
         this.openFileOpenDialog = function openFileOpenDialog() {
             if(_.isNil(this._openFileDialog)){
                 this._openFileDialog = new Dialogs.open_file_dialog(app);
-                this._openFileDialog.render();
             }
+            this._openFileDialog.render();
             this._openFileDialog.show();
         };
 
