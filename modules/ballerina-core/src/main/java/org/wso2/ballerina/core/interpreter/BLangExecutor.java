@@ -322,7 +322,7 @@ public class BLangExecutor implements NodeExecutor {
         }
 
         // Create an array in the stack frame to hold return values;
-        BValue[] returnVals = new BValue[action.getReturnParameters().length];
+        BValue[] returnVals = new BValue[action.getReturnParamTypes().length];
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression values and
         // return values;
