@@ -46,9 +46,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     private NodeLocation location;
 
     // BLangSymbol related attributes
-    protected String pkgPath;
     protected boolean isPublic;
-    protected SymbolName symbolName;
 
     private Annotation[] annotations;
     private ParameterDef[] parameterDefs;
