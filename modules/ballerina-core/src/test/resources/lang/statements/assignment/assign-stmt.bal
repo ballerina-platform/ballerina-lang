@@ -35,7 +35,7 @@ function testStringAssignStmt(string a) (string) {
 }
 
 function testIntToArrayAssignStmt(int a) (int) {
-    int[] arr;
+    int[] arr = [];
     arr[0] = a;
     return arr[0];
 }

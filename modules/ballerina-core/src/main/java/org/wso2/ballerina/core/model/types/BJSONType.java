@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -25,15 +26,15 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
-class BJSONType extends BType {
+public class BJSONType extends BType {
 
     /**
      * Create a {@code BJSONType} which represents the boolean type.
      *
      * @param typeName string name of the type
      */
-    BJSONType(String typeName) {
-        super(typeName, BJSON.class);
+    BJSONType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BJSON.class);
     }
 
     @SuppressWarnings("unchecked")

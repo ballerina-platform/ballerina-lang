@@ -28,6 +28,7 @@ public enum Operator {
     SUB("-"),
     MUL("*"),
     DIV("/"),
+    MOD("%"),
     AND("&&"),
     OR("||"),
     EQUAL("=="),
@@ -43,5 +44,10 @@ public enum Operator {
 
     Operator(String opValue) {
         this.opValue = opValue;
+    }
+
+    @Override
+    public String toString() {
+        return opValue;
     }
 }

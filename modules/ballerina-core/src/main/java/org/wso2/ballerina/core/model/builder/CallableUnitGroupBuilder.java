@@ -19,14 +19,14 @@ package org.wso2.ballerina.core.model.builder;
 
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaAction;
-import org.wso2.ballerina.core.model.BallerinaConnector;
-import org.wso2.ballerina.core.model.ConnectorDcl;
-import org.wso2.ballerina.core.model.Parameter;
-import org.wso2.ballerina.core.model.Position;
+import org.wso2.ballerina.core.model.BallerinaConnectorDef;
+import org.wso2.ballerina.core.model.NodeLocation;
+import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.SymbolScope;
+import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,65 +38,67 @@ import java.util.List;
  *
  * @since 0.8.0
  */
-class CallableUnitGroupBuilder {
+public class CallableUnitGroupBuilder {
+    protected NodeLocation location;
+    protected SymbolScope currentScope;
 
-    private SymbolName name;
-    private Position position;
-    private List<Annotation> annotationList = new ArrayList<>();
-    private List<Parameter> parameterList = new ArrayList<>();
-    private List<ConnectorDcl> connectorDclList = new ArrayList<>();
-    private List<VariableDcl> variableDclList = new ArrayList<>();
-    private List<Resource> resourceList = new ArrayList<>();
-    private List<BallerinaAction> actionList = new ArrayList<>();
+    // BLangSymbol related attributes
+    protected String name;
+    protected String pkgPath;
+    protected boolean isPublic;
+    protected SymbolName symbolName;
 
-    void setName(SymbolName name) {
+    protected List<Annotation> annotationList = new ArrayList<>();
+    protected List<ParameterDef> parameterDefList = new ArrayList<>();
+    protected List<Resource> resourceList = new ArrayList<>();
+    protected List<BallerinaAction> actionList = new ArrayList<>();
+    protected List<VariableDefStmt> variableDefStmtList = new ArrayList<>();
+
+    SymbolScope getCurrentScope() {
+        return currentScope;
+    }
+
+    public void setNodeLocation(NodeLocation location) {
+        this.location = location;
+    }
+
+    public void setName(String name) {
         this.name = name;
     }
 
-    void addAnnotation(Annotation annotation) {
+    public void setPkgPath(String pkgPath) {
+        this.pkgPath = pkgPath;
+    }
+
+    void setPublic(boolean isPublic) {
+        this.isPublic = isPublic;
+    }
+
+    public void addAnnotation(Annotation annotation) {
         this.annotationList.add(annotation);
     }
 
-    void addParameter(Parameter param) {
-        this.parameterList.add(param);
+    public void addParameter(ParameterDef param) {
+        this.parameterDefList.add(param);
     }
 
-    void addConnectorDcl(ConnectorDcl connectorDcl) {
-        this.connectorDclList.add(connectorDcl);
-    }
-
-    void addVariableDcl(VariableDcl variableDcl) {
-        this.variableDclList.add(variableDcl);
-    }
-
-    void addResource(Resource resource) {
+    public void addResource(Resource resource) {
         this.resourceList.add(resource);
     }
 
-    void addAction(BallerinaAction action) {
+    public void addAction(BallerinaAction action) {
         this.actionList.add(action);
     }
 
-    Service buildService() {
-        return new Service(name, position, annotationList.toArray(new Annotation[annotationList.size()]),
-                connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
-                variableDclList.toArray(new VariableDcl[variableDclList.size()]),
-                resourceList.toArray(new Resource[resourceList.size()]));
+    public void addVariableDef(VariableDefStmt variableDefStmt) {
+        this.variableDefStmtList.add(variableDefStmt);
     }
 
-    BallerinaConnector buildConnector() {
-        return new BallerinaConnector(name, position, annotationList.toArray(new Annotation[annotationList.size()]),
-                parameterList.toArray(new Parameter[parameterList.size()]),
-                connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
-                variableDclList.toArray(new VariableDcl[variableDclList.size()]),
-                actionList.toArray(new BallerinaAction[actionList.size()]));
+    public Service buildService() {
+        return null;
     }
 
-    public Position getLocation() {
-        return position;
-    }
-
-    public void setLocation(Position position) {
-        this.position = position;
+    public BallerinaConnectorDef buildConnector() {
+        return null;
     }
 }

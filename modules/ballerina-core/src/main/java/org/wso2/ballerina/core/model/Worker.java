@@ -26,31 +26,31 @@ import java.util.List;
 /**
  * A {@code worker} is a thread of execution that the integration developer programs as a lifeline.
  * <p>
- *
+ * <p>
  * Workers are defined as follows:
+ * <p>
+ * worker WorkerName (message m) {
+ * ConnectionDeclaration;*
+ * VariableDeclaration;*
+ * Statement;+
+ * [reply MessageName;]
+ * }
  *
- *  worker WorkerName (message m) {
- *      ConnectionDeclaration;*
- *      VariableDeclaration;*
- *      Statement;+
- *      [reply MessageName;]
- *  }
- *
- *  @since 0.8.0
+ * @since 0.8.0
  */
-@SuppressWarnings("unused")
 public class Worker implements Node {
 
     private List<ConnectorDcl> connectorDcls;
-    private List<VariableDcl> variables;
+    private List<VariableDef> variables;
     private List<Statement> statements;
 
-    public Worker(List<VariableDcl> variables, List<Statement> statements) {
+    public Worker(NodeLocation location, List<VariableDef> variables, List<Statement> statements) {
         this.variables = variables;
         this.statements = statements;
     }
 
-    public Worker(){}
+    public Worker() {
+    }
 
     /**
      * Get all Connections declared within the Worker.
@@ -87,7 +87,7 @@ public class Worker implements Node {
      *
      * @return list of all Worker scoped variables
      */
-    public List<VariableDcl> getVariables() {
+    public List<VariableDef> getVariables() {
         return variables;
     }
 
@@ -96,7 +96,7 @@ public class Worker implements Node {
      *
      * @param variables list of variables
      */
-    public void setVariables(List<VariableDcl> variables) {
+    public void setVariables(List<VariableDef> variables) {
         this.variables = variables;
     }
 
@@ -105,9 +105,9 @@ public class Worker implements Node {
      *
      * @param variable variable to be added the Worker
      */
-    public void addVariable(VariableDcl variable) {
+    public void addVariable(VariableDef variable) {
         if (variables == null) {
-            variables = new ArrayList<VariableDcl>();
+            variables = new ArrayList<VariableDef>();
         }
         variables.add(variable);
     }
@@ -145,5 +145,10 @@ public class Worker implements Node {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public NodeLocation getNodeLocation() {
+        return null;
     }
 }

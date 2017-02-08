@@ -16,34 +16,36 @@
  */
 package org.wso2.ballerina.core.interpreter;
 
-import org.wso2.ballerina.core.model.Position;
+import org.wso2.ballerina.core.model.NodeLocation;
 
 /**
  * Bean class to hold meta information of a node in the control stack (i.e: a function/action/resource/service),
- * including name, type, package and the location in the ballerina source (see {@link Position}).
+ * including name, type, package and the location in the ballerina source (see {@link NodeLocation}).
+ *
+ * @since 0.8.0
  */
 public class CallableUnitInfo {
     private String unitName;
     private String unitPackage;
-    private Position location;
+    private NodeLocation location;
 
     /**
      * Creates a {@link CallableUnitInfo}.
-     * 
-     * @param unitName      Identifier of the CallableUnit
-     * @param unitPackage   Package of the CallableUnit
-     * @param location      Location in the ballerina source
+     *
+     * @param unitName     Identifier of the CallableUnit
+     * @param unitPackage  Package of the CallableUnit
+     * @param location Location in the ballerina source
      */
-    public CallableUnitInfo(String unitName, String unitPackage, Position location) {
+    public CallableUnitInfo(String unitName, String unitPackage, NodeLocation location) {
         this.unitName = unitName;
         this.unitPackage = unitPackage;
         this.location = location;
     }
-    
+
     /**
      * Get the name of this CallableUnit.
-     * 
-     * @return  Name of this CallableUnit
+     *
+     * @return Name of this CallableUnit
      */
     public String getName() {
         return this.unitName;
@@ -51,8 +53,8 @@ public class CallableUnitInfo {
 
     /**
      * Get the package of this CallableUnit.
-     * 
-     * @return  Package of this CallableUnit
+     *
+     * @return Package of this CallableUnit
      */
     public String getPackage() {
         return this.unitPackage;
@@ -60,8 +62,8 @@ public class CallableUnitInfo {
 
     /**
      * Set the package of this CallableUnit.
-     * 
-     * @param packageName  Package of this CallableUnit
+     *
+     * @param packageName Package of this CallableUnit
      */
     public void setPackage(String packageName) {
         this.unitPackage = packageName;
@@ -69,10 +71,10 @@ public class CallableUnitInfo {
 
     /**
      * Get the location of this CallableUnit in the ballerina source file.
-     * 
-     * @return  Location of this CallableUnit in the ballerina source
+     *
+     * @return Location of this CallableUnit in the ballerina source
      */
-    public Position getLocation() {
+    public NodeLocation getNodeLocation() {
         return location;
     }
 }
