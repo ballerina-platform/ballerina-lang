@@ -35,10 +35,11 @@ public class WSO2EventOutputMapper extends OutputMapper {
         this.streamDefinition = streamDefinition;
         this.options = options;
 
-        //validate for mandatory field streamID
+        //streamID is expected to receive as an option/dynamic option
         List<String> availableOptions = new ArrayList<>();
         availableOptions.addAll(options.keySet());
         availableOptions.addAll(unmappedDynamicOptions.keySet());
+        //validate for mandatory field streamID
         if (availableOptions.contains(STREAM_ID)) {
             isDynamicStreamID = unmappedDynamicOptions.containsKey(STREAM_ID);
         } else {
@@ -63,7 +64,6 @@ public class WSO2EventOutputMapper extends OutputMapper {
         List<Object> payloadData = new ArrayList<Object>();
 
         // Construct WSO2Event
-        // 3/2/2017 currently, streamID is expected to receive as an option/dynamic option
         if (!isDynamicStreamID) {
             eventObject.setStreamId(options.get(STREAM_ID));
         } else {

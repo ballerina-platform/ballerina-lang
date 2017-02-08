@@ -58,6 +58,7 @@
         <dependency>
             <groupId>org.wso2.carbon.analytics-common</groupId>
             <artifactId>org.wso2.carbon.databridge.commons</artifactId>
+            <version>${carbon.analytics.common.version}</version>
         </dependency>
     </dependencies>
 
@@ -86,5 +87,10 @@
             </plugin>
         </plugins>
     </build>
+
+    <properties>
+        <!-- TODO: 8/2/2017 Upgrade this to fixed c5 version-->
+        <carbon.analytics.common.version>5.1.12</carbon.analytics.common.version>
+    </properties>
 
 </project>

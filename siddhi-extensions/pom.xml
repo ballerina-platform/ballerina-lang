@@ -41,6 +41,7 @@
         <module>output-mappers/json-output-mapper</module>
         <module>output-mappers/map-output-mapper</module>
         <module>output-mappers/xml-output-mapper</module>
+        <module>output-mappers/wso2event-output-mapper</module>
         <module>input-mappers/text-input-mapper</module>
         <module>input-mappers/json-input-mapper</module>
         <module>input-mappers/map-input-mapper</module>
