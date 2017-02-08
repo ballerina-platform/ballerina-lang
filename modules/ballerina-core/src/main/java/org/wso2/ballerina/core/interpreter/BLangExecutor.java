@@ -403,9 +403,13 @@ public class BLangExecutor implements NodeExecutor {
     @Override
     public BValue visit(ArrayMapAccessExpr arrayMapAccessExpr) {
 
-        Expression arrayVarRefExpr = arrayMapAccessExpr.getRExpr();
+        VariableRefExpr arrayVarRefExpr = (VariableRefExpr) arrayMapAccessExpr.getRExpr();
         BValue collectionValue = arrayVarRefExpr.execute(this);
 
+        if (collectionValue == null) {
+            throw new BallerinaException("variable '" + arrayVarRefExpr.getVarName() + "' is null");
+        }
+        
         Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
         BValue indexValue = indexExpr.execute(this);
 
