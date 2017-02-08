@@ -29,7 +29,7 @@
     <name>WSO2 Carbon Transport Parent</name>
 
     <modules>
-        <module>server-connector-framework</module>
+        <module>connector-framework</module>
         <module>http</module>
         <module>jms</module>
         <module>features</module>
@@ -107,12 +107,12 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.transport</groupId>
-                <artifactId>org.wso2.carbon.serverconnector.framework</artifactId>
+                <artifactId>org.wso2.carbon.connector.framework</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.transport</groupId>
-                <artifactId>org.wso2.carbon.transport.jms.jndi</artifactId>
+                <artifactId>org.wso2.carbon.transport.jms</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -176,11 +176,6 @@
                 <artifactId>activemq-broker</artifactId>
                 <version>${activemq.broker.vesion}</version>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.transport</groupId>
-                <artifactId>org.wso2.carbon.transport.jms</artifactId>
-                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -297,8 +292,8 @@
 
         <!-- Package exports -->
         <netty.transport.package.export.version>${project.version}</netty.transport.package.export.version>
-        <serverconnector.framework.package.export.version>${project.version}
-        </serverconnector.framework.package.export.version>
+        <connector.framework.package.export.version>${project.version}
+        </connector.framework.package.export.version>
         <jms.transport.package.export.version>${project.version}</jms.transport.package.export.version>
 
         <!-- Following two properties should be removed once the versions are added the wso2 parent pom CARBON-15729 -->

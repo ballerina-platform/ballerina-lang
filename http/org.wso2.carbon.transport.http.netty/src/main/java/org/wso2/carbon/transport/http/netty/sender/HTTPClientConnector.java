@@ -56,8 +56,7 @@ public class HTTPClientConnector implements ClientConnector {
 
     public HTTPClientConnector() {
         TransportsConfiguration transportsConfiguration = YAMLTransportConfigurationBuilder.build();
-        init(transportsConfiguration.getSenderConfigurations(),
-                transportsConfiguration.getTransportProperties());
+        init(transportsConfiguration.getSenderConfigurations(), transportsConfiguration.getTransportProperties());
     }
 
     public HTTPClientConnector(Set<SenderConfiguration> senderConfiguration,
@@ -86,8 +85,18 @@ public class HTTPClientConnector implements ClientConnector {
     }
 
     @Override
+    public boolean send(CarbonMessage msg, CarbonCallback callback) throws ClientConnectorException {
+        return invokeSend(msg, callback);
+    }
+
+
+    @Override
     public boolean send(CarbonMessage msg, CarbonCallback callback, Map<String, String> parameters)
             throws ClientConnectorException {
+        return invokeSend(msg, callback);
+    }
+
+    private boolean invokeSend(CarbonMessage msg, CarbonCallback callback) throws ClientConnectorException {
         String protocol = (String) msg.getProperty(Constants.PROTOCOL);
         SenderConfiguration defaultSenderConfiguration = senderConfigurationMap
                 .get(protocol.toLowerCase(Locale.getDefault()));
@@ -144,6 +153,6 @@ public class HTTPClientConnector implements ClientConnector {
     @Override
     public String getProtocol() {
         //hardcoded because there is always one sender with set of configurations
-        return "http/s";
+        return "http";
     }
 }

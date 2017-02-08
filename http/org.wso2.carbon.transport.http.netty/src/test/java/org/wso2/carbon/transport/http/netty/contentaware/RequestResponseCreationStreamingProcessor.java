@@ -25,9 +25,9 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.ClientConnector;
-import org.wso2.carbon.messaging.MessageProcessorException;
 import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.messaging.TransportSender;
+import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
@@ -43,7 +43,7 @@ import java.util.concurrent.Executors;
 public class RequestResponseCreationStreamingProcessor implements CarbonMessageProcessor {
     private static final Logger logger = LoggerFactory.getLogger(RequestResponseCreationStreamingProcessor.class);
 
-    private TransportSender transportSender;
+    private ClientConnector clientConnector;
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
@@ -68,11 +68,11 @@ public class RequestResponseCreationStreamingProcessor implements CarbonMessageP
                         newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
                         newMsg.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
                         EngineCallBack engineCallBack = new EngineCallBack(carbonCallback);
-                        transportSender.send(newMsg, engineCallBack);
+                        clientConnector.send(newMsg, engineCallBack);
                     }
                 } catch (IOException e) {
                     logger.error("Error while reading stream", e);
-                } catch (MessageProcessorException e) {
+                } catch (ClientConnectorException e) {
                     logger.error("MessageProcessor is not supported ", e);
                 }
             }
@@ -83,12 +83,11 @@ public class RequestResponseCreationStreamingProcessor implements CarbonMessageP
 
     @Override
     public void setTransportSender(TransportSender transportSender) {
-        this.transportSender = transportSender;
     }
 
     @Override
     public void setClientConnector(ClientConnector clientConnector) {
-
+        this.clientConnector = clientConnector;
     }
 
     @Override
