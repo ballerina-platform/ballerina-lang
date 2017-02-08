@@ -119,6 +119,17 @@ function doubletostring(double value)(string) {
     return result;
 }
 
+function booleantostring(boolean value)(string) {
+    string result;
+    result = (string)value;
+    return result;
+}
+
+function booleanappendtostring(boolean value)(string) {
+    string result;
+    result = value + "-append-" + value;
+    return result;
+}
 
 function intarrtolongarr()(long[]) {
     long[] numbers;

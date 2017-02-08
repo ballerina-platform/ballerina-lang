@@ -14,6 +14,8 @@ service ATMLocator {
 
         message backendServiceReq = {};
 
+        json jsonLocatorReq = message:getJsonPayload(m);
+
         string zipCode = json:getString(jsonLocatorReq, "$.ATMLocator.ZipCode");
         system:println("Zip Code " + zipCode);
 
