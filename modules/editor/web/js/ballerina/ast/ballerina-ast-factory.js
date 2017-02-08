@@ -243,6 +243,22 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
             return assignmentStmt;
         };
 
+        /* Create the particular assignment statement for the function invocation
+         * @param args
+         * @returns {AssignmentStatement}
+         */
+        BallerinaASTFactory.createAggregatedFunctionInvocationExpression = function(args) {
+            var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
+            var leftOp = BallerinaASTFactory.createLeftOperandExpression(args);
+            var rightOp = BallerinaASTFactory.createRightOperandExpression(args);
+            var functionInExp = BallerinaASTFactory.createFunctionInvocationExpression(args);
+            rightOp.addChild(functionInExp);
+            rightOp.setRightOperandExpressionString(functionInExp.getExpression());
+            assignmentStmt.addChild(leftOp);
+            assignmentStmt.addChild(rightOp);
+            return assignmentStmt;
+        };
+
         /**
          * creates If-Else Statement
          * @param args

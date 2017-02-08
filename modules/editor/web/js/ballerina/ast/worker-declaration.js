@@ -28,20 +28,6 @@ define(['lodash', './node'], function (_, ASTNode) {
     WorkerDeclaration.prototype = Object.create(ASTNode.prototype);
     WorkerDeclaration.prototype.constructor = WorkerDeclaration;
 
-    WorkerDeclaration.prototype.addChild = function (child, index) {
-        if (_.isUndefined(index)) {
-            this._childrenList.insert(index, child)
-        } else {
-            this._childrenList.push(child);
-        }
-    };
-
-    WorkerDeclaration.prototype.setReply = function (replyStatement, options) {
-        if (!_.isNil(replyStatement)) {
-            this.setAttribute('_reply', replyStatement, options);
-        }
-    };
-
     WorkerDeclaration.prototype.setIsDefaultWorker = function (isDefaultWorker, options) {
         if (!_.isNil(isDefaultWorker)) {
             this.setAttribute('_isDefaultWorker', isDefaultWorker, options);

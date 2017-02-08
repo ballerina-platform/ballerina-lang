@@ -102,7 +102,7 @@ define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
      * Gets or sets h
      * @returns {number|BBox} h
      */
-    BBox.prototype.h = function (newH) {
+    BBox.prototype.h = function (newH, silent) {
         if (newH === undefined) {
             return this._h;
         }
@@ -112,9 +112,11 @@ define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
         }
         var oldCenterY = this.getCenterY();
         this._h = newH;
-        this.trigger('bottom-edge-moved', deltaH);
-        this.trigger('height-changed', deltaH);
-        triggerCenterYChanged(oldCenterY, this.getCenterY(), this);
+        if (!silent) {
+            this.trigger('bottom-edge-moved', deltaH);
+            this.trigger('height-changed', deltaH);
+            triggerCenterYChanged(oldCenterY, this.getCenterY(), this);
+        }
         return this;
     };
 

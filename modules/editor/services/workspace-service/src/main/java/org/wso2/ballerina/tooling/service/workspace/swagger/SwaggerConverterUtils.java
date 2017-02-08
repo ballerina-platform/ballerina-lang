@@ -105,19 +105,16 @@ public class SwaggerConverterUtils {
         DefaultGenerator generator = new DefaultGenerator();
         generator.opts(clientOptInput);
         Map<String, List<CodegenOperation>> paths = generator.processPaths(swagger.getPaths());
-        Set<String> opIds = new HashSet<String>();
         Resource[] resources1 = null;
         for (String path : paths.keySet()) {
             List<CodegenOperation> ops = paths.get(path);
             resources1 = mapSwaggerPathsToResources(ops);
         }
-        generator.generate();
         List<Annotation> serviceAnnotationArrayList = new ArrayList<Annotation>();
         serviceAnnotationArrayList.add(new Annotation("BasePath", swagger.getBasePath()));
         serviceAnnotationArrayList.add(new Annotation("Host", swagger.getHost()));
         service.setAnnotations(serviceAnnotationArrayList.toArray(new Annotation[serviceAnnotationArrayList.size()]));
         //Iterate through paths and add them as resources
-        Resource[] resources = mapPathsToResources(swagger.getPaths());
         service.setResources(resources1);
         return service;
     }
@@ -152,11 +149,9 @@ public class SwaggerConverterUtils {
 
     public static Resource[] mapSwaggerPathsToResources(List<CodegenOperation> pathMap) {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
-        Resource[] resources;
         Resource resource = new Resource();
         List<Resource> resourceList = new ArrayList<Resource>();
         for (CodegenOperation entry : pathMap) {
-            String pathString = entry.path;
             Map<String, Annotation> annotationMap = new ConcurrentHashMap();
             String httpMethod = entry.httpMethod;
             String operationId = entry.operationId;
@@ -167,29 +162,47 @@ public class SwaggerConverterUtils {
             if (entry.hasProduces) {
                 annotationMap.put("Produces", new Annotation("Produces", entry.produces.toString()));
             }
+            if (entry.summary != null) {
+                annotationMap.put("Summary", new Annotation("Summary", entry.summary.toString()));
+            }
+            if (entry.notes != null) {
+                annotationMap.put("Description", new Annotation("Description", entry.notes.toString()));
+            }
+            if (entry.path != null && entry.path.length() > 0) {
+                annotationMap.put("Path", new Annotation("Path", entry.path.toString()));
+            }
+            if (entry.httpMethod != null && entry.httpMethod.length() > 0) {
+                resource.addAnnotation(new Annotation(httpMethod, ""));
+            }
             annotationMap.put(httpMethod, new Annotation(httpMethod, ""));
             resource.addAnnotation(new Annotation(new SymbolName(httpMethod), null, null));
             resource.setAnnotations(annotationMap);
             annotationMap.values().toArray(new Annotation[annotationMap.size()]);
-            resourceList.add(resource);
+            //This resource initiation was required because resource do have both
+            //annotation map and array. But there is no way to update array other than
+            //constructor method.
+            Resource resourceToBeAdd = new Resource(resource.getSymbolName(), null,
+                    annotationMap.values().toArray(new Annotation[annotationMap.size()]),
+                    resource.getParameters(),
+                    resource.getConnectorDcls(),
+                    resource.getVariableDcls(),
+                    null,
+                    null);
+            resourceList.add(resourceToBeAdd);
         }
         return resourceList.toArray(new Resource[resourceList.size()]);
     }
 
     public static Resource[] mapPathsToResources(Map<String, Path> pathMap) {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
-        Resource[] resources;
         List<Resource> resourceList = new ArrayList<Resource>();
         for (Map.Entry<String, Path> entry : pathMap.entrySet()) {
-            String pathString = entry.getKey();
             Path path = entry.getValue();
             Resource resource = new Resource();
             Map<String, Annotation> annotationMap = new ConcurrentHashMap();
-            String httpMethodString;
             for (Map.Entry<HttpMethod, Operation> operationEntry : path.getOperationMap().entrySet()) {
-                Operation currentOperation = operationEntry.getValue();
                 annotationMap.put(operationEntry.getKey().toString(),
-                                  new Annotation(operationEntry.getKey().toString()));
+                        new Annotation(operationEntry.getKey().toString()));
                 resource.setSymbolName(new SymbolName(operationEntry.getKey().name()));
             }
             resource.setAnnotations(annotationMap);
@@ -216,7 +229,7 @@ public class SwaggerConverterUtils {
                     //Here is a resource math. Do assignments
                     //merge annotations
                     originalResource.setAnnotations(mergeAnnotationsAsMap(originalResource.getAnnotations(),
-                                                                          resource.getAnnotations()));
+                            resource.getAnnotations()));
                 }
             }
             if (!isExistingResource) {
@@ -226,11 +239,6 @@ public class SwaggerConverterUtils {
         }
         Collections.addAll(resourceList, originalService.getResources());
         originalService.setResources(resourceList.toArray(new Resource[resourceList.size()]));
-        originalService.getSymbolName();
-        originalService.getVariableDcls();
-        originalService.getResources();
-        originalService.getConnectorDcls();
-        originalService.getServiceLocation();
         return originalService;
     }
 

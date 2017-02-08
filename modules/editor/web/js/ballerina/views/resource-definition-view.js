@@ -19,12 +19,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         './default-worker', './point', './connector-declaration-view',
         'ballerina/ast/ballerina-ast-factory','./message', './statement-container',
         './../ast/variable-declaration', './variable-definitions-pane-view', './client-life-line', './annotation-view',
-        './resource-parameters-pane-view'],
+        './resource-parameters-pane-view', './worker-declaration-view', './axis'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
               DefaultWorkerView, Point, ConnectorDeclarationView,
               BallerinaASTFactory, MessageView, StatementContainer,
               VariableDeclaration, VariablesView, ClientLifeLine, AnnotationView,
-              ResourceParametersPaneView) {
+              ResourceParametersPaneView, WorkerDeclarationView, Axis) {
 
         /**
          * The view to represent a resource definition which is an AST visitor.
@@ -105,10 +105,17 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             //setting initial height for resource container
             this._totalHeight = 230;
             this._headerIconGroup = undefined;
+            //set initial worker margin for the resource
+            this._workerLifelineMargin = new Axis(0, false);
+            // Set the initial height control margin
+            this._horizontalMargin = new Axis(0, true);
             // initialize bounding box
             this.getBoundingBox().fromTopLeft(this._viewOptions.topLeft, this._viewOptions.heading.width, this._viewOptions.heading.height
                 + this._viewOptions.contentHeight);
             this._resourceGroup = undefined;
+            // Gap between the last statement of a worker/ default worker
+            // and the worker/ default worker's BBox's bottom edge
+            this._offsetLastStatementGap = 100;
             this.init();
         };
 
@@ -271,6 +278,92 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             }
             this._statementExpressionViewList.push(expressionView);
             expressionView.render();*/
+        };
+
+        /**
+         * Visit the worker declaration
+         * @param {WorkerDeclaration} workerDeclaration
+         */
+        ResourceDefinitionView.prototype.visitWorkerDeclaration = function (workerDeclaration) {
+            var self = this;
+            // If the default worker, we skip
+            if (!workerDeclaration.isDefaultWorker()) {
+                var container = this._contentGroup.node();
+                var lastWorkerIndex = this.getLastWorkerLifeLineIndex();
+                var newWorkerPosition = lastWorkerIndex === -1 ? 0 : lastWorkerIndex + 1;
+                var centerPoint = undefined;
+                if (newWorkerPosition === 0) {
+                    centerPoint = this._defaultWorker.getTopCenter().clone().move(this._viewOptions.LifeLineCenterGap, 0);
+                } else {
+                    centerPoint = this._connectorWorkerViewList[lastWorkerIndex].getTopCenter()
+                        .clone().move(this._viewOptions.LifeLineCenterGap, 0)
+                }
+                var workerDeclarationOptions = {
+                    model: workerDeclaration,
+                    container: container,
+                    centerPoint: centerPoint,
+                    toolPalette: this.toolPalette,
+                    messageManager: this.messageManager,
+                    diagramRenderContext: this.getDiagramRenderingContext()
+                };
+                var workerDeclarationView = new WorkerDeclarationView(workerDeclarationOptions);
+                workerDeclarationView.setParent(this);
+                workerDeclarationView.render();
+                var statementContainer = workerDeclarationView.renderStatementContainer(this.diagramRenderingContext);
+                this.diagramRenderingContext.getViewModelMap()[workerDeclaration.id] = workerDeclarationView;
+                this.listenWorkerToHorizontalMargin(workerDeclarationView);
+
+                // Worker listen to its statement container
+                workerDeclarationView.listenTo(statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy) {
+                    var deltaMove = self.getDeltaMove(self.getDeepestChild(workerDeclarationView, dy), dy);
+                    // Bellow logic is for properly align all the workers and the connectors
+                    // Statement Container expands. we move the horizontal line
+                    workerDeclarationView.getBottomCenter().y(workerDeclarationView.getBottomCenter().y() + deltaMove);
+                    workerDeclarationView.getBoundingBox().h(workerDeclarationView.getBoundingBox().h() + deltaMove);
+                    workerDeclarationView.stopListening(self.getHorizontalMargin());
+                    self.getHorizontalMargin().setPosition(self.getHorizontalMargin().getPosition() + deltaMove);
+                    self.listenWorkerToHorizontalMargin(workerDeclarationView);
+                    // We need to change the height of the statement container, silently. This is because when this
+                    // particular event is triggered, bounding box of the statement container has already changed,
+                    // before hand we manipulate it with this logic
+                    var statementContainerNewH = workerDeclarationView.getBottomCenter().y() - workerDeclarationView.getTopCenter().y();
+                    // TODO: re consider stopListening of the following event of the statement container. This is because we silently change the heights
+                    self.getStatementContainer().stopListening(self.getStatementContainer().getBoundingBox(), 'height-changed');
+                    workerDeclarationView.getStatementContainer().changeHeightSilent(statementContainerNewH);
+                    // Re initialize the above disabled event
+                    // self.getStatementContainer().listenTo(self.getStatementContainer().getBoundingBox(), 'height-changed', function (offset) {
+                    //     self.getStatementContainer()._mainDropZone.attr('height', parseFloat(self.getStatementContainer()._mainDropZone.attr('height')) + offset);
+                    // });
+
+                });
+
+                // Set the workerLifeLineMargin to the right edge of the newly added worker
+                this.getWorkerLifeLineMargin().setPosition(workerDeclarationView.getBoundingBox().getRight());
+                if (lastWorkerIndex === this.getConnectorWorkerViewList().length -1 &&
+                    workerDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
+                    // Worker is added as the last element for the ConnectorWorkerViewList.
+                    // Only Connectors are there at the moment
+                    this._parentView.getLifeLineMargin().setPosition(this._parentView.getLifeLineMargin().getPosition() + this._viewOptions.LifeLineCenterGap);
+                    this.setContentMinWidth(workerDeclarationView.getBoundingBox().getRight());
+                    this.setHeadingMinWidth(workerDeclarationView.getBoundingBox().getRight());
+                }
+
+                this._connectorWorkerViewList.splice(newWorkerPosition, 0, workerDeclarationView);
+            }
+        };
+
+        ResourceDefinitionView.prototype.getLastWorkerLifeLineIndex = function () {
+            var index = _.findLastIndex(this.getConnectorWorkerViewList(), function (lifeLine) {
+                return lifeLine instanceof WorkerDeclarationView;
+            });
+            return index;
+        };
+
+        ResourceDefinitionView.prototype.getLastConnectorLifeLineIndex = function () {
+            var index = _.findLastIndex(this.getConnectorWorkerViewList(), function (lifeLine) {
+                return lifeLine instanceof ConnectorDeclarationView;
+            });
+            return index;
         };
 
         /**
@@ -615,6 +708,20 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 this._defaultWorker = new DefaultWorkerView(defaultWorkerOpts);
             }
             this._defaultWorker.render();
+            // Set the workerLifeLineMargin to the end of the default worker
+            this.getWorkerLifeLineMargin().setPosition(this._defaultWorker.getBoundingBox().getRight());
+            this.getHorizontalMargin().setPosition(this._defaultWorker.getBoundingBox().getBottom());
+
+            this.listenTo(this.getHorizontalMargin(), 'moved', function (dy) {
+                self._defaultWorker.getBottomCenter().y(self._defaultWorker.getBottomCenter().y() + dy);
+                // Silently increase the bounding box of the worker. Because this size change is due to the
+                // horizontal margin movement, in other sense, for balancing with the other connectors/ workers' height
+                // therefore we need to manually change the bbox height and the drop zone size of the statement container
+                self.getStatementContainer().getBoundingBox().h(self.getStatementContainer().getBoundingBox().h() + dy, true);
+                self.getStatementContainer().changeDropZoneHeight(dy);
+                self.getBoundingBox().h(this.getBoundingBox().h() + dy);
+            });
+
             this.trigger("defaultWorkerViewAddedEvent", this._defaultWorker);
 
             this.initResourceLevelDropTarget();
@@ -726,6 +833,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          */
         ResourceDefinitionView.prototype.renderStatementContainer = function(){
             var statementContainerOpts = {};
+            var self = this;
             _.set(statementContainerOpts, 'model', this._model);
             _.set(statementContainerOpts, 'topCenter', this._defaultWorker.getTopCenter());
             _.set(statementContainerOpts, 'bottomCenter', this._defaultWorker.getBottomCenter());
@@ -734,10 +842,36 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
             this._statementContainer = new StatementContainer(statementContainerOpts);
             this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy){
-                    this._defaultWorker.getBottomCenter().y(this._statementContainer.getBoundingBox().getBottom());
-                    this._clientLifeLine.getBottomCenter().y(this._statementContainer.getBoundingBox().getBottom());
-                    this.getBoundingBox().h(this.getBoundingBox().h() + dy);
-            });
+
+                var deltaMove = this.getDeltaMove(this.getDeepestChild(this, dy), dy);
+                // Statement Container expands. we move the horizontal line
+                self._defaultWorker.getBottomCenter().y(self._defaultWorker.getBottomCenter().y() + deltaMove);
+                // self._defaultWorker.getBoundingBox().h(self._defaultWorker.getBoundingBox().h() + dy);
+                self.stopListening(self.getHorizontalMargin());
+                self.getHorizontalMargin().setPosition(self.getHorizontalMargin().getPosition() + deltaMove);
+                self.getBoundingBox().h(this.getBoundingBox().h() + deltaMove);
+                // We need to change the height of the statement container, silently. This is because when this
+                // particular event is triggered, bounding box of the statement container has already changed,
+                // before hand we manipulate it with this logic
+                var statementContainerNewH = self._defaultWorker.getBottomCenter().y() - self._defaultWorker.getTopCenter().y();
+                // TODO: re consider stopListening of the following event of the statement container. This is because we silently change the heights
+                self.getStatementContainer().stopListening(self.getStatementContainer().getBoundingBox(), 'height-changed');
+                self.getStatementContainer().changeHeightSilent(statementContainerNewH);
+                // Re initialize the above disabled event
+                // self.getStatementContainer().listenTo(self.getStatementContainer().getBoundingBox(), 'height-changed', function (offset) {
+                //     self.getStatementContainer()._mainDropZone.attr('height', parseFloat(self.getStatementContainer()._mainDropZone.attr('height')) + offset);
+                // });
+                self.listenTo(self.getHorizontalMargin(), 'moved', function (dy) {
+                    self._defaultWorker.getBottomCenter().y(self._defaultWorker.getBottomCenter().y() + dy);
+                    // Silently increase the bounding box of the worker. Because this size change is due to the
+                    // horizontal margin movement, in other sense, for balancing with the other connectors/ workers' height
+                    // therefore we need to manually change the bbox height and the drop zone size of the statement container
+                    self.getStatementContainer().getBoundingBox().h(self.getStatementContainer().getBoundingBox().h() + dy, true);
+                    self.getStatementContainer().changeDropZoneHeight(dy);
+                    self.getBoundingBox().h(self.getBoundingBox().h() + dy);
+                });
+            }, this);
+
             /* When the width of the statement container's bounding box changes, width of this resource definition's
              bounding box should also change.*/
             this._statementContainer.getBoundingBox().on('right-edge-moved', function (dw) {
@@ -830,6 +964,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          */
         ResourceDefinitionView.prototype.visitConnectorDeclaration = function (connectorDeclaration) {
             var lastLifeLine = this.getLastLifeLine();
+            var lastConnectorLifeLine = this.getConnectorWorkerViewList()[this.getLastConnectorLifeLineIndex()];
+            var self = this;
+
             var connectorDeclarationView = new ConnectorDeclarationView({
                 model: connectorDeclaration,
                 container: this._contentGroup.node(),
@@ -857,6 +994,21 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 editableProperties: editableProperty
             });
 
+            if (_.isNil(lastConnectorLifeLine)) {
+                // This is the first connector we are adding
+                connectorDeclarationView.listenTo(this.getWorkerLifeLineMargin(), 'moved', function (offset) {
+                    self.moveResourceLevelConnector(this, offset);
+                });
+            } else {
+                // There are already added connectors
+                // Previously added connector stop listening to bounding box move.
+                // Based on this event we increase the service container width
+                lastConnectorLifeLine.stopListening(lastConnectorLifeLine.getBoundingBox(), 'right-edge-moved');
+                connectorDeclarationView.listenTo(lastConnectorLifeLine.getBoundingBox(), 'right-edge-moved', function (offset) {
+                        self.moveResourceLevelConnector(this, offset);
+                });
+            }
+
             /* If the adding connector (connectorDeclarationView) goes out of this resource definition's view,
              then we need to expand this resource definition's view. */
             if (connectorDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
@@ -866,14 +1018,17 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 this.setHeadingMinWidth(connectorDeclarationView.getBoundingBox().getRight());
             }
 
-            /* When last connector's or worker's (which is on left side) width expands/contracts, adding connector
-             should be moved along X-axis accordingly.*/
-            lastLifeLine.getBoundingBox().on('right-edge-moved', function (dx) {
-                this.moveResourceLevelConnector(connectorDeclarationView, dx);
-            }, this);
-            // Adding connector's height should be equal to this resources definition's height
-            this.getBoundingBox().on("height-changed", function (dh) {
-                connectorDeclarationView.getBoundingBox().h(connectorDeclarationView.getBoundingBox().h() + dh);
+            var connectorBBox = connectorDeclarationView.getBoundingBox();
+            connectorDeclarationView.listenTo(connectorBBox, 'right-edge-moved', function (offset) {
+                if (connectorBBox.getRight() > self.getBoundingBox().getRight()) {
+                    self._parentView.getLifeLineMargin().setPosition(self._parentView.getLifeLineMargin().getPosition() + self._viewOptions.LifeLineCenterGap);
+                    self.setContentMinWidth(connectorBBox.getRight());
+                    self.setHeadingMinWidth(connectorBBox.getRight());
+                }
+            }, connectorDeclarationView);
+
+            connectorDeclarationView.listenTo(this.getHorizontalMargin(), 'moved', function (dy) {
+                connectorDeclarationView.getBoundingBox().h(connectorDeclarationView.getBoundingBox().h() + dy);
             });
 
             this._connectorWorkerViewList.push(connectorDeclarationView);
@@ -1026,6 +1181,103 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          */
         ResourceDefinitionView.prototype.moveResourceLevelConnector = function (connectorView, offset) {
             connectorView.getBoundingBox().move(offset, 0);
+        };
+
+        /**
+         * Get the worker lifeline margin
+         * @return {Axis}
+         */
+        ResourceDefinitionView.prototype.getWorkerLifeLineMargin = function () {
+            return this._workerLifelineMargin;
+        };
+
+        /**
+         * Set the worker lifeline margin
+         * @param {Axis} workerLifeLineMargin
+         */
+        ResourceDefinitionView.prototype.setWorkerLifeLineMargin = function (workerLifeLineMargin) {
+            this._workerLifelineMargin = workerLifeLineMargin;
+        };
+
+        /**
+         * Set the horizontal margin
+         * @param {Axis} horizontalMargin - horizontal margin
+         */
+        ResourceDefinitionView.prototype.setHorizontalMargin = function (horizontalMargin) {
+            this._horizontalMargin = horizontalMargin;
+        };
+
+        /**
+         * Get the horizontal margin
+         * @return {Axis|*}
+         */
+        ResourceDefinitionView.prototype.getHorizontalMargin = function () {
+            return this._horizontalMargin;
+        };
+
+        ResourceDefinitionView.prototype.getDeepestChild = function (currentWorker, dy) {
+            var self = this;
+            var lastChildArr = [];
+
+            this.getConnectorWorkerViewList().forEach(function (worker) {
+                if (worker instanceof WorkerDeclarationView) {
+                    if (worker.getModel().id === currentWorker.getModel().id && dy < 0) {
+                        // TODO: Refactor logic
+                        // Child we are removing, have not removed from the view list yet
+                        lastChildArr.push(worker.getStatementContainer().getManagedStatements()[worker.getStatementContainer().getManagedStatements() - 2]);
+                    } else {
+                        lastChildArr.push(_.last(worker.getStatementContainer().getManagedStatements()));
+                    }
+                }
+            });
+
+            var sortedLastChildArr = _.sortBy(lastChildArr, function (child) {
+                var stmtView = _.isNil(child) ? undefined : self.getDiagramRenderingContext().getViewOfModel(child);
+                return _.isNil(stmtView) ? -1 : stmtView.getBoundingBox().getBottom();
+            });
+
+            var deepestChildStatement = _.last(sortedLastChildArr);
+            var defaultWorkerLastChild = _.last(this.getStatementContainer().getManagedStatements());
+
+            if (!_.isNil(deepestChildStatement) && _.isNil(defaultWorkerLastChild)) {
+                return deepestChildStatement;
+            } else if (!_.isNil(deepestChildStatement) && !_.isNil(defaultWorkerLastChild)) {
+                if (this.getDiagramRenderingContext().getViewOfModel(deepestChildStatement).getBoundingBox().getBottom()
+                    > this.getDiagramRenderingContext().getViewOfModel(defaultWorkerLastChild).getBoundingBox().getBottom()) {
+                    return deepestChildStatement;
+                } else {
+                    return defaultWorkerLastChild;
+                }
+            } else {
+                return defaultWorkerLastChild;
+            }
+        };
+
+        ResourceDefinitionView.prototype.listenWorkerToHorizontalMargin = function (workerDeclarationView) {
+            workerDeclarationView.listenTo(this.getHorizontalMargin(), 'moved', function (dy) {
+                workerDeclarationView.getBottomCenter().y(workerDeclarationView.getBottomCenter().y() + dy);
+                workerDeclarationView.getBoundingBox().h(workerDeclarationView.getBoundingBox().h() + dy);
+                // Silently increase the bounding box of the worker. Because this size change is due to the
+                // horizontal margin movement, in other sense, for balancing with the other connectors/ workers' height
+                // therefore we need to manually change the bbox height and the drop zone size of the statement container
+                workerDeclarationView.getStatementContainer().getBoundingBox().h(workerDeclarationView.getStatementContainer().getBoundingBox().h() + dy, true);
+                workerDeclarationView.getStatementContainer().changeDropZoneHeight(dy);
+            });
+        };
+
+        ResourceDefinitionView.prototype.getDeltaMove = function (deepestChild, dy) {
+            var deltaMove = 0;
+            if (dy > 0) {
+                deltaMove = dy;
+            } else {
+                if (_.isNil(deepestChild)) {
+                    deltaMove = dy;
+                } else {
+                    deltaMove = -(this.getHorizontalMargin().getPosition() -
+                    this.getDiagramRenderingContext().getViewOfModel(deepestChild).getBoundingBox().getBottom() - this._offsetLastStatementGap);
+                }
+            }
+            return deltaMove;
         };
 
         return ResourceDefinitionView;
