@@ -253,7 +253,7 @@ public class BLangNonBlockingExecutor extends BLangAbstractLinkedExecutor {
     @Override
     public void visit(ResourceInvocationExpr resourceInvocationExpr) {
         super.visit(resourceInvocationExpr);
-        // There is next Statement for ResourceInvocationExpr.
+        resourceInvocationExpr.getResource().getResourceBody().executeLNode(this);
     }
 
     @Override

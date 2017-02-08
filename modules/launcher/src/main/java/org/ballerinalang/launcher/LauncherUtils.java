@@ -25,6 +25,7 @@ import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.GlobalScope;
+import org.wso2.ballerina.core.model.builder.BLangLinkBuilder;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
@@ -84,6 +85,8 @@ public class LauncherUtils {
 
             SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(balFile, bLangPackage);
             balFile.accept(semanticAnalyzer);
+
+            balFile.accept(new BLangLinkBuilder());
 
             return balFile;
         } catch (ParseCancellationException | SemanticException | LinkerException e) {

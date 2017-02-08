@@ -170,7 +170,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         } catch (ClientConnectorException e) {
             throw new BallerinaException("Failed to send the message to an endpoint ", context);
-        } catch (InterruptedException ignore) {
         } catch (Throwable e) {
             throw new BallerinaException(e.getMessage(), context);
         }

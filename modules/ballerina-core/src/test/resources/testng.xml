@@ -31,6 +31,7 @@ under the License.
             <package name="org.wso2.ballerina.lang.structs"/>
             <package name="org.wso2.ballerina.lang.connectors"/>
         </packages>
+
         <classes>
             <!-- Before Test -->
             <class name="org.wso2.ballerina.TestConfigurationUtil" />
@@ -87,6 +88,7 @@ under the License.
             <package name="org.wso2.ballerina.lang.structs"/>
             <package name="org.wso2.ballerina.lang.connectors"/>
         </packages>
+
         <classes>
             <!-- Before Test -->
             <class name="org.wso2.ballerina.TestConfigurationUtil" />
