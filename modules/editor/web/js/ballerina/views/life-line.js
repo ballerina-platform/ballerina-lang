@@ -75,6 +75,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             .y(this._topCenter.y() +  _.get(this._viewOptions, 'rect.height')/2)
             .w(_.get(this._viewOptions, 'rect.width'))
             .h(_.get(this._viewOptions, 'line.height') + _.get(this._viewOptions, 'rect.height'));
+
+        this._editableProperties = [];
     };
 
     LifeLineView.prototype = Object.create(BallerinaView.prototype);
@@ -249,7 +251,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         var model = _.get(args, "model", {});
         var viewOptions = _.get(args, "viewOptions", {});
         var lifeLineGroup = _.get(args, "lifeLineGroup", null);
-        var editableProperties = _.get(args, "editableProperties", []);
+        this._editableProperties = _.get(args, "editableProperties", []);
 
         viewOptions.actionButton = _.get(args, "viewOptions.actionButton", {});
         viewOptions.actionButton.class = _.get(args, "actionButton.class", "property-pane-action-button");
@@ -384,7 +386,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
             // Creating the property form.
             expressionEditor.createEditor(propertyPaneBody,
-                viewOptions.propertyForm.body.property.wrapper, editableProperties);
+                viewOptions.propertyForm.body.property.wrapper, self._editableProperties);
 
             // Close the popups of property pane body.
             function closeAllPopUps() {
@@ -410,10 +412,11 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         }.bind(lifeLineGroup.node(), this));
     };
 
-    LifeLineView.prototype.updateTitleText = function (updatedText, fieldKey) {
-        if (!_.isUndefined(updatedText) && updatedText !== '' && fieldKey === 'Name') {
-            this._topPolygonText.node().textContent = updatedText;
-            this._bottomPolygonText.node().textContent = updatedText;
+    LifeLineView.prototype.updateTitleText = function (updatedText) {
+        if (!_.isUndefined(updatedText) && updatedText !== '') {
+            this._editableProperties.setterMethod.call(this._editableProperties.model, updatedText);
+            this._topPolygonText.node().textContent = this._editableProperties.getDisplayTitle.call(this._editableProperties.model);
+            this._bottomPolygonText.node().textContent = this._editableProperties.getDisplayTitle.call(this._editableProperties.model);
         }
     };
 
