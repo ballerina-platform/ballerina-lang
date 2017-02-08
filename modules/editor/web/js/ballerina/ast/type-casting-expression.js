@@ -25,7 +25,7 @@ define(['lodash', './expression'], function (_, Expression) {
      */
     var TypeCastingExpression = function (args) {
         Expression.call(this, 'TypeCastingExpression');
-        this._operator = _.get(args, 'operator');
+        this._targetType = _.get(args, 'targetType');
     };
 
     TypeCastingExpression.prototype = Object.create(Expression.prototype);
@@ -48,11 +48,11 @@ define(['lodash', './expression'], function (_, Expression) {
     TypeCastingExpression.prototype.generateExpressionString = function (jsonNode) {
         var self = this;
         var expString = "";
-
-        var child = self.getFactory().createFromJson(childJsonNode);
-                    child.initFromJson(childJsonNode);
-                    //appending a keyvalue pair handing over the ob to key-value-expression
-                    indexString += child.getExpression() + ",";
+        var targetType = jsonNode.children[1].target_type;
+        var child = self.getFactory().createFromJson(jsonNode.children[0]);
+        child.initFromJson(jsonNode.children[0]);
+        var castingExpression = jsonNode.children[1].target_type;
+        expString += "(" + targetType + ")" + child.getExpression();
         return expString;
     };
 
