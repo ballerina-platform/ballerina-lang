@@ -15,6 +15,7 @@
  */
 package org.wso2.ballerina.core.nativeimpl.connectors;
 
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
@@ -71,7 +72,11 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
      */
     public BValue getArgument(Context context, int index) {
         if (index > -1 && index < argTypeNames.length) {
-            return context.getControlStack().getCurrentFrame().values[index];
+            BValue result = context.getControlStack().getCurrentFrame().values[index];
+            if (result == null) {
+                throw new BallerinaException("argument " + index + " is null");
+            }
+            return result;
         }
         throw new ArgumentOutOfRangeException(index);
     }
