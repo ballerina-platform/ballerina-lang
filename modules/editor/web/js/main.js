@@ -117,7 +117,7 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
         },
 
         displayInitialView: function () {
-            this.workspaceManager.displayInitialTab();
+            this.workspaceManager.showWelcomePage(this.workspaceManager);
         },
 
         hideWorkspaceArea: function(){
