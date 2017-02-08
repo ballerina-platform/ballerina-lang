@@ -76,11 +76,15 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view'],
 
             $(this._returnTypeWrapper).empty();
 
+            var returnTypeEditWrapper = $("<div/>",{
+                click: function(e) {e.stopPropagation();}
+            }).appendTo(this._returnTypeWrapper);
+
             // Creating the return type dropdown.
-            var returnTypeDropdown = $("<select/>").appendTo(this._returnTypeWrapper);
+            var returnTypeDropdown = $("<select/>").appendTo(returnTypeEditWrapper);
 
             // Adding dropdown elements.
-            this._supportedReturnTypes = diagramRenderingContext.getEnvironment().getTypes();
+            this._supportedReturnTypes = this.getDiagramRenderingContext().getEnvironment().getTypes();
             _.forEach(this._supportedReturnTypes, function (type) {
                 // Adding supported return types to the type dropdown.
                 returnTypeDropdown.append(
@@ -115,10 +119,10 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view'],
                     }
                 }).keyup(function(){
                     self.getModel().setIdentifier($(this).val());
-                }).appendTo(this._returnTypeWrapper);
+                }).appendTo(returnTypeEditWrapper);
             }
 
-            $(this._deleteButton).appendTo(this._returnTypeWrapper);
+            $(this._deleteButton).appendTo(returnTypeEditWrapper);
         };
 
         ReturnTypeView.prototype.getReturnTypeWrapper = function () {

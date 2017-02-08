@@ -92,6 +92,11 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
             var self = this;
 
             $(this._typeWrapper).empty();
+
+            var typeEditWrapper = $("<div/>",{
+                click: function(e) {e.stopPropagation();}
+            }).appendTo(this._typeWrapper);
+
             var typeDropdown = new Dropdown({
                 class: {mainWrapper: "struct-variable-type-dropdown-wrapper"},
                 onSelectCallBackFunction: function(key, value) {
@@ -121,11 +126,15 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                     $(self._parentView.getBodyWrapper()).closest(".canvas-container").css("overflow", "");
                 }
             });
-            typeDropdown.getElement().appendTo($(this._typeWrapper));
+            typeDropdown.getElement().appendTo(typeEditWrapper);
 
             typeDropdown.setSelectedValue(this.getModel().getType());
 
             $(this._identifierWrapper).empty();
+
+            var identifierEditWrapper = $("<div/>",{
+                click: function(e) {e.stopPropagation();}
+            }).appendTo(this._identifierWrapper);
 
             // Creating the identifier text box.
             var identifierTextBox = $("<input/>", {
@@ -158,7 +167,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                 }
             }).keyup(function(){
                 self.getModel().setIdentifier($(this).val());
-            }).appendTo($(this._identifierWrapper));
+            }).appendTo($(identifierEditWrapper));
 
         };
 
