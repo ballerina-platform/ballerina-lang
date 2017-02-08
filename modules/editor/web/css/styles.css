@@ -935,7 +935,7 @@ button.variable-list {
     left: 68px;
     position: relative;
     float: left;
-    border-radius: 0 10px 10px 0;
+    border-radius: 0 5px 5px 0;
     min-height: 34px;
 }
 
@@ -1419,7 +1419,7 @@ span.fw-stack.fw-lg{
     width: 69px;
     color: #fff;
     padding: 8px 10px;
-    border-radius: 10px 0 0 10px;
+    border-radius: 5px 0 0 5px;
     height: 34px;
 }
 .package-add-icon-wrapper {
@@ -1428,7 +1428,7 @@ span.fw-stack.fw-lg{
     left: 69px;
     border: 1px solid #ddd;
     background-color: #fff;
-    border-radius: 0 10px 10px 0;
+    border-radius: 0 5px 5px 0;
     min-height: 34px;
     width: 26px;
     padding: 9px 3px 0 8px;
