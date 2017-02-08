@@ -24,8 +24,9 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.connectors.jms.utils.JMSConstants;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.transport.jms.utils.JMSConstants;
+
 
 /**
  * To rollback the transactions.
@@ -37,7 +38,7 @@ public class Rollback extends AbstractNativeFunction {
         CarbonMessage carbonMessage = ctx.getCarbonMessage();
 
         if (ctx.getBalCallback() != null) {
-            carbonMessage.setProperty(JMSConstants.JMS_SESSION_COMMIT_OR_ROLLBACK, JMSConstants.JMS_SESSION_ROLLBACK);
+            carbonMessage.setProperty(JMSConstants.JMS_MESSAGE_DELIVERY_ERROR, JMSConstants.JMS_MESSAGE_DELIVERY_ERROR);
             ctx.getBalCallback().done(carbonMessage);
         }
         return VOID_RETURN;

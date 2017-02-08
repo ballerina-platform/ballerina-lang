@@ -61,7 +61,9 @@ import java.util.Map;
 public class Send extends AbstractJMSAction {
     private static final Logger log = LoggerFactory.getLogger(JMSResourceDispatcher.class);
 
-    @Override @SuppressFBWarnings({ "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE" }) public BValue execute(
+    @Override
+    @SuppressFBWarnings({ "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE" })
+    public BValue execute(
             Context context) {
 
         // Extracting Argument values

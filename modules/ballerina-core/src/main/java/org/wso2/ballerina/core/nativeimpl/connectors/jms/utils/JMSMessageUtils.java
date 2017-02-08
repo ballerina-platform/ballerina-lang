@@ -28,7 +28,7 @@ import org.wso2.ballerina.core.nativeimpl.lang.utils.Constants;
 import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.MessageDataSource;
-import org.wso2.carbon.transport.jms.jndi.utils.SerializableCarbonMessage;
+import org.wso2.carbon.messaging.SerializableCarbonMessage;
 
 import java.util.HashMap;
 import java.util.Iterator;

@@ -24,8 +24,8 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.connectors.jms.utils.JMSConstants;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.transport.jms.utils.JMSConstants;
 
 /**
  * To commit the jms transacted sessions.
@@ -35,9 +35,9 @@ import org.wso2.carbon.transport.jms.utils.JMSConstants;
 public class Commit extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         CarbonMessage carbonMessage = ctx.getCarbonMessage();
-
         if (ctx.getBalCallback() != null) {
-            carbonMessage.setProperty(JMSConstants.JMS_SESSION_COMMIT_OR_ROLLBACK, JMSConstants.JMS_SESSION_COMMIT);
+            carbonMessage
+                    .setProperty(JMSConstants.JMS_MESSAGE_DELIVERY_STATUS, JMSConstants.JMS_MESSAGE_DELIVERY_SUCCESS);
             ctx.getBalCallback().done(carbonMessage);
         }
         return VOID_RETURN;

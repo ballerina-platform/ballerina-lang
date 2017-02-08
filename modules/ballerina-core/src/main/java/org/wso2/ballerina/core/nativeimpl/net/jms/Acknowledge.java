@@ -24,8 +24,8 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.connectors.jms.utils.JMSConstants;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.transport.jms.utils.JMSConstants;
 
 /**
  * Acknowledge the jms message.
@@ -40,7 +40,7 @@ import org.wso2.carbon.transport.jms.utils.JMSConstants;
 public class Acknowledge extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         CarbonMessage carbonMessage = ctx.getCarbonMessage();
-        String deliveryStatus =  getArgument(ctx, 1).stringValue();
+        String deliveryStatus = getArgument(ctx, 1).stringValue();
 
         if (ctx.getBalCallback() != null) {
             carbonMessage.setProperty(JMSConstants.JMS_MESSAGE_DELIVERY_STATUS, deliveryStatus);

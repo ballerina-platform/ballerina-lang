@@ -30,6 +30,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Headers;
 import org.wso2.carbon.messaging.MessageDataSource;
@@ -37,7 +38,6 @@ import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
 
 import static org.wso2.ballerina.core.runtime.Constants.BALLERINA_VERSION;
 
@@ -135,8 +135,14 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                     logger.debug("Sending an empty message");
                 }
             }
-            BallerinaConnectorManager.getInstance().getClientConnector("http/s").send(message, balConnectorCallback,
-                    Collections.emptyMap());
+            ClientConnector clientConnector = BallerinaConnectorManager.getInstance().
+                    getClientConnector(Constants.PROTOCOL_HTTP);
+
+            if (clientConnector == null) {
+                throw new BallerinaException("Http client connector is not available");
+            }
+
+            clientConnector.send(message, balConnectorCallback);
 
             while (!balConnectorCallback.isResponseArrived()) {
                 synchronized (context) {

@@ -38,4 +38,23 @@ public class JMSConstants {
     public static final String TEXT_MESSAGE_TYPE = "TextMessage";
     public static final String BYTES_MESSAGE_TYPE = "BytesMessage";
     public static final String OBJECT_MESSAGE_TYPE = "ObjectMessage";
+
+    // jms destination
+    public static final String JMS_DESTINATION = "JMS_DESTINATION";
+    // jms protocol name
+    public static final String PROTOCOL_JMS = "jms";
+    public static final String JMS_SERVICE_ID = "JMS_SERVICE_ID";
+
+
+    // Annotations
+    public static final String ANNOTATION_NAME_SOURCE = "Source";
+    public static final String ANNOTATION_NAME_ONMESSAGE = "OnMessage";
+    public static final String ANNOTATION_PROTOCOL = "protocol";
+
+    /**
+     * Acknowledgements to client
+     */
+    public static final String JMS_MESSAGE_DELIVERY_ERROR = "ERROR";
+    public static final String JMS_MESSAGE_DELIVERY_SUCCESS = "SUCCESS";
+    public static final String JMS_MESSAGE_DELIVERY_STATUS = "JMS_MESSAGE_DELIVERY_STATUS";
 }
