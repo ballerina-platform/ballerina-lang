@@ -54,7 +54,7 @@ define(['require', 'jquery', 'lodash', './modal-dialog', 'log'], function (requi
     };
 
     NewItemDialog.prototype.displayWizard = function (data) {
-        this.setTitle("New "+ data.type);
+        this.setTitle("new "+ data.type);
         this.setSubmitBtnText("create");
         var body = this.getBody();
         body.empty();
