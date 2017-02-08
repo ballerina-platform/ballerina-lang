@@ -377,10 +377,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             // container for per-tab swagger view TODO improve swagger view to wrap this logic
             var swaggerViewContainer = $(this._container).find(_.get(this._viewOptions, 'swagger_view.container'));
-            var swaggerEditorContainer = $('<div></div>');
-            swaggerViewContainer.append(swaggerEditorContainer);
             var swaggerViewOpts = _.clone(_.get(this._viewOptions, 'swagger_view'));
-            _.set(swaggerViewOpts, 'container', swaggerEditorContainer.get(0));
+            _.set(swaggerViewOpts, 'container', swaggerViewContainer);
             _.set(swaggerViewOpts, 'content', "");
             this._swaggerView = new SwaggerView(swaggerViewOpts);
             this._swaggerView.render();

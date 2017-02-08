@@ -80,6 +80,10 @@ define(['./package', './connector', './connector-action', './function','./type-m
             return (functionDef instanceof Function);
         };
 
+        BallerinaEnvFactory.isConnectorAction = function (connectorAction) {
+            return (connectorAction instanceof ConnectorAction);
+        };
+
         /**
          * instanceof check for TypeMapper
          * @param {function object} typeMapperDef - Object for instanceof check
