@@ -15,7 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './statement'], function (_, Statement) {
+define(['lodash', './statement', '../utils/common-utils', './variable-declaration'],
+    function (_, Statement, CommonUtils, VariableDeclaration) {
 
     /**
      * Class to represent an Variable Definition statement.
@@ -78,8 +79,8 @@ define(['lodash', './statement'], function (_, Statement) {
      * @return {string} - Variable definition expression string
      */
     VariableDefinitionStatement.prototype.getVariableDefinitionStatementString = function () {
-        return _.isNil(this._rightExpression) ? this._leftExpression : this._leftExpression + " = " +
-            this._rightExpression;
+        return _.isNil(this._rightExpression) || _.isEmpty(this._rightExpression) ? this._leftExpression :
+                this._leftExpression + " = " + this._rightExpression;
     };
 
     /**
@@ -114,6 +115,10 @@ define(['lodash', './statement'], function (_, Statement) {
         return (this._leftExpression.split(" ")[1]).trim();
     };
 
+    VariableDefinitionStatement.prototype.setIdentifier = function(identifier) {
+        this.setLeftExpression(this.getBType() + " " + identifier);
+    };
+
     /**
      * Set the variable definition expression string
      * @param {string} variableDefinitionStatementString - variable definition expression string
@@ -123,6 +128,40 @@ define(['lodash', './statement'], function (_, Statement) {
         var tokens = variableDefinitionStatementString.split("=");
         this.setLeftExpression(!_.isNil(tokens[0]) ? tokens[0].trim() : "");
         this.setRightExpression(!_.isNil(tokens[1]) ? tokens[1].trim() : "");
+    };
+
+    /**
+     * @inheritDoc
+     * @override
+     */
+    VariableDefinitionStatement.prototype.generateUniqueIdentifiers = function () {
+        if (this.getFactory().isResourceDefinition(this.parent) || this.getFactory().isConnectorAction(this.parent)) {
+            CommonUtils.generateUniqueIdentifier({
+                node: this,
+                attributes: [{
+                    checkEvenIfDefined: true,
+                    defaultValue: "i",
+                    setter: this.setIdentifier,
+                    getter: this.getIdentifier,
+                    parents: [{
+                        // resource/connector action definition
+                        node: this.parent,
+                        getChildrenFunc: this.parent.getVariableDefinitionStatements,
+                        getter: this.getIdentifier
+                    }, {
+                        // service/connector definition
+                        node: this.parent.parent,
+                        getChildrenFunc: this.parent.parent.getVariableDefinitionStatements,
+                        getter: this.getIdentifier
+                    }, {
+                        // ballerina-ast-root definition
+                        node: this.parent.parent.parent,
+                        getChildrenFunc: this.parent.parent.parent.getConstantDefinitions,
+                        getter: VariableDeclaration.prototype.getIdentifier
+                    }]
+                }]
+            });
+        }
     };
 
     return VariableDefinitionStatement;

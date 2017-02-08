@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, CommonUtils) {
 
     var TypeMapperDefinition = function (args) {
         ASTNode.call(this, 'TypeMapperDefinition');
-        this._typeMapperName = _.get(args, 'typeMapperName', 'newTypeMapper');
+        this._typeMapperName = _.get(args, 'typeMapperName');
         this._selectedTypeStructNameForSource = _.get(args, 'selectedTypeStructNameForSource', 'default');
         this._selectedTypeStructNameForTarget = _.get(args, 'selectedTypeStructNameForTarget', 'default');
     };
@@ -216,6 +216,27 @@ define(['lodash', './node'], function (_, ASTNode) {
     TypeMapperDefinition.prototype.getSelectedStructIndex = function (structArray, selectedStructName) {
         return _.findIndex(structArray, function (child) {
             return child._structName === selectedStructName;
+        });
+    };
+
+    /**
+     * @inheritDoc
+     * @override
+     */
+    TypeMapperDefinition.prototype.generateUniqueIdentifiers = function () {
+        CommonUtils.generateUniqueIdentifier({
+            node: this,
+            attributes: [{
+                defaultValue: "newTypeMapper",
+                setter: this.setTypeMapperName,
+                getter: this.getTypeMapperName,
+                parents: [{
+                    // ballerina-ast-node
+                    node: this.parent,
+                    getChildrenFunc: this.parent.getTypeMapperDefinitions,
+                    getter: this.getTypeMapperName
+                }]
+            }]
         });
     };
 
