@@ -242,6 +242,7 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                                     isPersisted: true,
                                     isDirty: false
                                 });
+                                openConfigModal.modal('hide');
                                 app.commandManager.dispatch("create-new-tab", {tabOptions: {file: file}});
                             } else {
                                 openFileWizardError.text(data.Error);
