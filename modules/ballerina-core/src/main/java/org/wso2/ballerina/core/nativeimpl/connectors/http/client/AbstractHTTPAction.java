@@ -38,7 +38,6 @@ import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
 
 import static org.wso2.ballerina.core.runtime.Constants.BALLERINA_VERSION;
 
