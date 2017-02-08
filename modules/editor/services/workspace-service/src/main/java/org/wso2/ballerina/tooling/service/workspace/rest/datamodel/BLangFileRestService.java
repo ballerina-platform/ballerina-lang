@@ -130,7 +130,7 @@ public class BLangFileRestService {
 
         BuiltInNativeConstructLoader.loadConstructs(globalScope);
 
-        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, globalScope);
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, bLangPackage);
         bFile.accept(semanticAnalyzer);
 
         JsonObject response = new JsonObject();

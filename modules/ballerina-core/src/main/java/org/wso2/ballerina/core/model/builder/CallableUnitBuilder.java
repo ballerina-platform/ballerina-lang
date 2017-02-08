@@ -79,19 +79,19 @@ public class CallableUnitBuilder {
         this.symbolName = symbolName;
     }
 
-    void addAnnotation(Annotation annotation) {
+    public void addAnnotation(Annotation annotation) {
         this.annotationList.add(annotation);
     }
 
-    void addParameter(ParameterDef param) {
+    public void addParameter(ParameterDef param) {
         this.parameterDefList.add(param);
     }
 
-    void addReturnParameter(ParameterDef param) {
+    public void addReturnParameter(ParameterDef param) {
         this.returnParamList.add(param);
     }
 
-    void addWorker(Worker worker) {
+    public void addWorker(Worker worker) {
         this.workerList.add(worker);
     }
 

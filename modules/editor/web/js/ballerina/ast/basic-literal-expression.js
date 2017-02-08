@@ -44,10 +44,17 @@ define(['lodash', './expression'], function (_, Expression) {
     BasicLiteralExpression.prototype.generateExpression = function () {
         if (this._basicLiteralType == "string") {
             // Adding double quotes if it is a string.
-            this._expression = "\"" + this._basicLiteralValue + "\"";
+            this._expression = "\"" + this.escapeEscapeChars(this._basicLiteralValue) + "\"";
         } else {
             this._expression = this._basicLiteralValue;
         }
+    };
+
+    BasicLiteralExpression.prototype.escapeEscapeChars = function(stringVal){
+        return stringVal.replace(/"/g, "\\\"")
+                        .replace(/\n/g, "\\n")
+                        .replace(/\r/g, "\\r")
+                        .replace(/\t/g, "\\t");
     };
 
     return BasicLiteralExpression;

@@ -37,7 +37,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
 
-@Path("/services")
+@Path("/service/swagger")
 @Consumes({"application/json"})
 @Produces({"application/json"})
 @io.swagger.annotations.Api(description = "the services API")
@@ -172,16 +172,16 @@ public class ServicesApiServiceImpl {
      */
     private String generateSwaggerDataModel(String ballerinaDefinition) throws IOException {
         //TODO improve code to avoid additional object creation.
-        List<org.wso2.ballerina.core.model.Service> services = SwaggerConverterUtils.
+        org.wso2.ballerina.core.model.Service[] services = SwaggerConverterUtils.
                 getServicesFromBallerinaDefinition(ballerinaDefinition);
         String swaggerDefinition = "";
-        if (services.size() > 0) {
+        if (services.length > 0) {
             //TODO this need to improve iterate through multiple services and generate single swagger file.
             SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper();
             //TODO mapper type need to set according to expected type.
             //swaggerServiceMapper.setObjectMapper(io.swagger.util.Yaml.mapper());
             swaggerDefinition = swaggerServiceMapper.
-                    generateSwaggerString(swaggerServiceMapper.convertServiceToSwagger(services.get(0)));
+                    generateSwaggerString(swaggerServiceMapper.convertServiceToSwagger(services[0]));
         }
         return swaggerDefinition;
     }

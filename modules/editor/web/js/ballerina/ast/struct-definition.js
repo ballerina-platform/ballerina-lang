@@ -15,10 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './node','constants'], function (_, log, ASTNode,constants) {
+define(['lodash', 'log', './node', 'constants', '../utils/common-utils'],
+    function (_, log, ASTNode, constants, CommonUtils) {
     var StructDefinition = function (args) {
         ASTNode.call(this, 'StructDefinition');
-        this._structName = _.get(args, 'structName', 'newStruct');
+        this._structName = _.get(args, 'structName');
         this.BallerinaASTFactory = this.getFactory();
     };
 
@@ -149,6 +150,27 @@ define(['lodash', 'log', './node','constants'], function (_, log, ASTNode,consta
         });
         return attributesArray;
 
+    };
+
+    /**
+     * @inheritDoc
+     * @override
+     */
+    StructDefinition.prototype.generateUniqueIdentifiers = function () {
+        CommonUtils.generateUniqueIdentifier({
+            node: this,
+            attributes: [{
+                defaultValue: "newStruct",
+                setter: this.setStructName,
+                getter: this.getStructName,
+                parents: [{
+                    // ballerina-ast-root
+                    node: this.parent,
+                    getChildrenFunc: this.parent.getStructDefinitions,
+                    getter: this.getStructName
+                }]
+            }]
+        });
     };
 
     return StructDefinition;

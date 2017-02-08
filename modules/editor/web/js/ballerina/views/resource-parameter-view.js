@@ -78,7 +78,8 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/argum
             //// Start of annotation section
 
             var annotationWrapper = $("<div/>", {
-                class: "action-content-wrapper-heading resource-parameters-heading-annotations-wrapper"
+                class: "action-content-wrapper-heading resource-parameters-heading-annotations-wrapper",
+                click: function(e) {e.stopPropagation();}
             }).appendTo(this._parameterWrapper);
 
             // Enable/Disable annotation.
@@ -162,7 +163,8 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/argum
             //// Start of parameter section
 
             var parameterWrapper = $("<div/>", {
-                class: "action-content-wrapper-heading resource-parameters-heading-parameter-wrapper"
+                class: "action-content-wrapper-heading resource-parameters-heading-parameter-wrapper",
+                click: function(e) {e.stopPropagation();}
             }).appendTo(this._parameterWrapper);
 
             // Creating parameter type dropdown.
