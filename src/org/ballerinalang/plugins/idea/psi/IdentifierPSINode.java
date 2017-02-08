@@ -116,7 +116,9 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                 //                case RULE_statement:
                 //                    return new StatementReference(this);
                 case RULE_simpleType:
-                    return new SimpleTypeReference(this);
+                    return new ConnectorReference(this);
+
+
                 //                case RULE_packagePath:
                 //                    break;
                 default:

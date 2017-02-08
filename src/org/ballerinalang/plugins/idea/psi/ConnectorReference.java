@@ -25,29 +25,27 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SimpleTypeReference extends BallerinaElementReference {
+public class ConnectorReference extends BallerinaElementReference {
 
-    public SimpleTypeReference(@NotNull IdentifierPSINode element) {
+    public ConnectorReference(@NotNull IdentifierPSINode element) {
         super(element);
     }
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof FunctionDefinitionNode || def instanceof ConnectorDefinitionNode
-                || def instanceof SimpleTypeNode || def instanceof CallableUnitNameNode;
+        return def instanceof ConnectorDefinitionNode;
     }
 
     @NotNull
     @Override
     public Object[] getVariants() {
-        return new Object[]{"boolean", "int", "long", "float", "double", "string",
-                "message", "map", "exception"
-        };
+        return new Object[]{"conn1", "conn2"};
     }
 
     @NotNull
     @Override
     public ResolveResult[] multiResolve(boolean incompleteCode) {
+        //Todo: Use java8
         List<PsiElement> functions = BallerinaPsiImplUtil.resolveConnector(getElement());
         List<ResolveResult> results = new ArrayList<>();
         for (PsiElement function : functions) {

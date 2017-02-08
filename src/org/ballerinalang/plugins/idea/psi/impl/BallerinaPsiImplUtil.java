@@ -16,13 +16,11 @@
 
 package org.ballerinalang.plugins.idea.psi.impl;
 
-import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -39,24 +37,17 @@ import org.antlr.jetbrains.adaptor.psi.Trees;
 import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
-import org.ballerinalang.plugins.idea.psi.ArgumentListNode;
-import org.ballerinalang.plugins.idea.psi.BallerinaFile;
-import org.ballerinalang.plugins.idea.psi.CallableUnitNameNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameReference;
-import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class BallerinaPsiImplUtil {
 
@@ -212,6 +203,12 @@ public class BallerinaPsiImplUtil {
         return filteredPackages;
     }
 
+    /**
+     * Used to resolve a package name to the directory.
+     *
+     * @param element the element which we need to resolve the reference
+     * @return resolved element
+     */
     public static PsiDirectory[] resolveDirectory(PsiElement element) {
         List<PsiDirectory> results = new ArrayList<>();
         Project project = element.getProject();
@@ -232,7 +229,7 @@ public class BallerinaPsiImplUtil {
             sibling = sibling.getPrevSibling();
         }
 
-        // Get any matching directrory in the project root
+        // Get any matching directory in the project root
         VirtualFile match = getMatchingDirectory(project.getBaseDir(), packages);
         // If there is a match, add it to the results.
         if (match != null) {
@@ -253,6 +250,13 @@ public class BallerinaPsiImplUtil {
         return results.toArray(new PsiDirectory[results.size()]);
     }
 
+    /**
+     * Returns a matching directory to the given package structure, starting from the given root.
+     *
+     * @param root     current root directory we are checking
+     * @param packages list of package name elements used to get the matching directory from the given root
+     * @return the matching directory
+     */
     @Nullable
     private static VirtualFile getMatchingDirectory(VirtualFile root, List<PsiElement> packages) {
         VirtualFile match = null;
@@ -266,6 +270,12 @@ public class BallerinaPsiImplUtil {
         return match;
     }
 
+    /**
+     * Suggests packages for auto completing packages.
+     *
+     * @param element package name element
+     * @return suggestions for auto completion
+     */
     public static PsiDirectory[] suggestPackages(PsiElement element) {
         List<PsiDirectory> results = new ArrayList<>();
         Project project = element.getProject();
@@ -311,6 +321,13 @@ public class BallerinaPsiImplUtil {
         return results.toArray(new PsiDirectory[results.size()]);
     }
 
+    /**
+     * Returns all the directories matching the given package structure starting from the given root.
+     *
+     * @param root     current root directory
+     * @param packages list of package name elements used to get the matching directory from the given root
+     * @return all matching directories
+     */
     @Nullable
     private static List<VirtualFile> suggestDirectory(VirtualFile root, List<PsiElement> packages) {
         List<VirtualFile> results = new ArrayList<>();
@@ -318,7 +335,7 @@ public class BallerinaPsiImplUtil {
         int count = 1;
         for (PsiElement element : packages) {
             if (count == packages.size()) {
-                //Todo - Use caching
+                //Todo - Use caching if needed
                 for (VirtualFile file : root.getChildren()) {
                     if (file.isDirectory()) {
                         results.add(file);
@@ -336,7 +353,12 @@ public class BallerinaPsiImplUtil {
         return results;
     }
 
-
+    /**
+     * Resolves the given function to definitions.
+     *
+     * @param element element which needs to be resolved
+     * @return the list of all resolved elements
+     */
     public static List<PsiElement> resolveFunction(PsiElement element) {
         List<PsiElement> results = new ArrayList<>();
 
@@ -379,7 +401,8 @@ public class BallerinaPsiImplUtil {
                 continue;
             }
 
-            List<PsiElement> allFunctionsInAPackage = getAllFunctionsInAPackage(((PsiDirectory) element1));
+            List<PsiElement> allFunctionsInAPackage = getAllMatchingElementsFromPackage(((PsiDirectory) element1),
+                    "//functionDefinition/Identifier");
             for (PsiElement psiElement : allFunctionsInAPackage) {
                 if (element.getText().equals(psiElement.getText())) {
                     results.add(psiElement);
@@ -390,7 +413,69 @@ public class BallerinaPsiImplUtil {
         return results;
     }
 
-    public static List<PsiElement> getAllFunctionsInAPackage(PsiDirectory directory) {
+
+    public static List<PsiElement> resolveConnector(PsiElement element) {
+        List<PsiElement> results = new ArrayList<>();
+
+        // Todo - Add null checks
+        Collection<? extends PsiElement> packagePaths =
+                XPath.findAll(BallerinaLanguage.INSTANCE, element.getParent().getParent().getParent(), "//packagePath");
+
+        if (packagePaths.isEmpty()) {
+            return results;
+        }
+        PsiElement packagePathNode = packagePaths.iterator().next();
+
+        PsiElement packageNameNode = packagePathNode.getLastChild();
+
+        //        PsiReference reference = packageName.getReference();
+
+        PsiElement identifier = ((IdentifierDefSubtree) packageNameNode).getNameIdentifier();
+
+        // Get the reference.
+        PsiReference reference = identifier.getReference();
+        // Resolve the reference. This will mostly point to the import statement package name.
+        PsiElement resolvedImportPackageName = reference.resolve();
+
+        if (resolvedImportPackageName == null) {
+            // Package is not imported. Return the empty results.
+            return results;
+        }
+
+        PsiElement packageIdentifier =
+                ((IdentifierDefSubtree) resolvedImportPackageName.getParent()).getNameIdentifier();
+
+        PsiReference packageReference = packageIdentifier.getReference();
+        //        PsiElement resolvedPackage = packageReference.resolve();
+
+        ResolveResult[] resolveResults = ((PackageNameReference) packageReference).multiResolve(false);
+        // Todo - Resolve result cannot be more than one because all package imports are unique
+        for (ResolveResult resolveResult : resolveResults) {
+            PsiElement element1 = resolveResult.getElement();
+            if (!(element1 instanceof PsiDirectory)) {
+                continue;
+            }
+
+            List<PsiElement> allFunctionsInAPackage = getAllMatchingElementsFromPackage(((PsiDirectory) element1),
+                    "//connectorDefinition/Identifier");
+            for (PsiElement psiElement : allFunctionsInAPackage) {
+                if (element.getText().equals(psiElement.getText())) {
+                    results.add(psiElement);
+                }
+            }
+        }
+
+        return results;
+    }
+
+    /**
+     * Returns all the elements in the given directory(package) which matches the given xpath.
+     *
+     * @param directory which is used to get the functions
+     * @param xpath     xpath to the element
+     * @return all functions in the given directory(package)
+     */
+    public static List<PsiElement> getAllMatchingElementsFromPackage(PsiDirectory directory, String xpath) {
 
         Project project = directory.getProject();
 
@@ -405,7 +490,7 @@ public class BallerinaPsiImplUtil {
             }
             PsiFile psiFile = PsiManager.getInstance(project).findFile(child);
             Collection<? extends PsiElement> functions =
-                    XPath.findAll(BallerinaLanguage.INSTANCE, psiFile, "//functionDefinition/Identifier");
+                    XPath.findAll(BallerinaLanguage.INSTANCE, psiFile, xpath);
 
             results.addAll(functions);
         }

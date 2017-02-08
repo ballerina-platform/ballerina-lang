@@ -108,7 +108,17 @@ public abstract class BallerinaElementReference extends PsiReferenceBase<Identif
                 // If the common context is file, that means the myElement is not in the scope where the
                 // definitionElement is defined in.
                 PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
-                if (commonContext instanceof PsiFile) {
+                if (!(commonContext instanceof FunctionDefinitionNode
+                        || commonContext instanceof ResourceDefinitionNode
+                        || commonContext instanceof ConnectorDefinitionNode
+                        || commonContext instanceof ActionDefinitionNode)) {
+                    return false;
+                }
+            } else if (definitionElement instanceof VariableDefinitionNode) {
+                // If the common context is file, that means the myElement is not in the scope where the
+                // definitionElement is defined in.
+                PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
+                if (!(commonContext instanceof FunctionBodyNode || commonContext instanceof ConnectorBodyNode)) {
                     return false;
                 }
             }
