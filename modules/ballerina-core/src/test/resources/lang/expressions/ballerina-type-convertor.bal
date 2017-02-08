@@ -1,4 +1,4 @@
-import ballerina.lang.converters;
+import ballerina.lang.convertors;
 
 typeconvertor jsonToXmlConvertor(json input) (xml) {
     xml result;

@@ -335,7 +335,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     public void visit(BasicLiteral basicLiteral) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
-        if(basicLiteral.getType() == BTypes.STRING_TYPE) {
+        if(basicLiteral.getType().equals(BTypes.STRING_TYPE)) {
             buffer.append("\"").append(basicLiteral.getBValue().stringValue()).append("\"");
         } else {
             buffer.append(basicLiteral.getBValue().stringValue());

@@ -37,7 +37,7 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     private String packageName;
     private SymbolName typeConverterName;
     private TypeConvertor typeConvertor;
-    protected Function<BValueType, BValueType> evalFuncNewNew;
+    protected Function<BValueType, BValueType> evalFunc;
 
     public TypeCastExpression(Expression sourceExpression, BType targetType) {
         this.sourceExpression = sourceExpression;
@@ -50,11 +50,11 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     }
 
     public Function<BValueType, BValueType> getEvalFunc() {
-        return evalFuncNewNew;
+        return evalFunc;
     }
 
-    public void setEvalFunc(Function<BValueType, BValueType> evalFuncNewNew) {
-        this.evalFuncNewNew = evalFuncNewNew;
+    public void setEvalFunc(Function<BValueType, BValueType> evalFunc) {
+        this.evalFunc = evalFunc;
     }
 
     public Expression getSourceExpression() {

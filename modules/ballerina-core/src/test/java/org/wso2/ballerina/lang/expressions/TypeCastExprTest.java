@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -281,5 +282,31 @@ public class TypeCastExprTest {
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "{\"name\":\"chanaka\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    @Test
+    public void testIntArrayToLongArray() {
+        BValue[] returns = Functions.invoke(bFile, "intarrtolongarr");
+        Assert.assertTrue(returns[0] instanceof BArray);
+        BArray result = (BArray) returns[0];
+        Assert.assertTrue(result.get(0) instanceof BLong);
+        Assert.assertEquals(result.get(0).stringValue(), "999");
+        Assert.assertTrue(result.get(1) instanceof BLong);
+        Assert.assertEquals(result.get(1).stringValue(), "95");
+        Assert.assertTrue(result.get(2) instanceof BLong);
+        Assert.assertEquals(result.get(2).stringValue(), "889");
+    }
+
+    @Test
+    public void testFloatArrayToDoubleArray() {
+        BValue[] returns = Functions.invoke(bFile, "floatarrtodoublearr");
+        Assert.assertTrue(returns[0] instanceof BArray);
+        BArray result = (BArray) returns[0];
+        Assert.assertTrue(result.get(0) instanceof BDouble);
+        Assert.assertEquals(result.get(0).stringValue(), "99.98999786376953");
+        Assert.assertTrue(result.get(1) instanceof BDouble);
+        Assert.assertEquals(result.get(1).stringValue(), "4.5");
+        Assert.assertTrue(result.get(2) instanceof BDouble);
+        Assert.assertEquals(result.get(2).stringValue(), "23.559999465942383");
     }
 }

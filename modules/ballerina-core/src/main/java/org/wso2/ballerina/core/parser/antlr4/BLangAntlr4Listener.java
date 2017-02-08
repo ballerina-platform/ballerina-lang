@@ -310,10 +310,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
             if (identifier != null) {
                 String fileName = identifier.getSymbol().getInputStream().getSourceName();
                 int lineNo = identifier.getSymbol().getLine();
-                Position functionLocation = new Position(fileName, lineNo);
-                String typeConverterName = "_" + ctx.typeConvertorInput().typeConvertorType().getText() + "->" + "_" +
-                        ctx.typeConvertorType().getText();
-                modelBuilder.createTypeConverter(typeConverterName, isPublic, functionLocation, childPosition);
+                Position typeconvertorLocation = new Position(fileName, lineNo);
+                modelBuilder.createTypeConverter(ctx.typeConvertorInput().typeConvertorType().getText()
+                        , ctx.typeConvertorType().getText(), isPublic, typeconvertorLocation, childPosition);
                 childPosition++;
             }
         }

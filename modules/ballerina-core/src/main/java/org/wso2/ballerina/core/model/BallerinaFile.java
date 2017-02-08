@@ -23,6 +23,8 @@ import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.TypeCastExpression;
 import org.wso2.ballerina.core.model.types.BTypes;
+import org.wso2.ballerina.core.model.types.TypeLattice;
+import org.wso2.ballerina.core.model.types.TypeVertex;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +53,7 @@ public class BallerinaFile implements Node {
     private List<Service> services = new ArrayList<>();
     private List<BallerinaConnector> connectorList = new ArrayList<>();
     private Function[] functions;
-    private TypeConvertor[] typeConvertors;
+    private TypeLattice typeLattice;
     private Function mainFunction;
     private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
     private List<ActionInvocationExpr> actionIExprList = new ArrayList<>();
@@ -73,7 +75,7 @@ public class BallerinaFile implements Node {
             List<ActionInvocationExpr> actionInvocationExpr,
             Const[] consts,
             BallerinaStruct[] structs,
-            TypeConvertor[] typeConvertors) {
+            TypeLattice typeLattice) {
 
         this.packageName = packageName;
         this.importPackages = importPackages;
@@ -85,7 +87,7 @@ public class BallerinaFile implements Node {
         this.actionIExprList = actionInvocationExpr;
         this.consts = consts;
         this.structs = structs;
-        this.typeConvertors = typeConvertors;
+        this.typeLattice = typeLattice;
 
         packageScope = new SymScope(SymScope.Name.PACKAGE);
     }
@@ -170,8 +172,8 @@ public class BallerinaFile implements Node {
         return functions;
     }
 
-    public TypeConvertor[] getTypeConvertors() {
-        return typeConvertors;
+    public TypeLattice getTypeLattice() {
+        return typeLattice;
     }
 
     public Function getMainFunction() {
@@ -229,8 +231,8 @@ public class BallerinaFile implements Node {
         private List<Service> serviceList = new ArrayList<>();
         private List<BallerinaConnector> connectorList = new ArrayList<>();
         private List<Function> functionList = new ArrayList<>();
-        private List<TypeConvertor> typeConvertorList = new ArrayList<>();
         private Function mainFunction;
+        private TypeLattice typeLattice = new TypeLattice();
 
         private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
         private List<ActionInvocationExpr> actionIExprList = new ArrayList<>();
@@ -251,8 +253,8 @@ public class BallerinaFile implements Node {
             if (function.getName().equals(MAIN_FUNCTION_NAME)) {
 
                 Parameter[] parameters = function.getParameters();
-                if (parameters.length == 1 && parameters[0].getType() == BTypes.getArrayType(BTypes.
-                        STRING_TYPE.toString())) {
+                if (parameters.length == 1 && parameters[0].getType().equals(BTypes.getArrayType(BTypes.
+                        STRING_TYPE.toString()))) {
                     mainFunction = function;
                 }
             }
@@ -284,8 +286,11 @@ public class BallerinaFile implements Node {
             this.constList.add(constant);
         }
 
-        public void addTypeConverter(TypeConvertor typeConvertor) {
-            this.typeConvertorList.add(typeConvertor);
+        public void addTypeConvertor(TypeVertex source, TypeVertex target,
+                                     TypeConvertor typeConvertor, String packageName) {
+            typeLattice.addVertex(source, true);
+            typeLattice.addVertex(target, true);
+            typeLattice.addEdge(source, target, typeConvertor, packageName);
         }
 
         public BallerinaFile build() {
@@ -304,7 +309,7 @@ public class BallerinaFile implements Node {
                     actionIExprList,
                     constList.toArray(new Const[constList.size()]),
                     structList.toArray(new BallerinaStruct[structList.size()]),
-                    typeConvertorList.toArray(new TypeConvertor[typeCastExprList.size()])
+                    typeLattice
                     );
         }
 
