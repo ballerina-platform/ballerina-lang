@@ -1221,7 +1221,14 @@ public class BLangLinkBuilder implements NodeVisitor {
             int branchID = gotoNode.addNext(callableUnitEndNode);
             endNode.setHasGotoBranchID(true);
             endNode.setGotoBranchID(branchID);
-            blockStmt.accept(this);
+            if (!connectorDef.getInitFunction().isLinkerVisited()) {
+                returningBlockStmtStack.push(blockStmt);
+                offSetCounterStack.push(new OffSetCounter());
+                connectorDef.getInitFunction().setLinkerVisited(true);
+                blockStmt.accept(this);
+                connectorDef.getInitFunction().setTempStackFrameSize(offSetCounterStack.pop().getMax());
+                returningBlockStmtStack.pop();
+            }
             callableUnitEndNode.setNext(findNext(connectorInitExpr));
         }
     }
