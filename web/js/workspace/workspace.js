@@ -144,8 +144,8 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
         this.openFileOpenDialog = function openFileOpenDialog() {
             if(_.isNil(this._openFileDialog)){
                 this._openFileDialog = new Dialogs.open_file_dialog(app);
-                this._openFileDialog.render();
             }
+            this._openFileDialog.render();
             this._openFileDialog.show();
         };
 
@@ -235,7 +235,11 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
                 var file = activeTab.getFile();
                 if(file.isPersisted()){
                     if(file.isDirty()){
-                        self._serviceClient.writeFile(file);
+                        var response = self._serviceClient.writeFile(file);
+                        if(response.error){
+                            alerts.error(response.message);
+                            return;
+                        }
                         if(activeTab.getBallerinaFileEditor().isInSourceView()){
                             activeTab.getBallerinaFileEditor().getSourceView().markClean();
                         }
