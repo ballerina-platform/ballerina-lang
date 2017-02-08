@@ -66,8 +66,8 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
                    swaggerEditorWindow.updateSwaggerEditor();
                } else {
                    swaggerEditorWindow.onEditorLoad = function () {
-                       self._swaggerEditorWindow.setSwaggerHolder(self._swaggerHolder);
-                       self._swaggerEditorWindow.updateSwaggerEditor();
+                       swaggerEditorWindow.setSwaggerHolder(self._swaggerHolder);
+                       swaggerEditorWindow.updateSwaggerEditor();
                    };
                }
            });
@@ -87,7 +87,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
         */
        SwaggerView.prototype.setContent = function(content){
            this._generatedSource = content;
-           var generatedSwagger = {swagger: 2.0, info: {title: "Ballerina Default API", version : ""}, paths: {}};
+           var generatedSwagger = '{swagger: 2.0, info: {title: "Ballerina Default API", version : ""}, paths: {}}';
 
            var response = this._backend.call("convert-ballerina", "POST", {
                "name": "CalculatorService",
