@@ -113,11 +113,22 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
             }
         };
 
-        this.openFileSaveDialog = function openFileSaveDialog() {
+        this.openFileSaveDialog = function openFileSaveDialog(options) {
             if(_.isNil(this._saveFileDialog)){
                 this._saveFileDialog = new Dialogs.save_to_file_dialog(app);
             }
             this._saveFileDialog.render();
+
+            if(!_.isNil(options) && _.isFunction(options.callback)){
+                var isSaved = false;
+                this._saveFileDialog.once('save-completed', function(success){
+                    isSaved = success;
+                }, this);
+                this._saveFileDialog.once('unloaded', function(){
+                    options.callback(isSaved);
+                }, this);
+            }
+
             this._saveFileDialog.show();
             var activeTab = app.tabController.getActiveTab();
             if(!_.isNil(activeTab) && _.isFunction(activeTab.getFile)){
@@ -147,6 +158,15 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
                 this._openFileDialog.render();
             }
             this._openFileDialog.show();
+        };
+
+        this.openCloseFileConfirmDialog = function(options) {
+            if(_.isNil(this._closeFileConfirmDialog)){
+                this._closeFileConfirmDialog = new Dialogs.CloseConfirmDialog();
+                this._closeFileConfirmDialog.render();
+            }
+
+            this._closeFileConfirmDialog.askConfirmation(options);
         };
 
         this.goToWelcomePage = function goToWelcomePage() {
@@ -229,7 +249,7 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
             self.updateUndoRedoMenus();
         };
 
-        this.handleSave = function() {
+        this.handleSave = function(options) {
             var activeTab = app.tabController.getActiveTab();
             if(activeTab instanceof Tab.FileTab){
                 var file = activeTab.getFile();
@@ -240,8 +260,11 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
                             activeTab.getBallerinaFileEditor().getSourceView().markClean();
                         }
                     }
+                    if(!_.isNil(options) && _.isFunction(options.callback)){
+                        options.callback(true);
+                    }
                 } else {
-                    app.commandManager.dispatch('open-file-save-dialog');
+                    app.commandManager.dispatch('open-file-save-dialog', options);
                 }
             }
         };
@@ -282,6 +305,8 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
         app.commandManager.registerHandler('open-file-open-dialog', this.openFileOpenDialog, this);
 
         app.commandManager.registerHandler('show-folder-open-dialog', this.showFolderOpenDialog, this);
+
+        app.commandManager.registerHandler('open-close-file-confirm-dialog', this.openCloseFileConfirmDialog, this);
 
         // Go to Welcome Page.
         app.commandManager.registerHandler('go-to-welcome-page', this.goToWelcomePage);
