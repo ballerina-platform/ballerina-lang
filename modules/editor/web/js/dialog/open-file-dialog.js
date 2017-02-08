@@ -74,7 +74,7 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                     "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
                     "<span aria-hidden='true'>&times;</span>" +
                     "</button>" +
-                    "<h4 class='modal-title file-dialog-title'>Ballerina File Open Wizard</h4>" +
+                    "<h4 class='modal-title file-dialog-title'>open file</h4>" +
                     "<hr class='style1'>"+
                     "</div>" +
                     "<div class='modal-body'>" +
