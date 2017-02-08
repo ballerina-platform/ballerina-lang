@@ -37,7 +37,6 @@
     <link href="css/tab-styles.css" rel="stylesheet" type="text/css"/>
     <link href="css/notification.css" rel="stylesheet" type="text/css"/>
     <link href="css/fileDialog.css" rel="stylesheet" type="text/css"/>
-    <link href="lib/nanoscroller_0.8.7/nanoscroller.css" rel="stylesheet" type="text/css"/>
     <link href="lib/mCustomScrollbar_v3.1.5/css/jquery.mCustomScrollbar.css" rel="stylesheet" type="text/css"/>
     <link href="lib/context-menu_v2.4.2/jquery.contextMenu.min.css" rel="stylesheet" type="text/css"/>
 
@@ -59,7 +58,7 @@
     <div id="header-container" class="container-fluid">
         <div class="pull-left brand">
             <a href="#">
-                <img src="lib/theme-wso2_1.0/images/logo-inverse.svg" alt="wso2" title="wso2" class="logo">
+                <img src="lib/theme-wso2-2.0.0/images/logo-inverse.svg" alt="wso2" title="wso2" class="logo">
                 <span>Ballerina Editor </span>
             </a>
         </div>
@@ -105,7 +104,7 @@
                     </div>
                     <!-- End: left tool bar -->
                     <!-- Start: left side-bar -->
-                    <div class="sidebar-left nano tab-content">
+                    <div class="sidebar-left tab-content">
                     </div>
                     <div class="sidebar-left-separator"  draggable="true"></div>
                     <!-- End: left side-bar -->
@@ -154,9 +153,9 @@
 <!-- Start: Template for a tab -->
 <div style="display: none" id="tab-template">
     <!-- Start: Tab -->
-    <div class=".nano">
+    <div class="tab-container">
         <!-- Start: design view container -->
-        <div class="design-view-container nano-content">
+        <div class="design-view-container">
             <!-- Start: tool-palette -->
             <div class="tool-palette-container"></div>
             <!-- End: tool-palette -->
@@ -192,25 +191,50 @@
             <!-- End: TopRight Controls Container  -->
             <!-- Start: BottomRight Controls Container -->
             <div class="bottom-right-controls-container">
-                <div class="view-source-btn btn-icon" data-toggle="tooltip" title="Source View" data-placement="bottom">
-                    <i class="fw fw-lg fw-code-view fw-inverse fw-helper fw-helper-circle"></i>
+                <div class="view-source-btn btn-icon"title="Source View" data-placement="bottom">
+                    <i class="fw fw-code-view fw-inverse"></i>
+                    <span class="bottom-view-label">Source View</span>
                 </div>
-                <div class="view-swagger-btn btn-icon" data-toggle="tooltip" title="Swagger view" data-placement="bottom">
-                    <i class="fw fw-lg fw-swagger fw-inverse fw-helper fw-helper-circle"></i>
+                <div class="view-design-btn active" title="Design view" data-placement="bottom">
+                    <i class="fw fw-design-view fw-inverse"></i>
+                    <span class="bottom-view-label" >Design View</span>
+                </div>
+                <div class="view-swagger-btn btn-icon" title="Swagger view" data-placement="bottom">
+                    <i class="fw fw-swagger fw-inverse "></i>
+                    <span class="bottom-view-label">Swagger View</span>
                 </div>
             </div>
+
+            <!--<div class="bottom-right-controls-container">-->
+                <!--<div class="view-source-btn btn-icon" data-toggle="tooltip" title="Source View" data-placement="bottom">-->
+                    <!--<i class="fw fw-lg fw-code-view fw-inverse fw-helper fw-helper-circle"></i>-->
+                <!--</div>-->
+                <!--<div class="view-swagger-btn btn-icon" data-toggle="tooltip" title="Swagger view" data-placement="bottom">-->
+                    <!--<i class="fw fw-lg fw-swagger fw-inverse fw-helper fw-helper-circle"></i>-->
+                <!--</div>-->
+                <!--<div class="view-design-btn btn-icon" data-toggle="tooltip" title="Swagger view" data-placement="bottom">-->
+                    <!--<i class="fw fw-lg fw-swagger fw-inverse fw-helper fw-helper-circle"></i>-->
+                <!--</div>-->
+            <!--</div>-->
             <!-- End: BottomRight Controls Container  -->
         </div>
         <!-- End: design view container -->
         <!-- Start: source view container -->
         <div class="source-view-container">
             <!-- Start: BottomRight Controls Container -->
+             <!-- Start: BottomRight Controls Container -->
             <div class="bottom-right-controls-container">
-                <div class="view-design-btn btn-icon" data-toggle="tooltip" title="Design View" data-placement="bottom">
-                    <i class="fw fw-lg fw-design-view fw-helper"></i>
+                <div class="view-source-btn btn-icon" data-toggle="tooltip" title="Source View" data-placement="bottom">
+                    <i class="fw fw-code-view fw-inverse"></i>
+                    <span class="bottom-view-label">Code View</span>
+                </div>
+                <div class="view-design-btn btn-icon" data-toggle="tooltip" title="Design view" data-placement="bottom">
+                    <i class="fw fw-design-view fw-inverse"></i>
+                    <span class="bottom-view-label" >Design View</span>
                 </div>
                 <div class="view-swagger-btn btn-icon" data-toggle="tooltip" title="Swagger view" data-placement="bottom">
-                    <i class="fw fw-lg fw-swagger fw-inverse fw-helper fw-helper-circle"></i>
+                    <i class="fw fw-swagger fw-inverse "></i>
+                    <span class="bottom-view-label">Swagger View</span>
                 </div>
             </div>
             <!-- End: BottomRight Controls Container  -->
@@ -221,9 +245,19 @@
             <!-- Start: BottomRight Controls Container -->
             <div class="swaggerEditor" data-editor-url="/lib/swagger-editor/#/">
             </div>
-            <div class="bottom-right-controls-container" data-toggle="tooltip" title="Design view" data-placement="bottom">
-                <div class="view-design-btn btn-icon">
-                    <i class="fw fw-lg fw-design-view fw-inverse fw-helper fw-helper-circle"></i>
+             <!-- Start: BottomRight Controls Container -->
+            <div class="bottom-right-controls-container">
+                <div class="view-source-btn btn-icon" data-toggle="tooltip" title="Source View" data-placement="bottom">
+                    <i class="fw fw-code-view fw-inverse"></i>
+                    <span class="bottom-view-label">Code View</span>
+                </div>
+                <div class="view-design-btn btn-icon" data-toggle="tooltip" title="Design view" data-placement="bottom">
+                    <i class="fw fw-design-view fw-inverse"></i>
+                    <span class="bottom-view-label" >Design View</span>
+                </div>
+                <div class="view-swagger-btn btn-icon" data-toggle="tooltip" title="Swagger view" data-placement="bottom">
+                    <i class="fw fw-swagger fw-inverse "></i>
+                    <span class="bottom-view-label">Swagger View</span>
                 </div>
             </div>
             <!-- End: BottomRight Controls Container  -->
@@ -487,7 +521,7 @@
                 <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
                     <span aria-hidden='true'>&times;</span>
                 </button>
-                <h4 class='modal-title file-dialog-title'>Open Folder</h4>
+                <h4 class='modal-title file-dialog-title'>open folder</h4>
                 <hr class='style1'>
             </div>
             <div class='modal-body'>
@@ -547,11 +581,12 @@
             backbone: "lib/backbone_v1.3.3/backbone",
             svg_pan_zoom: "lib/svg-panNZoom/jquery.svg.pan.zoom",
             js_tree: "lib/js-tree-v3.3.2/jstree",
-            theme_wso2: "lib/theme-wso2_1.0/js/theme-wso2",
+            theme_wso2: "lib/theme-wso2-2.0.0/js/theme-wso2",
             ace: "lib/ace_v1.2.6",
             beautify: "lib/beautify/beautify",
             mousetrap: "lib/mousetrap_v1.6.0/mousetrap.min",
             mcustom_scroller: "lib/mCustomScrollbar_v3.1.5/js/jquery.mCustomScrollbar",
+            jquery_mousewheel: "lib/jquery-mousewheel_v3.1.13/jquery.mousewheel",
             jquery_context_menu: "lib/context-menu_v2.4.2/jquery.contextMenu.min",
             html5_shiv: "lib/html5shiv_3.7.2/html5shiv.min",
             respond: "lib/respond_1.4.2/respond.min",
@@ -586,7 +621,8 @@
             "jsPlumb": {
                 deps: ['jquery','jquery_ui'],
                 exports: 'jsPlumb'
-            }
+            },
+            "mcustom_scroller":{"deps": ['jquery', "jquery_mousewheel"]}
         },
         map: {
             "*": {
