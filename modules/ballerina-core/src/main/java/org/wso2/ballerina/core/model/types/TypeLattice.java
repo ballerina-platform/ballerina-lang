@@ -64,6 +64,7 @@ public class TypeLattice {
         TypeVertex floatV = new TypeVertex(scope.resolve(new SymbolName(FLOAT_TNAME)));
         TypeVertex doubleV = new TypeVertex(scope.resolve(new SymbolName(DOUBLE_TNAME)));
         TypeVertex stringV = new TypeVertex(scope.resolve(new SymbolName(STRING_TNAME)));
+        TypeVertex booleanV = new TypeVertex(scope.resolve(new SymbolName(BOOLEAN_TNAME)));
 
         implicitCastLattice.addVertex(intV, false);
         implicitCastLattice.addVertex(longV, false);
@@ -84,6 +85,8 @@ public class TypeLattice {
         implicitCastLattice.addEdge(floatV, stringV, NativeCastConvertor.FLOAT_TO_STRING_FUNC);
 
         implicitCastLattice.addEdge(doubleV, stringV, NativeCastConvertor.DOUBLE_TO_STRING_FUNC);
+
+        implicitCastLattice.addEdge(booleanV, stringV, NativeCastConvertor.BOOLEAN_TO_STRING_FUNC);
     }
 
     public static void loadExplicitCastLattice(SymbolScope scope) {
