@@ -18,11 +18,18 @@ Once connector code generated you can see all generated files within you project
 
 ```
 .
-├── pet.bal
-├── README.md
-├── store.bal
-├── types.bal
-└── user.bal
+└── server
+    └── petstore
+        └── wso2
+            └── carbon
+                └── test
+                    └── ballerina
+                        ├── pet.bal
+                        ├── README.md
+                        ├── store.bal
+                        ├── types.json
+                        └── user.bal
+
 ```
 ```
 
