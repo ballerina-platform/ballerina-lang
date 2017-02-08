@@ -203,4 +203,6 @@ public class BLangJSONModelConstants {
     public static final String KEY_VALUE_EXPRESSION_KEY = "key_value_key";
 
     public static final String KEY_VALUE_EXPRESSION = "key_value_expression";
+
+    public static final String QUOTED_LITERAL_STRING = "quoted_literal_string";
 }
