@@ -51,8 +51,8 @@ public class FileServer {
         String rawUri = request.getUri();
         String rawUriPath;
 
-        if (rawUri == null || rawUri.trim().length() == 0 || "/".equals(rawUri)) {
-            rawUriPath = "/index.html";
+        if (rawUri.trim().length() == 0 || rawUri.endsWith("/")) {
+            rawUriPath = rawUri + "index.html";
         } else {
             int uriPathEndIndex = rawUri.indexOf('?');
             if (uriPathEndIndex != -1) {

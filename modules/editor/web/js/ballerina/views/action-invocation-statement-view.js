@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-invocation-expression', './point', 'd3utils', './../ast/ballerina-ast-factory'],
-    function (_, d3, log, BallerinaStatementView, ActionInvocationExpression, Point, D3Utils, BallerinaASTFactory) {
+define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invocation-expression', './point', 'd3utils', './../ast/ballerina-ast-factory'],
+    function (_, d3, log, SimpleStatementView, ActionInvocationExpression, Point, D3Utils, BallerinaASTFactory) {
 
         var ActionInvocationStatementView = function (args) {
-            BallerinaStatementView.call(this, args);
+            SimpleStatementView.call(this, args);
             this._connectorView = {};
 
             if (_.isNil(this._container)) {
@@ -27,18 +27,16 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                 throw "Container for action statement is undefined." + this._container;
             }
 
-            // View options for height and width of the assignment statement box.
-            this._viewOptions.height = _.get(args, "viewOptions.height", 30);
-            this._viewOptions.width = _.get(args, "viewOptions.width", 120);
             this.getBoundingBox().fromTopCenter(this._topCenter, this._viewOptions.width, this._viewOptions.height);
             this._processorConnector = undefined;
             this._processorConnector2 = undefined;
             this._forwardArrowHead = undefined;
             this._backArrowHead = undefined;
             this._arrowGroup = undefined;
+
         };
 
-        ActionInvocationStatementView.prototype = Object.create(BallerinaStatementView.prototype);
+        ActionInvocationStatementView.prototype = Object.create(SimpleStatementView.prototype);
         ActionInvocationStatementView.prototype.constructor = ActionInvocationStatementView;
 
 
@@ -62,7 +60,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             if(!_.isNil(this.getModel().getConnector())) {
                 var connector = this.getDiagramRenderingContext().getViewModelMap()[this.messageManager.getActivatedDropTarget().id];
                 actionInvocationModel.setConnector(this.messageManager.getActivatedDropTarget());
-                this.DrawArrow(this.getDiagramRenderingContext());
+                this.renderArrows(this.getDiagramRenderingContext());
             }
         };
 
@@ -74,31 +72,6 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                 log.error("Action statement definition is undefined or is of different type." + model);
                 throw "Action statement definition is undefined or is of different type." + model;
             }
-        };
-
-        ActionInvocationStatementView.prototype.setContainer = function (container) {
-            if (!_.isNil(container)) {
-                this._container = container;
-            } else {
-                log.error("Container for action statement is undefined." + container);
-                throw "Container for action statement is undefined." + container;
-            }
-        };
-
-        ActionInvocationStatementView.prototype.setViewOptions = function (viewOptions) {
-            this._viewOptions = viewOptions;
-        };
-
-        ActionInvocationStatementView.prototype.getModel = function () {
-            return this._model.getChildren()[1].getChildren()[0];
-        };
-
-        ActionInvocationStatementView.prototype.getContainer = function () {
-            return this._container;
-        };
-
-        ActionInvocationStatementView.prototype.getViewOptions = function () {
-            return this._viewOptions;
         };
 
         ActionInvocationStatementView.prototype.setConnectorView = function(view){
@@ -114,73 +87,54 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
          * @returns {group} The svg group which contains the elements of the action statement view.
          */
         ActionInvocationStatementView.prototype.render = function (renderingContext) {
-            // TODO : Please revisit this method. Needs a refactor
-            this.setDiagramRenderingContext(renderingContext);
-            // Action invocation statement is generally an assignment statement. Where the action invocation model is the child of the right operand
-            var actionInvocationModel = this._model.getChildren()[1].getChildren()[0];
-            var leftOperandModel = this._model.getChildren()[0];
-            var connectorModel =  actionInvocationModel.getConnector();
             var self = this;
+            var model = this.getModel();
+            // Calling super class's render function.
+            (this.__proto__.__proto__).render.call(this, renderingContext);
+            // Setting display text.
+            this.renderDisplayText(model.getStatementString());
 
-            if(!_.isUndefined(connectorModel)) {
+            /* Action invocation statement is generally an assignment statement, where the action invocation model is
+             the child of the right operand. */
+            var actionInvocationModel = model.getChildren()[1].getChildren()[0];
+            var connectorModel = actionInvocationModel.getConnector();
+            actionInvocationModel.accept(this);
+            if (!_.isUndefined(connectorModel)) {
                 this.connector = this.getDiagramRenderingContext().getViewOfModel(connectorModel);
             }
             else {
-                var siblingConnectors = _.filter(this._parent._model.children, { 'type': 'ConnectorDeclaration' });
-
+                var siblingConnectors = this._parent._model.children;
                 _.some(siblingConnectors, function (key, i) {
-                    var connectorReference = siblingConnectors[i];
-
-                    actionInvocationModel._connector = connectorReference;
-                    self.messageManager.setMessageSource(actionInvocationModel);
-                    self.messageManager.updateActivatedTarget(connectorReference);
-
-                    return true;
+                    if (BallerinaASTFactory.isConnectorDeclaration(siblingConnectors[i])) {
+                        var connectorReference = siblingConnectors[i];
+                        actionInvocationModel._connector = connectorReference;
+                        self.messageManager.setMessageSource(actionInvocationModel);
+                        self.messageManager.updateActivatedTarget(connectorReference);
+                        return true;
+                    }
                 });
             }
 
-            var assignmentStatementGroup = D3Utils.group(d3.select(this._container));
-            var parentGroup = this._container;
-            //added attribute 'id' starting with '_' to be compatible with HTML4
-            assignmentStatementGroup.attr("id", "_" + this._model.id);
-            var width = this.getBoundingBox().w();
-            var height = this.getBoundingBox().h();
-            var x = this.getBoundingBox().getLeft();
-            var y = this.getBoundingBox().getTop();
-
-            var assignmentRect = D3Utils.rect(x, y, width, height, 0, 0, assignmentStatementGroup).classed('statement-rect', true);
-            // TODO : Please revisit these calculations.
-            var processorConnectorPoint = D3Utils.circle((x + width), ((y + height / 2)), 10, assignmentStatementGroup);
-            processorConnectorPoint.attr("fill-opacity", 0.01);
-
-            this.processorConnectPoint = processorConnectorPoint;
-            var assignmentText = actionInvocationModel.getActionPackageName() + ":" + actionInvocationModel.getActionName();
-            // TODO : Please revisit these calculations.
-            var expressionText = D3Utils.textElement(x + width / 2, y + height / 2, assignmentText, assignmentStatementGroup)
-                .classed('statement-text', true);
-            actionInvocationModel.accept(this);
+            this.renderProcessorConnectPoint(renderingContext);
+            this.renderArrows(renderingContext);
 
             // Creating property pane
             var editableProperty = {
                     propertyType: "text",
                     key: "Action Invocation",
-                    model: this._model,
-                    getterMethod: this._model.getStatementString,
-                    setterMethod: this._model.setStatementString
+                    model: model,
+                    getterMethod: model.getStatementString,
+                    setterMethod: model.setStatementString
             };
 
             this._createPropertyPane({
-                model: this._model,
-                statementGroup: assignmentStatementGroup,
+                model: model,
+                statementGroup: this.getStatementGroup(),
                 editableProperties: editableProperty
             });
+            this.listenTo(model, 'update-property-text', this.updateStatementText);
 
-            this.parentContainer = d3.select(parentGroup);
-            //Drawing the message.
-            this.DrawArrow(this.getDiagramRenderingContext());
-
-            self = this;
-
+            // mouse events for 'processorConnectPoint'
             this.processorConnectPoint.on("mousedown", function () {
                 d3.event.preventDefault();
                 d3.event.stopPropagation();
@@ -191,26 +145,22 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                 self.messageManager.startDrawMessage(actionInvocationModel, sourcePoint);
                 self.messageManager.setTypeBeingDragged(true);
             });
-
             this.processorConnectPoint.on("mouseover", function () {
-                processorConnectorPoint
+                self.processorConnectorPoint
                     .style("fill", "#444")
                     .style("fill-opacity", 0.5)
                     .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
             });
-
             this.processorConnectPoint.on("mouseout", function () {
-                processorConnectorPoint.style("fill-opacity", 0.01);
+                self.processorConnectorPoint.style("fill-opacity", 0.01);
             });
 
             this.getBoundingBox().on('top-edge-moved', function(dy){
-                assignmentRect.attr('y',  parseFloat(assignmentRect.attr('y')) + dy);
-                expressionText.attr('y',  parseFloat(expressionText.attr('y')) + dy);
-                processorConnectorPoint.attr('cy',  parseFloat(processorConnectorPoint.attr('cy')) + dy);
+                self.processorConnectorPoint.attr('cy',  parseFloat(self.processorConnectorPoint.attr('cy')) + dy);
             });
         };
 
-        ActionInvocationStatementView.prototype.DrawArrow = function (context) {
+        ActionInvocationStatementView.prototype.renderArrows = function (context) {
             this.setDiagramRenderingContext(context);
             var actionInvocationModel = this._model.getChildren()[1].getChildren()[0];
             var connectorModel = actionInvocationModel.getConnector();
@@ -221,7 +171,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             }
 
             if(!_.isUndefined(this.connector)) {
-                var parent = this.parentContainer;
+                var parent = this.getStatementGroup();
                 this._arrowGroup = D3Utils.group(parent).attr("transform", "translate(0,0)");
                 var width = this.getBoundingBox().w();
                 var height = this.getBoundingBox().h();
@@ -257,7 +207,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                 this.arrowHeadEndPoint = arrowHeadEnd;
 
                 var self = this;
-
+                
                 connectorModel.addConnectorActionReference(this);
 
                 this.arrowHeadEndPoint.on("mousedown", function () {
@@ -271,7 +221,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
 
                     var sourcePoint = self.toGlobalCoordinates(new Point(x, y));
                     var connectorPoint = self.toGlobalCoordinates(new Point(x1, y1));
-
+                    
                     connectorModel.removeConnectorActionReference(self.getModel().id);
 
                     self.messageManager.startDrawMessage(actionInvocationModel, sourcePoint, connectorPoint);
@@ -294,6 +244,18 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                     arrowHeadEnd.style("fill-opacity", 0.01);
                 });
             }
+        };
+
+        ActionInvocationStatementView.prototype.renderProcessorConnectPoint = function (renderingContext) {
+            var boundingBox = this.getBoundingBox();
+            var width = boundingBox.w();
+            var height = boundingBox.h();
+            var x = boundingBox.getLeft();
+            var y = boundingBox.getTop();
+
+            var processorConnectPoint = D3Utils.circle((x + width), ((y + height / 2)), 10, this.getStatementGroup());
+            processorConnectPoint.attr("fill-opacity", 0.01);
+            this.processorConnectPoint = processorConnectPoint;
         };
 
         /**
@@ -321,6 +283,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
          * Remove statement view callback
          */
         ActionInvocationStatementView.prototype.onBeforeModelRemove = function () {
+            this.stopListening(this.getBoundingBox());
             d3.select("#_" +this._model.id).remove();
             this.getDiagramRenderingContext().getViewOfModel(this._model.getParent()).getStatementContainer()
                 .removeInnerDropZone(this._model);
@@ -328,6 +291,13 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             // resize the bounding box in order to the other objects to resize
             var moveOffset = -this.getBoundingBox().h() - 30;
             this.getBoundingBox().move(0, moveOffset);
+
+        };
+
+        ActionInvocationStatementView.prototype.updateStatementText = function (newStatementText, propertyKey) {
+            this._model.setStatementString(newStatementText);
+            var displayText = this._model.getStatementString();
+            this.renderDisplayText(displayText);
         };
 
         return ActionInvocationStatementView;

@@ -93,7 +93,7 @@
 }
 
 .text-editor{
-    height: 91%;
+    height: calc(100% - 80px);
 }
 
 .view-source-btn{
@@ -473,7 +473,7 @@
 
 .struct-type-dropdown-wrapper {
     float: left;
-    min-width: 150px;
+    min-width: 210px;
     padding-top: 12px;
     padding-left: 10px;
 }
@@ -486,7 +486,7 @@
 .struct-content-operations-wrapper {
     height: 50px;
     background-color: #3d3d3d;
-    padding-right: 10px;
+    padding-right: 6px;
 }
 
 .struct-identifier-text-input {
@@ -547,7 +547,7 @@
 }
 
 .struct-variable-definition-wrapper i {
-    line-height: 18px;
+    line-height: 14px;
     padding: 13px;
     opacity: 0.4;
     cursor: pointer;
@@ -560,7 +560,7 @@
 
 .struct-type-dropdown-wrapper button {
     height: 24px;
-    width: 134px;
+    width: 183px;
     padding-top: 2px;
 }
 
@@ -577,7 +577,7 @@
 }
 
 .struct-variable-identifier-text-input {
-    width: 185px;
+    width: 162px;
     padding-left: 8px;
     padding-right: 8px;
 }
@@ -585,7 +585,7 @@
 .struct-variable-type-dropdown-wrapper button {
     height: 24px;
     padding-top: 1px;
-    width: 140px;
+    width: 170px;
 }
 
 .struct-variable-type-dropdown-wrapper i {
@@ -600,11 +600,15 @@
 /** End of Struct view CSS **/
 
 span.package-pane {
-    padding: 10px;
+    padding: 5px;
     margin-left: -20px;
     background-color: #fff;
     border: 1px solid #f0f0f0;
     display: none;
+    position: absolute;
+    top: 20px;
+    left: 309px;
+    color: #333;
 }
 span.package-name-wrapper {
     margin-left: 10px;
@@ -626,7 +630,7 @@ input#package-name-input {
     cursor: pointer;
 }
 .package-definition-main-wrapper{
-    margin-bottom: 1em;
+    height: 50px;
 }
 .tooltip-inner {
     white-space:nowrap;
@@ -635,4 +639,13 @@ input#package-name-input {
 
 .tooltip.bottom {
     margin-top: -3px;
+}
+
+.swaggerEditor{
+    height:91%;
+    width:100%;
+}
+
+.swaggerEditor .se-iframe{
+    border:0px;background: #4a4a4a;
 }
