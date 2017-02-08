@@ -19,24 +19,28 @@ package org.wso2.ballerina.annotation.processor;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DTO to hold Ballerina Annotations
+ * DTO to hold Ballerina Connector
  */
 public class Connector {
     
     private BallerinaConnector balConnector;
     private String connectorClassName;
-    private List<Action> actions = new ArrayList<>();
+    private List<Action> actions;
+    private List<Annotation> annotations;
     
     
     Connector(BallerinaConnector balConnector, String className) {
         this.balConnector = balConnector;
         this.connectorClassName = className;
+        this.actions = new ArrayList<>();
+        this.annotations = new ArrayList<>();
     }
     
     public void addAction(Action action) {
@@ -55,12 +59,21 @@ public class Connector {
         return connectorClassName;
     }
 
+    public void setAnnotations(BallerinaAnnotation[] annotations) {
+        this.annotations = Utils.getAnnotations(annotations);
+    }
+
     public String toString() {
-        StringBuilder sb = new StringBuilder().append("connector ").append(balConnector.connectorName());
+        StringBuilder sb = new StringBuilder();
+        Utils.appendAnnotationStrings(sb, annotations);
+        sb.append(annotations.size() > 0 ? "\n" : "");
+        sb.append("connector ").append(balConnector.connectorName());
         Utils.getInputParams(balConnector.args(), sb);
         sb.append(" {\n");
         for (Action action : actions) {
             BallerinaAction ballerinaAction = action.getBalAction();
+            sb.append(action.getAnnotations().size() > 0 ? "\n\t" : "");
+            Utils.appendAnnotationStrings(sb, action.getAnnotations(), "\n\t");
             sb.append("\n\tnative action ").append(ballerinaAction.actionName()).append(" (");
             for (int i = 1; i <= ballerinaAction.args().length; i++) {
                 Argument arg = ballerinaAction.args()[i - 1];
