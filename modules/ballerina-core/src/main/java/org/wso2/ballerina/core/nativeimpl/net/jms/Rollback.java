@@ -38,7 +38,8 @@ public class Rollback extends AbstractNativeFunction {
         CarbonMessage carbonMessage = ctx.getCarbonMessage();
 
         if (ctx.getBalCallback() != null) {
-            carbonMessage.setProperty(JMSConstants.JMS_MESSAGE_DELIVERY_ERROR, JMSConstants.JMS_MESSAGE_DELIVERY_ERROR);
+            carbonMessage
+                    .setProperty(JMSConstants.JMS_MESSAGE_DELIVERY_STATUS, JMSConstants.JMS_MESSAGE_DELIVERY_ERROR);
             ctx.getBalCallback().done(carbonMessage);
         }
         return VOID_RETURN;

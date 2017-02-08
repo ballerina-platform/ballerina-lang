@@ -24,11 +24,10 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.nativeimpl.connectors.jms.Constants;
+import org.wso2.ballerina.core.nativeimpl.connectors.jms.utils.JMSConstants;
 import org.wso2.ballerina.core.runtime.dispatching.ResourceDispatcher;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.transport.jms.utils.JMSConstants;
 
 /**
  * Dispatcher that handles the resources of a JMS Service.
@@ -44,7 +43,7 @@ public class JMSResourceDispatcher implements ResourceDispatcher {
                             + "deliver the message");
         }
         for (Resource resource : service.getResources()) {
-            if (resource.getAnnotation(Constants.ANNOTATION_NAME_ONMESSAGE) != null) {
+            if (resource.getAnnotation(JMSConstants.ANNOTATION_NAME_ONMESSAGE) != null) {
                 if (log.isDebugEnabled()) {
                     log.debug("Found the relevant resource in the jms service " + service.getSymbolName().toString());
                 }

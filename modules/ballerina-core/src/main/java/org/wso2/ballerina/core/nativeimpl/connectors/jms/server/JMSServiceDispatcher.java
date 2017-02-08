@@ -26,7 +26,6 @@ import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
-import org.wso2.ballerina.core.nativeimpl.connectors.jms.Constants;
 import org.wso2.ballerina.core.nativeimpl.connectors.jms.utils.JMSConstants;
 import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -71,13 +70,13 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
     public void serviceRegistered(Service service) {
         for (Annotation annotation : service.getAnnotations()) {
             Map elementPairs = annotation.getElementPairs();
-            if (!annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
+            if (!annotation.getName().equals(JMSConstants.ANNOTATION_NAME_SOURCE)) {
                 continue;
             }
             if (annotation.getElementPairs().size() == 0) {
                 continue;
             }
-            if (!annotation.getValueOfElementPair(new SymbolName(Constants.ANNOTATION_PROTOCOL))
+            if (!annotation.getValueOfElementPair(new SymbolName(JMSConstants.ANNOTATION_PROTOCOL))
                     .equals(JMSConstants.PROTOCOL_JMS)) {
                 continue;
             }

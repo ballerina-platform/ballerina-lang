@@ -102,6 +102,7 @@ import org.wso2.ballerina.core.nativeimpl.lang.message.GetHeader;
 import org.wso2.ballerina.core.nativeimpl.lang.message.GetHeaders;
 import org.wso2.ballerina.core.nativeimpl.lang.message.GetJsonPayload;
 import org.wso2.ballerina.core.nativeimpl.lang.message.GetStringPayload;
+import org.wso2.ballerina.core.nativeimpl.lang.message.GetStringValue;
 import org.wso2.ballerina.core.nativeimpl.lang.message.GetXMLPayload;
 import org.wso2.ballerina.core.nativeimpl.lang.message.RemoveHeader;
 import org.wso2.ballerina.core.nativeimpl.lang.message.SetHeader;
@@ -273,6 +274,7 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new SetJsonPayload());
         registerFunction(scope, new SetStringPayload());
         registerFunction(scope, new SetXMLPayload());
+        registerFunction(scope, new GetStringValue());
 
         // lang.string
         registerFunction(scope, new BooleanValueOf());

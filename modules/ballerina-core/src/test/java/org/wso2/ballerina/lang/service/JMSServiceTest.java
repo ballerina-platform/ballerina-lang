@@ -7,10 +7,10 @@ import org.testng.annotations.Test;
 import org.wso2.ballerina.core.EnvironmentInitializer;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Application;
+import org.wso2.ballerina.core.nativeimpl.connectors.jms.utils.JMSConstants;
 import org.wso2.ballerina.core.runtime.ServerConnectorMessageHandler;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
-import org.wso2.carbon.transport.jms.utils.JMSConstants;
 
 import javax.jms.ConnectionFactory;
 
