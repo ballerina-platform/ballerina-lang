@@ -108,11 +108,11 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
            return this._swaggerHolder.getSwagger();
        };
 
-       SourceView.prototype.isClean = function(){
+       SwaggerView.prototype.isClean = function(){
            return this._clean;
        };
 
-       SourceView.prototype.markClean = function(){
+       SwaggerView.prototype.markClean = function(){
            this._clean = true;
        };
 
