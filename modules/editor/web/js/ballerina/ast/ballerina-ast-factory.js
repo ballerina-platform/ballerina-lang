@@ -30,7 +30,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression',
         './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
         './if-condition', './array-map-access-expression', './map-init-expression', './key-value-expression', './binary-expression', './connector-action', './struct-definition',
-        './constant-definition', './variable-definition-statement','./type-struct-definition'],
+        './constant-definition', './variable-definition-statement','./type-struct-definition', './type-casting-expression'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -40,7 +40,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
               thenBody, ifCondition, arrayMapAccessExpression, mapInitExpression, keyValueExpression, binaryExpression, connectorAction, structDefinition,
-              constantDefinition, variableDefinitionStatement,typeStructDefinition) {
+              constantDefinition, variableDefinitionStatement,typeStructDefinition, typeCastingExpression) {
 
 
         /**
@@ -158,6 +158,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createKeyValueExpression = function (args) {
             return new keyValueExpression(args);
+        };
+
+        /**
+         * creates TypeCastingExpression
+         * @param {Object} args - object for TypeCastingExpression creation
+         * @returns {TypeCastingExpression}
+         */
+        BallerinaASTFactory.createTypeCastingExpression = function (args) {
+            return new typeCastingExpression(args);
         };
 
         /**
@@ -1167,6 +1176,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'key_value_expression':
                         node = BallerinaASTFactory.createKeyValueExpression();
+                        break;
+                    case 'type_casting_expression':
+                        node = BallerinaASTFactory.createTypeCastingExpression();
                         break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;
