@@ -23,8 +23,7 @@ service echo {
     @GET
     @Path ("/getString")
     resource getString (message m) {
-        message response;
-        response = new message;
+        message response = {};
         message:setStringPayload(response, serviceLevelStr);
         reply response;
     }

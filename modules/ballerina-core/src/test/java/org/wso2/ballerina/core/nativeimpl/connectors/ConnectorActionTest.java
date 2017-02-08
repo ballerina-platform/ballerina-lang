@@ -20,12 +20,10 @@ package org.wso2.ballerina.core.nativeimpl.connectors;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.exception.LinkerException;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BBoolean;
-//import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
@@ -128,31 +126,28 @@ public class ConnectorActionTest {
     
     @Test(description = "Test invoking an undefined connector",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Connector : samples.connectors.test:UndefinedConnector not found in" +
-            " undefined-connector.bal:4")
+            expectedExceptionsMessageRegExp = "undefined-connector.bal:4: undefined type 'UndefinedConnector'")
     public void testUndefinedConnector() {
         ParserUtils.parseBalFile("lang/connectors/undefined-connector.bal");
     }
     
     @Test(description = "Test invoking an undefined action",
-            expectedExceptions = {LinkerException.class },
-            expectedExceptionsMessageRegExp = "Undefined action: foo in undefined-actions.bal:18")
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "undefined-actions.bal:16: undefined action 'TestConnector.foo'")
     public void testUndefinedAction() {
         ParserUtils.parseBalFile("lang/connectors/undefined-actions.bal", symScope);
     }
     
     @Test(description = "Test defining duplicate connector",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Duplicate connector definition: samples.connectors.test:TestConnector" +
-            " in duplicate-connector.bal:13")
+            expectedExceptionsMessageRegExp = "duplicate-connector.bal:13: redeclared symbol 'TestConnector'")
     public void testDuplicateConnectorDef() {
         ParserUtils.parseBalFile("lang/connectors/duplicate-connector.bal", symScope);
     }
     
     @Test(description = "Test defining duplicate action",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Duplicate action definition: " +
-            "samples.connectors.test:TestConnector.foo_TestConnector in duplicate-action.bal:13")
+            expectedExceptionsMessageRegExp = "duplicate-action.bal:11: redeclared symbol 'foo'")
     public void testDuplicateAction() {
         ParserUtils.parseBalFile("lang/connectors/duplicate-action.bal", symScope);
     }
