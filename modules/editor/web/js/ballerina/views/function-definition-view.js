@@ -35,8 +35,6 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
          */
         var FunctionDefinitionView = function (args) {
             SVGCanvas.call(this, args);
-            //set initial connector margin for the service
-            this._lifelineMargin = new Axis(210, false);
             this._statementExpressionViewList = [];
             // TODO: Instead of using the parentView use the parent. Fix this from BallerinaView.js and bellow
             this._parentView = _.get(args, "parentView");
@@ -49,6 +47,11 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             this._defaultWorkerLifeLine = undefined;
             // TODO: Check whether the possibility of adding this to the generic level
             this._workerAndConnectorViews = [];
+            //set initial worker margin for the function
+            this._workerLifelineMargin = new Axis(0, false);
+            // Set the initial height control margin
+            this._horizontalMargin = new Axis(0, true);
+            this._lifeLineCenterGap = 180;
 
             if (_.isNil(this._model) || !(this._model instanceof FunctionDefinition)) {
                 log.error("Function definition is undefined or is of different type." + this._model);
@@ -227,16 +230,27 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             var defaultWorkerOpts = {};
             _.set(defaultWorkerOpts, 'container', this._rootGroup.node());
             _.set(defaultWorkerOpts, 'title', 'FunctionWorker');
-            _.set(defaultWorkerOpts, 'centerPoint', new Point(130, 80));
+            _.set(defaultWorkerOpts, 'centerPoint', new Point(200, 80));
 
             // Check whether there is already created default worker and otherwise we create a new one
             if (_.isUndefined(this._defaultWorkerLifeLine)) {
                 this._defaultWorkerLifeLine = new DefaultWorkerView(defaultWorkerOpts);
             }
             this._defaultWorkerLifeLine.render();
-            this._totalHeight = this._defaultWorkerLifeLine.getBoundingBox().h() + 85;
+
+            // Set the workerLifeLineMargin to the end of the default worker
+            this.getWorkerLifeLineMargin().setPosition(this._defaultWorkerLifeLine.getBoundingBox().getRight());
+            this.getHorizontalMargin().setPosition(this._defaultWorkerLifeLine.getBoundingBox().getBottom());
+
+            this._totalHeight = this.getHorizontalMargin().getPosition() + 85;
             this.setSVGHeight(this._totalHeight);
             this.renderStatementContainer();
+
+            // TODO: change this accordingly, after the worker declaration introduced
+            this.getWorkerLifeLineMargin().listenTo(this.getStatementContainer().getBoundingBox(), 'right-edge-moved', function (dx) {
+                self.getWorkerLifeLineMargin().setPosition(self.getWorkerLifeLineMargin().getPosition() + dx);
+            });
+
             this.getModel().accept(this);
             //Removing all the registered 'child-added' event listeners for this model.
             //This is needed because we are not unregistering registered event while the diagram element deletion.
@@ -414,6 +428,9 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
          * @param connectorDeclaration
          */
         FunctionDefinitionView.prototype.visitConnectorDeclaration = function (connectorDeclaration) {
+            var lastLifeLine = this.getLastLifeLine();
+            var lastConnectorLifeLine = this.getWorkerAndConnectorViews()[this.getLastConnectorLifeLineIndex()];
+            var self = this;
             // TODO: Get these values from the constants
             var offsetBetweenLifeLines = 50;
             var connectorContainer = this.getChildContainer().node(),
@@ -423,35 +440,15 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
                     parentView: this,
                     lineHeight: this._defaultWorkerLifeLine.getTopCenter()
                                 .absDistInYFrom(this._defaultWorkerLifeLine.getBottomCenter()),
-                    messageManager: this.messageManager
+                    messageManager: this.messageManager,
+                    centerPoint: lastLifeLine.getTopCenter().clone().move(this._lifeLineCenterGap, 0)
                 },
-                connectorDeclarationView,
-                center;
+                connectorDeclarationView;
 
-            var startX = 0;
-            var self = this;
-
-            if (!_.isEmpty(this._workerAndConnectorViews)) {
-                startX = _.last(this._workerAndConnectorViews).getBoundingBox().getRight() + _.last(this._workerAndConnectorViews).getBoundingBox().w()/2 + offsetBetweenLifeLines;
-            } else {
-                startX = (this._defaultWorkerLifeLine).getBoundingBox().getRight() + (this._defaultWorkerLifeLine).getBoundingBox().w()/2 + offsetBetweenLifeLines;
-            }
-
-            center = new Point(startX, this._defaultWorkerLifeLine.getTopCenter().y());
-            _.set(connectorOpts, 'centerPoint', center);
             connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
-
+            connectorDeclarationView.setParent(this);
             connectorDeclarationView.render();
-
-            if (this._workerAndConnectorViews.length > 0) {
-                // There are already added resource level connectors
-                // New resource level connector listens to the current last resource level connector
-                var lastConnector = _.last(this._workerAndConnectorViews);
-                connectorDeclarationView.listenTo(lastConnector.getBoundingBox(), 'right-edge-moved', function (offset) {
-                    self.moveFunctionDefinitionLevelConnector(this, offset);
-                });
-            }
 
             // Creating property pane
             var editableProperty = {
@@ -466,14 +463,41 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
                 lifeLineGroup:connectorDeclarationView._rootGroup,
                 editableProperties: editableProperty
             });
-            connectorDeclarationView.setParent(this);
-            this._workerAndConnectorViews.push(connectorDeclarationView);
-            this.getBoundingBox().on("bottom-edge-moved", function (dy) {
-                this.getBoundingBox().h(this.getBoundingBox().h() + dy);
 
+            if (_.isNil(lastConnectorLifeLine)) {
+                // This is the first connector we are adding
+                connectorDeclarationView.listenTo(this.getWorkerLifeLineMargin(), 'moved', function (offset) {
+                    self.moveFunctionDefinitionLevelConnector(this, offset);
+                });
+            } else {
+                // There are already added connectors
+                // Previously added connector stop listening to bounding box move.
+                // Based on this event we increase the service container width
+                lastConnectorLifeLine.stopListening(lastConnectorLifeLine.getBoundingBox(), 'right-edge-moved');
+                connectorDeclarationView.listenTo(lastConnectorLifeLine.getBoundingBox(), 'right-edge-moved', function (offset) {
+                    self.moveFunctionDefinitionLevelConnector(this, offset);
+                });
+            }
+
+            /* If the adding connector (connectorDeclarationView) goes out of this function definition's view,
+             then we need to expand this function definition's view. */
+            if (connectorDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
+                this._parentView.getLifeLineMargin().setPosition(this._parentView.getLifeLineMargin().getPosition()
+                    + this._viewOptions.LifeLineCenterGap);
+            }
+
+            var connectorBBox = connectorDeclarationView.getBoundingBox();
+            connectorDeclarationView.listenTo(connectorBBox, 'right-edge-moved', function (offset) {
+                if (connectorBBox.getRight() > self.getBoundingBox().getRight()) {
+                    self._parentView.getLifeLineMargin().setPosition(self._parentView.getLifeLineMargin().getPosition() + self._viewOptions.LifeLineCenterGap);
+                }
             }, connectorDeclarationView);
 
-            connectorDeclarationView.listenTo(this.getLifeLineMargin(), 'moved', this.updateConnectorPositionCallback);
+            connectorDeclarationView.listenTo(this.getHorizontalMargin(), 'moved', function (dy) {
+                connectorDeclarationView.getBoundingBox().h(connectorDeclarationView.getBoundingBox().h() + dy);
+            });
+
+            this._workerAndConnectorViews.push(connectorDeclarationView);
         };
 
         /**
@@ -496,10 +520,6 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             return this.getRootGroup();
         };
 
-        FunctionDefinitionView.prototype.getLifeLineMargin = function () {
-            return this._lifelineMargin;
-        };
-
         /**
          * Return statement container
          * @return {StatementContainerView}
@@ -510,6 +530,74 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
 
         FunctionDefinitionView.prototype.moveFunctionDefinitionLevelConnector = function (connectorView, offset) {
             connectorView.getBoundingBox().move(offset, 0);
+        };
+
+        /**
+         * Set the horizontal margin
+         * @param {Axis} horizontalMargin - horizontal margin
+         */
+        FunctionDefinitionView.prototype.setHorizontalMargin = function (horizontalMargin) {
+            this._horizontalMargin = horizontalMargin;
+        };
+
+        /**
+         * Get the horizontal margin
+         * @return {Axis|*}
+         */
+        FunctionDefinitionView.prototype.getHorizontalMargin = function () {
+            return this._horizontalMargin;
+        };
+
+        /**
+         * Get the worker lifeline margin
+         * @return {Axis}
+         */
+        FunctionDefinitionView.prototype.getWorkerLifeLineMargin = function () {
+            return this._workerLifelineMargin;
+        };
+
+        /**
+         * Set the worker lifeline margin
+         * @param {Axis} workerLifeLineMargin
+         */
+        FunctionDefinitionView.prototype.setWorkerLifeLineMargin = function (workerLifeLineMargin) {
+            this._workerLifelineMargin = workerLifeLineMargin;
+        };
+
+        /**
+         * Get the last lifeline
+         * @return {lifeLine} LifeLine
+         */
+        FunctionDefinitionView.prototype.getLastLifeLine = function () {
+            if(this.getWorkerAndConnectorViews().length > 0 ){
+                return _.last(this.getWorkerAndConnectorViews());
+            }
+            else{
+                return this.getDefaultWorker();
+            }
+        };
+
+        FunctionDefinitionView.prototype.getDefaultWorker = function () {
+            return this._defaultWorkerLifeLine;
+        };
+
+        FunctionDefinitionView.prototype.getWorkerAndConnectorViews = function () {
+            return this._workerAndConnectorViews;
+        };
+
+        /**
+         * Set Minimum width of the content area
+         * @param {number} minWidth - Minimum width
+         */
+        FunctionDefinitionView.prototype.setContentMinWidth = function (minWidth) {
+            this._viewOptions.contentMinWidth = minWidth;
+        };
+
+        FunctionDefinitionView.prototype.getLastConnectorLifeLineIndex = function () {
+            var index = _.findLastIndex(this.getWorkerAndConnectorViews(), function (lifeLine) {
+                return lifeLine instanceof ConnectorDeclarationView;
+            });
+            return index;
         };
 
         return FunctionDefinitionView;
