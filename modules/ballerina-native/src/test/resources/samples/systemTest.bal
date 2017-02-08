@@ -76,3 +76,7 @@ function testTimeFunctions() {
     system:log(3, nanoTime);
 
 }
+
+function printNewline() {
+    system:print("hello\n");
+}
