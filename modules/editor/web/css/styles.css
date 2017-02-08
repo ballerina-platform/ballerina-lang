@@ -1066,9 +1066,6 @@ button.variable-list {
 
 .constant-definition-main-wrapper {
     padding-bottom: 47px;
-    position: absolute;
-    top: 60px;
-    width: 83%;
 }
 
 /** End of Constants view **/
@@ -1434,15 +1431,17 @@ span.fw-stack.fw-lg {
     opacity: 0.6;
 }
 
+.package-name-btn{
+    float: left;
+}
+
 .constants-btn:hover, .package-name-btn:hover {
     cursor: pointer;
     opacity: 1;
 }
 
 .package-add-icon-wrapper {
-    position: relative;
-    top: -26px;
-    left: 69px;
+    float: left;
     border: 1px solid #ddd;
     background-color: #efefef;
     border-radius: 0 5px 5px 0;
@@ -1451,5 +1450,3 @@ span.fw-stack.fw-lg {
     padding: 6px 3px 0 9px;
     font-size: 12px;
 }
-
-
