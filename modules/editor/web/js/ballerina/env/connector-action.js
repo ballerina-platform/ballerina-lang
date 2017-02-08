@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'require', 'event_channel'],
-    function (log, _, require, EventChannel) {
+define(['require', 'log', 'lodash', 'event_channel'],
+    function (require, log, _, EventChannel) {
 
         /**
          * @class Package
