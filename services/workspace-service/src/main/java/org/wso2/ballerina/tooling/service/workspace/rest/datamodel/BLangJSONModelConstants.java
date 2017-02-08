@@ -205,4 +205,10 @@ public class BLangJSONModelConstants {
     public static final String KEY_VALUE_EXPRESSION = "key_value_expression";
 
     public static final String QUOTED_LITERAL_STRING = "quoted_literal_string";
+
+    public static final String TYPE_CASTING_EXPRESSION = "type_casting_expression";
+
+    public static final String TARGET_TYPE = "target_type";
+
+    public static final String TYPE_NAME = "type_name";
 }
