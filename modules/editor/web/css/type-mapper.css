@@ -63,3 +63,7 @@ svg.plumbConnect path {
 .typeMapperList {
     display: none;
 }
+
+.tree-container{
+    background: #ffffff;
+}

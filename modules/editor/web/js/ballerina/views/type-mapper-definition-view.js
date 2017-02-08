@@ -57,7 +57,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             // Draws the outlying body of the function.
             this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().type.toLowerCase(),
                 this.getModel().getTypeMapperName());
-            
+
             this._package = diagramRenderingContext.getPackagedScopedEnvironment().getCurrentPackage();
 
             // Setting the styles for the canvas icon.
@@ -96,19 +96,19 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             var sourceId = 'sourceStructs' + this._model.id;
             var targetId = 'targetStructs' + this._model.id;
             var selectorContainer = $('<div class="selector">' +
-                                            '<div class="source-view">' +
-                                                '<span>Source :</span>' +
-                                                    '<select id="' + sourceId + '">' +
-                                                        '<option value="-1">--Select--</option>' +
-                                                    '</select>' +
-                                            '</div>' +
-                                            '<div class="target-view">' +
-                                                '<span>Target :</span>' +
-                                                    '<select id="' + targetId + '">' +
-                                                        '<option value="-1">--Select--</option>' +
-                                                    '</select>' +
-                                            '</div>' +
-                                        '</div>');
+                '<div class="source-view">' +
+                '<span>Source :</span>' +
+                '<select id="' + sourceId + '">' +
+                '<option value="-1">--Select--</option>' +
+                '</select>' +
+                '</div>' +
+                '<div class="target-view">' +
+                '<span>Target :</span>' +
+                '<select id="' + targetId + '">' +
+                '<option value="-1">--Select--</option>' +
+                '</select>' +
+                '</div>' +
+                '</div>');
 
             var dataMapperContainer = $('<div id="' + dataMapperContainerId + '" class="data-mapper-container"></div>');
 

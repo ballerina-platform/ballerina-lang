@@ -72,12 +72,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         });
 
         this.jsPlumbInstance.bind('dblclick', function (connection, e) {
-            var propertyConnection = self.getConnectionObject(connection.sourceId, connection.targetId);
-            self.midpoint = self.midpoint - self.midpointVariance;
-            self.jsPlumbInstance.importDefaults({Connector: ["Flowchart", {midpoint: self.midpoint}]});
-            self.jsPlumbInstance.detach(connection);
-            self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
-            onDisconnectCallback(propertyConnection);
+            self.disconnect(connection);
         });
 
         this.jsPlumbInstance.bind('connection', function (info, ev) {
@@ -88,6 +83,20 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
 
     TypeMapperRenderer.prototype.constructor = TypeMapperRenderer;
+
+    /**
+     * Disconnects the connection created.
+     *
+     * @param connection
+     */
+    TypeMapperRenderer.prototype.disconnect = function (connection) {
+        var propertyConnection = this.getConnectionObject(connection.sourceId, connection.targetId);
+        this.midpoint = this.midpoint - this.midpointVariance;
+        this.jsPlumbInstance.importDefaults({Connector: ["Flowchart", {midpoint: this.midpoint}]});
+        this.jsPlumbInstance.detach(connection);
+        this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
+        this.disconnectCallback(propertyConnection);
+    };
 
     /**
      * Created the connection object from the sourceId and targetId of the connection elements
@@ -297,12 +306,32 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.addComplexProperty(jsTreeId, struct);
         var self = this;
         $("#" + jsTreeId).jstree().on('ready.jstree', function () {
-            $("#" + jsTreeId).jstree('open_all');
             var sourceElements = $("#" + id).find('.jstree-anchor');
             _.forEach(sourceElements, function (element) {
                 self.addSource(element);
             });
+            // self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
+            $("#" + jsTreeId).jstree('open_all');
             self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
+        }).on('after_open.jstree', function (event, data) {
+            var parentId = data.node.id;
+            var sourceElements = $("#" + parentId).find('.jstree-anchor');
+            _.forEach(sourceElements, function (element) {
+                self.addSource(element);
+            });
+            self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
+        }).on('close_node.jstree', function (event, data) {
+            //TODO: need to rethink what need to happen when close
+            // var parentId = data.node.id;
+            // var sourceElements = $("#" + parentId).find('.jstree-anchor');
+            // var sourceIds = [];
+            // _.forEach(sourceElements, function (element) {
+            //     sourceIds.push(sourceElements.attr('id').replace('_anchor', ""));
+            // });
+            // var connections = self.jsPlumbInstance.getConnections({source: "jstree-container___newStruct4___ee7433db-99b0-3ed4-c346-1a019d10e350_-_-_-xsxaxax---newStruct2_-_-_-sqsq---string_anchor"});
+            // _.forEach(connections, function (connection) {
+            //     self.disconnect(connection);
+            // })
         });
     };
 
@@ -344,12 +373,31 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.addComplexProperty(jsTreeId, struct);
         var self = this;
         $("#" + jsTreeId).jstree().on('ready.jstree', function () {
-            $("#" + jsTreeId).jstree('open_all');
             var sourceElements = $("#" + id).find('.jstree-anchor');
             _.forEach(sourceElements, function (element) {
                 self.addTarget(element);
             });
+            $("#" + jsTreeId).jstree('open_all');
             self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
+        }).on('after_open.jstree', function (event, data) {
+            var parentId = data.node.id;
+            var sourceElements = $("#" + parentId).find('.jstree-anchor');
+            _.forEach(sourceElements, function (element) {
+                self.addTarget(element);
+            });
+            self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
+        }).on('close_node.jstree', function (event, data) {
+            // //TODO: need to rethink what need to happen when close
+            // var parentId = data.node.id;
+            // var sourceElements = $("#" + parentId).find('.jstree-anchor');
+            // var targetIds = [];
+            // _.forEach(sourceElements, function (element) {
+            //     targetIds.push(sourceElements.attr('id'));
+            // });
+            // var connections = self.jsPlumbInstance.getConnections({target: targetIds});
+            // _.forEach(connections, function (connection) {
+            //     self.disconnect(connection);
+            // })
         });
     };
 
@@ -370,7 +418,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             'top': posX,
             'left': posY
         });
-        var jsTreeContainer = $('<div>').attr('id', 'jstree-container' + this.viewIdSeperator + struct.id);
+        var jsTreeContainer = $('<div>').attr('id', 'jstree-container' + this.viewIdSeperator + struct.id).addClass('tree-container');
         newStruct.append(jsTreeContainer);
         $("#" + this.placeHolderName).append(newStruct);
     };
