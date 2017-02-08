@@ -18,20 +18,20 @@
 
 package org.wso2.ballerina.lang.service;
 
-//import org.testng.Assert;
-//import org.testng.annotations.AfterClass;
-//import org.testng.annotations.BeforeClass;
-//import org.testng.annotations.Test;
-//import org.wso2.ballerina.core.EnvironmentInitializer;
-//import org.wso2.ballerina.core.model.Application;
-//import org.wso2.ballerina.core.utils.MessageUtils;
-//import org.wso2.ballerina.lang.util.Services;
-//import org.wso2.carbon.messaging.CarbonMessage;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import org.wso2.ballerina.core.EnvironmentInitializer;
+import org.wso2.ballerina.core.model.Application;
+import org.wso2.ballerina.core.utils.MessageUtils;
+import org.wso2.ballerina.lang.util.Services;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
  * Service/Resource variable test class.
  */
-/*public class ServiceVariableTest {
+public class ServiceVariableTest {
 
     Application application;
 
@@ -51,4 +51,4 @@ package org.wso2.ballerina.lang.service;
     public void tearDown() {
         EnvironmentInitializer.cleanup(application);
     }
-}*/
+}
