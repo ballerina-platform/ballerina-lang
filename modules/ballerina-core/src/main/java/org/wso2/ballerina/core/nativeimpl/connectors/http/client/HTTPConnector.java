@@ -21,8 +21,6 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
-import org.wso2.ballerina.core.runtime.MessageProcessor;
-import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 
 /**
  * Native HTTP Connector.
@@ -42,20 +40,6 @@ public class HTTPConnector extends AbstractNativeConnector {
     public static final String CONNECTOR_NAME = "HTTPConnector";
 
     private String serviceUri;
-
-    static {
-        //TODO: Move this to a lazy loading transport initializer once new native construct loader is available
-
-//        TransportsConfiguration trpConfig = TransportConfigProvider.getConfiguration();
-//        Set<SenderConfiguration> senderConfigurations = trpConfig.getSenderConfigurations();
-//        Set<TransportProperty> transportProperties = trpConfig.getTransportProperties();
-//
-//        HTTPSender sender = new HTTPSender(senderConfigurations, transportProperties);
-//        ServiceContextHolder.getInstance().addTransportSender(sender);
-
-        HTTPTransportContextHolder nettyTransportContextHolder = HTTPTransportContextHolder.getInstance();
-        nettyTransportContextHolder.setMessageProcessor(new MessageProcessor());
-    }
 
     @Override
     public boolean init(BValue[] bValueRefs) {
