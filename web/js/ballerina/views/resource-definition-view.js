@@ -69,7 +69,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.defaultWorker = _.get(args, "viewOptions.defaultWorker", {});
             this._viewOptions.defaultWorker.offsetTop = _.get(args, "viewOptions.defaultWorker.offsetTop", 50);
             this._viewOptions.defaultWorker.center = _.get(args, "viewOptions.defaultWorker.centerPoint",
-                            this._viewOptions.topLeft.clone().move(260, 150));
+                            this._viewOptions.topLeft.clone().move(300, 150));
 
             // View options for height and width of the heading box.
             this._viewOptions.heading = _.get(args, "viewOptions.heading", {});
@@ -700,6 +700,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             this._clientLifeLine = new ClientLifeLine(lifeLineArgs);
             this._clientLifeLine.render();
+            this._clientLifeLine.listenTo(this.getHorizontalMargin(), 'moved', function (dy) {
+                var newBottomCenterY = self.getHorizontalMargin().getPosition();
+                self._clientLifeLine._bottomCenter.y(newBottomCenterY - 45);
+            });
 
             if (_.isUndefined(this._defaultWorker)) {
                 var defaultWorkerOpts = {};
@@ -727,6 +731,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this.initResourceLevelDropTarget();
             this.renderStartAction();
             this.renderStatementContainer();
+            // TODO: change this accordingly, after the worker declaration introduced
+            this.getWorkerLifeLineMargin().listenTo(this.getStatementContainer().getBoundingBox(), 'right-edge-moved', function (dx) {
+                self.getWorkerLifeLineMargin().setPosition(self.getWorkerLifeLineMargin().getPosition() + dx);
+            });
             log.debug("Rendering Resource View");
             this.getModel().accept(this);
             //Removing all the registered 'child-added' event listeners for this model.
