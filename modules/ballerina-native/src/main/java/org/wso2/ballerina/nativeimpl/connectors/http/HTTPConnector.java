@@ -20,6 +20,8 @@ import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
+import org.wso2.ballerina.core.nativeimpl.annotations.Attribute;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.TransportConfigProvider;
@@ -46,6 +48,8 @@ import java.util.Set;
         name = "ballerina.net.connectors.http",
         immediate = true,
         service = AbstractNativeConnector.class)
+@BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
+value = "Native HTTP Connector") })
 public class HTTPConnector extends AbstractNativeConnector {
 
     public HTTPConnector(SymbolScope enclosingScope) {

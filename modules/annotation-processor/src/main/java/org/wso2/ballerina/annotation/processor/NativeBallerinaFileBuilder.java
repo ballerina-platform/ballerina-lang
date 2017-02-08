@@ -17,6 +17,7 @@
 
 package org.wso2.ballerina.annotation.processor;
 
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
 
@@ -86,7 +87,7 @@ public class NativeBallerinaFileBuilder {
      * @param packageName name of the package which the construct is belong to
      * @param construct native construct to be added.
      */
-    public void addNativeConstruct(String packageName, Object construct) {
+    public void addNativeConstruct(String packageName, Object construct, BallerinaAnnotation[] annotations) {
         NativeBallerinaPackage nativeBallerinaPackage = nativePackages.get(packageName);
         if (nativeBallerinaPackage == null) {
             nativeBallerinaPackage = new NativeBallerinaPackage(packageName);
@@ -95,6 +96,7 @@ public class NativeBallerinaFileBuilder {
 
         if (construct instanceof BallerinaFunction) {
             NativeBallerinaFunction func = new NativeBallerinaFunction((BallerinaFunction) construct);
+            func.setAnnotations(annotations);
             nativeBallerinaPackage.addNativeFunction(func);
         } else if (construct instanceof BallerinaTypeConvertor) {
             NativeBallerinaTypeConverter converter =
@@ -141,7 +143,7 @@ public class NativeBallerinaFileBuilder {
 
         @Override
         public String toString() {
-            return "package " + packageName + "\n\n"
+            return "package " + packageName + ";\n\n"
                     + nativeFunctions.stream().map(k -> k.toString()).collect(Collectors.joining("\n\n"))
                     + (nativeFunctions.size() > 0 ? "\n\n" : "")
                     + nativeBallerinaTypeConverters.stream().map(k -> k.toString()).collect(Collectors.joining("\n\n"))
@@ -156,13 +158,22 @@ public class NativeBallerinaFileBuilder {
      */
     static class NativeBallerinaFunction {
         private BallerinaFunction balFunc;
+        private List<Annotation> annotations;
 
         public NativeBallerinaFunction(BallerinaFunction func) {
             this.balFunc = func;
+            this.annotations = new ArrayList<>();
+        }
+
+        public void setAnnotations(BallerinaAnnotation[] annotations) {
+            this.annotations = Utils.getAnnotations(annotations);
         }
 
         public String toString() {
-            StringBuilder sb = new StringBuilder().append("native function ").append(balFunc.functionName());
+            StringBuilder sb = new StringBuilder();
+            Utils.appendAnnotationStrings(sb, annotations);
+            sb.append(annotations.size() > 0 ? "\n" : "");
+            sb.append("native function ").append(balFunc.functionName());
             Utils.getInputParams(balFunc.args(), sb);
             Utils.getReturnParams(balFunc.returnType(), sb);
             sb.append(";");
@@ -175,14 +186,21 @@ public class NativeBallerinaFileBuilder {
      */
     static class NativeBallerinaTypeConverter {
         private BallerinaTypeConvertor balTypeConverter;
+        private List<Annotation> annotations;
 
         public NativeBallerinaTypeConverter(BallerinaTypeConvertor converter) {
             this.balTypeConverter = converter;
+            this.annotations = new ArrayList<>();
+        }
+
+        public void setAnnotations(BallerinaAnnotation[] annotations) {
+            this.annotations = Utils.getAnnotations(annotations);
         }
 
         public String toString() {
-            StringBuilder sb =
-                    new StringBuilder().append("native typeconvertor ").append(balTypeConverter.typeConverterName());
+            StringBuilder sb = new StringBuilder();
+            Utils.appendAnnotationStrings(sb, annotations);
+            sb.append("native typeconvertor ").append(balTypeConverter.typeConverterName());
             Utils.getInputParams(balTypeConverter.args(), sb);
             Utils.getReturnParams(balTypeConverter.returnType(), sb);
             sb.append(";");
