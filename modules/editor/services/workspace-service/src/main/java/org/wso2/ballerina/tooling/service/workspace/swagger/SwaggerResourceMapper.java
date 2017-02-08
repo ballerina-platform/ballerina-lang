@@ -21,7 +21,7 @@ import io.swagger.models.Path;
 import io.swagger.models.Response;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Resource;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
+import org.wso2.ballerina.core.runtime.dispatching.Constants;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -145,11 +145,18 @@ public class SwaggerResourceMapper {
             //Default path should be /
             String path = "/";
             op.setPath(path);
-            Map<String, Annotation> annotationMap = resource.getAnnotationMap();
-            if (annotationMap != null) {
-                annotationMap.entrySet().stream().filter
-                        (operationEntry -> operationEntry.getKey().matches(HTTP_VERB_MATCHING_PATTERN)).
-                        forEach(operationEntry -> op.setHttpOperation(operationEntry.getKey()));
+            //TODO need fixing for complication failure
+//            Map<String, Annotation> annotationMap = resource.getAnnotationMap();
+//            if (annotationMap != null) {
+//                annotationMap.entrySet().stream().filter
+//                        (operationEntry -> operationEntry.getKey().matches(HTTP_VERB_MATCHING_PATTERN)).
+//                        forEach(operationEntry -> op.setHttpOperation(operationEntry.getKey()));
+//            }
+            Annotation[] annotations = resource.getAnnotations();
+            for (Annotation annotation : annotations) {
+                if (annotation.getName().matches(HTTP_VERB_MATCHING_PATTERN)) {
+                    op.setHttpOperation(annotation.getName());
+                }
             }
             if (resourceAnnotations != null) {
                 //TODO add all supported annotation mapping after annotation model finalized.
