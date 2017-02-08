@@ -2316,15 +2316,13 @@ public class SemanticAnalyzer implements NodeVisitor {
                 IfElseStmt ifElseStmt = (IfElseStmt) statement;
                 if (ifElseStmt.getElseBody() == null && ifElseStmt.getElseIfBlocks().length == 0
                         && !returnStmtCounter.hasOne()) {
-                    throw new SemanticException(
-                            "missing return statement in " + returnStmtCounter.getLineNumber());
+                    throw new SemanticException(returnStmtCounter.getLineNumber() + "missing return statement");
                 }
                 returnStmtCounter.setLineNumber(getLineNumber(statement));
                 returnStmtCounter.reset();
                 checkFunctionReturnStmtLocations((BlockStmt) ifElseStmt.getThenBody(), returnStmtCounter);
                 if (!returnStmtCounter.hasOne()) {
-                    throw new SemanticException(
-                            "missing return statement in " + returnStmtCounter.getLineNumber());
+                    throw new SemanticException(returnStmtCounter.getLineNumber() + "missing return statement");
                 }
                 if (((IfElseStmt) statement).getElseBody() != null) {
                     returnStmtCounter.reset();
@@ -2335,28 +2333,25 @@ public class SemanticAnalyzer implements NodeVisitor {
                     checkFunctionReturnStmtLocations(ifElse.getElseIfBody(), returnStmtCounter);
                 }
                 if (!returnStmtCounter.hasOne()) {
-                    throw new SemanticException(
-                            "missing return statement in " + returnStmtCounter.getLineNumber());
+                    throw new SemanticException(returnStmtCounter.getLineNumber() + "missing return statement");
                 }
             } else if (statement instanceof WhileStmt) {
                 //return statement must be in out of loop
                 if (!returnStmtCounter.hasOne()) {
-                    throw new SemanticException(
-                            "missing return statement in " + returnStmtCounter.getLineNumber());
+                    throw new SemanticException(returnStmtCounter.getLineNumber() + "missing return statement in");
                 }
                 returnStmtCounter.setLineNumber(getLineNumber(statement));
                 returnStmtCounter.reset();
                 checkFunctionReturnStmtLocations(((WhileStmt) statement).getBody(), returnStmtCounter);
                 if (!returnStmtCounter.hasOne()) {
-                    throw new SemanticException(
-                            "missing return statement in " + returnStmtCounter.getLineNumber());
+                    throw new SemanticException(returnStmtCounter.getLineNumber() + "missing return statement");
                 }
             }
         }
     }
 
     private String getLineNumber(Statement statement) {
-        return statement.getNodeLocation().getFileName() + ":" + statement.getNodeLocation().getLineNumber();
+        return statement.getNodeLocation().getFileName() + ":" + statement.getNodeLocation().getLineNumber() + ": ";
     }
 
     /**
