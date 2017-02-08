@@ -24,23 +24,12 @@ under the License.
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <packages>
-            <!--<package name="org.wso2.ballerina.lang.values"/>-->
+            <package name="org.wso2.ballerina.lang.values"/>
             <package name="org.wso2.ballerina.lang.expressions"/>
             <package name="org.wso2.ballerina.lang.statements"/>
             <package name="org.wso2.ballerina.lang.structs"/>
             <package name="org.wso2.ballerina.lang.connectors"/>
         </packages>
-
-        <classes>
-            <!-- Values -->
-            <class name="org.wso2.ballerina.lang.values.BArrayValueTest"/>
-            <class name="org.wso2.ballerina.lang.values.BDoubleValueTest"/>
-            <class name="org.wso2.ballerina.lang.values.BLongValueTest"/>
-            <class name="org.wso2.ballerina.lang.values.BMapValueTest"/>
-            <!-- Move this natives package -->
-            <!--<class name="org.wso2.ballerina.lang.values.EscapeCharacterTest"/>-->
-
-        </classes>
     </test>
 
     <!-- Parser Level Test Cases -->

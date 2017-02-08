@@ -214,6 +214,16 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.endVisitVariableDefinitionStatement = function (statement) {
     };
 
+    StatementVisitor.prototype.canVisitWorkerInvoke = function (statement) {
+        return false;
+    };
+    StatementVisitor.prototype.beginVisitWorkerInvoke = function (statement) {
+    };
+    StatementVisitor.prototype.visitWorkerInvoke = function (statement) {
+    };
+    StatementVisitor.prototype.endVisitWorkerInvoke = function (statement) {
+    };
+
     /**
      * @param node {ASTNode}
      */
@@ -256,6 +266,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.visitRightOperandExpression(node);
         }  else if (node instanceof AST.VariableDefinitionStatement) {
             return this.visitVariableDefinitionStatement(node);
+        }  else if (node instanceof AST.WorkerInvoke) {
+            return this.visitWorkerInvoke(node);
         }
     };
 
@@ -301,6 +313,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.canVisitRightOperandExpression(node);
         }  else if (node instanceof AST.VariableDefinitionStatement) {
             return this.canVisitVariableDefinitionStatement(node);
+        }  else if (node instanceof AST.WorkerInvoke) {
+            return this.canVisitWorkerInvoke(node);
         }
     };
 
@@ -346,6 +360,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.beginVisitRightOperandExpression(node);
         }  else if (node instanceof AST.VariableDefinitionStatement) {
             return this.beginVisitVariableDefinitionStatement(node);
+        }  else if (node instanceof AST.WorkerInvoke) {
+            return this.beginVisitWorkerInvoke(node);
         }
     };
 
@@ -391,6 +407,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.endVisitRightOperandExpression(node);
         }  else if (node instanceof AST.VariableDefinitionStatement) {
             return this.endVisitVariableDefinitionStatement(node);
+        }  else if (node instanceof AST.WorkerInvoke) {
+            return this.endVisitWorkerInvoke(node);
         }
     };
 

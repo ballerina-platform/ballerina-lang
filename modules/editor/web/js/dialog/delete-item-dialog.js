@@ -43,7 +43,7 @@ define(['require', 'jquery', 'lodash', './modal-dialog', 'log'], function (requi
     };
 
     DeleteItemDialog.prototype.displayWizard = function (data) {
-        this.setTitle("Delete "+ data.type);
+        this.setTitle("delete "+ data.type);
         this.setSubmitBtnText("delete");
         var body = this.getBody();
         body.empty();

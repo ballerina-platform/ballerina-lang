@@ -2,7 +2,6 @@ body {
     background: #232323;
 }
 
-
 #alerts-container {
     display: none
 }
@@ -116,7 +115,7 @@ span.tree-action {
 
 header .brand img.logo {
     height: 15px;
-    padding: 0px 10px;
+    padding: 0 10px;
 }
 
 header .brand {
@@ -159,9 +158,8 @@ ol#breadcrumbList {
 
 header .brand img.logo {
     height: 17px;
-    padding: 0px 7px;
+    padding: 0 7px;
 }
-
 
 header .brand h1 {
     font-size: 14px;
@@ -172,7 +170,8 @@ header .brand h1 {
 ol#breadcrumbList {
     background-color: #131313;
 }
-#breadcrumb-container{
+
+#breadcrumb-container {
     background-color: #131313;
     height: 28px;
     overflow: hidden;
@@ -208,8 +207,8 @@ ol#breadcrumbList {
 .statement-text {
     text-anchor: middle;
     dominant-baseline: central;
-    width:120px;
-    max-width:250px;
+    width: 120px;
+    max-width: 250px;
 }
 
 /*//////////////////////////////////////////////////*/
@@ -505,7 +504,7 @@ button.variable-list {
     position: absolute;
 }
 
-.expression-editor-form-wrapper{
+.expression-editor-form-wrapper {
     width: 265px;
     max-height: 250px;
     background: #FFFFFF;
@@ -742,7 +741,7 @@ button.variable-list {
     border-left: 1px solid #000;
 }
 
-.service-annotation-wrapper-heading[disabled] , .service-annotation-wrapper-heading[disabled] * {
+.service-annotation-wrapper-heading[disabled], .service-annotation-wrapper-heading[disabled] * {
     background-color: #eeeeee;
     opacity: 1;
     cursor: not-allowed;
@@ -771,7 +770,7 @@ button.variable-list {
 }
 
 .service-annotation-details-wrapper {
-    padding: 0px;
+    padding: 0;
     overflow-y: scroll;
     width: 100%;
     border-left: 1px solid #555;
@@ -931,12 +930,12 @@ button.variable-list {
     border: 1px solid #ddd;
     background-color: #fff;
     margin: auto;
-    top: -34px;
+    top: -26px;
     left: 68px;
     position: relative;
     float: left;
-    border-radius: 0 10px 10px 0;
-    min-height: 34px;
+    border-radius: 0 5px 5px 0;
+    min-height: 27px;
 }
 
 .constants-wrapper {
@@ -956,7 +955,7 @@ button.variable-list {
     font-size: 11px;
     float: left;
     padding: 5px;
-    margin: 5px 3px 0 3px;
+    margin: 3px 3px 0 3px;
 }
 
 .constant-add-action-wrapper {
@@ -1001,9 +1000,9 @@ button.variable-list {
     width: 23px;
     margin-left: 4px;
     position: absolute;
-    right: -23px;
-    top: 2px;
-    border-radius: 0 10px 10px 0;
+    right: -24px;
+    top: -1px;
+    border-radius: 0 5px 5px 0;
 }
 
 .constant-pane-collapser-wrapper:hover {
@@ -1247,10 +1246,10 @@ button.variable-list {
 }
 
 #modalSearch input {
-    color:black;
+    color: black;
 }
 
-.modal-search-icon{
+.modal-search-icon {
     position: absolute;
     right: 20px;
     top: 8px;
@@ -1263,13 +1262,13 @@ button.variable-list {
     margin-top: 10px;
 }
 
-.search-results ul li{
-    background-color: #2C2C2C ;
+.search-results ul li {
+    background-color: #2C2C2C;
     border: 0;
     cursor: pointer;
 }
 
-.search-results ul li:hover{
+.search-results ul li:hover {
     background-color: #222;
     color: #ff7916;
 }
@@ -1335,15 +1334,16 @@ button.variable-list {
     text-transform: none;
     background: #131313;
 }
+
 #breadcrumb-container > ol > li.breadcrumb-item {
     color: grey;
     cursor: pointer;
 }
+
 #breadcrumb-container > ol > li.breadcrumb-item.active {
     color: white;
     cursor: pointer;
 }
-
 
 footer {
     min-height: 30px;
@@ -1377,35 +1377,41 @@ a:hover {
     border: 0;
 }
 
-.sidebar-left{
+.sidebar-left {
     background: #333;
 }
+
 .modal-dialog.file-dialog {
     margin: 100px auto 0;
 }
 
-.delete-item-dialog .icon{
+.delete-item-dialog .icon {
     float: left;
     margin-left: 25px;
     margin-top: 5px;
 }
+
 .delete-item-dialog .text {
     margin-left: 150px;
 }
+
 .tool-group-import-header > a.tool-group-header-title {
     color: #fff;
 }
+
 i.fw-lg.fw.fw-cancel.about-dialog-close {
     font-size: 12px;
 }
+
 i.fw.fw-cancel.about-dialog-close {
     font-size: 12px;
 }
+
 ul.list-group {
     margin-bottom: 0;
 }
 
-span.fw-stack.fw-lg{
+span.fw-stack.fw-lg {
     z-index: 10;
 }
 
@@ -1418,20 +1424,29 @@ span.fw-stack.fw-lg{
     background: #333;
     width: 69px;
     color: #fff;
-    padding: 8px 10px;
-    border-radius: 10px 0 0 10px;
-    height: 34px;
+    padding: 5px 10px;
+    border-radius: 5px 0 0 5px;
+    height: 26px;
+    font-size: 12px;
+    opacity: 0.6;
 }
+
+.package-name-btn{
+    float: left;
+}
+
+.constants-btn:hover, .package-name-btn:hover {
+    cursor: pointer;
+    opacity: 1;
+}
+
 .package-add-icon-wrapper {
-    position: relative;
-    top: -34px;
-    left: 69px;
+    float: left;
     border: 1px solid #ddd;
-    background-color: #fff;
-    border-radius: 0 10px 10px 0;
-    min-height: 34px;
+    background-color: #efefef;
+    border-radius: 0 5px 5px 0;
+    min-height: 26px;
     width: 26px;
-    padding: 9px 3px 0 8px;
+    padding: 6px 3px 0 9px;
+    font-size: 12px;
 }
-
-
