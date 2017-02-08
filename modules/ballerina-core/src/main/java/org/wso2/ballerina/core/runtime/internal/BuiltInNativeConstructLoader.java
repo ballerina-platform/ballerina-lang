@@ -36,6 +36,8 @@ import org.wso2.ballerina.core.nativeimpl.connectors.http.client.HTTPConnector;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Patch;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Post;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Put;
+import org.wso2.ballerina.core.nativeimpl.connectors.jms.client.JMSConnector;
+import org.wso2.ballerina.core.nativeimpl.connectors.jms.client.Send;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayCopyOf;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayLength;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayRangeCopy;
@@ -379,6 +381,11 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new Acknowledge());
         registerFunction(scope, new Commit());
         registerFunction(scope, new Rollback());
+
+
+        registerConnector(scope, new JMSConnector());
+
+        registerAction(scope, new Send());
 
     }
 
