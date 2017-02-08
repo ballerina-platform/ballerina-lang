@@ -38,6 +38,7 @@ define(['lodash', './node', '../utils/common-utils'], function(_, ASTNode, Commo
         this._timeout = _.get(options, "timeout", "");
         this._params = _.get(options, "params", '\"http://localhost:9090\"');
         this._arguments = _.get(options, "arguments", []);
+        this._connectorActionsReference = _.get(options, "connectorActionsReference", []);
     };
 
     ConnectorDeclaration.prototype = Object.create(ASTNode.prototype);
@@ -49,7 +50,12 @@ define(['lodash', './node', '../utils/common-utils'], function(_, ASTNode, Commo
     ConnectorDeclaration.prototype.setConnectorName = function (name, options) {
         this.setAttribute('_connectorName', name, options);
     };
-
+    ConnectorDeclaration.prototype.addConnectorActionReference = function (object) {
+        this._connectorActionsReference.push(object);
+    };
+    ConnectorDeclaration.prototype.removeConnectorActionReference = function (id) {
+        _.pullAllBy(this._connectorActionsReference, [{ 'id': id }], 'id');
+    };
     ConnectorDeclaration.prototype.setConnectorVariable = function (connectorVariable, options) {
         this.setAttribute('_connectorVariable', connectorVariable, options);
     };
@@ -122,6 +128,10 @@ define(['lodash', './node', '../utils/common-utils'], function(_, ASTNode, Commo
 
     ConnectorDeclaration.prototype.getConnectorName = function () {
         return this._connectorName;
+    };
+    
+    ConnectorDeclaration.prototype.getConnectorActionsReference = function () {
+        return this._connectorActionsReference;
     };
 
     ConnectorDeclaration.prototype.getConnectorVariable = function () {
