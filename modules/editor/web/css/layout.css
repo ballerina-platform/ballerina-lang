@@ -6,12 +6,6 @@
     }
 }
 
-.nano { background: #333; width: 500px; height: 500px; }
-.nano .nano-content { padding: 10px; }
-.nano .nano-pane   { background: #888; }
-.nano .nano-slider { background: #111; }
-
-
 body{
     width: 100vw;
     height: 100vh;
@@ -87,7 +81,6 @@ div[class*="col-sm-"] {
     height: 100%;
     width: 100%;
     margin-left: 40px;
-    overflow: scroll;
 }
 
 .right-container{
