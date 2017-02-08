@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -19,7 +19,6 @@
 package org.wso2.siddhi.core.table;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
@@ -42,8 +41,6 @@ import org.wso2.siddhi.query.api.expression.Expression;
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * In-memory event table implementation of SiddhiQL.
@@ -116,7 +113,7 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
                                OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
         try {
             readWriteLock.writeLock().lock();
-            ComplexEventChunk<StreamEvent> failedEvents = operator.overwriteOrAdd(overwritingOrAddingEventChunk,
+            ComplexEventChunk<StreamEvent> failedEvents = operator.overwrite(overwritingOrAddingEventChunk,
                     eventHolder, updateAttributeMappers, overwritingStreamEventExtractor);
             eventHolder.add(failedEvents);
         } finally {

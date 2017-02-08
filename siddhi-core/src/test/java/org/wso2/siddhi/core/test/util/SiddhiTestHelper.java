@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -49,6 +49,26 @@ public class SiddhiTestHelper {
         } else {
             for (int i = 0; i < actual.size(); i++) {
                 if (!Arrays.equals(actual.get(i), expected.get(i))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    public static boolean isUnsortedEventsMatch(List<Object[]> actual, List<Object[]> expected) {
+        if (actual.size() != expected.size()) {
+            return false;
+        } else {
+            for (int i = 0; i < actual.size(); i++) {
+                boolean isThere = false;
+                for (int j = 0; j < expected.size(); j++) {
+                    if (Arrays.equals(actual.get(i), expected.get(j))) {
+                        isThere = true;
+                        break;
+                    }
+                }
+                if (!isThere) {
                     return false;
                 }
             }

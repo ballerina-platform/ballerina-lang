@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -35,8 +35,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class IndexedTableTestCase {
-    private static final Logger log = Logger.getLogger(IndexedTableTestCase.class);
+@Deprecated
+public class IndexedByTableTestCase {
+    private static final Logger log = Logger.getLogger(IndexedByTableTestCase.class);
     private AtomicInteger inEventCount = new AtomicInteger(0);
     private int removeEventCount;
     private boolean eventArrived;
@@ -52,7 +53,7 @@ public class IndexedTableTestCase {
 
     @Test
     public void indexedTableTest1() throws InterruptedException {
-        log.info("indexedTableTest1");
+        log.info("primaryKeyIndexTableTest1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
@@ -107,7 +108,6 @@ public class IndexedTableTestCase {
             checkStockStream.send(new Object[]{"IBM", 100l});
             checkStockStream.send(new Object[]{"WSO2", 100l});
             updateStockStream.send(new Object[]{"IBM", 77.6f, 200l});
-            Thread.sleep(2000);
             checkStockStream.send(new Object[]{"IBM", 100l});
             checkStockStream.send(new Object[]{"WSO2", 100l});
 

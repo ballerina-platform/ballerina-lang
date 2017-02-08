@@ -241,7 +241,7 @@ public class HazelcastEventTable implements EventTable {
     public synchronized void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Operator operator,
                                             UpdateAttributeMapper[] updateAttributeMappers,
                                             OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
-        ComplexEventChunk<StreamEvent> failedEvents = operator.overwriteOrAdd(overwritingOrAddingEventChunk,
+        ComplexEventChunk<StreamEvent> failedEvents = operator.overwrite(overwritingOrAddingEventChunk,
                 eventHolder, updateAttributeMappers, overwritingStreamEventExtractor);
         eventHolder.add(failedEvents);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -3724,7 +3724,7 @@ public class FilterTestCase {
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream").
                 filter(Expression.compare(Expression.variable("price"),
-                        Compare.Operator.CONTAINS,
+                        Compare.Operator.EQUAL,
                         Expression.value("WS"))
                 )
         );
@@ -4338,7 +4338,10 @@ public class FilterTestCase {
 
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
-        String query = "@info(name = 'query1') from cseEventStream[150 > volume] select symbol,price , symbol as sym1 insert into outputStream ;";
+        String query = "@info(name = 'query1') " +
+                "from cseEventStream[150 > volume] " +
+                "select symbol,price , symbol as sym1 " +
+                "insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
         executionPlanRuntime.addCallback("query1", new QueryCallback() {

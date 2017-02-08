@@ -97,10 +97,10 @@ public class HazelcastPrimaryKeyOperator implements Operator {
     }
 
     @Override
-    public ComplexEventChunk<StreamEvent> overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk,
-                                                         Object candidateEvents,
-                                                         UpdateAttributeMapper[] updateAttributeMappers,
-                                                         OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
+    public ComplexEventChunk<StreamEvent> overwrite(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk,
+                                                    Object candidateEvents,
+                                                    UpdateAttributeMapper[] updateAttributeMappers,
+                                                    OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
         overwritingOrAddingEventChunk.reset();
         ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>(overwritingOrAddingEventChunk.isBatch());
         while (overwritingOrAddingEventChunk.hasNext()) {

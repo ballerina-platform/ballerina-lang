@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -42,6 +42,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.*;
 
@@ -82,29 +83,11 @@ public class QueryParserHelper {
                 metaStreamEvent.getOnAfterWindowData().remove(attribute);
             }
         }
-        Set<Attribute> duplicateFinder = new HashSet<Attribute>();
-        for (Iterator<Attribute> iterator = metaStreamEvent.getOnAfterWindowData().iterator(); iterator.hasNext(); ) {
-            Attribute attribute = iterator.next();
-            if (attribute != null) {
-                if (duplicateFinder.add(attribute)) {
-                    if (metaStreamEvent.getBeforeWindowData().contains(attribute)) {
-                        metaStreamEvent.getBeforeWindowData().remove(attribute);
-                    }
-                } else {
-                    iterator.remove();
-                }
+        for (Attribute attribute : metaStreamEvent.getOnAfterWindowData()) {
+            if (metaStreamEvent.getBeforeWindowData().contains(attribute)) {
+                metaStreamEvent.getBeforeWindowData().remove(attribute);
             }
         }
-
-        for (Iterator<Attribute> iterator = metaStreamEvent.getBeforeWindowData().iterator(); iterator.hasNext(); ) {
-            Attribute attribute = iterator.next();
-            if (attribute != null) {
-                if (!duplicateFinder.add(attribute)) {
-                    iterator.remove();
-                }
-            }
-        }
-
     }
 
     public static void updateVariablePosition(MetaComplexEvent metaComplexEvent, List<VariableExpressionExecutor> variableExpressionExecutorList) {

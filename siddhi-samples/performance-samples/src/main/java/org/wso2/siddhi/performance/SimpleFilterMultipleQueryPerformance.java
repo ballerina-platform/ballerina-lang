@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -55,7 +55,7 @@ public class SimpleFilterMultipleQueryPerformance {
                     timeSpent += (System.currentTimeMillis() - (Long) event.getData(3));
                     if (eventCount % 1000000 == 0) {
                         System.out.println("Throughput : " + (eventCount * 1000) / ((System.currentTimeMillis()) - startTime));
-                        System.out.println("Time spend :  " + (timeSpent * 1.0 / eventCount));
+                        System.out.println("Time spent :  " + (timeSpent * 1.0 / eventCount));
                         startTime = System.currentTimeMillis();
                         eventCount = 0;
                         timeSpent = 0;

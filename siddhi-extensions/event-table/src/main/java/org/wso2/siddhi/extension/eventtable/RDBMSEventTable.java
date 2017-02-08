@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -265,9 +265,9 @@ public class RDBMSEventTable implements EventTable {
 
     @Override
     public void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Operator operator, UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
-        operator.overwriteOrAdd(overwritingOrAddingEventChunk, null, null, overwritingStreamEventExtractor);
+        operator.overwrite(overwritingOrAddingEventChunk, null, null, overwritingStreamEventExtractor);
         if (isCachingEnabled) {
-            ((RDBMSOperator) operator).getInMemoryEventTableOperator().overwriteOrAdd(overwritingOrAddingEventChunk, cachedTable.getCacheList(), updateAttributeMappers, overwritingStreamEventExtractor);
+            ((RDBMSOperator) operator).getInMemoryEventTableOperator().overwrite(overwritingOrAddingEventChunk, cachedTable.getCacheList(), updateAttributeMappers, overwritingStreamEventExtractor);
         }
     }
 
