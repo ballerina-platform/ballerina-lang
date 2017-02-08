@@ -1122,9 +1122,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (compareExprType == BTypes.typeFloat) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_FLOAT_FUNC);
 
-        } else if (compareExprType == BTypes.typeDouble) {
-            notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_DOUBLE_FUNC);
-
         } else if (compareExprType == BTypes.typeBoolean) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_BOOLEAN_FUNC);
 
