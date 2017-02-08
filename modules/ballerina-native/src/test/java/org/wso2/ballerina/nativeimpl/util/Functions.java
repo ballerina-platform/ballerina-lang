@@ -104,7 +104,7 @@ public class Functions {
         // Linking.
         BLangLinkBuilder linker = new BLangLinkBuilder();
         funcIExpr.setParent(new StartNode(StartNode.Originator.TEST));
-        linker.visit(funcIExpr);
+        funcIExpr.accept(linker);
 
         // 4) Prepare function arguments
         BValue[] functionArgs = args;
@@ -119,7 +119,7 @@ public class Functions {
         CallableUnitInfo functionInfo = new CallableUnitInfo(function.getName(), function.getPackagePath(),
                 function.getNodeLocation());
 
-        BValue[] tempValues = new BValue[funcIExpr.getCallableUnit().getTempStackFrameSize() + 1];
+        BValue[] tempValues = new BValue[linker.getCurrentTempStackSize()];
 
         StackFrame currentStackFrame = new StackFrame(functionArgs, new BValue[0], tempValues, functionInfo);
         bContext.getControlStack().pushFrame(currentStackFrame);

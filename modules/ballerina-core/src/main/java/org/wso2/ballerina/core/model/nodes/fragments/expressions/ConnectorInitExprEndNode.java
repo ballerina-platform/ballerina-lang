@@ -27,6 +27,8 @@ import org.wso2.ballerina.core.model.nodes.AbstractLinkedNode;
 public class ConnectorInitExprEndNode extends AbstractLinkedNode {
 
     private ConnectorInitExpr expression;
+    private int retuningBranchID;
+    private boolean hasReturningBranch;
 
     public ConnectorInitExprEndNode(ConnectorInitExpr expression) {
         this.expression = expression;
@@ -41,4 +43,21 @@ public class ConnectorInitExprEndNode extends AbstractLinkedNode {
     public void executeLNode(LinkedNodeExecutor executor) {
         executor.visit(this);
     }
+
+    public int getGotoBranchID() {
+        return retuningBranchID;
+    }
+
+    public void setGotoBranchID(int retuningBranchID) {
+        this.retuningBranchID = retuningBranchID;
+    }
+
+    public boolean hasGotoBranchID() {
+        return hasReturningBranch;
+    }
+
+    public void setHasGotoBranchID(boolean hasReturningBranch) {
+        this.hasReturningBranch = hasReturningBranch;
+    }
+
 }

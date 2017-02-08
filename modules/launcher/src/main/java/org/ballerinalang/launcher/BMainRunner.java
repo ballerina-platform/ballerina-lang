@@ -108,7 +108,7 @@ class BMainRunner {
             CallableUnitInfo functionInfo = new CallableUnitInfo(funcIExpr.getName(),
                     funcIExpr.getPackagePath(), mainFuncLocation);
 
-            BValue[] tempValues = new BValue[funcIExpr.getCallableUnit().getTempStackFrameSize() + 1];
+            BValue[] tempValues = new BValue[linker.getCurrentTempStackSize()];
 
             StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], tempValues, functionInfo);
             bContext.getControlStack().pushFrame(currentStackFrame);

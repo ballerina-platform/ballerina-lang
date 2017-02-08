@@ -30,6 +30,7 @@ import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
+import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.ImportPackage;
@@ -117,6 +118,7 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
 import java.util.Arrays;
 import java.util.Stack;
@@ -1197,7 +1199,31 @@ public class BLangLinkBuilder implements NodeVisitor {
                 connectorInitExpr.setNext(endNode);
             }
         }
-        endNode.setNext(findNext(endNode));
+        Connector connector = (Connector) connectorInitExpr.getType();
+        if (connector instanceof AbstractNativeConnector) {
+            endNode.setNext(findNext(connectorInitExpr));
+        } else {
+            BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
+            BlockStmt blockStmt = connectorDef.getInitFunction().getCallableUnitBody();
+            endNode.setNext(blockStmt);
+            CallableUnitEndNode callableUnitEndNode = new CallableUnitEndNode(connectorInitExpr);
+            blockStmt.setNextSibling(callableUnitEndNode);
+            GotoNode gotoNode;
+            // Setup MultiLink Statement for this block Statement.
+            if (blockStmt.getGotoNode() != null) {
+                gotoNode = blockStmt.getGotoNode();
+            } else {
+                gotoNode = new GotoNode();
+                blockStmt.setGotoNode(gotoNode);
+                blockStmt.setNextSibling(gotoNode);
+            }
+            // Get Branching ID for above multi link.
+            int branchID = gotoNode.addNext(callableUnitEndNode);
+            endNode.setHasGotoBranchID(true);
+            endNode.setGotoBranchID(branchID);
+            blockStmt.accept(this);
+            callableUnitEndNode.setNext(findNext(connectorInitExpr));
+        }
     }
 
     @Override
@@ -1323,6 +1349,10 @@ public class BLangLinkBuilder implements NodeVisitor {
     @Override
     public void visit(StructVarLocation structVarLocation) {
 
+    }
+
+    public int getCurrentTempStackSize() {
+        return offSetCounterStack.peek().getMax();
     }
 
     private void handelBinaryExpression(BinaryExpression binaryExpression) {
