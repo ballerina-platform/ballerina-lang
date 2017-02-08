@@ -375,9 +375,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         openScope(action);
         currentCallableUnit = action;
 
-        // Check whether the return statement is missing. Ignore if the function does not return anything.
-        // TODO Define proper error message codes
-        //checkForMissingReturnStmt(action, "missing return statement at end of action");
+        // TODO Check whether the first argument is the connector
 
         for (ParameterDef parameterDef : action.getParameterDefs()) {
             parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
@@ -2020,7 +2018,9 @@ public class SemanticAnalyzer implements NodeVisitor {
             functionBuilder.setPkgPath(connectorDef.getPackagePath());
             functionBuilder.setBody(blockStmtBuilder.build());
             connectorDef.setInitFunction(functionBuilder.buildFunction());
+        }
 
+        for (BallerinaConnectorDef connectorDef : connectorDefArray) {
             // Define actions
             openScope(connectorDef);
 
