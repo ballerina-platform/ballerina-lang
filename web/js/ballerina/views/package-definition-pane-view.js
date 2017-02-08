@@ -52,10 +52,11 @@ define(['require', 'lodash', 'jquery', 'log', './../ast/package-definition',
             var packageDefinitionsButton = $("<div class='package-name-btn'></div>")
                                                 .appendTo(packageWrapper);
 
-            var packageButtonIcon = $("<span class='fw-stack fw-lg' data-toggle='tooltip' title='Package Name' " +
-                "data-placement='bottom'> " +
-                "<i class='fw fw-circle fw-stack-2x'></i>" +
-                "<i class='fw fw-package fw-stack-1x fw-inverse'></i> </span>")
+            var collpaser = $("<div class='package-add-icon-wrapper'/>").appendTo(packageWrapper);
+
+            $("<i class='fw fw-right'></i>").appendTo(collpaser);
+
+            var packageButtonIcon = $("<span class='' data-toggle='tooltip' title='Package Name' data-placement='bottom'>Package</span>")
                 .appendTo(packageDefinitionsButton).tooltip();
 
             var packageDefinitionsMainWrapper = $("<span class='package-pane'/>")
