@@ -42,7 +42,7 @@ public class ConnectorInitTest {
     }
 
     @Test(description = "Test Connector int functionality")
-    public void testIntAddExpr() {
+    public void testConnectorInit() {
         BValue[] args = {new BString("Apple"), new BInteger(13)};
 
         BValue[] returns = Functions.invoke(bFile, "testConnectorInit", args);
