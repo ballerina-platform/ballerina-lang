@@ -1,5 +1,5 @@
 function lazyInitThrowArrayIndexOutOfBound() {
-    int[] arr;
+    int[] arr = [];
     int x;
 
     // This should throw an exception
@@ -7,13 +7,13 @@ function lazyInitThrowArrayIndexOutOfBound() {
 }
 
 function lazyInitSizeZero() (string[]) {
-    string[] names;
+    string[] names = [];
 
     return names;
 }
 
 function addValueToIntArray() (int[]) {
-    int[] arr;
+    int[] arr = [];
     int x;
     x = 4;
     arr[0] = -10;
@@ -27,7 +27,7 @@ function addValueToIntArray() (int[]) {
 }
 
 function addValueToFloatArray() (float[]) {
-    float[] arr;
+    float[] arr = [];
     arr[0] = -10.0;
     arr[15] = 2.5 ;
     arr[99] = 2147483647.1;

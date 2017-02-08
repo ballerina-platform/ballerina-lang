@@ -23,48 +23,23 @@ import org.wso2.ballerina.core.model.*;
 import org.wso2.ballerina.core.model.expressions.*;
 import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
 import org.wso2.ballerina.core.interpreter.ConstantLocation;
-import org.wso2.ballerina.core.interpreter.LocalVarLocation;
+import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
-import org.wso2.ballerina.core.model.BallerinaConnector;
+import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
-import org.wso2.ballerina.core.model.Const;
+import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.Worker;
-import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
-import org.wso2.ballerina.core.model.expressions.AddExpression;
-import org.wso2.ballerina.core.model.expressions.AndExpression;
-import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
-import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
-import org.wso2.ballerina.core.model.expressions.BacktickExpr;
-import org.wso2.ballerina.core.model.expressions.BasicLiteral;
-import org.wso2.ballerina.core.model.expressions.DivideExpr;
-import org.wso2.ballerina.core.model.expressions.EqualExpression;
-import org.wso2.ballerina.core.model.expressions.Expression;
-import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
-import org.wso2.ballerina.core.model.expressions.GreaterEqualExpression;
-import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
-import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
-import org.wso2.ballerina.core.model.expressions.KeyValueExpression;
-import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
-import org.wso2.ballerina.core.model.expressions.LessThanExpression;
-import org.wso2.ballerina.core.model.expressions.MapInitExpr;
-import org.wso2.ballerina.core.model.expressions.MultExpression;
-import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
-import org.wso2.ballerina.core.model.expressions.OrExpression;
-import org.wso2.ballerina.core.model.expressions.SubtractExpression;
-import org.wso2.ballerina.core.model.expressions.TypeCastExpression;
-import org.wso2.ballerina.core.model.expressions.UnaryExpression;
-import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
@@ -75,6 +50,7 @@ import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.BTypes;
 
@@ -108,7 +84,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(BallerinaConnector connector) {
+    public void visit(BallerinaConnectorDef connector) {
     }
 
     @Override
@@ -137,7 +113,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(Parameter parameter) {
+    public void visit(ParameterDef parameterDef) {
     }
 
     @Override
@@ -163,11 +139,11 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(VariableDcl variableDcl) {
+    public void visit(VariableDef variableDef) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
-        buffer.append(variableDcl.getType().toString()).append(SPACE_CHAR)
-                .append(variableDcl.getName().getName()).append(";");
+        buffer.append(variableDef.getType().toString()).append(SPACE_CHAR)
+                .append(variableDef.getName()).append(";");
     }
 
     @Override
@@ -290,11 +266,11 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     public void visit(FunctionInvocationExpr funcIExpr) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
-        if(funcIExpr.getCallableUnitName().getPkgName() != null){
-            buffer.append(funcIExpr.getCallableUnitName().getPkgName()).append(":");
+        if(funcIExpr.getPackageName() != null){
+            buffer.append(funcIExpr.getPackageName()).append(":");
         }
         boolean isFirstItr = true;
-        buffer.append(funcIExpr.getCallableUnitName().getName()).append("( ");
+        buffer.append(funcIExpr.getName()).append("( ");
         if (funcIExpr.getArgExprs() != null) {
             if(!isFirstItr){
 
@@ -313,11 +289,11 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
         boolean isFirstItr = true;
-        if(actionIExpr.getCallableUnitName().getPkgName() != null){
-            buffer.append(actionIExpr.getCallableUnitName().getPkgName()).append(":");
+        if(actionIExpr.getPackageName() != null){
+            buffer.append(actionIExpr.getPackageName()).append(":");
         }
-        buffer.append(actionIExpr.getCallableUnitName().getConnectorName())
-                .append(".").append(actionIExpr.getCallableUnitName().getName()).append("( ");
+        buffer.append(actionIExpr.getConnectorName())
+                .append(".").append(actionIExpr.getName()).append("( ");
         if (actionIExpr.getArgExprs() != null) {
             if(!isFirstItr){
 
@@ -335,7 +311,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     public void visit(BasicLiteral basicLiteral) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
-        if(basicLiteral.getType() == BTypes.STRING_TYPE) {
+        if(basicLiteral.getType() == BTypes.typeString) {
             buffer.append("\"").append(basicLiteral.getBValue().stringValue()).append("\"");
         } else {
             buffer.append(basicLiteral.getBValue().stringValue());
@@ -563,8 +539,13 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(MapInitExpr mapInitExpr) {
+    public void visit(RefTypeInitExpr refTypeInitExpr) {
         //TODO
+    }
+
+    @Override
+    public void visit(ConnectorInitExpr connectorInitExpr) {
+
     }
 
     @Override
@@ -573,7 +554,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(LocalVarLocation localVarLocation) {
+    public void visit(StackVarLocation stackVarLocation) {
         //TODO
     }
 
@@ -588,7 +569,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(Const constant) {
+    public void visit(ConstDef constant) {
         //TODO
     }
 
@@ -598,19 +579,20 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(KeyValueExpression arrayMapAccessExpr) {
+    public void visit(MapStructInitKeyValueExpr arrayMapAccessExpr) {
         //TODO
     }
 
     @Override
-    public void visit(BallerinaStruct ballerinaStruct) {
+    public void visit(StructDef structDef) {
         //TODO
     }
+
     @Override
-    public void visit(StructDcl structDcl) {
-        //TODO
+    public void visit(VariableDefStmt varDefStmt) {
+
     }
-    
+
     @Override
     public void visit(StructVarLocation structVarLocation) {
         //TODO
@@ -622,8 +604,18 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
+    public void visit(MapInitExpr mapInitExpr) {
+
+    }
+
+    @Override
     public void visit(StructFieldAccessExpr structFieldAccessExpr) {
         //TODO
+    }
+
+    @Override
+    public void visit(ModExpression modExpression) {
+        
     }
 
 }

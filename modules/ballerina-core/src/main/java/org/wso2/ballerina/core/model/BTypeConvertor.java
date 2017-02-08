@@ -17,73 +17,43 @@
  */
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.model.builder.CallableUnitBuilder;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+import org.wso2.ballerina.core.model.types.BType;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Class to represent TypeConvertor written in ballerina
+ * {@code BTypeConvertor} represents a  TypeConvertor in ballerina.
+ *
+ * @since 0.8.0
  */
-public class BTypeConvertor extends PositionAwareNode implements TypeConvertor, Node {
+public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUnit {
+    private NodeLocation location;
 
-    private SymbolName symbolName;
-    private String typeConverterName;
-    private Position typeConverterLocation;
+    // BLangSymbol related attributes
+    protected String name;
+    protected String pkgPath;
+    protected boolean isPublic;
+    protected SymbolName symbolName;
 
     private Annotation[] annotations;
-    private Parameter[] parameters;
-    private VariableDcl[] variableDcls;
-    private Worker[] workers;
-    private Parameter[] returnParams;
+    private ParameterDef[] parameterDefs;
+    private BType[] parameterTypes;
+    private ParameterDef[] returnParams;
+    private BType[] returnParamTypes;
     private BlockStmt typeConverterBody;
-
-    private boolean publicFunc;
     private int stackFrameSize;
 
-    public BTypeConvertor(SymbolName name,
-                          Position position,
-                          Boolean isPublic,
-                          Annotation[] annotations,
-                          Parameter[] parameters,
-                          Parameter[] returnParams,
-                          VariableDcl[] variableDcls,
-                          Worker[] workers,
-                          BlockStmt typeConverterBody) {
+    // Scope related variables
+    private SymbolScope enclosingScope;
+    private Map<SymbolName, BLangSymbol> symbolMap;
 
-        this.symbolName = name;
-        this.typeConverterName = symbolName.getName();
-        this.typeConverterLocation = position;
-        this.publicFunc = isPublic;
-        this.annotations = annotations;
-        this.parameters = parameters;
-        this.returnParams = returnParams;
-        this.variableDcls = variableDcls;
-        this.workers = workers;
-        this.typeConverterBody = typeConverterBody;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return symbolName.getName();
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getPackageName() {
-        return symbolName.getPkgName();
-    }
-
-    /**
-     * Get the typeConvertor Identifier
-     *
-     * @return typeConvertor identifier
-     */
-    public SymbolName getSymbolName() {
-        return symbolName;
+    private BTypeConvertor(SymbolScope enclosingScope) {
+        this.enclosingScope = enclosingScope;
+        this.symbolMap = new HashMap<>();
     }
 
     @Override
@@ -105,8 +75,8 @@ public class BTypeConvertor extends PositionAwareNode implements TypeConvertor, 
      *
      * @return list of Arguments
      */
-    public Parameter[] getParameters() {
-        return parameters;
+    public ParameterDef[] getParameterDefs() {
+        return parameterDefs;
     }
 
     /**
@@ -114,20 +84,11 @@ public class BTypeConvertor extends PositionAwareNode implements TypeConvertor, 
      *
      * @return list of all BallerinaTypeConvertor scoped variableDcls
      */
-    public VariableDcl[] getVariableDcls() {
-        return variableDcls;
+    public VariableDef[] getVariableDefs() {
+        return null;
     }
 
-    /**
-     * Get all the Workers associated with a BallerinaTypeConvertor
-     *
-     * @return list of Workers
-     */
-    public Worker[] getWorkers() {
-        return workers;
-    }
-
-    public Parameter[] getReturnParameters() {
+    public ParameterDef[] getReturnParameters() {
         return returnParams;
     }
 
@@ -136,26 +97,9 @@ public class BTypeConvertor extends PositionAwareNode implements TypeConvertor, 
         return null;
     }
 
-    /**
-     * Check whether typeConvertor is public, which means typeConvertor is visible outside the package
-     *
-     * @return whether typeConvertor is public
-     */
-    public boolean isPublic() {
-        return publicFunc;
-    }
-
-    /**
-     * Mark typeConvertor as public
-     */
-    public void makePublic() {
-        publicFunc = true;
-    }
-
     public int getStackFrameSize() {
         return stackFrameSize;
     }
-
 
     public void setStackFrameSize(int stackFrameSize) {
         this.stackFrameSize = stackFrameSize;
@@ -167,15 +111,116 @@ public class BTypeConvertor extends PositionAwareNode implements TypeConvertor, 
     }
 
     @Override
+    public BType[] getReturnParamTypes() {
+        return returnParamTypes;
+    }
+
+    @Override
+    public void setReturnParamTypes(BType[] returnParamTypes) {
+        this.returnParamTypes = returnParamTypes;
+    }
+
+    @Override
+    public BType[] getArgumentTypes() {
+        return parameterTypes;
+    }
+
+    @Override
+    public void setParameterTypes(BType[] parameterTypes) {
+        this.parameterTypes = parameterTypes;
+    }
+
+    // Methods in Node interface
+
+    @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public Position getLocation() {
-        return typeConverterLocation;
+    public NodeLocation getNodeLocation() {
+        return location;
+    }
+
+
+    // Methods in BLangSymbol interface
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    @Override
+    public boolean isNative() {
+        return false;
+    }
+
+    @Override
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
+    @Override
+    public SymbolScope getSymbolScope() {
+        return this;
+    }
+
+
+    // Methods in the SymbolScope interface
+
+    @Override
+    public ScopeName getScopeName() {
+        return ScopeName.LOCAL;
+    }
+
+    @Override
+    public SymbolScope getEnclosingScope() {
+        return enclosingScope;
+    }
+
+    @Override
+    public void define(SymbolName name, BLangSymbol symbol) {
+        symbolMap.put(name, symbol);
+    }
+
+    @Override
+    public BLangSymbol resolve(SymbolName name) {
+        return resolve(symbolMap, name);
+    }
+
+    /**
+     * {@code BTypeConvertorBuilder} is responsible for building a {@cdoe BTypeConvertor} node.
+     *
+     * @since 0.8.0
+     */
+    public static class BTypeConvertorBuilder extends CallableUnitBuilder {
+        private BTypeConvertor bTypeCon;
+
+        public BTypeConvertorBuilder(SymbolScope enclosingScope) {
+            bTypeCon = new BTypeConvertor(enclosingScope);
+            currentScope = bTypeCon;
+        }
+
+        public BTypeConvertor buildTypeConverter() {
+            bTypeCon.location = this.location;
+            bTypeCon.name = this.name;
+            bTypeCon.pkgPath = this.pkgPath;
+
+            bTypeCon.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            bTypeCon.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
+            bTypeCon.returnParams = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);
+            bTypeCon.typeConverterBody = this.body;
+            return bTypeCon;
+        }
     }
 }

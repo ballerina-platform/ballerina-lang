@@ -17,33 +17,26 @@
  */
 package org.wso2.ballerina.lang.expressions;
 
+
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BStruct;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
-import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
+
 
 public class StructTypeConvertorTest {
     private BallerinaFile bFile;
 
     @BeforeClass
     public void setup() {
-        // Add Native functions.
-        SymScope symScope = GlobalScopeHolder.getInstance().getScope();
-        if (symScope.lookup(new SymbolName("ballerina.lang.convertors:_xml->_json")) == null) {
-            BuiltInNativeConstructLoader.loadConstructs();
-        }
-        bFile = ParserUtils.parseBalFile("lang/expressions/struct-type-convertor.bal", symScope);
+        bFile = ParserUtils.parseBalFile("lang/expressions/struct-type-convertor.bal");
     }
 
     @Test

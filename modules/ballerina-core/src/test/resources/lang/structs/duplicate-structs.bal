@@ -1,10 +1,10 @@
-public type Department {
+struct Department {
 	string dptName;
 	boolean y;
 	Person prsn1;
 }
 
-public type Department {
+struct Department {
 	string name;
 	int[] a1;
 }

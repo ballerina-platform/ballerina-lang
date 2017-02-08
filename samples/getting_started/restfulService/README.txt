@@ -34,11 +34,12 @@ curl -X POST -d '{ "Product": { "ID": "123456", "Name": "XYZ", "Description": "S
 
 
 
-curl -X GET "http://localhost:9090/ecommerceservice/orders/123456"
+curl -X GET "http://localhost:9090/ecommerceservice/orders"
 
 curl -X POST -d '{ "Order": { "ID": "111999", "Name": "XYZ", "Description": "Sample order."}}'  "http://localhost:9090/ecommerceservice/orders"
 
 
-curl -X GET "http://localhost:9090/ecommerceservice/customers/987654"
+
+curl -X GET "http://localhost:9090/ecommerceservice/customers"
 
 curl -X POST -d '{"Customer": {"ID": "987654", "Name": "ABC PQR","Description": "Sample Customer."}}'  "http://localhost:9090/ecommerceservice/customers"

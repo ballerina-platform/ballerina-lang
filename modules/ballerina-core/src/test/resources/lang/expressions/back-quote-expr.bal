@@ -1,10 +1,6 @@
-import ballerina.lang.message;
-
-function getProduct() (message) {
+function getProduct() (json) {
     message m;
     json payload;
     payload = `{"Product": {"ID": "123456", "Name": "XYZ","Description": "Sample product."}}`;
-    m = new message;
-    message:setJsonPayload(m, payload);
-    return m;
+    return payload;
 }
