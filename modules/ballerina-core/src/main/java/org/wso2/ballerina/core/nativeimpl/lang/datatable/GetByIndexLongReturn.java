@@ -28,6 +28,8 @@ import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
+import java.util.Locale;
+
 /**
  * Native function to get some special type to ballerina supported types. Eg:- Blob, Clob, NClob, Date, Timestamp
  * ballerina.lang.datatable:getLong(datatable, int, string)
@@ -47,6 +49,6 @@ public class GetByIndexLongReturn extends AbstractNativeFunction {
         BDataTable dataframe = (BDataTable) getArgument(ctx, 0);
         int index = ((BInteger) getArgument(ctx, 1)).intValue();
         String type = (getArgument(ctx, 2)).stringValue();
-        return getBValues(dataframe.get(index, type.toLowerCase()));
+        return getBValues(dataframe.get(index, type.toLowerCase(Locale.ENGLISH)));
     }
 }

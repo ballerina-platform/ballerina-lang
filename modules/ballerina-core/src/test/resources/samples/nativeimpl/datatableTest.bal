@@ -122,11 +122,11 @@ function getObjectAsStringByIndex()(string, string, string, string, string) {
 
     df = sql:Connector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type from ComplexTypes LIMIT 1");
     while (datatable:next(df)) {
-        blob = datatable:getObjectAsString(df, 1);
-        clob = datatable:getObjectAsString(df, 2);
-        time = datatable:getObjectAsString(df, 3);
-        date = datatable:getObjectAsString(df, 4);
-        timestamp = datatable:getObjectAsString(df, 5);
+        blob = datatable:getValueAsString(df, 1);
+        clob = datatable:getValueAsString(df, 2);
+        time = datatable:getValueAsString(df, 3);
+        date = datatable:getValueAsString(df, 4);
+        timestamp = datatable:getValueAsString(df, 5);
     }
     datatable:close(df);
     return blob, clob, time, date, timestamp;
@@ -143,11 +143,11 @@ function getObjectAsStringByName()(string, string, string, string, string) {
 
     df = sql:Connector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type from ComplexTypes LIMIT 1");
     while (datatable:next(df)) {
-        blob = datatable:getObjectAsString(df, "blob_type");
-        clob = datatable:getObjectAsString(df, "clob_type");
-        time = datatable:getObjectAsString(df, "time_type");
-        date = datatable:getObjectAsString(df, "date_type");
-        timestamp = datatable:getObjectAsString(df, "timestamp_type");
+        blob = datatable:getValueAsString(df, "blob_type");
+        clob = datatable:getValueAsString(df, "clob_type");
+        time = datatable:getValueAsString(df, "time_type");
+        date = datatable:getValueAsString(df, "date_type");
+        timestamp = datatable:getValueAsString(df, "timestamp_type");
     }
     datatable:close(df);
     return blob, clob, time, date, timestamp;

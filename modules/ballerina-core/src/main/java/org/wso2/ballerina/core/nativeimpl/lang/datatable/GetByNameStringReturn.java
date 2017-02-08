@@ -27,6 +27,8 @@ import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
+import java.util.Locale;
+
 /**
  * Native function to get some special type to ballerina supported types. Eg:- Blob, Clob, NClob, Date, Timestamp
  * ballerina.lang.datatable:getString(datatable, string, string)
@@ -46,6 +48,6 @@ public class GetByNameStringReturn extends AbstractNativeFunction {
         BDataTable dataframe = (BDataTable) getArgument(ctx, 0);
         String columnName = (getArgument(ctx, 1)).stringValue();
         String type = (getArgument(ctx, 2)).stringValue();
-        return getBValues(dataframe.get(columnName, type.toLowerCase()));
+        return getBValues(dataframe.get(columnName, type.toLowerCase(Locale.ENGLISH)));
     }
 }
