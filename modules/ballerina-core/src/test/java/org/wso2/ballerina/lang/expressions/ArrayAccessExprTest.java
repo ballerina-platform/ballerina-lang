@@ -103,11 +103,19 @@ public class ArrayAccessExprTest {
         ParserUtils.parseBalFile("lang/expressions/incorrect-array-access.bal");
     }
     
-    @Test(description = "Test access a primitive a an array",
+    @Test(description = "Test access a primitive as an array",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "access-primitive-as-array.bal:3: invalid operation: " +
                     "type 'string' does not support indexing")
     public void testAccessPrimitiveAsArray() {
         ParserUtils.parseBalFile("lang/expressions/access-primitive-as-array.bal");
+    }
+    
+    @Test(description = "Test access an non-initialized array", 
+            expectedExceptions = BallerinaException.class,
+            expectedExceptionsMessageRegExp = "variable 'fruits' is null")
+    public void testNonInitArrayAccess() {
+        Functions.invoke(bFile, "testNonInitArrayAccess");
+        Assert.fail("Test should fail at this point.");
     }
 }
