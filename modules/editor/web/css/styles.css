@@ -2,6 +2,7 @@ body {
     background: #232323;
 }
 
+
 #alerts-container {
     display: none
 }
@@ -119,8 +120,9 @@ header .brand img.logo {
 }
 
 header .brand {
-    padding: 5px;
+    padding: 0 10px;
     margin-right: 25px;
+    line-height: 35px;
 }
 
 header .brand h1 {
@@ -160,9 +162,6 @@ header .brand img.logo {
     padding: 0px 7px;
 }
 
-header .brand {
-    padding: 1px 10px;
-}
 
 header .brand h1 {
     font-size: 14px;
@@ -231,7 +230,7 @@ ol#breadcrumbList {
     float: right;
 }
 
-.service-variable-pane {
+.variable-pane {
     border: 1px solid #f0f0f0;
     background-color: #fff;
     position: absolute;
@@ -281,7 +280,7 @@ button.variable-list {
 }
 
 .variable-wrapper i {
-    padding: 10px;
+    padding: 10px 6px 8px;
     font-size: 8px;
     background-color: #fff;
     color: #19b89c;
@@ -317,7 +316,6 @@ button.variable-list {
 
 .variable-identifier-message {
     border: 0;
-    max-width: 100px;
 }
 
 /*Start Connection*/
@@ -564,7 +562,6 @@ button.variable-list {
     width: 100%;
     height: 100%;
     min-width: 100%;
-    max-width: 250px;
 }
 
 .property-pane-form-body-add-button {
@@ -612,7 +609,7 @@ button.variable-list {
 .package-btn {
     position: absolute;
     right: 0;
-    top: 3px;
+    top: 6px;
     z-index: 30;
 }
 
@@ -854,7 +851,7 @@ button.variable-list {
 
 .variable-add-action-wrapper {
     display: none;
-    width: 340px;
+    width: 500px;
     background-color: #efefef;
     height: 30px;
     padding: 3px 8px;
@@ -922,6 +919,7 @@ button.variable-list {
 
 .constants-btn {
     opacity: 0.4;
+    width: 37px;
 }
 
 .constants-btn:hover {
@@ -930,15 +928,15 @@ button.variable-list {
 }
 
 .constants-pane {
-    border: 1px solid #f0f0f0;
+    border: 1px solid #ddd;
     background-color: #fff;
     margin: auto;
-    min-height: 29px;
-    padding: 3px 3px 0 16px;
-    top: -37px;
-    left: 19px;
+    top: -34px;
+    left: 68px;
     position: relative;
     float: left;
+    border-radius: 0 10px 10px 0;
+    min-height: 34px;
 }
 
 .constants-wrapper {
@@ -952,23 +950,21 @@ button.variable-list {
 }
 
 .constant-add-icon-wrapper {
-    margin-left: 2px;
     height: 20px;
     position: static;
     width: 19px;
-    font-size: 7px;
+    font-size: 11px;
     float: left;
-    margin-top: 2px;
+    padding: 5px;
+    margin: 5px 3px 0 3px;
 }
 
 .constant-add-action-wrapper {
     display: none;
     width: 500px;
-    background-color: #efefef;
-    height: 30px;
-    padding: 3px 8px;
-    margin-bottom: 4px;
-    margin-left: 5px;
+    background-color: #ddd;
+    height: 32px;
+    padding: 4px 7px;
 }
 
 .constant-add-action-wrapper input {
@@ -976,6 +972,7 @@ button.variable-list {
     margin-left: 4px;
     height: 22px;
     padding-left: 5px;
+    border: 0;
 }
 
 .constant-add-complete-action-wrapper {
@@ -1005,7 +1002,8 @@ button.variable-list {
     margin-left: 4px;
     position: absolute;
     right: -23px;
-    top: 0;
+    top: 2px;
+    border-radius: 0 10px 10px 0;
 }
 
 .constant-pane-collapser-wrapper:hover {
@@ -1028,7 +1026,7 @@ button.variable-list {
 }
 
 .constant-declaration-wrapper i {
-    padding: 10px 6px 8px;
+    padding: 7px 6px 8px;
     font-size: 8px;
     background-color: #fff;
     color: #8e44ad;
@@ -1041,13 +1039,12 @@ button.variable-list {
     background-color: #8e44ad;
     float: left;
     color: white;
-    padding: 4px 8px;
+    padding: 2px 8px;
 }
 
 .constant-declaration-wrapper {
     float: left;
-    margin-bottom: 13px;
-    margin-left: 5px;
+    margin: 3px 5px 4px;
     border: 1px solid #8e44ad;
 }
 
@@ -1059,7 +1056,7 @@ button.variable-list {
 .constant-declaration-field {
     background-color: #FFF;
     float: left;
-    padding: 4px 8px;
+    padding: 2px 8px;
 }
 
 .constant-declaration-equals {
@@ -1092,11 +1089,14 @@ button.variable-list {
 .name-span {
     display: table-cell;
     vertical-align: middle;
+    font-weight: 400;
+    font-size: 16px;
 }
 
 .canvas-operations-wrapper {
     float: right;
     margin-right: 1px;
+    padding-top: 4px;
 }
 
 .annotation-icon {
@@ -1274,6 +1274,18 @@ button.variable-list {
     color: #ff7916;
 }
 
+.struct-title-text:hover {
+    cursor: text;
+}
+
+.type-mapper-title-text:hover {
+    cursor: text;
+}
+
+.type-struct-title-text:hover {
+    cursor: text;
+}
+
 .canvas-title:hover {
     cursor: text;
 }
@@ -1396,3 +1408,30 @@ ul.list-group {
 span.fw-stack.fw-lg{
     z-index: 10;
 }
+
+.import-img {
+    height: 37px;
+    width: 37px;
+}
+
+.constants-btn, .package-name-btn {
+    background: #333;
+    width: 69px;
+    color: #fff;
+    padding: 8px 10px;
+    border-radius: 10px 0 0 10px;
+    height: 34px;
+}
+.package-add-icon-wrapper {
+    position: relative;
+    top: -34px;
+    left: 69px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    border-radius: 0 10px 10px 0;
+    min-height: 34px;
+    width: 26px;
+    padding: 9px 3px 0 8px;
+}
+
+

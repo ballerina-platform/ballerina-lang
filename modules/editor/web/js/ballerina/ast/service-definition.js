@@ -66,9 +66,9 @@ define(['lodash', './node', 'log'],
     ServiceDefinition.prototype = Object.create(ASTNode.prototype);
     ServiceDefinition.prototype.constructor = ServiceDefinition;
 
-    ServiceDefinition.prototype.setServiceName = function (serviceName) {
+    ServiceDefinition.prototype.setServiceName = function (serviceName, options) {
         if (!_.isNil(serviceName) && ASTNode.isValidIdentifier(serviceName)) {
-            this.setAttribute('_serviceName', serviceName);
+            this.setAttribute('_serviceName', serviceName, options);
         } else {
             var errorString = "Invalid name for the service name: " + serviceName;
             log.error(errorString);
@@ -84,55 +84,91 @@ define(['lodash', './node', 'log'],
         return this._annotations;
     };
 
-    ServiceDefinition.prototype.getVariableDeclarations = function () {
-        var variableDeclarations = [];
-        var self = this;
-
-        _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isVariableDeclaration(child)) {
-                variableDeclarations.push(child);
-            }
-        });
-        return variableDeclarations;
-    };
 
     ServiceDefinition.prototype.getConnectionDeclarations = function () {
         return this._connectionDeclarations;
     };
 
     /**
-     * Adds new variable declaration.
+     * Gets the variable definition statements of the service.
+     * @return {VariableDefinitionStatement[]}
      */
-    ServiceDefinition.prototype.addVariableDeclaration = function (newVariableDeclaration) {
+    ServiceDefinition.prototype.getVariableDefinitionStatements = function () {
+        var variableDefinitionStatements = [];
         var self = this;
 
-        // Get the index of the last variable declaration.
-        var index = _.findLastIndex(this.getChildren(), function (child) {
-            return self.BallerinaASTFactory.isVariableDeclaration(child);
+        _.forEach(this.getChildren(), function (child) {
+            if (self.getFactory().isVariableDefinitionStatement(child)) {
+                variableDefinitionStatements.push(child);
+            }
         });
-
-        // index = -1 when there are not any variable declarations, hence get the index for connector
-        // declarations.
-        if (index == -1) {
-            index = _.findLastIndex(this.getChildren(), function (child) {
-                return self.BallerinaASTFactory.isConnectorDeclaration(child);
-            });
-        }
-
-        this.addChild(newVariableDeclaration, index + 1);
+        return variableDefinitionStatements;
     };
 
     /**
-     * Adds new variable declaration.
+     * Adds new variable definition statement.
+     * @param {string} bType - The ballerina type of the variable definition statement.
+     * @param {string} identifier - The identifier of the variable definition statement.
+     * @param {string} assignedValue - The right hand expression.
      */
-    ServiceDefinition.prototype.removeVariableDeclaration = function (variableDeclarationIdentifier) {
+    ServiceDefinition.prototype.addVariableDefinitionStatement = function (bType, identifier, assignedValue) {
+
+        // Check is identifier is not null or empty.
+        if (_.isNil(identifier) || _.isEmpty(identifier)) {
+            var errorStringOfEmptyIdentifier = "A variable definition requires an identifier.";
+            log.error(errorStringOfEmptyIdentifier);
+            throw errorStringOfEmptyIdentifier;
+        }
+
+        // Check if already variable definition statement exists with same identifier.
+        var identifierAlreadyExists = _.findIndex(this.getVariableDefinitionStatements(),
+                                                                                function (variableDefinitionStatement) {
+                return _.isEqual(variableDefinitionStatement.getIdentifier(), identifier);
+            }) !== -1;
+
+        // If variable definition statement with the same identifier exists, then throw an error. Else create the new
+        // variable definition statement.
+        if (identifierAlreadyExists) {
+            var errorString = "A variable definition with identifier '" + identifier + "' already exists.";
+            log.error(errorString);
+            throw errorString;
+        } else {
+            // Creating new constant definition.
+            var newVariableDefinitionStatement = this.getFactory().createVariableDefinitionStatement();
+            newVariableDefinitionStatement.setLeftExpression(bType + " " + identifier);
+            if (!_.isNil(assignedValue) && !_.isEmpty(assignedValue)) {
+                newVariableDefinitionStatement.setRightExpression(assignedValue);
+            }
+
+            var self = this;
+
+            // Get the index of the last variable definition statement.
+            var index = _.findLastIndex(this.getChildren(), function (child) {
+                return self.getFactory().isVariableDefinitionStatement(child);
+            });
+
+            if (index == -1) {
+                index = _.findLastIndex(this.getChildren(), function (child) {
+                    return self.getFactory().isConnectorDeclaration(child);
+                })
+            }
+
+            this.addChild(newVariableDefinitionStatement, index + 1);
+        }
+    };
+
+    /**
+     * Removes an existing variable definition statement.
+     * @param {string} modelID - The model ID of variable definition statement.
+     */
+    ServiceDefinition.prototype.removeVariableDefinitionStatement = function (modelID) {
         var self = this;
-        // Removing the variable from the children.
-        var variableDeclarationChild = _.find(this.getChildren(), function (child) {
-            return self.BallerinaASTFactory.isVariableDeclaration(child)
-                && child.getIdentifier() === variableDeclarationIdentifier;
+        // Deleting the variable definition statement from the children.
+        var variableDefinitionStatementToRemove = _.find(this.getChildren(), function (child) {
+            return self.getFactory().isVariableDefinitionStatement(child) && _.isEqual(child.id, modelID);
         });
-        this.removeChild(variableDeclarationChild);
+
+        this.removeChild(variableDefinitionStatementToRemove);
     };
 
     /**
@@ -142,19 +178,10 @@ define(['lodash', './node', 'log'],
      */
     ServiceDefinition.prototype.addAnnotation = function (key, value) {
         if (!_.isNil(key) && !_.isNil(value)) {
-            var existingAnnotation = _.find(this._annotations, function (annotation) {
-                return annotation.key == key;
-            });
-            if (_.isNil(existingAnnotation)) {
-                // If such annotation does not exists, then add a new one.
-                this._annotations.push({
-                    key: key,
-                    value: value
-                });
-            } else {
-                // Updating existing annotation.
-                existingAnnotation.value = value;
+            var options = {
+              predicate: {key: key}
             }
+            this.pushToArrayAttribute('_annotations', {key: key, value: value}, options);
         } else {
             var errorString = "Cannot add annotation @" + key + "(\"" + value + "\").";
             log.error(errorString);
@@ -177,12 +204,12 @@ define(['lodash', './node', 'log'],
     /**
      * initialize ServiceDefinition from json object
      * @param {Object} jsonNode to initialize from
-     * @param {string} [jsonNode.service_name] - Name of the service definition
+     * @param {string} jsonNode.service_name - Name of the service definition
      * @param {string} [jsonNode.annotations] - Annotations of the function definition
      */
     ServiceDefinition.prototype.initFromJson = function (jsonNode) {
         var self = this;
-        this._serviceName = jsonNode.service_name;
+        this.setServiceName(jsonNode.service_name, {doSilently: true});
 
         // Populate the annotations array
         for (var itr = 0; itr < this._annotations.length; itr ++) {

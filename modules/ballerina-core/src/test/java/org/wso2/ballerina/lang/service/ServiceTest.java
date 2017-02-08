@@ -24,8 +24,13 @@ package org.wso2.ballerina.lang.service;
 public class ServiceTest {
 
 /*    @BeforeClass
+=======
+    Application application;
+
+    @BeforeClass
+>>>>>>> upstream/master
     public void setup() {
-        EnvironmentInitializer.initialize("lang/service/echoService.bal");
+        application = EnvironmentInitializer.setup("lang/service/echoService.bal");
     }
 
     @Test
@@ -55,7 +60,7 @@ public class ServiceTest {
 
     @Test(description = "Test for service availability check",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = ".* no Service found .*")
+            expectedExceptionsMessageRegExp = ".* no service found .*")
     public void testServiceAvailabilityCheck() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/foo/message", "GET");
         Services.invoke(cMsg);
@@ -76,7 +81,7 @@ public class ServiceTest {
 
     @Test(description = "Test for resource availability check",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = ".* no Resource found .*")
+            expectedExceptionsMessageRegExp = ".* no resource found .*")
     public void testResourceAvailabilityCheck() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/bar", "GET");
         Services.invoke(cMsg);
@@ -119,6 +124,12 @@ public class ServiceTest {
         Assert.assertNotNull(stringDataSource);
         Assert.assertEquals(stringDataSource.getValue(), stringPayload);
     }*/
+
+
+//    @AfterClass
+//    public void tearDown() {
+//        EnvironmentInitializer.cleanup(application);
+//    }
 
     //TODO: add more test cases
 

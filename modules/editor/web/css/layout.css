@@ -71,14 +71,14 @@ div[class*="col-sm-"] {
     margin-right: 0;
 }
 .left-container{
-    height: 100%;
+    height: calc(100% - 100px);
     padding: 0;
     /*Adjust when implementing file explorer*/
     min-width: 40px;
     position: fixed;
 }
 .left-tool-bar{
-    height: 100%;
+    height: calc(100% - 100px);
     padding: 0;
     min-width: 40px;
     position: fixed;

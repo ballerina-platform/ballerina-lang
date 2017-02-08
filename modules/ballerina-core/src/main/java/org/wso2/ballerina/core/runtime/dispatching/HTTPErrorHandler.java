@@ -61,8 +61,6 @@ public class HTTPErrorHandler implements ServerConnectorErrorHandler {
         Map<String, String> transportHeaders = new HashMap<>();
         transportHeaders.put(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONNECTION,
                              org.wso2.carbon.transport.http.netty.common.Constants.KEEP_ALIVE);
-        transportHeaders.put(org.wso2.carbon.transport.http.netty.common.Constants.CONTENT_ENCODING,
-                             org.wso2.carbon.transport.http.netty.common.Constants.ENCODING_GZIP);
         transportHeaders.put(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONTENT_TYPE,
                              org.wso2.carbon.transport.http.netty.common.Constants.TEXT_PLAIN);
         transportHeaders.put(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONTENT_LENGTH,

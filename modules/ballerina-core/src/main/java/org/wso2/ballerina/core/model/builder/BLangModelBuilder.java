@@ -365,6 +365,16 @@ public class BLangModelBuilder {
 
 
     // Function/action input and out parameters
+    public void startParamList() {
+        annotationListStack.push(new ArrayList<>());
+    }
+
+
+    public void endParamList() {
+        annotationListStack.pop();
+    }
+
+    // Function parameters and types
 
     /**
      * Create a function parameter and a corresponding variable reference expression.
@@ -388,6 +398,13 @@ public class BLangModelBuilder {
 
         SimpleTypeName typeName = typeNameStack.pop();
         ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
+
+        // Annotation list is maintained for each parameter
+        if (!annotationListStack.isEmpty() && !annotationListStack.peek().isEmpty()) {
+            annotationListStack.peek().forEach(paramDef::addAnnotation);
+            // Clear all added annotations for the current parameter.
+            annotationListStack.peek().clear();
+        }
 
         if (currentCUBuilder != null) {
             // Add the parameter to callableUnitBuilder.

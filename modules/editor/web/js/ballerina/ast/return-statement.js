@@ -31,9 +31,9 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
     ReturnStatement.prototype = Object.create(Statement.prototype);
     ReturnStatement.prototype.constructor = ReturnStatement;
 
-    ReturnStatement.prototype.setReturnExpression = function (expression) {
+    ReturnStatement.prototype.setReturnExpression = function (expression, options) {
         if (!_.isNil(expression)) {
-            this.setAttribute('_expression', expression);
+            this.setAttribute('_expression', expression, options);
         } else {
             log.error("Cannot set undefined to the return statement.");
         }
@@ -58,27 +58,15 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
 
         for (var itr = 0; itr < jsonNode.children.length; itr++) {
             var childJsonNode = jsonNode.children[itr];
-            //TODO : Need to remove this if/else ladder by delegating expression string calculation to child classes
-            if (childJsonNode.type == "basic_literal_expression") {
-                if(childJsonNode.basic_literal_type == "string") {
-                    // Adding double quotes if it is a string.
-                    expression += "\"" + childJsonNode.basic_literal_value + "\"";
-                } else {
-                    expression += childJsonNode.basic_literal_value;
-                }
-            } else if (childJsonNode.type == "variable_reference_expression") {
-                expression += childJsonNode.variable_reference_name;
-            } else {
-                var child = self.getFactory().createFromJson(childJsonNode);
-                child.initFromJson(childJsonNode);
-                expression += child.getExpression();
-            }
+            var child = self.getFactory().createFromJson(childJsonNode);
+            child.initFromJson(childJsonNode);
+            expression += child.getExpression();
 
             if (itr !== jsonNode.children.length - 1) {
                 expression += " , ";
             }
         }
-        this._expression = expression;
+        this.setReturnExpression(expression, {doSilently: true});
     };
 
     return ReturnStatement;

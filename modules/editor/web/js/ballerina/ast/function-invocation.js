@@ -19,11 +19,12 @@ define(['lodash', './statement'], function (_, Statement) {
 
     /**
      * Class to represent a function invocation in ballerina.
+     * @class FunctionInvocation
      * @constructor
      */
     var FunctionInvocation = function (args) {
         this._packageName = _.get(args, 'package', '');
-        this._functionName = _.get(args, 'function', 'callFunction');
+        this._functionName = _.get(args, 'functionName', 'callFunction');
         this._params = _.get(args, 'params');
         Statement.call(this, 'FunctionInvocation');
     };
@@ -31,35 +32,34 @@ define(['lodash', './statement'], function (_, Statement) {
     FunctionInvocation.prototype = Object.create(Statement.prototype);
     FunctionInvocation.prototype.constructor = FunctionInvocation;
 
-    FunctionInvocation.prototype.setPackageName = function (packageName) {
-        this.setAttribute('_packageName', packageName);
+    FunctionInvocation.prototype.setPackageName = function (packageName, options) {
+        this.setAttribute('_packageName', packageName, options);
     };
 
-    FunctionInvocation.prototype.setFunctionName = function (functionName) {
-        this.setAttribute('_functionName', functionName);
+    FunctionInvocation.prototype.setFunctionName = function (functionName, options) {
+        this.setAttribute('_functionName', functionName, options);
     };
 
-    FunctionInvocation.prototype.setParams = function (params) {
-        this.setAttribute('_params', params);
+    FunctionInvocation.prototype.setParams = function (params, options) {
+        this.setAttribute('_params', params, options);
     };
 
-    FunctionInvocation.prototype.setFunctionalExpression = function(expression){
+    FunctionInvocation.prototype.setFunctionalExpression = function(expression, options){
         if(!_.isNil(expression) && expression !== "") {
             var splittedText = expression.split("(",1)[0].split(":", 2);
 
-            this._packageName = "";
-            this._functionName = "";
-            this._params = "";
-
             if(splittedText.length == 2){
-                this._packageName = splittedText[0];
-                this._functionName = splittedText[1];
+                this.setPackageName(splittedText[0], options);
+                this.setFunctionName(splittedText[1]);
             }else{
-                this._functionName = splittedText[0];
+                this.setPackageName("", options);
+                this.setFunctionName(splittedText[0]);
             }
 
-            this._params = expression.slice(((expression.indexOf(this._functionName) + 1)
-            + this._functionName.split("(", 1)[0].length), (expression.length - 1));
+            var params = expression.slice(((expression.indexOf(this._functionName) + 1)
+                         + this._functionName.split("(", 1)[0].length), (expression.length - 1));
+
+            this.setParams(params, options);
         }
     };
 

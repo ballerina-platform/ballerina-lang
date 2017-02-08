@@ -47,12 +47,6 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
             // Draws the outlying body of the struct definition.
             this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().getType().toLowerCase(), this.getModel().getStructName());
 
-            var structWrapper = $("#_" + this.getModel().getID());
-            // Setting width auto for the struct.
-            structWrapper.css("width", "auto");
-            // Setting padding-right to keep gap between structs.
-            structWrapper.css("margin-right", "25px");
-
             // Setting the styles for the canvas icon.
             this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.struct_icon", ""));
 
@@ -95,15 +89,33 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
 
             var typeDropdown = new Dropdown({
                 class: {mainWrapper: "struct-type-dropdown-wrapper"},
-                emptyValue: "Type"
-            });
-            typeDropdown.getElement().appendTo(structOperationsWrapper);
+                emptyValue: "Type",
+                onDropdownOpen: function() {
+                    self.getBodyWrapper().css("height", $(self.getBodyWrapper()).height());
+                    self.getBodyWrapper().css("overflow-x", "visible");
+                    $(self.getBodyWrapper()).closest(".canvas-container").css("overflow", "visible");
 
-            // Adding items to the type dropdown.
-            var bTypes = this.getDiagramRenderingContext().getEnvironment().getTypes();
-            _.forEach(bTypes, function (bType) {
-                typeDropdown.addItem({key: bType, value: bType});
+                    this.removeAllItems();
+
+                    // Adding items to the type dropdown.
+                    var bTypes = self.getDiagramRenderingContext().getEnvironment().getTypes();
+                    _.forEach(bTypes, function (bType) {
+                        typeDropdown.addItem({key: bType, value: bType});
+                    });
+
+                    var structTypes = self.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
+                    _.forEach(structTypes, function (sType) {
+                        typeDropdown.addItem({key: sType.getStructName(), value: sType.getStructName()});
+                    });
+                },
+                onDropdownClosed: function() {
+                    self.getBodyWrapper().css("height", "");
+                    self.getBodyWrapper().css("overflow-x", "");
+                    $(self.getBodyWrapper()).closest(".canvas-container").css("overflow", "");
+                }
             });
+
+            typeDropdown.getElement().appendTo(structOperationsWrapper);
 
             // Creating the identifier text box.
             var identifierTextBox = $("<input/>", {
@@ -128,6 +140,13 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                     event.stopPropagation();
                     return false;
                 }
+            }).keydown(function(e){
+                var enteredKey = e.which || e.charCode || e.keyCode;
+
+                // If tab pressed.
+                if (e.shiftKey && _.isEqual(enteredKey, 9)) {
+                    typeDropdown.dropdownButton.trigger("click");
+                }
             }).appendTo(structOperationsWrapper);
 
             // Creating cancelling add new constant button.
@@ -149,15 +168,6 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                 } catch (e) {
                     Alerts.error(e);
                 }
-            });
-
-            // Creating add new constant button.
-            var clearFieldsButton = $("<div class='clear-struct-variable-button pull-left'/>").appendTo(structOperationsWrapper);
-            $("<span class='fw-stack fw-lg'><i class='fw fw-square fw-stack-2x'></i>" +
-                "<i class='fw fw-cancel fw-stack-1x fw-inverse clear-struct-variable-button-square'></i></span>").appendTo(clearFieldsButton);
-
-            $(clearFieldsButton).click(function(){
-                $(identifierTextBox).val("");
             });
 
             //// End of operational panel.
@@ -206,7 +216,7 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                     self._renderVariableDeclarations(wrapper);
                 });
 
-                $(variableDeclarationView.getWrapper()).dblclick({
+                $(variableDeclarationView.getWrapper()).click({
                     modelID: variableDeclaration.getID()
                 }, function (event) {
                     self._renderVariableDeclarations(wrapper);

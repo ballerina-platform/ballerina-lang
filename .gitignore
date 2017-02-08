@@ -19,3 +19,6 @@ hs_err_pid*
 # generated files
 target
 /gen
+
+# mac
+.DS_Store

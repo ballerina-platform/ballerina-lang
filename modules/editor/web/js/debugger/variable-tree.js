@@ -15,39 +15,59 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['jquery', 'backbone', 'lodash', 'log', 'event_channel'], function ($, Backbone, _, log, EventChannel) {
+define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', /** void module - jquery plugin **/ 'js_tree'], function ($, Backbone, _, log, EventChannel) {
 
-    var Variable_Tree = function(args, debuggerInstance){
-        this._options = args;
-        this.debugger = debuggerInstance;
+    var instance;
+
+    var VariableTree = function (){
+
+        this.compiled = _.template(
+                '<div class="debug-panel-header">'
+              + '   <a class="tool-group-header-title">Variables</a> (<%- frameName%>)<span class="collapse-icon fw fw-up"></span>'
+              + '</div>'
+              + '<div id="debug-v-tree">'
+              + '<ul>'
+              + '<% _.forEach(variables, function(v) { %>'
+              + '<li>'
+              + '    <strong><%- v.name %></strong> = <%- v.value %> (<%- v.type %>)'
+              + '    <ul>'
+              + '        <li>name : <%- v.name %></li>'
+              + '        <li>type : <%- v.type %></li>'
+              + '        <li>value : <%- v.value %></li>'
+              + '        <li>scope : <%- v.scope %></li>'
+              + '    </ul>'
+              + '</li>'
+              + '<% }); %>'
+              + '</ul>'
+              + '</div>');
+
+        this.js_tree_options = {
+            "core": {
+                "themes":{
+                    "icons":false
+                }
+            }
+        };
     };
 
-    Variable_Tree.prototype = Object.create(EventChannel.prototype);
-    Variable_Tree.prototype.constructor = Variable_Tree;
+    VariableTree.prototype = Object.create(EventChannel.prototype);
+    VariableTree.prototype.constructor = VariableTree;
 
-    Variable_Tree.prototype.render = function () {
-        this.renderHeader();
-        this.renderContentDiv();
-        return this;
+    VariableTree.prototype.setContainer = function(container){
+        this.container = container;
     };
 
-    Variable_Tree.prototype.renderHeader = function () {
-        var container = $( '#' + _.get(this._options, 'containerId'));
-        var headerContainer = $('<div class="panel-heading"><a class="collapsed" data-toggle="collapse" href="#debugger-variable-tree">Variables</a></div>');
-        container.append(headerContainer);
+    VariableTree.prototype.clear =function(message){
+        this.container.empty();
     };
 
-    Variable_Tree.prototype.renderContentDiv = function () {
-        var container = $( '#' + _.get(this._options, 'containerId'));
-        var contentContainer = $('<div id="debugger-variable-tree" class="panel-collapse collapse" role="tabpanel">' +
-            '</div>');
-        container.append(contentContainer);
-    };
-
-    Variable_Tree.prototype.onVariableTreeUpdate = function() {
-        // TODO: update  #debugger-variable-tree on contentUpdate
+    VariableTree.prototype.render = function (frame) {
+        frame.variables = (_.isNil(frame.variables))? []: frame.variables;
+        var html = this.compiled(frame)
+        this.container.html(html);
+        $("#debug-v-tree").jstree(this.js_tree_options);
     };
 
 
-    return Variable_Tree;
+    return (instance = (instance || new VariableTree() ));
 });

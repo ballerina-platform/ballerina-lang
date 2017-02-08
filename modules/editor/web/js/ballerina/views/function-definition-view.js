@@ -17,7 +17,7 @@
  */
 define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/function-definition', './default-worker',
         'd3utils', 'd3', './worker-declaration-view', './statement-view-factory', './point', './axis',
-        './connector-declaration-view', './statement-container', './variables-view', './function-arguments-view',
+        './connector-declaration-view', './statement-container', './variable-definitions-pane-view', './function-arguments-view',
         './return-types-pane-view', 'ballerina/ast/ballerina-ast-factory'],
     function (_, log, EventChannel, Alerts, SVGCanvas, FunctionDefinition, DefaultWorkerView,
               D3Utils, d3, WorkerDeclarationView, StatementViewFactory, Point, Axis,
@@ -289,7 +289,7 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             // Creating return type icon.
             var panelReturnTypeIcon = $("<i/>", {
                 class: "fw fw-export pull-right right-icon-clickable hoverable",
-                title: "Return types"
+                title: "Return Types"
             }).appendTo(operationsPane).tooltip();
 
             $(panelReturnTypeIcon).click(function (event) {
@@ -454,26 +454,17 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             }
 
             // Creating property pane
-            var editableProperties = [
-                {
-                    propertyType: "text",
-                    key: "Name",
-                    model: connectorDeclarationView._model,
-                    getterMethod: connectorDeclarationView._model.getConnectorVariable,
-                    setterMethod: connectorDeclarationView._model.setConnectorVariable
-                },
-                {
-                    propertyType: "text",
-                    key: "Uri",
-                    model: connectorDeclarationView._model,
-                    getterMethod: connectorDeclarationView._model.getUri,
-                    setterMethod: connectorDeclarationView._model.setUri
-                }
-            ];
+            var editableProperty = {
+                propertyType: "text",
+                key: "ConnectorDeclaration",
+                model: connectorDeclarationView._model,
+                getterMethod: connectorDeclarationView._model.getConnectorExpression,
+                setterMethod: connectorDeclarationView._model.setConnectorExpression
+            };
             connectorDeclarationView.createPropertyPane({
                 model: connectorDeclarationView._model,
                 lifeLineGroup:connectorDeclarationView._rootGroup,
-                editableProperties: editableProperties
+                editableProperties: editableProperty
             });
             connectorDeclarationView.setParent(this);
             this._workerAndConnectorViews.push(connectorDeclarationView);

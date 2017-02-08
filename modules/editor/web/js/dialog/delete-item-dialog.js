@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'lodash', './modal-dialog', 'alerts'], function (require, $, _, ModalDialog, alerts) {
+define(['require', 'jquery', 'lodash', './modal-dialog', 'log'], function (require, $, _, ModalDialog, log) {
 
     var DeleteItemDialog = function (options) {
         _.set(options, 'class', 'delete-item-wizard');
@@ -38,7 +38,7 @@ define(['require', 'jquery', 'lodash', './modal-dialog', 'alerts'], function (re
             if(_.isFunction(successCallBack)){
                 successCallBack.call();
             }
-            alerts.info(data.path + " deleted successfully");
+            log.debug(data.path + " deleted successfully");
         }
     };
 

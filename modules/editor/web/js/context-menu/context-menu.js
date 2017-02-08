@@ -37,13 +37,15 @@ define(['jquery', 'lodash', 'log', 'event_channel', 'jquery_context_menu'],
             if (_.isFunction(this.provider)) {
                 this.container.contextMenu({
                     selector: this.selector,
-                    build: this.provider
+                    build: this.provider,
+                    zIndex: 4
                 });
             } else {
                 this.container.contextMenu({
                     selector: this.selector,
                     callback: this.callback,
-                    items: this.items
+                    items: this.items,
+                    zIndex: 4
                 });
             }
         };
