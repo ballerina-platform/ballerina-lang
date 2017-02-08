@@ -63,7 +63,7 @@ define(['log', 'lodash', 'jquery', 'event_channel'],
         * @param content payload
         * @param queryParams query parameters in [{name: "foo", value: "bar"}, ...]
         */
-       Backend.prototype.call = function (method, content, queryParams) {
+       Backend.prototype.call = function (uri, method, content, queryParams) {
            var data = {};
            var queryParamsStr = "";
            if (queryParams) {
@@ -83,7 +83,7 @@ define(['log', 'lodash', 'jquery', 'event_channel'],
            $.ajax({
                       type: method,
                       context: this,
-                      url: this._url + queryParamsStr,
+                      url: this._url + uri + queryParamsStr,
                       data: JSON.stringify(content),
                       contentType: "application/json; charset=utf-8",
                       async: false,
