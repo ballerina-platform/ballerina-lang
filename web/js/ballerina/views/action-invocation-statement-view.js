@@ -164,7 +164,6 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             this.setDiagramRenderingContext(context);
             var actionInvocationModel = this._model.getChildren()[1].getChildren()[0];
             var connectorModel = actionInvocationModel.getConnector();
-            var actionInvocationModelMessageManager = Object.create(this.messageManager);
 
             if(!_.isUndefined(connectorModel)) {
                 this.connector = this.getDiagramRenderingContext().getViewOfModel(connectorModel);
@@ -207,7 +206,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 this.arrowHeadEndPoint = arrowHeadEnd;
 
                 var self = this;
-                
+
                 connectorModel.addConnectorActionReference(this);
 
                 this.arrowHeadEndPoint.on("mousedown", function () {
