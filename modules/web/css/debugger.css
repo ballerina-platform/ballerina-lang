@@ -14,7 +14,7 @@
 
 /*TODO remove this when feature is done*/
 .left-tool-bar .debugger-activate-btn, .left-tool-bar .debugger-activate-btn i{
-    display: none;
+    /*display: none;*/
 }
 
 .ace_gutter-cell.ace_breakpoint{ 

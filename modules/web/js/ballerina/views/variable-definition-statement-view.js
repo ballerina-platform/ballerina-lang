@@ -113,6 +113,11 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/variable-defini
                 editableProperties: editableProperty
             });
 
+            this._createDebugIndicator({
+                model: this._model,
+                statementGroup: this.getStatementGroup()
+            });
+
             this.getBoundingBox().on('top-edge-moved', function(dy){
                 expressionRect.attr('y',  parseFloat(expressionRect.attr('y')) + dy);
                 expressionText.attr('y',  parseFloat(expressionText.attr('y')) + dy);

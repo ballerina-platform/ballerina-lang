@@ -48,6 +48,7 @@ define(['log', 'lodash', 'jquery', 'event_channel'],
             async: false,
             dataType: "json",
             success: function (response) {
+                console.log(response)
                 data = response;
             },
             error: function(xhr, textStatus, errorThrown){

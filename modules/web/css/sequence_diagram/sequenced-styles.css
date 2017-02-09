@@ -300,6 +300,27 @@ text-anchor: start;
     fill: url(#deleteIcon);
 }
 
+.property-pane-action-button-breakpoint {
+    opacity: 0.3;
+    fill: url(#addBreakpointIcon);
+}
+
+.property-pane-action-button-breakpoint:hover {
+    cursor: pointer;
+    opacity: 1;
+    fill: url(#addBreakpointIcon);
+}
+.statement-view-breakpoint-indicator {
+    opacity: 0.3;
+    fill: url(#debugIcon);
+}
+
+.statement-view-breakpoint-indicator:hover {
+    cursor: pointer;
+    opacity: 1;
+    fill: url(#debugIcon);
+}
+
 .annotation-icon-background-circle {
     opacity: 0.4;
     cursor: pointer;

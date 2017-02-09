@@ -94,6 +94,7 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
 
     DebugManager.prototype.addBreakPoint = function(line, fileName){
         var point = new DebugPoint({ "fileName": fileName , "line": line});
+        console.log(this.debugPoints)
     	this.debugPoints.push(point);
     	this.trigger("breakpoint-added");
     };
@@ -113,6 +114,10 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
         }catch(e){
             //@todo log
         }
+    };
+
+    DebugManager.prototype.hasBreakPoint = function (line, fileName) {
+        return !!_.find(this.debugPoints, {line: line, fileName: fileName});
     };
 
     DebugManager.prototype.isEnabled = function(){

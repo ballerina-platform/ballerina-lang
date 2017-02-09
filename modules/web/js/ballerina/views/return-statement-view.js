@@ -74,6 +74,12 @@ define(['lodash', 'log', './../ast/return-statement', './simple-statement-view',
                 getterMethod: model.getReturnExpression,
                 setterMethod: model.setReturnExpression
             };
+
+            this._createDebugIndicator({
+                model: this._model,
+                statementGroup: statementGroup
+            });
+
             this._createPropertyPane({
                                          model: model,
                                          statementGroup: statementGroup,

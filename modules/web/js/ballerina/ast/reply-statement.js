@@ -54,6 +54,8 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      */
     ReplyStatement.prototype.initFromJson = function (jsonNode) {
         this.setReplyMessage(jsonNode.expression, {doSilently: true});
+        this.setFileName(jsonNode.file_name, {doSilently: true});
+        this.setLineNumber(jsonNode.line_number, {doSilently: true});
     };
 
     return ReplyStatement;

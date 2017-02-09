@@ -623,6 +623,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject functionInvcStmtObj = new JsonObject();
         functionInvcStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
                 BLangJSONModelConstants.FUNCTION_INVOCATION_STATEMENT);
+        functionInvcStmtObj.addProperty(BLangJSONModelConstants.FILE_NAME, functionInvocationStmt.getNodeLocation().getFileName());
+        functionInvcStmtObj.addProperty(BLangJSONModelConstants.LINE_NUMBER, String.valueOf(functionInvocationStmt.getNodeLocation().getLineNumber()));
         tempJsonArrayRef.push(new JsonArray());
         functionInvocationStmt.getFunctionInvocationExpr().accept(this);
         functionInvcStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
@@ -640,6 +642,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject replyStmtObj = new JsonObject();
         replyStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
                 BLangJSONModelConstants.REPLY_STATEMENT);
+        replyStmtObj.addProperty(BLangJSONModelConstants.FILE_NAME, replyStmt.getNodeLocation().getFileName());
+        replyStmtObj.addProperty(BLangJSONModelConstants.LINE_NUMBER, String.valueOf(replyStmt.getNodeLocation().getLineNumber()));
         if (isExprAsString) {
             replyStmt.accept(exprVisitor);
             String stmtExpression = exprVisitor.getBuffer().toString();
@@ -675,6 +679,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 BLangJSONModelConstants.FUNCTION_INVOCATION_EXPRESSION);
         funcInvcObj.addProperty(BLangJSONModelConstants.PACKAGE_NAME, funcIExpr.getPackageName());
         funcInvcObj.addProperty(BLangJSONModelConstants.FUNCTIONS_NAME, funcIExpr.getName());
+        funcInvcObj.addProperty(BLangJSONModelConstants.FILE_NAME, funcIExpr.getNodeLocation().getFileName());
+        funcInvcObj.addProperty(BLangJSONModelConstants.LINE_NUMBER, String.valueOf(funcIExpr.getNodeLocation().getLineNumber()));
         tempJsonArrayRef.push(new JsonArray());
         if (funcIExpr.getArgExprs() != null) {
             for (Expression expression : funcIExpr.getArgExprs()) {

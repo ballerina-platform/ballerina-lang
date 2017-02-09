@@ -221,4 +221,9 @@ public class BLangJSONModelConstants {
     public static final String CONNECTOR_INIT_EXPR = "connector_init_expr";
 
     public static final String ARGUMENTS = "arguments";
+
+    public static final String FILE_NAME = "file_name";
+
+    public static final String LINE_NUMBER = "line_number";
+    
 }
