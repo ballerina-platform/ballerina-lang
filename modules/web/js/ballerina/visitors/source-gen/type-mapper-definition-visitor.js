@@ -58,11 +58,11 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
             log.debug('End Visit TypeMapperDefinition');
         };
 
-        TypeMapperDefinitionVisitor.prototype.visitStatement = function (statement) {
-            var statementVisitorFactory = new StatementVisitorFactory();
-            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-            statement.accept(statementVisitor);
-        };
+//        TypeMapperDefinitionVisitor.prototype.visitStatement = function (statement) {
+//            var statementVisitorFactory = new StatementVisitorFactory();
+//            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+//            statement.accept(statementVisitor);
+//        };
 
         TypeMapperDefinitionVisitor.prototype.visitVariableDeclaration = function(variableDeclaration){
             var variableDeclarationVisitor = new VariableDeclarationVisitor(this);

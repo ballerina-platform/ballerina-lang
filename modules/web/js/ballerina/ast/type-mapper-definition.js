@@ -304,27 +304,33 @@ define(['lodash', './node'], function (_, ASTNode) {
      * @param {string} targetValue
      * @returns {AssignmentStatement}
      */
-    TypeMapperDefinition.prototype.returnConstuctedAssignmentStatement = function (sourceIdentifier,targetIdentifier,sourceValue,targetValue) {
+    TypeMapperDefinition.prototype.returnConstructedAssignmentStatement = function (sourceIdentifier,targetIdentifier,sourceValue,targetValue) {
 
         // Creating a new Assignment Statement.
         var newAssignmentStatement = this.getFactory().createAssignmentStatement();
         var newExpression = this.getFactory().createExpression();
 
         var sourceStructFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
-        var sourceVariableReferenceExpression = this.getFactory().createVariableReferenceExpression();
-        sourceVariableReferenceExpression.setVariableReferenceName(sourceIdentifier);
+        var sourceVariableReferenceExpressionForIdentifier = this.getFactory().createVariableReferenceExpression();
+        sourceVariableReferenceExpressionForIdentifier.setVariableReferenceName(sourceIdentifier);
         var sourceFieldExpression = this.getFactory().createFieldExpression();
-        sourceFieldExpression.setFieldName(sourceValue);
-        sourceStructFieldAccessExpression.addChild(sourceVariableReferenceExpression);
+        var sourceVariableReferenceExpressionForValue = this.getFactory().createVariableReferenceExpression();
+        sourceVariableReferenceExpressionForValue.setVariableReferenceName(sourceValue);
+        sourceFieldExpression.addChild(sourceVariableReferenceExpressionForValue);
+        sourceStructFieldAccessExpression.addChild(sourceVariableReferenceExpressionForIdentifier);
         sourceStructFieldAccessExpression.addChild(sourceFieldExpression);
 
         newExpression.addChild(sourceStructFieldAccessExpression);
 
         var targetStructFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
-        var targetVariableReferenceExpression = this.getFactory().createVariableReferenceExpression();
-        targetVariableReferenceExpression.setVariableReferenceName(targetIdentifier);
+        var targetVariableReferenceExpressionForIdentifier = this.getFactory().createVariableReferenceExpression();
+        targetVariableReferenceExpressionForIdentifier.setVariableReferenceName(targetIdentifier);
         var targetFieldExpression = this.getFactory().createFieldExpression();
-        targetFieldExpression.setFieldName(targetValue);
+        var targetVariableReferenceExpressionForTarget = this.getFactory().createVariableReferenceExpression();
+        targetVariableReferenceExpressionForTarget.setVariableReferenceName(targetValue);
+        targetFieldExpression.addChild(targetVariableReferenceExpressionForTarget);
+        targetStructFieldAccessExpression.addChild(targetVariableReferenceExpressionForIdentifier);
+        targetStructFieldAccessExpression.addChild(targetFieldExpression);
 
         newAssignmentStatement.addChild(newExpression);
         newAssignmentStatement.addChild(targetStructFieldAccessExpression);
@@ -347,6 +353,23 @@ define(['lodash', './node'], function (_, ASTNode) {
         if(!_.isUndefined(statement)){
             statement.addChild(assignmentStatement);
         }
+    };
+
+    /**
+     * Gets the reference of block statement child
+     * @return {string} - String blockStatement.
+     */
+    TypeMapperDefinition.prototype.getBlockStatement = function() {
+        var blockStatement = undefined;
+        var ballerinaASTFactory = this.getFactory();
+
+        _.forEach(this.getChildren(), function (child) {
+            if (ballerinaASTFactory.isBlockStatement(child)) {
+                blockStatement = child;
+                return false;
+            }
+        });
+        return blockStatement;
     };
 
     return TypeMapperDefinition;

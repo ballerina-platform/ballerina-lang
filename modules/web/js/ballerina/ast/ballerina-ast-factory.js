@@ -687,6 +687,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * instanceof check for Block Statement
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isBlockStatement = function (child) {
+            return child instanceof blockStatement;
+        };
+
+        /**
          * instanceof check for TypeConverterDefinition
          * @param child - Object for instanceof check
          * @returns {boolean} - true if same type, else false

@@ -16,9 +16,10 @@
  * under the License.
  */
 define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-definition-view',
-        'ballerina/ast/ballerina-ast-factory', './svg-canvas','typeMapper','./input-struct-view','./output-struct-view','./type-mapper-statement-view'],
+        'ballerina/ast/ballerina-ast-factory', './svg-canvas','typeMapper','./input-struct-view','./output-struct-view','./type-mapper-statement-view',
+        './type-mapper-block-statement-view'],
     function (_, log,BallerinaView, VariablesView, TypeStructDefinition, BallerinaASTFactory, SVGCanvas,
-              TypeMapper,InputStructView,OutputStructView,TypeMapperStatement) {
+              TypeMapper,InputStructView,OutputStructView,TypeMapperStatement,TypeMapperBlockStatement) {
         var TypeMapperDefinitionView = function (args) {
             SVGCanvas.call(this, args);
 
@@ -26,7 +27,9 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             //set panel icon for the type mapper
             this._viewOptions.panelIcon = _.get(args.viewOptions, "cssClass.type_mapper_icon");
             //set initial height for the type mapper container svg
-            this._totalHeight = 30;
+            this._onConnectInstance = _.get(args, 'onConnectInstance', {});
+            this._onDisconnectInstance = _.get(args, 'onDisconnectInstance', {});
+
             if (_.isNil(this._model) || !(BallerinaASTFactory.isTypeMapperDefinition(this._model))) {
                 log.error("Type Mapper definition is undefined or is of different type." + this._model);
                 throw "Type Mapper definition is undefined or is of different type." + this._model;
@@ -222,7 +225,7 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
 
             this.getModel().on('child-added', function (child) {
                 self.visit(child);
-                self.getModel().trigger("child-visited", child);
+                //self.getModel().trigger("child-visited", child);
             });
         };
 
@@ -248,8 +251,8 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             log.debug("Visiting resource parameter");
             var self = this;
             var inputStructView = new InputStructView({
-                model: resourceParameter, parentView: this,onConnectInstance: self.onAttributesConnect,
-                onDisconnectInstance: self.onAttributesDisConnect
+                model: resourceParameter, parentView: this,onConnectInstance: self.getOnConnectInstance(),
+                onDisconnectInstance: self.getOnDisconnectInstance()
             });
             inputStructView.render(this.diagramRenderingContext, this._typeMapper);
         };
@@ -262,83 +265,68 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             log.debug("Visiting return type");
             var self = this;
             var outputStructView = new OutputStructView({
-                model: returnType, parentView: this,onConnectInstance: self.onAttributesConnect,
-                onDisconnectInstance: self.onAttributesDisConnect
+                model: returnType, parentView: this,onConnectInstance: self.getOnConnectInstance(),
+                onDisconnectInstance: self.getOnDisconnectInstance()
             });
             outputStructView.render(this.diagramRenderingContext, this._typeMapper);
         };
 
         /**
-         * Calls the render method for a type struct definitions of source and target.
-         * @param typeStructDefinition
+         * Calls the view of the Block statement
+         * @param {blockStatement} blockStatement - The block statement model.
          */
-        TypeMapperDefinitionView.prototype.visitTypeStructDefinition = function (typeStructDefinition) {
-            log.debug("Visiting type struct definition");
+        TypeMapperDefinitionView.prototype.visitBlockStatement = function (blockStatement) {
             var self = this;
-            var typeStructDefinitionView = new TypeStructDefinition({
-                model: typeStructDefinition, parentView: this
-            });
-            if(!_.isUndefined(this.getModel().getReturnStatementExpression()) &&
-                this.getModel().getReturnStatementExpression() == typeStructDefinition.getTypeStructName()){
-                typeStructDefinitionView.renderTarget(this.diagramRenderingContext, this._typeMapper);
-            }else{
-                typeStructDefinitionView.renderSource(this.diagramRenderingContext, this._typeMapper);
-            }
-
-        };
-
-        /**
-         * Calls the render method for a statements.
-         * @param {statement} statement - The statement model.
-         */
-        TypeMapperDefinitionView.prototype.visitStatement = function (statement) {
-            var self = this;
-            var typeMapperStatementView = new TypeMapperStatement({
-                model: statement, parentView: this
+            var typeMapperBlockStatementView = new TypeMapperBlockStatement({
+                model: blockStatement, parentView: this
             });
 
+            typeMapperBlockStatementView.render(this.diagramRenderingContext, this._typeMapper);
 
         }
 
         /**
-         * Receives attributes connected
-         * @param connection object
+         * returns the call back function to be called when a connection is drawn
+         * @returns {object}
          */
-        TypeMapperDefinitionView.prototype.onAttributesConnect = function (connection) {
-            var assignmentStatementNode = connection.targetReference.getParent().
-                returnConstuctedAssignmentStatement("y","x",connection.sourceProperty,connection.targetProperty);
-
-            connection.targetReference.getParent().addAssignmentStatement(assignmentStatementNode);
-
-//            var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
-//            var leftOp = BallerinaASTFactory.createLeftOperandExpression();
-//            var leftOperandExpression = "x." + connection.targetProperty;
-//            leftOp.setLeftOperandExpressionString(leftOperandExpression);
-//            var rightOp = BallerinaASTFactory.createRightOperandExpression();
-//            var rightOperandExpression = "y." + connection.sourceProperty;
-//            if (connection.isComplexMapping) {
-//                rightOperandExpression = "(" + connection.complexMapperName + ":" + connection.targetType + ")" +
-//                    rightOperandExpression;
-//            }
-//            rightOp.setRightOperandExpressionString(rightOperandExpression);
-//            assignmentStmt.addChild(leftOp);
-//            assignmentStmt.addChild(rightOp);
-//
-//            var index = _.findLastIndex(connection.targetReference.getParent().getChildren(), function (child) {
-//                return BallerinaASTFactory.isVariableDeclaration(child);
-//            });
-//            connection.targetReference.getParent().addChild(assignmentStmt, index + 1);
-
+        TypeMapperDefinitionView.prototype.getOnConnectInstance = function () {
+            return this._onConnectInstance;
         };
 
         /**
-         * Receives the attributes disconnected
-         * @param connection object
+         * set the call back function for connecting a source and a target
+         * @param onConnectInstance
          */
-        TypeMapperDefinitionView.prototype.onAttributesDisConnect = function (connection) {
+        TypeMapperDefinitionView.prototype.setOnConnectInstance = function (onConnectInstance, options) {
+            var self = this;
+            if (!_.isNil(onConnectInstance)) {
+                self._onConnectInstance = onConnectInstance;
+            } else {
+                log.error('Invalid onConnectInstance [' + onConnectInstance + '] Provided');
+                throw 'Invalid onConnectInstance [' + onConnectInstance + '] Provided';
+            }
+        };
 
-            connection.targetReference.getParent().removeAssignmentDefinition(connection.sourceProperty,
-                connection.targetProperty);
+        /**
+         * returns the call back function to be called when a connection is removed
+         * @returns {object}
+         */
+        TypeMapperDefinitionView.prototype.getOnDisconnectInstance = function () {
+            return this._onDisconnectInstance;
+        };
+
+        /**
+         * set the call back function for disconnecting a source and a target
+         * @param onDisconnectInstance
+         */
+        TypeMapperDefinitionView.prototype.setOnDisconnectInstance = function (onDisconnectInstance, options) {
+            var self = this;
+            if (!_.isNil(onDisconnectInstance)) {
+                self._onDisconnectInstance = onDisconnectInstance;
+            } else {
+                log.error('Invalid onDisconnectInstance [' + onDisconnectInstance + '] Provided');
+                throw 'Invalid onDisconnectInstance [' + onDisconnectInstance + '] Provided';
+            }
         };
 
         TypeMapperDefinitionView.prototype.getModel = function () {
