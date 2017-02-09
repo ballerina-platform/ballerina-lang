@@ -35,15 +35,7 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         };
 
         FunctionInvocationExpressionVisitor.prototype.beginVisitFuncInvocationExpression = function(functionInvocation){
-            var source = "";
-            if (!_.isNil(functionInvocation.getParent().getPackageName()) && functionInvocation.getParent().getPackageName() !== "") {
-                source += functionInvocation.getParent().getPackageName() + ':';
-            }
-            source += functionInvocation.getParent().getFunctionName() + '(';
-            if (!_.isNil(functionInvocation.getParent().getParams()) && functionInvocation.getParent().getParams() !== "") {
-                source += functionInvocation.getParent().getParams();
-            }
-            source += ')';
+            var source = functionInvocation.getFunctionalExpression();
             this.appendSource(source);
             log.debug('Begin Visit Function Invocation expression');
         };
