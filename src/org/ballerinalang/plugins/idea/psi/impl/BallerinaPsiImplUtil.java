@@ -205,7 +205,7 @@ public class BallerinaPsiImplUtil {
                 "//functionDefinition/Identifier");
 
         for (PsiElement psiElement : all) {
-            if (!psiElement.getText().equals("IntellijIdeaRulezzz")) {
+            if (!psiElement.getText().contains("IntellijIdeaRulezzz")) {
                 results.add(psiElement);
             }
         }
@@ -616,10 +616,44 @@ public class BallerinaPsiImplUtil {
                 results.add(functionDefinition);
             }
         }
-
-
         return results;
     }
 
+    public static List<PsiElement> getAllVariablesInResolvableScope(PsiElement context) {
+        List<PsiElement> results = new ArrayList<>();
+        if (context instanceof PsiFile) {
+            Collection<? extends PsiElement> constantDefinitions =
+                    XPath.findAll(BallerinaLanguage.INSTANCE, context, "//constantDefinition");
+            for (PsiElement constantDefinition : constantDefinitions) {
+                if (!constantDefinition.getText().contains("IntellijIdeaRulezzz")) {
+                    results.add(constantDefinition);
+                }
+            }
+        } else {
+            Collection<? extends PsiElement> variableDefinitions =
+                    XPath.findAll(BallerinaLanguage.INSTANCE, context, "//variableDefinitionStatement");
+            for (PsiElement variableDefinition : variableDefinitions) {
+                if (!variableDefinition.getText().contains("IntellijIdeaRulezzz")) {
+                    results.add(variableDefinition);
+                }
+            }
+            Collection<? extends PsiElement> parameterDefinitions =
+                    XPath.findAll(BallerinaLanguage.INSTANCE, context, "//parameter");
+            for (PsiElement parameterDefinition : parameterDefinitions) {
+                if (!parameterDefinition.getText().contains("IntellijIdeaRulezzz")) {
+                    results.add(parameterDefinition);
+                }
+            }
+            if (context != null) {
 
+                List<PsiElement> allVariablesInResolvableScope = getAllVariablesInResolvableScope(context.getContext());
+                for (PsiElement psiElement : allVariablesInResolvableScope) {
+                    if (!results.contains(psiElement)) {
+                        results.add(psiElement);
+                    }
+                }
+            }
+        }
+        return results;
+    }
 }
