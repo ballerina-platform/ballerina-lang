@@ -395,30 +395,32 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 // Get the generated source and append it to the source view container's content
                 self._sourceView.setContent(generatedSource);
                 sourceViewContainer.show();
+                swaggerViewContainer.hide();
                 self._$designViewContainer.hide();
                 designViewBtn.show();
                 swaggerViewBtn.show();
                 sourceViewBtn.hide();
                 self.setInSourceView(true);
                 self.setInSwaggerView(false);
-         });
+            });
 
-           var swaggerViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_swagger_btn'));
-           swaggerViewBtn.click(function () {
-               self.toolPalette.hide();
-               var generatedSource = self.generateSource();
+            var swaggerViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_swagger_btn'));
+            swaggerViewBtn.click(function () {
+                self.toolPalette.hide();
+                var generatedSource = self.generateSource();
 
-                 self.toolPalette.hide();
-                 // Get the generated swagger and append it to the swagger view container's content
-                 self._swaggerView.setContent(generatedSource);
-    
-                 swaggerViewContainer.show();
-                 sourceViewContainer.hide();
-                 self._$designViewContainer.hide();
-                 designViewBtn.show();
-                 swaggerViewBtn.hide();
-                 self.setInSwaggerView(true);
-                 self.setInSourceView(false);
+                self.toolPalette.hide();
+                // Get the generated swagger and append it to the swagger view container's content
+                self._swaggerView.setContent(generatedSource);
+
+                swaggerViewContainer.show();
+                sourceViewContainer.hide();
+                self._$designViewContainer.hide();
+                designViewBtn.show();
+                sourceViewBtn.show();
+                swaggerViewBtn.hide();
+                self.setInSwaggerView(true);
+                self.setInSourceView(false);
             });
 
             var designViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
