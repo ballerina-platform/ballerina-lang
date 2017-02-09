@@ -62,6 +62,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 var connector = this.getDiagramRenderingContext().getViewModelMap()[this.messageManager.getActivatedDropTarget().id];
                 actionInvocationModel.setConnector(this.messageManager.getActivatedDropTarget());
                 this.renderArrows(this.getDiagramRenderingContext());
+                this.renderDisplayText(this.getModel().getStatementString());
             }
         };
 
@@ -212,8 +213,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                     this._forwardArrowHead.node().transform.baseVal.getItem(0).setTranslate(forwardArrowTransformX + 0, forwardArrowTransformY + offset);
                     this._backArrowHead.node().transform.baseVal.getItem(0).setTranslate(backwardArrowTransformX + 0, backwardArrowTransformY + offset);
 
-                    //d3.select(this.processorConnectPoint.node()).attr("transform", "translate(" + backwardArrowTransformX + "," + (backwardArrowTransformY + offset) + ")");
-                    //d3.select(this.processorConnectEndPoint.node()).attr("transform", "translate(" + forwardArrowTransformX + "," + (forwardArrowTransformY + offset) + ")");
+                    d3.select(this.processorConnectPoint.node()).attr("transform", "translate(" + backwardArrowTransformX + "," + (backwardArrowTransformY + offset) + ")");
+                    d3.select(this.processorConnectEndPoint.node()).attr("transform", "translate(" + forwardArrowTransformX + "," + (forwardArrowTransformY + offset) + ")");
                 }, this);
 
                 this.getBoundingBox().on('right-edge-moved', function (offset) {
