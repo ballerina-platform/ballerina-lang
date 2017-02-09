@@ -28,7 +28,6 @@ public class SwaggerCmd implements BLauncherCmd {
             throw LauncherUtils.createUsageException("Swagger action and a swagger file should be provided. " +
                     "Ex: ballerina swagger connector swagger_file");
         }
-        String swaggerFilePath = argList.get(1);
         String action = argList.get(0);
         switch (action) {
             case "connector":

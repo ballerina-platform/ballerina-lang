@@ -236,4 +236,20 @@ public class Generate implements Runnable {
 
         new DefaultGenerator().opts(clientOptInput).generate();
     }
+
+    public void setLang(String lang) {
+        this.lang = lang;
+    }
+
+    public void setOutput(String output) {
+        this.output = output;
+    }
+
+    public void setApiPackage(String apiPackage) {
+        this.apiPackage = apiPackage;
+    }
+
+    public void setSpec(String spec) {
+        this.spec = spec;
+    }
 }
