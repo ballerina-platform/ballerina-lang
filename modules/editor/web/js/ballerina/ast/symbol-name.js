@@ -20,8 +20,7 @@ define(['lodash', './node'], function (_, ASTNode) {
     var SymbolName = function (args) {
         ASTNode.call(this, 'SymbolName');
         this._name = _.get(args, 'name', 'newName');
-        this._pkgName = _.get(args, 'pkgName', 'newPkgName');
-        this._connectorName = _.get(args, 'connectorName', 'newConnectorName');
+        this._pkgPath = _.get(args, 'pkgPath', 'newPkgPath');
     };
 
     SymbolName.prototype = Object.create(ASTNode.prototype);
@@ -34,7 +33,7 @@ define(['lodash', './node'], function (_, ASTNode) {
      */
     SymbolName.prototype.setName = function (name, options) {
         if (!_.isNil(name)) {
-            this.setAttribute('_typeName', name, options);
+            this.setAttribute('_name', name, options);
         } else {
             log.error('Invalid Name [' + name + '] Provided');
             throw 'Invalid Name [' + name + '] Provided';
@@ -50,16 +49,16 @@ define(['lodash', './node'], function (_, ASTNode) {
     };
 
     /**
-     * set the Pkg Name of the symbol
+     * set the Pkg path of the symbol
      * @param pkgName
      * @param options
      */
-    SymbolName.prototype.setPkgName = function (pkgName, options) {
-        if (!_.isNil(pkgName)) {
-            this.setAttribute('_pkg', pkgName, options);
+    SymbolName.prototype.setPkgPath = function (pkgPath, options) {
+        if (!_.isNil(pkgPath)) {
+            this.setAttribute('_pkgPath', pkgPath, options);
         } else {
-            log.error('Invalid Name [' + pkgName + '] Provided');
-            throw 'Invalid Name [' + pkgName + '] Provided';
+            log.error('Invalid Name [' + pkgPath + '] Provided');
+            throw 'Invalid Name [' + pkgPath + '] Provided';
         }
     };
 
@@ -67,30 +66,8 @@ define(['lodash', './node'], function (_, ASTNode) {
      * returns the  pkgName
      * @returns {string}
      */
-    SymbolName.prototype.getPkgName = function () {
-        return this._pkgName;
-    };
-
-    /**
-     * set the connector name of the symbol
-     * @param connectorName
-     * @param options
-     */
-    SymbolName.prototype.setConnectorName = function (connectorName, options) {
-        if (!_.isNil(connectorName)) {
-            this.setAttribute('_connectorName', connectorName, options);
-        } else {
-            log.error('Invalid connector name [' + connectorName + '] Provided');
-            throw 'Invalid connector name [' + connectorName + '] Provided';
-        }
-    };
-
-    /**
-     * returns the  Connector Name
-     * @returns {string}
-     */
-    SymbolName.prototype.getConnectorName = function () {
-        return this._connectorName;
+    SymbolName.prototype.getPkgPath = function () {
+        return this._pkgPath;
     };
     
     return SymbolName;
