@@ -17,13 +17,13 @@
 .tool-group-header{
     cursor: pointer;
     padding: 5px 1px;
-    background: #fff;
-    border-bottom: 1px solid #e4e4e4;
+    background: #e4e4e4;
 }
 
 .tool-group-header-title{
     padding:5px;
     width: 100%;
+    font-weight: 400;
 }
 
 .tool-group-header-title:hover{
@@ -149,6 +149,7 @@
     padding: 5px 1px;
     background: #333;
     border-bottom: 1px solid #e4e4e4;
+    display: none;
 }
 .tool-group-body > .ui-draggable-handle > .tool-container-vertical{
     margin-bottom: 5px;
