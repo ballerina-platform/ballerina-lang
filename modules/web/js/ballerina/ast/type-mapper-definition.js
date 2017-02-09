@@ -18,11 +18,8 @@
 define(['lodash', './node'], function (_, ASTNode) {
 
     var TypeMapperDefinition = function (args) {
-        ASTNode.call(this, 'TypeMapperDefinition');
         this._typeMapperName = _.get(args, 'typeMapperName', 'newTypeMapper');
-        this._returnStatementExpression = _.get(args, 'returnStatementExpression', undefined);
-        this._selectedTypeStructNameForSource = _.get(args, 'selectedTypeStructNameForSource', 'default');
-        this._selectedTypeStructNameForTarget = _.get(args, 'selectedTypeStructNameForTarget', 'default');
+        ASTNode.call(this, 'TypeMapperDefinition');
     };
 
     TypeMapperDefinition.prototype = Object.create(ASTNode.prototype);
@@ -160,48 +157,6 @@ define(['lodash', './node'], function (_, ASTNode) {
             }
         });
         return inputParam + " " + identifier;
-    };
-
-    /**
-     * Set the already selected type struct name for source
-     * @param selectedStructNameForSource
-     */
-    TypeMapperDefinition.prototype.setSelectedStructNameForSource = function (selectedStructNameForSource, options) {
-        if (!_.isNil(selectedStructNameForSource)) {
-            this.setAttribute('_selectedTypeStructNameForSource', selectedStructNameForSource, options);
-        } else {
-            log.error('Invalid TypeStructName [' + selectedStructNameForSource + '] Provided');
-            throw 'Invalid TypeStructName [' + selectedStructNameForSource + '] Provided';
-        }
-    };
-
-    /**
-     * Returns the selected type struct name for source
-     * @returns {string} type struct name for source
-     */
-    TypeMapperDefinition.prototype.getSelectedStructNameForSource = function () {
-        return this._selectedTypeStructNameForSource;
-    };
-
-    /**
-     * Set the already selected type struct name for target
-     * @param selectedStructNameForTarget
-     */
-    TypeMapperDefinition.prototype.setSelectedStructNameForTarget = function (selectedStructNameForTarget, options) {
-        if (!_.isNil(selectedStructNameForTarget)) {
-            this.setAttribute('_selectedTypeStructNameForTarget', selectedStructNameForTarget, options);
-        } else {
-            log.error('Invalid TypeStructName [' + selectedStructNameForTarget + '] Provided');
-            throw 'Invalid TypeStructName [' + selectedStructNameForTarget + '] Provided';
-        }
-    };
-
-    /**
-     * Returns the selected type struct name for target
-     * @returns {string} type struct name for target
-     */
-    TypeMapperDefinition.prototype.getSelectedStructNameForTarget = function () {
-        return this._selectedTypeStructNameForTarget;
     };
 
     /**
