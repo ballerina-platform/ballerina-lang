@@ -91,7 +91,6 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
         // avoid triggering change event on format
         this._inSilentMode = true;
         this._editor.session.setValue(content);
-        this._fomatter.beautify(this._editor.getSession());
         this._inSilentMode = false;
         this.markClean();
     };
