@@ -21,7 +21,7 @@ import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
 import org.wso2.ballerina.core.interpreter.StackFrame;
-import org.wso2.ballerina.core.model.Position;
+import org.wso2.ballerina.core.model.NodeLocation;
 
 import java.util.Stack;
 
@@ -40,11 +40,11 @@ public class ErrorHandlerUtils {
      */
     public static String getErrorMessage(Throwable throwable) {
         String errorMsg;
-        String errorPrefix = "Error while executing ballerina program. ";
+        String errorPrefix = "error in ballerina program: ";
         if (throwable instanceof StackOverflowError) {
-            errorMsg = errorPrefix + "Ballerina stack overflow occured. ";
+            errorMsg = "fatal " + errorPrefix + "stack overflow ";
         } else if (throwable.getMessage() != null) {
-            errorMsg = errorPrefix + throwable.getMessage();
+            errorMsg = errorPrefix + makeFirstLetterLowerCase(throwable.getMessage());
         } else {
             errorMsg = errorPrefix;
         }
@@ -67,13 +67,13 @@ public class ErrorHandlerUtils {
             return "";
         }
         
-        String stackTrace = getStackTrace(context, throwable, 0);
+        String stackTrace = getStackTrace(context, throwable, 1);
 
         // print the service info
         CallableUnitInfo serviceInfo = context.getServiceInfo();
         if (serviceInfo != null) {
-            stackTrace = stackTrace + "\t at " + serviceInfo.getPackage() + ":" + serviceInfo.getName() +
-                    getNodeLocation(serviceInfo) + "\n";
+            String pkgName = (serviceInfo.getPackage() != null) ? serviceInfo.getPackage() + ":" : "";
+            stackTrace = stackTrace + "\t at " + pkgName + serviceInfo.getName() + getNodeLocation(serviceInfo) + "\n";
         }
         
         return stackTrace;
@@ -123,10 +123,10 @@ public class ErrorHandlerUtils {
      * @return          source location of this {@link CallableUnitInfo}
      */
     private static String getNodeLocation(CallableUnitInfo nodeInfo) {
-        Position nodePosition = nodeInfo.getLocation();
-        if (nodePosition != null) {
-            String fileName = nodePosition.getFileName();
-            int line = nodePosition.getLine();
+        NodeLocation nodeLocation = nodeInfo.getNodeLocation();
+        if (nodeLocation != null) {
+            String fileName = nodeLocation.getFileName();
+            int line = nodeLocation.getLineNumber();
             return "(" + fileName + ":" + line + ")";
         } else {
             return "";
@@ -153,5 +153,11 @@ public class ErrorHandlerUtils {
             sb.append("\t at " + pkgName + frameInfo.getName() + getNodeLocation(frameInfo)
                     + "\n");
         }
+    }
+
+    private static String makeFirstLetterLowerCase(String s) {
+        char c[] = s.toCharArray();
+        c[0] = Character.toLowerCase(c[0]);
+        return new String(c);
     }
 }

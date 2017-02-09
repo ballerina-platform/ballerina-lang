@@ -38,7 +38,7 @@ define(['require', 'jquery', 'd3', 'd3utils', 'backbone', 'lodash','log'], funct
         this._sampleName = config.sampleName;
         //create the parent for drawn svg
         var previewDiv = $("<div class='preview-div'></div>");
-        var image = $("<img id='previewImg' class='preview-img' src='images/preview.png'/>");
+        var image = $("<img id='previewImg' class='preview-img' src='images/preview_"+config.sampleName.split('.')[0]+".png'/>");
         previewDiv.prepend(image);
         previewDiv.bind('click', config.clickEventCallback);
 
@@ -55,7 +55,7 @@ define(['require', 'jquery', 'd3', 'd3utils', 'backbone', 'lodash','log'], funct
         else{
             var listItem = $("<div class='item'></div>");
         }
-        var previewParent = $("<div class='col-md-3 preview-parent'></div>");
+        var previewParent = $("<div class='col-xs-3 preview-parent'></div>");
         var fileName = $("<div class='file-name'></div>");
         var fileNameContent = $("<span></span>");
         fileNameContent.text(this._sampleName);

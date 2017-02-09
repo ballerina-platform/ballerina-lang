@@ -25,32 +25,6 @@
 
     <fileSets>
         <fileSet>
-            <directory>target/wso2carbon-kernel-${carbon.kernel.version}</directory>
-            <outputDirectory>.</outputDirectory>
-            <excludes>
-                <exclude>README.txt</exclude>
-                <exclude>bin/bootstrap/README.txt</exclude>
-                <exclude>bin/bootstrap/tools/README.txt</exclude>
-                <exclude>conf/README</exclude>
-                <exclude>logs/README.txt</exclude>
-                <exclude>osgi/README.txt</exclude>
-                <exclude>osgi/dropins/README.txt</exclude>
-                <exclude>tmp/README.txt</exclude>
-                <exclude>LICENSE.txt</exclude>
-                <exclude>release-notes.html</exclude>
-                <exclude>conf/log4j2.xml</exclude>
-                <exclude>conf/osgi/launch.properties</exclude>
-                <exclude>conf/transports/netty-transports.yml</exclude>
-                <exclude>**/*.ipr</exclude>
-                <exclude>**/*.iwr</exclude>
-                <exclude>**/*.eclipse</exclude>
-                <exclude>bin/*.sh</exclude>
-                <exclude>bin/*.bat</exclude>
-                <exclude>bin/*.txt</exclude>
-            </excludes>
-        </fileSet>
-
-        <fileSet>
             <directory>..</directory>
             <outputDirectory>.</outputDirectory>
             <includes>
@@ -60,45 +34,30 @@
         </fileSet>
 
         <fileSet>
-            <directory>carbon-home/conf/transports</directory>
-            <outputDirectory>conf/transports</outputDirectory>
+            <directory>ballerina-home/conf</directory>
+            <outputDirectory>bre/conf</outputDirectory>
             <fileMode>644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>carbon-home/conf/osgi</directory>
-            <outputDirectory>conf/osgi</outputDirectory>
+            <directory>ballerina-home/resources/security</directory>
+            <outputDirectory>bre/security</outputDirectory>
             <fileMode>644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>carbon-home/resources/security</directory>
-            <outputDirectory>resources/security</outputDirectory>
-            <fileMode>644</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>carbon-home/bin</directory>
+            <directory>ballerina-home/bin</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
-                <include>**/ballerina</include>
-                <include>**/ballerinaserver</include>
                 <include>**/editor</include>
             </includes>
             <fileMode>755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>carbon-home/bin</directory>
+            <directory>ballerina-home/bin</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
-                <include>**/*.bat</include>
+                <include>**/editor.bat</include>
             </includes>
             <fileMode>644</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>carbon-home/resources/help</directory>
-            <outputDirectory>resources/help</outputDirectory>
-            <includes>
-                <include>**/*.txt</include>
-            </includes>
-            <fileMode>444</fileMode>
         </fileSet>
         <fileSet>
             <directory>../../samples/getting_started</directory>
@@ -119,7 +78,7 @@
         </fileSet>
         <fileSet>
             <directory>../../libsrc</directory>
-            <outputDirectory>libsrc</outputDirectory>
+            <outputDirectory>src</outputDirectory>
             <excludes>
                 <exclude>ballerina/lang/types/**</exclude>
             </excludes>
@@ -157,16 +116,63 @@
 
     <files>
         <file>
-            <source>carbon-home/conf/log4j2.xml</source>
-            <outputDirectory>conf/</outputDirectory>
+            <source>ballerina-home/bin/version.txt</source>
+            <outputDirectory>bin/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>carbon-home/bin/version.txt</source>
+            <source>ballerina-home/bin/ballerina</source>
+            <outputDirectory>bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>755</fileMode>
+        </file>
+        <file>
+            <source>ballerina-home/bin/ballerina.bat</source>
             <outputDirectory>bin/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
     </files>
+
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>bre/lib</outputDirectory>
+            <scope>runtime</scope>
+            <includes>
+                <include>org.wso2.ballerina:ballerina-core:jar</include>
+                <include>org.wso2.ballerina:ballerina-launcher:jar</include>
+                <include>org.wso2.ballerina:ballerina-native:jar</include>
+                <include>org.wso2.orbit.org.antlr:antlr4-runtime</include>
+                <include>org.wso2.carbon.transport:org.wso2.carbon.transport.http.netty</include>
+                <include>org.wso2.carbon.transport:org.wso2.carbon.connector.framework</include>
+                <include>org.wso2.carbon.messaging:org.wso2.carbon.messaging</include>
+                <include>org.wso2.orbit.net.sf.saxon:Saxon-HE</include>
+                <include>com.google.code.gson:gson</include>
+                <include>com.jayway.jsonpath:json-path</include>
+                <include>org.apache.ws.commons.axiom:axiom-api</include>
+                <include>org.apache.ws.commons.axiom:axiom-impl</include>
+                <include>jaxen:jaxen</include>
+                <include>org.wso2.orbit.org.apache.tapestry:tapestry-json</include>
+                <include>org.apache.geronimo.specs:geronimo-activation_1.1_spec</include>
+                <include>org.apache.geronimo.specs:geronimo-stax-api_1.0_spec</include>
+                <include>org.apache.james:apache-mime4j-core</include>
+                <include>com.beust:jcommander</include>
+                <include>org.slf4j:slf4j-api</include>
+                <include>org.slf4j:slf4j-nop</include>
+                <include>io.netty:netty-common</include>
+                <include>io.netty:netty-buffer</include>
+                <include>io.netty:netty-transport</include>
+                <include>io.netty:netty-handler</include>
+                <include>io.netty:netty-codec</include>
+                <include>io.netty:netty-codec-http</include>
+                <include>commons-pool.wso2:commons-pool</include>
+                <include>org.wso2.orbit.org.yaml:snakeyaml</include>
+                <include>commons-logging:commons-logging</include>
+                <include>org.wso2.staxon:staxon-core</include>
+                <include>org.apache.commons:commons-lang3</include>
+                <include>org.wso2.carbon:org.wso2.carbon.core:jar</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
 </assembly>

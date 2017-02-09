@@ -19,11 +19,13 @@
 package org.wso2.ballerina.core.nativeimpl.connectors;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.EnvironmentInitializer;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.message.StringDataSource;
+import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
@@ -31,7 +33,12 @@ import org.wso2.ballerina.core.utils.MessageUtils;
 import org.wso2.ballerina.lang.util.Services;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+/**
+ * Test class for Connector service.
+ */
 public class ConnectorServiceTest {
+
+    Application application;
 
     @BeforeClass()
     public void setup() {
@@ -39,7 +46,7 @@ public class ConnectorServiceTest {
         if (symScope.lookup(new SymbolName("ballerina.lang.message:setStringPayload_message_string")) == null) {
             BuiltInNativeConstructLoader.loadConstructs();
         }
-        EnvironmentInitializer.initialize("lang/connectors/connector-in-service.bal");
+        application = EnvironmentInitializer.setup("lang/connectors/connector-in-service.bal");
     }
 
     @Test(description = "Test action3Resource")
@@ -106,6 +113,11 @@ public class ConnectorServiceTest {
 
         //action level connector declaration not supported yet
         //Assert.assertEquals(stringDataSource.getValue(), "Hello, World");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        EnvironmentInitializer.cleanup(application);
     }
 
 }

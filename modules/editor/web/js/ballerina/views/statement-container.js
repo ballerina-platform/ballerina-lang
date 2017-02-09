@@ -43,6 +43,12 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this._managedStatements = [];
         this._managedInnerDropzones = [];
         this._lastStatementView = undefined;
+        /**
+         * View of the statement that has the highest width in this statement container.
+         * @type {BallerinaStatementView}
+         * @private
+         */
+        this._widestStatementView = undefined;
         this._selectedInnerDropZoneIndex = -1;
 
         _.set(this._viewOptions, 'cssClass.group',  _.get(this._viewOptions, 'cssClass.group', 'statement-container'));
@@ -50,8 +56,13 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         _.set(this._viewOptions, 'cssClass.mainDropZoneHover',  _.get(this._viewOptions, 'cssClass.mainDropZoneHover', 'main-drop-zone-hover'));
         _.set(this._viewOptions, 'cssClass.innerDropZone',  _.get(this._viewOptions, 'cssClass.innerDropZone', 'inner-drop-zone'));
         _.set(this._viewOptions, 'cssClass.innerDropZoneHover',  _.get(this._viewOptions, 'cssClass.innerDropZoneHover', 'inner-drop-zone-hover'));
-        _.set(this._viewOptions, 'width',  _.get(this._viewOptions, 'width', 120));
+        _.set(this._viewOptions, 'width',  _.get(this._viewOptions, 'width', 140));
+        _.set(this._viewOptions, 'minWidth',  _.get(this._viewOptions, 'minWidth', 140)); // min width of the BBox
         _.set(this._viewOptions, 'height',  _.get(this._viewOptions, 'height', 260));
+        _.set(this._viewOptions, 'minHeight',  _.get(this._viewOptions, 'minHeight', 260)); // min height of the BBox
+        // left, right padding between an inner statement and container's BBox edges
+        _.set(this._viewOptions, 'leftPadding',  _.get(this._viewOptions, 'leftPadding', 0));
+        _.set(this._viewOptions, 'rightPadding',  _.get(this._viewOptions, 'rightPadding', 0));
 
         _.set(this._viewOptions, 'offset',  _.get(this._viewOptions, 'offset', {top: 100, bottom: 100}));
         _.set(this._viewOptions, 'gap',  _.get(this._viewOptions, 'gap', 10));
@@ -87,7 +98,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         var topCenter, statementView, newDropZoneTopCenter,  dropZoneOptions = {width: 120, height: this._gap};
 
         if (!_.isEmpty(this._managedStatements)) {
-
+            // We have previously added statements, and adding a new one to them.
             var hasPendingInnerDropRender = _.gte(this._selectedInnerDropZoneIndex, 0);
             if(hasPendingInnerDropRender){
                 var nextStatement = _.nth(this._managedStatements, this._selectedInnerDropZoneIndex),
@@ -110,12 +121,16 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                         prevStatementView = this.diagramRenderingContext.getViewOfModel(prevStatement);
 
                     // nextStatementView and the prevStatementView are still the neighbours - separate them.
-                    nextStatementView.stopListening(prevStatementView.getBoundingBox(), "bottom-edge-moved");
+                   prevStatementView.getBoundingBox().off("bottom-edge-moved");
 
                     // make new view listen to previous view
-                    statementView.listenTo(prevStatementView.getBoundingBox(), "bottom-edge-moved", function(offsetY){
+                    prevStatementView.getBoundingBox().on("bottom-edge-moved", function(offsetY){
                         statementView.getBoundingBox().move(0, offsetY);
                     });
+
+                    // Re bind the broken event for the current drop zone
+                    this._managedInnerDropzones[this._selectedInnerDropZoneIndex].listenTo(statementView.getBoundingBox(),
+                        'bottom-edge-moved', this._managedInnerDropzones[this._selectedInnerDropZoneIndex].onLastStatementBottomEdgeMoved);
                 } else{
                     statementView.listenTo(this.getBoundingBox(), 'top-edge-moved', function(dy){
                         statementView.getBoundingBox().y(statementView.getBoundingBox().y() + dy);
@@ -124,7 +139,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 }
 
                 // make next view listen to new view
-                nextStatementView.listenTo(statementView.getBoundingBox(), "bottom-edge-moved", function(offsetY){
+                statementView.getBoundingBox().on("bottom-edge-moved", function(offsetY){
                     nextStatementView.getBoundingBox().move(0, offsetY);
                 });
 
@@ -138,13 +153,12 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 newDropZoneTopCenter = new Point(this.getBoundingBox().getTopCenterX(),
                     nextStatementView.getBoundingBox().y() - this._gap);
                 _.set(dropZoneOptions, 'topCenter', newDropZoneTopCenter);
+                _.set(dropZoneOptions, 'statementId', statementView._model.id);
                 var innerDropZone = this._createNextInnerDropZone(dropZoneOptions, _.findIndex(this._managedStatements, ['id', nextStatement.id]));
                 innerDropZone.listenTo(statementView.getBoundingBox(), 'bottom-edge-moved', innerDropZone.onLastStatementBottomEdgeMoved);
 
                 // reset index of activatedInnerDropZone after handling inner drop
                 this._selectedInnerDropZoneIndex = -1;
-
-
             } else {
                 var lastStatement = _.last(this._managedStatements),
                     lastStatementView = this.diagramRenderingContext.getViewOfModel(lastStatement),
@@ -156,12 +170,12 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 topCenter = new Point(topX, topY);
                 _.set(args, 'topCenter', topCenter);
                 statementView = this._statementViewFactory.getStatementView(args);
-                this._managedStatements.push(statement);
                 this.setLastStatementView(statementView);
                 statementView.render(this.diagramRenderingContext);
+                this._managedStatements.push(statement);
 
                 // make new view listen to previous view
-                statementView.listenTo(lastStatementView.getBoundingBox(), "bottom-edge-moved", function(offsetY){
+                lastStatementView.getBoundingBox().on("bottom-edge-moved", function(offsetY){
                     statementView.getBoundingBox().move(0, offsetY);
                 });
 
@@ -169,21 +183,29 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                                 statementView.getBoundingBox().y() - this._gap);
 
                 _.set(dropZoneOptions, 'topCenter', newDropZoneTopCenter);
+                _.set(dropZoneOptions, 'statementId', statementView._model.id);
                 var innerDropZone = this._createNextInnerDropZone(dropZoneOptions);
                 innerDropZone.listenTo(lastStatementView.getBoundingBox(), 'bottom-edge-moved', innerDropZone.onLastStatementBottomEdgeMoved);
             }
 
+            // Newly created 'statementView' might be the widest, let's find out.
+            if (this._widestStatementView.getBoundingBox().w() < statementView.getBoundingBox().w()) {
+                this._widestStatementView = statementView;
+                this._updateContainerWidth(statementView.getBoundingBox().w());
+            }
         } else {
+            // We are adding the very first statement into this container.
             topCenter = this._topCenter.clone().move(0, this._offset.top);
             _.set(args, 'topCenter', topCenter);
             statementView = this._statementViewFactory.getStatementView(args);
-            this._managedStatements.push(statement);
             this.setLastStatementView(statementView);
             statementView.render(this.diagramRenderingContext);
+            this._managedStatements.push(statement);
 
             // this is the fist statement - create dropzone on top
             newDropZoneTopCenter = topCenter.clone().move(0, - this._gap);
             _.set(dropZoneOptions, 'topCenter', newDropZoneTopCenter);
+            _.set(dropZoneOptions, 'statementId', statementView._model.id);
             var innerDropZone = this._createNextInnerDropZone(dropZoneOptions);
             if(this.getBoundingBox().getBottom() < statementView.getBoundingBox().getBottom()){
                 this.getBoundingBox().h(statementView.getBoundingBox().h() +
@@ -200,35 +222,81 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 statementView.getBoundingBox().y(statementView.getBoundingBox().y() + dy);
             });
 
+            // Since we have only one statement view, it is the widest statement view.
+            this._widestStatementView = statementView;
+            this._updateContainerWidth(statementView.getBoundingBox().w());
         }
 
-        if(this.getBoundingBox().w() < statementView.getBoundingBox().w()){
-            this.getBoundingBox().w(statementView.getBoundingBox().w());
-        }
+        statementView.getBoundingBox().on('width-changed', function (widthChange) {
+            if (widthChange < 0) {
+                // Width of the bounding box of 'statementView' has been decreased.
+                if (statementView === this._widestStatementView) {
+                    /* 'statementView' was the widest one. Since its width has been decreased, we need to compute the
+                     new widest statement view.*/
+                    var widestStatement = _.maxBy(this._managedStatements, function (statement) {
+                        return this.diagramRenderingContext.getViewOfModel(statement).getBoundingBox().w();
+                    }.bind(this));
+                    this._widestStatementView = this.diagramRenderingContext.getViewOfModel(widestStatement);
+                    this._updateContainerWidth(this._widestStatementView.getBoundingBox().w());
+                } else {
+                    // 'statementView' wasn't the widest one. As its width has been decreased, it isn't the widest now.
+                }
+            } else if (0 < widthChange) {
+                // Width of the bounding box of 'statementView' has been increased.
+                if (statementView === this._widestStatementView) {
+                    // 'statementView' was the widest one, and still is.
+                    this._updateContainerWidth(this._widestStatementView.getBoundingBox().w());
+                } else {
+                    // 'statementView' wasn't the widest one before.
+                    var newWidth = statementView.getBoundingBox().w();
+                    if (this._widestStatementView.getBoundingBox().w() < newWidth) {
+                        // 'statementView' has become the widest one.
+                        this._widestStatementView = statementView;
+                        this._updateContainerWidth(newWidth);
+                    } else {
+                        // Even though 'statementView' has been expanded, it still not the widest.
+                    }
+                }
+            } else {
+                // widthChange === 0;
+            }
 
+        }, this);
         this.diagramRenderingContext.setViewOfModel(statement, statementView);
 
         return statementView;
     };
 
+    StatementContainerView.prototype._updateContainerWidth = function (newWidth) {
+        var viewOptions = this._viewOptions;
+        this.getBoundingBox().zoomWidth(viewOptions.leftPadding + Math.max(newWidth, viewOptions.minWidth) +
+                                        viewOptions.rightPadding);
+    };
+
     StatementContainerView.prototype.setLastStatementView = function(lastStatementView){
-            if(!_.isNil(this._lastStatementView)){
-                this.stopListening(this._lastStatementView.getBoundingBox(), 'bottom-edge-moved');
-            }
-            this._lastStatementView = lastStatementView;
+        if(!_.isNil(this._lastStatementView)){
+            this._lastStatementView.getBoundingBox().off('bottom-edge-moved');
+        }
+        this._lastStatementView = lastStatementView;
 
-            if(this.getBoundingBox().getBottom() <
-                (this._lastStatementView.getBoundingBox().getBottom() + _.get(this._viewOptions, 'offset.bottom'))){
-                this.getBoundingBox().h((this._lastStatementView.getBoundingBox().getBottom() - this.getBoundingBox().getTop()) +
-                    _.get(this._viewOptions, 'offset.bottom'));
-            }
+        if(this.getBoundingBox().getBottom() <
+            (this._lastStatementView.getBoundingBox().getBottom() + _.get(this._viewOptions, 'offset.bottom'))){
+            this.getBoundingBox().h((this._lastStatementView.getBoundingBox().getBottom() - this.getBoundingBox().getTop()) +
+                _.get(this._viewOptions, 'offset.bottom'));
+        }
 
-            this.listenTo(this._lastStatementView.getBoundingBox(), 'bottom-edge-moved', function(dy){
-                    if(!this.isOnWholeContainerMove){
-                        this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+        this._lastStatementView.getBoundingBox().on('bottom-edge-moved', function(dy){
+            var newHeight = this.getBoundingBox().h() + dy;
+                if(!this.isOnWholeContainerMove){
+                    // If the new height is smaller than the minimum height we set the height of the statement container to the minimum allowed
+                    if (newHeight > this._viewOptions.minHeight) {
+                        this.getBoundingBox().h(newHeight);
+                    } else {
+                        this.getBoundingBox().h(this._viewOptions.minHeight);
                     }
-                    this.isOnWholeContainerMove = false;
-            })
+                }
+                this.isOnWholeContainerMove = false;
+        }, this);
     };
 
     StatementContainerView.prototype.render = function (diagramRenderingContext) {
@@ -239,14 +307,19 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 .classed( _.get(this._viewOptions, 'cssClass.mainDropZone'), true);
 
         // adjust drop zone height on bottom edge moved
-        this.getBoundingBox().on('height-changed', function(offset){
+        var boundingBox = this.getBoundingBox();
+        this.listenTo(boundingBox, 'height-changed', function (offset) {
             self._mainDropZone.attr('height', parseFloat(self._mainDropZone.attr('height')) + offset);
+        });
+        boundingBox.on('width-changed', function(offset){
+            self._mainDropZone.attr('width', boundingBox.w());
         });
 
         // adjust drop zone height on bottom edge moved
-        this.getBoundingBox().on('top-edge-moved', function(offset){
-            self._mainDropZone.attr('y', parseFloat(self._mainDropZone.attr('y')) + offset);
-            this._topCenter.move(0, offset);
+        boundingBox.on('moved', function(offset){
+            self._mainDropZone.attr('x', boundingBox.x());
+            self._mainDropZone.attr('y', boundingBox.y());
+            self._topCenter.move(boundingBox.x(), boundingBox.y());
         }, this);
         var dropZoneOptions = {
             dropZone: this._mainDropZone,
@@ -260,7 +333,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         var innerDZone = D3Utils.rect(options.topCenter.x() - options.width/2,
             options.topCenter.y(), options.width,
             options.height, 0, 0, this._rootGroup)
-            .classed( _.get(this._viewOptions, 'cssClass.innerDropZone'), true);
+            .classed( _.get(this._viewOptions, 'cssClass.innerDropZone'), true).attr('id',options.statementId);
         var dropZoneOptions = {
             dropZone: innerDZone,
             hoverClass: _.get(this._viewOptions, 'cssClass.innerDropZoneHover')
@@ -338,6 +411,99 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         };
         dropZone.on("mouseover", mouseOverHandler);
         dropZone.on("mouseout", mouseOutHandler);
+    };
+
+    /**
+     * Callback function for statement removing
+     * @param {ASTNode} childStatement - removed child statement
+     */
+    StatementContainerView.prototype.childStatementRemovedCallback = function (childStatement) {
+        var childStatementView = this.diagramRenderingContext.getViewModelMap()[childStatement.id];
+        var childStatementIndex = _.findIndex(this._managedStatements, function (child) {
+            return child.id === childStatement.id;
+        });
+        var previousStatementView = childStatementIndex === 0 ?
+            undefined : this.diagramRenderingContext.getViewOfModel(this._managedStatements[childStatementIndex - 1]);
+        var nextStatementView = childStatementIndex === this._managedStatements.length - 1 ?
+            undefined : this.diagramRenderingContext.getViewOfModel(_.nth(this._managedStatements, childStatementIndex + 1));
+
+        childStatementView.getBoundingBox().off('bottom-edge-moved');
+        if (!_.isNil(nextStatementView)) {
+            if (!_.isNil(previousStatementView)) {
+                var nextDropZone = this._managedInnerDropzones[childStatementIndex].d3el;
+                var nextDropZoneOffset = -(this.getDiagramRenderingContext().getViewOfModel(childStatement).getBoundingBox().h()) - 30;
+                previousStatementView.getBoundingBox().on('bottom-edge-moved', function (offsetY) {
+                    nextStatementView.getBoundingBox().move(0, offsetY);
+                });
+                nextDropZone.attr('y', parseFloat(nextDropZone.attr('y')) + nextDropZoneOffset);
+            } else {
+                // If the previous element is null then we have deleted the first element
+                // then the next element becomes the top/ first element
+
+                // Stop listening to the top-edge-moved by the deleted element
+                childStatementView.stopListening(this.getBoundingBox(), 'top-edge-moved');
+
+                // Use the listenTo since the event has to be manipulated by this view's self
+                nextStatementView.listenTo(this.getBoundingBox(), 'top-edge-moved', function(dy){
+                    nextStatementView.getBoundingBox().y(nextStatementView.getBoundingBox().y() + dy);
+                });
+            }
+        } else if (_.isNil(nextStatementView) && !_.isNil(previousStatementView)) {
+            // This means we have deleted the last statement and it is not the only element.
+            // We have to reset the last statement
+            this.setLastStatementView(previousStatementView)
+        }
+
+        this._managedStatements.splice(childStatementIndex, 1);
+    };
+
+    /**
+     * Remove the inner drop zone
+     * @param {ASTNode} child - child node
+     */
+    StatementContainerView.prototype.removeInnerDropZone = function (child) {
+        var childStatementIndex = _.findIndex(this._managedStatements, function(childStatement) {
+            return childStatement.id === child.id;
+        });
+        var innerDropZone = undefined;
+        var removeIndex = -1;
+        // If this is the only element
+        if (this._managedStatements.length === 1 && this._managedInnerDropzones.length === 1) {
+            removeIndex = 0;
+        } else if ((this._managedStatements.length - 1 === childStatementIndex) || childStatementIndex === 0) {
+            // If this is the first or the last element
+            removeIndex = childStatementIndex;
+        } else {
+            removeIndex = childStatementIndex;
+            var previousView = this.diagramRenderingContext.getViewOfModel(this._managedStatements[removeIndex - 1]);
+            var viewToDelete = this.diagramRenderingContext.getViewOfModel(this._managedStatements[removeIndex]);
+            this._managedInnerDropzones[removeIndex + 1].stopListening(viewToDelete.getBoundingBox());
+            this._managedInnerDropzones[removeIndex + 1].listenTo(previousView.getBoundingBox(), 'bottom-edge-moved',
+                this._managedInnerDropzones[removeIndex + 1].onLastStatementBottomEdgeMoved);
+        }
+
+        if (removeIndex > -1) {
+            innerDropZone = this._managedInnerDropzones[removeIndex];
+            innerDropZone.d3el.node().remove();
+            this._managedInnerDropzones.splice(removeIndex, 1);
+        }
+    };
+
+        /**
+         * Get the managed statements array
+         * @return {Array}
+         */
+    StatementContainerView.prototype.getManagedStatements = function () {
+        return this._managedStatements;
+    };
+
+    StatementContainerView.prototype.changeDropZoneHeight = function (dh) {
+        this._mainDropZone.attr('height', parseFloat(this._mainDropZone.attr('height')) + dh);
+    };
+
+    StatementContainerView.prototype.changeHeightSilent = function (h) {
+        this.getBoundingBox().h(h, true);
+        this._mainDropZone.attr('height', h);
     };
 
     return StatementContainerView;

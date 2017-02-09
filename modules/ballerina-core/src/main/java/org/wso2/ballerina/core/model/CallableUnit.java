@@ -18,30 +18,18 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+import org.wso2.ballerina.core.model.types.BType;
 
 /**
- * {@code CallableUnit} represents Functions, Action or Resources
+ * {@code CallableUnit} represents Functions, Action or Resources.
  *
  * @see Function
  * @see Action
  * @see Resource
  * @since 0.8.0
  */
-public interface CallableUnit {
-
-    /**
-     * Returns the name of the callable unit
-     *
-     * @return the name
-     */
-    String getName();
-
-    /**
-     * Returns the symbol name of the callable unit
-     *
-     * @return the symbol name
-     */
-    SymbolName getSymbolName();
+public interface CallableUnit extends BLangSymbol, Node {
 
     /**
      * Replaces the symbol name of this callable unit with the specified symbol name.
@@ -51,66 +39,79 @@ public interface CallableUnit {
     void setSymbolName(SymbolName symbolName);
 
     /**
-     * Returns the package name of this callable unit
-     *
-     * @return the package name
-     */
-    String getPackageName();
-
-    /**
-     * Returns an array of annotations attached this callable unit
+     * Returns an array of annotations attached this callable unit.
      *
      * @return an array of annotations
      */
     Annotation[] getAnnotations();
 
     /**
-     * Returns an array of parameters of this callable unit
+     * Returns an array of parameters of this callable unit.
      *
      * @return an array of parameters
      */
-    Parameter[] getParameters();
+    ParameterDef[] getParameterDefs();
 
     /**
-     * Returns an array of variable declarations of this callable unit
+     * Returns an array of variable declarations of this callable unit.
      *
      * @return an array of variable declarations
      */
-    VariableDcl[] getVariableDcls();
+    VariableDef[] getVariableDefs();
 
     /**
-     * Returns an array of return parameters (values) of this callable unit
+     * Returns an array of return parameters (values) of this callable unit.
      *
      * @return an array of return parameters
      */
-    Parameter[] getReturnParameters();
+    ParameterDef[] getReturnParameters();
 
     /**
-     * Returns size of the stack frame which should be allocated for each invocations
+     * Returns size of the stack frame which should be allocated for each invocations.
      *
      * @return size of the stack frame
      */
     int getStackFrameSize();
 
     /**
-     * Replaces the size of the current stack frame with the specified size
+     * Replaces the size of the current stack frame with the specified size.
      *
      * @param frameSize size of the stack frame
      */
     void setStackFrameSize(int frameSize);
 
     /**
-     * Returns the body of the callable unit as a {@code BlockStmt}
+     * Returns the body of the callable unit as a {@code BlockStmt}.
      *
      * @return body of the callable unit
      */
     BlockStmt getCallableUnitBody();
 
     /**
-     * Get the location of this function in the ballerina source file.
-     * Returns the ballerina file and line number of the function.
+     * Get Types of the return parameters.
      *
-     * @return location of this function in the ballerina source file
+     * @return  Types of the return parameters
      */
-    Position getLocation();
+    BType[] getReturnParamTypes();
+
+    /**
+     * Sets a {@code BType} array containing the types of return parameters of this callable unit.
+     *
+     * @param returnParamTypes array of the return parameters
+     */
+    void setReturnParamTypes(BType[] returnParamTypes);
+
+    /**
+     * Get Types of the return input arguments.
+     *
+     * @return  Types of the return input arguments
+     */
+    BType[] getArgumentTypes();
+
+    /**
+     * Sets a {@code BType} array containing the types of input parameters of this callable unit.
+     *
+     * @param parameterTypes array of the input parameters
+     */
+    void setParameterTypes(BType[] parameterTypes);
 }

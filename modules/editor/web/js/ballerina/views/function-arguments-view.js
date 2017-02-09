@@ -18,9 +18,6 @@
 define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
     function (require, _, $, BallerinaASTFactory) {
 
-        //TODO : Move this to a common constant.
-        var variableTypes = ['message', 'connection', 'string', 'int', 'exception', 'json', 'xml', 'map', 'string[]', 'int[]'];
-
         /**
          * Creates the arguments pane.
          * @param {Object} args - Arguments for creating the view.
@@ -29,7 +26,7 @@ define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
          * @param {Object} args.paneAppendElement - The element to which the pane should be appended to.
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
          */
-        var createArgumentsPane = function (args) {
+        var createArgumentsPane = function (args, diagramRenderingContext) {
             var activatorElement = _.get(args, "activatorElement");
             var model = _.get(args, "model");
             var paneElement = _.get(args, "paneAppendElement");
@@ -52,6 +49,7 @@ define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
             // Creating arguments dropdown.
             var argumentTypeDropDown = $("<select/>").appendTo(headerWrapper);
 
+            var variableTypes = diagramRenderingContext.getEnvironment().getTypes();
             // Adding dropdown elements.
             _.forEach(variableTypes, function (type) {
                 // Adding arguments which has no value to the dropdown.
@@ -211,7 +209,7 @@ define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
 
                     // Gets the user input and set it as the argument identifier.
                     argumentValueTextbox.on("change keyup input", function (e) {
-                        argument.identifier = e.target.value;
+                        argument.setIdentifier(e.target.value);
                     });
 
                     // Adding in-line display block to override the hovering css.

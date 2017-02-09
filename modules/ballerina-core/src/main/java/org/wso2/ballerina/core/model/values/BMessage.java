@@ -36,14 +36,17 @@ import java.util.List;
  */
 public final class BMessage implements BRefType<CarbonMessage> {
     private CarbonMessage value;
-    private BValue builtPayload;
     private Headers headers;
+    // This holds the content which is set within the ballerina runtime. This needs to be always synchronized with the
+    // MessageDataSource of value (CarbonMessage)
+    BallerinaMessageDataSource ballerinaMessageDataSource;
 
     /**
      * Create a message value in ballerina.
      */
     public BMessage() {
         this(new DefaultCarbonMessage());
+        setAlreadyRead(true);
     }
 
     /**
@@ -86,32 +89,45 @@ public final class BMessage implements BRefType<CarbonMessage> {
     }
 
     /**
+     * This method returns the already built content of this ballerina message
+     * @return BallerinaMessageDataSource content of this message
+     */
+    public BallerinaMessageDataSource getMessageDataSource() {
+        if (this.ballerinaMessageDataSource != null) {
+            // this means that message value has been set from within ballerina.
+            return this.ballerinaMessageDataSource;
+        } else if (!(this.value.isEmpty()) && this.value.getMessageBody() != null) {
+            // value can be set from outside ballerina. Then we read the content from carbon message and return
+                return this.ballerinaMessageDataSource = new StringDataSource(this.value.getMessageBody().toString());
+        } else {
+            // This means an empty message and we return a message datasource with empty string
+            return this.ballerinaMessageDataSource = new StringDataSource("");
+        }
+    }
+
+    /**
      * Set the built payload of this message.
      *
-     * @param builtMsg Built payload of this message
+     * @param messageDataSource Built payload of this message
      */
-    public void setBuiltPayload(BValue builtMsg) {
+    public void setMessageDataSource(BallerinaMessageDataSource messageDataSource) {
         // Set the message data source once the message is built
-        BallerinaMessageDataSource ballerinaMessageDataSource = null;
-        if (builtMsg instanceof BXML || builtMsg instanceof BJSON) {
-            ballerinaMessageDataSource = (BallerinaMessageDataSource) builtMsg;
-            ballerinaMessageDataSource.setOutputStream(this.value.getOutputStream());
-        } else {
-            ballerinaMessageDataSource = new StringDataSource(builtMsg.stringValue(), this.value.getOutputStream());
-        }
+        ballerinaMessageDataSource = messageDataSource;
         ballerinaMessageDataSource.setOutputStream(this.value.getOutputStream());
         this.value.setMessageDataSource(ballerinaMessageDataSource);
-        this.builtPayload = builtMsg;
         setAlreadyRead(true);
     }
 
     /**
-     * Get the built payload of this message.
+     * Set the built payload of this message.
      *
-     * @return Built payload of this message
+     * @param message String payload of this message
      */
-    public BValue getBuiltPayload() {
-        return this.builtPayload;
+    public void setMessageDataSource(String message) {
+        ballerinaMessageDataSource =
+                new StringDataSource(message, this.value.getOutputStream());
+        this.value.setMessageDataSource(ballerinaMessageDataSource);
+        setAlreadyRead(true);
     }
 
     /**
@@ -204,9 +220,19 @@ public final class BMessage implements BRefType<CarbonMessage> {
     @Override
     public String stringValue() {
         if (this.isAlreadyRead()) {
-            return this.builtPayload.stringValue();
+            return this.value.getMessageDataSource().getMessageAsString();
         }
 
         return MessageUtils.getStringFromInputStream(this.value.getInputStream());
+    }
+
+    public BMessage clone() {
+        BMessage clonedMessage = new BMessage();
+        if (this.ballerinaMessageDataSource != null) {
+            clonedMessage.setMessageDataSource(this.ballerinaMessageDataSource);
+        }
+        clonedMessage.setValue(this.value);
+        clonedMessage.setHeaderList(this.getHeaders());
+        return clonedMessage;
     }
 }

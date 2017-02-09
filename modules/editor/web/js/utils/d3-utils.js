@@ -145,6 +145,24 @@ define(['require', 'lodash', 'jquery', 'd3', 'log'], function (require, _, $, d3
     };
 
     /**
+    * Draw a generic svg input Element
+    * @param x
+    * @param y
+    * @param textContent
+    * @param parent
+    * @returns svg text element
+    */
+    var inputElement = function (x, y, textContent, parent) {
+        logParentUndefined(parent);
+        return parent.append("input")
+            .attr("x", x)
+            .attr("y", y)
+            .text(function () {
+                return textContent;
+            });
+    };
+
+    /**
      * Draw a centered svg text Element on a given point
      *
      * @param center {Point}

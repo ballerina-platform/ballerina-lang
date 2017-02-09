@@ -29,8 +29,6 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/argum
          */
         var ResourceParameterView = function (args) {
             BallerinaView.call(this, args);
-            this._supportedParameterTypes = ['message', 'connection', 'string', 'int', 'exception', 'json', 'xml',
-                'map', 'string[]', 'int[]'];
             this._parameterWrapper = undefined;
             this._deleteButton = undefined;
         };
@@ -72,7 +70,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/argum
         /**
          * Render the editing view of a resource parameter.
          */
-        ResourceParameterView.prototype.renderEditView = function () {
+        ResourceParameterView.prototype.renderEditView = function (diagramRenderingContext) {
             var self = this;
 
             $(this._parameterWrapper).empty();
@@ -80,7 +78,8 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/argum
             //// Start of annotation section
 
             var annotationWrapper = $("<div/>", {
-                class: "action-content-wrapper-heading resource-parameters-heading-annotations-wrapper"
+                class: "action-content-wrapper-heading resource-parameters-heading-annotations-wrapper",
+                click: function(e) {e.stopPropagation();}
             }).appendTo(this._parameterWrapper);
 
             // Enable/Disable annotation.
@@ -116,6 +115,8 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/argum
                 if ($(allowAnnotationCheckBox).is(":checked")) {
                     self.getModel().setAnnotationText(newIdentifier);
                 }
+            }).keyup(function(){
+                self.getModel().setAnnotationText($(this).val());
             }).appendTo(annotationWrapper);
 
             // Setting a default value for @PathParam and updating model when changed.
@@ -162,12 +163,14 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/argum
             //// Start of parameter section
 
             var parameterWrapper = $("<div/>", {
-                class: "action-content-wrapper-heading resource-parameters-heading-parameter-wrapper"
+                class: "action-content-wrapper-heading resource-parameters-heading-parameter-wrapper",
+                click: function(e) {e.stopPropagation();}
             }).appendTo(this._parameterWrapper);
 
             // Creating parameter type dropdown.
             var parameterTypeDropDown = $("<select/>").appendTo(parameterWrapper);
 
+            this._supportedParameterTypes = this.getDiagramRenderingContext().getEnvironment().getTypes();
             // Adding dropdown elements.
             _.forEach(this._supportedParameterTypes, function (type) {
                 // Adding supported parameter types to the type dropdown.
@@ -198,17 +201,15 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/argum
 
                 var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
 
-                // Validation the identifier against grammar.
-                if (!Argument.isValidIdentifier(newIdentifier)) {
-                    var errorString = "Invalid identifier for a parameter: " + newIdentifier;
-                    log.error(errorString);
-                    Alerts.error(errorString);
+                try {
+                    self.getModel().setIdentifier(newIdentifier);
+                } catch (error) {
+                    Alerts.error(error);
                     event.stopPropagation();
                     return false;
                 }
-
-                self.getModel().setIdentifier(newIdentifier);
-
+            }).keyup(function(){
+                self.getModel().setIdentifier($(this).val());
             }).appendTo(parameterWrapper);
 
             //// End of parameter section

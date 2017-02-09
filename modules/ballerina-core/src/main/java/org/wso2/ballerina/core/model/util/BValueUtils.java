@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * BValue utility methods
+ * BValue utility methods.
  *
  * @since 0.8.0
  */
@@ -36,28 +36,28 @@ public class BValueUtils {
 //        if (type == BType.INT_TYPE) {
 //            return new BInteger(0);
 //
-//        } else if (type == BType.LONG_TYPE) {
+//        } else if (type == BType.typeLong) {
 //            return new BLong(0);
 //
-//        } else if (type == BType.FLOAT_TYPE) {
+//        } else if (type == BType.typeFloat) {
 //            return new BFloat(0);
 //
-//        } else if (type == BType.DOUBLE_TYPE) {
+//        } else if (type == BType.typeDouble) {
 //            return new BDouble(0);
 //
-//        } else if (type == BType.BOOLEAN_TYPE) {
+//        } else if (type == BType.typeBoolean) {
 //            return new BBoolean(false);
 //
-//        } else if (type == BType.STRING_TYPE) {
+//        } else if (type == BType.typeString) {
 //            return new BString("");
 //
-//        } else if (type == BType.JSON_TYPE) {
+//        } else if (type == BType.typeJSON) {
 //            return new BJSON("{}");
 //
-//        } else if (type == BType.XML_TYPE) {
+//        } else if (type == BType.typeXML) {
 //            return new BXML();
 //
-//        } else if (type == BType.MESSAGE_TYPE) {
+//        } else if (type == BType.typeMessage) {
 //            return new BMessage(null);
 //
 //        } else if (type == BType.CONNECTOR_TYPE) {

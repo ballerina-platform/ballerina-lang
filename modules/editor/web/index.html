@@ -1,19 +1,35 @@
-<html lang="en" class=" webkit chrome mac js gr__localhost">
+<!--
+~   Copyright (c) 2016, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+~
+~   Licensed under the Apache License, Version 2.0 (the "License");
+~   you may not use this file except in compliance with the License.
+~   You may obtain a copy of the License at
+~
+~        http://www.apache.org/licenses/LICENSE-2.0
+~
+~   Unless required by applicable law or agreed to in writing, software
+~   distributed under the License is distributed on an "AS IS" BASIS,
+~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~   See the License for the specific language governing permissions and
+~   limitations under the License.
+-->
 
-
-
+<html lang="en" class="webkit chrome mac js gr__localhost">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <title>Ballerina Editor</title>
+
     <!-- Favion -->
     <link href="images/favicon.png" rel="icon" type="image/png" sizes="16x16" />
 
     <script src="lib/css-browser-selector_0.4.0/css_browser_selector.js"></script>
+
     <link href="lib/font-wso2-1.2.1/css/font-wso2.min.css" rel="stylesheet" type="text/css"/>
     <link href="lib/theme-wso2-2.0.0/css/theme-wso2.css" rel="stylesheet" type="text/css"/>
-    <link href="lib/jquery-ui_v1.12.1/jquery-ui.css" rel="stylesheet" type="text/css"/>
+    <link href="lib/jquery-ui_v1.12.1.custom/jquery-ui.css" rel="stylesheet" type="text/css"/>
     <link href="lib/js-tree-v3.3.2/themes/default/style.css" rel="stylesheet" type="text/css"/>
     <link href="css/layout.css" rel="stylesheet" type="text/css"/>
     <link href="css/styles.css" rel="stylesheet" type="text/css"/>
@@ -21,23 +37,19 @@
     <link href="css/tab-styles.css" rel="stylesheet" type="text/css"/>
     <link href="css/notification.css" rel="stylesheet" type="text/css"/>
     <link href="css/fileDialog.css" rel="stylesheet" type="text/css"/>
-    <link href="lib/nanoscroller_0.8.7/nanoscroller.css" rel="stylesheet" type="text/css"/>
+    <link href="lib/mCustomScrollbar_v3.1.5/css/jquery.mCustomScrollbar.css" rel="stylesheet" type="text/css"/>
+    <link href="lib/context-menu_v2.4.2/jquery.contextMenu.min.css" rel="stylesheet" type="text/css"/>
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-    <script src="lib/html5shiv_3.7.2/html5shiv.min.js"></script>
-    <script src="lib/respond_1.4.2/respond.min.js"></script>
-    <![endif]-->
     <link rel="stylesheet" type="text/css" href="css/sequence_diagram/sequenced-styles.css"/>
     <link rel="stylesheet" type="text/css" href="css/ballerina-file-editor.css"/>
     <link rel="stylesheet" type="text/css" href="css/menu-bar.css"/>
     <link rel="stylesheet" type="text/css" href="css/tool-palette.css"/>
     <link rel="stylesheet" type="text/css" href="css/workspace-explorer.css"/>
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
-    <title>Ballerina Editor</title>
+    <link rel="stylesheet" type="text/css" href="css/debugger.css"/>
+    <link rel="stylesheet" type="text/css" href="css/left-tool-bar.css"/>
+    <link rel="stylesheet" type="text/css" href="css/type-mapper.css"/>
 </head>
-
 <body class="sticky-footer">
 
 <!-- Start: header -->
@@ -46,7 +58,7 @@
     <div id="header-container" class="container-fluid">
         <div class="pull-left brand">
             <a href="#">
-                <img src="lib/theme-wso2_1.0/images/logo-inverse.svg" alt="wso2" title="wso2" class="logo">
+                <img src="lib/theme-wso2-2.0.0/images/logo-inverse.svg" alt="wso2" title="wso2" class="logo">
                 <span>Ballerina Editor </span>
             </a>
         </div>
@@ -77,11 +89,22 @@
                 <div class="left-container">
                     <!-- Start: left tool bar -->
                     <div class="left-tool-bar" data-toggle="tooltip">
-                        <i class="fw fw-file-browse fw-2x workspace-explorer-activate-btn"></i>
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li>
+                                <a href="#workspace-explorer" role="tab" data-toggle="tab" class="workspace-explorer-activate-btn">
+                                    <i class="fw fw-file-browse fw-lg"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#debugger" role="tab" data-toggle="tab" class="debugger-activate-btn">
+                                    <i class="fw fw-bug fw-lg"></i>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                     <!-- End: left tool bar -->
                     <!-- Start: left side-bar -->
-                    <div class="sidebar-left nano">
+                    <div class="sidebar-left tab-content">
                     </div>
                     <div class="sidebar-left-separator"  draggable="true"></div>
                     <!-- End: left side-bar -->
@@ -130,9 +153,9 @@
 <!-- Start: Template for a tab -->
 <div style="display: none" id="tab-template">
     <!-- Start: Tab -->
-    <div class=".nano">
+    <div class="tab-container">
         <!-- Start: design view container -->
-        <div class="design-view-container nano-content">
+        <div class="design-view-container">
             <!-- Start: tool-palette -->
             <div class="tool-palette-container"></div>
             <!-- End: tool-palette -->
@@ -145,6 +168,7 @@
                             <span>Import :</span>
                             <input type="text">
                             <div class="action-icon-wrapper">
+                                <span class="fw fw-add"></span>
                                 <span class="fw-stack fw-lg">
                                     <i class="fw fw-square fw-stack-2x"></i>
                                     <i class="fw fw-add fw-stack-1x fw-inverse"></i>
@@ -152,47 +176,93 @@
                             </div>
                         </div>
                         <div class="action-content-wrapper-body">
-                            <!--Div for package name-->
-                            <div class="package-name-wrapper">
-                                <span>Package :</span>
-                                <input type="text">
-                            </div>
                             <!--Div for imports-->
                             <div class="imports-wrapper">
-                                <span class="font-bold">Current imports </span>
+                                <span class="font-bold">Current Imports </span>
                                 <hr>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="package-btn btn-icon">
-                    <span class="fw-stack fw-lg">
-                        <i class="fw fw-circle fw-stack-2x"></i>
-                        <i class="fw fw-package fw-stack-1x fw-inverse"></i>
-                    </span>
+                <div class="package-btn btn-icon" data-toggle="tooltip" title="Import Packages" data-placement="bottom">
+                    <img src="images/dgm-import.svg" class="import-img">
                 </div>
             </div>
             <!-- End: TopRight Controls Container  -->
             <!-- Start: BottomRight Controls Container -->
             <div class="bottom-right-controls-container">
-                <div class="view-source-btn btn-icon">
-                    <i class="fw fw-lg fw-code fw-inverse fw-helper fw-helper-circle"></i>
+                <div class="view-source-btn btn-icon"title="Source View" data-placement="bottom">
+                    <i class="fw fw-code-view fw-inverse"></i>
+                    <span class="bottom-view-label">Source View</span>
+                </div>
+                <div class="view-design-btn active" title="Design view" data-placement="bottom">
+                    <i class="fw fw-design-view fw-inverse"></i>
+                    <span class="bottom-view-label" >Design View</span>
+                </div>
+                <div class="view-swagger-btn btn-icon" title="Swagger view" data-placement="bottom">
+                    <i class="fw fw-swagger fw-inverse "></i>
+                    <span class="bottom-view-label">Swagger View</span>
                 </div>
             </div>
+
+            <!--<div class="bottom-right-controls-container">-->
+                <!--<div class="view-source-btn btn-icon" data-toggle="tooltip" title="Source View" data-placement="bottom">-->
+                    <!--<i class="fw fw-lg fw-code-view fw-inverse fw-helper fw-helper-circle"></i>-->
+                <!--</div>-->
+                <!--<div class="view-swagger-btn btn-icon" data-toggle="tooltip" title="Swagger view" data-placement="bottom">-->
+                    <!--<i class="fw fw-lg fw-swagger fw-inverse fw-helper fw-helper-circle"></i>-->
+                <!--</div>-->
+                <!--<div class="view-design-btn btn-icon" data-toggle="tooltip" title="Swagger view" data-placement="bottom">-->
+                    <!--<i class="fw fw-lg fw-swagger fw-inverse fw-helper fw-helper-circle"></i>-->
+                <!--</div>-->
+            <!--</div>-->
             <!-- End: BottomRight Controls Container  -->
         </div>
         <!-- End: design view container -->
         <!-- Start: source view container -->
-        <div class="source-view-container" id="source-container-id">
+        <div class="source-view-container">
             <!-- Start: BottomRight Controls Container -->
+             <!-- Start: BottomRight Controls Container -->
             <div class="bottom-right-controls-container">
-                <div class="view-design-btn btn-icon">
-                    <i class="fw fw-lg fw-design-view fw-helper"></i>
+                <div class="view-source-btn btn-icon" data-toggle="tooltip" title="Source View" data-placement="bottom">
+                    <i class="fw fw-code-view fw-inverse"></i>
+                    <span class="bottom-view-label">Code View</span>
+                </div>
+                <div class="view-design-btn btn-icon" data-toggle="tooltip" title="Design view" data-placement="bottom">
+                    <i class="fw fw-design-view fw-inverse"></i>
+                    <span class="bottom-view-label" >Design View</span>
+                </div>
+                <div class="view-swagger-btn btn-icon" data-toggle="tooltip" title="Swagger view" data-placement="bottom">
+                    <i class="fw fw-swagger fw-inverse "></i>
+                    <span class="bottom-view-label">Swagger View</span>
                 </div>
             </div>
             <!-- End: BottomRight Controls Container  -->
         </div>
         <!-- End source view container  -->
+        <!-- Start: swagger view container -->
+        <div class="swagger-view-container">
+            <!-- Start: BottomRight Controls Container -->
+            <div class="swaggerEditor" data-editor-url="/lib/swagger-editor/#/">
+            </div>
+             <!-- Start: BottomRight Controls Container -->
+            <div class="bottom-right-controls-container">
+                <div class="view-source-btn btn-icon" data-toggle="tooltip" title="Source View" data-placement="bottom">
+                    <i class="fw fw-code-view fw-inverse"></i>
+                    <span class="bottom-view-label">Code View</span>
+                </div>
+                <div class="view-design-btn btn-icon" data-toggle="tooltip" title="Design view" data-placement="bottom">
+                    <i class="fw fw-design-view fw-inverse"></i>
+                    <span class="bottom-view-label" >Design View</span>
+                </div>
+                <div class="view-swagger-btn btn-icon" data-toggle="tooltip" title="Swagger view" data-placement="bottom">
+                    <i class="fw fw-swagger fw-inverse "></i>
+                    <span class="bottom-view-label">Swagger View</span>
+                </div>
+            </div>
+            <!-- End: BottomRight Controls Container  -->
+        </div>
+        <!-- End swagger view container  -->
         <!-- Start: Preview Container -->
         <div class="preview-container">
         </div>
@@ -351,7 +421,7 @@
 <!-- End: Set Service Parameters Modal -->
 
 <!--Start: About Modal-->
-<div class="modal fade" id="modalAbout" tabindex="-1" role="dialog" aria-labelledby="modalDemo">
+<div class="modal fade" id="modalAbout" tabindex="-1" role="dialog" aria-label="modalDemo">
     <div class="modal-dialog" role="document">
         <div class="modal-content clearfix">
             <div class="modal-header">
@@ -374,7 +444,8 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content clearfix">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">x</button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="fw fw-cancel  about-dialog-close"></i></button>
                 <h3 class="modal-title" id="errorModalLabel">Error</h3>
             </div>
             <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
@@ -388,15 +459,69 @@
 </div>
 <!--End: About Modal-->
 
+<!--Start: Search Modal-->
+<div class="modal fade" id="modalSearch" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content clearfix">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="fw fw-cancel about-dialog-close"></i>
+                </button>
+                <h4 class="modal-title" >Search</h4>
+            </div>
+            <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
+                <div class="modal-search-bar">
+                    <i class="fw fw-search modal-search-icon"></i>
+                    <input class="search-input" id="modal-search-field" placeholder="Search" type="text">
+                </div>
+                <div class="search-results">
+                    <ul class="list-group">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--End: Search Modal-->
+
+<!--Start: Debug Modal-->
+<div class="modal fade debug" id="modalDebugConnection" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content clearfix">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="fw fw-cancel about-dialog-close"></i>
+                </button>
+                <h4 class="modal-title" >Debug Connection</h4>
+            </div>
+            <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
+              <div class="form-group debug-connection-group">
+                <label class="sr-only" for="debugUrl">Server URL</label>
+                <div class="input-group">
+                  <div class="input-group-addon">ws://</div>
+                  <input type="text" class="form-control" id="debugUrl" placeholder="localhost:5006" value="localhost:5006" />
+                </div>
+                <span class="help-block debug-connection-error hide"><i class="fw fw-alert"></i> Connection error please check provided URL.</span>
+              </div>
+              <div class='form-group'>
+                    <button type='button' class='btn pull-right btn-file-dialog' data-dismiss='modal'>Cancel</button>
+                    <button type='button' class='btn btn-primary pull-right btn-file-dialog debug-connect-button'>Debug</button>
+              </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--End: Debug Modal-->
+
 <!--Start: Open Folder Modal-->
-<div class='modal fade' id='open-folder-modal' tabindex='-1' role='dialog' aria-tydden='true'>
+<div class='modal fade' id='open-folder-modal' tabindex='-1' role='dialog' aria-hidden='true'>
     <div class='modal-dialog file-dialog' role='document'>
         <div class='modal-content'>
             <div class='modal-header'>
                 <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
                     <span aria-hidden='true'>&times;</span>
                 </button>
-                <h4 class='modal-title file-dialog-title'>Open Folder</h4>
+                <h4 class='modal-title file-dialog-title'>open folder</h4>
                 <hr class='style1'>
             </div>
             <div class='modal-body'>
@@ -421,7 +546,7 @@
                             <div class='folder-dialog-form-btn'>
                                 <button type='button' class='btn btn-file-dialog open-button'>open
                                 </button>
-                                <div class='divider'/>
+                                <div class='divider'></div>
                                 <button type='button' class='btn btn-file-dialog' data-dismiss='modal'>cancel</button>
                             </div>
                         </div>
@@ -447,19 +572,26 @@
             // third party modules //
             ////////////////////////
             jquery: "lib/jquery_v1.9.1/jquery-1.9.1.min",
-            jquery_ui: "lib/jquery-ui_v1.12.1/jquery-ui",
+            jquery_ui: "lib/jquery-ui_v1.12.1.custom/jquery-ui",
             bootstrap: "lib/bootstrap_v3.3.6/js/bootstrap",
             d3: "lib/d3_v4.1.1/d3",
+            dagre: "lib/dagre-0.7.4/dagre.min",
             log4javascript: "lib/log4javascript-1.4.13/log4javascript",
             lodash: "lib/lodash_v4.13.1/lodash",
             backbone: "lib/backbone_v1.3.3/backbone",
             svg_pan_zoom: "lib/svg-panNZoom/jquery.svg.pan.zoom",
             js_tree: "lib/js-tree-v3.3.2/jstree",
-            nano_scroller: "lib/nanoscroller_0.8.7/jquery.nanoscroller.min",
-            theme_wso2: "lib/theme-wso2_1.0/js/theme-wso2",
+            theme_wso2: "lib/theme-wso2-2.0.0/js/theme-wso2",
             ace: "lib/ace_v1.2.6",
             beautify: "lib/beautify/beautify",
             mousetrap: "lib/mousetrap_v1.6.0/mousetrap.min",
+            mcustom_scroller: "lib/mCustomScrollbar_v3.1.5/js/jquery.mCustomScrollbar",
+            jquery_mousewheel: "lib/jquery-mousewheel_v3.1.13/jquery.mousewheel",
+            jquery_context_menu: "lib/context-menu_v2.4.2/jquery.contextMenu.min",
+            html5_shiv: "lib/html5shiv_3.7.2/html5shiv.min",
+            respond: "lib/respond_1.4.2/respond.min",
+            jsPlumb: "lib/jsPlumb-2.2.8/jsPlumb-2.2.8-min",
+            yaml: "lib/js-yaml-v3.7.0/dist/js-yaml.min",
             ///////////////////////
             // custom modules ////
             //////////////////////
@@ -473,14 +605,24 @@
             processors: "js/processors/module",
             file_browser: "js/file-browser/file-browser",
             menu_bar: "js/menu-bar/menu-bar",
+            context_menu: "js/context-menu/context-menu",
             tool_bar: "js/tool-bar/tool-bar",
-            tab: "js/tab/",
             alerts: "js/utils/alerts",
             breadcrumbs: "js/breadcrumbs/breadcrumbs",
-            property_pane_utils: "js/property-pane/property-pane-utils"
+            property_pane_utils: "js/property-pane/property-pane-utils",
+            debugger: "js/debugger/debugger",
+			expression_editor_utils: "js/expression-editor/expression-editor-utils",
+            constants: 'js/constants/constants',
+            typeMapper: 'js/type-mapper/type-mapper-renderer'
         },
         shim: {
-            "bootstrap": {"deps": ['jquery']}
+            "bootstrap": {"deps": ['jquery']},
+            "theme_wso2": {"deps": ['jquery', 'bootstrap', 'html5_shiv', 'respond']},
+            "jsPlumb": {
+                deps: ['jquery','jquery_ui'],
+                exports: 'jsPlumb'
+            },
+            "mcustom_scroller":{"deps": ['jquery', "jquery_mousewheel"]}
         },
         map: {
             "*": {
@@ -516,8 +658,18 @@
                 main: 'index'
             },
             {
+                name: 'tab',
+                location: 'js/tab',
+                main: 'module'
+            },
+            {
                 name: 'dialogs',
                 location: 'js/dialog',
+                main: 'module'
+            },
+            {
+                name: 'debugger',
+                location: 'js/debugger',
                 main: 'module'
             }
         ]
@@ -541,8 +693,7 @@
                     buttonOpen: " btn btn-block open-welcome-button",
                     samples: "welcome-samples",
                     headingTop: "top-heading",
-                    btnWrap1: "new-btn-wrap col-md-6",
-                    btnWrap2:"open-btn-wrap col-md-6"
+                    btnWrap1: "btn-wrap"
                 },
                 samples: ["resources/samples/echoService.bal", "resources/samples/helloWorld.bal",
                     "resources/samples/passthroughService.bal", "resources/samples/routingServices.bal"]
@@ -550,6 +701,12 @@
             services:   {
                 workspace:  {
                     endpoint: "http://localhost:8289/service/workspace"
+                },
+                packages:  {
+                    endpoint: "http://localhost:8289/ballerina/editor/packages"
+                },
+                swagger:  {
+                    endpoint: "http://localhost:8289/service/swagger/"
                 },
                 parser:  {
                     endpoint: "http://localhost:8289/ballerina/model/content"
@@ -652,29 +809,42 @@
                                 scroll_margin: '20',
                                 mode: 'ace/mode/ballerina'
                             },
+                            swagger_view: {
+                                // relative selector within container for a tab
+                                container: '.swagger-view-container',
+                                theme: 'ace/theme/tomorrow_night',
+                                font_size: '12pt',
+                                scroll_margin: '20',
+                                mode: 'ace/mode/ballerina'
+                            },
                             controls: {
                                 view_source_btn: '.view-source-btn',
-                                view_design_btn: '.view-design-btn'
+                                view_design_btn: '.view-design-btn',
+                                view_swagger_btn: '.view-swagger-btn'
                             },
                             cssClass:{
                                 text_editor_class: 'text-editor',
                                 outer_box: 'outer-box',
-                                service_container: 'service-container',
+                                svg_container: 'svg-container',
                                 outer_div: 'panel panel-default container-outer-div',
                                 panel_title: 'panel-title',
                                 panel_icon: 'panel-icon',
-                                service_icon: 'fw fw-dmg-service fw-inverse',
-                                connector_icon:'fw fw-dgm-connector fw-inverse',
+                                service_icon: 'fw fw-service fw-inverse',
+                                struct_icon: 'fw fw-struct fw-inverse',
+                                connector_icon:'fw fw-connector fw-inverse',
                                 function_icon:'fw fw-function fw-inverse',
-                                title_link:'collapsed',
-                                panel_right_icon:'fw fw-down pull-right right-icon-clickable collapser hoverable',
+                                title_link:'collapsed canvas-title',
+                                panel_right_icon:'fw fw-up pull-right right-icon-clickable collapser hoverable',
+                                head_div: 'canvas-heading',
                                 body_div:'panel-collapse collapse',
-                                canvas: 'panel-body',
+                                canvas: 'panel-body collapse in',
                                 design_view_drop: 'design-view-hover',
                                 canvas_container: 'canvas-container',
                                 panel_delete_icon: 'fw fw-delete pull-right right-icon-clickable delete-icon hoverable',
                                 panel_annotation_icon: 'fw fw-annotation pull-right right-icon-clickable hoverable',
-                                panel_args_icon: 'fw fw-import pull-right right-icon-clickable hoverable'
+                                panel_args_icon: 'fw fw-import pull-right right-icon-clickable hoverable',
+                                type_mapper_icon: 'fw fw-dgm-service fw-inverse',
+                                type_struct_icon: 'fw fw-dgm-service fw-inverse'
                             },
                             notifications: {
                                 container: '#notification-container'
@@ -708,15 +878,16 @@
                         }
                     }
                 },
-                leftOffset: 50,
+                leftOffset: 40,
                 separatorOffset: 5,
                 defaultWidth: 250,
                 resizeLimits:{
                     minX: 200,
                     maxX: 800
                 },
+                containerId: 'workspace-explorer',
                 cssClass: {
-                    container: 'workspace-explorer-container nano-content',
+                    container: 'workspace-explorer-container tab-pane',
                     openFolderButton: 'btn  btn-default open-folder-button'
                 }
             },
@@ -735,6 +906,36 @@
                 errors_container: ".errors-container",
                 location_input: ".location-input",
                 submit_button: ".open-button"
+            },
+            debugger : {
+                container: ".sidebar-left",
+                activateBtn: '.debugger-activate-btn',
+                separator: '.sidebar-left-separator',
+                containerToAdjust: ".right-container",
+                leftOffset: 40,
+                separatorOffset: 5,
+                defaultWidth: 250,
+                resizeLimits:{
+                    minX: 200,
+                    maxX: 800
+                },
+                containerId: "debugger",
+                cssClass: {
+                    container: 'debugger-container tab-pane'
+                },
+                command: {
+                    id: "toggle-debugger",
+                    shortcuts: {
+                        mac: {
+                            key: "command+shift+d",
+                            label: "\u2318\u21E7d"
+                        },
+                        other: {
+                            key: "ctrl+shift+d",
+                            label: "Ctrl+Shift+d"
+                        }
+                    }
+                }
             }
         };
         app = new Application(config);
@@ -744,5 +945,4 @@
 
 </script>
 </body>
-
 </html>

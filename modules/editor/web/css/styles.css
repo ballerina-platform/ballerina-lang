@@ -56,6 +56,10 @@ svg text::selection {
     width: 100%;
 }
 
+.canvas-heading {
+    cursor: pointer;
+}
+
 /** Editor canvas related styles | -> End **/
 /*//////////////////////////////////////////////////*/
 
@@ -111,12 +115,13 @@ span.tree-action {
 
 header .brand img.logo {
     height: 15px;
-    padding: 0px 10px;
+    padding: 0 10px;
 }
 
 header .brand {
-    padding: 5px;
+    padding: 0 10px;
     margin-right: 25px;
+    line-height: 35px;
 }
 
 header .brand h1 {
@@ -153,11 +158,7 @@ ol#breadcrumbList {
 
 header .brand img.logo {
     height: 17px;
-    padding: 0px 7px;
-}
-
-header .brand {
-    padding: 1px 10px;
+    padding: 0 7px;
 }
 
 header .brand h1 {
@@ -167,7 +168,15 @@ header .brand h1 {
 }
 
 ol#breadcrumbList {
-    background-color: #444;
+    background-color: #131313;
+}
+
+#breadcrumb-container {
+    background-color: #131313;
+    height: 28px;
+    overflow: hidden;
+    line-height: 15px;
+
 }
 
 #icon-toggle-source {
@@ -198,6 +207,8 @@ ol#breadcrumbList {
 .statement-text {
     text-anchor: middle;
     dominant-baseline: central;
+    width: 120px;
+    max-width: 250px;
 }
 
 /*//////////////////////////////////////////////////*/
@@ -218,7 +229,7 @@ ol#breadcrumbList {
     float: right;
 }
 
-.service-variable-pane {
+.variable-pane {
     border: 1px solid #f0f0f0;
     background-color: #fff;
     position: absolute;
@@ -268,10 +279,11 @@ button.variable-list {
 }
 
 .variable-wrapper i {
-    padding: 6px;
+    padding: 10px 6px 8px;
     font-size: 8px;
     background-color: #fff;
-    color: #8a8a8a;
+    color: #19b89c;
+    opacity: 0.5;
 }
 
 .variable-wrapper i:hover {
@@ -282,22 +294,19 @@ button.variable-list {
 .variable-type {
     float: left;
     color: white;
-    padding: 0 4px 4px 4px;
-    height: 22px;
-    margin-bottom: 10px;
+    padding: 4px 8px;
+    height: 29px;
 }
 
 .variable-identifier {
     float: left;
-    padding-left: 5px;
-    height: 22px;
+    padding: 4px 8px;
 }
 
 /*Start Message*/
 
 .variable-wrapper-message i {
-    border: 1px solid #19b89c;
-    border-left-width: 0;
+    border: 0;
 }
 
 .variable-type-message {
@@ -305,16 +314,14 @@ button.variable-list {
 }
 
 .variable-identifier-message {
-    border: 1px solid #19b89c;
-    border-right-width: 0;
-    max-width: 100px;
+    border: 0;
 }
 
 /*Start Connection*/
 
 .variable-wrapper-connection i {
     border: 1px solid orange;
-    border-left-width: 0;
+
 }
 
 .variable-type-connection {
@@ -482,11 +489,24 @@ button.variable-list {
     fill: #FFFFFF;
 }
 
+.statement-action-button-wrapper {
+    stroke: #000000;
+    stroke-width: 0.5;
+    fill: #FFFFFF;
+}
+
 .property-pane-form-wrapper {
-    width: 175px;
+    width: 265px;
     max-height: 250px;
     border: 1px solid #cdcdcd;
     border-top: 2px solid #7b7b7b;
+    background: #FFFFFF;
+    position: absolute;
+}
+
+.expression-editor-form-wrapper {
+    width: 265px;
+    max-height: 250px;
     background: #FFFFFF;
     position: absolute;
 }
@@ -523,12 +543,24 @@ button.variable-list {
 .property-pane-form-body {
 }
 
+.expression-editor-form-body {
+}
+
 .property-pane-form-body-property-wrapper {
     padding: 7px 7px 2px 7px;
 }
 
+.expression-editor-form-body-property-wrapper {
+}
+
 .property-pane-form-body-property-wrapper input {
     width: 100%;
+}
+
+.expression-editor-form-body-property-wrapper input {
+    width: 100%;
+    height: 100%;
+    min-width: 100%;
 }
 
 .property-pane-form-body-add-button {
@@ -576,7 +608,7 @@ button.variable-list {
 .package-btn {
     position: absolute;
     right: 0;
-    top: 3px;
+    top: 6px;
     z-index: 30;
 }
 
@@ -592,7 +624,7 @@ button.variable-list {
 }
 
 .right-icon-clickable {
-    padding: 10px 6px;
+    padding: 5px 7px;
 }
 
 .collapser:hover {
@@ -705,6 +737,16 @@ button.variable-list {
     background-color: #3d3d3d
 }
 
+.service-annotation-wrapper-heading[disabled] {
+    border-left: 1px solid #000;
+}
+
+.service-annotation-wrapper-heading[disabled], .service-annotation-wrapper-heading[disabled] * {
+    background-color: #eeeeee;
+    opacity: 1;
+    cursor: not-allowed;
+}
+
 .service-annotation-wrapper-heading input[type=text] {
     width: 224px;
     margin-left: 5px;
@@ -728,7 +770,7 @@ button.variable-list {
 }
 
 .service-annotation-details-wrapper {
-    padding: 0px;
+    padding: 0;
     overflow-y: scroll;
     width: 100%;
     border-left: 1px solid #555;
@@ -808,7 +850,7 @@ button.variable-list {
 
 .variable-add-action-wrapper {
     display: none;
-    width: 340px;
+    width: 500px;
     background-color: #efefef;
     height: 30px;
     padding: 3px 8px;
@@ -838,6 +880,7 @@ button.variable-list {
     float: left;
     margin-left: 6px;
     margin-bottom: 3px;
+    border: 1px solid #19b89c;
 }
 
 .variable-pane-collapser-wrapper {
@@ -871,6 +914,162 @@ button.variable-list {
     opacity: 0.5;
 }
 
+/** Start of Constants view **/
+
+.constants-btn {
+    opacity: 0.4;
+    width: 37px;
+}
+
+.constants-btn:hover {
+    opacity: 1;
+    cursor: pointer;
+}
+
+.constants-pane {
+    border: 1px solid #ddd;
+    background-color: #fff;
+    margin: auto;
+    top: -26px;
+    left: 68px;
+    position: relative;
+    float: left;
+    border-radius: 0 5px 5px 0;
+    min-height: 27px;
+}
+
+.constants-wrapper {
+    /*margin-right: 20px;*/
+    float: left;
+    width: 100%;
+}
+
+.constants-action-wrapper {
+    float: left;
+}
+
+.constant-add-icon-wrapper {
+    height: 20px;
+    position: static;
+    width: 19px;
+    font-size: 11px;
+    float: left;
+    padding: 5px;
+    margin: 3px 3px 0 3px;
+}
+
+.constant-add-action-wrapper {
+    display: none;
+    width: 500px;
+    background-color: #ddd;
+    height: 32px;
+    padding: 4px 7px;
+}
+
+.constant-add-action-wrapper input {
+    width: 163px;
+    margin-left: 4px;
+    height: 22px;
+    padding-left: 5px;
+    border: 0;
+}
+
+.constant-add-complete-action-wrapper {
+    height: 22px;
+    position: static;
+    float: right;
+}
+
+.constant-add-cancel-action-wrapper {
+    height: 22px;
+    position: static;
+    float: right;
+}
+
+.constant-wrapper {
+    float: left;
+    margin-left: 6px;
+    margin-bottom: 3px;
+}
+
+.constant-pane-collapser-wrapper {
+    font-size: 14px;
+    padding: 9px;
+    background-color: #efefef;
+    height: 27px;
+    width: 23px;
+    margin-left: 4px;
+    position: absolute;
+    right: -24px;
+    top: -1px;
+    border-radius: 0 5px 5px 0;
+}
+
+.constant-pane-collapser-wrapper:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+.constant-pane-collapser-wrapper:hover {
+    cursor: pointer;
+    opacity: 1;
+}
+
+.constant-pane-collapser-wrapper i {
+    font-size: 12px;
+    position: absolute;
+    vertical-align: top;
+    top: 8px;
+    right: 7px;
+    opacity: 0.5;
+}
+
+.constant-declaration-wrapper i {
+    padding: 7px 6px 8px;
+    font-size: 8px;
+    background-color: #fff;
+    color: #8e44ad;
+    border-left-width: 0;
+    float: left;
+    opacity: 0.5;
+}
+
+.constant-declaration-type {
+    background-color: #8e44ad;
+    float: left;
+    color: white;
+    padding: 2px 8px;
+}
+
+.constant-declaration-wrapper {
+    float: left;
+    margin: 3px 5px 4px;
+    border: 1px solid #8e44ad;
+}
+
+.constant-declaration-wrapper i:hover {
+    cursor: pointer;
+    color: #000;
+}
+
+.constant-declaration-field {
+    background-color: #FFF;
+    float: left;
+    padding: 2px 8px;
+}
+
+.constant-declaration-equals {
+    padding-left: 3px;
+    padding-right: 3px;
+    cursor: default;
+}
+
+.constant-definition-main-wrapper {
+    padding-bottom: 47px;
+}
+
+/** End of Constants view **/
+
 .hoverable {
     opacity: 0.4;
     cursor: pointer;
@@ -889,11 +1088,14 @@ button.variable-list {
 .name-span {
     display: table-cell;
     vertical-align: middle;
+    font-weight: 400;
+    font-size: 16px;
 }
 
 .canvas-operations-wrapper {
     float: right;
     margin-right: 1px;
+    padding-top: 4px;
 }
 
 .annotation-icon {
@@ -911,9 +1113,9 @@ button.variable-list {
     -ms-transform: scale(1, 2);
     -o-transform: scale(1, 2);
     transform: scale(1, 2);
-    margin-top: 13px;
+    margin-top: 6px;
     color: #d8d8d8;
-    font-size: 11px;
+    font-size: 8px;
 }
 
 .service-annotation-action-icon {
@@ -1031,36 +1233,6 @@ button.variable-list {
     width: 30px;
 }
 
-.return-type-main-action-wrapper {
-    width: 210px;
-    overflow: auto;
-    display: none;
-    background: #fff;
-}
-
-.return-type-wrapper-heading {
-    height: 32px;
-    background-color: #3d3d3d
-}
-
-.return-type-wrapper-heading input[type=text] {
-    width: 224px;
-    margin-left: 5px;
-}
-
-.return-type-wrapper-heading select {
-    width: 160px;
-}
-
-.return-type-action-icon {
-    top: 5px;
-    right: 6px;
-}
-
-.return-type-action-icon-i {
-    background-color: #818181;
-}
-
 #modalAbout a {
     color: #337ab7;
 }
@@ -1069,11 +1241,51 @@ button.variable-list {
     width: 30%;
 }
 
-.service-title-text:hover {
+#modalSearch .modal-dialog {
+    width: 60%;
+}
+
+#modalSearch input {
+    color: black;
+}
+
+.modal-search-icon {
+    position: absolute;
+    right: 20px;
+    top: 8px;
+    color: #7b7b7b;
+}
+
+.search-results {
+    overflow: auto;
+    background-color: #2C2C2C;
+    margin-top: 10px;
+}
+
+.search-results ul li {
+    background-color: #2C2C2C;
+    border: 0;
+    cursor: pointer;
+}
+
+.search-results ul li:hover {
+    background-color: #222;
+    color: #ff7916;
+}
+
+.struct-title-text:hover {
     cursor: text;
 }
 
-.function-title-text:hover {
+.type-mapper-title-text:hover {
+    cursor: text;
+}
+
+.type-struct-title-text:hover {
+    cursor: text;
+}
+
+.canvas-title:hover {
     cursor: text;
 }
 
@@ -1120,15 +1332,18 @@ button.variable-list {
 
 #breadcrumb-container > .breadcrumb {
     text-transform: none;
-    background: rgb(35, 35, 35);
-}
-#breadcrumb-container > ol > li.breadcrumb-item {
-    color: grey;
-}
-#breadcrumb-container > ol > li.breadcrumb-item.active {
-    color: white;
+    background: #131313;
 }
 
+#breadcrumb-container > ol > li.breadcrumb-item {
+    color: grey;
+    cursor: pointer;
+}
+
+#breadcrumb-container > ol > li.breadcrumb-item.active {
+    color: white;
+    cursor: pointer;
+}
 
 footer {
     min-height: 30px;
@@ -1162,6 +1377,76 @@ a:hover {
     border: 0;
 }
 
-.sidebar-left{
-    background: #333333;
+.sidebar-left {
+    background: #333;
+}
+
+.modal-dialog.file-dialog {
+    margin: 100px auto 0;
+}
+
+.delete-item-dialog .icon {
+    float: left;
+    margin-left: 25px;
+    margin-top: 5px;
+}
+
+.delete-item-dialog .text {
+    margin-left: 150px;
+}
+
+.tool-group-import-header > a.tool-group-header-title {
+    color: #fff;
+}
+
+i.fw-lg.fw.fw-cancel.about-dialog-close {
+    font-size: 12px;
+}
+
+i.fw.fw-cancel.about-dialog-close {
+    font-size: 12px;
+}
+
+ul.list-group {
+    margin-bottom: 0;
+}
+
+span.fw-stack.fw-lg {
+    z-index: 10;
+}
+
+.import-img {
+    height: 37px;
+    width: 37px;
+}
+
+.constants-btn, .package-name-btn {
+    background: #333;
+    width: 69px;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px 0 0 5px;
+    height: 26px;
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+.package-name-btn{
+    float: left;
+}
+
+.constants-btn:hover, .package-name-btn:hover {
+    cursor: pointer;
+    opacity: 1;
+}
+
+.package-add-icon-wrapper {
+    float: left;
+    border: 1px solid #ddd;
+    background-color: #efefef;
+    border-radius: 0 5px 5px 0;
+    min-height: 26px;
+    width: 26px;
+    padding: 6px 3px 0 9px;
+    font-size: 12px;
 }

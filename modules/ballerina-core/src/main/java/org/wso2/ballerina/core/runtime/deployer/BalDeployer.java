@@ -42,7 +42,6 @@ import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
-import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -50,7 +49,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * {@code BalDeployer} is responsible for all ballerina file deployment tasks
+ * {@code BalDeployer} is responsible for all ballerina file deployment tasks.
  *
  * @since 0.8.0
  */
@@ -85,15 +84,15 @@ public class BalDeployer {
                 BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
                 ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
 
-                BLangModelBuilder bLangModelBuilder = new BLangModelBuilder();
+                BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(null);
                 BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
                 ballerinaParser.addParseListener(ballerinaBaseListener);
                 ballerinaParser.compilationUnit();
                 BallerinaFile balFile = bLangModelBuilder.build();
 
                 SymScope globalScope = GlobalScopeHolder.getInstance().getScope();
-                SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(balFile, globalScope);
-                balFile.accept(semanticAnalyzer);
+//                SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(balFile, globalScope);
+//                balFile.accept(semanticAnalyzer);
 
                 if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
                     BallerinaFunction function = (BallerinaFunction) balFile.getMainFunction();
@@ -124,8 +123,8 @@ public class BalDeployer {
                 Package aPackage = app.getPackage(file.getName());
                 if (aPackage == null) {
                     // check if package name is null
-                    if (balFile.getPackageName() != null) {
-                        aPackage = new Package(balFile.getPackageName());
+                    if (balFile.getPackagePath() != null) {
+                        aPackage = new Package(balFile.getPackagePath());
                     } else {
                         aPackage = new Package("default");
                     }
@@ -144,7 +143,7 @@ public class BalDeployer {
                 ApplicationRegistry.getInstance().updatePackage(aPackage);
                 successful = true;
                 log.info("Deployed ballerina file: " + file.getName());
-                return balFile.getServices().size();
+                return balFile.getServices().length;
             } else {
                 if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
                     log.error("Error: File extension not supported. Supported extensions {}.", FILE_EXTENSION);

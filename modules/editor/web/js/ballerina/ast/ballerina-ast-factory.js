@@ -23,22 +23,24 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './resource-definition', './worker-declaration', './statement', './conditional-statement', './connector-declaration',
         './expression', './if-else-statement', './if-statement', './else-statement', './else-if-statement', './trycatch-statement',
         './try-statement', './catch-statement', './reply-statement', './while-statement', './return-statement',
-        './type-converter-definition', './type-definition', './type-element', './variable-declaration',
+        './type-mapper-definition', './type-definition', './type-element', './variable-declaration',
         './package-definition', './import-declaration', './resource-parameter', './assignment', './assignment-statement',
         './function-invocation', './function-invocation-expression', './variable-reference-expression',
         './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
         './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression',
         './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
-        './if-condition', './array-map-access-expression', './binary-expression', './connector-action'],
+        './if-condition', './array-map-access-expression', './map-init-expression', './key-value-expression', './binary-expression', './connector-action', './struct-definition',
+        './constant-definition', './variable-definition-statement','./type-struct-definition', './type-casting-expression', './worker-invoke'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
-              whileStatement, returnStatement, typeConverterDefinition, typeDefinition, typeElement, variableDeclaration,
+              whileStatement, returnStatement, typeMapperDefinition, typeDefinition, typeElement, variableDeclaration,
               packageDefinition, importDeclaration, resourceParameter, assignment, assignmentStatement, functionInvocation,
               functionInvocationExpression, variableReferenceExpression, actionInvocationStatement, arithmeticExpression,
               logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
-              thenBody, ifCondition, arrayMapAccessExpression, binaryExpression, connectorAction) {
+              thenBody, ifCondition, arrayMapAccessExpression, mapInitExpression, keyValueExpression, binaryExpression, connectorAction, structDefinition,
+              constantDefinition, variableDefinitionStatement,typeStructDefinition, typeCastingExpression, workerInvoke) {
 
 
         /**
@@ -78,14 +80,14 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @param args
          */
         BallerinaASTFactory.createMainFunctionDefinition = function (args) {
-            var functionDefinition = BallerinaASTFactory.createFunctionDefinition();
+            var functionDefinition = BallerinaASTFactory.createFunctionDefinition(args);
             functionDefinition.setFunctionName("main");
             functionDefinition.addArgument("string[]", "args");
-            var printHelloWorldStatement = BallerinaASTFactory.createFunctionInvocationStatement();
+            var printHelloWorldStatement = BallerinaASTFactory.createFunctionInvocationStatement(args);
             printHelloWorldStatement.setPackageName("system");
             printHelloWorldStatement.setFunctionName("println");
             printHelloWorldStatement.setParams('"Hello world"');
-            var functionInvocationExpr = BallerinaASTFactory.createFunctionInvocationExpression();
+            var functionInvocationExpr = BallerinaASTFactory.createFunctionInvocationExpression(args);
             printHelloWorldStatement.addChild(functionInvocationExpr);
             functionDefinition.addChild(printHelloWorldStatement);
             return functionDefinition;
@@ -116,14 +118,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * creates TypeConverterDefinition
-         * @param args
-         */
-        BallerinaASTFactory.createTypeConverterDefinition = function (args) {
-            return new typeConverterDefinition(args);
-        };
-
-        /**
          * creates TypeDefinition
          * @param args
          */
@@ -137,6 +131,60 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createTypeElement = function (args) {
             return new typeElement(args);
+        };
+
+        /**
+         * creates structDefinition
+         * @param {Object} args - object for structDefinition creation
+         * @returns {StructDefinition}
+         */
+        BallerinaASTFactory.createStructDefinition = function (args) {
+            return new structDefinition(args);
+        };
+
+        /**
+         * creates mapInitExpression
+         * @param {Object} args - object for mapInitExpression creation
+         * @returns {MapInitExpression}
+         */
+        BallerinaASTFactory.createMapInitExpression = function (args) {
+            return new mapInitExpression(args);
+        };
+
+        /**
+         * creates keyValueExpression
+         * @param {Object} args - object for keyValueExpression creation
+         * @returns {KeyValueExpression}
+         */
+        BallerinaASTFactory.createKeyValueExpression = function (args) {
+            return new keyValueExpression(args);
+        };
+
+        /**
+         * creates TypeCastingExpression
+         * @param {Object} args - object for TypeCastingExpression creation
+         * @returns {TypeCastingExpression}
+         */
+        BallerinaASTFactory.createTypeCastingExpression = function (args) {
+            return new typeCastingExpression(args);
+        };
+
+        /**
+         * creates typeMapperDefinition
+         * @param {Object} args - object for typeMapperDefinition creation
+         * @returns {TypeMapperDefinition}
+         */
+        BallerinaASTFactory.createTypeMapperDefinition = function (args) {
+            return new typeMapperDefinition(args);
+        };
+
+        /**
+         * creates typeStructDefinition
+         * @param {Object} args - object for typeStructDefinition creation
+         * @returns {TypeStructDefinition}
+         */
+        BallerinaASTFactory.createTypeStructDefinition = function (args) {
+            return new typeStructDefinition(args);
         };
 
         /**
@@ -193,11 +241,28 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @returns {AssignmentStatement}
          */
         BallerinaASTFactory.createAggregatedActionInvocationExpression = function(args) {
-            var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
-            var leftOp = BallerinaASTFactory.createLeftOperandExpression();
-            var rightOp = BallerinaASTFactory.createRightOperandExpression();
+            var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
+            var leftOp = BallerinaASTFactory.createLeftOperandExpression(args);
+            var rightOp = BallerinaASTFactory.createRightOperandExpression(args);
             var actionInExp = BallerinaASTFactory.createActionInvocationExpression(args);
             rightOp.addChild(actionInExp);
+            rightOp.setRightOperandExpressionString(actionInExp.getExpression());
+            assignmentStmt.addChild(leftOp);
+            assignmentStmt.addChild(rightOp);
+            return assignmentStmt;
+        };
+
+        /* Create the particular assignment statement for the function invocation
+         * @param args
+         * @returns {AssignmentStatement}
+         */
+        BallerinaASTFactory.createAggregatedFunctionInvocationExpression = function(args) {
+            var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
+            var leftOp = BallerinaASTFactory.createLeftOperandExpression(args);
+            var rightOp = BallerinaASTFactory.createRightOperandExpression(args);
+            var functionInExp = BallerinaASTFactory.createFunctionInvocationExpression(args);
+            rightOp.addChild(functionInExp);
+            rightOp.setRightOperandExpressionString(functionInExp.getExpression());
             assignmentStmt.addChild(leftOp);
             assignmentStmt.addChild(rightOp);
             return assignmentStmt;
@@ -256,6 +321,31 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * Creates Variable Definition Statement
+         * @param {Object} [args]
+         * @returns {VariableDefinitionStatement}
+         */
+        BallerinaASTFactory.createVariableDefinitionStatement = function (args) {
+            return new variableDefinitionStatement(args);
+        };
+
+        /**
+         * creates Aggregated AssignmentStatement
+         * @param {Object} args
+         * @returns {AssignmentStatement}
+         */
+        BallerinaASTFactory.createAggregatedAssignmentStatement = function (args) {
+            var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
+            var leftOperand = BallerinaASTFactory.createLeftOperandExpression(args);
+            leftOperand.setLeftOperandExpressionString("a");
+            var rightOperand = BallerinaASTFactory.createRightOperandExpression(args);
+            rightOperand.setRightOperandExpressionString("b");
+            assignmentStmt.addChild(leftOperand);
+            assignmentStmt.addChild(rightOperand);
+            return assignmentStmt;
+        };
+
+        /**
          * creates ReplyStatement
          * @param args
          */
@@ -289,7 +379,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @returns {FunctionInvocationExpression}
          */
         BallerinaASTFactory.createFunctionInvocationExpression = function (args) {
-            return new functionInvocationExpression();
+            return new functionInvocationExpression(args);
         }
 
         /**
@@ -298,7 +388,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @returns {VariableReferenceExpression}
          */
         BallerinaASTFactory.createVariableReferenceExpression = function (args) {
-            return new variableReferenceExpression();
+            return new variableReferenceExpression(args);
         }
 
         /**
@@ -323,6 +413,14 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createReturnStatement = function (args) {
             return new returnStatement(args);
+        };
+
+        /**
+         * creates WorkerInvokeStatement
+         * @param args
+         */
+        BallerinaASTFactory.createWorkerInvokeStatement = function (args) {
+            return new workerInvoke(args);
         };
 
         /**
@@ -370,9 +468,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
 
         /**
          * creates Argument
-         * @param {Object} args - The arguments to create the Argument
-         * @param {string} args.type - Type of the argument
-         * @param {string} args.identifier - Identifier of the argument
+         * @param {Object} [args] - The arguments to create the Argument
+         * @param {string} [args.type] - Type of the argument
+         * @param {string} [args.identifier] - Identifier of the argument
          * @returns {Argument}
          */
         BallerinaASTFactory.createArgument = function (args) {
@@ -481,6 +579,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * creates ConstantDefinition
+         * @param {Object} args - Arguments for creating a new constant definition.
+         * @returns {ConstantDefinition}
+         */
+        BallerinaASTFactory.createConstantDefinition = function (args) {
+            return new constantDefinition(args);
+        };
+
+        /**
          * instanceof check for BallerinaAstRoot
          * @param {Object} child
          * @returns {boolean}
@@ -559,6 +666,33 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.isTypeElement = function (child) {
             return child instanceof typeElement;
+        };
+
+        /**
+         * instanceof check for StructDefinition
+         * @param {ASTNode} child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isStructDefinition = function (child) {
+          return child instanceof structDefinition;
+        };
+
+        /**
+         * instanceof check for TypeMapperDefinition
+         * @param {ASTNode} child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isTypeMapperDefinition = function (child) {
+            return child instanceof typeMapperDefinition;
+        };
+
+        /**
+         * instanceof check for TypeStructDefinition
+         * @param {ASTNode} child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isTypeStructDefinition = function (child) {
+            return child instanceof typeStructDefinition;
         };
 
         /**
@@ -772,6 +906,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * instanceof check for Assignment Statement
+         * @param child
+         * @returns {boolean}
+         */
+        BallerinaASTFactory.isAssignmentStatement = function (child) {
+            return child instanceof assignmentStatement;
+        };
+
+        /**
          * instanceof check for BasicLiteralExpression
          * @param child
          * @returns {boolean}
@@ -871,6 +1014,24 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
             return child instanceof connectorAction;
         };
 
+        /**
+         * instanceof check for constantDefinition
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isConstantDefinition = function (child) {
+            return child instanceof constantDefinition;
+        };
+
+        /**
+         * instanceof check for variableDefinitionStatement
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isVariableDefinitionStatement = function (child) {
+            return child instanceof variableDefinitionStatement;
+        };
+
         BallerinaASTFactory.createFromJson = function (jsonNode) {
             var node;
             var nodeType = jsonNode.type;
@@ -918,6 +1079,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'return_type':
                         node = BallerinaASTFactory.createReturnType();
+                        break;
+                    case 'return_argument':
+                        node = BallerinaASTFactory.createArgument();
                         break;
                     case 'type_name':
                         node = BallerinaASTFactory.createTypeName();
@@ -1002,6 +1166,27 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'array_map_access_expression':
                         node = BallerinaASTFactory.createArrayMapAccessExpression();
+                        break;
+                    case 'connector':
+                        node = BallerinaASTFactory.createConnectorDefinition();
+                        break;
+                    case 'action':
+                        node = BallerinaASTFactory.createConnectorAction();
+                        break;
+                    case 'constant_definition':
+                        node = BallerinaASTFactory.createConstantDefinition();
+                        break;
+                    case 'struct_definition':
+                        node = BallerinaASTFactory.createStructDefinition();
+                        break;
+                    case 'map_init_expression':
+                        node = BallerinaASTFactory.createMapInitExpression();
+                        break;
+                    case 'key_value_expression':
+                        node = BallerinaASTFactory.createKeyValueExpression();
+                        break;
+                    case 'type_casting_expression':
+                        node = BallerinaASTFactory.createTypeCastingExpression();
                         break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;

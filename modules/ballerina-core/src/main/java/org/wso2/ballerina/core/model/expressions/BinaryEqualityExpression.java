@@ -17,11 +17,11 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.Operator;
-import org.wso2.ballerina.core.model.Position;
 
 /**
- * {@code BinaryEqualityExpression} represents a equality expression in Ballerina
+ * {@code BinaryEqualityExpression} represents a equality expression in Ballerina.
  *
  * @see EqualExpression
  * @see NotEqualExpression
@@ -29,7 +29,7 @@ import org.wso2.ballerina.core.model.Position;
  */
 public class BinaryEqualityExpression extends BinaryExpression {
 
-    public BinaryEqualityExpression(Expression lExpr, Operator op, Expression rExpr, Position location) {
-        super(lExpr, op, rExpr, location);
+    public BinaryEqualityExpression(NodeLocation location, Expression lExpr, Operator op, Expression rExpr) {
+        super(location, lExpr, op, rExpr);
     }
 }

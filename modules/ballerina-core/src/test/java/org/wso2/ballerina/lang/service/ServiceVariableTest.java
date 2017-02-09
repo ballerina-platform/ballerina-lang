@@ -19,21 +19,25 @@
 package org.wso2.ballerina.lang.service;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.EnvironmentInitializer;
+import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.utils.MessageUtils;
 import org.wso2.ballerina.lang.util.Services;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * Service/Resource variable test class
+ * Service/Resource variable test class.
  */
 public class ServiceVariableTest {
 
+    Application application;
+
     @BeforeClass
     public void setup() {
-        EnvironmentInitializer.initialize("lang/service/serviceLevelVariable.bal");
+        application = EnvironmentInitializer.setup("lang/service/serviceLevelVariable.bal");
     }
 
     @Test
@@ -41,5 +45,10 @@ public class ServiceVariableTest {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/var/message", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        EnvironmentInitializer.cleanup(application);
     }
 }

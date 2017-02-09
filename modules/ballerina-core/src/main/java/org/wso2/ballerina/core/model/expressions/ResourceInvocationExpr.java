@@ -19,27 +19,32 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.ExecutableMultiReturnExpr;
-import org.wso2.ballerina.core.model.Node;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code ResourceInvoker} is the entity which invokes a particular resource
+ * {@code ResourceInvoker} is the entity which invokes a particular resource.
  *
  * @since 0.8.0
  */
-public class ResourceInvocationExpr implements Node, ExecutableMultiReturnExpr {
-
+public class ResourceInvocationExpr extends AbstractExpression implements ExecutableMultiReturnExpr {
     private Resource resource;
+    private Expression[] exprs;
 
-    public ResourceInvocationExpr(Resource resource) {
+    public ResourceInvocationExpr(Resource resource, Expression[] exprs) {
+        super(null);
         this.resource = resource;
+        this.exprs = exprs;
     }
 
     public Resource getResource() {
         return resource;
+    }
+
+    public Expression[] getArgExprs() {
+        return exprs;
     }
 
     @Override

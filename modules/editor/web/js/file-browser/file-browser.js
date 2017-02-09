@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery plugin **/ 'js_tree'], function ($, Backbone, _, TreeMod) {
+define(['jquery', 'backbone', 'lodash', 'log', /** void module - jquery plugin **/ 'js_tree'], function ($, Backbone, _, log) {
 
     var FileBrowser = Backbone.View.extend({
 
@@ -42,10 +42,75 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
 
             this.application = _.get(config, 'application');
             this._options = config;
-            this.workspaceServiceURL = _.get(this._options, 'application.config.services.workspace.endpoint');
+            this._workspaceServiceURL = _.get(this._options, 'application.config.services.workspace.endpoint');
             this._isActive = false;
             this._fetchFiles = _.get(config, 'fetchFiles', false);
             this._root = _.get(config, 'root');
+
+            this._treeConfig = {
+                'core': {
+                    'data': {
+                        'url': this.getURLProvider(),
+                        'dataType': "json",
+                        'data': function (node) {
+                            return {'id': node.id};
+                        }
+                    },
+                    'multiple': false,
+                    'check_callback': false,
+                    'force_text': true,
+                    'expand_selected_onload': true,
+                    'themes': {
+                        'responsive': false,
+                        'variant': 'small',
+                        'stripes': false,
+                        'dots': false
+                    }
+                },
+                'types': {
+                    'default': {
+                        'icon': 'fw fw-folder'
+                    },
+                    'folder': {
+                        'icon': 'fw fw-folder'
+                    },
+                    'file': {
+                        'icon': 'fw-document'
+                    }
+                }
+            };
+
+            this._plugins = ['types', 'wholerow'];
+            this._contextMenuProvider = _.get(config, 'contextMenuProvider');
+            if(!_.isNil(this._contextMenuProvider)){
+                this._plugins.push('contextmenu');
+                _.set(this._treeConfig, 'contextmenu.items', this._contextMenuProvider);
+                _.set(this._treeConfig, 'contextmenu.show_at_node', false);
+            }
+            _.set(this._treeConfig, 'plugins', this._plugins);
+        },
+
+        getURLProvider: function(){
+            var self = this;
+            return function (node) {
+                if (node.id === '#') {
+                    if(!_.isNil(self._root)){
+                        if (self._fetchFiles) {
+                            return self._workspaceServiceURL + "/listFiles?path=" + btoa(self._root);
+                        } else {
+                            return self._workspaceServiceURL + "/list?path=" + btoa(self._root);
+                        }
+                    }
+                    return self._workspaceServiceURL + "/root";
+                }
+                else {
+                    if (self._fetchFiles) {
+                        return self._workspaceServiceURL + "/listFiles?path=" + btoa(node.id);
+                    } else {
+                        return self._workspaceServiceURL + "/list?path=" + btoa(node.id);
+                    }
+                }
+            }
         },
 
         /**
@@ -53,65 +118,31 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
          */
         select: function(path){
             this._$parent_el.jstree(true).deselect_all();
+            var pathSeparator = this.application.getPathSeperator(),
+                pathParts = _.split(path, pathSeparator),
+                currentPart = "/",
+                self = this;
+            pathParts.forEach(function(part){
+                currentPart += part;
+                self._$parent_el.jstree(true).open_node(currentPart);
+                currentPart += pathSeparator;
+            });
+
             this._$parent_el.jstree(true).select_node(path);
+        },
+
+        refresh: function(node){
+            this._$parent_el.jstree(true).load_node(node);
+        },
+
+        getNode: function(id){
+            return this._$parent_el.jstree(true).get_node(id);
         },
 
         render: function () {
             var self = this;
             this._$parent_el
-                .jstree({
-                    'core': {
-                        'data': {
-                            'url': function (node) {
-                                if (node.id === '#') {
-                                    if(!_.isNil(self._root)){
-                                        if (self._fetchFiles) {
-                                            return self.workspaceServiceURL + "/listFiles?path=" + btoa(self._root);
-                                        } else {
-                                            return self.workspaceServiceURL + "/list?path=" + btoa(self._root);
-                                        }
-                                    }
-                                    return self.workspaceServiceURL + "/root";
-                                }
-                                else {
-                                    if (self._fetchFiles) {
-                                        return self.workspaceServiceURL + "/listFiles?path=" + btoa(node.id);
-                                    } else {
-                                        return self.workspaceServiceURL + "/list?path=" + btoa(node.id);
-                                    }
-                                }
-
-                            },
-                            'dataType': "json",
-                            'data': function (node) {
-                                return {'id': node.id};
-                            }
-                        },
-                        'multiple': false,
-                        'check_callback': false,
-                        'force_text': true,
-                        'expand_selected_onload': true,
-                        'themes': {
-                            'responsive': false,
-                            'variant': 'small',
-                            'stripes': false,
-                            'dots': false,
-
-                        }
-                    },
-                    'types': {
-                        'default': {
-                            'icon': 'fw fw-folder'
-                        },
-                        'folder': {
-                            'icon': 'fw fw-folder'
-                        },
-                        'file': {
-                            'icon': 'fw-document'
-                        }
-                    },
-                    'plugins': ['types']
-                }).on('changed.jstree', function (e, data) {
+                .jstree(self._treeConfig).on('changed.jstree', function (e, data) {
                     if (data && data.selected && data.selected.length) {
                         self.selected = data.selected[0];
                         self.trigger("selected", data.selected[0]);

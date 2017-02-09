@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code ConstantLocation} represents a location where a constant is stored at runtime
+ * {@code ConstantLocation} represents a location where a constant is stored at runtime.
  *
  * @since 0.8.0
  */

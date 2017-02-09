@@ -16,7 +16,7 @@
  * under the License.
  */
 define(['log', 'lodash', 'jquery', 'event_channel', './file'],
-    function(log, _, $, EventChannel, File ) {
+    function(log, _, $, EventChannel, File) {
 
         /**
          * @class ServiceClient
@@ -29,6 +29,22 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file'],
 
         ServiceClient.prototype = Object.create(EventChannel.prototype);
         ServiceClient.prototype.constructor = EventChannel;
+
+        var getErrorFromResponse = function(xhr, textStatus, errorThrown) {
+            var msg = _.isString(errorThrown) ? errorThrown : xhr.statusText,
+                responseObj;
+            try {
+                responseObj = JSON.parse(xhr.responseText);
+            } catch (e) {
+                // ignore
+            }
+            if(!_.isNil(responseObj)){
+                if(_.has(responseObj, 'Error')){
+                    msg = _.get(responseObj, 'Error');
+                }
+            }
+            return {"error": true, "message": msg};
+        };
 
         /**
          * validate source
@@ -49,7 +65,8 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file'],
                     data = response;
                 },
                 error: function(xhr, textStatus, errorThrown){
-                    data = {"error":true, "message":"Unable to render design view due to parser errors."};
+                    data = getErrorFromResponse(xhr, textStatus, errorThrown);
+                    log.error(data.message);
                 }
             });
             return data;
@@ -72,7 +89,8 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file'],
                     data = response;
                 },
                 error: function(xhr, textStatus, errorThrown){
-                    data = {"error":true, "message":"Unable to read file " + filePath};
+                    data = getErrorFromResponse(xhr, textStatus, errorThrown);
+                    log.error(data.message);
                 }
             });
             return data;
@@ -88,8 +106,93 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file'],
                 name: fileName,
                 path: folderPath,
                 content: fileData.content,
-                isPersisted: true
+                isPersisted: true,
+                isDirty: false
             });
+        };
+
+        ServiceClient.prototype.exists = function (path) {
+            var data = {};
+            $.ajax({
+                type: "GET",
+                context: this,
+                url: _.get(this.application, 'config.services.workspace.endpoint') + "/exists?" + "path=" + btoa(path),
+                contentType: "text/plain; charset=utf-8",
+                async: false,
+                success: function (response) {
+                    data = response;
+                },
+                error: function(xhr, textStatus, errorThrown){
+                    data = getErrorFromResponse(xhr, textStatus, errorThrown);
+                    log.error(data.message);
+                }
+            });
+            return data;
+        };
+
+        ServiceClient.prototype.create = function (path, type) {
+            var data = {};
+            $.ajax({
+                type: "GET",
+                context: this,
+                url: _.get(this.application, 'config.services.workspace.endpoint') + "/create?" + "path=" + btoa(path)
+                    + "&type=" + btoa(type),
+                contentType: "text/plain; charset=utf-8",
+                async: false,
+                success: function (response) {
+                    data = response;
+                },
+                error: function(xhr, textStatus, errorThrown){
+                    data = getErrorFromResponse(xhr, textStatus, errorThrown);
+                    log.error(data.message);
+                }
+            });
+            return data;
+        };
+
+        ServiceClient.prototype.delete = function (path, type) {
+            var data = {};
+            $.ajax({
+                type: "GET",
+                context: this,
+                url: _.get(this.application, 'config.services.workspace.endpoint') + "/delete?" + "path=" + btoa(path)
+                    + "&type=" + btoa(type),
+                contentType: "text/plain; charset=utf-8",
+                async: false,
+                success: function (response) {
+                    data = response;
+                },
+                error: function(xhr, textStatus, errorThrown){
+                    data = getErrorFromResponse(xhr, textStatus, errorThrown);
+                    log.error(data.message);
+                }
+            });
+            return data;
+        };
+
+        ServiceClient.prototype.writeFile = function (file) {
+            var data = {};
+            $.ajax({
+                type: "POST",
+                context: this,
+                url: _.get(this.application, 'config.services.workspace.endpoint') + "/write",
+                data: "location=" + btoa(file.getPath()) + "&configName=" + btoa(file.getName()) +
+                                                        "&config=" + (btoa(file.getContent())),
+                contentType: "text/plain; charset=utf-8",
+                async: false,
+                success: function (response) {
+                    data = response;
+                    file.setDirty(false)
+                        .setLastPersisted(_.now())
+                        .save();
+                    log.debug("File " + file.getName() + ' saved successfully at '+ file.getPath());
+                },
+                error: function(xhr, textStatus, errorThrown){
+                    data = getErrorFromResponse(xhr, textStatus, errorThrown);
+                    log.error(data.message);
+                }
+            });
+            return data;
         };
 
         return ServiceClient;

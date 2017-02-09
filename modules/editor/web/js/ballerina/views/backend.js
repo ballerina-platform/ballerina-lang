@@ -57,6 +57,46 @@ define(['log', 'lodash', 'jquery', 'event_channel'],
         return data;
     };
 
+       /**
+        * Does a backend call
+        * @param method http method
+        * @param content payload
+        * @param queryParams query parameters in [{name: "foo", value: "bar"}, ...]
+        */
+       Backend.prototype.call = function (uri, method, content, queryParams) {
+           var data = {};
+           var queryParamsStr = "";
+           if (queryParams) {
+               try {
+                   queryParamsStr = "?" + (queryParams.map(
+                           function (elem) {
+                               if (!elem.name || !elem.value) {
+                                   throw new Error("Invalid query params!");
+                               }
+                               return encodeURIComponent(elem.name) + "=" + encodeURIComponent(elem.value);
+                           }).join("&"));
+               } catch (err) {
+                   //do nothing
+               }
+           }
 
-    return Backend;
-});
+           $.ajax({
+                      type: method,
+                      context: this,
+                      url: this._url + uri + queryParamsStr,
+                      data: JSON.stringify(content),
+                      contentType: "application/json; charset=utf-8",
+                      async: false,
+                      dataType: "json",
+                      success: function (response) {
+                          data = response;
+                      },
+                      error: function (xhr, textStatus, errorThrown) {
+                          data = {"error": true, "message": "Unable to render design view due to parser errors."};
+                      }
+                  });
+           return data;
+       };
+
+       return Backend;
+   });

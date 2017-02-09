@@ -19,31 +19,56 @@ package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code ActionInvocationExpr} represents action invocation expression
+ * {@code ActionInvocationExpr} represents action invocation expression.
  *
  * @since 0.8.0
  */
-public class ActionInvocationExpr extends AbstractExpression implements CallableUnitInvocationExpr<Action>  {
-
-    private SymbolName actionName;
+public class ActionInvocationExpr extends AbstractExpression implements CallableUnitInvocationExpr<Action> {
+    private String name;
+    private String pkgName;
+    private String pkgPath;
+    private String connectorName;
     private Expression[] exprs;
     private Action action;
     private BType[] types = new BType[0];
 
-    public ActionInvocationExpr(SymbolName actionName, Expression[] exprs) {
-        this.actionName = actionName;
+    public ActionInvocationExpr(NodeLocation location,
+                                String name,
+                                String pkgName,
+                                String pkgPath,
+                                String connectorName,
+                                Expression[] exprs) {
+        super(location);
+        this.name = name;
+        this.pkgName = pkgName;
+        this.pkgPath = pkgPath;
+        this.connectorName = connectorName;
         this.exprs = exprs;
     }
 
+    public String getConnectorName() {
+        return connectorName;
+    }
+
     @Override
-    public SymbolName getCallableUnitName() {
-        return actionName;
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackageName() {
+        return pkgName;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
     }
 
     @Override
@@ -69,6 +94,11 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
     @Override
     public void setTypes(BType[] types) {
         this.types = types;
+
+        multipleReturnsAvailable = types.length > 1;
+        if (!multipleReturnsAvailable && types.length == 1) {
+            this.type = types[0];
+        }
     }
 
     @Override

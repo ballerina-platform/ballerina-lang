@@ -15,14 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-definition', './default-worker', 'd3utils', '' +
-        'd3', './worker-declaration-view', './statement-view-factory', './point', './axis',
-        './connector-declaration-view', './statement-container', './variables-view', './function-arguments-view',
-        './return-type-view'],
-    function (_, log, EventChannel, Canvas, FunctionDefinition, DefaultWorkerView, D3Utils,
-              d3, WorkerDeclarationView, StatementViewFactory, Point, Axis,
+define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/function-definition', './default-worker',
+        'd3utils', 'd3', './worker-declaration-view', './statement-view-factory', './point', './axis',
+        './connector-declaration-view', './statement-container', './variable-definitions-pane-view', './function-arguments-view',
+        './return-types-pane-view', 'ballerina/ast/ballerina-ast-factory'],
+    function (_, log, EventChannel, Alerts, SVGCanvas, FunctionDefinition, DefaultWorkerView,
+              D3Utils, d3, WorkerDeclarationView, StatementViewFactory, Point, Axis,
               ConnectorDeclarationView, StatementContainer, VariablesView, ArgumentsView,
-              ReturnTypeView) {
+              ReturnTypePaneView, BallerinaASTFactory) {
 
         /**
          * The view to represent a function definition which is an AST visitor.
@@ -31,14 +31,15 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
          * @param {Object} args.container - The HTML container to which the view should be added to.
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
          * @constructor
+         * @augments SVGCanvas
          */
         var FunctionDefinitionView = function (args) {
-            Canvas.call(this, args);
-            //set initial connector margin for the service
-            this._lifelineMargin = new Axis(210, false);
+            SVGCanvas.call(this, args);
             this._statementExpressionViewList = [];
             // TODO: Instead of using the parentView use the parent. Fix this from BallerinaView.js and bellow
             this._parentView = _.get(args, "parentView");
+            //set panel icon for the function
+            this._viewOptions.panelIcon = _.get(args.viewOptions, "cssClass.function_icon");
             //set initial height for the service container svg
             this._totalHeight = 170;
             this._statementContainer = undefined;
@@ -46,6 +47,11 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             this._defaultWorkerLifeLine = undefined;
             // TODO: Check whether the possibility of adding this to the generic level
             this._workerAndConnectorViews = [];
+            //set initial worker margin for the function
+            this._workerLifelineMargin = new Axis(0, false);
+            // Set the initial height control margin
+            this._horizontalMargin = new Axis(0, true);
+            this._lifeLineCenterGap = 180;
 
             if (_.isNil(this._model) || !(this._model instanceof FunctionDefinition)) {
                 log.error("Function definition is undefined or is of different type." + this._model);
@@ -56,11 +62,48 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 log.error("Container for function definition is undefined." + this._container);
                 throw "Container for function definition is undefined." + this._container;
             }
-
         };
 
-        FunctionDefinitionView.prototype = Object.create(Canvas.prototype);
+        FunctionDefinitionView.prototype = Object.create(SVGCanvas.prototype);
         FunctionDefinitionView.prototype.constructor = FunctionDefinitionView;
+
+        /**
+         * Child remove callback
+         * @param {ASTNode} child - removed child
+         */
+        FunctionDefinitionView.prototype.childRemovedCallback = function (child) {
+            var self = this;
+            if (BallerinaASTFactory.isStatement(child)) {
+                this.getStatementContainer().childStatementRemovedCallback(child);
+            } else if (BallerinaASTFactory.isConnectorDeclaration(child) || BallerinaASTFactory.isWorkerDeclaration(child)) {
+                var childViewIndex = _.findIndex(this._workerAndConnectorViews, function (view) {
+                    return view.getModel().id === child.id;
+                });
+
+                if (childViewIndex === 0) {
+                    // Deleted the first connector/worker in the list (Addresses both first element scenario and the only element scenario
+                    if (!_.isNil(this._workerAndConnectorViews[childViewIndex + 1])) {
+                        // Unregister the listening event of the second element on the first element
+                        this._workerAndConnectorViews[childViewIndex + 1].stopListening(this._workerAndConnectorViews[childViewIndex].getBoundingBox());
+                    }
+                } else if (childViewIndex === this._workerAndConnectorViews.length - 1) {
+                    // Deleted the last connector/worker when there are more than one worker/ connector
+                    this._workerAndConnectorViews[childViewIndex].stopListening(this._workerAndConnectorViews[childViewIndex - 1].getBoundingBox());
+                } else {
+                    // Deleted connector is in between two other connectors/ workers
+                    // Connector being deleted, stop listening to it's previous connector
+                    this._workerAndConnectorViews[childViewIndex].stopListening(this._workerAndConnectorViews[childViewIndex - 1].getBoundingBox());
+                    this._workerAndConnectorViews[childViewIndex + 1].stopListening(this._workerAndConnectorViews[childViewIndex].getBoundingBox());
+                    this._workerAndConnectorViews[childViewIndex + 1].listenTo(this._workerAndConnectorViews[childViewIndex - 1].getBoundingBox(), 'right-edge-moved', function (offset) {
+                        self.moveFunctionDefinitionLevelConnector(this, offset);
+                    });
+                }
+                this._workerAndConnectorViews[childViewIndex] = null;
+                this._workerAndConnectorViews.splice(childViewIndex, 1);
+            }
+            // Remove the connector/ worker from the diagram rendering context
+            delete this.diagramRenderingContext.getViewModelMap()[child.id];
+        };
 
         FunctionDefinitionView.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof FunctionDefinition) {
@@ -128,7 +171,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
 
         /**
          * Calls the render method for a worker declaration.
-         * @param {WorkerDeclaration} workerDeclaration - The resource definition model.
+         * @param {WorkerDeclaration} workerDeclaration - The worker declaration model.
          */
         FunctionDefinitionView.prototype.visitWorkerDeclaration = function (workerDeclaration) {
             var workerDeclarationOptions = {
@@ -146,69 +189,80 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
          * @returns {group} The svg group which contains the elements of the function definition view.
          */
         FunctionDefinitionView.prototype.render = function (diagramRenderingContext) {
-            this.diagramRenderingContext = diagramRenderingContext;
-            this.drawAccordionCanvas(this._container, this._viewOptions, this._model.id, this._model.type.toLowerCase(), undefined);
-            var divId = this._model.id;
-            var currentContainer = $('#'+ divId);
+            this.setDiagramRenderingContext(diagramRenderingContext);
+
+            // Draws the outlying body of the function.
+            this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().type.toLowerCase(), this.getModel().getFunctionName());
+
+            // Setting the styles for the canvas icon.
+            this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.function_icon", ""));
+
+            var currentContainer = $('#' + this.getModel().getID());
             this._container = currentContainer;
+            this.getBoundingBox().fromTopLeft(new Point(0, 0), currentContainer.width(), currentContainer.height());
             var self = this;
 
-            $("#title-" + this._model.id).addClass("function-title-text").text(this._model.getFunctionName())
-                .on("change paste keyup", function (e) {
-                    self._model.setFunctionName($(this).text());
+            $(this.getTitle()).text(this.getModel().getFunctionName())
+                .on("change paste keyup", function () {
+                    self.getModel().setFunctionName($(this).text());
                 }).on("click", function (event) {
+                event.stopPropagation();
+            }).keypress(function (e) {
+                var enteredKey = e.which || e.charCode || e.keyCode;
+                // Disabling enter key
+                if (enteredKey == 13) {
                     event.stopPropagation();
-                }).on("keydown", function (e) {
-                    // Check whether the Enter key has been pressed. If so return false. Won't type the character
-                    if (e.keyCode === 13) {
-                        return false;
-                    }
-                });
+                    return false;
+                }
+
+                var newServiceName = $(this).text() + String.fromCharCode(enteredKey);
+
+                try {
+                    self.getModel().setFunctionName(newServiceName);
+                } catch (error) {
+                    Alerts.error(error);
+                    event.stopPropagation();
+                    return false;
+                }
+            });
 
             // Creating default worker
             var defaultWorkerOpts = {};
             _.set(defaultWorkerOpts, 'container', this._rootGroup.node());
             _.set(defaultWorkerOpts, 'title', 'FunctionWorker');
-            _.set(defaultWorkerOpts, 'centerPoint', new Point(130, 80));
+            _.set(defaultWorkerOpts, 'centerPoint', new Point(200, 80));
 
             // Check whether there is already created default worker and otherwise we create a new one
             if (_.isUndefined(this._defaultWorkerLifeLine)) {
                 this._defaultWorkerLifeLine = new DefaultWorkerView(defaultWorkerOpts);
             }
             this._defaultWorkerLifeLine.render();
-            this._totalHeight = this._defaultWorkerLifeLine.getBoundingBox().h() + 85;
-            this.setServiceContainerHeight(this._totalHeight);
+
+            // Set the workerLifeLineMargin to the end of the default worker
+            this.getWorkerLifeLineMargin().setPosition(this._defaultWorkerLifeLine.getBoundingBox().getRight());
+            this.getHorizontalMargin().setPosition(this._defaultWorkerLifeLine.getBoundingBox().getBottom());
+
+            this._totalHeight = this.getHorizontalMargin().getPosition() + 85;
+            this.setSVGHeight(this._totalHeight);
             this.renderStatementContainer();
-            this.init();
+
+            // TODO: change this accordingly, after the worker declaration introduced
+            this.getWorkerLifeLineMargin().listenTo(this.getStatementContainer().getBoundingBox(), 'right-edge-moved', function (dx) {
+                self.getWorkerLifeLineMargin().setPosition(self.getWorkerLifeLineMargin().getPosition() + dx);
+            });
+
             this.getModel().accept(this);
             //Removing all the registered 'child-added' event listeners for this model.
             //This is needed because we are not unregistering registered event while the diagram element deletion.
             //Due to that, sometimes we are having two or more view elements listening to the 'child-added' event of same model.
-            this._model.off('child-added');
-            this._model.on('child-added', function (child) {
+            this.getModel().off('child-added');
+            this.getModel().on('child-added', function (child) {
                 self.visit(child);
-                self._model.trigger("child-visited", child);
+                self.getModel().trigger("child-visited", child);
 
                 // Show/Hide scrolls.
                 self._showHideScrolls(self._container, self.getChildContainer().node().ownerSVGElement);
             });
-
-            var variableButton = VariablesView.createVariableButton(this.getChildContainer().node(), 14, 10);
-
-            var variableProperties = {
-                model: this._model,
-                activatorElement: variableButton,
-                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
-                viewOptions: {
-                    position: {
-                        x: parseInt(this.getChildContainer().attr("x")) + 17,
-                        y: parseInt(this.getChildContainer().attr("y")) + 6
-                    },
-                    width: $(this.getChildContainer().node().ownerSVGElement.parentElement).width() - (2 * $(variableButton).width())
-                }
-            };
-
-            VariablesView.createVariablePane(variableProperties);
 
             var operationsPane = this.getOperationsPane();
 
@@ -216,8 +270,9 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
 
             // Creating arguments icon.
             var panelArgumentsIcon = $("<i/>", {
-                class: "fw fw-import pull-right right-icon-clickable hoverable"
-            }).appendTo(operationsPane);
+                class: "fw fw-import pull-right right-icon-clickable hoverable",
+                title: "Arguments"
+            }).appendTo(operationsPane).tooltip();
 
             $(panelArgumentsIcon).click(function (event) {
                 event.stopPropagation();
@@ -241,14 +296,15 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             };
 
             // Creating arguments pane.
-            ArgumentsView.createArgumentsPane(argumentsProperties);
+            ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
 
-            this.setServiceContainerWidth(this._container.width());
+            this.setSVGWidth(this._container.width());
 
             // Creating return type icon.
             var panelReturnTypeIcon = $("<i/>", {
-                class: "fw fw-export pull-right right-icon-clickable hoverable"
-            }).appendTo(operationsPane);
+                class: "fw fw-export pull-right right-icon-clickable hoverable",
+                title: "Return Types"
+            }).appendTo(operationsPane).tooltip();
 
             $(panelReturnTypeIcon).click(function (event) {
                 event.stopPropagation();
@@ -264,15 +320,16 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 activatorElement: panelReturnTypeIcon,
                 paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
                 viewOptions: {
-                    position: {
-                        left: parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
-                        top: 0
-                    }
-                }
+                    position: new Point(parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
+                        0)
+                },
+                view: this
             };
 
+            this._returnTypePaneView = new ReturnTypePaneView(returnTypeProperties);
+
             // Creating return type pane.
-            ReturnTypeView.createReturnTypePane(returnTypeProperties);
+            this._returnTypePaneView.createReturnTypePane(diagramRenderingContext);
 
             // Closing the shown pane when another operation button is clicked.
             _.forEach(operationButtons, function (button) {
@@ -329,11 +386,6 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             }
         };
 
-        FunctionDefinitionView.prototype.init = function(){
-            //Registering event listeners
-            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
-        };
-
         /**
          * Render statement container
          */
@@ -355,7 +407,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             this._defaultWorkerLifeLine.getBottomCenter().y(this._statementContainer.getBoundingBox().getBottom());
             this.getBoundingBox().h(this.getBoundingBox().h() + dy);
             this._totalHeight = this._totalHeight + dy;
-            this.setServiceContainerHeight(this._totalHeight);
+            this.setSVGHeight(this._totalHeight);
         };
 
         /**
@@ -376,6 +428,9 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
          * @param connectorDeclaration
          */
         FunctionDefinitionView.prototype.visitConnectorDeclaration = function (connectorDeclaration) {
+            var lastLifeLine = this.getLastLifeLine();
+            var lastConnectorLifeLine = this.getWorkerAndConnectorViews()[this.getLastConnectorLifeLineIndex()];
+            var self = this;
             // TODO: Get these values from the constants
             var offsetBetweenLifeLines = 50;
             var connectorContainer = this.getChildContainer().node(),
@@ -385,56 +440,64 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                     parentView: this,
                     lineHeight: this._defaultWorkerLifeLine.getTopCenter()
                                 .absDistInYFrom(this._defaultWorkerLifeLine.getBottomCenter()),
-                    messageManager: this.messageManager
+                    messageManager: this.messageManager,
+                    centerPoint: lastLifeLine.getTopCenter().clone().move(this._lifeLineCenterGap, 0)
                 },
-                connectorDeclarationView,
-                center;
+                connectorDeclarationView;
 
-            var startX = 0;
-            if (!_.isEmpty(this._workerAndConnectorViews)) {
-                startX = _.last(this._workerAndConnectorViews).getBoundingBox().getRight() + _.last(this._workerAndConnectorViews).getBoundingBox().w()/2 + offsetBetweenLifeLines;
-            } else {
-                startX = (this._defaultWorkerLifeLine).getBoundingBox().getRight() + (this._defaultWorkerLifeLine).getBoundingBox().w()/2 + offsetBetweenLifeLines;
-            }
-
-            center = new Point(startX, this._defaultWorkerLifeLine.getTopCenter().y());
-            _.set(connectorOpts, 'centerPoint', center);
             connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
-            this._workerAndConnectorViews.push(connectorDeclarationView);
-
+            connectorDeclarationView.setParent(this);
             connectorDeclarationView.render();
 
             // Creating property pane
-            var editableProperties = [
-                {
-                    propertyType: "text",
-                    key: "Name",
-                    model: connectorDeclarationView._model,
-                    getterMethod: connectorDeclarationView._model.getConnectorVariable,
-                    setterMethod: connectorDeclarationView._model.setConnectorVariable
-                },
-                {
-                    propertyType: "text",
-                    key: "Uri",
-                    model: connectorDeclarationView._model,
-                    getterMethod: connectorDeclarationView._model.getUri,
-                    setterMethod: connectorDeclarationView._model.setUri
-                }
-            ];
+            var editableProperty = {
+                propertyType: "text",
+                key: "ConnectorDeclaration",
+                model: connectorDeclarationView._model,
+                getterMethod: connectorDeclarationView._model.getConnectorExpression,
+                setterMethod: connectorDeclarationView._model.setConnectorExpression
+            };
             connectorDeclarationView.createPropertyPane({
                 model: connectorDeclarationView._model,
                 lifeLineGroup:connectorDeclarationView._rootGroup,
-                editableProperties: editableProperties
+                editableProperties: editableProperty
             });
-            connectorDeclarationView.setParent(this);
 
-            this.getBoundingBox().on("bottom-edge-moved", function (dy) {
-                this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+            if (_.isNil(lastConnectorLifeLine)) {
+                // This is the first connector we are adding
+                connectorDeclarationView.listenTo(this.getWorkerLifeLineMargin(), 'moved', function (offset) {
+                    self.moveFunctionDefinitionLevelConnector(this, offset);
+                });
+            } else {
+                // There are already added connectors
+                // Previously added connector stop listening to bounding box move.
+                // Based on this event we increase the service container width
+                lastConnectorLifeLine.stopListening(lastConnectorLifeLine.getBoundingBox(), 'right-edge-moved');
+                connectorDeclarationView.listenTo(lastConnectorLifeLine.getBoundingBox(), 'right-edge-moved', function (offset) {
+                    self.moveFunctionDefinitionLevelConnector(this, offset);
+                });
+            }
 
+            /* If the adding connector (connectorDeclarationView) goes out of this function definition's view,
+             then we need to expand this function definition's view. */
+            if (connectorDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
+                this._parentView.getLifeLineMargin().setPosition(this._parentView.getLifeLineMargin().getPosition()
+                    + this._viewOptions.LifeLineCenterGap);
+            }
+
+            var connectorBBox = connectorDeclarationView.getBoundingBox();
+            connectorDeclarationView.listenTo(connectorBBox, 'right-edge-moved', function (offset) {
+                if (connectorBBox.getRight() > self.getBoundingBox().getRight()) {
+                    self._parentView.getLifeLineMargin().setPosition(self._parentView.getLifeLineMargin().getPosition() + self._viewOptions.LifeLineCenterGap);
+                }
             }, connectorDeclarationView);
 
-            connectorDeclarationView.listenTo(this.getLifeLineMargin(), 'moved', this.updateConnectorPositionCallback);
+            connectorDeclarationView.listenTo(this.getHorizontalMargin(), 'moved', function (dy) {
+                connectorDeclarationView.getBoundingBox().h(connectorDeclarationView.getBoundingBox().h() + dy);
+            });
+
+            this._workerAndConnectorViews.push(connectorDeclarationView);
         };
 
         /**
@@ -454,11 +517,87 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
         };
 
         FunctionDefinitionView.prototype.getChildContainer = function () {
-            return this._rootGroup;
+            return this.getRootGroup();
         };
 
-        FunctionDefinitionView.prototype.getLifeLineMargin = function () {
-            return this._lifelineMargin;
+        /**
+         * Return statement container
+         * @return {StatementContainerView}
+         */
+        FunctionDefinitionView.prototype.getStatementContainer = function () {
+            return this._statementContainer;
+        };
+
+        FunctionDefinitionView.prototype.moveFunctionDefinitionLevelConnector = function (connectorView, offset) {
+            connectorView.getBoundingBox().move(offset, 0);
+        };
+
+        /**
+         * Set the horizontal margin
+         * @param {Axis} horizontalMargin - horizontal margin
+         */
+        FunctionDefinitionView.prototype.setHorizontalMargin = function (horizontalMargin) {
+            this._horizontalMargin = horizontalMargin;
+        };
+
+        /**
+         * Get the horizontal margin
+         * @return {Axis|*}
+         */
+        FunctionDefinitionView.prototype.getHorizontalMargin = function () {
+            return this._horizontalMargin;
+        };
+
+        /**
+         * Get the worker lifeline margin
+         * @return {Axis}
+         */
+        FunctionDefinitionView.prototype.getWorkerLifeLineMargin = function () {
+            return this._workerLifelineMargin;
+        };
+
+        /**
+         * Set the worker lifeline margin
+         * @param {Axis} workerLifeLineMargin
+         */
+        FunctionDefinitionView.prototype.setWorkerLifeLineMargin = function (workerLifeLineMargin) {
+            this._workerLifelineMargin = workerLifeLineMargin;
+        };
+
+        /**
+         * Get the last lifeline
+         * @return {lifeLine} LifeLine
+         */
+        FunctionDefinitionView.prototype.getLastLifeLine = function () {
+            if(this.getWorkerAndConnectorViews().length > 0 ){
+                return _.last(this.getWorkerAndConnectorViews());
+            }
+            else{
+                return this.getDefaultWorker();
+            }
+        };
+
+        FunctionDefinitionView.prototype.getDefaultWorker = function () {
+            return this._defaultWorkerLifeLine;
+        };
+
+        FunctionDefinitionView.prototype.getWorkerAndConnectorViews = function () {
+            return this._workerAndConnectorViews;
+        };
+
+        /**
+         * Set Minimum width of the content area
+         * @param {number} minWidth - Minimum width
+         */
+        FunctionDefinitionView.prototype.setContentMinWidth = function (minWidth) {
+            this._viewOptions.contentMinWidth = minWidth;
+        };
+
+        FunctionDefinitionView.prototype.getLastConnectorLifeLineIndex = function () {
+            var index = _.findLastIndex(this.getWorkerAndConnectorViews(), function (lifeLine) {
+                return lifeLine instanceof ConnectorDeclarationView;
+            });
+            return index;
         };
 
         return FunctionDefinitionView;

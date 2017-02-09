@@ -46,6 +46,7 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './co
              * that particular source generation has to be constructed here
              */
             var self = this;
+            var argumentsSrc = "";
             _.forEach(connectorDefinition.getAnnotations(), function(annotation) {
                 if (!_.isEmpty(annotation.value)) {
                     var constructedPathAnnotation;
@@ -59,7 +60,16 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './co
                 }
             });
 
-            var constructedSourceSegment = 'connector ' + connectorDefinition.getConnectorName() + ' {\n';
+            _.forEach(connectorDefinition.getArguments(), function(argument, index){
+                argumentsSrc += argument.type + " ";
+                argumentsSrc += argument.identifier;
+                if (connectorDefinition.getArguments().length - 1 != index) {
+                    argumentsSrc += ", ";
+                }
+            });
+
+            var constructedSourceSegment = 'connector ' + connectorDefinition.getConnectorName() +
+                ' (' + argumentsSrc + ')' + ' {\n';
             this.appendSource(constructedSourceSegment);
             log.debug('Begin Visit Connector Definition');
         };

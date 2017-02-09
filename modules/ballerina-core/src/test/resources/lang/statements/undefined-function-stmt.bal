@@ -1,4 +1,4 @@
-public function testUndefinedFunction() {
+function testUndefinedFunction() {
     foo();
 }
 

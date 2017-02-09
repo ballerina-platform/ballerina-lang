@@ -27,7 +27,6 @@ import java.util.List;
  *
  * @since 0.8.0
  */
-@SuppressWarnings("unused")
 public class ConnectorDcl implements Node {
 
     /* Name of the Connector which Connection is instantiated against */
@@ -40,17 +39,17 @@ public class ConnectorDcl implements Node {
 
     /* Reference to the connector instance which is referred by the declaration */
     Connector connector;
-    
-    protected Position sourceLocation;
 
-    public ConnectorDcl(SymbolName connectorName, SymbolName varName, Expression[] argExprs) {
+    protected NodeLocation location;
+
+    public ConnectorDcl(NodeLocation location, SymbolName connectorName, SymbolName varName, Expression[] argExprs) {
         this.connectorName = connectorName;
         this.varName = varName;
         this.argExprs = argExprs;
     }
 
     /**
-     * Get the name of the {@code Connector} which Connection is instantiated against
+     * Get the name of the {@code Connector} which Connection is instantiated against.
      *
      * @return name of the Connector
      */
@@ -59,7 +58,7 @@ public class ConnectorDcl implements Node {
     }
 
     /**
-     * Get the {@code Identifier} of the Connection instance
+     * Get the {@code Identifier} of the Connection instance.
      *
      * @return identifier of the Connection instance
      */
@@ -72,7 +71,7 @@ public class ConnectorDcl implements Node {
     }
 
     /**
-     * Get values of the arguments
+     * Get values of the arguments.
      *
      * @return list of argument values
      */
@@ -81,7 +80,7 @@ public class ConnectorDcl implements Node {
     }
 
     /**
-     * Set the reference to the connector instance which is referred by the declaration
+     * Set the reference to the connector instance which is referred by the declaration.
      *
      * @param connector reference to the connector instance
      */
@@ -90,7 +89,7 @@ public class ConnectorDcl implements Node {
     }
 
     /**
-     * Get the reference to the connector instance which is referred by the declaration
+     * Get the reference to the connector instance which is referred by the declaration.
      *
      * @return reference to the connector instance
      */
@@ -103,13 +102,23 @@ public class ConnectorDcl implements Node {
         visitor.visit(this);
     }
 
+    @Override
+    public NodeLocation getNodeLocation() {
+        return location;
+    }
+
     /**
      *
      */
     public static class ConnectorDclBuilder {
+        private NodeLocation location;
         private SymbolName connectorName;
         private SymbolName varName;
         private List<Expression> exprList;
+
+        public  void setNodeLocation(NodeLocation location) {
+            this.location = location;
+        }
 
         public void setConnectorName(SymbolName connectorName) {
             this.connectorName = connectorName;
@@ -125,28 +134,10 @@ public class ConnectorDcl implements Node {
 
         public ConnectorDcl build() {
             return new ConnectorDcl(
+                    location,
                     connectorName,
                     varName,
                     exprList.toArray(new Expression[exprList.size()]));
         }
-    }
-    
-    /**
-     * Get the source location of this connector declaration.
-     * Return the source file and the line number of this connector declaration.
-     * 
-     * @return  Source location of this connector declaration
-     */
-    public Position getLocation() {
-        return sourceLocation;
-    }
-
-    /**
-     * Set the source location of this connector declaration.
-     * 
-     * @param location  Source location of this connector declaration.
-     */
-    public void setLocation(Position location) {
-        this.sourceLocation = location;
     }
 }

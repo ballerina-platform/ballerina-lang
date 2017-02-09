@@ -20,8 +20,11 @@ package org.wso2.ballerina.core.utils;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.wso2.ballerina.core.interpreter.SymScope;
+import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.GlobalScope;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
+import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
@@ -44,7 +47,7 @@ public class ParserUtils {
     }
 
     /**
-     * Get parsed, analyzed and linked Ballerina object model
+     * Get parsed, analyzed and linked Ballerina object model.
      *
      * @param sourceFilePath Path to Bal file.
      * @return BallerinaFile instance.
@@ -54,7 +57,7 @@ public class ParserUtils {
     }
 
     /**
-     * Get parsed, analyzed and linked Ballerina object model
+     * Get parsed, analyzed and linked Ballerina object model.
      *
      * @param sourceFilePath Path to Bal file.
      * @param globalSymScope Global symbol scope which includes all the native functions and actions
@@ -65,7 +68,12 @@ public class ParserUtils {
         BallerinaParser ballerinaParser = getBallerinaParser(sourceFilePath);
 
         // Create Ballerina model builder class
-        BLangModelBuilder modelBuilder = new BLangModelBuilder();
+        GlobalScope globalScope = GlobalScope.getInstance();
+        BTypes.loadBuiltInTypes(globalScope);
+        BLangPackage bLangPackage = new BLangPackage(globalScope);
+        BLangModelBuilder modelBuilder = new BLangModelBuilder(bLangPackage);
+
+
         BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
 
         ballerinaParser.addParseListener(langModelBuilder);
@@ -76,7 +84,7 @@ public class ParserUtils {
         BallerinaFile bFile = modelBuilder.build();
 
         // Analyze semantic properties of the source code
-        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, globalSymScope);
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, bLangPackage);
         bFile.accept(semanticAnalyzer);
 
         return bFile;

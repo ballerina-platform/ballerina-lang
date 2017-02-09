@@ -64,21 +64,26 @@ define(['require', 'lodash', 'jquery'],
                 .appendTo(addIconWrapper);
 
             // Adding a value to a new annotation.
-            $(addButton).click(function () {
+            $(addButton).click(function (event) {
                 var annotationType = annotationTypeDropDown.val();
                 var annotationValue = annotationValueInput.val();
 
-                // Sets the annotation values in the model
-                model.addAnnotation(annotationType, annotationValue);
+                try {
+                    // Sets the annotation values in the model
+                    model.addAnnotation(annotationType, annotationValue);
 
-                //Clear the text box and drop down value
-                annotationValueInput.val("");
+                    //Clear the text box and drop down value
+                    annotationValueInput.val("");
 
-                // Recreating the annotation details view.
-                _createCurrentAnnotationView(model, annotationsContentWrapper, annotationTypeDropDown, headerWrapper);
+                    // Recreating the annotation details view.
+                    _createCurrentAnnotationView(model, annotationsContentWrapper, annotationTypeDropDown, headerWrapper);
 
-                // Re-add elements to dropdown.
-                _addAnnotationsToDropdown(model, annotationTypeDropDown, headerWrapper);
+                    // Re-add elements to dropdown.
+                    _addAnnotationsToDropdown(model, annotationTypeDropDown, headerWrapper);
+                } catch (e) {
+                    event.preventDefault();
+                    return false;
+                }
             });
 
             // Add new annotation upon enter key.
@@ -154,9 +159,11 @@ define(['require', 'lodash', 'jquery'],
 
             // Disable dropdown if options available.
             if (annotationTypeDropDown.find("option").length == 0) {
-                headerWrapper.hide();
+                $(headerWrapper).attr("disabled", true);
+                $(headerWrapper).find("*").attr("disabled", true);
             } else {
-                headerWrapper.show();
+                $(headerWrapper).attr("disabled", false);
+                $(headerWrapper).find("*").attr("disabled", false);
             }
         }
 
@@ -207,7 +214,7 @@ define(['require', 'lodash', 'jquery'],
                     // Removes the value of the annotation in the model and rebind the annotations to the dropdown and
                     // to the annotation view.
                     deleteIcon.click(function () {
-                        annotation.value = "";
+                        model.addAnnotation(annotation.key, "");
                         $(annotationWrapper).remove();
                         _addAnnotationsToDropdown(model, annotationTypeDropDown, headerWrapper);
                         _createCurrentAnnotationView(model, wrapper, annotationTypeDropDown, headerWrapper);
@@ -246,7 +253,7 @@ define(['require', 'lodash', 'jquery'],
 
                         // Gets the user input and set it as the annotation value
                         annotationValueTextArea.on("change keyup input", function (e) {
-                            annotation.value = e.target.value;
+                            model.addAnnotation(annotation.key, e.target.value);
                         });
 
                         // Adding in-line display block to override the hovering css.

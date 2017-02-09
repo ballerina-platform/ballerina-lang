@@ -17,13 +17,13 @@
 
 @font-face {
 	font-family:"font-wso2";
-	src:local("font-wso2"), url("../fonts/font-wso2.eot?cbfd3c5fdcdc6493e67be73fa5dd0ac0");
+	src:local("font-wso2"), url("../fonts/font-wso2.eot?3292138067f67a4483cdc2ec6d6999b8");
 	src:local("font-wso2"),
         url("../fonts/font-wso2.eot?#iefix") format("embedded-opentype"),
-		url("../fonts/font-wso2.woff2?cbfd3c5fdcdc6493e67be73fa5dd0ac0") format("woff2"),
-		url("../fonts/font-wso2.woff?cbfd3c5fdcdc6493e67be73fa5dd0ac0") format("woff"),
-		url("../fonts/font-wso2.ttf?cbfd3c5fdcdc6493e67be73fa5dd0ac0") format("truetype"),
-		url("../fonts/font-wso2.svg?cbfd3c5fdcdc6493e67be73fa5dd0ac0#font-wso2") format("svg");
+		url("../fonts/font-wso2.woff2?3292138067f67a4483cdc2ec6d6999b8") format("woff2"),
+		url("../fonts/font-wso2.woff?3292138067f67a4483cdc2ec6d6999b8") format("woff"),
+		url("../fonts/font-wso2.ttf?3292138067f67a4483cdc2ec6d6999b8") format("truetype"),
+		url("../fonts/font-wso2.svg?3292138067f67a4483cdc2ec6d6999b8#font-wso2") format("svg");
 	font-weight:normal;
 	font-style:normal;
 }
@@ -292,6 +292,10 @@
     content:"\e6fe";
 }
 
+.fw-action:before {
+    content:"\e709";
+}
+
 .fw-activate:before {
     content:"\e6cf";
 }
@@ -432,8 +436,16 @@
     content:"\e61e";
 }
 
+.fw-code-view:before {
+    content:"\e70e";
+}
+
 .fw-code:before {
     content:"\e6f1";
+}
+
+.fw-comment:before {
+    content:"\e710";
 }
 
 .fw-compare:before {
@@ -497,11 +509,19 @@
 }
 
 .fw-design-view:before {
-    content:"\e6f3";
+    content:"\e70f";
 }
 
 .fw-devices:before {
     content:"\e704";
+}
+
+.fw-dgm-action-invoke:before {
+    content:"\e712";
+}
+
+.fw-dgm-action:before {
+    content:"\e711";
 }
 
 .fw-dgm-connector:before {
@@ -522,6 +542,10 @@
 
 .fw-dgm-if-else:before {
     content:"\e6e9";
+}
+
+.fw-dgm-import:before {
+    content:"\e717";
 }
 
 .fw-dgm-lifeline:before {
@@ -552,6 +576,10 @@
     content:"\e6f9";
 }
 
+.fw-dgm-while:before {
+    content:"\e707";
+}
+
 .fw-dial-up:before {
     content:"\e627";
 }
@@ -564,12 +592,8 @@
     content:"\e626";
 }
 
-.fw-dmg-resource:before {
-    content:"\e707";
-}
-
-.fw-dmg-service:before {
-    content:"\e708";
+.fw-docker:before {
+    content:"\e70c";
 }
 
 .fw-document:before {
@@ -656,6 +680,10 @@
     content:"\e634";
 }
 
+.fw-folder-open:before {
+    content:"\e70b";
+}
+
 .fw-folder:before {
     content:"\e62e";
 }
@@ -666,6 +694,10 @@
 
 .fw-forum:before {
     content:"\e636";
+}
+
+.fw-function-invoke:before {
+    content:"\e713";
 }
 
 .fw-function:before {
@@ -750,6 +782,10 @@
 
 .fw-http:before {
     content:"\e705";
+}
+
+.fw-image:before {
+    content:"\e70a";
 }
 
 .fw-import:before {
@@ -908,7 +944,7 @@
     content:"\e6ce";
 }
 
-.fw-minus:before {
+.fw-minus:before, .fw-hyphen:before, .fw-dash:before {
     content:"\e616";
 }
 
@@ -972,6 +1008,10 @@
     content:"\e67d";
 }
 
+.fw-polygon:before {
+    content:"\e70d";
+}
+
 .fw-prototype:before {
     content:"\e6cc";
 }
@@ -1012,6 +1052,10 @@
     content:"\e6fc";
 }
 
+.fw-reply:before {
+    content:"\e714";
+}
+
 .fw-resource:before {
     content:"\e660";
 }
@@ -1026,6 +1070,10 @@
 
 .fw-retire:before {
     content:"\e6cd";
+}
+
+.fw-return:before {
+    content:"\e715";
 }
 
 .fw-retweet:before {
@@ -1046,6 +1094,10 @@
 
 .fw-rules:before {
     content:"\e664";
+}
+
+.fw-run:before {
+    content:"\e708";
 }
 
 .fw-save:before {
@@ -1088,11 +1140,11 @@
     content:"\e66e";
 }
 
-.fw-service:before, .fw-cogwheels:before, .fw-gears:before {
+.fw-service:before, .fw-cogwheels:before, .fw-gears:before, .fw-sprockets:before {
     content:"\e66d";
 }
 
-.fw-settings:before, .fw-cogwheel:before, .fw-gear:before {
+.fw-settings:before, .fw-cogwheel:before, .fw-gear:before, .fw-sprocket:before {
     content:"\e66f";
 }
 
@@ -1144,12 +1196,36 @@
     content:"\e674";
 }
 
+.fw-start:before {
+    content:"\e718";
+}
+
 .fw-statistics:before {
     content:"\e675";
 }
 
-.fw-store:before {
+.fw-stepin:before {
+    content:"\e719";
+}
+
+.fw-stepout:before {
+    content:"\e71a";
+}
+
+.fw-stepover:before {
+    content:"\e71b";
+}
+
+.fw-stop:before {
+    content:"\e71c";
+}
+
+.fw-store:before, .fw-cart:before {
     content:"\e676";
+}
+
+.fw-struct:before {
+    content:"\e716";
 }
 
 .fw-subscribe:before {
@@ -1198,6 +1274,10 @@
 
 .fw-twitter:before {
     content:"\e6df";
+}
+
+.fw-type-converter:before {
+    content:"\e6f3";
 }
 
 .fw-uncheck:before {

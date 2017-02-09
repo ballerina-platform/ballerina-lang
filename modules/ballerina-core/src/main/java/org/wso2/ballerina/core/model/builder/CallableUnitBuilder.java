@@ -18,14 +18,14 @@
 package org.wso2.ballerina.core.model.builder;
 
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.ConnectorDcl;
-import org.wso2.ballerina.core.model.Parameter;
-import org.wso2.ballerina.core.model.Position;
+import org.wso2.ballerina.core.model.NodeLocation;
+import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 
@@ -33,92 +33,85 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code CallableUnitBuilder} is a builder class responsible for building Functions, Actions and Resources
+ * {@code CallableUnitBuilder} is responsible for building Functions, Actions and Resources from parser events.
  * <p/>
  * A CallableUnit represents a Function, an Action or a Resource.
  *
  * @since 0.8.0
  */
-class CallableUnitBuilder {
+public class CallableUnitBuilder {
+    protected NodeLocation location;
+    protected SymbolScope currentScope;
 
-    private SymbolName name;
-    private Position position;
-    private List<Annotation> annotationList = new ArrayList<>();
-    private boolean publicFunc;
-    private List<Parameter> parameterList = new ArrayList<>();
-    private List<Parameter> returnParamList = new ArrayList<>();
-    private List<ConnectorDcl> connectorDclList = new ArrayList<>();
-    private List<VariableDcl> variableDclList = new ArrayList<>();
-    private List<Worker> workerList = new ArrayList<>();
-    private BlockStmt body;
+    // BLangSymbol related attributes
+    protected String name;
+    protected String pkgPath;
+    protected boolean isPublic;
+    protected SymbolName symbolName;
 
-    CallableUnitBuilder() {
+    protected List<Annotation> annotationList = new ArrayList<>();
+    protected List<ParameterDef> parameterDefList = new ArrayList<>();
+    protected List<ParameterDef> returnParamList = new ArrayList<>();
+    protected List<Worker> workerList = new ArrayList<>();
+    protected BlockStmt body;
+
+    SymbolScope getCurrentScope() {
+        return currentScope;
     }
 
-    void setName(SymbolName name) {
+    public void setNodeLocation(NodeLocation location) {
+        this.location = location;
+    }
+
+    public void setName(String name) {
         this.name = name;
     }
 
-    void addAnnotation(Annotation annotation) {
-        this.annotationList.add(annotation);
+    public void setPkgPath(String pkgPath) {
+        this.pkgPath = pkgPath;
     }
 
     void setPublic(boolean isPublic) {
-        this.publicFunc = isPublic;
+        this.isPublic = isPublic;
     }
 
-    void addParameter(Parameter param) {
-        this.parameterList.add(param);
+    public void setSymbolName(SymbolName symbolName) {
+        this.symbolName = symbolName;
     }
 
-    void addReturnParameter(Parameter param) {
+    public void addAnnotation(Annotation annotation) {
+        this.annotationList.add(annotation);
+    }
+
+    public void addParameter(ParameterDef param) {
+        this.parameterDefList.add(param);
+    }
+
+    public void addReturnParameter(ParameterDef param) {
         this.returnParamList.add(param);
     }
 
-    void addConnectorDcl(ConnectorDcl connectorDcl) {
-        this.connectorDclList.add(connectorDcl);
-    }
-
-    void addVariableDcl(VariableDcl variableDcl) {
-        this.variableDclList.add(variableDcl);
-    }
-
-    void addWorker(Worker worker) {
+    public void addWorker(Worker worker) {
         this.workerList.add(worker);
     }
 
-    void setBody(BlockStmt body) {
+    public void setBody(BlockStmt body) {
         this.body = body;
     }
 
-    public void setPosition(Position position) {
-        this.position = position;
+    public BallerinaFunction buildFunction() {
+        return null;
     }
 
-    BallerinaFunction buildFunction() {
-        return new BallerinaFunction(name, position, publicFunc,
-                annotationList.toArray(new Annotation[annotationList.size()]),
-                parameterList.toArray(new Parameter[parameterList.size()]),
-                returnParamList.toArray(new Parameter[returnParamList.size()]),
-                connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
-                variableDclList.toArray(new VariableDcl[variableDclList.size()]),
-                workerList.toArray(new Worker[workerList.size()]), body);
+    public Resource buildResource() {
+        return null;
     }
 
-    Resource buildResource() {
-        return new Resource(name, position, annotationList.toArray(new Annotation[annotationList.size()]),
-                parameterList.toArray(new Parameter[parameterList.size()]),
-                connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
-                variableDclList.toArray(new VariableDcl[variableDclList.size()]),
-                workerList.toArray(new Worker[workerList.size()]), body);
+    public BallerinaAction buildAction() {
+        return null;
     }
 
-    BallerinaAction buildAction() {
-        return new BallerinaAction(name, position, annotationList.toArray(new Annotation[annotationList.size()]),
-                parameterList.toArray(new Parameter[parameterList.size()]),
-                returnParamList.toArray(new Parameter[returnParamList.size()]),
-                connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
-                variableDclList.toArray(new VariableDcl[variableDclList.size()]),
-                workerList.toArray(new Worker[workerList.size()]), body);
+    public BTypeConvertor buildTypeConverter() {
+        return null;
     }
 }

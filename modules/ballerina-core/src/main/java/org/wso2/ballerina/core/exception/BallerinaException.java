@@ -21,11 +21,24 @@ import org.wso2.ballerina.core.interpreter.Context;
 
 /**
  * This is the runtime exception occurs at executing ballerina code.
+ *
+ * @since 0.8.0
  */
 public class BallerinaException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
     private transient Context context;
+
+//    private String[] errorMessages = new String[0];
+
+    /**
+     * Constructs a new {@link BallerinaException}.*
+     */
+    public BallerinaException(String[] errorMessages) {
+        super();
+        // TODO Need to find a better way to do this
+//        this.errorMessages = errorMessages;
+    }
 
     /**
      * Constructs a new {@link BallerinaException} with the specified detail message.
@@ -55,6 +68,18 @@ public class BallerinaException extends RuntimeException {
      */
     public BallerinaException(String message, Throwable cause) {
         super(message, cause);
+    }
+    
+    /**
+     * Constructs a new {@link BallerinaException} with the specified detail message, cause and ballerina context.
+     *
+     * @param message   Error message
+     * @param cause     Cause
+     * @param context   Ballerina context
+     */
+    public BallerinaException(String message, Throwable cause, Context context) {
+        super(message, cause);
+        this.context = context;
     }
 
     /**

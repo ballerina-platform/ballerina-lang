@@ -24,7 +24,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 
 /**
  * {@code ConnectorVarLocation} represents a location where a variable declared in a
- * {@link org.wso2.ballerina.core.model.Connector }  is stored at runtime
+ * {@link org.wso2.ballerina.core.model.Connector }  is stored at runtime.
  *
  * @since 0.8.0
  */

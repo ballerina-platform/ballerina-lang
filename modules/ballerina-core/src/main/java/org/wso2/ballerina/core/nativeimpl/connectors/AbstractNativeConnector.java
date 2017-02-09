@@ -15,94 +15,169 @@
  */
 package org.wso2.ballerina.core.nativeimpl.connectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Connector;
-import org.wso2.ballerina.core.model.Parameter;
-import org.wso2.ballerina.core.model.Position;
+import org.wso2.ballerina.core.model.NativeUnit;
+import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.types.BTypes;
+import org.wso2.ballerina.core.model.SymbolScope;
+import org.wso2.ballerina.core.model.SymbolScope.ScopeName;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+import org.wso2.ballerina.core.model.types.BType;
+import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.NativeConstruct;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Represents Native Ballerina Connector.
+ * {@code AbstractNativeConnector} represents a Native Ballerina Connector.
+ *
+ * @since 0.8.0
  */
-public abstract class AbstractNativeConnector implements Connector, NativeConstruct {
-
-    private static final Logger log = LoggerFactory.getLogger(AbstractNativeConnector.class);
-    private SymbolName symbolName;
-    private String packageName;
-    private String connectorName;
-    private List<Parameter> parameters;
-    private Position connectorLocation;
-
-    public AbstractNativeConnector() {
-        parameters = new ArrayList<>();
-        buildModel();
-    }
-
-    /*
-     * Build Native Action Model using Java annotation.
-     */
-    private void buildModel() {
-        BallerinaConnector connector = this.getClass().getAnnotation(BallerinaConnector.class);
-        packageName = connector.packageName();
-        connectorName = connector.connectorName();
-        String symName = packageName + ":" + connectorName;
-        symbolName = new SymbolName(symName);
-        Arrays.stream(connector.args()).
-                forEach(argument -> {
-                    try {
-                        parameters.add(new Parameter(BTypes.getType(argument.type().getName()),
-                                new SymbolName(argument.name())));
-                    } catch (BallerinaException e) {
-                        // TODO: Fix this when TypeC.getType method is improved.
-                        log.error("Internal Error..! Error while processing Parameters for Native ballerina" +
-                                " Connector {}:{}.", packageName, connectorName, e);
-                    }
-                });
+public abstract class AbstractNativeConnector extends BType implements NativeUnit, Connector, BLangSymbol {
+    // BLangSymbol related attributes
+    private List<ParameterDef> parameterDefs;
+    private SimpleTypeName[] returnParamTypeNames;
+    private SimpleTypeName[] argTypeNames;
+    
+    // Scope related variables
+    private Map<SymbolName, BLangSymbol> symbolMap;
+    
+    public AbstractNativeConnector(SymbolScope enclosingScope) {
+        super(enclosingScope);
+        this.parameterDefs = new ArrayList<>();
+        this.symbolMap = new HashMap<>();
     }
 
     public abstract boolean init(BValue[] bValueRefs);
 
-    public SymbolName getSymbolName() {
-        return symbolName;
-    }
-
-    @Override
-    public Parameter[] getParameters() {
-        return parameters.toArray(new Parameter[parameters.size()]);
+    public ParameterDef[] getParameterDefs() {
+        return parameterDefs.toArray(new ParameterDef[parameterDefs.size()]);
     }
 
 
     //TODO Fix Issue#320
     /**
-     * Get an instance of the Connector
+     * Get an instance of the Connector.
      *
      * @return an instance
      */
     public abstract AbstractNativeConnector  getInstance();
-    
-    /**
-     * {@inheritDoc}
-     */
+
+
+    // Methods in BLangSymbol interface
+
     @Override
-    public Position getLocation() {
-        return connectorLocation;
+    public String getName() {
+        return typeName;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return false;
+    }
+
+    @Override
+    public boolean isNative() {
+        return true;
+    }
+
+    @Override
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
+    @Override
+    public SymbolScope getSymbolScope() {
+        return null;
+    }
+
+    
+    // Methods in NativeUnit interface
+    
+    @Override
+    public void setReturnParamTypeNames(SimpleTypeName[] returnParamTypes) {
+        this.returnParamTypeNames = returnParamTypes;
+    }
+    
+    @Override
+    public void setArgTypeNames(SimpleTypeName[] argTypes) {
+        this.argTypeNames = argTypes;
+    }
+    
+    @Override
+    public SimpleTypeName[] getArgumentTypeNames() {
+        return argTypeNames;
+    }
+    
+    @Override
+    public SimpleTypeName[] getReturnParamTypeNames() {
+        return returnParamTypeNames;
+    }
+    
+    @Override
+    public void setName(String name) {
+        this.typeName = name;
+    }
+    
+    @Override
+    public void setPackagePath(String packagePath) {
+        this.pkgPath = packagePath;
+    }
+    
+    public void setStackFrameSize(int stackFrameSize) {
+        // do nothing
+    }
+
+    @Override
+    public void setSymbolName(SymbolName symbolName) {
+        this.symbolName = symbolName;
+    }
+
+    
+    // Methods in the SymbolScope interface
+
+    @Override
+    public ScopeName getScopeName() {
+        return ScopeName.CONNECTOR;
+    }
+
+    @Override
+    public SymbolScope getEnclosingScope() {
+        return symbolScope;
+    }
+
+    @Override
+    public void define(SymbolName name, BLangSymbol symbol) {
+        symbolMap.put(name, symbol);
+    }
+
+    @Override
+    public BLangSymbol resolve(SymbolName name) {
+        return resolve(symbolMap, name);
+    }
+
+
+    // Methods in the BType interface
+    @Override
+    public <V extends BValue> V getDefaultValue() {
+        return null;
     }
     
     /**
-     * {@inheritDoc}
+     * Resolve a symbol in the current scope only. SymbolName will not be resolved in the enclosing scopes.
+     * 
+     * @param name SymbolName to lookup.
+     * @return Symbol in the current scope. Null if the symbol name is not available in the current scope
      */
-    @Override
-    public void setLocation(Position location) {
-        this.connectorLocation = location;
+    public BLangSymbol resolveMembers(SymbolName name) {
+        return symbolMap.get(name);
     }
 }

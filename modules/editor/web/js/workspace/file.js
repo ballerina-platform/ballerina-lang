@@ -23,7 +23,9 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
                 path: 'temp',
                 name: 'untitled',
                 content: undefined,
-                isPersisted: false
+                isPersisted: false,
+                lastPersisted: _.now(),
+                isDirty: true
             },
 
             initialize: function (attrs, options) {
@@ -63,6 +65,17 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
                 return this;
             },
 
+            setLastPersisted: function(lsatPersisted){
+                this.set('lastPersisted', lsatPersisted);
+                return this;
+            },
+
+            setDirty: function(isDirty){
+                this.set('isDirty', isDirty);
+                this.trigger('dirty-state-change', isDirty);
+                return this;
+            },
+
             setName: function(name){
                 this.set('name', name);
                 return this;
@@ -85,8 +98,17 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
                 return this.get('content')
             },
 
+            getLastPersisted: function(){
+                return this.get('lastPersisted');
+            },
+
+
             isPersisted: function(){
                 return this.get('isPersisted')
+            },
+
+            isDirty: function(){
+                return this.get('isDirty')
             }
 
         });

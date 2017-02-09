@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './ballerina-statement-view', './../ast/reply-statement', 'd3utils', 'd3', './point'],
-    function (_, log, BallerinaStatementView, ReplyStatement, D3Utils, d3, Point) {
+define(['lodash', 'log', './simple-statement-view', './../ast/reply-statement', 'd3utils', 'd3', './point'],
+    function (_, log, SimpleStatementView, ReplyStatement, D3Utils, d3, Point) {
 
         /**
          * The view to represent a reply statement which is an AST visitor.
@@ -27,8 +27,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/reply-statement
          * @constructor
          */
         var ReplyStatementView = function (args) {
-
-            BallerinaStatementView.call(this, args);
+            SimpleStatementView.call(this, args);
 
             if (_.isNil(this._model) || !(this._model instanceof ReplyStatement)) {
                 log.error("Return statement definition is undefined or is of different type." + this._model);
@@ -39,102 +38,75 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/reply-statement
                 log.error("Container for return statement is undefined." + this._container);
                 throw "Container for return statement is undefined." + this._container;
             }
-
-            // View options for height and width of the assignment statement box.
-            this._viewOptions.height = _.get(args, "viewOptions.height", 30);
-            this._viewOptions.width = _.get(args, "viewOptions.width", 120);
-            this.getBoundingBox().fromTopCenter(this._topCenter, this._viewOptions.width, this._viewOptions.height);
         };
 
-        ReplyStatementView.prototype = Object.create(BallerinaStatementView.prototype);
+        ReplyStatementView.prototype = Object.create(SimpleStatementView.prototype);
         ReplyStatementView.prototype.constructor = ReplyStatementView;
 
         ReplyStatementView.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof ReplyStatement) {
-                this._model = model;
+                (this.__proto__.__proto__).setModel(model);
             } else {
                 log.error("Return statement definition is undefined or is of different type." + model);
                 throw "Return statement definition is undefined or is of different type." + model;
             }
         };
 
-        ReplyStatementView.prototype.setContainer = function (container) {
-            if (!_.isNil(container)) {
-                this._container = container;
-            } else {
-                log.error("Container for return statement is undefined." + container);
-                throw "Container for return statement is undefined." + container;
-            }
-        };
-
-        ReplyStatementView.prototype.setViewOptions = function (viewOptions) {
-            this._viewOptions = viewOptions;
-        };
-
-        ReplyStatementView.prototype.getModel = function () {
-            return this._model;
-        };
-
-        ReplyStatementView.prototype.getContainer = function () {
-            return this._container;
-        };
-
-        ReplyStatementView.prototype.getViewOptions = function () {
-            return this._viewOptions;
-        };
-
         /**
          * Rendering the view for reply statement.
          * @returns {group} The svg group which contains the elements of the reply statement view.
          */
-        ReplyStatementView.prototype.render = function () {
-            var width =  this._viewOptions.width;
-            var height = this._viewOptions.height;
+        ReplyStatementView.prototype.render = function (diagramRenderingContext) {
+            // Calling super class's render function.
+            (this.__proto__.__proto__).render.call(this, diagramRenderingContext);
+            // Setting display text.
+            this.renderDisplayText("Reply");
 
-            var startActionGroup = D3Utils.group(d3.select(this._container));
-            var line_start = new Point(this.getBoundingBox().x(), this.getBoundingBox().y() + height/2);
+            // Drawing arrow.
+            var statementGroup = this.getStatementGroup();
+            var bBox = this.getBoundingBox();
+            var x = bBox.x(), y = bBox.y(), w = bBox.w(), h = bBox.h();
+            var distanceToClient = this.getViewOptions().distanceToClient - (w / 2);
+            var replyArrow = D3Utils.group(statementGroup);
+            var replyLineStartPoint = new Point(x, (y + (h / 2)));
+            var replyLineEndPoint = new Point((x - distanceToClient), (y + (h / 2)));
+            var replyLine = D3Utils.lineFromPoints(replyLineStartPoint, replyLineEndPoint, replyArrow)
+                                   .classed('message', true);
+            var replyArrowHead = D3Utils.outputTriangle(replyLineEndPoint.x(), replyLineEndPoint.y(), replyArrow)
+                                        .classed("action-arrow", true);
+            replyArrow.arrowLineElement = replyLine;
+            replyArrow.arrowHeadElement = replyArrowHead;
 
-            var distanceToClient = this._viewOptions.distanceToClient - this.getBoundingBox().w()/2;
-            var line_end = new Point(this.getBoundingBox().x() - distanceToClient, this.getBoundingBox().y() + height/2);
-            var reply_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), width, height, 0, 0, startActionGroup).classed('statement-rect', true);
-            var reply_text = D3Utils.textElement(this.getBoundingBox().x() + width/2, this.getBoundingBox().y() + height/2, 'Reply', startActionGroup).classed('statement-text', true);
-            var reply_line = D3Utils.lineFromPoints(line_start,line_end, startActionGroup)
-                .classed('message', true);
-            var arrowHeadWidth = 5;
-            var reply_arrow_head = D3Utils.outputTriangle(line_end.x(), line_end.y(), startActionGroup).classed("action-arrow", true);
-
-            log.debug("Rendering the Reply Statement.");
-
-            // Creating property pane
-            var editableProperties = [
-                {
-                    propertyType: "text",
-                    key: "Response Message",
-                    model: this._model,
-                    getterMethod: this._model.getReplyMessage,
-                    setterMethod: this._model.setReplyMessage
-                }
-            ];
-
+            // Creating property pane.
+            var model = this.getModel();
+            var editableProperty = {
+                propertyType: "text",
+                key: "Response Message",
+                model: model,
+                getterMethod: model.getReplyMessage,
+                setterMethod: model.setReplyMessage
+            };
             this._createPropertyPane({
-                model: this._model,
-                statementGroup:startActionGroup,
-                editableProperties: editableProperties
+                                         model: model,
+                                         statementGroup: statementGroup,
+                                         editableProperties: editableProperty
+                                     });
+            this.listenTo(model, 'update-property-text', this.updateResponseMessage);
+
+            bBox.on('top-edge-moved', function (dy) {
+                replyLine.attr('y1', parseFloat(replyLine.attr('y1')) + dy);
+                replyLine.attr('y2', parseFloat(replyLine.attr('y2')) + dy);
+
+                replyArrowHead.remove();
+                var replyLineEndPoint = new Point((bBox.x() - distanceToClient), (bBox.y() + (bBox.h() / 2)));
+                replyArrowHead = D3Utils.outputTriangle(replyLineEndPoint.x(), replyLineEndPoint.y(), replyArrow)
+                                        .classed("action-arrow", true);
             });
+            return statementGroup;
+        };
 
-            var self = this;
-            this.getBoundingBox().on('top-edge-moved', function(dy){
-                reply_rect.attr('y',  parseFloat(reply_rect.attr('y')) + dy);
-                reply_text.attr('y',  parseFloat(reply_text.attr('y')) + dy);
-                reply_line.attr('y1',  parseFloat(reply_line.attr('y1')) + dy);
-                reply_line.attr('y2',  parseFloat(reply_line.attr('y2')) + dy);
-
-                line_end = new Point(self.getBoundingBox().x() - distanceToClient, self.getBoundingBox().y() + height/2);
-
-                reply_arrow_head.remove();
-                reply_arrow_head = D3Utils.outputTriangle(line_end.x(), line_end.y(), startActionGroup).classed("action-arrow", true);
-            });
-            return startActionGroup;
+        ReplyStatementView.prototype.updateResponseMessage = function (newMessageText, propertyKey) {
+            this._model.setReplyMessage(newMessageText);
         };
 
         return ReplyStatementView;

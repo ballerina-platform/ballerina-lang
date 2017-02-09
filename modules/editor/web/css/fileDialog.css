@@ -18,12 +18,13 @@
     border-style: none;
     height: 35px;
     padding-left: 10px;
+    color: #fff;
 }
 
 .file-dialog-form-scrollable-block{
     padding: 20px 20px;
     overflow: auto;
-    height:200px;
+    height:50%;
     width: 90%;
     background-color: #2C2C2C;
     margin-left: 30px;
@@ -36,7 +37,7 @@
 
 .folder-dialog-form-btn{
     float: right;
-    margin-right: 100px;
+    margin-right: 43px;
 }
 
 .errors-container{
@@ -62,6 +63,7 @@ hr.style1 {
 .file-dialog-label{
     margin-top: 8px;
     margin-left: 20px;
+    font-weight: 300;
 }
 
 .divider{
@@ -70,3 +72,30 @@ hr.style1 {
     display:inline-block;
 }
 
+.file-dialog-form-control::-webkit-input-placeholder { /* Chrome */
+    color: #ffffff;
+    opacity: 0.4;
+    font-style: italic;
+}
+.file-dialog-form-control:-ms-input-placeholder { /* IE 10+ */
+    color: #ffffff;
+    opacity: 0.4;
+    font-style: italic;
+}
+.file-dialog-form-control::-moz-placeholder { /* Firefox 19+ */
+    color: #ffffff;
+    opacity: 0.4;
+    font-style: italic;
+}
+hr.file-dialog-hr {
+    border-top: 1px solid #2C2C2C;
+    width: 100%;
+}
+.file-dialog-input-field{
+    float: left;
+    width: 82%;
+}
+.file-dialog-form-label{
+    margin-top: 8px;
+    font-weight: 300;
+}

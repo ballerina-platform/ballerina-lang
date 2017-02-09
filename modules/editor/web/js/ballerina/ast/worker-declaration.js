@@ -15,12 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, CommonUtils) {
 
     var WorkerDeclaration = function (args) {
         this._isDefaultWorker = _.get(args, "isDefaultWorker", false);
         this._reply = _.get(args, "replyStatement", null);
         this._childrenList = [];
+        this._workerDeclarationStatement = _.get(args, 'declarationStatement', 'worker1(message m)');
 
         ASTNode.call(this, "WorkerDeclaration");
     };
@@ -28,23 +29,9 @@ define(['lodash', './node'], function (_, ASTNode) {
     WorkerDeclaration.prototype = Object.create(ASTNode.prototype);
     WorkerDeclaration.prototype.constructor = WorkerDeclaration;
 
-    WorkerDeclaration.prototype.addChild = function (child, index) {
-        if (_.isUndefined(index)) {
-            this._childrenList.insert(index, child)
-        } else {
-            this._childrenList.push(child);
-        }
-    };
-
-    WorkerDeclaration.prototype.setReply = function (replyStatement) {
-        if (!_.isNil(replyStatement)) {
-            this._reply = replyStatement;
-        }
-    };
-
-    WorkerDeclaration.prototype.setIsDefaultWorker = function (isDefaultWorker) {
+    WorkerDeclaration.prototype.setIsDefaultWorker = function (isDefaultWorker, options) {
         if (!_.isNil(isDefaultWorker)) {
-            this._isDefaultWorker = isDefaultWorker;
+            this.setAttribute('_isDefaultWorker', isDefaultWorker, options);
         }
     };
 
@@ -54,6 +41,48 @@ define(['lodash', './node'], function (_, ASTNode) {
 
     WorkerDeclaration.prototype.isDefaultWorker = function () {
         return this._isDefaultWorker;
+    };
+
+    /**
+     * Set the worker declaration statement [workerName(message m)]
+     * @param {string} declarationStatement
+     */
+    WorkerDeclaration.prototype.setWorkerDeclarationStatement = function (declarationStatement) {
+        this._workerDeclarationStatement = declarationStatement;
+    };
+
+    /**
+     * Get the worker declaration statement
+     * @return {string} _workerDeclarationStatement
+     */
+    WorkerDeclaration.prototype.getWorkerDeclarationStatement = function () {
+        return this._workerDeclarationStatement;
+    };
+
+    WorkerDeclaration.prototype.getWorkerName = function () {
+        return "workerName";
+    };
+
+    /**
+     * @inheritDoc
+     * @override
+     */
+    WorkerDeclaration.prototype.generateUniqueIdentifiers = function () {
+        // TODO : Implement
+        // CommonUtils.generateUniqueIdentifier({
+        //     node: this,
+        //     attributes: [{
+        //         defaultValue: "newAction",
+        //         setter: this.setActionName,
+        //         getter: this.getActionName,
+        //         parents: [{
+        //             // ballerina-ast-node
+        //             node: this.parent,
+        //             getChildrenFunc: this.parent.getConnectorActionDefinitions,
+        //             getter: this.getActionName
+        //         }]
+        //     }]
+        // });
     };
 
     return WorkerDeclaration;

@@ -16,27 +16,57 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor', './ballerina-view', './message-manager'], function(log, _, $, d3, D3Utils, AstVisitor, BallerinaView, MessageManager){
+define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor', './ballerina-view', './message-manager'],
+    function(log, _, $, d3, D3Utils, AstVisitor, BallerinaView, MessageManager){
 
+    /**
+        * Generic class for a canvas. i.e Services, Functions.
+        * @param {Object} args={} - Argument for a canvas.
+        * @constructor
+        * @augments BallerinaView
+        */
     var Canvas = function(args) {
         var mMArgs = {'canvas': this};
         args.messageManager = new MessageManager(mMArgs);
         BallerinaView.call(this, args);
+
+        /**
+         * The icon of the icon position at top left corner.
+         * @type {HTMLElement}
+         * @private
+         */
+        this._panelIcon = undefined;
+
+        /**
+         * The title of the canvas. This is editable.
+         * @type {HTMLAnchorElement}
+         * @private
+         */
+        this._titleLink = undefined;
+
+        /**
+         * The wrapper which contains the right top corner operations pane.
+         * @type {HTMLDivElement}
+         * @private
+         */
+        this._canvasOperationsWrapper = undefined;
+
+        /**
+         * Gets the body wrapper.
+         * @type {HTMLDivElement}
+         * @private
+         */
+        this._bodyWrapper = undefined;
+
+        this.bindEvents();
     };
 
     Canvas.prototype = Object.create(BallerinaView.prototype);
     Canvas.prototype.constructor = Canvas;
 
-    Canvas.prototype.getSVG = function () {
-        return this._svg;
-    };
-
-    Canvas.prototype.getMainWrapper = function () {
-        return this._mainSVGGroup;
-    };
-
-    Canvas.prototype.getOperationsPane = function () {
-        return this._canvasOperationsWrapper;
+    Canvas.prototype.bindEvents = function () {
+        this._model.on('child-removed', this.childRemovedCallback, this);
+        this._model.on('before-remove', this.onBeforeModelRemove, this);
     };
 
     /**
@@ -52,89 +82,84 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         return true;
     };
 
-    Canvas.prototype.drawAccordionCanvas = function (parent, options, id, name, title) {
-        var svgContainer = $('<div style="position:relative; top:0; right:0;"></div>');
-        svgContainer.attr('id', id);
-        svgContainer.attr('name', name);
-        svgContainer.addClass(_.get(options, 'cssClass.outer_box'));
-        var canvas = svgContainer;
-        var svg = $('<svg class="service-container"></svg>');
-        svgContainer.append(svg);
-        this._rootGroup = D3Utils.group(d3.select(svg.get(0)));
-        this._svg = svg;
-        // Set the initial service container height to 300px
-        this.setServiceContainerHeight(300);
-        //draw a collapse accordion
-        var outerDiv = $('<div></div>');
-        outerDiv.attr('id', '_'+canvas[0].id);//to support HTML4
-        outerDiv.addClass(_.get(options, 'cssClass.outer_div'));
-        var panelHeading = $('<div></div>');
-        panelHeading.attr('id', canvas[0].id + 3).attr('role', 'tab');
-        panelHeading.attr('role', 'button').attr('data-toggle', 'collapse').attr('data-parent', "#accordion").attr('href', '#' + canvas[0].id).attr('aria-expanded', 'false').attr('aria-controls', canvas[0].id);
-        var panelTitle = $('<h4></h4>');
-        panelTitle.addClass(_.get(options, 'cssClass.panel_title'));
-        var panelIcon = $('<i></i>');
-        panelIcon.addClass(_.get(options, 'cssClass.panel_icon'));
-        if (canvas[0].getAttribute('name') == "service") {
-            panelIcon.addClass(_.get(options, 'cssClass.service_icon'));
-        } else if (canvas[0].getAttribute('name') == "connector") {
-            panelIcon.addClass(_.get(options, 'cssClass.connector_icon'));
-        } else if (canvas[0].getAttribute('name') == "function") {
-            panelIcon.addClass(_.get(options, 'cssClass.function_icon'));
-        }
-        // TODO: Add the specific icon for the connector definition
-        else if (canvas[0].getAttribute('name') == "connectordefinition") {
-            panelIcon.addClass(_.get(options, 'cssClass.connector_icon'));
-        }
-        panelTitle.append(panelIcon);
-        var titleLink = $('<a></a>');
-        titleLink.attr('id', 'title-' + id);
-        titleLink[0].setAttribute("contenteditable", "true");
-        titleLink[0].setAttribute("spellcheck", "false");
-        titleLink.focus();
-        titleLink.blur();
-        if (title !== undefined) {
-            titleLink.append("&nbsp;" + title);
-        }
-        titleLink.addClass(_.get(options, 'cssClass.title_link'));
-        //TODO: update href,aria-controls
-        panelTitle.append(titleLink);
+    /**
+     * Draws the main body of the model
+     * @param {Object} options - Options for modifying the canvas
+     * @param {string} id - The ID of the model.
+     * @param {string} name - The type of model.
+     * @param {string} title - The identifier of the model.
+     */
+    Canvas.prototype.drawAccordionCanvas = function (options, id, name, title) {
+        // The main wrapper of the canvas.
+        var outerDiv = $("<div/>", {
+            id: "_" + id,
+            class: _.get(options, "cssClass.outer_div", "")
+        }).appendTo(this.getContainer());
 
-        this._canvasOperationsWrapper = $("<div class='canvas-operations-wrapper'/>");
+        //// Creating the heading of the canvas.
 
-        panelTitle.append(this._canvasOperationsWrapper);
+        // Creating the wrapper for the heading.
+        var panelHeading = $("<div/>", {
+            id: id + "_heading",
+            "data-toggle": "collapse",
+            "data-target": "#" + id + "_body",
+            class: _.get(options, "cssClass.head_div", "")
+        }).appendTo(outerDiv);
+
+        // The title element of the heading.
+        var panelTitle = $("<h4/>", {
+            class: _.get(options, "cssClass.panel_title", "")
+        }).appendTo(panelHeading);
+
+        // The icon of the canvas positioned in the heading.
+        this._panelIcon = $("<i/>", {
+            class: _.get(options, "cssClass.panel_icon", "")
+        }).appendTo(panelTitle);
+
+        this._titleLink = $("<a/>", {
+            class: _.get(options, "cssClass.title_link", ""),
+            "contenteditable": "true",
+            "spellcheck": "false",
+            text: _.isUndefined(title) ? "" : title
+        }).appendTo(panelTitle);
+
+        this._canvasOperationsWrapper = $("<div class='canvas-operations-wrapper'/>").appendTo(panelTitle);
 
         // Creating collapsable icon.
-        var panelRightIcon = $("<i/>", {
-            class: _.get(options, 'cssClass.panel_right_icon')
-        }).appendTo(this._canvasOperationsWrapper);
+        var panelCollapsibleIcon = $("<i/>", {
+            class: _.get(options, 'cssClass.panel_right_icon'),
+            title:"Collapse Pane"
+        }).appendTo(this._canvasOperationsWrapper).tooltip();
 
         $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(this._canvasOperationsWrapper);
 
         // Creating delete icon.
         var panelDeleteIcon = $("<i/>", {
-            class: _.get(options, 'cssClass.panel_delete_icon')
-        }).appendTo(this._canvasOperationsWrapper);
+            class: _.get(options, 'cssClass.panel_delete_icon'),
+            title:"Delete"
+        }).appendTo(this._canvasOperationsWrapper).tooltip();
 
         $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(this._canvasOperationsWrapper);
 
         panelHeading.append(panelTitle);
 
-        panelHeading.click(function() {
-            $(this).find('i.collapser').toggleClass('fw-down fw-up');
+        panelHeading.click({panelCollapsibleIcon: panelCollapsibleIcon}, function (event) {
+            $(event.data.panelCollapsibleIcon).toggleClass('fw-down fw-up');
         });
 
-        var bodyDiv = $('<div></div>');
-        bodyDiv.addClass(_.get(options, 'cssClass.body_div'));
-        bodyDiv.attr('id', canvas[0].id).attr('aria-labelledby', canvas[0].id + 3).attr('role', 'tabpanel').attr('class', 'collapse in');
-        bodyDiv.addClass(_.get(options, 'cssClass.canvas'));
-        bodyDiv.append(canvas);
+        //// Creating the body of the canvas.
 
-        outerDiv.append(panelHeading);
-        outerDiv.append(bodyDiv);
+        // The wrapper for the body of the canvas.
+        var bodyContainer = $("<div/>", {
+            id: id + "_body",
+            class: _.get(options, "cssClass.canvas", "")
+        }).appendTo(outerDiv);
 
-        // append to parent
-        parent.append(outerDiv);
+        this._bodyWrapper = $("<div/>", {
+            id: id,
+            name: name,
+            class: _.get(options, "cssClass.outer_box", "")
+        }).appendTo(bodyContainer);
 
         var self = this,
             dropActiveClass = _.get(options, 'cssClass.design_view_drop');
@@ -176,123 +201,33 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
             log.debug("Clicked delete button");
 
             event.stopPropagation();
-
-            var child = self._model;
-            var parent = child.parent;
-            parent.removeChild(child);
+            self._model.remove();
         });
-
-        // Creating scroll panes.
-        var leftScroll = $("<div class='service-left-scroll'/>").appendTo(svgContainer);
-        var rightScroll = $("<div class='service-right-scroll'/>").appendTo(svgContainer);
-
-        var leftArrow = $("<i class='fw fw-left'></i>").appendTo(leftScroll);
-        var rightArrow = $("<i class='fw fw-right'></i>").appendTo(rightScroll);
-
-        // Setting heights of the scrolls.
-        $(leftScroll).height($(svgContainer).height());
-        $(rightScroll).height($(svgContainer).height());
-
-        // Positioning the arrows of the scrolls to the middle.
-        $(leftScroll).find("i").css("padding-top", ($(svgContainer).height() / 2) - (parseInt($(leftScroll).find("i").css("font-size"), 10) / 2) + "px");
-        $(rightScroll).find("i").css("padding-top", ($(svgContainer).height() / 2) - (parseInt($(rightScroll).find("i").css("font-size"), 10) / 2) + "px");
-
-        // Positioning scrolls when scrolling the container.
-        $(svgContainer).scroll(function () {
-            $(rightScroll).css("left", $(svgContainer).width() - $(rightScroll).width() + $(svgContainer).scrollLeft());
-            $(leftScroll).css("left", $(svgContainer).scrollLeft());
-            _showHideScrolls(svgContainer, svg, leftScroll, rightScroll);
-        });
-
-        _showHideScrolls(svgContainer, svg, leftScroll, rightScroll);
-
-        // Binding scroll events.
-        $(rightScroll).click(function () {
-            $(svgContainer).animate({scrollLeft: $(svgContainer).scrollLeft() + $(svgContainer).width() / 2}, {
-                duration: 300,
-                complete: function() {
-                    $(rightScroll).css("left", $(svgContainer).width() - $(rightScroll).width() +
-                        $(svgContainer).scrollLeft());
-                    $(leftScroll).css("left", $(svgContainer).scrollLeft());
-                    _showHideScrolls(svgContainer, svg, leftScroll, rightScroll);
-                },
-                progress: function(animation, progress) {
-                    $(rightScroll).css("left", $(svgContainer).width() - $(rightScroll).width() +
-                        $(svgContainer).scrollLeft());
-                    $(leftScroll).css("left", $(svgContainer).scrollLeft());
-                }
-            });
-        });
-
-        // Binding scroll events.
-        $(leftScroll).click(function () {
-            $(svgContainer).animate({scrollLeft: $(svgContainer).scrollLeft() - $(svgContainer).width() / 2}, {
-                duration: 300,
-                complete: function() {
-                    $(rightScroll).css("left", $(svgContainer).width() - $(rightScroll).width() +
-                        $(svgContainer).scrollLeft());
-                    $(leftScroll).css("left", $(svgContainer).scrollLeft());
-                    _showHideScrolls(svgContainer, svg, leftScroll, rightScroll);
-                },
-                progress: function(animation, progress) {
-                    $(rightScroll).css("left", $(svgContainer).width() - $(rightScroll).width() +
-                        $(svgContainer).scrollLeft());
-                    $(leftScroll).css("left", $(svgContainer).scrollLeft());
-                }
-            });
-        });
-
-        /**
-         * Shows and hide the custom scrolls depending on the amount scrolled.
-         * @param {Element} container - The container of the SVG. i.e the parent of the SVG.
-         * @param {Element} svgElement - The SVG element.
-         * @param {Element} leftScroll - The DIV wrapper for the left scroll.
-         * @param {Element} rightScroll - The DIV wrapper for the right scroll.
-         */
-        function _showHideScrolls(container, svgElement, leftScroll, rightScroll) {
-            // Showing/Hiding scrolls.
-            if (parseInt($(container).width(), 10) >= parseInt($(svgElement).width(), 10)) {
-                // If the svg width is less than or equal to the container, then no need to show the arrows.
-                $(leftScroll).hide();
-                $(rightScroll).hide();
-            } else {
-                // If the svg width is greater than the width of the container...
-                if ($(container).scrollLeft() == 0) {
-                    // When scrollLeft is 0, means that it is already scrolled to the left corner.
-                    $(leftScroll).hide();
-                    $(rightScroll).show();
-                } else if (Math.abs(parseInt($(container).scrollLeft()) - (parseInt($(svgElement).width(), 10) - parseInt($(container).width(), 10))) < 5) {
-                    // When scrolled all the way to the right.
-                    $(leftScroll).show();
-                    $(rightScroll).hide();
-                } else {
-                    $(leftScroll).show();
-                    $(rightScroll).show();
-                }
-            }
-        }
     };
 
     /**
-     * Set canvas container height
-     * @param newHeight
+     * Override the remove view callback
      */
-    Canvas.prototype.setServiceContainerHeight = function (newHeight) {
-        this._svg.attr('height', newHeight);
-        this.getBoundingBox().h(newHeight);
+    Canvas.prototype.onBeforeModelRemove = function () {
+        $("#_" + this.getModel().getID()).remove();
+        // resize the bounding box in order to the other objects to resize
+        this.getBoundingBox().h(0).w(0);
     };
 
-    /**
-     * Set canvas container width
-     * @param {number} newWidth
-     */
-    Canvas.prototype.setServiceContainerWidth = function (newWidth) {
-        this._svg.attr('width', newWidth);
-        this.getBoundingBox().w(newWidth);
+    Canvas.prototype.getOperationsPane = function () {
+        return this._canvasOperationsWrapper;
     };
 
-    Canvas.prototype.getServiceContainer = function () {
-        return this._svg;
+    Canvas.prototype.getPanelIcon = function () {
+        return this._panelIcon;
+    };
+
+    Canvas.prototype.getTitle = function () {
+        return this._titleLink;
+    };
+
+    Canvas.prototype.getBodyWrapper = function() {
+        return this._bodyWrapper;
     };
 
     return Canvas;

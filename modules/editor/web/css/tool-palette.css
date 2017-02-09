@@ -5,9 +5,8 @@
     width: 200px;
     left: 0;
     top: 0;
-    background-color: #ffffff;
-    height: 100%;
-    overflow: scroll;
+    background-color: #fff;
+    height: calc(100% - 80px);
 }
 
 .tool-group{
@@ -18,7 +17,7 @@
 .tool-group-header{
     cursor: pointer;
     padding: 5px 1px;
-    background: whitesmoke;
+    background: #fff;
     border-bottom: 1px solid #e4e4e4;
 }
 
@@ -70,7 +69,7 @@
 
 .tool-container-vertical-title {
     float: left;
-    margin-left: 20px;
+    margin-left: 10px;
     margin-top: 2px;
 }
 
@@ -100,6 +99,7 @@
     width: 100%;
     border-bottom: 1px solid #e4e4e4;
     padding:10px;
+    display: none;
 }
 .search-input{
     background-color: #f0f0f0;
@@ -138,4 +138,35 @@
 }
 .tool-container > .tool-image:hover {
     opacity: 1;
+}
+
+.tool-connector-action {
+    margin-left: 17px;
+}
+
+.tool-group-import-header{
+    cursor: pointer;
+    padding: 5px 1px;
+    background: #333;
+    border-bottom: 1px solid #e4e4e4;
+}
+.tool-group-body > .ui-draggable-handle > .tool-container-vertical{
+    margin-bottom: 5px;
+}
+
+.tool-group-body > .ui-draggable-handle > .tool-container-vertical > div{
+    margin-bottom: 1px;
+}
+
+.tool-group-import-header a{
+    font-weight: bold;
+}
+
+.tool-group-import-header span{
+    float: right;
+    font-size: 10px;
+    margin-right: 5px;
+    color: #fff;
+    padding: 4px;
+    border: 1px solid #777;
 }

@@ -18,7 +18,7 @@
 package org.wso2.ballerina.core.model.values;
 
 /**
- * The {@code BValueType} represents a value type value in Ballerina
+ * The {@code BValueType} represents a value type value in Ballerina.
  *
  * @since 0.8.0
  */

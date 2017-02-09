@@ -17,23 +17,24 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code BBooleanType} represents boolean type in Ballerina
+ * {@code BBooleanType} represents boolean type in Ballerina.
  *
  * @since 0.8.0
  */
 class BBooleanType extends BType {
 
     /**
-     * Create a {@code BBooleanType} which represents the boolean type
+     * Create a {@code BBooleanType} which represents the boolean type.
      *
      * @param typeName string name of the type
      */
-    BBooleanType(String typeName) {
-        super(typeName, BBoolean.class);
+    BBooleanType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BBoolean.class);
     }
 
     @SuppressWarnings("unchecked")

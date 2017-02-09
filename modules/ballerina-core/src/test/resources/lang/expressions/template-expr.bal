@@ -1,6 +1,3 @@
-import ballerina.lang.xml;
-import ballerina.lang.json;
-
 function backtickXMLTest (string name)(xml) {
     xml msg;
     msg = `<name>John</name>`;
@@ -52,4 +49,44 @@ function backticJSONParts(string firstSection, string secondSection) (json) {
     json backTickMessage;
     backTickMessage = `${firstSection}${secondSection}`;
     return backTickMessage;
+}
+
+function backtickJSONArrayVariableAccess()(json) {
+    json msg;
+    string[] stringArray;
+    int[] intArray;
+
+    stringArray = ["value0", "value1", "value2"];
+    intArray = [0, 1, 2];
+    msg = `{"strIndex0":${stringArray[0]},"intIndex2":${intArray[2]},"strIndex2":${stringArray[2]}}`;
+    return msg;
+}
+
+function backtickXMLArrayVariableAccess()(xml) {
+    xml msg;
+    string[] stringArray;
+    int[] intArray;
+
+    stringArray = ["value0", "value1", "value2"];
+    intArray = [0, 1, 2];
+    msg = `<root><stringIndex1>${stringArray[1]}</stringIndex1><intIndex1>${intArray[1]}</intIndex1></root>`;
+    return msg;
+}
+
+function backtickJSONMapVariableAccess()(json) {
+    json msg;
+    map myMap;
+
+    myMap = {"stirngVal" : "value0" , "intVal" : 1};
+    msg = `{"val1":${myMap["stirngVal"]},"val2":${myMap["intVal"]}}`;
+    return msg;
+}
+
+function backtickXMLMapVariableAccess()(xml) {
+    xml msg;
+    map myMap;
+
+    myMap = {"stirngVal" : "value0" , "intVal" : 1};
+    msg = `<root><stringIndex0>${myMap["stirngVal"]}</stringIndex0><intIndex1>${myMap["intVal"]}</intIndex1></root>`;
+    return msg;
 }

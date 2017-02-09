@@ -18,14 +18,14 @@
 package org.wso2.ballerina.core.exception;
 
 /**
- * Class for capturing syntax errors and handle them gracefully
+ * Class for capturing syntax errors and handle them gracefully.
  */
 public class ParserException extends BallerinaException {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * Constructs a new {@link BallerinaException} with the specified detail message.
+     * Constructs a new {@link ParserException} with the specified detail message.
      *
      * @param message   Error Message
      */
@@ -34,7 +34,7 @@ public class ParserException extends BallerinaException {
     }
 
     /**
-     * Constructs a new {@link BallerinaException} with the specified detail message and cause.
+     * Constructs a new {@link ParserException} with the specified detail message and cause.
      *
      * @param message   Error message
      * @param cause     Cause
@@ -44,7 +44,7 @@ public class ParserException extends BallerinaException {
     }
 
     /**
-     * Constructs a new {@link BallerinaException} with the cause.
+     * Constructs a new {@link ParserException} with the cause.
      *
      * @param cause
      */

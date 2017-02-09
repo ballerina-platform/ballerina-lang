@@ -17,14 +17,14 @@
  */
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/connector-action',
         './default-worker', './point', './connector-declaration-view', './statement-view-factory',
-        'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message', './statement-container',
-        './../ast/variable-declaration', './variables-view', './annotation-view',
-        './function-arguments-view', './return-type-view'],
+        'ballerina/ast/ballerina-ast-factory','./message', './statement-container',
+        './../ast/variable-declaration', './annotation-view',
+        './function-arguments-view', './return-types-pane-view'],
     function (_, log, d3, $, D3utils, BallerinaView, ConnectorAction,
               DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory,
-              BallerinaASTFactory, ExpressionViewFactory, MessageView, StatementContainer,
-              VariableDeclaration, VariablesView, AnnotationView,
-              ArgumentsView, ReturnTypeView) {
+              BallerinaASTFactory, MessageView, StatementContainer,
+              VariableDeclaration, AnnotationView,
+              ArgumentsView, ReturnTypesPaneView) {
 
         /**
          * The view to represent a connector action which is an AST visitor.
@@ -78,16 +78,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.collapseIconWidth = _.get(args, "viewOptions.collaspeIconWidth", this._container.node().ownerSVGElement.parentElement.offsetWidth - 95);
             this._viewOptions.deleteIconWidth = _.get(args, "viewOptions.deleteIconWidth", this._container.node().ownerSVGElement.parentElement.offsetWidth - 125);
 
-            this._viewOptions.heading.minWidth = 1000;
-            this._viewOptions.contentMinWidth = 1000;
+            this._viewOptions.heading.minWidth = 700;
+            this._viewOptions.contentMinWidth = 700;
 
             this._viewOptions.totalHeightGap = 50;
             this._viewOptions.LifeLineCenterGap = 180;
             this._viewOptions.defua = 180;
             this._viewOptions.hoverClass = _.get(args, "viewOptions.cssClass.hover_svg", 'design-view-hover-svg');
-
-            this._variableButton = undefined;
-            this._variablePane = undefined;
 
             //setting initial height for connector action container
             this._totalHeight = 230;
@@ -109,7 +106,52 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          * Init the event listeners
          */
         ConnectorActionView.prototype.init = function(){
-            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
+            this.listenTo(this._model, 'child-removed', this.childRemovedCallback, this);
+            this._model.on('before-remove', this.onBeforeModelRemove, this);
+        };
+
+        ConnectorActionView.prototype.onBeforeModelRemove = function () {
+            d3.select("#_" +this._model.id).remove();
+            $(this._nameDiv).remove();
+            this.getBoundingBox().move(0, -this.getBoundingBox().h() - 25);
+        };
+
+        /**
+         * Child remove callback
+         * @param {ASTNode} child - removed child
+         */
+        ConnectorActionView.prototype.childRemovedCallback = function (child) {
+            var self = this;
+            if (BallerinaASTFactory.isStatement(child)) {
+                this.getStatementContainer().childStatementRemovedCallback(child);
+            } else if (BallerinaASTFactory.isConnectorDeclaration(child) || BallerinaASTFactory.isWorkerDeclaration(child)) {
+                var childViewIndex = _.findIndex(this._connectorViewList, function (view) {
+                    return view.getModel().id === child.id;
+                });
+
+                if (childViewIndex === 0) {
+                    // Deleted the first connector/worker in the list (Addresses both first element scenario and the only element scenario
+                    if (!_.isNil(this._connectorWorkerViewList[childViewIndex + 1])) {
+                        // Unregister the listening event of the second element on the first element
+                        this._connectorWorkerViewList[childViewIndex + 1].stopListening(this._connectorWorkerViewList[childViewIndex].getBoundingBox());
+                    }
+                } else if (childViewIndex === this._connectorWorkerViewList.length - 1) {
+                    // Deleted the last connector/worker when there are more than one worker/ connector
+                    this._connectorWorkerViewList[childViewIndex].stopListening(this._connectorWorkerViewList[childViewIndex - 1].getBoundingBox());
+                } else {
+                    // Deleted connector is in between two other connectors/ workers
+                    // Connector being deleted, stop listening to it's previous connector
+                    this._connectorWorkerViewList[childViewIndex].stopListening(this._connectorWorkerViewList[childViewIndex - 1].getBoundingBox());
+                    this._connectorWorkerViewList[childViewIndex + 1].stopListening(this._connectorWorkerViewList[childViewIndex].getBoundingBox());
+                    this._connectorWorkerViewList[childViewIndex + 1].listenTo(this._connectorWorkerViewList[childViewIndex - 1].getBoundingBox(), 'right-edge-moved', function (offset) {
+                        self.moveActionLevelConnector(this, offset);
+                    });
+                }
+                this._connectorWorkerViewList[childViewIndex] = null;
+                this._connectorWorkerViewList.splice(childViewIndex, 1);
+            }
+            // Remove the connector/ worker from the diagram rendering context
+            delete this.diagramRenderingContext.getViewModelMap()[child.id];
         };
 
         /**
@@ -229,8 +271,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             // Creating connector action icon for SVG definitions.
             var connectorActionIconSVGPattern = def.append("pattern").attr("id", "connectorActionIcon").attr("width", "100%")
                 .attr("height", "100%");
-            // TODO: Change the icon for the connector action
-            connectorActionIconSVGPattern.append("image").attr("xlink:href", "images/resource.svg").attr("x", 5)
+            // Connector action icon
+            connectorActionIconSVGPattern.append("image").attr("xlink:href", "images/action.svg").attr("x", 5)
                 .attr("y", 5).attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
 
             // Creating delete icon for SVG definitions.
@@ -295,8 +337,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 headingStart.y(), this._viewOptions.heading.icon.width,
                 this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("connectorActionHeadingIconHolder",true);
 
-            var headingRectIcon = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.icon.width,
-                this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("headingRectIcon", true);
+            var actionHeadingRectIcon = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.icon.width,
+                this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("actionHeadingRectIcon", true);
 
             var xEndOfHeadingRect = parseFloat(headingRect.attr("x")) + parseFloat(headingRect.attr("width")) ;
             var yForIcons = parseFloat(headingRect.attr("y")) + (((this._viewOptions.heading.icon.height) / 2) - (14 / 2));
@@ -311,8 +353,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // Creating connector action heading collapse icon.
             var headingCollapseIcon = D3utils.rect(xForCollpaseIcon, yForIcons,
-                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup)
-                .classed("headingCollapsedIcon", true);
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Collapse Pane")
+                .classed("headingExpandIcon", true).attr("style", "opacity: 0.4");
 
             // Creating separator for collapse icon.
             D3utils.line(xEndOfHeadingRect - this._viewOptions.heading.icon.width, parseFloat(headingRect.attr("y")) + 5,
@@ -347,8 +389,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var xForDeleteIcon = xEndOfHeadingRect - (2 * this._viewOptions.heading.icon.width) + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
 
             // Connector Action heading delete icon
+            // TODO: removed the tooltip temporarily
             var headingDeleteIcon = D3utils.rect(xForDeleteIcon, yForIcons,
-                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).classed("headingDeleteIcon", true);
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup)
+                .classed("headingDeleteIcon", true).attr("style", "opacity: 0.4");
 
             // Creating wrapper for annotation icon.
             var headingAnnotationIconWrapper = D3utils.rect(
@@ -360,7 +404,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // Connector Action heading annotation icon
             var headingAnnotationIcon = D3utils.rect(xForAnnotationIcon, yForIcons,
-                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).classed("headingAnnotationBlackIcon", true);
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Annotations")
+                .classed("headingAnnotationBlackIcon", true).attr("style", "opacity: 0.4");
 
             // Creating wrapper for arguments icon.
             var headingArgumentsIconWrapper = D3utils.rect(
@@ -372,7 +417,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // Connector Action heading arguments icon.
             var headingArgumentsIcon = D3utils.rect(xForArgumentsIcon, yForIcons,
-                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).classed("headingArgumentsBlackIcon", true);
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Arguments")
+                .classed("headingArgumentsBlackIcon", true).attr("style", "opacity: 0.4");
 
             // Creating wrapper for Return Types icon.
             var headingReturnTypesIconWrapper = D3utils.rect(
@@ -384,7 +430,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // Connector Action heading Return Types icon.
             var headingReturnTypesIcon = D3utils.rect(xForReturnTypesIcon, yForIcons,
-                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).classed("headingReturnTypeBlackIcon", true);
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Return Types")
+                .classed("headingReturnTypeBlackIcon", true).attr("style", "opacity: 0.4");
 
             // UI changes when the annotation button is clicked.
             $(headingAnnotationIcon.node()).click(function () {
@@ -416,6 +463,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 }
             });
 
+            //initialize all svg related tooltips
+            $('svg rect').tooltip({'container': 'body'});
+
             // UI changes when the return Types button is clicked.
             $(headingReturnTypesIcon.node()).click(function () {
                 if ($(this).data("showing") === "true") {
@@ -433,12 +483,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // Add the connector action name editable html area
             var svgWrappingHtml = this.getChildContainer().node().ownerSVGElement.parentElement;
-            var nameDiv = $("<div></div>");
-            nameDiv.css('left', (parseInt(headingStart.x()) + 30) + "px");
-            nameDiv.css('top', parseInt(headingStart.y()) + "px");
-            nameDiv.css('width',"100px");
-            nameDiv.css('height',"25px");
-            nameDiv.addClass("name-container-div");
+            this._nameDiv = $("<div></div>");
+            this._nameDiv.css('left', (parseInt(headingStart.x()) + 30) + "px");
+            this._nameDiv.css('top', parseInt(headingStart.y()) + "px");
+            this._nameDiv.css('width',"100px");
+            this._nameDiv.css('height',"25px");
+            this._nameDiv.addClass("name-container-div");
             var nameSpan = $("<span></span>");
             nameSpan.text(self._model.getActionName());
             nameSpan.addClass("name-span");
@@ -446,8 +496,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             nameSpan.attr("spellcheck", "false");
             nameSpan.focus();
             nameSpan.blur();
-            nameDiv.append(nameSpan);
-            $(svgWrappingHtml).append(nameDiv);
+            this._nameDiv.append(nameSpan);
+            $(svgWrappingHtml).append(this._nameDiv);
             // Container for connector action body
             var contentGroup = D3utils.group(connectorActionGroup);
             contentGroup.attr('id', "contentGroup");
@@ -478,13 +528,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     // connector action content is expanded. Hence expand connector action BBox
                     connectorActionBBox.h(connectorActionBBox.h() + self._minizedHeight);
 
-                    // show the variable button and variable pane
-                    self._variableButton.show();
-                    self._variablePane.show();
-
                     // Changing icon if the collapse.
-                    headingCollapseIcon.classed("headingExpandIcon", false);
-                    headingCollapseIcon.classed("headingCollapsedIcon", true);
+                    headingCollapseIcon.classed("headingExpandIcon", true);
+                    headingCollapseIcon.classed("headingCollapsedIcon", false);
                 }
                 else {
                     contentGroup.attr("display", "none");
@@ -492,13 +538,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     self._minizedHeight =  parseFloat(contentRect.attr('height'));
                     connectorActionBBox.h(connectorActionBBox.h() - self._minizedHeight);
 
-                    // hide the variable button and variable pane
-                    self._variableButton.hide();
-                    self._variablePane.hide();
-
                     // Changing icon if the collapse.
-                    headingCollapseIcon.classed("headingExpandIcon", true);
-                    headingCollapseIcon.classed("headingCollapsedIcon", false);
+                    headingCollapseIcon.classed("headingExpandIcon", false);
+                    headingCollapseIcon.classed("headingCollapsedIcon", true);
                 }
             };
 
@@ -509,13 +551,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             // On click of delete icon
             headingDeleteIcon.on("click", function () {
                 log.debug("Clicked delete button");
-                var child = self._model;
-                var parent = child.parent;
-                parent.removeChild(child);
+                self._model.remove();
             });
 
             this.getBoundingBox().on("height-changed", function(dh){
-                this._contentRect.attr('height', parseFloat(this._contentRect.attr('height')) + dh);
+                var newHeight = parseFloat(this._contentRect.attr('height')) + dh;
+                this._contentRect.attr('height', (newHeight < 0 ? 0 : newHeight));
             }, this);
 
             this.getBoundingBox().on("right-edge-moved", function(dw){
@@ -525,8 +566,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 this._contentRect.attr('width', parseFloat(this._contentRect.attr('width')) + dw);
                 this._headingRect.attr('width', parseFloat(this._headingRect.attr('width')) + dw);
                 // If the bounding box of the connector action go over the svg's current width
-                if (this.getBoundingBox().getRight() > this._parentView.getServiceContainer().width()) {
-                    this._parentView.setServiceContainerWidth(this.getBoundingBox().getRight() + 60);
+                if (this.getBoundingBox().getRight() > this._parentView.getSVG().width()) {
+                    this._parentView.setSVGWidth(this.getBoundingBox().getRight() + 60);
                 }
             }, this);
 
@@ -553,24 +594,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 // Show/Hide scrolls.
                 self._showHideScrolls(self.getChildContainer().node().ownerSVGElement.parentElement, self.getChildContainer().node().ownerSVGElement);
             });
-
-            this._variableButton = VariablesView.createVariableButton(this.getChildContainer().node(),
-                parseInt(this.getChildContainer().attr("x")) + 4, parseInt(this.getChildContainer().attr("y")) + 7);
-
-            var variableProperties = {
-                model: this._model,
-                activatorElement: this._variableButton,
-                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
-                viewOptions: {
-                    position: {
-                        x: parseInt(this.getChildContainer().attr("x")) + 17,
-                        y: parseInt(this.getChildContainer().attr("y")) + 6
-                    },
-                    width: parseInt(this.getChildContainer().node().getBBox().width) - (2 * $(this._variableButton).width())
-                }
-            };
-
-            this._variablePane = VariablesView.createVariablePane(variableProperties);
 
             var annotationProperties = {
                 model: this._model,
@@ -600,24 +623,25 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 }
             };
 
-            ArgumentsView.createArgumentsPane(argumentsProperties);
+            ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
 
+            // Creating return type pane.
             var returnTypeProperties = {
                 model: this._model,
                 activatorElement: headingReturnTypesIcon.node(),
                 paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
                 viewOptions: {
-                    position: {
-                        left: parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
-                        top: this.getChildContainer().attr("y")
-                    }
-                }
+                    position: new Point(parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
+                        this.getChildContainer().attr("y"))
+                },
+                view: this
             };
 
-            // Creating return type pane.
-            ReturnTypeView.createReturnTypePane(returnTypeProperties);
+            this._returnTypePaneView = new ReturnTypesPaneView(returnTypeProperties);
+            this._returnTypePaneView.createReturnTypePane(diagramRenderingContext);
 
-            var operationButtons = [headingAnnotationIcon.node(), headingArgumentsIcon.node()];
+            var operationButtons = [headingAnnotationIcon.node(), headingArgumentsIcon.node(),
+                headingReturnTypesIcon.node()];
 
             // Closing the shown pane when another operation button is clicked.
             _.forEach(operationButtons, function (button) {
@@ -640,16 +664,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     " translate(" + offset.dx + ", " + offset.dy + ")");
 
                 // Reposition the connector action name container
-                var newDivPositionVertical = parseInt(nameDiv.css("top")) + offset.dy;
-                nameDiv.css("top", newDivPositionVertical + "px");
-
-                // Reposition Variable button
-                var newVButtonPositionVertical = parseInt($(self._variableButton).css("top")) + offset.dy;
-                $(self._variableButton).css("top", newVButtonPositionVertical + "px");
-
-                // Reposition variable pane
-                var newVPanePositionVertical = parseInt($(self._variablePane).css("top")) + offset.dy;
-                $(self._variablePane).css("top", newVPanePositionVertical + "px");
+                var newDivPositionVertical = parseInt(this._nameDiv.css("top")) + offset.dy;
+                this._nameDiv.css("top", newDivPositionVertical + "px");
             }, this);
         };
 
@@ -706,6 +722,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             _.set(statementContainerOpts, 'width', this._defaultWorker.width());
             _.set(statementContainerOpts, 'container', this._defaultWorker.getContentArea().node());
             _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
+            _.set(statementContainerOpts, 'offset', {top: 40, bottom: 40});
             this._statementContainer = new StatementContainer(statementContainerOpts);
             this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy){
                 this._defaultWorker.getBottomCenter().y(this._statementContainer.getBoundingBox().getBottom());
@@ -810,11 +827,18 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             _.set(connectorOpts, 'centerPoint', center);
             connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
-            this._connectorWorkerViewList.push(connectorDeclarationView);
 
             connectorDeclarationView._rootGroup.attr('id', '_' +connectorDeclarationView._model.id);
-
             connectorDeclarationView.render();
+
+            if (this._connectorWorkerViewList.length > 0) {
+                // There are already added action level connectors
+                // New action level connector listens to the current last action level connector
+                var lastConnector = _.last(this._connectorWorkerViewList);
+                connectorDeclarationView.listenTo(lastConnector.getBoundingBox(), 'right-edge-moved', function (offset) {
+                    self.moveActionLevelConnector(this, offset);
+                });
+            }
 
             // If the New Connector or the worker goes out of the action bounding box we expand the action BBox
             if (connectorDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
@@ -824,30 +848,21 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             }
 
             // Creating property pane
-            var editableProperties = [
-                {
+            var editableProperty = {
                     propertyType: "text",
-                    key: "Name",
+                    key: "ConnectorDeclaration",
                     model: connectorDeclarationView._model,
-                    getterMethod: connectorDeclarationView._model.getConnectorVariable,
-                    setterMethod: connectorDeclarationView._model.setConnectorVariable
-                },
-                {
-                    propertyType: "text",
-                    key: "Uri",
-                    model: connectorDeclarationView._model,
-                    getterMethod: connectorDeclarationView._model.getUri,
-                    setterMethod: connectorDeclarationView._model.setUri
-                }
-            ];
+                    getterMethod: connectorDeclarationView._model.getConnectorExpression,
+                    setterMethod: connectorDeclarationView._model.setConnectorExpression
+            };
             connectorDeclarationView.createPropertyPane({
                 model: connectorDeclarationView._model,
                 lifeLineGroup:connectorDeclarationView._rootGroup,
-                editableProperties: editableProperties
+                editableProperties: editableProperty
             });
 
             connectorDeclarationView.setParent(this);
-
+            this._connectorWorkerViewList.push(connectorDeclarationView);
             this.getBoundingBox().on("height-changed", function (dh) {
                 this.getBoundingBox().h(this.getBoundingBox().h() + dh);
             }, connectorDeclarationView);
@@ -951,6 +966,23 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             } else {
                 return false;
             }
+        };
+
+        /**
+         * Return statement container
+         * @return {StatementContainerView}
+         */
+        ConnectorActionView.prototype.getStatementContainer = function () {
+            return this._statementContainer;
+        };
+
+        /**
+         * Move the action level connector
+         * @param {BallerinaView} connectorView - Connector View
+         * @param {number} offset - Move offset
+         */
+        ConnectorActionView.prototype.moveActionLevelConnector = function (connectorView, offset) {
+            connectorView.getBoundingBox().move(offset, 0);
         };
 
         return ConnectorActionView;

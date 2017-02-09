@@ -27,7 +27,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
 /**
- * This class contain util methods to add connectors and actions to a given symbol scope
+ * This class contain util methods to add connectors and actions to a given symbol scope.
  *
  * @since 0.8.0
  */
@@ -45,7 +45,7 @@ public class Connectors {
     public static void addNativeConnector(SymScope symScope, AbstractNativeConnector connector) {
         SymbolName symbolName = LangModelUtils.getConnectorSymName(
                 connector.getClass().getAnnotation(BallerinaConnector.class).connectorName(),
-                connector.getPackageName());
+                connector.getPackagePath());
         Symbol symbol = new Symbol(connector);
         symScope.insert(symbolName, symbol);
     }
@@ -59,7 +59,7 @@ public class Connectors {
     public static void addAction(SymScope symScope, AbstractNativeAction action) {
         BallerinaAction annotations = (BallerinaAction) action.getClass().getAnnotation(BallerinaAction.class);
         SymbolName symbolName = LangModelUtils.getActionSymName(annotations.actionName(), annotations.connectorName(),
-                annotations.packageName(), LangModelUtils.getTypesOfParams(action.getParameters()));
+                annotations.packageName(), LangModelUtils.getTypesOfParams(action.getParameterDefs()));
         Symbol symbol = new Symbol(action);
         symScope.insert(symbolName, symbol);
     }

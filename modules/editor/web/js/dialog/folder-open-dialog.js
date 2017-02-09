@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (require, $, log, Backbone, FileBrowser) {
+define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'bootstrap'], function (require, $, log, Backbone, FileBrowser) {
     var FolderOpenDialog = Backbone.View.extend(
         /** @lends FolderOpenDialog.prototype */
         {
@@ -46,13 +46,20 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     app = this.application,
                     options = this._options;
 
-                var openFolderModal = $(_.get(options, 'modal_selector'));
+                if(!_.isNil(this._modalContainer)){
+                    this._modalContainer.remove();
+                }
+
+                var openFolderModal = $(_.get(options, 'modal_selector')).clone();
 
                 var errorsContainer = openFolderModal.find(_.get(options, 'errors_container'));
                 var location = openFolderModal.find("input").filter(_.get(options, 'location_input'));
                 var treeContainer = openFolderModal.find("div").filter(_.get(options, 'tree_container'));
+                var innerContainer = $('<div></div>');
+                treeContainer.empty();
+                treeContainer.append(innerContainer);
 
-                fileBrowser = new FileBrowser({container: treeContainer, application: app, fetchFiles: false});
+                fileBrowser = new FileBrowser({container: innerContainer, application: app, fetchFiles: false});
                 fileBrowser.render();
                 this._fileBrowser = fileBrowser;
 

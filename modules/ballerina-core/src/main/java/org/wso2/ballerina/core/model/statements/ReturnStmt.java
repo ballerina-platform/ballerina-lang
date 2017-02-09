@@ -18,21 +18,20 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.Expression;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * {@code ReturnStmt} represents a return statement
+ * {@code ReturnStmt} represents a return statement.
  *
  * @since 0.8.0
  */
 public class ReturnStmt extends AbstractStatement {
     private Expression[] exprs;
 
-    private ReturnStmt(Expression[] exprs) {
+    public ReturnStmt(NodeLocation location, Expression[] exprs) {
+        super(location);
         this.exprs = exprs;
     }
 
@@ -52,25 +51,5 @@ public class ReturnStmt extends AbstractStatement {
     @Override
     public void execute(NodeExecutor executor) {
         executor.visit(this);
-    }
-
-    /**
-     * Builds a {@code ReturnStmt} statement
-     *
-     * @since 0.8.0
-     */
-    public static class ReturnStmtBuilder {
-        List<Expression> expressionList = new ArrayList<>();
-
-        public ReturnStmtBuilder() {
-        }
-
-        public void setExpressionList(List<Expression> expressionList) {
-            this.expressionList = expressionList;
-        }
-
-        public ReturnStmt build() {
-            return new ReturnStmt(expressionList.toArray(new Expression[expressionList.size()]));
-        }
     }
 }

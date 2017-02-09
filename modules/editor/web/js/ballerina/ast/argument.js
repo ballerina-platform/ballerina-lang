@@ -19,9 +19,9 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
 
     /**
      * Constructor for Argument
-     * @param {Object} args - The arguments to create the Argument.
-     * @param {string} args.type - Type of the argument.
-     * @param {string} args.identifier - Identifier of the argument.
+     * @param {Object} [args] - The arguments to create the Argument.
+     * @param {string} [args.type=undefined] - Type of the argument.
+     * @param {string} [args.identifier=undefined] - Identifier of the argument.
      * @constructor
      * @augments ASTNode
      */
@@ -31,7 +31,7 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
         this.identifier = _.get(args, "identifier");
 
         // Validating the argument.
-        if (!_.isUndefined(this.identifier) && !Argument.isValidIdentifier(this.identifier)) {
+        if (!_.isUndefined(this.identifier) && !ASTNode.isValidIdentifier(this.identifier)) {
             var exceptionString = "Invalid identifier: \'" + this.identifier + "\'. An identifier must match the regex " +
                 "^[a-zA-Z$_][a-zA-Z0-9$_]*$";
             log.error(exceptionString);
@@ -42,9 +42,9 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
     Argument.prototype = Object.create(ASTNode.prototype);
     Argument.prototype.constructor = Argument;
 
-    Argument.prototype.setType = function (type) {
+    Argument.prototype.setType = function (type, options) {
         if (!_.isNil(type)) {
-            this.type = type;
+            this.setAttribute('type', type, options);
         }
     };
 
@@ -52,9 +52,16 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
         return this.type;
     };
 
-    Argument.prototype.setIdentifier = function (identifier) {
-        if (!_.isNil(identifier) && Argument.isValidIdentifier(identifier)) {
-            this.identifier = identifier;
+    Argument.prototype.getArgumentAsString = function() {
+        var argAsString = "";
+        argAsString += this.type;
+        argAsString += !_.isUndefined(this.identifier) ? " " + this.identifier : "";
+        return argAsString;
+    };
+
+    Argument.prototype.setIdentifier = function (identifier, options) {
+        if (_.isNil(identifier) || ASTNode.isValidIdentifier(identifier)) {
+            this.setAttribute('identifier', identifier, options);
         } else {
             var exceptionString = "Invalid identifier: \'" + identifier + "\'. An identifier must match the regex " +
                 "^[a-zA-Z$_][a-zA-Z0-9$_]*$";
@@ -78,18 +85,8 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
      * @param {string} jsonNode.parameter_name - Identifier of the argument
      */
     Argument.prototype.initFromJson = function (jsonNode) {
-        this.type = jsonNode.parameter_type;
-        this.identifier = jsonNode.parameter_name;
-    };
-
-    /**
-     * Checks whether the identifier is valid or not.
-     * @param {string} identifier - The identifier
-     * @return {boolean} - True if valid identifier, else false.
-     * @static
-     */
-    Argument.isValidIdentifier = function (identifier) {
-        return identifier === undefined ? false : /^[a-zA-Z$_][a-zA-Z0-9$_]*$/.test(identifier);
+        this.setType(jsonNode.parameter_type, {doSilently: true});
+        this.setIdentifier(jsonNode.parameter_name, {doSilently: true});
     };
 
     return Argument;

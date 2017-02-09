@@ -19,7 +19,7 @@ package org.wso2.ballerina.core.model.values;
 import org.wso2.ballerina.core.model.Connector;
 
 /**
- * The {@code BConnector} represents a Connector in Ballerina
+ * The {@code BConnector} represents a Connector in Ballerina.
  *
  * @since 0.8.0
  */

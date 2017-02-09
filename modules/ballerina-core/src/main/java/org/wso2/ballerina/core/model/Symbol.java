@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.model.types.BType;
 
 /**
  * {@code Symbol} represents a data structure that simply defines the type of variables,
- * function invocation exprs etc
+ * function invocation exprs etc.
  *
  * @since 0.8.0
  */
@@ -34,9 +34,10 @@ public class Symbol {
     private MemoryLocation location;
 
     private Function function;
-
+    private TypeConvertor typeConvertor;
     private Action action;
     private Connector connector;
+    private StructDef structDef;
 
     public Symbol(BType type, SymScope.Name scopeName, MemoryLocation location) {
         this.type = type;
@@ -48,6 +49,10 @@ public class Symbol {
         this.function = function;
     }
 
+    public Symbol(TypeConvertor typeConvertor) {
+        this.typeConvertor = typeConvertor;
+    }
+
     public Symbol(Action action) {
         this.action = action;
     }
@@ -56,6 +61,9 @@ public class Symbol {
         this.connector = connector;
     }
 
+    public Symbol(StructDef structDef) {
+        this.structDef = structDef;
+    }
 
     public BType getType() {
         return type;
@@ -73,12 +81,20 @@ public class Symbol {
         return function;
     }
 
+    public TypeConvertor getTypeConvertor() {
+        return typeConvertor;
+    }
+
     public Action getAction() {
         return action;
     }
 
     public Connector getConnector() {
         return connector;
+    }
+    
+    public StructDef getStructDef() {
+        return structDef;
     }
 }
 

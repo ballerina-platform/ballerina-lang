@@ -27,7 +27,6 @@ import org.testng.annotations.Test;
 import org.wso2.msf4j.MicroservicesRunner;
 import org.wso2.msf4j.formparam.util.StreamUtil;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +36,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Scanner;
-
 import javax.ws.rs.HttpMethod;
 
 public class BLangJSONModelTest {
@@ -45,11 +43,7 @@ public class BLangJSONModelTest {
     private MicroservicesRunner microservicesRunner;
     //private HashMap<String, Package> packages = new HashMap<String, Package>();
     private String exptdStrFunc = "{\"root\":[{\"type\":\"package\",\"package_name\":\"test.samples\"}," +
-                                  "{\"type\":\"import\",\"import_package_name\":\"twitter\"," +
-                                  "\"import_package_path\":\"ballerina.connectors.twitter\"},{\"type\":\"import\"," +
-                                  "\"import_package_name\":\"sf\",\"import_package_path\":\"ballerina.connectors" +
-                                  ".salesforce\"},{\"type\":\"import\",\"import_package_name\":\"samples\"," +
-                                  "\"import_package_path\":\"test.samples\"},{\"type\":\"service_definition\"," +
+                                  "{\"type\":\"service_definition\"," +
                                   "\"service_name\":\"HelloService\",\"annotations\":[]," +
                                   "\"children\":[{\"type\":\"resource_definition\",\"resource_name\":\"tweet\"," +
                                   "\"annotations\":[{\"type\":\"annotation\",\"annotation_name\":\"GET\"," +
@@ -62,7 +56,7 @@ public class BLangJSONModelTest {
                                   "\"function_name\":\"test\",\"is_public_function\":false,\"annotations\":[]," +
                                   "\"children\":[{\"type\":\"argument_declaration\",\"parameter_name\":\"a\"," +
                                   "\"parameter_type\":\"int\",\"children\":[]},{\"type\":\"return_type\"," +
-                                  "\"children\":[{\"type\":\"type_name\",\"type_name\":\"int\"}]}," +
+                                  "\"children\":[{\"type\":\"return_argument\",\"parameter_type\":\"int\"}]}," +
                                   "{\"type\":\"return_statement\",\"children\":[{\"type\":\"add_expression\"," +
                                   "\"children\":[{\"type\":\"variable_reference_expression\"," +
                                   "\"variable_reference_name\":\"a\"},{\"type\":\"basic_literal_expression\"," +
@@ -113,7 +107,7 @@ public class BLangJSONModelTest {
 
     public void registerNativeAction(AbstractNativeAction action) {
         Package aPackage = packages
-                .computeIfAbsent(action.getPackageName(), k -> new Package(action.getPackageName()));
+                .computeIfAbsent(action.getPackageName(), k -> new Package(action.getPackagePath()));
         aPackage.getActions().put(action.getName(), action);
 
         String actionName = action.getSymbolName().getName();

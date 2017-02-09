@@ -106,6 +106,10 @@
             <groupId>org.wso2.ballerina</groupId>
             <artifactId>gson-fragment</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.staxon</groupId>
+            <artifactId>staxon-core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -205,6 +209,10 @@
                                 <bundle>
                                     <symbolicName>gson-fragment</symbolicName>
                                     <version>${ballerina.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>staxon-core</symbolicName>
+                                    <version>${staxon.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>

@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../ast/argument',
+define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../ast/node',
         './../ast/resource-parameter'],
-    function (_, log, $, Alerts, ResourceParameterView, Argument, ResourceParameter) {
+    function (_, log, $, Alerts, ResourceParameterView, ASTNode, ResourceParameter) {
 
         /**
          * Creates the resource parameters pane. This is not a ballerina view. This is simply a pane which is created
@@ -30,9 +30,6 @@ define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../
          * @param {ResourceDefinitionView} args.view - The resource definition view.
          */
         var ResourceParametersPaneView = function (args) {
-            this._supportedParameterTypes = ['message', 'connection', 'string', 'int', 'exception', 'json', 'xml',
-                'map', 'string[]', 'int[]'];
-
             this._activatorElement = _.get(args, "activatorElement");
             this._model = _.get(args, "model");
             this._paneElement = _.get(args, "paneAppendElement");
@@ -102,6 +99,7 @@ define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../
             // Creating parameter type dropdown.
             var parameterTypeDropDown = $("<select/>").appendTo(parameterWrapper);
 
+            this._supportedParameterTypes = this._viewOfModel.getDiagramRenderingContext().getEnvironment().getTypes();
             // Adding dropdown elements.
             _.forEach(this._supportedParameterTypes, function (type) {
                 // Adding supported parameter types to the type dropdown.
@@ -126,7 +124,7 @@ define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../
                 var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
 
                 // Validation the identifier against grammar.
-                if (!Argument.isValidIdentifier(newIdentifier)) {
+                if (!ASTNode.isValidIdentifier(newIdentifier)) {
                     var errorString = "Invalid identifier for a parameter: " + newIdentifier;
                     log.error(errorString);
                     Alerts.error(errorString);
@@ -240,7 +238,7 @@ define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../
                     model: parameter,
                     container: wrapper,
                     toolPalette: self._viewOfModel.getToolPalette(),
-                    messageManager: this.getMessageManager,
+                    messageManager: self._viewOfModel.getMessageManager(),
                     parentView: self._viewOfModel
                 });
 
@@ -257,7 +255,7 @@ define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../
                     self._createCurrentParametersView(wrapper);
                 });
 
-                $(resourceParameterView.getParameterWrapper()).dblclick({
+                $(resourceParameterView.getParameterWrapper()).click({
                     modelID: parameter.getID()
                 }, function (event) {
                     self._createCurrentParametersView(wrapper);

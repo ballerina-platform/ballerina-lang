@@ -21,13 +21,19 @@ button.close {
 }
 
 #tabs-container > div.tab-headers.tab-headers-bar > ul {
-    border-bottom: 0px;
+    border-bottom: 0;
 }
 
 .bottom-right-controls-container {
     position: absolute;
-    bottom: 125px;
-    right: 25px;
+    bottom: 80px;
+    right: 0px;
+    z-index: 30;
+    width: 20%;
+    background: #333;
+    color: #fff;
+    padding: 5px 0;
+    border-radius: 2px 0 0 0;
 }
 
 .top-right-controls-container {
@@ -106,12 +112,18 @@ button.close {
     padding-right: 17px;
     padding-left: 5px;
     border-right: 1px;
-    background: #555
+    background: #555;
+    border-left: 1px solid #333;
+}
+
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li:first-child {
+    border-left: none;
 }
 
 #tabs-container > div.tab-headers.tab-headers-bar > ul > li.active {
     background: white;
     color: #555;
+    border-left: 3px solid #f17b31;
 }
 
 #tabs-container > div.tab-headers.tab-headers-bar > ul > li.active.inverse {
@@ -150,8 +162,22 @@ button.close {
     opacity: 1;
     color: #333;
 }
-li > button.close{
-    top:2px;
+
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li > button.close {
+    top: 0;
     right: 2px;
     font-size: 20px;
 }
+
+.view-source-btn, .view-swagger-btn, .view-design-btn {
+    float: left;
+    margin: 1px 0 1px 10px;
+    padding-right: 11px;
+    font-size: 12px;
+}
+
+.bottom-view-label {
+    font-size: 12px;
+    padding-left: 5px;
+}
+

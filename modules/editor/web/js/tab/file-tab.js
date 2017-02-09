@@ -15,16 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace', 'ballerina/diagram-render/diagram-render-context',
-        'ballerina/views/backend', 'ballerina/ast/ballerina-ast-deserializer'],
-    function (require, log, $, _, Tab, Ballerina, Workspace, DiagramRenderContext, Backend, BallerinaASTDeserializer) {
+define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/file', 'ballerina/diagram-render/diagram-render-context',
+        'ballerina/views/backend', 'ballerina/ast/ballerina-ast-deserializer', '../debugger/debug-manager'],
+    function (require, log, $, _, Tab, Ballerina, File, DiagramRenderContext, Backend, BallerinaASTDeserializer, DebugManager) {
     var FileTab;
 
     FileTab = Tab.extend({
         initialize: function (options) {
             Tab.prototype.initialize.call(this, options);
             if (!_.has(options, 'file')) {
-                this._file = new Workspace.File({isTemp: true}, {storage: this.getParent().getBrowserStorage()});
+                this._file = new File({isTemp: true}, {storage: this.getParent().getBrowserStorage()});
             } else {
                 this._file = _.get(options, 'file');
             }
@@ -35,7 +35,6 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             this.app = options.application;
             this.backend = new Backend({"url" : this.app.config.services.parser.endpoint});
             this.deserializer = BallerinaASTDeserializer;
-
         },
 
         getTitle: function(){
@@ -76,13 +75,18 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
         },
 
         renderAST: function(astRoot){
+            var self = this;
             var ballerinaEditorOptions = _.get(this.options, 'ballerina_editor');
+            var backendEndpointsOptions = _.get(this.options, 'application.config.services');
             var diagramRenderingContext = new DiagramRenderContext();
 
             var fileEditor = new Ballerina.views.BallerinaFileEditor({
                 model: astRoot,
+                file: self._file,
                 container: this.$el.get(0),
-                viewOptions: ballerinaEditorOptions
+                viewOptions: ballerinaEditorOptions,
+                backendEndpointsOptions: backendEndpointsOptions,
+                debugger: DebugManager
             });
 
             // change tab header class to match look and feel of source view
@@ -93,15 +97,54 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
                 this.getHeader().toggleClass('inverse');
             }, this);
 
+            fileEditor.on('add-breakpoint', function(row){
+                DebugManager.addBreakPoint(row, this._file.getName());
+            }, this);
+
+            fileEditor.on('remove-breakpoint', function(row){
+                DebugManager.removeBreakPoint(row, this._file.getName());
+            }, this);
+
+            DebugManager.on('debug-hit', function(message){
+                var position = message.position;
+                if(position.fileName == this._file.getName()){
+                    fileEditor.debugHit(position);
+                }
+            }, this);
+
             this._fileEditor = fileEditor;
             fileEditor.render(diagramRenderingContext);
 
-            fileEditor.on("content-modified redraw", function(){
-                this.trigger("tab-content-modified");
-                var updatedContent = this.getBallerinaFileEditor().generateSource();
+            fileEditor.on("content-modified", function(){
+                var updatedContent = fileEditor.getContent();
                 this._file.setContent(updatedContent);
+                this._file.setDirty(true);
                 this._file.save();
+                this.app.workspaceManager.updateMenuItems();
+                this.trigger("tab-content-modified");
             }, this);
+
+            this._file.on("dirty-state-change", function () {
+                this.app.workspaceManager.updateSaveMenuItem();
+                this.updateHeader();
+            }, this);
+
+            fileEditor.on("dispatch-command", function (id) {
+                this.app.commandManager.dispatch(id);
+            }, this);
+
+            // bind app commands to source editor commands
+            this.app.commandManager.getCommands().forEach(function(command){
+                fileEditor.getSourceView().bindCommand(command);
+            });
+        },
+
+        updateHeader: function(){
+            if (this._file.isDirty()) {
+                this.getHeader().setText('* ' + this.getTitle());
+            } else {
+                this.getHeader().setText(this.getTitle());
+            }
         },
 
         createEmptyBallerinaRoot: function() {
@@ -127,7 +170,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
 
         getBallerinaFileEditor: function () {
             return this._fileEditor;
-        }
+        },
 
     });
 

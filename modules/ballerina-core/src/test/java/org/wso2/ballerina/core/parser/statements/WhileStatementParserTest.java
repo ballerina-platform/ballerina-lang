@@ -26,6 +26,9 @@ package org.wso2.ballerina.core.parser.statements;
 //
 //import java.util.Map;
 
+/**
+ * Test class for WhileStatement parser.
+ */
 public class WhileStatementParserTest {
 
 //    @Test

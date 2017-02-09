@@ -22,11 +22,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.tooling.service.workspace.Workspace;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.util.Comparator;
 import java.util.Iterator;
 
 /**
@@ -36,6 +35,7 @@ public class LocalFSWorkspace implements Workspace {
 
     private static final Logger logger = LoggerFactory.getLogger(LocalFSWorkspace.class);
     private static final String FILE_EXTENSION = ".bal";
+    private static final String FOLDER_TYPE = "folder";
 
     @Override
     public JsonArray listRoots() throws IOException  {
@@ -49,8 +49,8 @@ public class LocalFSWorkspace implements Workspace {
                     Iterator<Path> rootItr = Files.list(root).iterator();
                     while (rootItr.hasNext()){
                         Path next = rootItr.next();
-                        JsonObject childObj = getJsonObjForFile(next, true);
-                        if(Files.isDirectory(next)){
+                        if(Files.isDirectory(next) && !Files.isHidden(next)){
+                            JsonObject childObj = getJsonObjForFile(next, true);
                             children.add(childObj);
                         }
                     }
@@ -74,7 +74,7 @@ public class LocalFSWorkspace implements Workspace {
         Iterator<Path> iterator = Files.list(ioPath).iterator();
         while (iterator.hasNext()){
             Path next = iterator.next();
-            if(Files.isDirectory(next)){
+            if(Files.isDirectory(next) && !Files.isHidden(next)){
                 JsonObject jsnObj = getJsonObjForFile(next, true);
                 dirs.add(jsnObj);
             }
@@ -86,6 +86,29 @@ public class LocalFSWorkspace implements Workspace {
     public void write(String path, String content) throws IOException {
         Path ioPath = Paths.get(path);
         Files.write(ioPath, content.getBytes());
+    }
+
+    @Override
+    public void delete(String path, String type) throws IOException {
+        Path ioPath = Paths.get(path);
+        if (FOLDER_TYPE.equals(type)) {
+            Files.walk(ioPath, FileVisitOption.FOLLOW_LINKS)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        } else {
+            Files.delete(ioPath);
+        }
+    }
+
+    @Override
+    public void create(String path, String type) throws IOException {
+        Path ioPath = Paths.get(path);
+        if (FOLDER_TYPE.equals(type)) {
+            Files.createDirectories(ioPath);
+        } else {
+            Files.createFile(ioPath);
+        }
     }
 
     @Override
@@ -149,4 +172,14 @@ public class LocalFSWorkspace implements Workspace {
 		}
 		return dirs;
 	}
+
+    @Override
+    public JsonObject exists(String path) throws IOException {
+        Path ioPath = Paths.get(path);
+        JsonObject result = new JsonObject();
+        boolean exists = Files.exists(ioPath);
+        result.addProperty("file", path);
+        result.addProperty("exists", exists);
+        return result;
+    }
 }

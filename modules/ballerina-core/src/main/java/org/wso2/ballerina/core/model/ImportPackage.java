@@ -35,10 +35,12 @@ package org.wso2.ballerina.core.model;
  * @since 0.8.0
  */
 public class ImportPackage implements Node {
-
+    protected NodeLocation location;
     private String path;
     private String name;
-    protected Position sourceLocation;
+    private String asName;
+
+    private boolean isUsed;
 
     public ImportPackage(String path) {
         int lastIndex = path.lastIndexOf(".");
@@ -51,24 +53,20 @@ public class ImportPackage implements Node {
         this.path = path;
     }
     
-    public ImportPackage(String path, Position location) {
+    public ImportPackage(NodeLocation location, String path) {
         this(path);
-        this.sourceLocation = location;
+        this.location = location;
     }
 
-    public ImportPackage(String path, String name) {
+    public ImportPackage(NodeLocation location, String path, String asName) {
+        this.location = location;
         this.path = path;
-        this.name = name;
-    }
-    
-    public ImportPackage(String path, String name, Position location) {
-        this.path = path;
-        this.name = name;
-        this.sourceLocation = location;
+        this.name = asName;
+        this.asName = asName;
     }
 
     /**
-     * Get the name of the import  package
+     * Get the name of the import  package.
      *
      * @return name of the import package
      */
@@ -76,13 +74,25 @@ public class ImportPackage implements Node {
         return name;
     }
 
+    public String getAsName() {
+        return asName;
+    }
+
     /**
-     * Get the path of the import package
+     * Get the path of the import package.
      *
      * @return name of the import package
      */
     public String getPath() {
         return path;
+    }
+
+    public boolean isUsed() {
+        return isUsed;
+    }
+
+    public void markUsed() {
+        isUsed = true;
     }
 
     public boolean equals(Object obj) {
@@ -98,23 +108,9 @@ public class ImportPackage implements Node {
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
-    
-    /**
-     * Get the source location of this import package statement.
-     * Return the source file and the line number of this import package statement.
-     * 
-     * @return  Source location of this import package statement
-     */
-    public Position getLocation() {
-        return sourceLocation;
-    }
 
-    /**
-     * Set the source location of this import package statement.
-     * 
-     * @param location  Source location of this import package statement.
-     */
-    public void setLocation(Position location) {
-        this.sourceLocation = location;
+    @Override
+    public NodeLocation getNodeLocation() {
+        return location;
     }
 }

@@ -18,10 +18,11 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 
 /**
- * {@code TryCatchStmt} represents a try/catch statement
+ * {@code TryCatchStmt} represents a try/catch statement.
  *
  * @since 0.8.0
  */
@@ -29,6 +30,10 @@ public class TryCatchStmt extends AbstractStatement {
     private Statement tryBlock;
 //    private List<ExceptionType> catchExceptions;
     private Statement catchBlock;
+
+    public TryCatchStmt(NodeLocation location) {
+        super(location);
+    }
 
 //    public TryCatchStmt(Statement tryBlock, List<ExceptionType> catchExceptions, Statement catchBlock) {
 //        this.tryBlock = tryBlock;

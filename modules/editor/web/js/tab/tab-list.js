@@ -112,6 +112,10 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                 tabHeaderLink.attr('href', '#' + tab.cid);
                 tabHeaderLink.text(tab.getTitle());
 
+                tabHeader.setText = function(text){
+                    tabHeaderLink.text(text);
+                };
+
                 var self = this;
                 tabHeaderLink.click(function(e){
                     tabHeaderLink.tab('show');

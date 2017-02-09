@@ -34,7 +34,7 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
 /**
- * Test class to validate the backtick based inline xml and json definitions
+ * Test class to validate the backtick based inline xml and json definitions.
  */
 public class TemplateExpressionTest {
     private BallerinaFile bFile;
@@ -125,6 +125,42 @@ public class TemplateExpressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected =  "{\"name\":\"chanaka\"}";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    @Test(description = "Test JSON backtick expression with int and string array variable reference")
+    public void testBacktickJSONArrayVariableAccess() {
+        BValue[] returns = Functions.invoke(bFile, "backtickJSONArrayVariableAccess");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BJSON.class);
+        String expected = "{\"strIndex0\":\"value0\",\"intIndex2\":2,\"strIndex2\":\"value2\"}";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    @Test(description = "Test XML backtick expression with int and string array variable reference")
+    public void testBacktickXMLArrayVariableAccess() {
+        BValue[] returns = Functions.invoke(bFile, "backtickXMLArrayVariableAccess");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BXML.class);
+        String expected = "<root><stringIndex1>value1</stringIndex1><intIndex1>1</intIndex1></root>";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    @Test(description = "Test JSON backtick expression with map variable reference")
+    public void testBacktickJSONMapVariableAccess() {
+        BValue[] returns = Functions.invoke(bFile, "backtickJSONMapVariableAccess");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BJSON.class);
+        String expected = "{\"val1\":\"value0\",\"val2\":1}";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    @Test(description = "Test XML backtick expression with map variable reference")
+    public void testBacktickXMLMapVariableAccess() {
+        BValue[] returns = Functions.invoke(bFile, "backtickXMLMapVariableAccess");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BXML.class);
+        String expected = "<root><stringIndex0>value0</stringIndex0><intIndex1>1</intIndex1></root>";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 }

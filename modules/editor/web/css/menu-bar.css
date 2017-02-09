@@ -1,8 +1,7 @@
 .menu-group{
     display: inline-block;
     color: #999;
-    padding: 3px 8px;
-    min-height: 50px;
+    padding: 0;
     position: relative;
 }
 
@@ -15,7 +14,32 @@
 }
 
 .menu-bar{
-    height: 27px;
+    height: 35px;
+    line-height: 35px;
+}
+
+.menu-bar .menu-group a {
+    display: block;
+    padding: 0 8px;
+    color: #cbcbcb;
+    transition: all 250ms ease 0s;
+}
+
+.menu-bar .menu-group > a {
+     line-height: 35px;
+}
+
+.menu-bar .menu-group.open a {
+    color: #fff;
+}
+
+.menu-bar .menu-group a:hover {
+    background-color: #383838;
+    color: #fff;
+}
+
+.menu-bar .menu-group.open a:hover {
+    background-color: #f17b31;
 }
 
 .dropdown-menu{
@@ -23,12 +47,16 @@
 }
 
 .dropdown-menu > .menu-item-enabled {
-    color: #959595;
+    color: #e2e2e2;
     cursor: pointer;
 }
 
 .dropdown-menu > .menu-item-enabled > a{
-    color: #959595;
+    color: #e2e2e2;
+    padding: 3px 10px;
+    font-weight: 300;
+    height: 27px;
+    float: inherit;
 }
 
 #menu-bar-container > div.menu-group > ul > li{
@@ -45,24 +73,49 @@
 .file-menu-group.open {
     background-color: #f17b31;
 }
-.file-dropdown-menu > li > a:hover, .file-dropdown-menu > li > a:focus {
+.menu-bar .menu-group .file-dropdown-menu > li > a:hover, .menu-bar .menu-group .file-dropdown-menu > li > a:focus {
     text-decoration: none;
     color: #f47b20;
     background-color: #000000;
 }
 .file-menu-group{
     min-height: 27px;
+
 }
 .file-dropdown-menu {
     background-color: #333;
-    margin-top: 13px;
+    margin-top: 17px;
+    width: 210px;
 }
-li.menu-item-disabled > a {
+.menu-bar .menu-group li.menu-item-disabled > a {
     color: #777;
+    padding: 3px 10px;
+    height: 27px;
 }
 
-.file-dropdown-menu > li.menu-item-disabled > a:hover{
+.menu-bar .menu-group .file-dropdown-menu > li.menu-item-disabled > a:hover{
     color: #777;
     background-color: #444;
 
+}
+
+.context-menu-list{
+    border-radius: 0;
+    background: #333;
+    border: 1px solid #444;
+}
+.context-menu-list>.context-menu-item {
+    background-color: #333;
+    color: #fff;
+    text-transform: capitalize;
+    padding:3px 10px;
+    font-size: 13px;
+}
+.context-menu-list>.context-menu-item:hover {
+    background-color: #333;
+    color: #f47b20;
+    text-transform: capitalize;
+}
+.btn{
+    border: 0;
 }

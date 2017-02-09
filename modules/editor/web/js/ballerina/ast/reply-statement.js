@@ -31,9 +31,9 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
     ReplyStatement.prototype = Object.create(Statement.prototype);
     ReplyStatement.prototype.constructor = ReplyStatement;
 
-    ReplyStatement.prototype.setReplyMessage = function (message) {
+    ReplyStatement.prototype.setReplyMessage = function (message, options) {
         if (!_.isNil(message)) {
-            this._message = message;
+            this.setAttribute('_message', message, options);
         } else {
             log.error("Cannot set undefined to the reply statement.");
         }
@@ -53,7 +53,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      * @param jsonNode
      */
     ReplyStatement.prototype.initFromJson = function (jsonNode) {
-        this._message = jsonNode.expression;
+        this.setReplyMessage(jsonNode.expression, {doSilently: true});
     };
 
     return ReplyStatement;

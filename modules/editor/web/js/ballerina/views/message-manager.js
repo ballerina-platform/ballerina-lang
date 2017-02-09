@@ -15,7 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (log, _, d3,Point, Backbone, EventChannel) {
+define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/ast/ballerina-ast-factory'],
+    function (log, _, d3,Point, Backbone, EventChannel, BallerinaASTFactory) {
 
     var MessageManager = function(args) {
         log.debug("Initialising Message Manager");
@@ -26,11 +27,12 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (l
     MessageManager.prototype = Object.create(EventChannel.prototype);
     MessageManager.prototype.constructor = MessageManager;
 
-     MessageManager.prototype.setMessageSource = function(source){
+    MessageManager.prototype.setMessageSource = function(source){
          if (!_.isUndefined(source)) {
              this.messageSource = source;
          }
-     };
+    };
+
     MessageManager.prototype.getMessageSource = function(){
        return this.messageSource;
     };
@@ -44,7 +46,6 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (l
         return this.messageTarget;
     };
 
-
     MessageManager.prototype.setActivatedDropTarget = function (dropTarget) {
         if (!_.isUndefined(dropTarget)) {
             this.activatedDropTarget = dropTarget;
@@ -54,6 +55,28 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (l
     MessageManager.prototype.getActivatedDropTarget = function () {
         return this.activatedDropTarget;
     };
+
+    MessageManager.prototype.updateActivatedTarget = function (target) {
+        if (!_.isUndefined(target)) {
+            this.getMessageSource().setConnector(target);
+            this.getMessageSource().setActionPackageName(target.getConnectorPkgName());
+            this.getMessageSource().setActionConnectorName(target.getConnectorName());
+            this.getMessageSource().setConnectorVariableReference(target.getConnectorVariable());
+        }
+        else {
+            this.getMessageSource().setConnector(undefined);
+            this.getMessageSource().setActionPackageName(undefined);
+            this.getMessageSource().setActionConnectorName(undefined);
+            this.getMessageSource().setConnectorVariableReference(undefined);
+        }
+        //set the right hand expression to set the statement string of the assignment-statement containing the
+        //action invocation expression. This is to keep action invocation statement UI and source-gen in sync
+        //when action invocation is configured
+        if (BallerinaASTFactory.isRightOperandExpression(rightOp = this.getMessageSource().getParent())){
+            rightOp.setRightOperandExpressionString(this.getMessageSource().getExpression());
+        }
+    };
+
     MessageManager.prototype.setValidateCallBack = function (callBackMethod) {
         if (!_.isUndefined(callBackMethod)) {
             this.validateCallBack = callBackMethod;
@@ -108,7 +131,7 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (l
     };
 
     MessageManager.prototype.isAtValidDropTarget = function(){
-        return true;
+        return BallerinaASTFactory.isConnectorDeclaration(this.getActivatedDropTarget());
     };
 
     MessageManager.prototype.reset = function(){
@@ -122,15 +145,26 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (l
         this.typeBeingDragged = undefined;
     };
 
-    MessageManager.prototype.startDrawMessage = function(source, sourcePoint){
+    MessageManager.prototype.startDrawMessage = function(source, sourcePoint, connectorPoint){
+        var connectorStartPoint,
+            connectorEndPoint;
+
+        if(connectorPoint){
+            connectorStartPoint = connectorPoint.x();
+            connectorEndPoint = connectorPoint.y();
+        }
+        else{
+            connectorStartPoint = sourcePoint.x();
+            connectorEndPoint = sourcePoint.y();
+        }
         this.setMessageSource(source);
         var self = this,
             container = d3.select(this._canvas.getSVG().get(0));
         var tempLine = container.append("line")
-            .attr("x1", sourcePoint.x() )
-            .attr("y1",sourcePoint.y())
+            .attr("x1",connectorStartPoint )
+            .attr("y1",connectorEndPoint )
             .attr("x2",sourcePoint.x() )
-            .attr("y2", sourcePoint.y() )
+            .attr("y2",sourcePoint.y() )
             .attr("stroke","#9d9d9d");
         var points = "" +  sourcePoint.x() + "," + (sourcePoint.y() - 5) + " " + ( sourcePoint.x() + 5) + ","
             + (sourcePoint.y()) + " " + sourcePoint.x() + "," + (sourcePoint.y() + 5);
@@ -156,12 +190,7 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (l
             var endPoint = new Point(tempLine.attr("x2"),tempLine.attr("y2"));
 
             if(self.isAtValidDropTarget()){
-                var connectorReference = self.getActivatedDropTarget();
-                self.getMessageSource().setConnector(connectorReference);
-                self.getMessageSource().setActionName(self.getMessageSource().getAction());
-                self.getMessageSource().setActionPackageName(connectorReference.getConnectorPkgName());
-                self.getMessageSource().setActionConnectorName(connectorReference.getConnectorName());
-                self.getMessageSource().setConnectorVariableReference(connectorReference.getConnectorVariable());
+                self.updateActivatedTarget(self.getActivatedDropTarget());
             }
             tempLine.remove();
             arrowPoint.remove();

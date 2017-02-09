@@ -17,11 +17,12 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code BArrayType} represents a type of an array in Ballerina
+ * {@code BArrayType} represents a type of an array in Ballerina.
  * <p>
  * Arrays are defined using the array constructor [] as follows:
  * TypeName[]
@@ -30,18 +31,17 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
-public class BArrayType extends BType {
-
+public class BArrayType extends BType implements BIndexedType {
     private BType elementType;
 
     /**
-     * Create a type from the given name
+     * Create a type from the given name.
      *
      * @param typeName string name of the type
      */
-    BArrayType(String typeName, String elementType) {
-        super(typeName, BArray.class);
-        this.elementType = BTypes.getType(elementType);
+    BArrayType(String typeName, BType elementType, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BArray.class);
+        this.elementType = elementType;
     }
 
     public BType getElementType() {
@@ -56,7 +56,7 @@ public class BArrayType extends BType {
     public boolean equals(Object obj) {
         if (obj instanceof BArrayType) {
             BArrayType other = (BArrayType) obj;
-            return this.elementType.equals(other.elementType);
+            return this.typeName.equals(other.typeName);
         }
 
         return false;

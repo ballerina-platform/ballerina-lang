@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'require', 'log', './node'],
-    function (_, require, log, ASTNode) {
+define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
+    function (_, require, log, ASTNode, CommonUtils) {
 
     /**
      * Constructor for ResourceDefinition
@@ -28,7 +28,7 @@ define(['lodash', 'require', 'log', './node'],
      * @constructor
      */
     var ResourceDefinition = function (args) {
-        this._resourceName = _.get(args, 'resourceName', 'newResource');
+        this._resourceName = _.get(args, 'resourceName');
         this._annotations = _.get(args, 'annotations', []);
 
         // Adding available annotations and their default values.
@@ -63,25 +63,25 @@ define(['lodash', 'require', 'log', './node'],
     ResourceDefinition.prototype = Object.create(ASTNode.prototype);
     ResourceDefinition.prototype.constructor = ResourceDefinition;
 
-    ResourceDefinition.prototype.setResourceName = function (resourceName) {
+    ResourceDefinition.prototype.setResourceName = function (resourceName, options) {
         if (!_.isNil(resourceName)) {
-            this._resourceName = resourceName;
+            this.setAttribute('_resourceName', resourceName, options);
         } else {
             log.error('Invalid Resource name [' + resourceName + '] Provided');
             throw 'Invalid Resource name [' + resourceName + '] Provided';
         }
     };
 
-    ResourceDefinition.prototype.getVariableDeclarations = function () {
-        var variableDeclarations = [];
+    ResourceDefinition.prototype.getVariableDefinitionStatements = function () {
+        var variableDefinitionStatements = [];
         var self = this;
 
         _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isVariableDeclaration(child)) {
-                variableDeclarations.push(child);
+            if (self.BallerinaASTFactory.isVariableDefinitionStatement(child)) {
+                variableDefinitionStatements.push(child);
             }
         });
-        return variableDeclarations;
+        return variableDefinitionStatements;
     };
 
     ResourceDefinition.prototype.getParameters = function () {
@@ -128,8 +128,14 @@ define(['lodash', 'require', 'log', './node'],
     /**
      * Adds new variable declaration.
      */
-    ResourceDefinition.prototype.removeVariableDeclaration = function (variableDeclaration) {
-        this.removeChild(variableDeclaration);
+    ResourceDefinition.prototype.removeVariableDeclaration = function (variableDeclarationIdentifier) {
+        var self = this;
+        // Removing the variable from the children.
+        var variableDeclarationChild = _.find(this.getChildren(), function (child) {
+            return self.BallerinaASTFactory.isVariableDeclaration(child)
+                && child.getIdentifier() === variableDeclarationIdentifier;
+        });
+        this.removeChild(variableDeclarationChild);
     };
 
     /**
@@ -227,19 +233,30 @@ define(['lodash', 'require', 'log', './node'],
      * @param value - Value for the annotation.
      */
     ResourceDefinition.prototype.addAnnotation = function (key, value) {
-        var existingAnnotation = _.find(this._annotations, function (annotation) {
-            return annotation.key == key;
-        });
-        if (_.isNil(existingAnnotation)) {
-            // If such annotation does not exists, then add a new one.
-            this._annotations.push({
-                key: key,
-                value: value
-            });
+        if (!_.isNil(key) && !_.isNil(value)) {
+            var options = {
+              predicate: {key: key}
+            }
+            this.pushToArrayAttribute('_annotations', {key: key, value: value}, options);
         } else {
-            // Updating existing annotation.
-            existingAnnotation.value = value;
+            var errorString = "Cannot add annotation @" + key + "(\"" + value + "\").";
+            log.error(errorString);
+            throw errorString;
         }
+    };
+
+    ResourceDefinition.prototype.getConnectionDeclarations = function () {
+        var connectorDeclaration = [];
+        var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.getFactory().isConnectorDeclaration(child)) {
+                connectorDeclaration.push(child);
+            }
+        });
+        return _.sortBy(connectorDeclaration, [function (connectorDeclaration) {
+            return connectorDeclaration.getConnectorVariable();
+        }]);
     };
 
     /**
@@ -257,42 +274,65 @@ define(['lodash', 'require', 'log', './node'],
 
     /**
      * initialize ResourceDefinition from json object
-     * @param {Object} jsonNode to initialize from
-     * @param {string} [jsonNode.resource_name] - Name of the resource definition
-     * @param {string} [jsonNode.annotations] - Annotations of the resource definition
+     * @param {Object} jsonNode - to initialize from
+     * @param {string} jsonNode.resource_name - Name of the resource definition
+     * @param {Object[]} jsonNode.annotations - Annotations of the resource definition
+     * @param {string} jsonNode.annotations.annotation_name - The annotation value
+     * @param {string} jsonNode.annotations.annotation_value - The text of the annotation.
+     * @param {Object[]} jsonNode.children - Children elements of the resource definition.
      */
     ResourceDefinition.prototype.initFromJson = function (jsonNode) {
-        this._resourceName = jsonNode.resource_name;
-        this._annotations = jsonNode.annotations;
+        this.setResourceName(jsonNode.resource_name, {doSilently: true});
+        this._annotations = _.isNil(this._annotations) ? [] : this._annotations;
 
         var self = this;
-        _.each(this._annotations, function (annotation) {
-            if (annotation.annotation_name === "POST") {
-                self._annotations.push({
-                    key: "Method",
-                    value: "POST"
-                });
-            } else if (annotation.annotation_name === "GET") {
-                self._annotations.push({
-                    key: "Method",
-                    value: "GET"
-                });
-            } else if (annotation.annotation_name === "PUT") {
-                self._annotations.push({
-                    key: "Method",
-                    value: "PUT"
-                });
-            } else if (annotation.annotation_name === "DELETE") {
-                self._annotations.push({
-                    key: "Method",
-                    value: "DELETE"
-                });
-            } else if (annotation.annotation_name === "Path") {
-                self._annotations.push({
-                    key: "Path",
-                    value: annotation.annotation_value
-                });
-            }
+
+        // Check if a annotation of type http method is received from the service.
+        var existingMethodAnnotationFromService = _.find(jsonNode.annotations, function (annotation) {
+            return annotation.annotation_name === "POST" || annotation.annotation_name === "GET" ||
+                annotation.annotation_name === "PUT" || annotation.annotation_name === "DELETE"
+        });
+
+        // Get the method annotation of the model.
+        var existingMethodAnnotationInModel = _.find(self._annotations, function (annotation) {
+            return annotation.key === "Method"
+        });
+
+        // If http method annotation is received from the service.
+        if (!_.isNil(existingMethodAnnotationFromService)) {
+            // Remove the existing value.
+            existingMethodAnnotationInModel.value = "";
+            _.forEach(jsonNode.annotations, function (annotation) {
+                // Updating the new http method value.
+                if (annotation.annotation_name === "POST" || annotation.annotation_name === "GET" ||
+                    annotation.annotation_name === "PUT" || annotation.annotation_name === "DELETE") {
+                    if (_.isEmpty(existingMethodAnnotationInModel.value)) {
+                        existingMethodAnnotationInModel.value = annotation.annotation_name;
+                    } else {
+                        existingMethodAnnotationInModel.value = existingMethodAnnotationInModel.value + ", " +
+                            annotation.annotation_name;
+                    }
+                }
+            });
+        }
+
+        // Updating the annotations of the model according to the annotations received from the service that are not
+        // related to http methods.
+        _.forEach(jsonNode.annotations, function(annotationFromService){
+           if (!(annotationFromService.annotation_name === "POST" || annotationFromService.annotation_name === "GET" ||
+               annotationFromService.annotation_name === "PUT" || annotationFromService.annotation_name === "DELETE")) {
+               var existingAnnotation = _.find(self._annotations, function (annotationInModel) {
+                   return annotationInModel.key === annotationFromService.annotation_name
+               });
+               if (_.isNil(existingAnnotation)) {
+                   self._annotations.push({
+                       key: annotationFromService.annotation_name,
+                       value: annotationFromService.annotation_value
+                   });
+               } else {
+                   existingAnnotation.value = annotationFromService.annotation_value;
+               }
+           }
         });
 
         _.each(jsonNode.children, function (childNode) {
@@ -302,12 +342,12 @@ define(['lodash', 'require', 'log', './node'],
         });
     };
 
-        /**
-         * Override the addChild method for ordering the child elements as
-         * [Statements, Workers, Connectors]
-         * @param {ASTNode} child
-         * @param {number|undefined} index
-         */
+    /**
+     * Override the addChild method for ordering the child elements as
+     * [Statements, Workers, Connectors]
+     * @param {ASTNode} child
+     * @param {number|undefined} index
+     */
     ResourceDefinition.prototype.addChild = function (child, index) {
         var indexNew;
         var self = this;
@@ -341,6 +381,27 @@ define(['lodash', 'require', 'log', './node'],
         }
 
         Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, indexNew);
+    };
+
+    /**
+     * @inheritDoc
+     * @override
+     */
+    ResourceDefinition.prototype.generateUniqueIdentifiers = function () {
+        CommonUtils.generateUniqueIdentifier({
+            node: this,
+            attributes: [{
+                defaultValue: "newResource",
+                setter: this.setResourceName,
+                getter: this.getResourceName,
+                parents: [{
+                    // service definition
+                    node: this.parent,
+                    getChildrenFunc: this.parent.getResourceDefinitions,
+                    getter: this.getResourceName
+                }]
+            }]
+        });
     };
 
     return ResourceDefinition;

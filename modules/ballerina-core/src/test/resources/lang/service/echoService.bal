@@ -9,7 +9,6 @@ service echo {
     @GET
     @Path ("/message")
     resource echo (message m) {
-        http:convertToResponse(m);
         reply m;
     }
 
@@ -24,8 +23,7 @@ service echo {
     @GET
     @Path ("/getString")
     resource getString (message m) {
-        message response;
-        response = new message;
+        message response = {};
         message:setStringPayload(response, serviceLevelStr);
         reply response;
     }

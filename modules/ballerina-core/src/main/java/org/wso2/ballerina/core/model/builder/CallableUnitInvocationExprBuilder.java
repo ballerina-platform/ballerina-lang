@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.model.builder;
 
-import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
@@ -26,24 +26,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Builder class for building function/action invocation expressions
+ * Builder class for building function/action invocation expressions.
  *
  * @since 0.8.0
  */
 class CallableUnitInvocationExprBuilder {
-    private SymbolName name;
+    private NodeLocation location;
+    private String name;
+    private String pkgName;
+    private String pkgPath;
+    private String connectorName;
     private List<Expression> expressionList = new ArrayList<>();
 
-    SymbolName getName() {
-        return name;
+    void setNodeLocation(NodeLocation location) {
+        this.location = location;
     }
 
-    void setName(SymbolName name) {
+    void setName(String name) {
         this.name = name;
     }
 
-    List<Expression> getExpressionList() {
-        return expressionList;
+    public void setPkgName(String pkgName) {
+        this.pkgName = pkgName;
+    }
+
+    public void setPkgPath(String pkgPath) {
+        this.pkgPath = pkgPath;
+    }
+
+    public void setConnectorName(String connectorName) {
+        this.connectorName = connectorName;
     }
 
     void setExpressionList(List<Expression> expressionList) {
@@ -51,10 +63,21 @@ class CallableUnitInvocationExprBuilder {
     }
 
     FunctionInvocationExpr buildFuncInvocExpr() {
-        return new FunctionInvocationExpr(name, expressionList.toArray(new Expression[expressionList.size()]));
+        return new FunctionInvocationExpr(
+                location,
+                name,
+                pkgName,
+                pkgPath,
+                expressionList.toArray(new Expression[expressionList.size()]));
     }
 
     ActionInvocationExpr buildActionInvocExpr() {
-        return new ActionInvocationExpr(name, expressionList.toArray(new Expression[expressionList.size()]));
+        return new ActionInvocationExpr(
+                location,
+                name,
+                pkgName,
+                pkgPath,
+                connectorName,
+                expressionList.toArray(new Expression[expressionList.size()]));
     }
 }

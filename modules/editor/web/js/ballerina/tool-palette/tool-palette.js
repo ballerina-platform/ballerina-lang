@@ -16,15 +16,21 @@
  * under the License.
  */
 define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-group',
-        'main_elements', 'processors', './drag-drop-manager', './../ast/ballerina-ast-factory','./initial-definitions'],
+        './drag-drop-manager', './../search/search', './../search/import-search-adapter', 'mousetrap', 'mcustom_scroller'],
     function (require, log, $, Backbone, ToolGroupView, ToolGroup,
-              MainElements, Processors, DragDropManager, BallerinaASTFactory, initialTools) {
+              DragDropManager, Search, ImportSearchAdapter, Mousetrap, mcustomScroller) {
+
 
     var ToolPalette = Backbone.View.extend({
         initialize: function (options) {
             var errMsg;
             if (!_.has(options, 'container')) {
                 errMsg = 'unable to find configuration for container';
+                log.error(errMsg);
+                throw errMsg;
+            }
+            if (!_.has(options, 'itemProvider')) {
+                errMsg = 'unable to find tool palette item provider';
                 log.error(errMsg);
                 throw errMsg;
             }
@@ -37,12 +43,23 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             }
             this._$parent_el = container;
             this._options = options;
-            this._toolGroups = _.cloneDeep(initialTools);
+            this.ballerinaFileEditor = options.ballerinaFileEditor;
+            this._imports = [];
             this.dragDropManager = new DragDropManager();
+            this._itemProvider = _.get(options, 'itemProvider');
+            this._itemProvider.setToolPalette(this);
+
+            this.search = Search(new ImportSearchAdapter());
+            this.search.on('select', _.bindKey(this, 'addImport'));
+            //bind event handlers
+            this._$parent_el.on("click", "#addImportSearch", _.bindKey(this, 'showSearchImport'));
+            Mousetrap.bind('ctrl+i', _.bindKey(this, 'showSearchImport'));
+
         },
 
         render: function () {
             var self = this;
+            this._$parent_el.empty();
             var toolPaletteDiv = $('<div></div>');
             //Adding search bar to tool-palette
             var searchBarDiv = $('<div></div>');
@@ -61,24 +78,42 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             this._$parent_el.append(toolPaletteDiv);
             this.$el = toolPaletteDiv;
 
-            this._toolGroups.forEach(function (group){
-                var toolGroupOptions = _.clone(_.get(self._options, 'toolGroup'));
-                _.set(toolGroupOptions, 'toolPalette', self);
-                _.set(toolGroupOptions, 'model', group);
-                var groupView = new ToolGroupView(toolGroupOptions);
-                groupView.render(self.$el, _.isEqual('vertical', group.get('toolOrder')));
-                self.$el.addClass('non-user-selectable');
+            // Drawing initial set of tool groups
+            _.forEach(this._itemProvider.getInitialToolGroups(), function (group) {
+                var toolOrder = group.get('toolOrder');
+                if(toolOrder === "horizontal"){
+                    self.addHorizontallyFormattedToolGroup({group: group});
+                }
+            });
+
+            var importForm = $('<div class="tool-import-wrapper">'+
+                                '<div class="tool-group-import-header">'+
+                                '  <a class="tool-group-header-title">Imports</a> '+
+                                '  <span id="addImportSearch" class="tool-import-icon fw-stack fw-lg">'+
+                                '      <i class="fw fw-add"></i>'+
+                                '  </span>'+
+                                '</div>'+
+                                '</div>');
+            this.$el.append(importForm);
+
+            // Drawing tool groups that are added on the fly
+            this._itemProvider.getDynamicToolGroups().forEach(function (group) {
+                self.addVerticallyFormattedToolGroup({group: group});
+            });
+
+            $(this._$parent_el).mCustomScrollbar({
+                theme: "minimal-dark",
+                scrollInertia: 0
             });
             return this;
         },
 
-        /**
-         * Dynamically loads avaiable tools from a package
-         *
-         * @param packageModel {Package}
-         */
-        loadToolsFromPackage: function(packageModel){
 
+        showSearchImport : function(){
+            var adapter = new ImportSearchAdapter();
+            adapter.setExcludes(this._imports);
+            this.search.setAdapter(adapter);
+            this.search.show();
         },
 
         /**
@@ -94,7 +129,7 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
          */
         addNewToolToGroup: function(groupID, toolDef){
            var error,
-               toolGroup = _.find(this._toolGroups, function(group){
+               toolGroup = _.find(this._itemProvider.getToolGroups(), function(group){
                return _.isEqual(group.get('toolGroupID'), groupID);
            });
            if(_.isNil(toolGroup)){
@@ -107,6 +142,63 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
            }
         },
 
+        /**
+         * removes a tool from a particular tool group
+         * @param {string} groupID - group ID of the tool group which the tool should be removed from
+         * @param {string} toolId - tool ID of the tool to be removed
+         */
+        removeToolFromGroup: function (groupID, toolId) {
+            var error,
+                toolGroup = _.find(this._itemProvider.getToolGroups(), function(group){
+                    return _.isEqual(group.get('toolGroupID'), groupID);
+                });
+            if(_.isNil(toolGroup)){
+                error = 'cannot find a tool group with id ' + groupID;
+                log.error(error);
+                return;
+            }
+            if(!_.isNil(toolId)){
+                toolGroup.removeToolByToolId(toolId);
+            }
+        },
+
+        /**
+         * Adding given package
+         * @param {Object} package - package to add
+         */
+        //TODO: this method needs to be removed from tool palette class
+        addImport: function (package) {
+            this._itemProvider.addImportToolGroup(package);
+        },
+
+        /**
+         * Adds a vertically formatted tool group view to this tool palette
+         * @param {Object} args - data to draw the tool group
+         * @param {Object} args.model - tool group model
+         */
+        addVerticallyFormattedToolGroup: function (args) {
+            var toolGroupOptions = _.clone(_.get(this._options, 'toolGroup'));
+            _.set(toolGroupOptions, 'toolPalette', this);
+            _.set(toolGroupOptions, 'model', args.group);
+            var groupView = new ToolGroupView(toolGroupOptions);
+            var group = groupView.render(this.$el.find('.tool-import-wrapper'), _.isEqual('vertical', args.group.get('toolOrder')));
+            this.$el.addClass('non-user-selectable');
+        },
+
+        /**
+         * Adds a horizontally formatted tool group view to this tool palette
+         * @param {Object} args - data to draw the tool group
+         * @param {Object} args.model - tool group model
+         */
+        addHorizontallyFormattedToolGroup: function (args) {
+            var toolGroupOptions = _.clone(_.get(this._options, 'toolGroup'));
+            _.set(toolGroupOptions, 'toolPalette', this);
+            _.set(toolGroupOptions, 'model', args.group);
+            var groupView = new ToolGroupView(toolGroupOptions);
+            groupView.render(this.$el, false);
+            this.$el.addClass('non-user-selectable');
+        },
+
         addConnectorTool: function(toolDef){
             this.addNewToolToGroup('connectors-tool-group', toolDef);
         },
@@ -117,6 +209,35 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
 
         show: function () {
             this._$parent_el.show();
+        },
+
+        /**
+         * Returns the item provider associated with this tool palette
+         * @returns {ToolPaletteItemProvider}
+         */
+        getItemProvider: function () {
+            return this._itemProvider;
+        },
+
+        /**
+         * updates tool item with given new values
+         * @param {string} toolGroupID - Id of the tool group
+         * @param {Object} toolItem - tool object
+         * @param {Object} newValue - new value for the tool
+         */
+        updateToolPaletteItem: function (toolGroupID, toolItem, newValue) {
+            var error,
+                toolGroup = _.find(this._itemProvider.getToolGroups(), function (group) {
+                    return _.isEqual(group.get('toolGroupID'), toolGroupID);
+                });
+            if (_.isNil(toolGroup)) {
+                error = 'cannot find a tool group with id ' + toolGroupID;
+                log.error(error);
+                return;
+            }
+            if (!_.isNil(toolItem)) {
+                toolGroup.updateTool(toolItem, newValue);
+            }
         }
     });
 

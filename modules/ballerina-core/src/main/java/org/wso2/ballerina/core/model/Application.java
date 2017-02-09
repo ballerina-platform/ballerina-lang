@@ -47,7 +47,7 @@ public class Application {
     }
 
     /**
-     * Add a {@code Package} to the application
+     * Add a {@code Package} to the application.
      *
      * @param aPackage a Package
      */
@@ -56,7 +56,7 @@ public class Application {
     }
 
     /**
-     * Get list of {@code Package}s in the Application
+     * Get list of {@code Package}s in the Application.
      *
      * @return Packages in the Application
      */
@@ -65,7 +65,7 @@ public class Application {
     }
 
     /**
-     * Get a {@code Package}
+     * Get a {@code Package}.
      *
      * @param fqn full qualified name
      * @return a Package
@@ -84,7 +84,7 @@ public class Application {
     }
 
     /**
-     * Get the name of the Application
+     * Get the name of the Application.
      *
      * @return name of the Application
      */

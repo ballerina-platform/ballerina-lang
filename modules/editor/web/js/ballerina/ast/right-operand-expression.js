@@ -42,8 +42,16 @@ define(['lodash', './statement'], function(_, Statement){
      * Set Right Operand Expression String
      * @param {string} rightOperandExpStr - The expression
      */
-    RightOperandExpression.prototype.setRightOperandExpressionString = function (rightOperandExpStr) {
-        this._right_operand_expression_string = rightOperandExpStr;
+    RightOperandExpression.prototype.setRightOperandExpressionString = function (rightOperandExpStr, options) {
+        this.setAttribute('_right_operand_expression_string', rightOperandExpStr, options);
+    };
+
+    /**
+     * Override the removeChild function
+     * @param {ASTNode} child - child node
+     */
+    RightOperandExpression.prototype.removeChild = function (child) {
+        this.getParent().removeChild(this);
     };
 
     /**
@@ -53,40 +61,10 @@ define(['lodash', './statement'], function(_, Statement){
     RightOperandExpression.prototype.initFromJson = function (jsonNode) {
         var self = this;
         _.each(jsonNode.children, function (childNode) {
-            // TODO: Handle this Properly
-            if (childNode.type === 'back_quote_expression') {
-                self.setRightOperandExpressionString('`' + childNode.back_quote_enclosed_string + '`');
-            } else if (childNode.type === 'instance_creation_expression'){
-                self.setRightOperandExpressionString("new " + childNode.instance_type);
-            } else if (childNode.type === 'basic_literal_expression'){
-                self.setRightOperandExpressionString('"' + childNode.basic_literal_value + '"');
-            } else if(childNode.type === 'variable_reference_expression'){
-                self.setRightOperandExpressionString(childNode.variable_reference_name);
-            } else if(childNode.type === 'array_map_access_expression'){
-                var child = self.getFactory().createFromJson(childNode);
-                child.initFromJson(childNode);
-                self.setRightOperandExpressionString(child.getExpression());
-            } else {
-                var child = self.getFactory().createFromJson(childNode);
-                if(self.getFactory().isBinaryExpression(child)){
-                    child.initFromJson(childNode);
-                    self.setRightOperandExpressionString(child.getExpression());
-                }
-                // TODO: Need to handle the function expressions and statements differently. Need Refactor the bellow
-                else if (self.getFactory().isFunctionInvocationExpression(child) &&
-                    !self.getFactory().isFunctionInvocationStatement(child.getParent())) {
-                    var newParent = self.getFactory().createFunctionInvocationStatement();
-                    newParent.addChild(child);
-                    self.addChild(newParent);
-                    var funcInvocationExpDummy = self.getFactory().createFunctionInvocationExpression();
-                    var args = "";
-                    args += funcInvocationExpDummy._generateArgsString(childNode, args, ", ");
-                    self.setRightOperandExpressionString(childNode.function_name + "(" + args + ")") ;
-                } else {
-                    self.addChild(child);
-                }
-                child.initFromJson(childNode);
-            }
+            var child = self.getFactory().createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+            self.setRightOperandExpressionString(child.getExpression(), {doSilently: true});
         });
     };
 

@@ -17,9 +17,9 @@
  */
 define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar', 'breadcrumbs', 'file_browser', 'tab/file-tab-list',
 
-    'command','workspace',/* void modules */ 'jquery_ui', 'bootstrap'],
+    'command','workspace', 'debugger', 'debugger/debug-manager' ,/* void modules */ 'jquery_ui', 'bootstrap', 'theme_wso2'],
 
-    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, CommandManager, Workspace) {
+    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, CommandManager, Workspace, Debugger, DebugManager) {
 
     var Application = Backbone.View.extend(
     /** @lends Application.prototype */
@@ -56,17 +56,25 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
             // init breadcrumbs controller
             this.breadcrumbController = new BreadcrumbController(breadCrumbsOpts);
 
-            //init workspace explorer
-            var workspaceExplorerOpts = _.get(this.config, "workspace_explorer");
-            _.set(workspaceExplorerOpts, 'application', this);
-            this.workspaceExplorer = new Workspace.Explorer(workspaceExplorerOpts);
-
             //init tab controller
             var tabControlOpts = _.get(this.config, "tab_controller");
             _.set(tabControlOpts, 'application', this);
 
             // tab controller will take care of rendering tool palette
             this.tabController = new TabController(tabControlOpts);
+            this.workspaceManager.listenToTabController();
+
+            //init workspace explorer
+            var workspaceExplorerOpts = _.get(this.config, "workspace_explorer");
+            _.set(workspaceExplorerOpts, 'application', this);
+            this.workspaceExplorer = new Workspace.Explorer(workspaceExplorerOpts);
+
+            // init debugger
+            var debuggerOpts = _.get(this.config, "debugger");
+            _.set(debuggerOpts, 'application', this);            
+            this.debugger = new Debugger(debuggerOpts);       
+
+            var debuggerManager = DebugManager.init(debuggerOpts);
         },
 
         validateConfig: function(config){
@@ -98,6 +106,10 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
             log.debug("start: rendering workspace explorer control");
             this.workspaceExplorer.render();
             log.debug("end: rendering workspace explorer control");
+
+            log.debug("start: rendering debugger control");
+            this.debugger.render();
+            log.debug("end: rendering debugger control");
 
             log.debug("start: rendering tab controller");
             this.tabController.render();

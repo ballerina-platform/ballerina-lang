@@ -16,14 +16,14 @@
  * under the License.
  */
 define('ace/mode/ballerina',
-    ["require", "exports", "module", "ace/lib/oop", "ace/mode/text", "ace/mode/text_highlight_rules", "ace/worker/worker_client"],
+    ["require", "exports", "module", "ace/lib/oop", "ace/mode/javascript", "ace/mode/text_highlight_rules", "ace/worker/worker_client"],
     function (require, exports, module) {
 
         var oop = require("ace/lib/oop");
-        var TextMode = require("ace/mode/text").Mode;
+        var JavaScriptMode = require("ace/mode/javascript").Mode;
         var TextHighlightRules = require("ace/mode/text_highlight_rules").TextHighlightRules;
 
-        var MyHighlightRules = function () {
+        var BallerinaHighlightRules = function () {
 
             var keywordMapper = this.createKeywordMapper({
                 "ballerina-keyword-control": "if|else|iterator|try|catch|fork|join|while|throw|throws|return|break|timeout",
@@ -32,38 +32,45 @@ define('ace/mode/ballerina',
                 "ballerina-keyword-non-primitive-type": "message|map|exception|json|xml|xmlDocument",
                 "ballerina-keyword-definition": "package|type|typeconvertor|connector|function|resource|service|worker|struct",
                 "ballerina-keyword-language": "const|true|false|new|reply"
-            }, "ballerina-keyword-identifier");
+            }, "ballerina-identifier");
 
             this.$rules = {
                 "start": [
                     {token: "comment", regex: "//"},
+                    {token: "ballerina-xml-json", regex: '[`](?:(?:\\\\.)|(?:[^`\\\\]))*?[`]'},
                     {token: "ballerina-strings", regex: '["](?:(?:\\\\.)|(?:[^"\\\\]))*?["]'},
                     {token: "ballerina-numeric", regex: "0[xX][0-9a-fA-F]+\\b"},
                     {token: "ballerina-numeric", regex: "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?\\b"},
-                    {token: "ballerina-operator", regex: "!|%|\\\\|/|\\*|\\-|\\+|~=|==|<>|!=|<=|>=|<|>|&&|\\|\\|"},
+                    {token: "ballerina-operator", regex: "!|%|\\\\|/|\\*|\\-|\\+|~=|==|=|<>|!=|<=|>=|<|>|&&|\\|\\|"},
                     {token: "punctuation.operator", regex: "\\?|\\:|\\,|\\;|\\."},
                     {token: "paren.lparen", regex: "[[({]"},
                     {token: "paren.rparen", regex: "[\\])}]"},
-                    {token: "text", regex: "\\s+"},
+                    {token: "whitespace", regex: "(?:\\s+)"},
                     {token: "ballerina-annotation", regex: "@[a-zA-Z_$][a-zA-Z0-9_$]*"},
                     {token: "ballerina-package-reference", regex: "[a-zA-Z_$][a-zA-Z0-9_$]*:"},
+                    {token: "ballerina-import-package-name-part", regex: "(?:(?:\\w+\\.)+\\w+\\s*;)"},
                     {token: keywordMapper, regex: "[a-zA-Z_$][a-zA-Z0-9_$]*\\b"}
                 ]
             };
         };
-        oop.inherits(MyHighlightRules, TextHighlightRules);
+        oop.inherits(BallerinaHighlightRules, TextHighlightRules);
 
-        var MyMode = function () {
-            this.HighlightRules = MyHighlightRules;
+        var BallerinaMode = function () {
+            JavaScriptMode.call(this);
+            this.HighlightRules = BallerinaHighlightRules;
         };
 
-        oop.inherits(MyMode, TextMode);
+        // inherit from javascript mode
+        oop.inherits(BallerinaMode, JavaScriptMode);
 
         (function () {
 
+            this.createWorker = function(session) {
+                return null;
+            };
             this.$id = "ace/mode/ballerina";
 
-        }).call(MyMode.prototype);
+        }).call(BallerinaMode.prototype);
 
-        exports.Mode = MyMode;
+        exports.Mode = BallerinaMode;
 });

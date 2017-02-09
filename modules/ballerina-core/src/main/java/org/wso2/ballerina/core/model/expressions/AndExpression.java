@@ -17,8 +17,8 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BValueType;
 
@@ -27,7 +27,7 @@ import java.util.function.BiFunction;
 import static org.wso2.ballerina.core.model.Operator.AND;
 
 /**
- * {@code AndExpression} represents an boolean AND('&&') expression in Ballerina
+ * {@code AndExpression} represents an boolean AND('&&') expression in Ballerina.
  *
  * @since 0.8.0
  */
@@ -36,8 +36,8 @@ public class AndExpression extends BinaryLogicalExpression {
     public static final BiFunction<BValueType, BValueType, BValueType> AND_FUNC =
             (lVal, rVal) -> new BBoolean(lVal.booleanValue() && rVal.booleanValue());
 
-    public AndExpression(Expression lExpr, Expression rExpr, Position location) {
-        super(lExpr, AND, rExpr, location);
+    public AndExpression(NodeLocation location, Expression lExpr, Expression rExpr) {
+        super(location, lExpr, AND, rExpr);
     }
 
     @Override

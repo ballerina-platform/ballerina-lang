@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
 /**
- * Test array initializer expression
+ * Test array initializer expression.
  *
  * @since 0.8.0
  */
@@ -74,8 +74,8 @@ public class ArrayInitializerExprTest {
     
     @Test(description = "Test array initializing with different types",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Incompatible types used in array initializer. All arguments must have" +
-            " the same type. in multi-type-array-initializer.bal:3")
+            expectedExceptionsMessageRegExp = "multi-type-array-initializer.bal:3: " +
+                    "array initializer is not allowed here")
     public void testMultiTypeMapInit() {
         ParserUtils.parseBalFile("lang/expressions/multi-type-array-initializer.bal");
     }

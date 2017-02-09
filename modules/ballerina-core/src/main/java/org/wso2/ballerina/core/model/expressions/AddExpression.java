@@ -17,9 +17,9 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Operator;
-import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.model.values.BValueType;
 import java.util.function.BiFunction;
 
 /**
- * {@code AddExpression} represents a binary add expression
+ * {@code AddExpression} represents a binary add expression.
  *
  * @since 0.8.0
  */
@@ -51,8 +51,8 @@ public class AddExpression extends BinaryArithmeticExpression {
     public static final BiFunction<BValueType, BValueType, BValueType> ADD_STRING_FUNC =
             (lVal, rVal) -> new BString(lVal.stringValue() + rVal.stringValue());
 
-    public AddExpression(Expression lExpr, Expression rExpr, Position location) {
-        super(lExpr, Operator.ADD, rExpr, location);
+    public AddExpression(NodeLocation location, Expression lExpr, Expression rExpr) {
+        super(location, lExpr, Operator.ADD, rExpr);
     }
 
     @Override

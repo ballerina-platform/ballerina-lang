@@ -1,19 +1,10 @@
-.workspace-explorer-activate-btn{
-    color: white;
-    margin: 11px;
-    opacity: 0.4;
-}
-
-.workspace-explorer-activate-btn:hover{
-    opacity: 1;
-    cursor: pointer;
-}
-
 .workspace-explorer-container{
     width: 100%;
     color: #dedede;
     position: relative;
     padding: 0;
+    overflow: auto;
+    height: 100%;
 }
 
 .tree-highlight{
@@ -22,14 +13,10 @@
     width: 100%;
 }
 
-.workspace-explorer-separator{
-
-}
-
 .open-folder-button{
-    max-height: 25px;
+    max-height: 35px;
     padding-top: 3px;
-    position: absolute;
+    position: relative;
     top: 25px;
     left: 50%;
     margin-right: -50%;
@@ -47,17 +34,13 @@
 }
 
 .folder-tree-header > i.expand-icon{
-   margin-right: 8px;
-   font-size: 8px;
-   vertical-align:middle;
+    margin-right: 8px;
+    font-size: 8px;
+    vertical-align:middle;
 }
 
 .folder-tree-header > i.item-icon{
-   vertical-align:middle;
-}
-
-.folder-tree-body{
-    margin-left: 25px;
+    vertical-align:middle;
 }
 
 .folder-tree-header:hover{
@@ -89,4 +72,50 @@
     margin-top: 5px;
 }
 
-.nano .workspace-explorer-container.nano-content { padding: 0px; }
+
+.workspace-explorer-container .jstree-default-small .jstree-wholerow{
+    height: 28px;
+}
+
+.workspace-explorer-container .jstree-default .jstree-wholerow-clicked{
+    background-color: #232323;
+    background: linear-gradient(to bottom, #232323 0%, #232323 100%);
+}
+
+.workspace-explorer-container .jstree-default .jstree-wholerow-hovered{
+    background-color: #232323;
+}
+
+.workspace-explorer-container .jstree-default-small > .jstree-container-ul > .jstree-node{
+    margin-left: 25px;
+}
+
+.vakata-context li > a {
+    display: block;
+    padding: 0 40px 0 5px;
+    text-decoration: none;
+    width: auto;
+    color: #fff;
+    white-space: nowrap;
+    text-shadow: none;
+    border-radius: 0px;
+}
+
+.vakata-context-hover, li.vakata-context-hover > a, .vakata-context li > a:hover {
+    background-color: #111;
+    color: #f47b20;
+    border: 0;
+    box-shadow: none;
+}
+
+.vakata-context, .vakata-context ul {
+    background: #111;
+    border-width: 0;
+    padding: 0;
+    color: black;
+    box-shadow: none;
+}
+
+.vakata-context li > a .vakata-contextmenu-sep{
+    display: none;
+}

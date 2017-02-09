@@ -28,12 +28,11 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
 /**
- * This contains methods to test different behaviours of the while loop statement
+ * This contains methods to test different behaviours of the while loop statement.
  *
  * @since 0.8.0
  */
 public class WhileStmtTest {
-
     private BallerinaFile bFile;
 
     @BeforeClass
@@ -66,11 +65,12 @@ public class WhileStmtTest {
         int expected = 0;
         Assert.assertEquals(actual, expected);
     }
-    
+
     @Test(description = "Test while statement with incompatible types",
-            expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Incompatible types: expected a boolean expression in " +
-            "while-stmnt-with-incompatible-types.bal:2")
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "while-stmnt-with-incompatible-types.bal:2: incompatible type: " +
+                    "'boolean' expected, found 'string'", dependsOnMethods = {"testWhileStmtConditionFalse",
+            "testWhileStmtConditionTrue"})
     public void testMapAccessWithIndex() {
         ParserUtils.parseBalFile("lang/statements/while-stmnt-with-incompatible-types.bal");
     }

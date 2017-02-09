@@ -15,12 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','log', 'jquery', 'd3', 'backbone', './tool-view'], function (require, log, $, d3, Backbone, ToolView) {
+define(['require', 'log', 'jquery', 'd3', 'backbone', './tool-view'], function (require, log, $, d3, Backbone, ToolView) {
 
     var toolGroupView = Backbone.View.extend({
 
         initialize: function (options) {
             log.debug("toolGroupview init");
+            _.set(options, 'animationTime', 200);
             this._options = options;
             _.extend(this, _.pick(options, ["toolPalette"]));
         },
@@ -39,11 +40,11 @@ define(['require','log', 'jquery', 'd3', 'backbone', './tool-view'], function (r
             var groupTitle = $("<a></a>");
             groupHeaderDiv.append(groupTitle);
             groupTitle.attr('class', "tool-group-header-title")
-                      .text(this.model.attributes.toolGroupName);
+                .text(this.model.attributes.toolGroupName);
 
             var groupCollapseIcon = $("<span></span>");
             groupHeaderDiv.append(groupCollapseIcon);
-            groupCollapseIcon.attr('class', "collapse-icon fw fw-down");
+            groupCollapseIcon.attr('class', "collapse-icon fw fw-up");
 
             var groupBodyDiv = $("<div></div>");
             groupDiv.append(groupBodyDiv);
@@ -58,17 +59,27 @@ define(['require','log', 'jquery', 'd3', 'backbone', './tool-view'], function (r
                 toolView.render(groupBodyDiv, toolOrderVertical);
             });
 
-            this.el =  groupDiv[0].outerHTML;
+            this.el = groupDiv[0].outerHTML;
             this.$el = groupDiv;
 
-            groupHeaderDiv.click(function(){
+            groupHeaderDiv.click(function () {
                 groupHeaderDiv.toggleClass("tool-group-header-collapse");
-                groupBodyDiv.slideToggle(500, function () {
-                        groupCollapseIcon.toggleClass("glyphicon-chevron-up")
-                                            .toggleClass("glyphicon-chevron-down");
-                    });
+                groupBodyDiv.slideToggle(_.get(self._options, 'animationTime'), function () {
+                    if (groupHeaderDiv.hasClass("tool-group-header-collapse")) {
+                        groupCollapseIcon.removeClass('fw-up');
+                        groupCollapseIcon.removeClass("glyphicon-chevron-up");
+                        groupCollapseIcon.addClass('fw-down');
+                        groupCollapseIcon.toggleClass("glyphicon-chevron-down");
+                    } else {
+                        groupCollapseIcon.removeClass('fw-down');
+                        groupCollapseIcon.removeClass("glyphicon-chevron-down");
+                        groupCollapseIcon.addClass('fw-up');
+                        groupCollapseIcon.toggleClass("glyphicon-chevron-up");
+                    }
+                });
             });
             this.model.on('tool-added', this.onToolAdded, this);
+            this.model.on('tool-removed', this.onToolRemoved, this);
             return this;
         },
 
@@ -79,8 +90,17 @@ define(['require','log', 'jquery', 'd3', 'backbone', './tool-view'], function (r
                 _.set(toolOptions, 'toolPalette', self.toolPalette);
                 _.set(toolOptions, 'model', tool);
                 var toolView = new ToolView(toolOptions);
-                toolView.render(self._$toolGroupBody);
+                toolView.render(self._$toolGroupBody, true);
             }
+        },
+
+        /**
+         * function for removing given tool item from the tool palette view
+         * @param {string} toolId
+         */
+        onToolRemoved: function (toolId) {
+            var self = this;
+            self._$toolGroupBody.find('#'+toolId).remove();
         }
     });
 

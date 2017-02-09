@@ -24,18 +24,21 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.core.runtime.dispatching.ResourceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
 import org.wso2.ballerina.core.runtime.errors.handler.DefaultServerConnectorErrorHandler;
 import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
-import org.wso2.ballerina.core.runtime.errors.handler.ServerConnectorErrorHandler;
-import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
+
+import java.io.PrintStream;
+import java.util.Optional;
 
 /**
- * {@code ServerConnectorMessageHandler} is responsible for bridging Ballerina Program and External Server Connector
+ * {@code ServerConnectorMessageHandler} is responsible for bridging Ballerina Program and External Server Connector.
  *
  * @since 0.8.0
  */
@@ -43,6 +46,7 @@ public class ServerConnectorMessageHandler {
 
     private static final Logger log = LoggerFactory.getLogger(ServerConnectorMessageHandler.class);
 
+    private static PrintStream outStream = System.err;
 
     public static void handleInbound(CarbonMessage cMsg, CarbonCallback callback) {
         // Create the Ballerina Context
@@ -51,27 +55,27 @@ public class ServerConnectorMessageHandler {
         try {
             String protocol = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
             if (protocol == null) {
-                throw new BallerinaException("Protocol not defined in the incoming request", balContext);
+                throw new BallerinaException("protocol not defined in the incoming request", balContext);
             }
 
             // Find the Service Dispatcher
             ServiceDispatcher dispatcher = DispatcherRegistry.getInstance().getServiceDispatcher(protocol);
             if (dispatcher == null) {
-                throw new BallerinaException("No service dispatcher available to handle protocol : " + protocol,
+                throw new BallerinaException("no service dispatcher available to handle protocol : " + protocol,
                         balContext);
             }
 
             // Find the Service
             Service service = dispatcher.findService(cMsg, callback, balContext);
             if (service == null) {
-                throw new BallerinaException("No Service found to handle the service request", balContext);
+                throw new BallerinaException("no Service found to handle the service request", balContext);
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
             }
 
             // Find the Resource Dispatcher
             ResourceDispatcher resourceDispatcher = DispatcherRegistry.getInstance().getResourceDispatcher(protocol);
             if (resourceDispatcher == null) {
-                throw new BallerinaException("No resource dispatcher available to handle protocol : " + protocol,
+                throw new BallerinaException("no resource dispatcher available to handle protocol : " + protocol,
                         balContext);
             }
 
@@ -80,11 +84,11 @@ public class ServerConnectorMessageHandler {
             try {
                 resource = resourceDispatcher.findResource(service, cMsg, callback, balContext);
             } catch (BallerinaException ex) {
-                throw new BallerinaException("No Resource found to handle the request to Service : " +
+                throw new BallerinaException("no resource found to handle the request to Service : " +
                                              service.getSymbolName().getName() + " : " + ex.getMessage());
             }
             if (resource == null) {
-                throw new BallerinaException("No Resource found to handle the request to Service : " +
+                throw new BallerinaException("no resource found to handle the request to Service : " +
                                              service.getSymbolName().getName());
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
             }
@@ -109,20 +113,18 @@ public class ServerConnectorMessageHandler {
             Throwable throwable) {
         String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
         String stacktrace = ErrorHandlerUtils.getServiceStackTrace(balContext, throwable);
-        log.error(errorMsg + "\n" + stacktrace);
-        
+        String errorWithTrace = errorMsg + "\n" + stacktrace;
+        log.error(errorWithTrace);
+        outStream.println(errorWithTrace);
+
         Object protocol = cMsg.getProperty("PROTOCOL");
-        Object errorHandler = null;
-        if (protocol != null) {
-            errorHandler = ServiceContextHolder.getInstance().getErrorHandler((String) protocol);
-        }
+        Optional<ServerConnectorErrorHandler> optionalErrorHandler =
+                BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
 
-        if (errorHandler == null) {
-            errorHandler = DefaultServerConnectorErrorHandler.getInstance();
-        }
+        optionalErrorHandler
+                .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
+                .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext), cMsg, callback);
 
-        ((ServerConnectorErrorHandler) errorHandler)
-            .handleError(new BallerinaException(errorMsg, throwable.getCause()), cMsg, callback);
     }
 
 }

@@ -18,18 +18,20 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.Expression;
 
 /**
- * {@code ThrowStmt} represents a throw statement
+ * {@code ThrowStmt} represents a throw statement.
  *
  * @since 0.8.0
  */
 public class ThrowStmt extends AbstractStatement {
     private Expression expr;
 
-    public ThrowStmt(Expression expr) {
+    public ThrowStmt(NodeLocation location, Expression expr) {
+        super(location);
         this.expr = expr;
     }
 

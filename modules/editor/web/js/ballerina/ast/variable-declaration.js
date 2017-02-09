@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016-2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,21 +15,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function(_, ASTNode){
+define(['lodash', 'log', './node'], function(_, log, ASTNode){
 
-    var VariableDeclaration = function (type, identifier) {
-        this._type = type;
-        this._identifier = identifier;
-        this.initialValue = undefined;
-        this.type = "VariableDeclaration";
+    var VariableDeclaration = function (args) {
+        ASTNode.call(this, _.get(args, "type", "VariableDeclaration"));
+        this._type = _.get(args, "bType");
+        this._identifier = _.get(args, "identifier");
+
+        // Validating the identifier.
+        if (!_.isUndefined(this.identifier) && !ASTNode.isValidIdentifier(this.identifier)) {
+            var exceptionString = "Invalid identifier: \'" + this.identifier + "\'. An identifier must match the " +
+                "regex ^[a-zA-Z$_][a-zA-Z0-9$_]*$";
+            log.error(exceptionString);
+            throw exceptionString;
+        }
     };
 
     VariableDeclaration.prototype = Object.create(ASTNode.prototype);
     VariableDeclaration.prototype.constructor = VariableDeclaration;
 
-    VariableDeclaration.prototype.setType = function (type) {
-        if(!_.isUndefined(type)){
-            this._type = type;
+    VariableDeclaration.prototype.setType = function (type, options) {
+        if (!_.isUndefined(type)) {
+            this.setAttribute('_type', type, options);
+        } else {
+            var exceptionString = "A variable requires a type.";
+            log.error(exceptionString);
+            throw exceptionString;
         }
     };
 
@@ -37,9 +48,14 @@ define(['lodash', './node'], function(_, ASTNode){
         return this._type;
     };
 
-    VariableDeclaration.prototype.setIdentifier = function (identifier) {
-        if(!_.isUndefined(identifier)){
-            this._identifier = identifier;
+    VariableDeclaration.prototype.setIdentifier = function (identifier, options) {
+        if (!_.isNil(identifier) && ASTNode.isValidIdentifier(identifier)) {
+            this.setAttribute('_identifier', identifier, options);
+        } else {
+            var exceptionString = "Invalid identifier: \'" + identifier + "\'. An identifier must match the regex " +
+                "^[a-zA-Z$_][a-zA-Z0-9$_]*$";
+            log.error(exceptionString);
+            throw exceptionString;
         }
     };
 
@@ -48,12 +64,22 @@ define(['lodash', './node'], function(_, ASTNode){
     };
 
     /**
-     * initialize VariableDeclaration from json object
-     * @param {Object} jsonNode to initialize from
+     * Gets the variable declaration as a string.
+     * @return {string} - Variable declaration as string.
+     */
+    VariableDeclaration.prototype.getVariableDeclarationAsString = function() {
+      return this._type + " " + this._identifier + ";";
+    };
+
+    /**
+     * Initialize VariableDeclaration from json object
+     * @param {Object} jsonNode - The JSON object.
+     * @param {string} jsonNode.variable_type - The ballerina type.
+     * @param {string} jsonNode.variable_name - The identifier of the variable.
      */
     VariableDeclaration.prototype.initFromJson = function (jsonNode) {
-        this.setType(jsonNode.variable_type);
-        this.setIdentifier(jsonNode.variable_name);
+        this.setType(jsonNode.variable_type, {doSilently: true});
+        this.setIdentifier(jsonNode.variable_name, {doSilently: true});
     };
 
     return VariableDeclaration;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,6 @@ import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import javax.xml.stream.XMLStreamException;
-
-
 /**
  * {@code BXML} represents a XML value in Ballerina.
  *
@@ -47,9 +44,8 @@ public final class BXML extends BallerinaMessageDataSource implements BRefType<O
         if (xmlValue != null) {
             try {
                 value = AXIOMUtil.stringToOM(xmlValue);
-            } catch (XMLStreamException e) {
-                throw new BallerinaException("Cannot create OMElement from given String, maybe malformed String: " +
-                        e.getMessage());
+            } catch (Throwable t) {
+                handleJsonException("failed to create xml: ", t);
             }
         }
     }
@@ -72,8 +68,8 @@ public final class BXML extends BallerinaMessageDataSource implements BRefType<O
         if (inputStream != null) {
             try {
                 value = new StAXOMBuilder(inputStream).getDocumentElement();
-            } catch (XMLStreamException e) {
-                throw new BallerinaException("Cannot create OMElement from given source: " + e.getMessage());
+            } catch (Throwable t) {
+                handleJsonException("failed to create xml: ", t);
             }
         }
     }
@@ -94,8 +90,8 @@ public final class BXML extends BallerinaMessageDataSource implements BRefType<O
     public void serializeData() {
         try {
             this.value.serialize(this.outputStream);
-        } catch (XMLStreamException e) {
-            throw new BallerinaException("Error occurred during writing the message to the output stream", e);
+        } catch (Throwable t) {
+            handleJsonException("error occurred during writing the message to the output stream", t);
         }
     }
 
@@ -107,9 +103,35 @@ public final class BXML extends BallerinaMessageDataSource implements BRefType<O
     @Override
     public String stringValue() {
         if (this.value != null) {
-            return this.value.toString();
+            try {
+                return this.value.toString();
+            } catch (Throwable t) {
+                handleJsonException("failed to get xml as string: ", t);
+            }
         }
 
         return "";
+    }
+
+    @Override
+    public String getMessageAsString() {
+        if (this.value != null) {
+            try {
+                return this.value.toString();
+            } catch (Throwable t) {
+                handleJsonException("failed to get xml as string: ", t);
+            }
+        }
+        return "";
+    }
+    
+    private static void handleJsonException(String message, Throwable t) {
+        // Here local message of the cause is logged whenever possible, to avoid java class being logged
+        // along with the error message.
+        if (t.getCause() != null) {
+            throw new BallerinaException(message + t.getCause().getMessage());
+        } else {
+            throw new BallerinaException(message + t.getMessage());
+        }
     }
 }

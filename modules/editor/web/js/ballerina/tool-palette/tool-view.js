@@ -20,8 +20,14 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
 
     var toolView = Backbone.View.extend({
 
-        toolTemplate: _.template("<div id=\"<%=id%>\" class=\"tool-container\"  data-placement=\"bottom\" data-toggle=\"tooltip\" title='<%=title%>'> <img src=\"<%=icon%>\" class=\"tool-image\"  /><p class=\"tool-title\"><%=title%></p></div>"),
-        toolTemplateVertical: _.template("<div id=\"<%=id%>\" class=\"tool-container-vertical\"  data-placement=\"bottom\" data-toggle=\"tooltip\" title='<%=title%>'> <div class=\"tool-container-vertical-icon\"><img src=\"<%=icon%>\" class=\"tool-image\"  /></div><div class=\"tool-container-vertical-title\"><%=title%></div><p class=\"tool-title\"><%=title%></p></div>"),
+        toolTemplate: _.template("<div id=\"<%=id%>\" class=\"tool-block tool-container <%=classNames%>\"  " +
+            "data-placement=\"bottom\" data-toggle=\"tooltip\" title='<%=title%>'> <img src=\"<%=icon%>\" " +
+            "class=\"tool-image\"  /><p class=\"tool-title\"><%=title%></p></div>"),
+        toolTemplateVertical: _.template("<div id=\"<%=id%>\" class=\"tool-block tool-container-vertical " +
+            "<%=classNames%>\"> <div class=\"tool-container-vertical-icon\" data-placement=\"bottom\" " +
+            "data-toggle=\"tooltip\" title='<%=title%>'><img src=\"<%=icon%>\" class=\"tool-image\"  />" +
+            "</div><div class=\"tool-container-vertical-title\" data-placement=\"bottom\" data-toggle=\"tooltip\" " +
+            "title='<%=title%>'><%=title%></div><p class=\"tool-title\"><%=title%></p></div>"),
 
         initialize: function (options) {
             _.extend(this, _.pick(options, ["toolPalette"]));
@@ -74,13 +80,17 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
             var dragCursorOffset = _.isUndefined(this.model.dragCursorOffset) ?  { left: 30, top: -10 } : this.model.dragCursorOffset;
             this._dragCursorOffset = dragCursorOffset;
             var self = this;
+            // setting id for the div
+            this.$el.attr('id', this.model.id);
             if (orderVertical) {
                 this.$el.html(this.toolTemplateVertical(this.model.attributes));
             } else {
                 this.$el.html(this.toolTemplate(this.model.attributes));
             }
-            this.$el.tooltip();
+
             parent.append(this.$el);
+
+            this.$el.find('.tool-block').tooltip();
 
             this.$el.draggable({
                 helper: _.isUndefined(this.createCloneCallback) ?  'clone' : this.createCloneCallback(self),
@@ -93,6 +103,8 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
                 drag:this.createHandleOnDragEvent()
             });
 
+            // registering id-modified event
+            this.model.on('id-modified', this.updateToolId, this);
             return this;
         },
 
@@ -127,8 +139,16 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
             }
 
             return cloneCallBack;
-        }
+        },
 
+        /**
+         * updates tool id and change view attributes of the tool item
+         * @param {string} id - id of the tool
+         */
+        updateToolId: function (id) {
+            this.$el.find('.tool-container-vertical-title').text(id);
+            this.$el.attr('id', id);
+        }
     });
 
     return toolView;

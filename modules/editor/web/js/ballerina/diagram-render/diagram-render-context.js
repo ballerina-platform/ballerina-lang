@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define([], function () {
+define(['ballerina/env/environment','ballerina/env/package-scoped-environment'], function (Environment,PackageScopedEnvironemnt) {
 
     /**
      * Context data conveyor for diagram rendering.
@@ -25,6 +25,8 @@ define([], function () {
     var DiagramRenderContext = function () {
         // map object for storing view references against models
         this.viewModelMap = {};
+        this.environment = Environment;
+        this.packagedScopedEnvironemnt = PackageScopedEnvironemnt;
     };
 
     /**
@@ -49,6 +51,22 @@ define([], function () {
      */
     DiagramRenderContext.prototype.setViewOfModel = function (model, view) {
         return _.set(this.viewModelMap, model.id, view);
+    };
+
+    /**
+     * get environment
+     * @returns {*}
+     */
+    DiagramRenderContext.prototype.getEnvironment = function () {
+        return this.environment;
+    };
+
+    /**
+     * get packageScopedEnvironment
+     * @returns {*}
+     */
+    DiagramRenderContext.prototype.getPackagedScopedEnvironment = function () {
+        return this.packagedScopedEnvironemnt;
     };
 
     return DiagramRenderContext;

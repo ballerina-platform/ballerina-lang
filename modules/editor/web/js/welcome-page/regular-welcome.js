@@ -81,7 +81,7 @@ define(['require', 'backbone', 'lodash','ballerina'], function ( require, Backbo
                 // Dynamically add the preview divs for recent open diagrams
                 // TODO: make it dynamically configurable
                 for (var i = 0; i < 4; i ++) {
-                    var previewParent = $("<div class='col-md-3 preview-parent'></div>");
+                    var previewParent = $("<div class='col-xs-3 preview-parent'></div>");
                     var previewDiv = $("<div class='preview-div'></div>");
                     var fileName = $("<div class='file-name'>SampleConfiguration.bal</div>");
                     var previewName = $("<div class='preview-name-div'></div>");

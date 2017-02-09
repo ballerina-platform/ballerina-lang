@@ -18,7 +18,7 @@
 package org.wso2.ballerina.lang.expressions;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.interpreter.SymScope;
@@ -27,26 +27,21 @@ import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnInt;
-import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnString;
-import org.wso2.ballerina.core.utils.FunctionUtils;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
 /**
- * Map access expression test
+ * Map access expression test.
  *
  * @since 0.8.0
  */
 public class MapAccessExprTest {
     private BallerinaFile bFile;
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
         // Linking Native functions.
         SymScope symScope = new SymScope(null);
-        FunctionUtils.addNativeFunction(symScope, new PrintlnInt());
-        FunctionUtils.addNativeFunction(symScope, new PrintlnString());
         bFile = ParserUtils.parseBalFile("lang/expressions/map-access-expr.bal", symScope);
     }
 
@@ -80,27 +75,10 @@ public class MapAccessExprTest {
 
     }
 
-//    @Test(description = "Test array arg value")
-//    public void testArrayArgValueTest() {
-//        BArray<BInteger> arrayValue = new BArray<>(BInteger.class);
-//        arrayValue.add(0, new BInteger(10));
-//        arrayValue.add(1, new BInteger(1));
-//
-//        BValue[] args = {arrayValue};
-//        BValue[] returns = Functions.invoke(bFile, "arrayArgTest", args);
-//
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertSame(returns[0].getClass(), BInteger.class);
-//
-//        int actual = ((BInteger) returns[0]).intValue();
-//        int expected = 11;
-//        Assert.assertEquals(actual, expected);
-//    }
-    
     @Test(description = "Test map access with an index",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Map index should be of type string, not int. Map name: animals in " +
-            "incorrect-map-access.bal:4")
+            expectedExceptionsMessageRegExp = "incorrect-map-access.bal:4: non-string map index type 'int'",
+    dependsOnMethods = {"testMapAccessExpr", "testArrayReturnValueTest"})
     public void testMapAccessWithIndex() {
         ParserUtils.parseBalFile("lang/expressions/incorrect-map-access.bal");
     }

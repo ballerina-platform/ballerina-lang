@@ -17,23 +17,24 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code BStringType} represents a String
+ * {@code BStringType} represents a String.
  *
  * @since 0.8.0
  */
-class BStringType extends BType {
+public class BStringType extends BType {
 
     /**
-     * Create a {@code BStringType} which represents the boolean type
+     * Create a {@code BStringType} which represents the boolean type.
      *
      * @param typeName string name of the type
      */
-    BStringType(String typeName) {
-        super(typeName, BString.class);
+    BStringType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BString.class);
     }
 
     @SuppressWarnings("unchecked")

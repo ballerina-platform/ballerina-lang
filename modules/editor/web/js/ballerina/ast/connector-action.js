@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node', 'log'], function(_, ASTNode, log){
+define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode, log, CommonUtils){
 
     /**
      * Constructor for ConnectorAction
@@ -23,9 +23,9 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
      * @constructor
      */
     var ConnectorAction = function(args) {
-        ASTNode.call(this, "ConnectorDefinition");
+        ASTNode.call(this, "ConnectorAction");
         this.BallerinaASTFactory = this.getFactory();
-        this.action_name = _.get(args, 'action_name', 'newAction');
+        this.action_name = _.get(args, 'action_name');
         this.annotations = _.get(args, 'annotations', []);
         this.arguments = _.get(args, 'arguments', []);
     };
@@ -69,17 +69,17 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
      * Set the Action name
      * @param {string} name - Action Name
      */
-    ConnectorAction.prototype.setActionName = function (name) {
-        this.action_name = name;
+    ConnectorAction.prototype.setActionName = function (name, options) {
+        this.setAttribute('action_name', name, options);
     };
 
     /**
      * Set the action annotations
      * @param {string[]} annotations - Action Annotations
      */
-    ConnectorAction.prototype.setAnnotations = function (annotations) {
+    ConnectorAction.prototype.setAnnotations = function (annotations, options) {
         if (!_.isNil(annotations)) {
-            this.annotations = annotations;
+            this.setAttribute('annotations', annotations, options);
         } else {
             log.warn('Trying to set a null or undefined array to annotations');
         }
@@ -89,23 +89,29 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
      * Get the variable Declarations
      * @return {VariableDeclaration[]} variableDeclarations
      */
-    ConnectorAction.prototype.getVariableDeclarations = function () {
-        var variableDeclarations = [];
+    ConnectorAction.prototype.getVariableDefinitionStatements = function () {
+        var variableDefinitionStatements = [];
         var self = this;
 
         _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isVariableDeclaration(child)) {
-                variableDeclarations.push(child);
+            if (self.BallerinaASTFactory.isVariableDefinitionStatement(child)) {
+                variableDefinitionStatements.push(child);
             }
         });
-        return variableDeclarations;
+        return variableDefinitionStatements;
     };
 
     /**
      * Remove variable declaration.
      */
-    ConnectorAction.prototype.removeVariableDeclaration = function (variableDeclaration) {
-        this.removeChild(variableDeclaration);
+    ConnectorAction.prototype.removeVariableDeclaration = function (variableDeclarationIdentifier) {
+        var self = this;
+        // Removing the variable from the children.
+        var variableDeclarationChild = _.find(this.getChildren(), function (child) {
+            return self.BallerinaASTFactory.isVariableDeclaration(child)
+                && child.getIdentifier() === variableDeclarationIdentifier;
+        });
+        this.removeChild(variableDeclarationChild);
     };
 
     /**
@@ -129,83 +135,160 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
         this.addChild(newVariableDeclaration, index + 1);
     };
 
+    //// Start of return type functions.
+
     /**
      * Gets the return type as a string separated by commas.
      * @return {string} - Return types.
      */
-    ConnectorAction.prototype.getReturnTypesAsString = function(){
+    ConnectorAction.prototype.getReturnTypesAsString = function () {
         var returnTypes = [];
-        var self = this;
-        _.forEach(this.getChildren(), function(child) {
-            if (self.BallerinaASTFactory.isReturnType(child)) {
-                _.forEach(child.getChildren(), function(returnTypeChild){
-                    returnTypes.push(returnTypeChild.getType())
-                });
-                return false;
-            }
+        _.forEach(this.getReturnTypes(), function (returnTypeChild) {
+            returnTypes.push(returnTypeChild.getArgumentAsString())
         });
+
         return _.join(returnTypes, ", ");
     };
 
     /**
-     * Gets return types.
+     * Gets the defined return types.
+     * @return {Argument[]} - Array of args.
      */
     ConnectorAction.prototype.getReturnTypes = function () {
-        var returnTypes = [];
-        var self = this;
-        _.forEach(this.getChildren(), function(child) {
-            if (self.BallerinaASTFactory.isReturnType(child)) {
-                _.forEach(child.getChildren(), function(returnTypeChild){
-                    returnTypes.push(returnTypeChild)
-                });
-                // break;
-                return false;
-            }
-        });
-        return returnTypes;
+        var returnTypeModel = this.getReturnTypeModel();
+        return !_.isUndefined(returnTypeModel) ? this.getReturnTypeModel().getChildren().slice(0) : [];
     };
 
     /**
-     * Add a new return type.
+     * Adds a new argument to return type model.
+     * @param {string} type - The type of the argument.
+     * @param {string} identifier - The identifier of the argument.
      */
-    ConnectorAction.prototype.addReturnType = function (newReturnType) {
+    ConnectorAction.prototype.addReturnType = function (type, identifier) {
         var self = this;
-        var typeName = this.BallerinaASTFactory.createTypeName();
-        typeName.setTypeName(newReturnType);
 
-        var existingReturnType = _.find(this.getChildren(), function(child){
-            return self.BallerinaASTFactory.isReturnType(child)
-        });
+        // Adding return type mode if it doesn't exists.
+        if (_.isUndefined(this.getReturnTypeModel())) {
+            this.addChild(this.BallerinaASTFactory.createReturnType());
+        }
 
+        // Check if there is already a return type with the same identifier.
+        if (!_.isUndefined(identifier)) {
+            _.forEach(this.getReturnTypeModel().getChildren(), function(child) {
+                if (child.getIdentifier() === identifier) {
+                    var errorString = "An argument with identifier '" + identifier + "' already exists.";
+                    log.error(errorString);
+                    throw errorString;
+                }
+            });
+        }
+
+        // Validating whether return type can be added based on identifiers of other return types.
+        if (!_.isUndefined(identifier)) {
+            if (!this.hasNamedReturnTypes() && this.hasReturnTypes()) {
+                var errorStringWithoutIdentifiers = "Return types without identifiers already exists. Remove them to " +
+                    "add return types with identifiers.";
+                log.error(errorStringWithoutIdentifiers);
+                throw errorStringWithoutIdentifiers;
+            }
+        } else {
+            if (this.hasNamedReturnTypes() && this.hasReturnTypes()) {
+                var errorStringWithIdentifiers = "Return types with identifiers already exists. Remove them to add " +
+                    "return types without identifiers.";
+                log.error(errorStringWithIdentifiers);
+                throw errorStringWithIdentifiers;
+            }
+        }
+
+        var argument = this.BallerinaASTFactory.createArgument({type: type, identifier: identifier});
+
+        var existingReturnType = self.getReturnTypeModel();
+
+        // Adding the new argument input position.
         if (!_.isNil(existingReturnType)) {
-            existingReturnType.addChild(typeName, existingReturnType.length + 1);
+            existingReturnType.addChild(argument, existingReturnType.getChildren().length + 1);
         } else {
             var returnType = this.BallerinaASTFactory.createReturnType();
-            returnType.addChild(typeName, 0);
+            returnType.addChild(argument, 0);
             this.addChild(returnType);
         }
     };
 
+    ConnectorAction.prototype.hasNamedReturnTypes = function () {
+        if (_.isUndefined(this.getReturnTypeModel())) {
+            return false;
+        } else {
+            //check if any of the return types have identifiers
+            var indexWithoutIdentifiers = _.findIndex(this.getReturnTypeModel().getChildren(), function (child) {
+                return _.isUndefined(child.getIdentifier());
+            });
+
+            if (indexWithoutIdentifiers !== -1) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    };
+
+    ConnectorAction.prototype.hasReturnTypes = function () {
+        if (_.isUndefined(this.getReturnTypeModel())) {
+            return false;
+        } else {
+            if (this.getReturnTypeModel().getChildren().length > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    };
+
     /**
-     * Remove return type declaration.
+     * Removes return type argument from the return type model.
+     * @param {string} modelID - The id of an {Argument} which resides in the return type model.
      */
-    ConnectorAction.prototype.removeReturnType = function (returnType) {
+    ConnectorAction.prototype.removeReturnType = function (modelID) {
         var self = this;
-        _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isReturnType(child)) {
-                var childrenOfReturnType = child.getChildren();
-                _.forEach(childrenOfReturnType, function(type, index){
-                    if (type.getType() == returnType) {
-                        childrenOfReturnType.splice(index, 1);
-                        // break
-                        return false;
-                    }
-                });
+        var argumentToRemove = undefined;
+
+        // Find the argument to remove/delete.
+        _.forEach(self.getReturnTypeModel().getChildren(), function (argument) {
+            if (argument.getID() == modelID) {
+                argumentToRemove = argument;
                 // break
                 return false;
             }
         });
+
+        // Deleting the argument from the AST.
+        if (!_.isUndefined(argumentToRemove)) {
+            self.getReturnTypeModel().removeChild(argumentToRemove);
+        } else {
+            var exceptionString = "Could not find a return type with ID: " + modelID;
+            log.error(exceptionString);
+            throw exceptionString;
+        }
     };
+
+    /**
+     * Gets the return type model. A connector action definition can have only one {ReturnType} model.
+     * @return {ReturnType|undefined} - The return type model.
+     */
+    ConnectorAction.prototype.getReturnTypeModel = function() {
+        var self = this;
+        var returnTypeModel = undefined;
+        _.forEach(this.getChildren(), function (child) {
+            if (self.BallerinaASTFactory.isReturnType(child)) {
+                returnTypeModel = child;
+                // break
+                return false;
+            }
+        });
+
+        return returnTypeModel;
+    };
+
+    //// End of return type functions.
 
     /**
      * Returns the list of arguments as a string separated by commas.
@@ -226,7 +309,7 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
     };
 
     /**
-     * Adds new argument to the function definition.
+     * Adds new argument to the connector action.
      * @param type - The type of the argument.
      * @param identifier - The identifier of the argument.
      */
@@ -259,6 +342,24 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
     };
 
     /**
+     * initialize ConnectorAction from json object
+     * @param {Object} jsonNode to initialize from
+     * @param {string} [jsonNode.resource_name] - Name of the resource definition
+     * @param {string} [jsonNode.annotations] - Annotations of the resource definition
+     */
+    ConnectorAction.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+        this.setActionName(jsonNode.action_name, {doSilently: true});
+        this.setAnnotations(jsonNode.annotations, {doSilently: true});
+
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.BallerinaASTFactory.createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
+    };
+
+    /**
      * Validates possible immediate child types.
      * @override
      * @param node
@@ -269,6 +370,27 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
             || this.BallerinaASTFactory.isVariableDeclaration(node)
             || this.BallerinaASTFactory.isWorkerDeclaration(node)
             || this.BallerinaASTFactory.isStatement(node);
+    };
+
+    /**
+     * @inheritDoc
+     * @override
+     */
+    ConnectorAction.prototype.generateUniqueIdentifiers = function () {
+        CommonUtils.generateUniqueIdentifier({
+            node: this,
+            attributes: [{
+                defaultValue: "newAction",
+                setter: this.setActionName,
+                getter: this.getActionName,
+                parents: [{
+                    // ballerina-ast-node
+                    node: this.parent,
+                    getChildrenFunc: this.parent.getConnectorActionDefinitions,
+                    getter: this.getActionName
+                }]
+            }]
+        });
     };
 
     return ConnectorAction;

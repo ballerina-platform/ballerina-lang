@@ -18,9 +18,10 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.model.builder.CallableUnitBuilder;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+import org.wso2.ballerina.core.model.types.BType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,58 +45,37 @@ import java.util.Map;
  *
  * @since 0.8.0
  */
-@SuppressWarnings("unused")
-public class Resource implements Node, CallableUnit {
+public class Resource implements Node, SymbolScope, CallableUnit {
+    private NodeLocation location;
 
-    private static final Logger LOG = LoggerFactory.getLogger(Resource.class);
+    // BLangSymbol related attributes
+    protected String name;
+    protected String pkgPath;
+    protected boolean isPublic;
+    protected SymbolName symbolName;
 
     // TODO Refactor
-    private Map<String, Annotation> annotationMap = new HashMap<>();
     private List<Worker> workerList = new ArrayList<>();
-    private String name;
     private int stackFrameSize;
-
     private Annotation[] annotations;
-    private Parameter[] parameters;
-    private ConnectorDcl[] connectorDcls;
-    private VariableDcl[] variableDcls;
+    private ParameterDef[] parameterDefs;
+    private BType[] parameterTypes;
     private Worker[] workers;
     private BlockStmt resourceBody;
-    private SymbolName resourceName;
-    private Position position;
 
     private Application application;
 
-    public Resource() {
-    }
+    // Scope related variables
+    private SymbolScope enclosingScope;
+    private Map<SymbolName, BLangSymbol> symbolMap;
 
-    public Resource(String name) {
-        this.name = name;
-    }
-
-    public Resource(SymbolName name,
-                    Position position,
-                    Annotation[] annotations,
-                    Parameter[] parameters,
-                    ConnectorDcl[] connectorDcls,
-                    VariableDcl[] variableDcls,
-                    Worker[] workers,
-                    BlockStmt functionBody) {
-
-        this.resourceName = name;
-        this.position = position;
-        this.annotations = annotations;
-        this.parameters = parameters;
-        this.connectorDcls = connectorDcls;
-        this.variableDcls = variableDcls;
-
-        /* To Do : Do we pass multiple workers from the model? */
-        this.workers = workers;
-        this.resourceBody = functionBody;
+    private Resource(SymbolScope enclosingScope) {
+        this.enclosingScope = enclosingScope;
+        this.symbolMap = new HashMap<>();
     }
 
     /**
-     * Get an Annotation from a given name
+     * Get an Annotation from a given name.
      *
      * @param name name of the annotation
      * @return Annotation
@@ -112,16 +92,7 @@ public class Resource implements Node, CallableUnit {
     }
 
     /**
-     * Get all the Annotations associated with a Resource
-     *
-     * @return map of Annotations
-     */
-    public Map<String, Annotation> getAnnotationMap() {
-        return annotationMap;
-    }
-
-    /**
-     * Get all the Annotations associated with a Resource
+     * Get all the Annotations associated with a Resource.
      *
      * @return list of Annotations
      */
@@ -130,34 +101,16 @@ public class Resource implements Node, CallableUnit {
     }
 
     /**
-     * Set Annotations
-     *
-     * @param annotations map of Annotations
-     */
-    public void setAnnotations(Map<String, Annotation> annotations) {
-        this.annotationMap = annotations;
-    }
-
-    /**
-     * Add an {@code Annotation} to the Resource
-     *
-     * @param annotation Annotation to be added
-     */
-    public void addAnnotation(Annotation annotation) {
-        annotationMap.put(annotation.getName(), annotation);
-    }
-
-    /**
-     * Get all Connections declared within the default Worker scope of the Resource
+     * Get all Connections declared within the default Worker scope of the Resource.
      *
      * @return list of all the Connections belongs to the default Worker of the Resource
      */
     public ConnectorDcl[] getConnectorDcls() {
-        return connectorDcls;
+        return null;
     }
 
     /**
-     * Get all the Workers associated with a Resource
+     * Get all the Workers associated with a Resource.
      *
      * @return list of Workers
      */
@@ -166,16 +119,7 @@ public class Resource implements Node, CallableUnit {
     }
 
     /**
-     * Assign Workers to the Resource
-     *
-     * @param workers list of all the Workers
-     */
-    public void setWorkers(List<Worker> workers) {
-        this.workerList = workers;
-    }
-
-    /**
-     * Add a {@code Worker} to the Resource
+     * Add a {@code Worker} to the Resource.
      *
      * @param worker Worker to be added to the Resource
      */
@@ -184,49 +128,12 @@ public class Resource implements Node, CallableUnit {
     }
 
     /**
-     * Get resource body
+     * Get resource body.
      *
      * @return returns the block statement
      */
     public BlockStmt getResourceBody() {
         return resourceBody;
-    }
-
-    /**
-     * Get variable declarations
-     *
-     * @return returns the variable declarations
-     */
-    public VariableDcl[] getVariableDcls() {
-        return variableDcls;
-    }
-
-    @Override
-    public Parameter[] getReturnParameters() {
-        return new Parameter[0];
-    }
-
-    public String getName() {
-        return getSymbolName().getName();
-    }
-
-    public SymbolName getSymbolName() {
-        return this.resourceName;
-    }
-
-    @Override
-    public void setSymbolName(SymbolName symbolName) {
-        this.resourceName = symbolName;
-    }
-
-    @Override
-    public String getPackageName() {
-        return null;
-    }
-
-    @Override
-    public Annotation[] getAnnotations() {
-        return new Annotation[0];
     }
 
     public int getStackFrameSize() {
@@ -237,16 +144,6 @@ public class Resource implements Node, CallableUnit {
         this.stackFrameSize = stackFrameSize;
     }
 
-    @Override
-    public BlockStmt getCallableUnitBody() {
-        return resourceBody;
-    }
-
-    @Override
-    public Position getLocation() {
-        return position;
-    }
-
     public Application getApplication() {
         return application;
     }
@@ -255,12 +152,165 @@ public class Resource implements Node, CallableUnit {
         this.application = application;
     }
 
+
+    // Methods in CallableUnit interface
+
+    @Override
+    public void setSymbolName(SymbolName symbolName) {
+        this.symbolName = symbolName;
+    }
+
+    /**
+     * Get all the Annotations associated with a BallerinaFunction.
+     *
+     * @return list of Annotations
+     */
+    @Override
+    public Annotation[] getAnnotations() {
+        return this.annotations;
+    }
+
+    /**
+     * Get list of Arguments associated with the function definition.
+     *
+     * @return list of Arguments
+     */
+    public ParameterDef[] getParameterDefs() {
+        return this.parameterDefs;
+    }
+
+    /**
+     * Get all the variableDcls declared in the scope of BallerinaFunction.
+     *
+     * @return list of all BallerinaFunction scoped variableDcls
+     */
+    @Override
+    public VariableDef[] getVariableDefs() {
+        return null;
+    }
+
+    @Override
+    public BlockStmt getCallableUnitBody() {
+        return this.resourceBody;
+    }
+
+    @Override
+    public ParameterDef[] getReturnParameters() {
+        return new ParameterDef[0];
+    }
+
+    @Override
+    public BType[] getReturnParamTypes() {
+        return null;
+    }
+
+    @Override
+    public void setReturnParamTypes(BType[] returnParamTypes) {
+
+    }
+
+    @Override
+    public BType[] getArgumentTypes() {
+        return parameterTypes;
+    }
+
+    @Override
+    public void setParameterTypes(BType[] parameterTypes) {
+        this.parameterTypes = parameterTypes;
+    }
+
+    // Methods in Node interface
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
-    public Parameter[] getParameters() {
-        return parameters;
+    @Override
+    public NodeLocation getNodeLocation() {
+        return location;
+    }
+
+
+    // Methods in BLangSymbol interface
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return false;
+    }
+
+    @Override
+    public boolean isNative() {
+        return false;
+    }
+
+    @Override
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
+    @Override
+    public SymbolScope getSymbolScope() {
+        return this;
+    }
+
+
+    // Methods in the SymbolScope interface
+
+    @Override
+    public ScopeName getScopeName() {
+        return ScopeName.LOCAL;
+    }
+
+    @Override
+    public SymbolScope getEnclosingScope() {
+        return enclosingScope;
+    }
+
+    @Override
+    public void define(SymbolName name, BLangSymbol symbol) {
+        symbolMap.put(name, symbol);
+    }
+
+    @Override
+    public BLangSymbol resolve(SymbolName name) {
+        return resolve(symbolMap, name);
+    }
+
+    /**
+     * {@code ResourceBuilder} is responsible for building a {@cdoe Resource} node.
+     *
+     * @since 0.8.0
+     */
+    public static class ResourceBuilder extends CallableUnitBuilder {
+        private Resource resource;
+
+        public ResourceBuilder(SymbolScope enclosingScope) {
+            resource = new Resource(enclosingScope);
+            currentScope = resource;
+        }
+
+        public Resource buildResource() {
+            resource.location = this.location;
+            resource.name = this.name;
+            resource.pkgPath = this.pkgPath;
+            resource.symbolName = new SymbolName(name, pkgPath);
+
+            resource.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            resource.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
+            resource.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
+            resource.resourceBody = this.body;
+            return resource;
+        }
     }
 }

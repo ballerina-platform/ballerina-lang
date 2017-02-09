@@ -17,23 +17,24 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code BIntegerType} represents an integer which is a 32-bit signed number
+ * {@code BIntegerType} represents an integer which is a 32-bit signed number.
  *
  * @since 0.8.0
  */
 class BIntegerType extends BType {
 
     /**
-     * Create a {@code BIntegerType} which represents the boolean type
+     * Create a {@code BIntegerType} which represents the boolean type.
      *
      * @param typeName string name of the type
      */
-    BIntegerType(String typeName) {
-        super(typeName, BInteger.class);
+    BIntegerType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BInteger.class);
     }
 
     @SuppressWarnings("unchecked")

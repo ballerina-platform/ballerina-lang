@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/tab', 'workspace', 'ballerina', 'bootstrap'],
-    function ($, _, Backbone, log, Dialogs, WelcomePages, GenericTab, Workspace, Ballerina) {
+define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab','alerts', './service-client', 'bootstrap'],
+    function ($, _, Backbone, log, Dialogs, WelcomePages, Tab, alerts, ServiceClient) {
 
     // workspace manager constructor
     /**
@@ -25,11 +25,25 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
     return function (app) {
         var self = this;
 
+        this._serviceClient = new ServiceClient({application: app});
+
         if (_.isUndefined(app.commandManager)) {
             var error = "CommandManager is not initialized.";
             log.error(error);
             throw error;
         }
+
+        this.getServiceClient = function(){
+            return this._serviceClient;
+        };
+
+        this.listenToTabController = function(){
+            app.tabController.on("active-tab-changed", this.onTabChange, this);
+        };
+
+        this.onTabChange = function(evt){
+            this.updateMenuItems();
+        };
 
         this.createNewTab = function createNewTab(options) {
             app.tabController.newTab(options);
@@ -41,7 +55,7 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
             if (!this.passedFirstLaunch()) {
                 // create a generic tab - without ballerina editor components
                 var tab = app.tabController.newTab({
-                    tabModel: GenericTab,
+                    tabModel: Tab.Tab,
                     tabOptions:{title: 'welcome-page'}
                 });
                 var opts = _.get(app.config, 'welcome');
@@ -54,7 +68,7 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
                 if (!app.tabController.hasFilesInWorkingSet()) {
                     // create a generic tab - without ballerina editor components
                     var tab = app.tabController.newTab({
-                        tabModel: GenericTab,
+                        tabModel: Tab.Tab,
                         tabOptions:{title: 'welcome-page'}
                     });
                     // Showing FirstLaunchWelcomePage instead of regularWelcomePage
@@ -84,7 +98,7 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
             if (_.isUndefined(existingWelcomeTab)) {
                 // Creating a new welcome tab.
                 var tab = app.tabController.newTab({
-                    tabModel: GenericTab,
+                    tabModel: Tab.Tab,
                     tabOptions:{title: 'welcome-page'}
                 });
                 // Showing FirstLaunchWelcomePage instead of regularWelcomePage
@@ -99,17 +113,30 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
             }
         };
 
-        this.openFileSaveDialog = function openFileSaveDialog() {
+        this.openFileSaveDialog = function openFileSaveDialog(options) {
             if(_.isNil(this._saveFileDialog)){
                 this._saveFileDialog = new Dialogs.save_to_file_dialog(app);
-                this._saveFileDialog.render();
             }
+            this._saveFileDialog.render();
+
+            if(!_.isNil(options) && _.isFunction(options.callback)){
+                var isSaved = false;
+                this._saveFileDialog.once('save-completed', function(success){
+                    isSaved = success;
+                }, this);
+                this._saveFileDialog.once('unloaded', function(){
+                    options.callback(isSaved);
+                }, this);
+            }
+
             this._saveFileDialog.show();
             var activeTab = app.tabController.getActiveTab();
             if(!_.isNil(activeTab) && _.isFunction(activeTab.getFile)){
                 var activeFile = activeTab.getFile();
                 if(activeFile.isPersisted()){
-                    this._saveFileDialog.setSelectedFile(activeFile.getPath(), activeFile.getName());
+                    this._saveFileDialog.once('loaded', function(){
+                        this._saveFileDialog.setSelectedFile(activeFile.getPath(), activeFile.getName());
+                    }, this);
                 }
             }
 
@@ -120,76 +147,87 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
                 var opts = _.cloneDeep(_.get(app.config, 'open_folder_dialog'));
                 _.set(opts, "application", app);
                 this._folderOpenDialog = new Dialogs.FolderOpenDialog(opts);
-                this._folderOpenDialog.render();
             }
+            this._folderOpenDialog.render();
             this._folderOpenDialog.show();
         };
 
         this.openFileOpenDialog = function openFileOpenDialog() {
             if(_.isNil(this._openFileDialog)){
                 this._openFileDialog = new Dialogs.open_file_dialog(app);
-                this._openFileDialog.render();
             }
+            this._openFileDialog.render();
             this._openFileDialog.show();
+        };
+
+        this.openCloseFileConfirmDialog = function(options) {
+            if(_.isNil(this._closeFileConfirmDialog)){
+                this._closeFileConfirmDialog = new Dialogs.CloseConfirmDialog();
+                this._closeFileConfirmDialog.render();
+            }
+
+            this._closeFileConfirmDialog.askConfirmation(options);
         };
 
         this.goToWelcomePage = function goToWelcomePage() {
             this.workspaceManager.showWelcomePage(this.workspaceManager);
         };
 
-        this.getParsedTree = function (file, onSuccessCallBack) {
-            var content = { "content" : file.getContent() };
-            $.ajax({
-                url: _.get(app, 'config.services.parser.endpoint'),
-                type: "POST",
-                data: JSON.stringify(content),
-                contentType: "application/json; charset=utf-8",
-                async: false,
-                dataType: "json",
-                success: function (data, textStatus, xhr) {
-                    if (xhr.status == 200) {
-                        var BallerinaASTDeserializer = Ballerina.ast.BallerinaASTDeserializer;
-                        var root = BallerinaASTDeserializer.getASTModel(data);
-                        onSuccessCallBack(root);
-                    } else {
-                        log.error("Error while parsing the source. " + JSON.stringify(xhr));
-                    }
-                },
-                error: function (res, errorCode, error) {
-                    log.error("Error while parsing the source. " + JSON.stringify(res));
-                }
-            });
-        };
-
         this.updateUndoRedoMenus = function(){
             // undo manager for current tab
-            var fileEditor = app.tabController.getActiveTab().getBallerinaFileEditor(),
+            var activeTab = app.tabController.getActiveTab(),
                 undoMenuItem = app.menuBar.getMenuItemByID('edit.undo'),
                 redoMenuItem = app.menuBar.getMenuItemByID('edit.redo');
 
-            if(!_.isNil(fileEditor)){
-                var undoManager = fileEditor.getUndoManager();
-                if (undoManager.hasUndo()) {
-                    undoMenuItem.enable();
-                    undoMenuItem.addLabelSuffix(
-                        undoManager.undoStackTop().getTitle());
-                } else {
-                    undoMenuItem.disable();
-                    undoMenuItem.clearLabelSuffix();
-                }
-                if (undoManager.hasRedo()) {
-                    redoMenuItem.enable();
-                    redoMenuItem.addLabelSuffix(
-                        undoManager.redoStackTop().getTitle());
-                } else {
-                    redoMenuItem.disable();
-                    redoMenuItem.clearLabelSuffix();
+            if(activeTab instanceof Tab.FileTab){
+                var fileEditor = activeTab.getBallerinaFileEditor();
+                if(!_.isUndefined(fileEditor)){
+                    var undoManager = activeTab.getBallerinaFileEditor().getUndoManager();
+                    if (undoManager.hasUndo()) {
+                        undoMenuItem.enable();
+                        undoMenuItem.addLabelSuffix(
+                            undoManager.undoStackTop().getTitle());
+                    } else {
+                        undoMenuItem.disable();
+                        undoMenuItem.clearLabelSuffix();
+                    }
+                    if (undoManager.hasRedo()) {
+                        redoMenuItem.enable();
+                        redoMenuItem.addLabelSuffix(
+                            undoManager.redoStackTop().getTitle());
+                    } else {
+                        redoMenuItem.disable();
+                        redoMenuItem.clearLabelSuffix();
+                    }
                 }
             } else {
                 undoMenuItem.disable();
                 undoMenuItem.clearLabelSuffix();
                 redoMenuItem.disable();
                 redoMenuItem.clearLabelSuffix();
+            }
+        };
+
+        this.updateMenuItems = function(){
+            this.updateUndoRedoMenus();
+            this.updateSaveMenuItem();
+        };
+
+        this.updateSaveMenuItem = function(){
+            var activeTab = app.tabController.getActiveTab(),
+                saveMenuItem = app.menuBar.getMenuItemByID('file.save'),
+                saveAsMenuItem = app.menuBar.getMenuItemByID('file.saveAs');
+            if(activeTab instanceof Tab.FileTab){
+                var file = activeTab.getFile();
+                if(file.isDirty()){
+                    saveMenuItem.enable();
+                    saveAsMenuItem.enable();
+                } else {
+                    saveMenuItem.disable();
+                }
+            } else {
+                saveMenuItem.disable();
+                saveAsMenuItem.disable();
             }
         };
 
@@ -211,9 +249,49 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
             self.updateUndoRedoMenus();
         };
 
+        this.handleSave = function(options) {
+            var activeTab = app.tabController.getActiveTab();
+            if(activeTab instanceof Tab.FileTab){
+                var file = activeTab.getFile();
+                if(file.isPersisted()){
+                    if(file.isDirty()){
+                        var response = self._serviceClient.writeFile(file);
+                        if(response.error){
+                            alerts.error(response.message);
+                            return;
+                        }
+                        if(activeTab.getBallerinaFileEditor().isInSourceView()){
+                            activeTab.getBallerinaFileEditor().getSourceView().markClean();
+                        }
+                    }
+                    if(!_.isNil(options) && _.isFunction(options.callback)){
+                        options.callback(true);
+                    }
+                } else {
+                    app.commandManager.dispatch('open-file-save-dialog', options);
+                }
+            }
+        };
+
         this.showAboutDialog = function(){
             var aboutModal = $(_.get(app, 'config.about_dialog.selector'));
             aboutModal.modal('show')
+        };
+
+        this.handleCreateNewItemAtPath = function(data){
+            if(_.isNil(this._newItemDialog)){
+                this._newItemDialog = new Dialogs.NewItemDialog({application: app});
+                this._newItemDialog.render();
+            }
+            this._newItemDialog.displayWizard(data);
+        };
+
+        this.handleRemoveFromDisk = function(data){
+            if(_.isNil(this._deleteItemWizard)){
+                this._deleteItemWizard = new Dialogs.DeleteItemDialog({application: app});
+                this._deleteItemWizard.render();
+            }
+            this._deleteItemWizard.displayWizard(data);
         };
 
         app.commandManager.registerHandler('create-new-tab', this.createNewTab);
@@ -221,6 +299,8 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
         app.commandManager.registerHandler('undo', this.handleUndo);
 
         app.commandManager.registerHandler('redo', this.handleRedo);
+
+        app.commandManager.registerHandler('save', this.handleSave);
 
         // Open file save dialog
         app.commandManager.registerHandler('open-file-save-dialog', this.openFileSaveDialog, this);
@@ -230,10 +310,16 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
 
         app.commandManager.registerHandler('show-folder-open-dialog', this.showFolderOpenDialog, this);
 
+        app.commandManager.registerHandler('open-close-file-confirm-dialog', this.openCloseFileConfirmDialog, this);
+
         // Go to Welcome Page.
         app.commandManager.registerHandler('go-to-welcome-page', this.goToWelcomePage);
 
         app.commandManager.registerHandler('show-about-dialog', this.showAboutDialog);
+
+        app.commandManager.registerHandler('create-new-item-at-path', this.handleCreateNewItemAtPath, this);
+
+        app.commandManager.registerHandler('remove-from-disk', this.handleRemoveFromDisk, this);
 
     }
 

@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * {@code MapType} represents a map
+ * {@code MapType} represents a map.
  * @param <BString> Key
  * @param <V> Value
  * @since 0.8.0
@@ -36,7 +36,7 @@ public class BMap<BString, V extends BValue> implements BRefType {
     private MapEntry<BString, V>[] values = new MapEntry[INITIAL_CAPACITY];
 
     /**
-     * Retrieve the value for the given key from map
+     * Retrieve the value for the given key from map.
      * @param key key used to get the value
      * @return value
      */
@@ -52,7 +52,7 @@ public class BMap<BString, V extends BValue> implements BRefType {
     }
 
     /**
-     * Insert a key value pair into the map
+     * Insert a key value pair into the map.
      * @param key key related to the value
      * @param value value related to the key
      */
@@ -82,7 +82,7 @@ public class BMap<BString, V extends BValue> implements BRefType {
     }
 
     /**
-     * Get the size of the map
+     * Get the size of the map.
      * @return returns the size of the map
      */
     public int size() {
@@ -90,7 +90,7 @@ public class BMap<BString, V extends BValue> implements BRefType {
     }
 
     /**
-     * Remove an item from the map
+     * Remove an item from the map.
      * @param key key of the item to be removed
      */
     public void remove(BString key) {
@@ -108,7 +108,7 @@ public class BMap<BString, V extends BValue> implements BRefType {
     }
 
     /**
-     * Retrieve the set of keys related to this map
+     * Retrieve the set of keys related to this map.
      * @return returns the set of keys
      */
     public Set<BString> keySet() {

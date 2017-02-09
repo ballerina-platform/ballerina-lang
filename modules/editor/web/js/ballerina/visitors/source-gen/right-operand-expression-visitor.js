@@ -40,15 +40,8 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
     };
 
     RightOperandExpressionVisitor.prototype.endVisitRightOperandExpression = function(rightOperandExpression){
-        this.getParent().appendSource(this.getGeneratedSource() + ";\n");
+        this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Right Operand Expression');
-    };
-
-    RightOperandExpressionVisitor.prototype.visitActionInvocationStatement = function(statement){
-        var StatementVisitorFactory = require('./statement-visitor-factory');
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-        statement.accept(statementVisitor);
     };
 
     RightOperandExpressionVisitor.prototype.visitFuncInvocationStatement = function(statement){

@@ -49,7 +49,15 @@ public class BLangJSONModelConstants {
     public static final String IMPORT_PACKAGE_NAME = "import_package_name";
 
     public static final String IMPORT_PACKAGE_PATH = "import_package_path";
-
+    
+    public static final String CONSTANT_DEFINITION = "constant_definition";
+    
+    public static final String CONSTANT_DEFINITION_BTYPE = "constant_definition_btype";
+    
+    public static final String CONSTANT_DEFINITION_IDENTIFIER = "constant_definition_identifier";
+    
+    public static final String CONSTANT_DEFINITION_VALUE = "constant_definition_value";
+    
     public static final String SERVICE_DEFINITION = "service_definition";
 
     public static final String SERVICE_NAME = "service_name";
@@ -110,7 +118,7 @@ public class BLangJSONModelConstants {
 
     public static final String RETURN_TYPE = "return_type";
 
-    public static final String RETURN_TYPE_NAME = "type_name";
+    public static final String RETURN_ARGUMENT = "return_argument";
 
     public static final String REPLY_STATEMENT = "reply_statement";
 
@@ -168,6 +176,8 @@ public class BLangJSONModelConstants {
 
     public static final String BACK_QUOTE_ENCLOSED_STRING = "back_quote_enclosed_string";
 
+    public static final String MAP_INIT_EXPRESSION = "map_init_expression";
+
     public static final String INSTANCE_CREATION_EXPRESSION = "instance_creation_expression";
 
     public static final String INSTANCE_CREATION_EXPRESSION_INSTANCE_TYPE = "instance_type";
@@ -185,5 +195,20 @@ public class BLangJSONModelConstants {
     public static final String STATEMENT = "statement";
 
     public static final String EXPRESSION = "expression";
+    
+    public static final String STRUCT_DEFINITION = "struct_definition";
+    
+    public static final String STRUCT_NAME = "struct_name";
 
+    public static final String KEY_VALUE_EXPRESSION_KEY = "key_value_key";
+
+    public static final String KEY_VALUE_EXPRESSION = "key_value_expression";
+
+    public static final String QUOTED_LITERAL_STRING = "quoted_literal_string";
+
+    public static final String TYPE_CASTING_EXPRESSION = "type_casting_expression";
+
+    public static final String TARGET_TYPE = "target_type";
+
+    public static final String TYPE_NAME = "type_name";
 }

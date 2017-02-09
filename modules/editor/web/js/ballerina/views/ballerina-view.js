@@ -35,10 +35,12 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
             this.setModel(_.get(args, "model"));
             this._container = _.get(args, "container");
             this._viewOptions = _.get(args, "viewOptions", {});
+            this._backendEndpointsOptions = _.get(args, "backendEndpointsOptions", {});
             this._boundingBox = new BBox();
             this.toolPalette = _.get(args, "toolPalette");
             this.messageManager =  _.get(args, "messageManager");
             this.diagramRenderingContext = _.get(args, "diagramRenderContext");
+            this.id = uuid();
         };
 
         BallerinaView.prototype = Object.create(ASTVisitor.prototype);
@@ -104,26 +106,15 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
             throw "Method not implemented";
         };
 
-        BallerinaView.prototype.childViewRemovedCallback = function (child) {
-            var ballerinaFileEditor;
-            log.debug("[Eventing] Child element view removed. ");
-            //TODO: remove canvas container for each delete click
-            // TODO: Instead of using the parentView use the parent. Fix this from BallerinaView.js and bellow
-            if(!_.isUndefined(this._parentView._$canvasContainer)) {
-                ballerinaFileEditor = this._parentView;
+        // Auto generated Id for service definitions (for accordion views)
+        var uuid =  function (){
+            function s4() {
+                return Math.floor((1 + Math.random()) * 0x10000)
+                    .toString(16)
+                    .substring(1);
             }
-            else {
-                ballerinaFileEditor = this._parentView._parentView;
-            }
-
-            $(ballerinaFileEditor._$canvasContainer)[0].remove();
-
-            var self = ballerinaFileEditor;
-            self.reDraw({
-                model: self._model,
-                container: self._container,
-                viewOptions: self._viewOptions
-             });
+            return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+                s4() + '-' + s4() + s4() + s4();
         };
 
         return BallerinaView;
