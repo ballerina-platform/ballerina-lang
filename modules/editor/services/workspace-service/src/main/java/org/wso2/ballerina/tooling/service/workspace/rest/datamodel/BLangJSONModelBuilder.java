@@ -65,7 +65,6 @@ import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
-import org.wso2.ballerina.core.model.expressions.PowExpression;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.TypeCastExpression;
@@ -1060,10 +1059,5 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     @Override
     public void visit(ModExpression modExpression) {
         
-    }
-
-    @Override
-    public void visit(PowExpression powExpression) {
-
     }
 }

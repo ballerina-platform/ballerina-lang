@@ -618,8 +618,4 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         
     }
 
-    @Override
-    public void visit(PowExpression powExpression) {
-
-    }
 }
