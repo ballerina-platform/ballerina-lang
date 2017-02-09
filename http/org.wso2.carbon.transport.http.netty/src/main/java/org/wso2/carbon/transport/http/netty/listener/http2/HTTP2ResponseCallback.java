@@ -19,13 +19,14 @@ package org.wso2.carbon.transport.http.netty.listener.http2;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.DefaultHttp2Headers;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
-import io.netty.handler.codec.http2.HttpConversionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -71,7 +72,6 @@ public class HTTP2ResponseCallback implements CarbonCallback {
         }
         Http2Headers http2Headers = new DefaultHttp2Headers().status(OK.codeAsText());
         cMsg.getHeaders().getAll().forEach(k -> http2Headers.set(k.getName().toLowerCase(), k.getValue()));
-        http2Headers.set(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text(), Integer.toString(streamId));
 
         if (ctx.handler() instanceof HTTP2SourceHandler) {
             HTTP2SourceHandler http2SourceHandler = (HTTP2SourceHandler) ctx.handler();
@@ -107,15 +107,19 @@ public class HTTP2ResponseCallback implements CarbonCallback {
                 DefaultCarbonMessage defaultCMsg = (DefaultCarbonMessage) cMsg;
                 while (true) {
                     ByteBuffer byteBuffer = defaultCMsg.getMessageBody();
-                    ByteBuf bbuf = Unpooled.wrappedBuffer(byteBuffer);
-                    http2SourceHandler.encoder().writeData(ctx, streamId, bbuf.retain(), 0, false, ctx
+                    ByteBuf byteBuf = Unpooled.wrappedBuffer(byteBuffer);
+                    http2SourceHandler.encoder().writeData(ctx, streamId, byteBuf.retain(), 0, false, ctx
                             .newPromise());
                     if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
-                        http2SourceHandler.encoder().writeData(ctx, streamId, LastHttpContent
+                        ChannelFuture future = http2SourceHandler.encoder().writeData(ctx, streamId, LastHttpContent
                                 .EMPTY_LAST_CONTENT.content().retain(), 0, true, ctx.newPromise());
                         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
                             HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                                     executeAtSourceResponseSending(cMsg);
+                        }
+                        String connection = cMsg.getHeader(Constants.HTTP_CONNECTION);
+                        if (connection != null && Constants.HTTP_CONNECTION_CLOSE.equalsIgnoreCase(connection)) {
+                            future.addListener(ChannelFutureListener.CLOSE);
                         }
                         break;
                     }

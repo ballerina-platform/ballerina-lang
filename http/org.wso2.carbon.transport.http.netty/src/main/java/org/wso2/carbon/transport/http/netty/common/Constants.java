@@ -183,6 +183,9 @@ public final class Constants {
 
     public static final String LOCALHOST = "localhost";
 
+    //Callback related parameters
+    public static final String HTTP_CONNECTION_CLOSE = "close";
+
     // HTTP2 Related Parameters
     public static final String UPGRADE_RESPONSE_HEADER = "http-to-http2-upgrade";
     public static final String HTTP2_VERSION = "HTTP/2.0";
