@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
+import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -68,6 +69,11 @@ public class ResponseStreamingWithoutBufferingProcessor implements CarbonMessage
 
     @Override
     public void setTransportSender(TransportSender sender) {
+
+    }
+
+    @Override
+    public void setClientConnector(ClientConnector clientConnector) {
 
     }
 

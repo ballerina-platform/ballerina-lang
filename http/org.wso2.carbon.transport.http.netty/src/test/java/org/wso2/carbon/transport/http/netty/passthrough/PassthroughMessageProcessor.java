@@ -23,8 +23,9 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.MessageProcessorException;
+import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.TransportSender;
+import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
@@ -38,7 +39,7 @@ public class PassthroughMessageProcessor implements CarbonMessageProcessor {
     private static final Logger logger = LoggerFactory.getLogger(PassthroughMessageProcessor.class);
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    private TransportSender transportSender;
+    private ClientConnector clientConnector;
 
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
@@ -53,9 +54,9 @@ public class PassthroughMessageProcessor implements CarbonMessageProcessor {
                     } else {
                         carbonMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
                         carbonMessage.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
-                        transportSender.send(carbonMessage, carbonCallback);
+                        clientConnector.send(carbonMessage, carbonCallback);
                     }
-                } catch (MessageProcessorException e) {
+                } catch (ClientConnectorException e) {
                     logger.error("MessageProcessor is not supported ", e);
                 }
             }
@@ -66,7 +67,11 @@ public class PassthroughMessageProcessor implements CarbonMessageProcessor {
 
     @Override
     public void setTransportSender(TransportSender transportSender) {
-        this.transportSender = transportSender;
+    }
+
+    @Override
+    public void setClientConnector(ClientConnector clientConnector) {
+        this.clientConnector = clientConnector;
     }
 
     @Override

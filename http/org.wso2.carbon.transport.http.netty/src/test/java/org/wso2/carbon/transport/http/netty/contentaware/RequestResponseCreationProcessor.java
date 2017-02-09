@@ -23,9 +23,10 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.MessageProcessorException;
+import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.messaging.TransportSender;
+import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
@@ -44,7 +45,7 @@ public class RequestResponseCreationProcessor implements CarbonMessageProcessor 
 
     private String responseValue;
 
-    private TransportSender transportSender;
+    private ClientConnector clientConnector;
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -82,11 +83,11 @@ public class RequestResponseCreationProcessor implements CarbonMessageProcessor 
                         newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
                         newMsg.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
                         EngineCallBack engineCallBack = new EngineCallBack(requestValue, carbonCallback);
-                        transportSender.send(newMsg, engineCallBack);
+                        clientConnector.send(newMsg, engineCallBack);
                     }
                 } catch (UnsupportedEncodingException e) {
                     logger.error("Encoding is not supported", e);
-                } catch (MessageProcessorException e) {
+                } catch (ClientConnectorException e) {
                     logger.error("MessageProcessor is not supported ", e);
                 } finally {
                 }
@@ -99,7 +100,11 @@ public class RequestResponseCreationProcessor implements CarbonMessageProcessor 
 
     @Override
     public void setTransportSender(TransportSender transportSender) {
-        this.transportSender = transportSender;
+    }
+
+    @Override
+    public void setClientConnector(ClientConnector clientConnector) {
+        this.clientConnector = clientConnector;
     }
 
     @Override

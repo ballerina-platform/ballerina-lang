@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
+import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -39,7 +40,7 @@ import java.util.concurrent.Executors;
 public class EchoMessageProcessor implements CarbonMessageProcessor {
     private static final Logger logger = LoggerFactory.getLogger(EchoMessageProcessor.class);
 
-    private TransportSender transportSender;
+    private ClientConnector clientConnector;
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -76,7 +77,11 @@ public class EchoMessageProcessor implements CarbonMessageProcessor {
 
     @Override
     public void setTransportSender(TransportSender transportSender) {
-        this.transportSender = transportSender;
+    }
+
+    @Override
+    public void setClientConnector(ClientConnector clientConnector) {
+        this.clientConnector = clientConnector;
     }
 
     @Override

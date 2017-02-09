@@ -24,9 +24,10 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
+import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
-import org.wso2.carbon.messaging.MessageProcessorException;
 import org.wso2.carbon.messaging.TransportSender;
+import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
@@ -38,7 +39,7 @@ import java.util.concurrent.Executors;
 
 public class ContentReadingProcessor implements CarbonMessageProcessor {
 
-    private TransportSender transportSender;
+    private ClientConnector clientConnector;
 
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -64,9 +65,9 @@ public class ContentReadingProcessor implements CarbonMessageProcessor {
                 } else {
                     carbonMessage.setProperty(Constants.HOST, TestUtil.TEST_HOST);
                     carbonMessage.setProperty(Constants.PORT, TestUtil.TEST_SERVER_PORT);
-                    transportSender.send(carbonMessage, carbonCallback);
+                    clientConnector.send(carbonMessage, carbonCallback);
                 }
-            } catch (MessageProcessorException | IOException e) {
+            } catch (ClientConnectorException | IOException e) {
                 logger.error("MessageProcessor is not supported ", e);
             }
         });
@@ -75,7 +76,11 @@ public class ContentReadingProcessor implements CarbonMessageProcessor {
 
     @Override
     public void setTransportSender(TransportSender transportSender) {
-        this.transportSender = transportSender;
+    }
+
+    @Override
+    public void setClientConnector(ClientConnector clientConnector) {
+        this.clientConnector = clientConnector;
     }
 
     @Override
