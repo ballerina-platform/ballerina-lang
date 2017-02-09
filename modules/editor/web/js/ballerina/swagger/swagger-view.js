@@ -92,17 +92,18 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
         */
        SwaggerView.prototype.setContent = function(content){
            this._generatedSource = content;
-           var generatedSwagger = {swagger: 2.0, info: {title: "Ballerina Default API", version : ""}, paths: {}};
+           var generatedSwagger = "{swagger: '2.0', info: {version: '1.0.0', title: 'Swagger Resource'}, paths: {}}";
+           if (content) {
+               var response = this._backend.call("convert-ballerina", "POST", {
+                   "name": "CalculatorService",
+                   "description": "null",
+                   "swaggerDefinition": "null",
+                   "ballerinaDefinition": content
+               }, [{name: "expectedType", value: "ballerina"}]);
 
-           var response = this._backend.call("convert-ballerina", "POST", {
-               "name": "CalculatorService",
-               "description": "null",
-               "swaggerDefinition": "null",
-               "ballerinaDefinition": content
-           }, [{name: "expectedType", value: "ballerina"}]);
-
-           if (!response.error) {
-               generatedSwagger = response.swaggerDefinition;
+               if (!response.error) {
+                   generatedSwagger = response.swaggerDefinition;
+               }
            }
 
            this._swaggerHolder.setSwaggerAsText(generatedSwagger);
