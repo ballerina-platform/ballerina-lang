@@ -18,6 +18,7 @@
 define(['lodash', './node'], function (_, ASTNode) {
 
     var TypeMapperDefinition = function (args) {
+        this._typeMapperName = _.get(args, 'typeMapperName', 'newTypeMapper');
         ASTNode.call(this, 'TypeMapperDefinition');
     };
 
