@@ -18,6 +18,9 @@
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -27,16 +30,19 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-//@Description("Returns the sum for all the events.")
-//@Parameters({
-//        @Parameter(name = "attribute", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
-//})
-//@Return(type = {DataType.LONG, DataType.DOUBLE})
 @Extension(
         name = "sum",
         namespace = "",
-        description = "",
-        parameters = {}
+        description = "Returns the sum for all the events.",
+        parameters = {
+                @Parameter(name = "arg",
+                        description = "The value that needs to be summed.",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+        },
+        returnAttributes = @ReturnAttribute(
+                description = "Returns long if the input parameter type is int or long, and returns double if the " +
+                        "input parameter type is float or double.",
+                type = {DataType.LONG, DataType.DOUBLE})
 )
 public class SumAttributeAggregator extends AttributeAggregator {
 

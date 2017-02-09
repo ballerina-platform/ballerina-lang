@@ -18,6 +18,9 @@
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -25,16 +28,18 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.*;
 
-//@Description("Returns the minimum value for all the events.")
-//@Parameters({
-//        @Parameter(name = "attribute", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
-//})
-//@Return(type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
 @Extension(
         name = "min",
         namespace = "",
-        description = "",
-        parameters = {}
+        description = "Returns the minimum value for all the events.",
+        parameters = {
+                @Parameter(name = "arg",
+                        description = "The value that needs to be compared to find the minimum value.",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+        },
+        returnAttributes = @ReturnAttribute(
+                description = "Returns the minimum value in the same type as the input.",
+                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
 )
 public class MinAttributeAggregator extends AttributeAggregator {
 

@@ -17,12 +17,10 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
-//import org.wso2.siddhi.annotation.Description;
-//import org.wso2.siddhi.annotation.Parameter;
-//import org.wso2.siddhi.annotation.Parameters;
-//import org.wso2.siddhi.annotation.Return;
-//import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -32,16 +30,18 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-//@Description("Returns the average for all the events.")
-//@Parameters({
-//        @Parameter(name = "attribute", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
-//})
-//@Return(type = {DataType.DOUBLE})
 @Extension(
         name = "avg",
         namespace = "",
-        description = "",
-        parameters = {}
+        description = "Calculates the average for all the events.",
+        parameters = {
+                @Parameter(name = "arg",
+                        description = "The value that need to be averaged.",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+        },
+        returnAttributes = @ReturnAttribute(
+                description = "Returns the calculated average value as a double.",
+                type = {DataType.DOUBLE})
 )
 public class AvgAttributeAggregator extends AttributeAggregator {
 

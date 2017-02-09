@@ -19,6 +19,9 @@ package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
 
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -28,17 +31,19 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-//@Description("This is the attribute aggregator to store the maximum value for a given " +
-//        "attribute throughout the lifetime of the query regardless of any windows in-front.")
-//@Parameters({
-//        @Parameter(name = "attribute", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
-//})
-//@Return(type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
 @Extension(
         name = "maxForever",
         namespace = "",
-        description = "",
-        parameters = {}
+        description = "This is the attribute aggregator to store the maximum value for a given attribute throughout " +
+                "the lifetime of the query regardless of any windows in-front.",
+        parameters = {
+                @Parameter(name = "arg",
+                        description = "The value that needs to be compared to find the maximum value.",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+        },
+        returnAttributes = @ReturnAttribute(
+                description = "Returns the maximum value in the same data type as the input.",
+                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
 )
 public class MaxForeverAttributeAggregator extends AttributeAggregator {
 
