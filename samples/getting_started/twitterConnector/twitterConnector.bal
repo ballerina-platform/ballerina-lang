@@ -17,7 +17,6 @@ connector Twitter (string consumerKey, string consumerSecret, string accessToken
         string oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, msg);
         string tweetPath = "/1.1/statuses/update.json?status="+uri:encode(msg);
 
-        message:setHeader(request, "User-Agent", "Ballerina/0.8.0");
         message:setHeader(request, "Authorization", oauthHeader);
 
         message response = http:HTTPConnector.post(tweeterEP, tweetPath, request);
