@@ -44,6 +44,9 @@ public class ModelPackage   {
   @JsonProperty("functions")
   private List<Function> functions = new ArrayList<Function>();
 
+  @JsonProperty("structs")
+  private List<Struct> structs = new ArrayList<Struct>();
+
   public ModelPackage name(String name) {
     this.name = name;
     return this;
@@ -144,6 +147,14 @@ public class ModelPackage   {
     this.functions = functions;
   }
 
+  @ApiModelProperty(value = "List of **public** structs avaialble in the package")
+  public List<Struct> getStructs(){
+    return structs;
+  }
+
+  public void setStructs(List<Struct> structs){
+    this.structs = structs;
+  }
 
   @Override
   public boolean equals(java.lang.Object o) {
