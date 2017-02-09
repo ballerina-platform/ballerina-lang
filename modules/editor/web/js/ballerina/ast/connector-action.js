@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node', 'log'], function(_, ASTNode, log){
+define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode, log, CommonUtils){
 
     /**
      * Constructor for ConnectorAction
@@ -25,7 +25,7 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
     var ConnectorAction = function(args) {
         ASTNode.call(this, "ConnectorAction");
         this.BallerinaASTFactory = this.getFactory();
-        this.action_name = _.get(args, 'action_name', 'newAction');
+        this.action_name = _.get(args, 'action_name');
         this.annotations = _.get(args, 'annotations', []);
         this.arguments = _.get(args, 'arguments', []);
     };
@@ -89,16 +89,16 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
      * Get the variable Declarations
      * @return {VariableDeclaration[]} variableDeclarations
      */
-    ConnectorAction.prototype.getVariableDeclarations = function () {
-        var variableDeclarations = [];
+    ConnectorAction.prototype.getVariableDefinitionStatements = function () {
+        var variableDefinitionStatements = [];
         var self = this;
 
         _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isVariableDeclaration(child)) {
-                variableDeclarations.push(child);
+            if (self.BallerinaASTFactory.isVariableDefinitionStatement(child)) {
+                variableDefinitionStatements.push(child);
             }
         });
-        return variableDeclarations;
+        return variableDefinitionStatements;
     };
 
     /**
@@ -370,6 +370,27 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
             || this.BallerinaASTFactory.isVariableDeclaration(node)
             || this.BallerinaASTFactory.isWorkerDeclaration(node)
             || this.BallerinaASTFactory.isStatement(node);
+    };
+
+    /**
+     * @inheritDoc
+     * @override
+     */
+    ConnectorAction.prototype.generateUniqueIdentifiers = function () {
+        CommonUtils.generateUniqueIdentifier({
+            node: this,
+            attributes: [{
+                defaultValue: "newAction",
+                setter: this.setActionName,
+                getter: this.getActionName,
+                parents: [{
+                    // ballerina-ast-node
+                    node: this.parent,
+                    getChildrenFunc: this.parent.getConnectorActionDefinitions,
+                    getter: this.getActionName
+                }]
+            }]
+        });
     };
 
     return ConnectorAction;

@@ -230,7 +230,7 @@ public class BLangModelBuilder {
     // Add constant definitions;
 
     public void addConstantDef(NodeLocation location, String name, boolean isPublic) {
-        SymbolName symbolName = new SymbolName(name, currentPackagePath);
+        SymbolName symbolName = new SymbolName(name);
 
         // Check whether this constant is already defined.
         if (currentScope.resolve(symbolName) != null) {
@@ -837,7 +837,6 @@ public class BLangModelBuilder {
     public void addAction(NodeLocation location, String name) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
-        currentCUBuilder.setPkgPath(currentPackagePath);
 
         List<Annotation> annotationList = annotationListStack.pop();
         annotationList.forEach(currentCUBuilder::addAnnotation);

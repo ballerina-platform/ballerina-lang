@@ -18,17 +18,10 @@
 package org.wso2.ballerina.core.interpreter;
 
 import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.Connector;
-import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.expressions.BasicLiteral;
-import org.wso2.ballerina.core.model.expressions.Expression;
-import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
-import org.wso2.ballerina.core.model.values.BConnector;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
 /**
  * {@code RuntimeEnvironment} represents the runtime environment of a Ballerina application.
@@ -60,92 +53,20 @@ public class RuntimeEnvironment {
             return runtimeEnvironment;
         }
 
-        Context bContext = new Context();
-        BLangExecutor bLangExecutor = new BLangExecutor(runtimeEnvironment, bContext);
-
         for (Service service : bFile.getServices()) {
             Function initFunction = service.getInitFunction();
             CallableUnitInfo functionInfo = new CallableUnitInfo(initFunction.getName(),
                     initFunction.getPackagePath(), initFunction.getNodeLocation());
-
             StackFrame currentStackFrame = new StackFrame(new BValue[0], new BValue[0], functionInfo);
+
+            Context bContext = new Context();
             bContext.getControlStack().pushFrame(currentStackFrame);
+
+            BLangExecutor bLangExecutor = new BLangExecutor(runtimeEnvironment, bContext);
             initFunction.getCallableUnitBody().execute(bLangExecutor);
         }
 
         return new RuntimeEnvironment(staticMemory);
-    }
-
-
-    private static BConnector populateConnectorDcls(StaticMemory staticMemory, ConnectorDcl connectorDcl) {
-        Connector connector = connectorDcl.getConnector();
-        Expression[] argExprs = connectorDcl.getArgExprs();
-        BValue[] bValueRefs = null;
-
-        int offset = 0;
-        if (connector instanceof AbstractNativeConnector) {
-            //TODO Fix Issue#320
-            bValueRefs = new BValue[argExprs.length];
-            populateConnectorArgs(staticMemory, argExprs, bValueRefs, offset);
-            AbstractNativeConnector nativeConnector = ((AbstractNativeConnector) connector).getInstance();
-            nativeConnector.init(bValueRefs);
-            connector = nativeConnector;
-
-        } else {
-//            BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
-//            // sum of, number of arguments, number of declared variables and declared connectors
-//            bValueRefs = new BValue[argExprs.length + connectorDef.getVariableDefs().length + connectorDef
-//                    .getConnectorDcls().length];
-//
-//            offset = populateConnectorArgs(staticMemory, argExprs, bValueRefs, offset);
-//
-//            for (ConnectorDcl connectorDcl1 : connectorDef.getConnectorDcls()) {
-//                BConnector bConnector = populateConnectorDcls(staticMemory, connectorDcl1);
-//                bValueRefs[offset] = bConnector;
-//                offset++;
-//            }
-//
-//            for (VariableDef variableDef : connectorDef.getVariableDefs()) {
-//                bValueRefs[offset] = variableDef.getType().getDefaultValue();
-//                offset++;
-//            }
-        }
-
-        return new BConnector(connector, bValueRefs);
-    }
-
-    private static int populateConnectorArgs(StaticMemory staticMemory,
-                                             Expression[] argExpressions,
-                                             BValue[] bValueRefs,
-                                             int offset) {
-
-        for (int j = 0; j < argExpressions.length; j++) {
-            Expression argExpr = argExpressions[j];
-
-            if (argExpr instanceof BasicLiteral) {
-                bValueRefs[j] = ((BasicLiteral) argExpr).getBValue();
-                offset++;
-                continue;
-
-            } else if (argExpr instanceof VariableRefExpr) {
-                VariableRefExpr variableRefExpr = (VariableRefExpr) argExpr;
-                if (variableRefExpr.getMemoryLocation() instanceof ConstantLocation) {
-                    ConstantLocation location = (ConstantLocation) variableRefExpr.getMemoryLocation();
-                    bValueRefs[j] = staticMemory.getValue(location.getStaticMemAddrOffset());
-                    offset++;
-                    continue;
-                } else if (variableRefExpr.getMemoryLocation() instanceof ConnectorVarLocation) {
-                    ConnectorVarLocation location = (ConnectorVarLocation) variableRefExpr.getMemoryLocation();
-                    bValueRefs[j] = staticMemory.getValue(location.getConnectorMemAddrOffset());
-                    offset++;
-                    continue;
-                }
-            }
-
-            // This branch shouldn't be hit
-            throw new IllegalStateException("Invalid argument in connector declaration");
-        }
-        return offset;
     }
 
     /**

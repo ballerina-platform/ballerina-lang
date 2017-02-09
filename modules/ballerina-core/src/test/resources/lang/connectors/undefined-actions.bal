@@ -7,14 +7,12 @@ connector TestConnector(string param1, string param2, int param3) {
     action action1(TestConnector testConnector) (boolean){
         return action2Invoked;
     }
-
 }
 
-
 function testAction1() (boolean) {
-    test:TestConnector testConnector = new test:TestConnector("MyParam1", "MyParam2", 5);
+    TestConnector testConnector = create TestConnector("MyParam1", "MyParam2", 5);
     boolean value;
 
-    value = test:TestConnector.foo(testConnector);
+    value = TestConnector.foo(testConnector);
     return value;
 }
