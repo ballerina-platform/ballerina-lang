@@ -1065,8 +1065,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                     case 'connector_declaration':
                         node = BallerinaASTFactory.createConnectorDeclaration();
                         break;
-                    case 'variable_declaration':
-                        node = BallerinaASTFactory.createVariableDeclaration();
+                    case 'variable_definition':
+                        node = BallerinaASTFactory.createVariableDefinitionStatement();
                         break;
                     case 'argument_declaration':
                         node = BallerinaASTFactory.createResourceParameter();
