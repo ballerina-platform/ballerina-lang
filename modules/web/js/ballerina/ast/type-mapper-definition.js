@@ -15,11 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, CommonUtils) {
+define(['lodash', './node'], function (_, ASTNode) {
 
     var TypeMapperDefinition = function (args) {
         ASTNode.call(this, 'TypeMapperDefinition');
-        this._typeMapperName = _.get(args, 'typeMapperName');
+        this._typeMapperName = _.get(args, 'typeMapperName', 'newTypeMapper');
+        this._returnStatementExpression = _.get(args, 'returnStatementExpression', undefined);
         this._selectedTypeStructNameForSource = _.get(args, 'selectedTypeStructNameForSource', 'default');
         this._selectedTypeStructNameForTarget = _.get(args, 'selectedTypeStructNameForTarget', 'default');
     };
@@ -66,6 +67,28 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
     };
 
     /**
+     * Gets the return SourceAndTaergetObjects
+     * @return {object} - Return type.
+     */
+    TypeMapperDefinition.prototype.getSourceAndTargetObjects = function (targetExpression) {
+        var sourceTargetContainer = {};
+        var ballerinaASTFactory = this.getFactory();
+
+        _.forEach(this.getChildren(), function (child) {
+            if (ballerinaASTFactory.isTypeStructDefinition(child)) {
+                if(child.getTypeStructName() == targetExpression){
+                    sourceTargetContainer["target"] = child;
+                }else{
+                    sourceTargetContainer["source"] = child;
+                }
+            }
+        });
+        return sourceTargetContainer;
+    };
+
+
+
+    /**
      * Add variable declaration
      * @param newVariableDeclaration
      */
@@ -102,32 +125,41 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
      */
     TypeMapperDefinition.prototype.getReturnType = function () {
         var returnType = "";
-        var self = this;
         var ballerinaASTFactory = this.getFactory();
 
         _.forEach(this.getChildren(), function (child) {
-            if (ballerinaASTFactory.isTypeStructDefinition(child) && child._category === "TARGET") {
-                returnType = child.getTypeStructName();
+            if (ballerinaASTFactory.isReturnType(child)) {
+                _.forEach(child.getChildren(), function (resourceChild) {
+                    if(ballerinaASTFactory.isStructType(resourceChild)){
+                        returnType = resourceChild.getTypeName();
+                    }
+                });
             }
         });
         return returnType;
     };
 
     /**
-     * returns the argument
+     * returns the input parameter and its identifier
      * @returns {String} argument
      */
-    TypeMapperDefinition.prototype.getSourceAndIdentifier = function () {
-        var sourceAndIdentifier = "";
-        var self = this;
+    TypeMapperDefinition.prototype.getInputParamAndIdentifier = function () {
+        var inputParam = "";
+        var identifier = "";
         var ballerinaASTFactory = this.getFactory();
 
         _.forEach(this.getChildren(), function (child) {
-            if (ballerinaASTFactory.isTypeStructDefinition(child) && child._category === "SOURCE") {
-                sourceAndIdentifier = child.getTypeStructName() + " " + child.getIdentifier();
+            if (ballerinaASTFactory.isResourceParameter(child)) {
+                _.forEach(child.getChildren(), function (resourceChild) {
+                    if(ballerinaASTFactory.isStructType(resourceChild)){
+                        inputParam = resourceChild.getTypeName();
+                    } else if(ballerinaASTFactory.isSymbolName(resourceChild)){
+                        identifier = resourceChild.getName();
+                    }
+                });
             }
         });
-        return sourceAndIdentifier;
+        return inputParam + " " + identifier;
     };
 
     /**
@@ -220,24 +252,146 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
     };
 
     /**
-     * @inheritDoc
-     * @override
+     * Adds new type struct definition.
+     * @param {string} typeStructName
+     * @param {string} identifier
+     * @param {object} onConnectFunctionReference
+     * @param {object} onDisConnectFunctionReference
      */
-    TypeMapperDefinition.prototype.generateUniqueIdentifiers = function () {
-        CommonUtils.generateUniqueIdentifier({
-            node: this,
-            attributes: [{
-                defaultValue: "newTypeMapper",
-                setter: this.setTypeMapperName,
-                getter: this.getTypeMapperName,
-                parents: [{
-                    // ballerina-ast-node
-                    node: this.parent,
-                    getChildrenFunc: this.parent.getTypeMapperDefinitions,
-                    getter: this.getTypeMapperName
-                }]
-            }]
+    TypeMapperDefinition.prototype.addTypeStructDefinitionChild = function (typeStructName, identifier,onConnectFunctionReference,onDisConnectFunctionReference) {
+
+        // Creating new type struct definition.
+        var newTypeStructDef = this.getFactory().createTypeStructDefinition();
+        newTypeStructDef.setTypeStructName(typeStructName);
+        newTypeStructDef.setIdentifier(identifier);
+        newTypeStructDef.setOnConnectInstance(onConnectFunctionReference);
+        newTypeStructDef.setOnDisconnectInstance(onDisConnectFunctionReference);
+        this.addChild(newTypeStructDef);
+    };
+
+    /**
+     * Adds new resource parameter.
+     * @param {string} typeStructName
+     * @param {string} identifier
+     */
+    TypeMapperDefinition.prototype.addResourceParameterChild = function (typeStructName, identifier) {
+
+        // Creating a new ResourceParameter.
+        var newResourceParameter = this.getFactory().createResourceParameter();
+        //todo check setting annotations
+        var newStructType =this.getFactory().createStructType();
+        newStructType.setTypeName(typeStructName);
+        var newSymbolName =this.getFactory().createSymbolName();
+        newSymbolName.setName(identifier);
+        newResourceParameter.addChild(newStructType);
+        newResourceParameter.addChild(newSymbolName);
+        this.addChild(newResourceParameter);
+    };
+
+    /**
+     * Adds new return type.
+     * @param {string} typeStructName
+     * @param {string} identifier
+     */
+    TypeMapperDefinition.prototype.addReturnTypeChild = function (typeStructName, identifier) {
+
+        // Creating a new ResourceParameter.
+        var newReturnType = this.getFactory().createReturnType();
+        //todo check setting annotations
+        var newStructType =this.getFactory().createStructType();
+        newStructType.setTypeName(typeStructName);
+        var newSymbolName =this.getFactory().createSymbolName();
+        newSymbolName.setName(identifier);
+        newReturnType.addChild(newStructType);
+        newReturnType.addChild(newSymbolName);
+        this.addChild(newReturnType);
+    };
+
+    /**
+     * Adds new variable definition statement.
+     * @param {string} typeStructName
+     * @param {string} identifier
+     */
+    TypeMapperDefinition.prototype.addVariableDefinitionStatement = function (typeStructName, identifier) {
+
+        // Creating a new ResourceParameter.
+        var newReturnType = this.getFactory().createReturnType();
+        //todo check setting annotations
+        var newStructType =this.getFactory().createStructType();
+        newStructType.setTypeName(typeStructName);
+        var newSymbolName =this.getFactory().createSymbolName();
+        newSymbolName.setName(identifier);
+        newReturnType.addChild(newStructType);
+        newReturnType.addChild(newSymbolName);
+        this.addChild(newReturnType);
+    };
+
+    /**
+     * Adds new statement.
+     * @param {string} identifier
+     */
+    TypeMapperDefinition.prototype.addStatement = function (identifier) {
+
+        // Creating a new Statement.
+        var newStatement = this.getFactory().createStatement();
+        //todo check setting annotations
+        var newReturnStatement =this.getFactory().createReturnStatement();
+        newReturnStatement.setReturnExpression(identifier);
+        newStatement.addChild(newReturnStatement);
+        this.addChild(newStatement);
+    };
+
+    /**
+     * Constructs new assignment statement.
+     * @param {string} sourceIdentifier
+     * @param {string} targetIdentifier
+     * @param {string} sourceValue
+     * @param {string} targetValue
+     * @returns {AssignmentStatement}
+     */
+    TypeMapperDefinition.prototype.returnConstuctedAssignmentStatement = function (sourceIdentifier,targetIdentifier,sourceValue,targetValue) {
+
+        // Creating a new Assignment Statement.
+        var newAssignmentStatement = this.getFactory().createAssignmentStatement();
+        var newExpression = this.getFactory().createExpression();
+
+        var sourceStructFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
+        var sourceVariableReferenceExpression = this.getFactory().createVariableReferenceExpression();
+        sourceVariableReferenceExpression.setVariableReferenceName(sourceIdentifier);
+        var sourceFieldExpression = this.getFactory().createFieldExpression();
+        sourceFieldExpression.setFieldName(sourceValue);
+        sourceStructFieldAccessExpression.addChild(sourceVariableReferenceExpression);
+        sourceStructFieldAccessExpression.addChild(sourceFieldExpression);
+
+        newExpression.addChild(sourceStructFieldAccessExpression);
+
+        var targetStructFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
+        var targetVariableReferenceExpression = this.getFactory().createVariableReferenceExpression();
+        targetVariableReferenceExpression.setVariableReferenceName(targetIdentifier);
+        var targetFieldExpression = this.getFactory().createFieldExpression();
+        targetFieldExpression.setFieldName(targetValue);
+
+        newAssignmentStatement.addChild(newExpression);
+        newAssignmentStatement.addChild(targetStructFieldAccessExpression);
+
+        return newAssignmentStatement;
+    };
+
+    /**
+     * Adds assignmentStatement to statement
+     * @param assignmentStatement
+     */
+    TypeMapperDefinition.prototype.addAssignmentStatement = function (assignmentStatement) {
+
+        // returns child Statement.
+        var ballerinaASTFactory = this.getFactory();
+        var statement = _.find(this.getChildren(), function (child) {
+            return ballerinaASTFactory.isStatement(child);
         });
+
+        if(!_.isUndefined(statement)){
+            statement.addChild(assignmentStatement);
+        }
     };
 
     return TypeMapperDefinition;

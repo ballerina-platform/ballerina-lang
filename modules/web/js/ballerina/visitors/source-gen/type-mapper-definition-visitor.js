@@ -43,7 +43,7 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
              */
 
             var constructedSourceSegment = 'typeconvertor ' + typeMapperDefinition.getTypeMapperName() + '(' +
-                typeMapperDefinition.getSourceAndIdentifier() + ')( ' + typeMapperDefinition.getReturnType() + '){';
+                typeMapperDefinition.getInputParamAndIdentifier() + ')( ' + typeMapperDefinition.getReturnType() + '){';
             this.appendSource(constructedSourceSegment);
             log.debug('Begin Visit TypeMapperDefinition');
         };
