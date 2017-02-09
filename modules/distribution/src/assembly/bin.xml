@@ -60,23 +60,6 @@
             <fileMode>644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../../samples/getting_started</directory>
-            <outputDirectory>samples</outputDirectory>
-            <excludes>
-                <exclude>target/**</exclude>
-                <exclude>scripts/**</exclude>
-                <exclude>pom.xml</exclude>
-                <exclude>README.txt</exclude>
-                <exclude>LICENSE.txt</exclude>
-                <exclude>release-notes.html</exclude>
-                <exclude>**/*.ipr</exclude>
-                <exclude>**/*.iwr</exclude>
-                <exclude>**/*.eclipse</exclude>
-                <exclude>**/*.iml</exclude>
-            </excludes>
-            <fileMode>644</fileMode>
-        </fileSet>
-        <fileSet>
             <directory>../../libsrc</directory>
             <outputDirectory>src</outputDirectory>
             <excludes>
