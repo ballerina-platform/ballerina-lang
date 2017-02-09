@@ -31,8 +31,8 @@ import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutputRateLimiter;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
-import org.wso2.siddhi.core.stream.input.source.OutputTransport;
-import org.wso2.siddhi.core.stream.output.sink.InputTransport;
+import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
+import org.wso2.siddhi.core.stream.input.source.InputTransport;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.lock.LockSynchronizer;
@@ -61,13 +61,13 @@ public class QueryParser {
 
     /**
      * Parse a query and return corresponding QueryRuntime.
-     *
-     * @param query                query to be parsed.
+     *  @param query                query to be parsed.
      * @param executionPlanContext associated Execution Plan context.
-     * @param streamDefinitionMap  map containing user given stream definitions.
-     * @param tableDefinitionMap   map containing table definitions.
-     * @param eventTableMap        map containing event tables.
-     * @return queryRuntime.
+     * @param streamDefinitionMap  keyvalue containing user given stream definitions.
+     * @param tableDefinitionMap   keyvalue containing table definitions.
+     * @param eventTableMap        keyvalue containing event tables.
+     * @param eventSourceMap
+     * @param eventSinkMap @return queryRuntime.
      */
     public static QueryRuntime parse(Query query, ExecutionPlanContext executionPlanContext,
                                      Map<String, AbstractDefinition> streamDefinitionMap,
@@ -75,8 +75,8 @@ public class QueryParser {
                                      Map<String, AbstractDefinition> windowDefinitionMap,
                                      Map<String, EventTable> eventTableMap,
                                      Map<String, EventWindow> eventWindowMap,
-                                     Map<String, InputTransport> eventSourceMap,
-                                     Map<String, OutputTransport> eventSinkMap,
+                                     Map<String, List<InputTransport>> eventSourceMap,
+                                     Map<String, List<OutputTransport>> eventSinkMap,
                                      LockSynchronizer lockSynchronizer) {
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
         QueryRuntime queryRuntime;
@@ -178,7 +178,7 @@ public class QueryParser {
             executionPlanContext.addEternalReferencedHolder(outputRateLimiter);
 
             OutputCallback outputCallback = OutputParser.constructOutputCallback(query.getOutputStream(),
-                    streamRuntime.getMetaComplexEvent().getOutputStreamDefinition(), eventTableMap, eventWindowMap, eventSourceMap, eventSinkMap, executionPlanContext, !(streamRuntime instanceof SingleStreamRuntime), queryName);
+                    streamRuntime.getMetaComplexEvent().getOutputStreamDefinition(), eventTableMap, eventWindowMap, executionPlanContext, !(streamRuntime instanceof SingleStreamRuntime), queryName);
 
             QueryParserHelper.reduceMetaComplexEvent(streamRuntime.getMetaComplexEvent());
             QueryParserHelper.updateVariablePosition(streamRuntime.getMetaComplexEvent(), executors);

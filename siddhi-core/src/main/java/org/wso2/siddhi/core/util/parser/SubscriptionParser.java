@@ -24,10 +24,10 @@ import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutputRateLimiter;
-import org.wso2.siddhi.core.stream.input.source.OutputTransport;
-import org.wso2.siddhi.core.stream.output.sink.InputMapper;
-import org.wso2.siddhi.core.stream.output.sink.InputTransport;
-import org.wso2.siddhi.core.stream.output.sink.SubscriptionRuntime;
+import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
+import org.wso2.siddhi.core.stream.input.source.InputMapper;
+import org.wso2.siddhi.core.stream.input.source.InputTransport;
+import org.wso2.siddhi.core.stream.input.source.SubscriptionRuntime;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.SiddhiConstants;
@@ -39,7 +39,6 @@ import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
@@ -49,6 +48,7 @@ import org.wso2.siddhi.query.api.execution.io.map.Mapping;
 import org.wso2.siddhi.query.api.extension.Extension;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -60,10 +60,11 @@ public class SubscriptionParser {
      *
      * @param subscription         subscription to be parsed.
      * @param executionPlanContext associated Execution Plan context.
-     * @param streamDefinitionMap  map containing user given stream definitions.
-     * @param tableDefinitionMap   map containing table definitions.
-     * @param eventTableMap        map containing event tables.
-     * @return SubscriptionRuntime.
+     * @param streamDefinitionMap  keyvalue containing user given stream definitions.
+     * @param tableDefinitionMap   keyvalue containing table definitions.
+     * @param eventTableMap        keyvalue containing event tables.
+     * @param eventSourceMap
+     *@param eventSinkMap @return SubscriptionRuntime.
      */
     public static SubscriptionRuntime parse(final Subscription subscription, ExecutionPlanContext executionPlanContext,
                                             Map<String, AbstractDefinition> streamDefinitionMap,
@@ -71,8 +72,8 @@ public class SubscriptionParser {
                                             Map<String, AbstractDefinition> windowDefinitionMap,
                                             Map<String, EventTable> eventTableMap,
                                             Map<String, EventWindow> eventWindowMap,
-                                            Map<String, InputTransport> eventSourceMap,
-                                            Map<String, OutputTransport> eventSinkMap,
+                                            Map<String, List<InputTransport>> eventSourceMap,
+                                            Map<String, List<OutputTransport>> eventSinkMap,
                                             LockSynchronizer lockSynchronizer) {
         SubscriptionRuntime subscriptionRuntime;
         String subscriptionName = null;
@@ -172,7 +173,7 @@ public class SubscriptionParser {
             }
 
             OutputCallback outputCallback = OutputParser.constructOutputCallback(subscription.getOutputStream(),
-                    outputStreamDefinition, eventTableMap, eventWindowMap, eventSourceMap, eventSinkMap,
+                    outputStreamDefinition, eventTableMap, eventWindowMap,
                     executionPlanContext, false, subscriptionName);
 
             MetaStreamEvent metaStreamEvent = new MetaStreamEvent();

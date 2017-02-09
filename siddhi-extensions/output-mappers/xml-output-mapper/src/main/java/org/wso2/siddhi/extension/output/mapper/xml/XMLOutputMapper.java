@@ -22,11 +22,14 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.stream.input.source.OutputMapper;
+import org.wso2.siddhi.core.stream.output.sink.OutputMapper;
+import org.wso2.siddhi.core.util.transport.TemplateBuilder;
+import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import javax.xml.namespace.QName;
 import java.util.Map;
+
 @Extension(
         name = "xml",
         namespace = "outputmapper",
@@ -41,25 +44,38 @@ public class XMLOutputMapper extends OutputMapper {
 
     /**
      * Initialize the mapper and the mapping configurations.
-     *
-     * @param streamDefinition       The stream definition
-     * @param options                Additional mapping options
-     * @param unmappedDynamicOptions Unmapped dynamic options
+     *  @param streamDefinition The stream definition
+     * @param optionHolder     Unmapped dynamic options
+     * @param payloadTemplateBuilder
      */
     @Override
-    public void init(StreamDefinition streamDefinition, Map<String, String> options, Map<String, String> unmappedDynamicOptions) {
+    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) {
         this.streamDefinition = streamDefinition;
+    }
+
+    /**
+     * Convert the given Event mapping to XML string
+     *
+     * @param event         Event object
+     * @param mappedPayload mapped Payload if any
+     * @return the mapped XML string
+     */
+    @Override
+    public Object mapEvent(Event event, String mappedPayload) {
+        if (mappedPayload != null) {
+            return mappedPayload;
+        } else {
+            return constructDefaultMapping(event);
+        }
     }
 
     /**
      * Convert the given {@link Event} to XML string
      *
-     * @param event          Event object
-     * @param dynamicOptions Dynamic options
+     * @param event Event object
      * @return the constructed XML string
      */
-    @Override
-    public Object convertToTypedInputEvent(Event event, Map<String, String> dynamicOptions) {
+    private Object constructDefaultMapping(Event event) {
         Object[] data = event.getData();
         OMFactory factory = OMAbstractFactory.getOMFactory();
         OMElement compositeEventElement = factory.createOMElement(new QName(
@@ -94,16 +110,5 @@ public class XMLOutputMapper extends OutputMapper {
         return compositeEventElement.toString();
     }
 
-    /**
-     * Convert the given Event mapping to XML string
-     *
-     * @param event            Event object
-     * @param mappedPayload Event mapping string array
-     * @param dynamicOptions   Dynamic options
-     * @return the mapped XML string
-     */
-    @Override
-    public Object convertToMappedInputEvent(Event event, String mappedPayload, Map<String, String> dynamicOptions) {
-        return mappedPayload;
-    }
+
 }

@@ -112,7 +112,7 @@ public class DefineStreamTestCase {
     @Test
     public void testMultilevelNestedAnnotations2() throws SiddhiParserException {
         StreamDefinition streamDefinition = SiddhiCompiler.parseStreamDefinition("" +
-                "@source(" +
+                "@io(" +
                 "   type='http', " +
                 "   context='/test', " +
                 "   transport='http,https', " +

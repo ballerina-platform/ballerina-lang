@@ -32,15 +32,18 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.input.InputManager;
+import org.wso2.siddhi.core.stream.input.source.InputTransport;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
+import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
+import org.wso2.siddhi.core.stream.output.sink.SinkCallback;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 
-import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,6 +61,8 @@ public class ExecutionPlanRuntime {
     private ConcurrentMap<String, QueryRuntime> queryProcessorMap = new ConcurrentHashMap<String, QueryRuntime>();
     private ConcurrentMap<String, StreamJunction> streamJunctionMap = new ConcurrentHashMap<String, StreamJunction>(); // Contains stream junctions.
     private ConcurrentMap<String, EventTable> eventTableMap = new ConcurrentHashMap<String, EventTable>(); // Contains event tables.
+    private final ConcurrentMap<String, List<InputTransport>> eventSourceMap;
+    private final ConcurrentMap<String, List<OutputTransport>> eventSinkMap;
     private ConcurrentMap<String, PartitionRuntime> partitionMap = new ConcurrentHashMap<String, PartitionRuntime>(); // Contains partitions.
     private ExecutionPlanContext executionPlanContext;
     private ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap;
@@ -69,6 +74,8 @@ public class ExecutionPlanRuntime {
                                 ConcurrentMap<String, QueryRuntime> queryProcessorMap,
                                 ConcurrentMap<String, StreamJunction> streamJunctionMap,
                                 ConcurrentMap<String, EventTable> eventTableMap,
+                                ConcurrentMap<String, List<InputTransport>> eventSourceMap,
+                                ConcurrentMap<String, List<OutputTransport>> eventSinkMap,
                                 ConcurrentMap<String, PartitionRuntime> partitionMap,
                                 ExecutionPlanContext executionPlanContext,
                                 ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap) {
@@ -78,6 +85,8 @@ public class ExecutionPlanRuntime {
         this.queryProcessorMap = queryProcessorMap;
         this.streamJunctionMap = streamJunctionMap;
         this.eventTableMap = eventTableMap;
+        this.eventSourceMap = eventSourceMap;
+        this.eventSinkMap = eventSinkMap;
         this.partitionMap = partitionMap;
         this.executionPlanContext = executionPlanContext;
         this.executionPlanRuntimeMap = executionPlanRuntimeMap;
@@ -89,7 +98,12 @@ public class ExecutionPlanRuntime {
                     .createMemoryUsageTracker(executionPlanContext.getStatisticsManager());
             monitorQueryMemoryUsage();
         }
-        siddhiDebugger = new SiddhiDebugger(executionPlanContext);
+
+        for (Map.Entry<String, List<OutputTransport>> outputTransportEntries : eventSinkMap.entrySet()) {
+            addCallback(outputTransportEntries.getKey(),
+                    new SinkCallback(outputTransportEntries.getValue(),
+                            streamDefinitionMap.get(outputTransportEntries.getKey())));
+        }
     }
 
     public String getName() {
@@ -134,6 +148,12 @@ public class ExecutionPlanRuntime {
     }
 
     public synchronized void shutdown() {
+        for (List<OutputTransport> outputTransports : eventSinkMap.values()) {
+            for (OutputTransport outputTransport : outputTransports) {
+                outputTransport.shutdown();
+            }
+        }
+
         for (EternalReferencedHolder eternalReferencedHolder : executionPlanContext.getEternalReferencedHolders()) {
             try {
                 eternalReferencedHolder.stop();
@@ -183,12 +203,18 @@ public class ExecutionPlanRuntime {
         for (EternalReferencedHolder eternalReferencedHolder : executionPlanContext.getEternalReferencedHolders()) {
             eternalReferencedHolder.start();
         }
+        for (List<OutputTransport> outputTransports : eventSinkMap.values()) {
+            for (OutputTransport outputTransport : outputTransports) {
+                outputTransport.connectWithRetry(executionPlanContext.getExecutorService());
+            }
+        }
         for (StreamJunction streamJunction : streamJunctionMap.values()) {
             streamJunction.startProcessing();
         }
     }
 
     public synchronized SiddhiDebugger debug() {
+        siddhiDebugger = new SiddhiDebugger(executionPlanContext);
         List<StreamRuntime> streamRuntime = new ArrayList<StreamRuntime>();
         List<InsertIntoStreamCallback> streamCallbacks = new ArrayList<InsertIntoStreamCallback>();
         for (QueryRuntime queryRuntime : queryProcessorMap.values()) {

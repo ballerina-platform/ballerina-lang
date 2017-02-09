@@ -19,46 +19,72 @@ package org.wso2.siddhi.extension.output.mapper.json;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.stream.input.source.OutputMapper;
+import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
+import org.wso2.siddhi.core.stream.output.sink.OutputMapper;
+import org.wso2.siddhi.core.stream.output.sink.OutputTransportCallback;
+import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.core.util.transport.TemplateBuilder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.Map;
 
 @Extension(
         name = "json",
-        namespace = "outputmapper",
-        description = ""
+        namespace = "",
+        description = "Event to JSON output mapper."
 )
 public class JSONOutputMapper extends OutputMapper {
     private StreamDefinition streamDefinition;
+    private static final String GROUP_EVENTS_OPTION = "groupEvents";
+    private static final String EVENTS_PARENT_TAG = "events";
     private static final String EVENT_PARENT_TAG = "event";
     private static final String EVENT_ARBITRARY_DATA_MAP_TAG = "arbitraryDataMap";
-    private static final String EVENT_ATTRIBUTE_SEPARATOR = ",";
+    //Todo  use group events to group multiple events.
+    boolean groupEvents = false;
+
 
     /**
      * Initialize the mapper and the mapping configurations.
      *
      * @param streamDefinition       The stream definition
-     * @param options                Additional mapping options
-     * @param unmappedDynamicOptions Unmapped dynamic options
+     * @param optionHolder           Option holder containing static and dynamic options
+     * @param payloadTemplateBuilder un mapped payload for reference
      */
     @Override
-    public void init(StreamDefinition streamDefinition, Map<String, String> options, Map<String, String> unmappedDynamicOptions) {
+    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) {
         this.streamDefinition = streamDefinition;
+        String groupEventsString = optionHolder.getStaticOption(GROUP_EVENTS_OPTION);
+        if (groupEventsString != null) {
+            groupEvents = Boolean.parseBoolean(groupEventsString);
+        }
     }
+
+    @Override
+    public void mapAndSend(Event[] events, OutputTransportCallback outputTransportCallback,
+                           OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder)
+            throws ConnectionUnavailableException {
+
+        if (payloadTemplateBuilder != null) {
+            for (Event event : events) {
+                outputTransportCallback.publish(payloadTemplateBuilder.build(event), event);
+            }
+        } else {
+            for (Event event : events) {
+                outputTransportCallback.publish(constructDefaultMapping(event), event);
+            }
+        }
+    }
+
 
     /**
      * Convert the given {@link Event} to JSON string
      *
-     * @param event          Event object
-     * @param dynamicOptions Dynamic options
+     * @param event Event object
      * @return the constructed JSON string
      */
-    @Override
-    public Object convertToTypedInputEvent(Event event, Map<String, String> dynamicOptions) {
+    private Object constructDefaultMapping(Event event) {
         Object[] data = event.getData();
         JsonObject jsonEventObject = new JsonObject();
         JsonObject innerParentObject = new JsonObject();
@@ -77,10 +103,13 @@ public class JSONOutputMapper extends OutputMapper {
                     innerParentObject.addProperty(attributeName, (Number) attributeValue);
                 } else if (attributeValue instanceof Double) {
                     innerParentObject.addProperty(attributeName, (Number) attributeValue);
-                } else if (attributeValue instanceof Long) {
-                    innerParentObject.addProperty(attributeName, (Number) attributeValue);
                 } else if (attributeValue instanceof Boolean) {
                     innerParentObject.addProperty(attributeName, (Boolean) attributeValue);
+                } else if (attributeValue instanceof Map) {
+                    if (!((Map) attributeValue).isEmpty()) {
+                        Gson gson = new Gson();
+                        innerParentObject.add(attributeName, gson.toJsonTree((Map) attributeValue));
+                    }
                 }
             }
         }
@@ -89,30 +118,19 @@ public class JSONOutputMapper extends OutputMapper {
 
         String eventText = jsonEventObject.toString();
 
-        // Get arbitrary data from event
-        Map<String, Object> arbitraryDataMap = event.getArbitraryDataMap();
-        if (arbitraryDataMap != null && !arbitraryDataMap.isEmpty()) {
-            // Add arbitrary data map to the default template
-            Gson gson = new Gson();
-            JsonParser parser = new JsonParser();
-            JsonObject jsonObject = parser.parse(eventText).getAsJsonObject();
-            jsonObject.getAsJsonObject(EVENT_PARENT_TAG).add(EVENT_ARBITRARY_DATA_MAP_TAG, gson.toJsonTree(arbitraryDataMap));
-            eventText = gson.toJson(jsonObject);
-        }
+//        // Get arbitrary data from event
+//        Map<String, Object> arbitraryDataMap = event.getArbitraryDataMap();
+//        if (arbitraryDataMap != null && !arbitraryDataMap.isEmpty()) {
+//            // Add arbitrary data map to the default template
+//            Gson gson = new Gson();
+//            JsonParser parser = new JsonParser();
+//            JsonObject jsonObject = parser.parse(eventText).getAsJsonObject();
+//            jsonObject.getAsJsonObject(EVENT_PARENT_TAG).add(EVENT_ARBITRARY_DATA_MAP_TAG, gson.toJsonTree(arbitraryDataMap));
+//            eventText = gson.toJson(jsonObject);
+//        }
 
         return eventText;
     }
 
-    /**
-     * Convert the given Event mapping to JSON string
-     *
-     * @param event            Event object
-     * @param mappedPayload Event mapping string array
-     * @param dynamicOptions   Dynamic options
-     * @return the mapped JSON string
-     */
-    @Override
-    public Object convertToMappedInputEvent(Event event, String mappedPayload, Map<String, String> dynamicOptions) {
-        return mappedPayload;
-    }
+
 }

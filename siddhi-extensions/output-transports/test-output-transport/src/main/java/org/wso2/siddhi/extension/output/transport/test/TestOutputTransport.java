@@ -23,8 +23,7 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.TestConnectionNotSupportedException;
-import org.wso2.siddhi.core.stream.input.source.MessageType;
-import org.wso2.siddhi.core.stream.input.source.OutputTransport;
+import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 
 import java.util.ArrayList;
@@ -84,10 +83,4 @@ public class TestOutputTransport extends OutputTransport {
         return false;
     }
 
-    @Override
-    public List<String> getSupportedMessageFormats() {
-        return new ArrayList<String>() {{
-            add(MessageType.TEXT);
-        }};
-    }
 }

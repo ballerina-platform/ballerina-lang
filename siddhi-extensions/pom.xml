@@ -38,7 +38,7 @@
         <module>output-transports/kafka-output-transport</module>
         <module>output-mappers/text-output-mapper</module>
         <module>output-mappers/json-output-mapper</module>
-        <module>output-mappers/map-output-mapper</module>
+        <module>output-mappers/keyvalue-output-mapper</module>
         <module>output-mappers/xml-output-mapper</module>
         <module>input-mappers/text-input-mapper</module>
         <module>input-mappers/json-input-mapper</module>

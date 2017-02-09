@@ -761,7 +761,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     public SingleInputStream visitStandard_stream(@NotNull SiddhiQLParser.Standard_streamContext ctx) {
 
 //        standard_stream
-//        : source (basic_source_stream_handler)* window? (basic_source_stream_handler)*
+//        : io (basic_source_stream_handler)* window? (basic_source_stream_handler)*
 //        ;
 
         Source source = (Source) visit(ctx.source());
@@ -841,7 +841,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     public Object visitJoin_source(@NotNull SiddhiQLParser.Join_sourceContext ctx) {
 
 //        join_source
-//        :source (basic_source_stream_handler)* window? (AS stream_alias)?
+//        :io (basic_source_stream_handler)* window? (AS stream_alias)?
 //        ;
 
         Source source = (Source) visit(ctx.source());
@@ -1112,7 +1112,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     public BasicSingleInputStream visitBasic_source(@NotNull SiddhiQLParser.Basic_sourceContext ctx) {
 
 //        basic_source
-//        : source (basic_source_stream_handler)*
+//        : io (basic_source_stream_handler)*
 //        ;
 
         Source source = (Source) visit(ctx.source());

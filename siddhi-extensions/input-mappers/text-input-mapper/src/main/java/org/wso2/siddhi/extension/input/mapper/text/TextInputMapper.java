@@ -28,8 +28,8 @@ import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
-import org.wso2.siddhi.core.stream.output.sink.InputMapper;
-import org.wso2.siddhi.core.stream.output.sink.InputTransport;
+import org.wso2.siddhi.core.stream.input.source.InputMapper;
+import org.wso2.siddhi.core.stream.input.source.InputTransport;
 import org.wso2.siddhi.core.util.AttributeConverter;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -68,7 +68,7 @@ public class TextInputMapper implements InputMapper {
     private StreamDefinition outputStreamDefinition;
 
     /**
-     * OutputCallback to which the converted event must be sent.
+     * SinkCallback to which the converted event must be sent.
      */
     private OutputCallback outputCallback;
 
@@ -97,7 +97,7 @@ public class TextInputMapper implements InputMapper {
      * Initialize the mapper and the mapping configurations.
      *
      * @param outputStreamDefinition the output StreamDefinition
-     * @param outputCallback         the OutputCallback to which the output has to be sent
+     * @param outputCallback         the SinkCallback to which the output has to be sent
      * @param metaStreamEvent        the MetaStreamEvent
      * @param options                additional mapping options
      * @param attributeMappingList   list of attributes mapping

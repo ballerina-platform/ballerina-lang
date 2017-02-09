@@ -28,11 +28,7 @@ import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventFactory;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.event.stream.converter.SelectiveStreamEventConverter;
-import org.wso2.siddhi.core.event.stream.converter.SimpleStreamEventConverter;
-import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
-import org.wso2.siddhi.core.event.stream.converter.StreamEventConverterFactory;
-import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
+import org.wso2.siddhi.core.event.stream.converter.*;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -43,8 +39,8 @@ import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompare
 import org.wso2.siddhi.core.executor.math.add.AddExpressionExecutorFloat;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
-import org.wso2.siddhi.core.stream.input.source.OutputTransport;
-import org.wso2.siddhi.core.stream.output.sink.InputTransport;
+import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
+import org.wso2.siddhi.core.stream.input.source.InputTransport;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.ElementIdGenerator;
 import org.wso2.siddhi.core.util.SiddhiConstants;
@@ -65,6 +61,7 @@ import org.wso2.siddhi.query.api.expression.condition.Compare;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class EventTestCase {
@@ -258,8 +255,8 @@ public class EventTestCase {
         Map<String, AbstractDefinition> windowDefinitionMap = new HashMap<String, AbstractDefinition>();
         Map<String, EventTable> eventTableMap = new HashMap<String, EventTable>();
         Map<String, EventWindow> eventWindowMap = new HashMap<String, EventWindow>();
-        Map<String, InputTransport> eventSourceMap = new HashMap<String, InputTransport>();
-        Map<String, OutputTransport> eventSinkMap = new HashMap<String, OutputTransport>();
+        Map<String, List<InputTransport>> eventSourceMap = new HashMap<String, List<InputTransport>>();
+        Map<String, List<OutputTransport>> eventSinkMap = new HashMap<String, List<OutputTransport>>();
         Map<String, AbstractDefinition> streamDefinitionMap = new HashMap<String, AbstractDefinition>();
         LockSynchronizer lockSynchronizer = new LockSynchronizer();
         streamDefinitionMap.put("cseEventStream", streamDefinition);

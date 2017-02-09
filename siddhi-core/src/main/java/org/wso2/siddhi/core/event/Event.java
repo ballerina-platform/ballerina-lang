@@ -96,14 +96,6 @@ public class Event {
         return this;
     }
 
-    public Map<String, Object> getArbitraryDataMap() {
-        return arbitraryDataMap;
-    }
-
-    public void setArbitraryDataMap(Map<String, Object> arbitraryDataMap) {
-        this.arbitraryDataMap = arbitraryDataMap;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

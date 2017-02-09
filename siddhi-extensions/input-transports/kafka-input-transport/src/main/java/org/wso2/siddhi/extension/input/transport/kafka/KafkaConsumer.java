@@ -21,7 +21,7 @@ package org.wso2.siddhi.extension.input.transport.kafka;
 import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.stream.output.sink.InputCallback;
+import org.wso2.siddhi.core.stream.input.source.InputCallback;
 
 
 public class KafkaConsumer implements Runnable {

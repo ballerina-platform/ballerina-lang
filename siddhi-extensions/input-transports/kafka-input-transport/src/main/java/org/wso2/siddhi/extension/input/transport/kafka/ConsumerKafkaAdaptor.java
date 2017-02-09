@@ -22,7 +22,7 @@ import kafka.consumer.ConsumerConfig;
 import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.stream.output.sink.InputCallback;
+import org.wso2.siddhi.core.stream.input.source.InputCallback;
 
 import java.util.HashMap;
 import java.util.List;

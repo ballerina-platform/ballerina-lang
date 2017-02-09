@@ -26,30 +26,13 @@ import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
-import org.wso2.siddhi.core.query.output.callback.DeleteTableCallback;
-import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
-import org.wso2.siddhi.core.query.output.callback.InsertIntoTableCallback;
-import org.wso2.siddhi.core.query.output.callback.InsertIntoWindowCallback;
-import org.wso2.siddhi.core.query.output.callback.InsertOverwriteTableCallback;
-import org.wso2.siddhi.core.query.output.callback.OutputCallback;
-import org.wso2.siddhi.core.query.output.callback.PublishStreamCallback;
-import org.wso2.siddhi.core.query.output.callback.UpdateTableCallback;
+import org.wso2.siddhi.core.query.output.callback.*;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.output.ratelimit.PassThroughOutputRateLimiter;
-import org.wso2.siddhi.core.query.output.ratelimit.event.AllPerEventOutputRateLimiter;
-import org.wso2.siddhi.core.query.output.ratelimit.event.FirstGroupByPerEventOutputRateLimiter;
-import org.wso2.siddhi.core.query.output.ratelimit.event.FirstPerEventOutputRateLimiter;
-import org.wso2.siddhi.core.query.output.ratelimit.event.LastGroupByPerEventOutputRateLimiter;
-import org.wso2.siddhi.core.query.output.ratelimit.event.LastPerEventOutputRateLimiter;
+import org.wso2.siddhi.core.query.output.ratelimit.event.*;
 import org.wso2.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutputRateLimiter;
-import org.wso2.siddhi.core.query.output.ratelimit.time.AllPerTimeOutputRateLimiter;
-import org.wso2.siddhi.core.query.output.ratelimit.time.FirstGroupByPerTimeOutputRateLimiter;
-import org.wso2.siddhi.core.query.output.ratelimit.time.FirstPerTimeOutputRateLimiter;
-import org.wso2.siddhi.core.query.output.ratelimit.time.LastGroupByPerTimeOutputRateLimiter;
-import org.wso2.siddhi.core.query.output.ratelimit.time.LastPerTimeOutputRateLimiter;
+import org.wso2.siddhi.core.query.output.ratelimit.time.*;
 import org.wso2.siddhi.core.stream.StreamJunction;
-import org.wso2.siddhi.core.stream.input.source.OutputTransport;
-import org.wso2.siddhi.core.stream.output.sink.InputTransport;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
@@ -63,11 +46,7 @@ import org.wso2.siddhi.query.api.execution.query.output.ratelimit.EventOutputRat
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.OutputRate;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.SnapshotOutputRate;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.TimeOutputRate;
-import org.wso2.siddhi.query.api.execution.query.output.stream.DeleteStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.InsertOverwriteStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateStream;
+import org.wso2.siddhi.query.api.execution.query.output.stream.*;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -80,18 +59,14 @@ public class OutputParser {
                                                          StreamDefinition outputStreamDefinition,
                                                          Map<String, EventTable> eventTableMap,
                                                          Map<String, EventWindow> eventWindowMap,
-                                                         Map<String, InputTransport> eventSourceMap,
-                                                         Map<String, OutputTransport> eventSinkMap,
                                                          ExecutionPlanContext executionPlanContext,
                                                          boolean convertToStreamEvent, String queryName) {
         String id = outStream.getId();
         EventTable eventTable = null;
         EventWindow eventWindow = null;
-        OutputTransport outputTransport = null;
         if (id != null) {
             eventTable = eventTableMap.get(id);
             eventWindow = eventWindowMap.get(id);
-            outputTransport = eventSinkMap.get(id);
         }
         StreamEventPool streamEventPool = null;
         StreamEventConverter streamEventConverter = null;
@@ -119,9 +94,6 @@ public class OutputParser {
             } else if (eventTable != null) {
                 DefinitionParserHelper.validateOutputStream(outputStreamDefinition, eventTable.getTableDefinition());
                 return new InsertIntoTableCallback(eventTable, outputStreamDefinition, convertToStreamEvent, streamEventPool, streamEventConverter);
-            } else if (outputTransport != null) {
-                DefinitionParserHelper.validateOutputStream(outputStreamDefinition, outputTransport.getTransportDefinition());
-                return new PublishStreamCallback(outputTransport, outputStreamDefinition);
             } else {
                 return new InsertIntoStreamCallback(outputStreamDefinition, queryName);
             }

@@ -27,7 +27,7 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.exception.NoSuchAttributeException;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
-import org.wso2.siddhi.core.util.transport.InMemoryOutputTransport;
+import org.wso2.siddhi.core.stream.output.sink.InMemoryOutputTransport;
 
 import java.util.ArrayList;
 import java.util.List;
