@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.interpreter.nonblocking.BalNativeActionCallback;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BConnector;
@@ -33,6 +32,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
@@ -72,7 +72,7 @@ public class Head extends AbstractHTTPAction {
     }
 
     @Override
-    public void execute(Context context, BalNativeActionCallback callback) {
+    public void execute(Context context, BalConnectorCallback callback) {
 
         if (logger.isDebugEnabled()) {
             logger.debug("Executing Native Action (non-blocking): {}", this.getName());

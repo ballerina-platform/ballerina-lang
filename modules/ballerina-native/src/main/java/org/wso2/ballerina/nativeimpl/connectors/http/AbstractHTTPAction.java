@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.interpreter.nonblocking.BalNativeActionCallback;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -150,8 +149,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         return null;
     }
 
-    void executeNonBlockingAction(Context context, CarbonMessage message, BalNativeActionCallback
-            balNativeActionCallback) {
+    void executeNonBlockingAction(Context context, CarbonMessage message, BalConnectorCallback balConnectorCallback) {
 
         try {
             // Handle the message built scenario
@@ -163,7 +161,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 throw new BallerinaException("Http client connector is not available");
             }
 
-            clientConnector.send(message, balNativeActionCallback);
+            clientConnector.send(message, balConnectorCallback);
 
         } catch (ClientConnectorException e) {
             throw new BallerinaException("Failed to send the message to an endpoint ", context);
@@ -173,7 +171,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     }
 
     @Override
-    public void validate(BalNativeActionCallback callback) {
+    public void validate(BalConnectorCallback callback) {
         handleTransportException(callback.getValueRef());
     }
 

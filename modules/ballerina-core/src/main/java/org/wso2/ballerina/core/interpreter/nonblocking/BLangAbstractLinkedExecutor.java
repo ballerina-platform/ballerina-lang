@@ -117,6 +117,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.ballerina.core.runtime.Constants;
 
 import java.util.Stack;
@@ -949,9 +950,8 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         if (logger.isDebugEnabled()) {
             logger.debug("Executing Native Action - " + invokeNativeActionNode.getCallableUnit().getName());
         }
-        BalNativeActionCallback balNativeActionCallback = new BalNativeActionCallback(bContext, this,
-                invokeNativeActionNode);
-        invokeNativeActionNode.getCallableUnit().execute(bContext, balNativeActionCallback);
+        BalConnectorCallback connectorCallback = new BalConnectorCallback(bContext, this, invokeNativeActionNode);
+        invokeNativeActionNode.getCallableUnit().execute(bContext, connectorCallback);
     }
 
     @Override

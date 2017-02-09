@@ -19,7 +19,6 @@ package org.wso2.ballerina.core.nativeimpl.connectors;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.exception.LinkerException;
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.interpreter.nonblocking.BalNativeActionCallback;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.NativeUnit;
@@ -94,14 +93,14 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
      * @param context           Ballerina context.
      * @param connectorCallback Callback instance to notify completion of the action invocation.
      */
-    public abstract void execute(Context context, BalNativeActionCallback connectorCallback);
+    public abstract void execute(Context context, BalConnectorCallback connectorCallback);
 
     /**
      * Validate Native Action invocation. This method will be invoked when callback.done().
      *
-     * @param balNativeActionCallback Connector Callback instance.
+     * @param connectorCallback Connector Callback instance.
      */
-    public abstract void validate(BalNativeActionCallback balNativeActionCallback);
+    public abstract void validate(BalConnectorCallback connectorCallback);
 
     // Methods in CallableUnit interface
 

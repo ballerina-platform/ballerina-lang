@@ -438,7 +438,6 @@ public class BLangNonBlockingExecutor extends BLangAbstractLinkedExecutor {
     @Override
     public void visit(InvokeNativeActionNode invokeNativeActionNode) {
         super.visit(invokeNativeActionNode);
-        invokeNativeActionNode.next.executeLNode(this);
     }
 
     @Override

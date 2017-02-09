@@ -21,6 +21,7 @@ package org.wso2.ballerina.core.runtime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.runtime.threadpool.RequestWorkerThread;
+import org.wso2.ballerina.core.runtime.threadpool.ResponseWorkerThread;
 import org.wso2.ballerina.core.runtime.threadpool.ThreadPoolFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -46,7 +47,7 @@ public class MessageProcessor implements CarbonMessageProcessor {
             ThreadPoolFactory.getInstance().getExecutor().execute(new RequestWorkerThread(cMsg, carbonCallback));
         } else {
             // For Response
-            ServerConnectorMessageHandler.handleOutbound(cMsg, carbonCallback);
+            ThreadPoolFactory.getInstance().getExecutor().execute(new ResponseWorkerThread(cMsg, carbonCallback));
         }
 
         return true;
