@@ -474,7 +474,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject paramObj = new JsonObject();
         paramObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.PARAMETER_DEFINITION);
         paramObj.addProperty(BLangJSONModelConstants.PARAMETER_NAME, parameterDef.getName());
-        paramObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameterDef.getTypeName().getName());
+        paramObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameterDef.getTypeName().getSymbolName().getName());
         this.tempJsonArrayRef.push(new JsonArray());
         if (parameterDef.getAnnotations() != null) {
             for (Annotation annotation : parameterDef.getAnnotations()) {
