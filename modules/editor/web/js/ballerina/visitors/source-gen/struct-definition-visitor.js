@@ -34,7 +34,7 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './va
         };
 
         StructDefinitionVisitor.prototype.beginVisitStructDefinition = function (structDefinition) {
-            var constructedSourceSegment = 'type ' + structDefinition.getStructName() + "{ \n";
+            var constructedSourceSegment = 'struct ' + structDefinition.getStructName() + "{ \n";
             _.forEach(structDefinition.getVariableDeclarations(), function (variable) {
                 constructedSourceSegment = constructedSourceSegment + variable.getVariableDeclarationAsString() + "\n";
             });
