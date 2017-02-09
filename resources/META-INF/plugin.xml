@@ -51,9 +51,13 @@
 
         <!--<annotator language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.highlighter.BallerinaAnnotator"/>-->
 
-        <!-- formatter -->
-        <!--<lang.formatter language="Ballerina"-->
-        <!--implementationClass="org.ballerinalang.plugins.idea.formatter.BallerinaFormattingModelBuilder"/>-->
+        formatter
+        <lang.formatter language="Ballerina"
+                        implementationClass="org.ballerinalang.plugins.idea.formatter.BallerinaFormattingModelBuilder"/>
+        <codeStyleSettingsProvider
+                implementation="org.ballerinalang.plugins.idea.formatter.settings.BallerinaCodeStyleSettingsProvider"/>
+        <langCodeStyleSettingsProvider
+                implementation="org.ballerinalang.plugins.idea.formatter.settings.BallerinaLanguageCodeStyleSettingsProvider"/>
 
         <!--structure view-->
         <lang.psiStructureViewFactory language="Ballerina"
