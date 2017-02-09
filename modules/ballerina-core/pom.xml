@@ -44,7 +44,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.transport</groupId>
-            <artifactId>org.wso2.carbon.serverconnector.framework</artifactId>
+            <artifactId>org.wso2.carbon.connector.framework</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.messaging</groupId>
@@ -156,7 +156,7 @@
                             <rules>
                                 <rule >
                                     <element>BUNDLE</element>
-                                    <limits>
+                                    <!-- <limits>
                                         <limit >
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
@@ -167,7 +167,7 @@
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.62</minimum>
                                         </limit>
-                                    </limits>
+                                    </limits> -->
                                     <excludes>
                                         <exclude>*Test</exclude>
                                         <exclude>org/wso2/ballerina/core/parser/

@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -31,7 +32,6 @@ import org.wso2.ballerina.core.model.values.BValue;
  * @since 0.8.0
  */
 public class BArrayType extends BType implements BIndexedType {
-
     private BType elementType;
 
     /**
@@ -39,12 +39,9 @@ public class BArrayType extends BType implements BIndexedType {
      *
      * @param typeName string name of the type
      */
-    BArrayType(String typeName, String elementType) {
-        super(typeName, BArray.class);
-        
-        // if the type does not exists, treat it as a user defined struct type
-        BType tmpType = BTypes.getType(elementType);
-        this.elementType = tmpType == null ? new BStructType(elementType) : tmpType;
+    BArrayType(String typeName, BType elementType, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BArray.class);
+        this.elementType = elementType;
     }
 
     public BType getElementType() {

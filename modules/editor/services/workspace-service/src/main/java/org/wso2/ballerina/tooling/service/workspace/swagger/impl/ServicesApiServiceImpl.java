@@ -37,7 +37,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
 
-@Path("/services")
+@Path("/service/swagger")
 @Consumes({"application/json"})
 @Produces({"application/json"})
 @io.swagger.annotations.Api(description = "the services API")
@@ -172,16 +172,16 @@ public class ServicesApiServiceImpl {
      */
     private String generateSwaggerDataModel(String ballerinaDefinition) throws IOException {
         //TODO improve code to avoid additional object creation.
-        List<org.wso2.ballerina.core.model.Service> services = SwaggerConverterUtils.
+        org.wso2.ballerina.core.model.Service[] services = SwaggerConverterUtils.
                 getServicesFromBallerinaDefinition(ballerinaDefinition);
         String swaggerDefinition = "";
-        if (services.size() > 0) {
+        if (services.length > 0) {
             //TODO this need to improve iterate through multiple services and generate single swagger file.
             SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper();
             //TODO mapper type need to set according to expected type.
             //swaggerServiceMapper.setObjectMapper(io.swagger.util.Yaml.mapper());
             swaggerDefinition = swaggerServiceMapper.
-                    generateSwaggerString(swaggerServiceMapper.convertServiceToSwagger(services.get(0)));
+                    generateSwaggerString(swaggerServiceMapper.convertServiceToSwagger(services[0]));
         }
         return swaggerDefinition;
     }
@@ -202,7 +202,7 @@ public class ServicesApiServiceImpl {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
         org.wso2.ballerina.core.model.Service swaggerService = SwaggerConverterUtils.
                 getServiceFromSwaggerDefinition(swaggerDefinition);
-        org.wso2.ballerina.core.model.Service ballerinaService = ballerinaFile.getServices().get(0);
+        org.wso2.ballerina.core.model.Service ballerinaService = ballerinaFile.getServices()[0];
         String serviceName = swaggerService.getSymbolName().getName();
         for (org.wso2.ballerina.core.model.Service currentService : ballerinaFile.getServices()) {
             if (currentService.getSymbolName().getName().equalsIgnoreCase(serviceName)) {
@@ -213,8 +213,8 @@ public class ServicesApiServiceImpl {
         //JSON representation and send back to client.
         //for the moment we directly add swagger service to ballerina service.
 
-        ballerinaFile.getServices().set(0, SwaggerConverterUtils.
-                mergeBallerinaService(ballerinaService, swaggerService));
+        ballerinaFile.getServices()[0] = SwaggerConverterUtils.
+                mergeBallerinaService(ballerinaService, swaggerService);
         //Now we have to convert ballerina file to JSON object model editor require.
         JsonObject response = new JsonObject();
         BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(response);

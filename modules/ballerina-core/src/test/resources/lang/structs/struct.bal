@@ -1,142 +1,125 @@
-package samples.struct.test;
+package samples.structs.test;
 
-public type Department {
+struct Department {
     string dptName;
     Person[] employees;
 }
 
-public type Person {
+struct Person {
     string name;
     map adrs;
     int age;
     Family family;
 }
 
-public type Family {
+struct Family {
     string spouse;
     int noOfChildren;
     string[] children;
 }
 
-public function testCreateStruct() (string, map, int){
-    Person emp;
-    emp = new Person;
-    emp.name = "Jack";
-    emp.adrs = {"country":"USA","state":"CA"};
-    emp.age = 25;
+function testCreateStruct() (string, map, int){
+    map address = {"country":"USA","state":"CA"};
+    Person emp = {name:"Jack", adrs:address, age:25};
     return emp.name, emp.adrs, emp.age;
 }
 
-public function testStructOfStruct() (string) {
+function testStructOfStruct() (string) {
 
-    string country;
-    Department dpt;
-    Person emp1;
+	map address = {"country":"USA","state":"CA"};
+	Person emp1 = {name:"Jack", adrs:address, age:25};
     Person emp2;
+    Person[] emps = [emp1, emp2];
+    Department dpt = {employees:emps};
     
-    dpt = new Department;
-    emp1 = new Person;
-    
-    emp1.name = "Jack";
-    emp1.adrs = {"country":"USA","state":"CA"};
-    emp1.age = 25;
-    dpt.employees = [emp1, emp2];
-    
-    country = dpt.employees[0].adrs["country"];
+    string country = dpt.employees[0].adrs["country"];
     return country;
 }
 
-public function testReturnStructAttributes () (string) {
-    string country;
-    Department dpt;
-    Person emp1;
+function testReturnStructAttributes () (string) {
+	map address = {"country":"USA","state":"CA"};
+	Family fmly= {};
+	Person emp1 = {name:"Jack", adrs:address, age:25, family:fmly};
     Person emp2;
+    Person[] employees = [emp1, emp2];
+    Department dpt = {employees:employees};
     
-    dpt = new Department;
-    emp1 = new Person;
-    
-    emp1.name = "Jack";
-    emp1.adrs = {"country":"USA","state":"CA"};
-    emp1.adrs["street"] = "20";
-    emp1.age = 5;
-    dpt.employees = [emp1, emp2];
-    
-    dpt.employees[0].family = new Family;
     dpt.employees[0].family.children[0] = "emily";
 
     return dpt.employees[0].family.children[0];
 }
 
 
-public function testGetNonInitAttribute() (string) {
-    Department dpt;
+function testGetNonInitAttribute() (string) {
+	Person emp1;
+    Person emp2;
+    Person[] emps = [emp1, emp2];
+    Department dpt = {dptName : "HR" , employees : emps};
     return dpt.employees[0].family.children[0];
 }
 
-public function testGetNonInitLastAttribute() (Person) {
+function testGetNonInitArrayAttribute() (string) {
+    Department dpt = {dptName : "HR"};
+    return dpt.employees[0].family.children[0];
+}
+
+function testGetNonInitLastAttribute() (Person) {
     Department dpt;
     return dpt.employees[0];
 }
 
-public function testSetNonInitAttribute() {
-    Person person;
+function testSetFieldOfNonInitChildStruct() {
+    Person person = {name : "Jack"};
     person.family.spouse = "Jane";
 }
 
-public function testSetNonInitLastAttribute() {
+function testSetFieldOfNonInitStruct() {
     Department dpt;
     dpt.dptName = "HR";
 }
 
-public function testExpressionAsIndex() (string) {
-    Family family;
-    int a;
-    int b;
-    a = 2;
-    b = 5;
-    family = new Family;
+function testExpressionAsIndex() (string) {
+    Family family = {spouse:"Kate"};
+    int a = 2;
+    int b = 5;
     family.children = ["Emma", "Rose", "Jane"];
     return family.children[a * b - 8];
 }
 
 
-connector TestConnector(string name, map address, int age) {
+//    connector TestConnector(string name, map address, int age) {
+//
+//        Person person;
+//
+//        action action1(TestConnector testConnector) (Person){
+//            person = new Person;
+//            person.name = name;
+//            person.adrs = address;
+//            person.age = age;
+//            return person;
+//        }
+//    }
 
-    Person person;
+//function testAction1() (string) {
+//    test:TestConnector testConnector = new test:TestConnector("Jack", {"country":"USA","state":"CA"}, 30);
+//    Person person;
+//
+//    person = test:TestConnector.action1(testConnector);
+//    return person.name;
+//}
 
-    action action1(TestConnector testConnector) (Person){
-        person = new Person;
-        person.name = name;
-        person.adrs = address;
-        person.age = age;
-        return person;
-    }
-}
-
-function testAction1() (string) {
-    test:TestConnector testConnector = new test:TestConnector("Jack", {"country":"USA","state":"CA"}, 30);
-    Person person;
-
-    person = test:TestConnector.action1(testConnector);
-    return person.name;
-}
-
-public function testStructExpressionAsIndex() (string) {
+function testStructExpressionAsIndex() (string) {
     string country;
-    Department dpt;
-    Person emp1;
+    Department dpt= {};
+    Family fmly = {};
     Person emp2;
-    
-    dpt = new Department;
-    emp1 = new Person;
-    
-    emp1.name = "Jack";
-    emp1.adrs = {"country":"USA","state":"CA"};
+    map address = {"country":"USA","state":"CA"};
+    Person emp1 = {name:"Jack", adrs:address, age:25, family:fmly};
+
     emp1.adrs["street"] = "20";
     emp1.age = 0;
+   
     dpt.employees = [emp1, emp2];
-    
-    dpt.employees[0].family = new Family;
     dpt.employees[0].family.children[0] = "emily";
     dpt.employees[0].family.noOfChildren = 1;
 

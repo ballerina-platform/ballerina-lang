@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BBoolean;
+import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
@@ -127,6 +128,26 @@ public class NotEqualExprTest {
         expected = 2;
         Assert.assertEquals(actual, expected);
     }
+
+    @Test(description = "Test Float and Double equal expression")
+    public void testFloatAndDoubleEqualExpr() {
+        float a = 20.2f;
+        double b = 20.2d;
+
+        // Should be false since float is a approximation, not an exact number
+        boolean expectedResult = (a == b);
+
+        BValue[] args = {new BFloat(a), new BDouble(b)};
+        BValue[] returns = Functions.invoke(bFile, "checkFloatAndDoubleEquality", args);
+
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+
+        boolean actualResult = ((BBoolean) returns[0]).booleanValue();
+
+        Assert.assertEquals(actualResult, expectedResult);
+    }
     
     /*
      * Negative tests
@@ -134,24 +155,24 @@ public class NotEqualExprTest {
 
     @Test(description = "Test checking equality of two types",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "incompatible-type-equal-expr.bal:6: incompatible " +
-                    "types in binary expression: int vs boolean")
+            expectedExceptionsMessageRegExp = "incompatible-type-equal-expr.bal:6: invalid operation: " +
+                    "incompatible types 'int' and 'boolean'")
     public void testIncompatibleEquality() {
         ParserUtils.parseBalFile("lang/expressions/incompatible-type-equal-expr.bal");
     }
     
     @Test(description = "Test checking equality of unsupported types (json)",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Equals operation is not supported for type: json in " +
-            "unsupported-type-equal-expr.bal:9")
+            expectedExceptionsMessageRegExp = "unsupported-type-equal-expr.bal:9: invalid operation: " +
+                    "operator == not defined on 'json'")
     public void testUnsupportedTypeEquality() {
         ParserUtils.parseBalFile("lang/expressions/unsupported-type-equal-expr.bal");
     }
     
     @Test(description = "Test checking not-equality of unsupported types (json)",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "NotEqual operation is not supported for type: json in " +
-            "unsupported-type-not-equal-expr.bal:9")
+            expectedExceptionsMessageRegExp = "unsupported-type-not-equal-expr.bal:9: invalid operation: " +
+                    "operator != not defined on 'json'")
     public void testUnsupportedTypeNotEquality() {
         ParserUtils.parseBalFile("lang/expressions/unsupported-type-not-equal-expr.bal");
     }

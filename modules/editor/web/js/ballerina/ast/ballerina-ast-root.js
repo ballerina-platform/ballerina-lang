@@ -301,6 +301,86 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
 
     //// End of constant definition functions
 
+    //// Start of service definitions functions
+
+    BallerinaASTRoot.prototype.getServiceDefinitions = function () {
+        var serviceDefinition = [];
+        var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.getFactory().isServiceDefinition(child)) {
+                serviceDefinition.push(child);
+            }
+        });
+        return serviceDefinition;
+    };
+
+    //// End of service definitions functions
+
+    //// Start of connector definitions functions
+
+    BallerinaASTRoot.prototype.getConnectorDefinitions = function () {
+        var connectorDefinitions = [];
+        var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.getFactory().isConnectorDefinition(child)) {
+                connectorDefinitions.push(child);
+            }
+        });
+        return connectorDefinitions;
+    };
+
+    //// End of connector definitions functions
+
+    //// Start of function definitions functions
+
+    BallerinaASTRoot.prototype.getFunctionDefinitions = function () {
+        var functionDefinitions = [];
+        var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.getFactory().isFunctionDefinition(child)) {
+                functionDefinitions.push(child);
+            }
+        });
+        return functionDefinitions;
+    };
+
+    //// End of function definitions functions
+
+    //// Start of struct definitions functions
+
+    BallerinaASTRoot.prototype.getStructDefinitions = function () {
+        var structDefinitions = [];
+        var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.getFactory().isStructDefinition(child)) {
+                structDefinitions.push(child);
+            }
+        });
+        return structDefinitions;
+    };
+
+    //// End of struct definitions functions
+
+    //// Start of type mapper definitions functions
+
+    BallerinaASTRoot.prototype.getTypeMapperDefinitions = function () {
+        var typeMapperDefinition = [];
+        var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.getFactory().isTypeMapperDefinition(child)) {
+                typeMapperDefinition.push(child);
+            }
+        });
+        return typeMapperDefinition;
+    };
+
+    //// End of type mapper definitions functions
+
     /**
      * Validates possible immediate child types.
      * @override

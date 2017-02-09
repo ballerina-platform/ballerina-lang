@@ -52,9 +52,6 @@ class BServiceRunner {
             }
         }
 
-        // Starting http transport listener
-        //HTTPListenerInitializer.initialize();
-
         // TODO
         //outStream.println("ballerina: server startup in 500 ms");
     }
@@ -63,7 +60,7 @@ class BServiceRunner {
         BallerinaFile bFile = LauncherUtils.buildLangModel(serviceFilePath);
         String fileName = LauncherUtils.getFileName(serviceFilePath);
 
-        if (bFile.getServices().size() == 0) {
+        if (bFile.getServices().length == 0) {
             throw LauncherUtils.createLauncherException("error: no service(s) found in " + fileName);
         }
 
@@ -83,8 +80,8 @@ class BServiceRunner {
             Package aPackage = app.getPackage(fileName);
             if (aPackage == null) {
                 // check if package name is null
-                if (bFile.getPackageName() != null) {
-                    aPackage = new Package(bFile.getPackageName());
+                if (bFile.getPackagePath() != null) {
+                    aPackage = new Package(bFile.getPackagePath());
                 } else {
                     aPackage = new Package("default");
                 }

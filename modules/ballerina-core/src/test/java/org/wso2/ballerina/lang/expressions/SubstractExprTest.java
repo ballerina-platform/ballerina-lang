@@ -33,16 +33,16 @@ public class SubstractExprTest {
     
     @Test(description = "Test substracting values of two types",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "substract-incompatible-types.bal:5: incompatible types " +
-                    "in binary expression: int vs string")
+            expectedExceptionsMessageRegExp = "substract-incompatible-types.bal:5: invalid operation: " +
+                    "incompatible types 'int' and 'string'")
     public void testAddIncompatibleTypes() {
         ParserUtils.parseBalFile("lang/expressions/substract-incompatible-types.bal");
     }
     
     @Test(description = "Test substracting values of unsupported types (json)",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Subtract operation is not supported for type: json in " +
-            "substract-unsupported-types.bal:10")
+            expectedExceptionsMessageRegExp = "substract-unsupported-types.bal:10: invalid operation: " +
+                    "operator - not defined on 'json'")
     public void testSubtractUnsupportedTypes() {
         ParserUtils.parseBalFile("lang/expressions/substract-unsupported-types.bal");
     }

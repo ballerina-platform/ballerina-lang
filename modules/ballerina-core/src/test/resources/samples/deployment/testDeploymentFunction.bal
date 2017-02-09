@@ -5,7 +5,7 @@ function testDeployment(int a, string b){
    x = a;
 }
 
-public function testDeployment(int a, int b){
+function testDeployment(int a, int b){
    int x;
    x = a;
 }

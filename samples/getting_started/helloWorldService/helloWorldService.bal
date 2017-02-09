@@ -5,12 +5,8 @@ service helloWorld {
 
     @GET
     resource sayHello(message m) {
-
-        message response;
-
-        response = new message;
+        message response = {};
         message:setStringPayload(response, "Hello, World!");
-
         reply response;
     }
 }

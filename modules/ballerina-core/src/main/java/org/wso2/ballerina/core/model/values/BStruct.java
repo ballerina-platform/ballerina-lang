@@ -16,16 +16,16 @@
 
 package org.wso2.ballerina.core.model.values;
 
-import org.wso2.ballerina.core.model.BallerinaStruct;
+import org.wso2.ballerina.core.model.StructDef;
 
 /**
  * The {@code BStruct} represents athe value of a user defined struct in Ballerina
  *
  * @since 1.0.0
  */
-public final class BStruct implements BRefType<BallerinaStruct> {
+public final class BStruct implements BRefType<StructDef> {
 
-    private BallerinaStruct struct;
+    private StructDef structDef;
     private BValue[] structMemBlock;
 
     /**
@@ -38,11 +38,11 @@ public final class BStruct implements BRefType<BallerinaStruct> {
     /**
      * Creates a struct with the given size of memory block.
      * 
-     * @param struct            {@link BallerinaStruct} who's values will be stored by this {@code BStruct}
+     * @param structDef            {@link StructDef} who's values will be stored by this {@code BStruct}
      * @param structMemBlock    Array of memory blocks to store values.
      */
-    public BStruct(BallerinaStruct struct, BValue[] structMemBlock) {
-        this.struct = struct;
+    public BStruct(StructDef structDef, BValue[] structMemBlock) {
+        this.structDef = structDef;
         this.structMemBlock = structMemBlock;
     }
 
@@ -70,8 +70,8 @@ public final class BStruct implements BRefType<BallerinaStruct> {
      * {@inheritDoc}
      */
     @Override
-    public BallerinaStruct value() {
-        return struct;
+    public StructDef value() {
+        return structDef;
     }
 
     /**

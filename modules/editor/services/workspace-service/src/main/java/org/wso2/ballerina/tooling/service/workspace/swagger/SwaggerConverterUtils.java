@@ -29,7 +29,9 @@ import io.swagger.parser.Swagger20Parser;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.GlobalScope;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -71,10 +73,10 @@ public class SwaggerConverterUtils {
      * @return @List<Service> which contain all services within give ballerina source
      * @throws IOException when input stream handling error.
      */
-    public static List<Service> getServicesFromBallerinaDefinition(String ballerinaDefinition) throws IOException {
+    public static Service[] getServicesFromBallerinaDefinition(String ballerinaDefinition) throws IOException {
         BallerinaFile bFile = getBFileFromBallerinaDefinition(ballerinaDefinition);
-        List<Service> services = bFile.getServices();
-        return services;
+
+        return bFile.getServices();
     }
 
     public static BallerinaFile getBFileFromBallerinaDefinition(String ballerinaDefinition) throws IOException {
@@ -97,7 +99,9 @@ public class SwaggerConverterUtils {
         Swagger20Parser swagger20Parser = new Swagger20Parser();
         Swagger swagger = swagger20Parser.parse(swaggerDefinition);
         //Iterate through service annotations and add them to service
-        Service service = new Service(new SymbolName(swagger.getBasePath()));
+        Service.ServiceBuilder serviceBuilder = new Service.ServiceBuilder(new BLangPackage(GlobalScope.getInstance()));
+        serviceBuilder.setName(swagger.getBasePath());
+        Service service = serviceBuilder.buildService();
         CodegenConfig codegenConfig = new BallerinaCodeGenerator();
         codegenConfig.setOutputDir(createTempDir().getAbsolutePath());
         ClientOptInput clientOptInput = new ClientOptInput().opts(new ClientOpts()).swagger(swagger).
@@ -111,8 +115,8 @@ public class SwaggerConverterUtils {
             resources1 = mapSwaggerPathsToResources(ops);
         }
         List<Annotation> serviceAnnotationArrayList = new ArrayList<Annotation>();
-        serviceAnnotationArrayList.add(new Annotation("BasePath", swagger.getBasePath()));
-        serviceAnnotationArrayList.add(new Annotation("Host", swagger.getHost()));
+        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("BasePath"), swagger.getBasePath(), null));
+        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("Host"), swagger.getHost(), null));
         service.setAnnotations(serviceAnnotationArrayList.toArray(new Annotation[serviceAnnotationArrayList.size()]));
         //Iterate through paths and add them as resources
         service.setResources(resources1);
@@ -149,45 +153,43 @@ public class SwaggerConverterUtils {
 
     public static Resource[] mapSwaggerPathsToResources(List<CodegenOperation> pathMap) {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
-        Resource resource = new Resource();
+        Resource.ResourceBuilder resourceBuilder = new Resource.ResourceBuilder(
+                new BLangPackage(GlobalScope.getInstance()));
         List<Resource> resourceList = new ArrayList<Resource>();
         for (CodegenOperation entry : pathMap) {
-            Map<String, Annotation> annotationMap = new ConcurrentHashMap();
             String httpMethod = entry.httpMethod;
             String operationId = entry.operationId;
-            resource.setSymbolName(new SymbolName(operationId));
+            resourceBuilder.setSymbolName(new SymbolName(operationId));
             if (entry.hasConsumes) {
-                annotationMap.put("Consumes", new Annotation("Consumes", entry.consumes.toString()));
+                resourceBuilder.addAnnotation(
+                        new Annotation(null, new SymbolName("Consumes"), entry.consumes.toString(), null));
             }
             if (entry.hasProduces) {
-                annotationMap.put("Produces", new Annotation("Produces", entry.produces.toString()));
+                resourceBuilder.addAnnotation(
+                        new Annotation(null, new SymbolName("Produces"), entry.produces.toString(), null));
             }
             if (entry.summary != null) {
-                annotationMap.put("Summary", new Annotation("Summary", entry.summary.toString()));
+                resourceBuilder.addAnnotation(
+                        new Annotation(null, new SymbolName("Summary"), entry.summary.toString(), null));
             }
             if (entry.notes != null) {
-                annotationMap.put("Description", new Annotation("Description", entry.notes.toString()));
+                resourceBuilder.addAnnotation(
+                        new Annotation(null, new SymbolName("Description"), entry.notes.toString(), null));
             }
             if (entry.path != null && entry.path.length() > 0) {
-                annotationMap.put("Path", new Annotation("Path", entry.path.toString()));
+                resourceBuilder
+                        .addAnnotation(new Annotation(null, new SymbolName("Path"), entry.path.toString(), null));
             }
             if (entry.httpMethod != null && entry.httpMethod.length() > 0) {
-                resource.addAnnotation(new Annotation(httpMethod, ""));
+                resourceBuilder.addAnnotation(new Annotation(null, new SymbolName(httpMethod), "", null));
             }
-            annotationMap.put(httpMethod, new Annotation(httpMethod, ""));
-            resource.addAnnotation(new Annotation(new SymbolName(httpMethod), null, null));
-            resource.setAnnotations(annotationMap);
-            annotationMap.values().toArray(new Annotation[annotationMap.size()]);
+            resourceBuilder.addAnnotation(new Annotation(null, new SymbolName(httpMethod), "", null));
+
+            resourceBuilder.addAnnotation(new Annotation(null, new SymbolName(httpMethod), null, null));
             //This resource initiation was required because resource do have both
             //annotation map and array. But there is no way to update array other than
             //constructor method.
-            Resource resourceToBeAdd = new Resource(resource.getSymbolName(), null,
-                    annotationMap.values().toArray(new Annotation[annotationMap.size()]),
-                    resource.getParameters(),
-                    resource.getConnectorDcls(),
-                    resource.getVariableDcls(),
-                    null,
-                    null);
+            Resource resourceToBeAdd = resourceBuilder.buildResource();
             resourceList.add(resourceToBeAdd);
         }
         return resourceList.toArray(new Resource[resourceList.size()]);
@@ -198,14 +200,15 @@ public class SwaggerConverterUtils {
         List<Resource> resourceList = new ArrayList<Resource>();
         for (Map.Entry<String, Path> entry : pathMap.entrySet()) {
             Path path = entry.getValue();
-            Resource resource = new Resource();
-            Map<String, Annotation> annotationMap = new ConcurrentHashMap();
+            Resource.ResourceBuilder resourceBuilder = new Resource.ResourceBuilder(
+                    new BLangPackage(GlobalScope.getInstance()));
             for (Map.Entry<HttpMethod, Operation> operationEntry : path.getOperationMap().entrySet()) {
-                annotationMap.put(operationEntry.getKey().toString(),
-                        new Annotation(operationEntry.getKey().toString()));
-                resource.setSymbolName(new SymbolName(operationEntry.getKey().name()));
+                resourceBuilder.addAnnotation(
+                        new Annotation(null, new SymbolName(operationEntry.getKey().toString()), null, null));
+
+                resourceBuilder.setSymbolName(new SymbolName(operationEntry.getKey().name()));
             }
-            resource.setAnnotations(annotationMap);
+            Resource resource = resourceBuilder.buildResource();
             resourceList.add(resource);
         }
         pathMap.forEach((pathString, pathObject) -> {
@@ -228,8 +231,9 @@ public class SwaggerConverterUtils {
                     isExistingResource = true;
                     //Here is a resource math. Do assignments
                     //merge annotations
-                    originalResource.setAnnotations(mergeAnnotationsAsMap(originalResource.getAnnotations(),
-                            resource.getAnnotations()));
+                    //TODO fixing for compilation failure
+//                    originalResource.setAnnotations(mergeAnnotationsAsMap(originalResource.getAnnotations(),
+//                            resource.getAnnotations()));
                 }
             }
             if (!isExistingResource) {
