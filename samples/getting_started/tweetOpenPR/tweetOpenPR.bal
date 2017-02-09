@@ -36,7 +36,6 @@ function main (string[] args) {
         string repoPRpath = "/repos/wso2/"+ repo +"/pulls";
 
         message request = {};
-        message:addHeader(request, "User-Agent", "Ballerina/0.8.0");
 
         message gitHubResponse = http:HTTPConnector.get(gitHubEP, repoPRpath, request);
 
