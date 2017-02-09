@@ -6,7 +6,7 @@ connector HelloWorld(string consumerKey, string consumerSecret, string accessTok
     @Description("HelloWorld connector action")
     @Param("args: arguments")
     @Return("response object")
-    action sayHello(string t, string msg) (message) {
+    action sayHello(HelloWorld t, string msg) (message) {
         message request;
         message response;
         return response;

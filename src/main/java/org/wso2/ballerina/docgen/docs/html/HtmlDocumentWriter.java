@@ -22,13 +22,13 @@ import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
-
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.model.ParameterDef;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.docgen.docs.DocumentWriter;
 
 import java.io.File;
@@ -154,6 +154,13 @@ public class HtmlDocumentWriter implements DocumentWriter {
                             }
                         }
                         return "";
+                    })
+                    //this would bind a link to the custom types defined
+                    .registerHelper("bindLink", (Helper<SymbolName>) (type, options) -> {
+                        if (type.getPkgPath() != null) {
+                            return "../html/" + type.getPkgPath() + ".html#" + type.getName();
+                        }
+                        return "#" + type.getName();
                     });
             Template template = handlebars.compile(templateName);
 
