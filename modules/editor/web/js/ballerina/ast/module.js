@@ -25,7 +25,8 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
         './assignment-statement', './function-invocation', './arithmetic-expression', './logical-expression',
         './action-invocation-expression', './ballerina-ast-deserializer', './function-invocation-expression',
         './left-operand-expression', './right-operand-expression', './connector-action', './struct-definition',
-        './action-invocation-statement', './variable-definition-statement','./type-struct-definition'],
+        './action-invocation-statement', './variable-definition-statement','./type-struct-definition','./resource-parameter',
+        './return-type'],
     function (BallerinaASTFactory, BallerinaASTRoot, ConditionalStatement, ConnectorDeclaration, ConnectorDefinition,
               ConstantDefinition, Expression, FunctionDefinition, IfElseStatement, IfStatement, ElseStatement,
               ElseIfStatement, TryCatchStatement, TryStatement, CatchStatement, ASTNode, ReplyStatement,
@@ -34,7 +35,7 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
               WorkerDeclaration, PackageDefinition, ImportDeclaration, Assignment, AssignmentStatement,
               FunctionInvocation, ArithmeticExpression, LogicalExpression, ActionInvocationExpression,
               BallerinaASTDeserializer, FunctionInvocationExpression, LeftOperandExpression, RightOperandExpression,
-              ConnectorAction, StructDefinition, ActionInvocationStatement, VariableDefinitionStatement,TypeStructDefinition) {
+              ConnectorAction, StructDefinition, ActionInvocationStatement, VariableDefinitionStatement,TypeStructDefinition,ResourceParameter,ReturnType) {
 
         return  {
             BallerinaASTFactory: BallerinaASTFactory,
@@ -81,7 +82,9 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
             ConnectorAction : ConnectorAction,
             StructDefinition : StructDefinition,
             VariableDefinitionStatement: VariableDefinitionStatement,
-            TypeStructDefinition : TypeStructDefinition
+            TypeStructDefinition : TypeStructDefinition,
+            ResourceParameter: ResourceParameter,
+            ReturnType: ReturnType
         }
     });
 

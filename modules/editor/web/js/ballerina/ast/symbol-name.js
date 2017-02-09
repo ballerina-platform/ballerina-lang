@@ -18,14 +18,14 @@
 define(['lodash', './node'], function (_, ASTNode) {
 
     var SymbolName = function (args) {
-        ASTNode.call(this, 'name');
+        ASTNode.call(this, 'SymbolName');
         this._name = _.get(args, 'name', 'newName');
         this._pkgName = _.get(args, 'pkgName', 'newPkgName');
         this._connectorName = _.get(args, 'connectorName', 'newConnectorName');
     };
 
     SymbolName.prototype = Object.create(ASTNode.prototype);
-    SymbolName.prototype.constructor = StructType;
+    SymbolName.prototype.constructor = SymbolName;
 
     /**
      * set the name of the symbol

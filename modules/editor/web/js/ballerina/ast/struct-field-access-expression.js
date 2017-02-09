@@ -23,7 +23,7 @@ define(['lodash', './node'], function (_, ASTNode) {
     };
 
     StructFieldAccessExpression.prototype = Object.create(ASTNode.prototype);
-    StructFieldAccessExpression.prototype.constructor = Parameter;
+    StructFieldAccessExpression.prototype.constructor = StructFieldAccessExpression;
 
     /**
      * Flag indicating whether the entire expression is a left hand side expression

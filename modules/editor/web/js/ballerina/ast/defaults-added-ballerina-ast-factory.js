@@ -62,5 +62,17 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
         return variableDefinitionStatement;
     };
 
+    /**
+     * creates typeMapperDefinition with default statement
+     * @param {Object} args - object for typeMapperDefinition creation
+     * @returns {TypeMapperDefinition}
+     */
+    DefaultsAddedBallerinaASTFactory.createTypeMapperDefinition = function (args) {
+        var typeMapperDefinition = BallerinaASTFactory.createTypeMapperDefinition(args);
+        var statement = BallerinaASTFactory.createStatement(args);
+        typeMapperDefinition.addChild(statement);
+        return typeMapperDefinition;
+    };
+
     return DefaultsAddedBallerinaASTFactory;
 });

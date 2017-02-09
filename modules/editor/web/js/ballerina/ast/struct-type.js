@@ -32,12 +32,20 @@ define(['lodash', './node'], function (_, ASTNode) {
      * @param options
      */
     StructType.prototype.setTypeName = function (typeName, options) {
-        if (!_.isNil(identifier)) {
+        if (!_.isNil(typeName)) {
             this.setAttribute('_typeName', typeName, options);
         } else {
             log.error('Invalid Type Name [' + typeName + '] Provided');
             throw 'Invalid Type Name [' + typeName + '] Provided';
         }
+    };
+
+    /**
+     * returns the typeNme
+     * @returns {*}
+     */
+    StructType.prototype.getTypeName = function () {
+        return this._typeName;
     };
     
     return StructType;

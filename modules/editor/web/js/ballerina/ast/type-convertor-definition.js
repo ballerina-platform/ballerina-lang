@@ -17,20 +17,20 @@
  */
 define(['lodash', './node'], function (_, ASTNode) {
 
-    var TypeConvertor = function (args) {
-        ASTNode.call(this, 'TypeMapperDefinition');
+    var TypeConvertorDefinition = function (args) {
+        ASTNode.call(this, 'TypeConvertorDefinition');
         this._typeConvertorName = _.get(args, 'typeConvertorName', 'newTypeConvertor');
     };
 
-    TypeConvertor.prototype = Object.create(ASTNode.prototype);
-    TypeConvertor.prototype.constructor = TypeConvertor;
+    TypeConvertorDefinition.prototype = Object.create(ASTNode.prototype);
+    TypeConvertorDefinition.prototype.constructor = TypeConvertorDefinition;
 
     /**
      * set type convertor name
      * @param typeConvertorName
      * @param options
      */
-    TypeConvertor.prototype.setTypeConvertorName = function (typeConvertorName, options) {
+    TypeConvertorDefinition.prototype.setTypeConvertorName = function (typeConvertorName, options) {
         if (!_.isNil(typeConvertorName)) {
             this.setAttribute('_typeConvertorName', typeConvertorName, options);
         } else {
@@ -43,9 +43,9 @@ define(['lodash', './node'], function (_, ASTNode) {
      * returns the type convertor name
      * @returns {string} type convertor name
      */
-    TypeConvertor.prototype.getTypeConvertorName = function () {
+    TypeConvertorDefinition.prototype.getTypeConvertorName = function () {
         return this._typeConvertorName;
     };
     
-    return TypeConvertor;
+    return TypeConvertorDefinition;
 });
