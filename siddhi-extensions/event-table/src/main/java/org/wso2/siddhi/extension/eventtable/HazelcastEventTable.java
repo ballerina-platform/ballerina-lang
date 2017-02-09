@@ -26,6 +26,8 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -65,7 +67,28 @@ import java.util.Map;
 @Extension(
         name = "hazelcast",
         namespace = "eventtable",
-        description = ""
+        description = "",
+        parameters = {
+                @Parameter(name = "cluster.name",
+                        description = "Hazelcast cluster name [Optional]  (i.e cluster.name='cluster_a').",
+                        type = {DataType.STRING}),
+                @Parameter(name = "cluster.password",
+                        description = "Hazelcast cluster/group password [Optional] " +
+                                "(i.e cluster.password='pass@cluster_a').",
+                        type = {DataType.STRING}),
+                @Parameter(name = "cluster.addresses",
+                        description = "Hazelcast cluster addresses (ip:port) as a comma separated string [Optional, " +
+                                "client mode only] (i.e cluster.addresses='192.168.1.1:5700,192.168.1.2:5700').",
+                        type = {DataType.STRING}),
+                @Parameter(name = "well.known.addresses",
+                        description = "Hazelcast WKAs (ip) as a comma separated string [Optional, server mode only] " +
+                                "(i.e well.known.addresses='192.168.1.1,192.168.1.2').",
+                        type = {DataType.STRING}),
+                @Parameter(name = "collection.name",
+                        description = "Hazelcast collection object name [Optional,  can be used to share single " +
+                                "table between multiple EPs] (i.e collection.name='stockTable').",
+                        type = {DataType.STRING})
+        }
 )
 public class HazelcastEventTable implements EventTable {
     private static final Logger logger = Logger.getLogger(HazelcastEventTable.class);
@@ -86,7 +109,9 @@ public class HazelcastEventTable implements EventTable {
      * @param executionPlanContext   ExecutionPlan related meta information.
      */
     @Override
-    public void init(TableDefinition tableDefinition, MetaStreamEvent tableMetaStreamEvent, StreamEventPool tableStreamEventPool, StreamEventCloner tableStreamEventCloner, ExecutionPlanContext executionPlanContext) {
+    public void init(TableDefinition tableDefinition, MetaStreamEvent tableMetaStreamEvent,
+                     StreamEventPool tableStreamEventPool, StreamEventCloner tableStreamEventCloner,
+                     ExecutionPlanContext executionPlanContext) {
         this.tableDefinition = tableDefinition;
         this.tableStreamEventCloner = tableStreamEventCloner;
         this.executionPlanContext = executionPlanContext;
@@ -103,7 +128,8 @@ public class HazelcastEventTable implements EventTable {
         }
 
         Annotation fromAnnotation = AnnotationHelper.getAnnotation(
-                SiddhiConstants.ANNOTATION_FROM, tableDefinition.getAnnotations()); //// TODO: 12/6/16 This must be deprecated
+                SiddhiConstants.ANNOTATION_FROM, tableDefinition.getAnnotations());
+        //// TODO: 12/6/16 This must be deprecated
 
         if (getStoreOptions != null) {
             clusterName = getStoreOptions.get(
@@ -158,9 +184,11 @@ public class HazelcastEventTable implements EventTable {
             }
             String indexAttribute = annotation.getElements().get(0).getValue();
             int indexPosition = tableDefinition.getAttributePosition(indexAttribute);
-            eventHolder = new HazelcastPrimaryKeyEventHolder(hzInstance.getMap(collectionName), tableStreamEventPool, eventConverter, indexPosition, indexAttribute);
+            eventHolder = new HazelcastPrimaryKeyEventHolder(hzInstance.getMap(collectionName), tableStreamEventPool,
+                    eventConverter, indexPosition, indexAttribute);
         } else {
-            eventHolder = new HazelcastCollectionEventHolder(hzInstance.getList(collectionName), tableStreamEventPool, eventConverter);
+            eventHolder = new HazelcastCollectionEventHolder(hzInstance.getList(collectionName), tableStreamEventPool,
+                    eventConverter);
         }
         if (elementId == null) {
             elementId = executionPlanContext.getElementIdGenerator().createNewId();
@@ -238,8 +266,8 @@ public class HazelcastEventTable implements EventTable {
     }
 
     @Override
-    public synchronized void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Operator operator,
-                                            UpdateAttributeMapper[] updateAttributeMappers,
+    public synchronized void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk,
+                                            Operator operator, UpdateAttributeMapper[] updateAttributeMappers,
                                             OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
         ComplexEventChunk<StreamEvent> failedEvents = operator.overwrite(overwritingOrAddingEventChunk,
                 eventHolder, updateAttributeMappers, overwritingStreamEventExtractor);
