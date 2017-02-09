@@ -366,7 +366,6 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         $(removeBreakpointButton.node()).click(function(event){
             event.stopPropagation();
             DebugManager.removeBreakPoint(model.getLineNumber(), model.getFileName());
-            console.log('remove breakpoint', model.getLineNumber(), model.getFileName());
         });
 
         this._debugIndicator = removeBreakpointButton;
@@ -384,7 +383,6 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
     };
 
     BallerinaStatementView.prototype._showDebugIndicator = function () {
-        console.log('show');
         $(this._debugIndicator.node()).show();
     };
 

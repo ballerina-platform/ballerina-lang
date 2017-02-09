@@ -94,7 +94,6 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
 
     DebugManager.prototype.addBreakPoint = function(line, fileName){
         var point = new DebugPoint({ "fileName": fileName , "line": line});
-        console.log(this.debugPoints)
     	this.debugPoints.push(point);
     	this.trigger("breakpoint-added");
     };
