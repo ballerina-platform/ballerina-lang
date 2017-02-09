@@ -716,7 +716,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         basicLiteralObj.addProperty(BLangJSONModelConstants.BASIC_LITERAL_TYPE,
                 basicLiteral.getTypeName().getName());
         basicLiteralObj.addProperty(BLangJSONModelConstants.BASIC_LITERAL_VALUE,
-                basicLiteral.getBValue().toString());
+                basicLiteral.getBValue().stringValue());
         tempJsonArrayRef.peek().add(basicLiteralObj);
     }
 
