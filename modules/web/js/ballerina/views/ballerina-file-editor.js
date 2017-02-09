@@ -74,7 +74,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             } else if (this.isInSwaggerView()) {
                 return this._swaggerView.getContent();
             } else {
-                return this.generateSource();
+                var generatedSource = this.generateSource();
+                this._sourceView.setContent(generatedSource);
+                return this._sourceView.getContent();
             }
         };
 
