@@ -39,8 +39,7 @@
 
 .panel-title {
     background: white;
-    border-style: solid;
-    border-width: 1px;
+    border: 1px solid #333;
     vertical-align: middle;
 }
 
@@ -51,7 +50,7 @@
 
 .panel-icon, .service-icon, .connector-icon, .function-icon {
     padding: 5px;
-    background-color: #000;
+    background-color: #333;
     font-size: 20px;
     width: 32px;
     text-align: center;
@@ -62,7 +61,7 @@
 }
 
 .delete-icon:hover {
-    color: #333;
+    color: #fff;
 }
 
 .panel-collapse .collapse {
