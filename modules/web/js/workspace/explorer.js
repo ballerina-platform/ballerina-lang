@@ -184,15 +184,14 @@ define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-cli
                     }
                 }
             });
-
+            explorerContainer.mCustomScrollbar({
+                theme: "minimal",
+                scrollInertia: 0,
+                axis: "xy"
+            });
             if(!_.isEmpty(this._openedFolders)){
                 this._openedFolders.forEach(function(folder){
                     self.createExplorerItem(folder);
-                });
-                explorerContainer.mCustomScrollbar({
-                    theme: "minimal",
-                    scrollInertia: 0,
-                    axis: "xy"
                 });
             }
             return this;
