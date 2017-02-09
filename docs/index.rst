@@ -11,10 +11,11 @@ This documentation will help you get up and running fast and provides a full lan
 
 .. toctree::
    :maxdepth: 3
-   :caption: Contents:
+   :hidden: 
 
    intro
    quick-tour
    tutorial
-   key-concepts
-   samples
+   key-concepts
+   samples
+   language-ref
