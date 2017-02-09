@@ -23,72 +23,11 @@ define(['lodash', './statement'], function (_, Statement) {
      * @constructor
      */
     var FunctionInvocation = function (args) {
-        this._packageName = _.get(args, 'package', '');
-        this._functionName = _.get(args, 'functionName', 'callFunction');
-        this._params = _.get(args, 'params');
         Statement.call(this, 'FunctionInvocation');
     };
 
     FunctionInvocation.prototype = Object.create(Statement.prototype);
     FunctionInvocation.prototype.constructor = FunctionInvocation;
-
-    FunctionInvocation.prototype.setPackageName = function (packageName, options) {
-        this.setAttribute('_packageName', packageName, options);
-    };
-
-    FunctionInvocation.prototype.setFunctionName = function (functionName, options) {
-        this.setAttribute('_functionName', functionName, options);
-    };
-
-    FunctionInvocation.prototype.setParams = function (params, options) {
-        this.setAttribute('_params', params, options);
-    };
-
-    FunctionInvocation.prototype.setFunctionalExpression = function(expression, options){
-        if(!_.isNil(expression) && expression !== "") {
-            var splittedText = expression.split("(",1)[0].split(":", 2);
-
-            if(splittedText.length == 2){
-                this.setPackageName(splittedText[0], options);
-                this.setFunctionName(splittedText[1]);
-            }else{
-                this.setPackageName("", options);
-                this.setFunctionName(splittedText[0]);
-            }
-
-            var params = expression.slice(((expression.indexOf(this._functionName) + 1)
-                         + this._functionName.split("(", 1)[0].length), (expression.length - 1));
-
-            this.setParams(params, options);
-        }
-    };
-
-    FunctionInvocation.prototype.getFunctionalExpression = function(){
-        var text = "";
-        if (!_.isNil(this._packageName) && this._packageName !== "") {
-            text += this._packageName + ":";
-        }
-        text += this._functionName + '('+ (this._params? this._params:'') +')';
-        return text;
-    };
-
-    FunctionInvocation.prototype.getPackageName = function () {
-        return this._packageName;
-    };
-
-    FunctionInvocation.prototype.getFunctionName = function () {
-        return this._functionName;
-    };
-
-    FunctionInvocation.prototype.getParams = function () {
-        var params;
-        if(!_.isUndefined(this._params)) {
-            params = this._params.split(',');
-            return params;
-        }
-        else params = "";
-        return params;
-    };
 
     /**
      * initialize from json
