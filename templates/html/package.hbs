@@ -33,7 +33,7 @@
                         {{#each privateFunctions}} {{currentObject this}}
                         <div style="padding-bottom: 30px;">
                             <h3 id="{{name}}">
-                                function {{name}}({{#each parameterDefs}}<a href="">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}
+                                function {{name}}({{#each parameterDefs}}<a href="{{#bindLink type.symbolName}}{{/bindLink}}">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}
                             </h3>
                             <p>{{oneValueAnnotation "description"}}</p>
 
@@ -45,7 +45,7 @@
                                     </tr>
                                     {{#each parameterDefs}}
                                     <tr>
-                                        <td>{{name}}</td><td><a href="">{{type}}</a></td><td>{{paramAnnotation this "param"}}</td>
+                                        <td>{{name}}</td><td><a href="{{#bindLink type.symbolName}}{{/bindLink}}">{{type}}</a></td><td>{{paramAnnotation this "param"}}</td>
                                     </tr>
                                     {{/each}}
                                 </table>
@@ -59,7 +59,7 @@
                                     </tr>
                                     {{#each returnParameters}}
                                     <tr>
-                                        <td>{{name}}</td><td><a href="">{{type}}</a></td><td>{{paramAnnotation this "return"}}</td>
+                                        <td>{{name}}</td><td><a href="{{#bindLink type.symbolName}}{{/bindLink}}">{{type}}</a></td><td>{{paramAnnotation this "return"}}</td>
                                     </tr>
                                     {{/each}}
                                 </table>
@@ -72,9 +72,10 @@
                         {{#hasConnectors}}
                         <!-- Connectors -->
                         <h2>Connectors of {{fullyQualifiedName}} package</h2>
-                        {{#each files}} {{#each connectors}} {{currentObject this}}
+                        {{#each files}}
+                            {{#each connectors}} {{currentObject this}}
                         <h3 id="{{name}}">
-                            connector {{#with this}}{{this.name}} ({{#each parameterDefs}}<a href="">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/with}}
+                            connector {{#with this}}{{this.name}} ({{#each parameterDefs}}<a href="{{#bindLink type.symbolName}}{{/bindLink}}">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/with}}
                         </h3>
                         <p>{{oneValueAnnotation "description"}}</p>
                         <p>
@@ -101,7 +102,7 @@
                                 </tr>
                                 {{#each parameterDefs}}
                                 <tr>
-                                    <td>{{name}}</td><td><a href="">{{type}}</a></td><td>{{paramAnnotation this "param"}}</td>
+                                    <td>{{name}}</td><td><a href="{{#bindLink type.symbolName}}{{/bindLink}}">{{type}}</a></td><td>{{paramAnnotation this "param"}}</td>
                                 </tr>
                                 {{/each}}
                             </table>
@@ -115,7 +116,7 @@
                                 </tr>
                                 {{#each returnParameters}}
                                 <tr>
-                                    <td>{{name}}</td><td><a href="">{{type}}</a></td><td>{{paramAnnotation this "return"}}</td>
+                                    <td>{{name}}</td><td><a href="{{#bindLink type.symbolName}}{{/bindLink}}">{{type}}</a></td><td>{{paramAnnotation this "return"}}</td>
                                 </tr>
                                 {{/each}}
                             </table>
@@ -127,7 +128,7 @@
                         {{#each files}} {{#each structDefs}}
                         <h2>Structs of {{fullyQualifiedName}} package</h2>
                         <h3 id="{{symbolName.name}}">
-                            struct {{symbolName.name}}({{#each fields}}<a href="">{{type}}</a> {{name}}{{#unless @last}},
+                            struct {{symbolName.name}}({{#each fields}}<a href="{{#bindLink type.symbolName}}{{/bindLink}}">{{type}}</a> {{name}}{{#unless @last}},
                             {{/unless}}{{/each}} )
                         </h3>
                         <p>
@@ -138,7 +139,7 @@
                                 </tr>
                                 {{#each fields}}
                                 <tr>
-                                    <td>{{name}}</td><td><a href="">{{type}}</a></td>
+                                    <td>{{name}}</td><td><a href="{{#bindLink type.symbolName}}{{/bindLink}}">{{type}}</a></td>
                                 </tr>
                                 {{/each}}
                             </table>

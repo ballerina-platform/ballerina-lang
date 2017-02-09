@@ -6,7 +6,7 @@ connector TestConnector(string consumerKey, string consumerSecret, string access
     @Description("test connector action")
     @Param("args: arguments")
     @Return("response object")
-    action testAction1(string t, string msg) (message) {
+    action testAction1(TestConnector t, string msg) (message) {
         message request;
         message response;
         return response;
@@ -15,7 +15,7 @@ connector TestConnector(string consumerKey, string consumerSecret, string access
     @Description("test connector action")
     @Param("args: arguments")
     @Return("response object")
-    action testAction2(string t, string msg) (message) {
+    action testAction2(TestConnector t, string msg) (message) {
         message request;
         message response;
         return response;

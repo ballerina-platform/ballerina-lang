@@ -72,21 +72,21 @@ public class HtmlDocumentWriterTest {
 
             // Assert function definitions
             String content1 = new Scanner(htmlFile1).useDelimiter("\\Z").next();
-            Assert.assertTrue(content1.contains("function addHeader(" +
-                    "<a href=\"\">message</a> m, <a href=\"\">string</a> key, <a href=\"\">string</a> value)"));
-            Assert.assertTrue(content1.contains("function getHeader(" +
-                    "<a href=\"\">message</a> m, <a href=\"\">string</a> key) (string value)"));
+            Assert.assertTrue(content1.contains("function addHeader(<a href=\"#message\">message</a> m, "
+                    + "<a href=\"#string\">string</a> key, <a href=\"#string\">string</a> value)"));
+            Assert.assertTrue(content1.contains("function getHeader(<a href=\"#message\">message</a> m, "
+                    + "<a href=\"#string\">string</a> key) (string value)"));
             Assert.assertTrue(content1.contains("Functions"));
             Assert.assertTrue(content1.contains("Connectors"));
 
             // asserting function @description
             Assert.assertTrue(content1.contains("<p>Get HTTP header from the message</p>"));
             // asserting function @param description
-            Assert.assertTrue(content1.contains("<td>key</td><td><a href=\"\">string</a></td><td>HTTP header key</td>")
-                    );
+            Assert.assertTrue(content1.contains("<td>key</td><td><a href=\"#string\">string</a></td>"
+                    + "<td>HTTP header key</td>"));
             // asserting function @return description
-            Assert.assertTrue(content1
-                    .contains("<td>value</td><td><a href=\"\">string</a></td><td>HTTP header value</td>"));
+            Assert.assertTrue(content1.contains("<td>value</td><td><a href=\"#string\">string</a></td>"
+                            + "<td>HTTP header value</td>"));
             /*
              * //  TODO commenting temporarily
             // asserting connector @description
