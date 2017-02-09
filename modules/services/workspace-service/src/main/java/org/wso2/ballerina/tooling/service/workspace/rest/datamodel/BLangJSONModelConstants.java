@@ -74,6 +74,12 @@ public class BLangJSONModelConstants {
 
     public static final String VARIABLE_DECLARATION = "variable_declaration";
 
+    public static final String VARIABLE_DEFINITION = "variable_definition";
+
+    public static final String LEFT_EXPRESSION = "left_expression";
+
+    public static final String RIGHT_EXPRESSION = "right_expression";
+
     public static final String RESOURCE_NAME = "resource_name";
 
     public static final String WORKER_DEFINITION = "worker";
@@ -211,4 +217,8 @@ public class BLangJSONModelConstants {
     public static final String TARGET_TYPE = "target_type";
 
     public static final String TYPE_NAME = "type_name";
+
+    public static final String CONNECTOR_INIT_EXPR = "connector_init_expr";
+
+    public static final String ARGUMENTS = "arguments";
 }
