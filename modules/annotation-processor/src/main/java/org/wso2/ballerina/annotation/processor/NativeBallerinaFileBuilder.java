@@ -207,5 +207,4 @@ public class NativeBallerinaFileBuilder {
             return sb.toString();
         }
     }
-
 }
