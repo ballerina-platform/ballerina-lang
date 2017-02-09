@@ -50,31 +50,27 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
             // if file already has content
             if(!_.isNil(this._file.getContent())){
                 var response = this.backend.parse(this._file.getContent());
-
                 if (response.error != undefined && response.error) {
-                    $(this.app.config.tab_controller.tabs.tab.ballerina_editor.dialog_boxes.parser_error).modal();
-                    //remove the created tab at parse error
-                    this.app.tabController.removeTab(this);
+                    this.renderBallerinaEditor(this._astRoot, true);
                     return;
                 }
-
                 //if no errors display the design.
                 var root = this.deserializer.getASTModel(response);
-                this.renderAST(root);
+                this.renderBallerinaEditor(root);
             } else if(!_.isNil(this._astRoot)) {
-                this.renderAST(this._astRoot);
+                this.renderBallerinaEditor(this._astRoot, false);
                 var updatedContent = this.getBallerinaFileEditor().generateSource();
                 this._file.setContent(updatedContent);
                 this._file.save();
             } else {
-                this.renderAST(this.createEmptyBallerinaRoot());
+                this.renderBallerinaEditor(this.createEmptyBallerinaRoot(), false);
                 var updatedContent = this.getBallerinaFileEditor().generateSource();
                 this._file.setContent(updatedContent);
                 this._file.save();
             }
         },
 
-        renderAST: function(astRoot){
+        renderBallerinaEditor: function(astRoot, parseFailed){
             var self = this;
             var ballerinaEditorOptions = _.get(this.options, 'ballerina_editor');
             var backendEndpointsOptions = _.get(this.options, 'application.config.services');
@@ -82,6 +78,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
 
             var fileEditor = new Ballerina.views.BallerinaFileEditor({
                 model: astRoot,
+                parseFailed: parseFailed,
                 file: self._file,
                 container: this.$el.get(0),
                 viewOptions: ballerinaEditorOptions,
@@ -90,11 +87,11 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
             });
 
             // change tab header class to match look and feel of source view
-            fileEditor.on('source-view-activated', function(){
-                this.getHeader().toggleClass('inverse');
+            fileEditor.on('source-view-activated swagger-view-activated', function(){
+                this.getHeader().addClass('inverse');
             }, this);
             fileEditor.on('design-view-activated', function(){
-                this.getHeader().toggleClass('inverse');
+                this.getHeader().removeClass('inverse');
             }, this);
 
             fileEditor.on('add-breakpoint', function(row){
