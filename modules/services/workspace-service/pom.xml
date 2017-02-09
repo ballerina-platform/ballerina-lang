@@ -83,6 +83,11 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.wso2.ballerina</groupId>
+            <artifactId>ballerina-native</artifactId>
+            <version>${ballerina.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.orbit.org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
             <version>${antlr4.runtime.version}</version>
