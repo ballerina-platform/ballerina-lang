@@ -92,8 +92,6 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             var model = this.getModel();
             // Calling super class's render function.
             (this.__proto__.__proto__).render.call(this, renderingContext);
-            // Setting display text.
-            this.renderDisplayText(model.getStatementString());
 
             /* Action invocation statement is generally an assignment statement, where the action invocation model is
              the child of the right operand. */
@@ -116,6 +114,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 });
             }
 
+            // Setting display text.
+            this.renderDisplayText(model.getStatementString());
             this.renderProcessorConnectPoint(renderingContext);
             this.renderArrows(renderingContext);
 
@@ -212,8 +212,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                     this._forwardArrowHead.node().transform.baseVal.getItem(0).setTranslate(forwardArrowTransformX + 0, forwardArrowTransformY + offset);
                     this._backArrowHead.node().transform.baseVal.getItem(0).setTranslate(backwardArrowTransformX + 0, backwardArrowTransformY + offset);
 
-                    d3.select(this.processorConnectPoint.node()).attr("transform", "translate(" + backwardArrowTransformX + "," + (backwardArrowTransformY + offset) + ")");
-                    d3.select(this.processorConnectEndPoint.node()).attr("transform", "translate(" + forwardArrowTransformX + "," + (forwardArrowTransformY + offset) + ")");
+                    //d3.select(this.processorConnectPoint.node()).attr("transform", "translate(" + backwardArrowTransformX + "," + (backwardArrowTransformY + offset) + ")");
+                    //d3.select(this.processorConnectEndPoint.node()).attr("transform", "translate(" + forwardArrowTransformX + "," + (forwardArrowTransformY + offset) + ")");
                 }, this);
 
                 this.getBoundingBox().on('right-edge-moved', function (offset) {
