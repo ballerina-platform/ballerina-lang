@@ -25,6 +25,8 @@ import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
+import org.wso2.ballerina.core.nativeimpl.annotations.Attribute;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
@@ -38,11 +40,10 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.DOUBLE)},
         isPublic = true
 )
-/*@Component(
-        name = "func.lang.array_doubleArrayCopyOf",
-        immediate = true,
-        service = AbstractNativeFunction.class
-)*/
+@BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
+        value = "Native function ballerina.lang.array:copyOf(double[])") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "arr",
+value = "Array to copy") })
 public class DoubleArrayCopyOf extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
