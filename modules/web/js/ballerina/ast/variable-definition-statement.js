@@ -28,8 +28,8 @@ define(['lodash', './statement', '../utils/common-utils', './variable-declaratio
      */
     var VariableDefinitionStatement = function (args) {
         Statement.call(this, 'VariableDefinitionStatement');
-        this._leftExpression = _.get(args, 'leftExpression');
-        this._rightExpression = _.get(args, 'rightExpression');
+        this._leftExpression = _.get(args, 'leftExpression', "string str");
+        this._rightExpression = _.get(args, 'rightExpression', "\"string value\"");
     };
 
     VariableDefinitionStatement.prototype = Object.create(Statement.prototype);
@@ -37,6 +37,8 @@ define(['lodash', './statement', '../utils/common-utils', './variable-declaratio
 
     /**
      * initialize VariableDefinitionStatement from json object
+        this._leftExpression = _.get(args, 'leftExpression');
+        this._rightExpression = _.get(args, 'rightExpression');
      * @param {Object} jsonNode to initialize from
      */
     VariableDefinitionStatement.prototype.initFromJson = function (jsonNode) {
@@ -162,6 +164,10 @@ define(['lodash', './statement', '../utils/common-utils', './variable-declaratio
                 }]
             });
         }
+    };
+
+    VariableDefinitionStatement.prototype.initFromJson = function (jsonNode) {
+
     };
 
     return VariableDefinitionStatement;

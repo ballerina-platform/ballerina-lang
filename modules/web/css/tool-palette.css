@@ -171,3 +171,11 @@
     padding: 4px;
     border: 1px solid #777;
 }
+
+.tool-separator{
+    width: 100%;
+    padding-top: 7px;
+    border-bottom: 1px solid #e4e4e4;
+    clear: both;
+    margin: 0 0 7px 0;
+}

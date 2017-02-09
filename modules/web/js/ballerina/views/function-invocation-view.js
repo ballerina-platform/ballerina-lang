@@ -16,7 +16,7 @@
  * under the License.
  */
 define(['lodash', 'log', './simple-statement-view', './../ast/function-invocation', 'd3utils', 'd3'],
-       function (_, log, SimpleStatementView, FunctionInvocationStatement, D3Utils, d3) {
+    function (_, log, SimpleStatementView, FunctionInvocationStatement, D3Utils, d3) {
 
         /**
          * The view to represent a function invocation which is an AST visitor.
@@ -60,7 +60,7 @@ define(['lodash', 'log', './simple-statement-view', './../ast/function-invocatio
             log.debug("Rendering Function Invocation Statement started.");
             // Calling super class's render function.
             (this.__proto__.__proto__).render.call(this, renderingContext);
-            var model = this.getModel();
+            var model = this.getModel().getChildren()[0];
             // Setting display text.
             this.renderDisplayText(model.getFunctionalExpression());
             // Setting group ID.
@@ -75,10 +75,10 @@ define(['lodash', 'log', './simple-statement-view', './../ast/function-invocatio
                 setterMethod: model.setFunctionalExpression
             };
             this._createPropertyPane({
-                                         model: model,
-                                         statementGroup: statementGroup,
-                                         editableProperties: editableProperty
-                                     });
+                model: model,
+                statementGroup: statementGroup,
+                editableProperties: editableProperty
+            });
             this.listenTo(model, 'update-property-text', this.updateFunctionalExpression);
 
             log.debug("Rendering Function Invocation Statement finished.");
@@ -86,9 +86,9 @@ define(['lodash', 'log', './simple-statement-view', './../ast/function-invocatio
         };
 
         FunctionInvocationStatementView.prototype.updateFunctionalExpression = function (newExpression, propertyKey) {
-               this._model.setFunctionalExpression(newExpression); // Set property value.
-               var displayText = this._model.getFunctionalExpression();
-               this.renderDisplayText(displayText);// Set display text.
+            this._model.getChildren()[0].setFunctionalExpression(newExpression); // Set property value.
+            var displayText = this._model.getChildren()[0].getFunctionalExpression();
+            this.renderDisplayText(displayText);// Set display text.
         };
 
         return FunctionInvocationStatementView;

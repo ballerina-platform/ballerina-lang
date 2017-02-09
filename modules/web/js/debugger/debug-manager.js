@@ -100,10 +100,10 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
 
     DebugManager.prototype.removeBreakPoint = function(line, fileName){
         var point = new DebugPoint({ "fileName": fileName , "line": line});
-        this.debugPoints = _.filter(this.debugPoints, function(item){
-            return item.fileName == fileName && item.line == line ;
+        _.remove(this.debugPoints, function(item) {
+            return item.fileName == point.fileName && item.line == point.line ;
         });
-        this.trigger("breakpoint-removed", point);        
+        this.trigger("breakpoint-removed", point);
     };    
 
     DebugManager.prototype.publishBreakPoints = function(){

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './expression', './function-invocation'], function (_, Expression, FunctionInvocation) {
+define(['lodash', './expression'], function (_, Expression) {
 
     /**
      * Constructor for FunctionInvocationExpression
@@ -25,7 +25,10 @@ define(['lodash', './expression', './function-invocation'], function (_, Express
      */
     var FunctionInvocationExpression = function (args) {
         Expression.call(this, 'FunctionInvocationExpression');
-        this._functionName = _.get(args, 'functionName', 'newFunction');
+        this._packageName = _.get(args, 'packageName', '');
+        this._functionName = _.get(args, 'functionName', 'callFunction');
+        this._params = _.get(args, 'params', []);
+
         //create the default expression for action invocation
         this.setExpression(this.generateExpression());
     };
@@ -41,32 +44,69 @@ define(['lodash', './expression', './function-invocation'], function (_, Express
         return this._functionName;
     };
 
+    FunctionInvocationExpression.prototype.setPackageName = function (packageName, options) {
+        this.setAttribute('_packageName', packageName, options);
+    };
+
+    FunctionInvocationExpression.prototype.getPackageName = function () {
+        return this._packageName;
+    };
+
+    FunctionInvocationExpression.prototype.setParams = function (params, options) {
+        this.setAttribute('_params', params, options);
+    };
+
+    FunctionInvocationExpression.prototype.getParams = function () {
+        var params;
+        if(!_.isUndefined(this._params)) {
+            params = this._params.split(',');
+            return params;
+        }
+        else params = "";
+        return params;
+    };
+
+    FunctionInvocationExpression.prototype.setFunctionalExpression = function(expression, options){
+        if(!_.isNil(expression) && expression !== "") {
+            var splittedText = expression.split("(",1)[0].split(":", 2);
+
+            if(splittedText.length == 2){
+                this.setPackageName(splittedText[0], options);
+                this.setFunctionName(splittedText[1]);
+            }else{
+                this.setPackageName("", options);
+                this.setFunctionName(splittedText[0]);
+            }
+
+            var params = expression.slice(((expression.indexOf(this._functionName) + 1)
+            + this._functionName.split("(", 1)[0].length), (expression.length - 1));
+
+            this.setParams(params, options);
+        }
+    };
+
+    FunctionInvocationExpression.prototype.getFunctionalExpression = function(){
+        var text = "";
+        if (!_.isNil(this._packageName) && this._packageName !== "") {
+            text += this._packageName + ":";
+        }
+        text += this._functionName + '('+ (this._params? this._params:'') +')';
+        return text;
+    };
+
     /**
      * Creating the function invocation statement which invoked by the parsed code.
      * @param {Object} jsonNode - A node explaining the structure of a function invocation.
      * @param {string} jsonNode.type - The type of this current node. The value would be
      * "function_invocation_expression";
-     * @param {string} jsonNode.function_name - The body of the function information. Example : "system:println".
+     * @param {string} jsonNode.package_name - The package name of the function being invoked. Example : "system".
+     * @param {string} jsonNode.function_name - The body of the function information. Example : "println".
      * @param {Object[]} jsonNode.children - The arguments of the function invocation.
      */
     FunctionInvocationExpression.prototype.initFromJson = function (jsonNode) {
-        var functionNameSplit = jsonNode.function_name.split(":");
+        this.setPackageName(jsonNode.package_name, {doSilently: true});
         this.setFunctionName(jsonNode.function_name, {doSilently: true});
-        var argsString = this._generateArgsString(jsonNode);
-
-        // TODO : need to remove following if/else by delegating this logic to parent(FunctionInvocation)
-        if( this.getParent() instanceof FunctionInvocation){
-            if(functionNameSplit.length < 2){
-                //there is only a function name
-                this.getParent().setFunctionName(functionNameSplit[0], {doSilently: true});
-            } else {
-                this.getParent().setFunctionName(functionNameSplit[1], {doSilently: true});
-                this.getParent().setPackageName(functionNameSplit[0], {doSilently: true});
-            }
-            this.getParent().setParams(argsString, {doSilently: true});
-        }else{
-            this.setExpression(jsonNode.function_name + '(' + argsString +')', {doSilently: true});
-        }
+        this.setParams(this._generateArgsString(jsonNode),  {doSilently: true});
     };
 
     /**
