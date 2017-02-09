@@ -1,0 +1,116 @@
+.debugger-container {
+    color: #dedede;
+}
+
+.debugger-container .panel-heading {
+    padding: 2px 1px;
+    background: #333;
+    border-bottom: 1px solid #e4e4e4;
+}
+
+.debugger-container .panel-heading a {
+    color: #dadada;
+}
+
+/*TODO remove this when feature is done*/
+.left-tool-bar .debugger-activate-btn, .left-tool-bar .debugger-activate-btn i{
+    display: none;
+}
+
+.ace_gutter-cell.ace_breakpoint{ 
+    background: rgba(255, 181, 163, 0.2);
+    background-image: url(../images/debug-point.svg);
+    background-size: 10px 10px; 
+    background-repeat: no-repeat;  
+    background-position: 5 center; 
+}
+
+.debug-point {
+    background: rgba(255, 181, 163, 0.2);
+    position: absolute;
+    width: 100% !important;
+    left: 0 !important;
+}
+
+.debug-point-hit {
+    background: rgba(0, 47, 124, 0.3);
+    position: absolute;
+    width: 100% !important;
+    left: 0 !important;    
+}
+
+.debug-connect-button {
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.debugger-container .btn-group button{
+    background-color: #333;
+    color: white;
+}
+
+.btn-debug-action , .btn-debug-activate{
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    border-bottom: 1px #232323 solid !important;
+    margin:0px !important;
+}
+
+.debug-center-btn{
+    border-left: 1px #232323 solid !important;
+    border-right: 1px #232323 solid !important;
+}
+
+.btn-debug-action:hover , .btn-debug-activate:hover{
+    background: #232323 !important;
+    transition: all 250ms ease 0s;
+}
+
+.debug-error{
+    color: #ff3333;
+}
+
+.debug .has-error .input-group-addon{
+    color:black !important;
+}
+
+table.debug-frames {
+    margin-bottom: 0px !important;
+    border-top: 0px !important;
+}
+
+.debug-frames td{
+    color:white;
+    border-top: none; 
+    border-bottom: 1px #232323 solid !important;
+    border-top: 0px !important;
+}
+
+.debug-frames td a{
+    color:white;
+}
+
+.debug-panel-header{
+    padding: 5px;
+    background: #232323;
+}
+
+.debug-panel-header a{
+    padding:5px;
+    color: #FFF;
+    font-weight: bold;
+}
+
+.debug-frame-pkg-name{
+    display: block;
+    color:#00bbea;
+    font-size: 0.75em;
+}
+
+.debug-variables-container{
+    color: white;
+}
+
+#debug-v-tree ul li{
+    color: white;
+}

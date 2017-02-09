@@ -1,0 +1,230 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<title>log4javascript quick start tutorial</title>
+		<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+		<meta name="author" content="Tim Down - tim@log4javascript.org" />
+		<meta name="description" content="log4javascript, a logging framework for JavaScript based on log4j" />
+		<meta name="robots" content="all" />
+		<link rel="stylesheet" type="text/css" media="screen,print" href="../main.css" title="Default" />
+	</head>
+	<body>
+		<div id="container" class="nonav">
+			<div id="header">
+				<h1><a href="index.html">log4javascript</a></h1>
+			</div>
+			<div id="content">
+				<div id="nav">
+					<a class="navitem" href="../index.html">home</a>
+					| <a class="navitem" href="http://sourceforge.net/projects/log4javascript" target="_blank" title="Download (opens in new window)">download</a>
+					| <a class="navitem" href="index.html">docs</a>
+					| <span class="navitem">quick start</span>
+					| <a class="navitem" href="../demos/index.html">demos</a>
+					| <a class="navitem" href="http://log4javascript.org" target="_blank">website</a>
+					| <a class="navitem" href="http://www.timdown.co.uk" target="_blank">timdown.co.uk</a>
+				</div>
+				<h1>log4javascript quick start tutorial</h1>
+				<h2>Three step guide</h2>
+				<ol>
+					<li>
+						<h3>Download the code</h3>
+						<p>
+							Unzip the distribution and copy log4javascript.js into the desired
+							location. No other files are necessary.
+						</p>
+					</li>
+					<li>
+						<h3>Initialize log4javascript in your web page</h3>
+						<p>
+							Include log4javascript.js in your page using the code below. This
+							code assumes log4javascript is stored in the same directory as
+							your web page.
+						</p>
+						<pre class="code">
+&lt;script type="text/javascript" src="log4javascript.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript"&gt;
+	var log = log4javascript.getDefaultLogger();
+&lt;/script&gt;
+</pre>
+						<p>
+							The default logger uses a <code><a href="manual.html#popupappender">PopUpAppender</a></code>
+							which opens a pop-up window. By default, this window will open when the first
+							log message is written. For this to work, you will need to disable any pop-up blockers
+							you may have.
+						</p>
+					</li>
+					<li>
+						<h3>Include logging statements in your code</h3>
+						<p>
+							You have six logging methods at your disposal, depending on the severity
+							of the message you wish to log. By default, all messages are logged
+							in the pop-up window. The logging methods are:
+						</p>
+						<ul>
+							<li><code>log.trace(<em>message</em>[, <em>message2</em>, ... ][, <em>exception</em>])</code></li>
+							<li><code>log.debug(<em>message</em>[, <em>message2</em>, ... ][, <em>exception</em>])</code></li>
+							<li><code>log.info(<em>message</em>[, <em>message2</em>, ... ][, <em>exception</em>])</code></li>
+							<li><code>log.warn(<em>message</em>[, <em>message2</em>, ... ][, <em>exception</em>])</code></li>
+							<li><code>log.error(<em>message</em>[, <em>message2</em>, ... ][, <em>exception</em>])</code></li>
+							<li><code>log.fatal(<em>message</em>[, <em>message2</em>, ... ][, <em>exception</em>])</code></li>
+						</ul>
+						<p>
+							And that's it, log away. Below are some examples of common types of logging.
+						</p>
+					</li>
+				</ol>
+				<h2>Logging examples</h2>
+				<ol>
+					<li>
+						<h3>A simple logging message string</h3>
+						<pre class="code">
+	log.info("Hello world");
+</pre>
+displays
+						<pre class="console info">
+19:52:03 INFO  - Hello world
+</pre>
+					</li>
+					<li>
+						<h3>Logging an error with a message</h3>
+						<pre class="code">
+	try {
+		throw new Error("Faking something going wrong!");
+	} catch (e) {
+		log.error("An error occurred", e);
+	}
+</pre>
+displays
+						<pre class="console error">
+19:52:32 ERROR - An error occurred
+Exception: Faking something going wrong! on line number 80 in file basic.html
+</pre>
+					</li>
+					<li>
+						<h3>Logging multiple messages with one logging call</h3>
+						<pre class="code">
+	var a = "Hello";
+	var b = 3;
+	log.debug(a, b);
+</pre>
+displays
+						<pre class="console debug">
+19:53:05 DEBUG  - Hello 3
+</pre>
+					</li>
+					<li>
+						<h3>Logging an object</h3>
+						<p>Logging an object:</p>
+						<pre class="code">
+	var obj = new Object();
+	obj.name = "Octopus";
+	obj.tentacles = 8;
+	log.info(obj);
+</pre>
+displays
+						<pre class="console info">
+19:53:17 INFO  - {
+	name: Octopus,
+	tentacles: 8
+}
+</pre>
+					</li>
+				</ol>
+				<h2>Tweaking the default logger</h2>
+				<p>
+					The default logger is fine as a starting point, but what if you want the default logger
+					with a few different options (say, bringing the pop-up to the front whenever a log message is
+					logged, or having new log messages appear at the top of the pop-up rather than the bottom)?
+				</p>
+				<p>
+					In this case, you will need to create a new logger, then create a
+					<code><a href="manual.html#popupappender">PopUpAppender</a></code>, set options
+					on it, and add it to the logger:
+				</p>
+				<pre class="code">
+&lt;script type="text/javascript" src="log4javascript.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript"&gt;
+	// Create the logger
+	var log = log4javascript.getLogger();
+
+	// Create a PopUpAppender with default options
+	var popUpAppender = new log4javascript.PopUpAppender();
+
+	// Change the desired configuration options
+	popUpAppender.setFocusPopUp(true);
+	popUpAppender.setNewestMessageAtTop(true);
+
+	// Add the appender to the logger
+	log.addAppender(popUpAppender);
+
+	// Test the logger
+	log.debug("Hello world!");
+&lt;/script&gt;
+</pre>
+				<p>
+					<a href="../examples/example_quickstart_1.html" title="View example (opens in new window)"
+						target="_blank">See this example in action</a> (opens in new window)
+				</p>
+				<p>
+					Refer to the manual for more information about
+					<a href="manual.html#configuration">configuring appenders</a> and more
+					details about <code><a href="manual.html#popupappender">PopUpAppender</a></code>.
+				</p>
+				<h2>Sending log messages to the server</h2>
+				<p>
+					For this you will need to use an <code><a href="manual.html#ajaxappender">AjaxAppender</a></code>
+					as follows:
+				</p>
+				<pre class="code">
+	var ajaxAppender = new log4javascript.AjaxAppender(<em>URL</em>);
+	log.addAppender(ajaxAppender);
+</pre>
+				<p>
+					Now your log messages will appear in the pop-up window and be sent
+					asynchronously to the URL you specify in the form of HTTP post parameters.
+					No server-side code to process these requests is provided with log4javascript.
+				</p>
+				<p>
+					See <code><a href="manual.html#ajaxappender">AjaxAppender</a></code> for more details
+					on formatting log messages.
+				</p>
+				<h2>Changing the format of log messages</h2>
+				<p>
+					Using a <code><a href="manual.html#layouts">Layout</a></code>, you can
+					format log messages however you like. For example:
+				</p>
+				<pre class="code">
+	var log = log4javascript.getLogger("mylogger");
+	var popUpAppender = new log4javascript.PopUpAppender();
+	var layout = new log4javascript.PatternLayout("[%-5p] %m");
+	popUpAppender.setLayout(layout);
+</pre>
+				<p>A call to</p>
+				<pre class="code">
+	log.debug("Hello world");
+</pre>
+				<p>will now result in output in the pop-up window of </p>
+				<pre class="console debug">
+[DEBUG] Hello world
+</pre>
+				<p>
+					See <code><a href="manual.html#patternlayout">PatternLayout</a></code> for more details
+					on formatting log messages.
+				</p>
+			</div>
+			<div id="footer">
+				<span class="externallinkinfo">
+					<strong>NB.</strong> All external links open in a new window.
+				</span>
+				Written by Tim Down. <a href="mailto:tim@log4javascript.org">tim@log4javascript.org</a>
+				<br />
+				log4javascript is distributed under the <a href="http://www.apache.org/licenses/LICENSE-2.0.html"
+					title="Apache License, Version 2.0 (opens in new window)" target="_blank">Apache License,
+					Version 2.0</a>
+
+			</div>
+		</div>
+
+	</body>
+</html>

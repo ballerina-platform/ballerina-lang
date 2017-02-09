@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ ~   Copyright (c) WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ ~
+ ~   Licensed under the Apache License, Version 2.0 (the "License");
+ ~   you may not use this file except in compliance with the License.
+ ~   You may obtain a copy of the License at
+ ~
+ ~        http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~   Unless required by applicable law or agreed to in writing, software
+ ~   distributed under the License is distributed on an "AS IS" BASIS,
+ ~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~   See the License for the specific language governing permissions and
+ ~   limitations under the License.
+-->
+
+<svg version="1.1" id="resource" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
+<path d="M0.0118259,8.3651476l1.4431547,0.1658287c0.121473,0.4616089,0.3037126,0.9022913,0.5351267,1.3161898
+	l-0.910771,1.1462135l1.8652273,1.8745012l1.1390746-0.8908215c0.43507,0.255209,0.8999114,0.4496517,1.3875728,0.5814962
+	l0.1649132,1.4414463h2.6364551l0.1868296-1.440958c0.5001678-0.1335526,0.9761753-0.3367805,1.4217997-0.6004705
+	l1.180562,0.9074774l1.8442402-1.8951235l-0.9379826-1.1678104c0.2308655-0.4172544,0.4059668-0.8611708,0.5229864-1.3237553
+	l1.5089836-0.1802263l-0.0054903-2.6443996l-1.5506554-0.1918793c-0.1239748-0.4258575-0.2959042-0.8356676-0.5148115-1.2205257
+	l0.9788008-1.2435253L11.034132,1.1329061L9.8038464,2.10414C9.4055662,1.8751656,8.9813566,1.6959766,8.54037,1.5691344
+	L8.3534927-0.0000072L5.7091541,0.0055454L5.522583,1.5343583C5.0461478,1.6582108,4.5916171,1.8420978,4.1631365,2.0837014
+	L2.9458449,1.13071L1.0848873,3.0094211l0.9420705,1.1889207c-0.2428844,0.4207935-0.4328109,0.8686748-0.5587994,1.338459
+	L0.0118259,5.725018V8.3651476z M6.9964862,4.2461853c1.5193391,0,2.7510362,1.2316961,2.7510362,2.7510347
+	S8.5158253,9.7482576,6.9964862,9.7482576S4.24545,8.5165606,4.24545,6.99722S5.4771461,4.2461853,6.9964862,4.2461853z"/>
+</svg>

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<title>log4javascript example from  manual</title>
+		<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+		<meta name="author" content="Tim Down - tim@log4javascript.org" />
+		<meta name="description" content="log4javascript, a logging framework for JavaScript based on log4j" />
+		<meta name="robots" content="all" />
+		<script type="text/javascript" src="../js/log4javascript.js"></script>
+		<script type="text/javascript">
+			//<![CDATA[
+			var log = log4javascript.getLogger();
+			var popUpAppender = new log4javascript.PopUpAppender();
+			var popUpLayout = new log4javascript.PatternLayout("%d{HH:mm:ss} %-5p - %m%n");
+			popUpAppender.setLayout(popUpLayout);
+			log.addAppender(popUpAppender);
+			var ajaxAppender = new log4javascript.AjaxAppender("myloggingservlet.do");
+			ajaxAppender.setThreshold(log4javascript.Level.ERROR);
+			log.addAppender(ajaxAppender);
+			log.debug("Debugging message (appears in pop-up)");
+			log.error("Error message (appears in pop-up and in server log)");
+			//]]>
+		</script>
+	</head>
+	<body>
+		<h1>log4javascript example from  manual</h1>
+
+
+	</body>
+</html>
