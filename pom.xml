@@ -407,10 +407,10 @@
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.pax.version>5.2.0-m2</carbon.kernel.pax.version>
 
-        <carbon.transport.version>4.1.0</carbon.transport.version>
+        <carbon.transport.version>4.1.1-SNAPSHOT</carbon.transport.version>
         <carbon.transport.package.import.version.range>[4.0.0, 5.0.0)</carbon.transport.package.import.version.range>
 
-        <carbon.messaging.version>2.1.0</carbon.messaging.version>
+        <carbon.messaging.version>2.1.1-SNAPSHOT</carbon.messaging.version>
         <carbon.messaging.package.import.version.range>[2.0.0, 3.0.0)</carbon.messaging.package.import.version.range>
 
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
@@ -463,7 +463,7 @@
         
         <native.constructs.provider.package>org.wso2.ballerina.nativeimpl</native.constructs.provider.package>
         <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
-
+        <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
     </properties>
 
     <modules>
@@ -473,7 +473,7 @@
         <module>modules/annotation-processor</module>
         <!--<module>modules/gson-fragment</module>-->
         <!--<module>modules/features</module>-->
-        <!--<module>modules/editor/services/workspace-service</module>-->
+        <module>modules/editor/services/workspace-service</module>
         <module>modules/distribution</module>
         <!--<module>modules/tests</module>-->
         <module>modules/tests/test-integration</module>

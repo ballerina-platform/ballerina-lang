@@ -27,7 +27,6 @@ function main (string[] args) {
         string accessTokenSecret = args[3];
 
         message request = {};
-        message:addHeader(request, "User-Agent", "Ballerina/0.8.0");
 
         message mediumResponse = http:HTTPConnector.get(mediumEP, "/feed/@wso2", request);
 

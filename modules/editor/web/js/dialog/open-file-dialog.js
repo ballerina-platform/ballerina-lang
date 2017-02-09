@@ -74,12 +74,12 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                     "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
                     "<span aria-hidden='true'>&times;</span>" +
                     "</button>" +
-                    "<h4 class='modal-title file-dialog-title'>Ballerina File Open Wizard</h4>" +
+                    "<h4 class='modal-title file-dialog-title'>open file</h4>" +
                     "<hr class='style1'>"+
                     "</div>" +
                     "<div class='modal-body'>" +
                     "<div class='container-fluid'>" +
-                    "<form class='form-horizontal'>" +
+                    "<form class='form-horizontal' onsubmit='return false'>" +
                     "<div class='form-group'>" +
                     "<label for='location' class='col-sm-2 file-dialog-label'>File Name :</label>" +
                     "<div class='col-sm-9'>" +
@@ -242,6 +242,7 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                                     isPersisted: true,
                                     isDirty: false
                                 });
+                                openConfigModal.modal('hide');
                                 app.commandManager.dispatch("create-new-tab", {tabOptions: {file: file}});
                             } else {
                                 openFileWizardError.text(data.Error);

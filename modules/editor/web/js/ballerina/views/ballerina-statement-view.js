@@ -245,7 +245,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
 
                     // Div which contains the form for the properties.
                     var propertyPaneBody = $("<div/>", {
-                        "class": viewOptions.propertyForm.body.class /*+ " nano-content"*/
+                        "class": viewOptions.propertyForm.body.class
                     }).appendTo(propertyPaneWrapper);
 
                 expressionEditor.createEditor(propertyPaneBody,
@@ -294,22 +294,6 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
     BallerinaStatementView.prototype.repositionStatement = function (options) {
         this.getBoundingBox().y(this.getBoundingBox().y() + options.dy);
         this.getStatementGroup().attr('transform', ('translate(0,' + options.dy + ')'));
-    };
-
-    BallerinaStatementView.prototype.childViewRemovedCallback = function (child) {
-        log.debug("[Eventing] Child element view removed. ");
-        //TODO: remove canvas container for each delete click
-
-        var ballerinaFileEditor = this.getDiagramRenderingContext().ballerinaFileEditor;
-
-        $(ballerinaFileEditor._$canvasContainer)[0].remove();
-
-        var self = ballerinaFileEditor;
-        self.reDraw({
-            model: self._model,
-            container: self._container,
-            viewOptions: self._viewOptions
-        });
     };
 
     /**

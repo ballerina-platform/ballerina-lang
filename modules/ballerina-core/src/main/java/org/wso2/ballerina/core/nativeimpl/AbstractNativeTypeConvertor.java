@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerina.core.nativeimpl;
 
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.ConstDef;
@@ -110,7 +111,11 @@ public abstract class AbstractNativeTypeConvertor implements NativeUnit, TypeCon
      */
     public BValue getArgument(Context context, int index) {
         if (index > -1 && index < parameterTypes.length) {
-            return context.getControlStack().getCurrentFrame().values[index];
+            BValue result = context.getControlStack().getCurrentFrame().values[index];
+            if (result == null) {
+                throw new BallerinaException("argument " + index + " is null");
+            }
+            return result;
         }
         throw new ArgumentOutOfRangeException(index);
     }

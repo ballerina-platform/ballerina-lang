@@ -17,13 +17,15 @@
  */
 
 define(['./save-to-file-dialog', './open-file-dialog', './new-item-dialog', './delete-item-dialog',
-        './folder-open-dialog'],
-    function (SaveToFileDialog, OpenFileDialog, NewItemDialog, DeleteItemDialog, FolderOpenDialog) {
+        './folder-open-dialog', './close-confirm-dialog'],
+    function (SaveToFileDialog, OpenFileDialog, NewItemDialog, DeleteItemDialog,
+              FolderOpenDialog, CloseConfirmDialog) {
     return {
         save_to_file_dialog: SaveToFileDialog,
         FolderOpenDialog: FolderOpenDialog,
         NewItemDialog: NewItemDialog,
         DeleteItemDialog: DeleteItemDialog,
-        open_file_dialog: OpenFileDialog
+        open_file_dialog: OpenFileDialog,
+        CloseConfirmDialog: CloseConfirmDialog,
     };
 });
