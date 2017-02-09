@@ -41,7 +41,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
 
 
         ActionInvocationStatementView.prototype.init = function(){
-            this.getModel().on("drawConnectionForAction",this.drawActionConnections,this);
+            this.getModel().on("drawConnectionForAction", this.drawActionConnections, this);
             Object.getPrototypeOf(this.constructor.prototype).init.call(this);
         };
         ActionInvocationStatementView.prototype.setDiagramRenderingContext = function(context){
@@ -56,8 +56,9 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             // Action invocation model is the child of the right operand
             var actionInvocationModel = this._model.getChildren()[1].getChildren()[0];
             log.debug("Drawing connections for http connector actions");
+
             // TODO : Please alter this logic
-            if(!_.isNil(this.getModel().getConnector())) {
+            if(!_.isNil(this.getModel().getChildren()[1].getChildren()[0].getConnector())) {
                 var connector = this.getDiagramRenderingContext().getViewModelMap()[this.messageManager.getActivatedDropTarget().id];
                 actionInvocationModel.setConnector(this.messageManager.getActivatedDropTarget());
                 this.renderArrows(this.getDiagramRenderingContext());
@@ -142,26 +143,26 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 var y =  parseFloat(self.processorConnectPoint.attr('cy'));
                 var sourcePoint = self.toGlobalCoordinates(new Point(x, y));
 
-                self.messageManager.startDrawMessage(actionInvocationModel, sourcePoint);
+                self.messageManager.startDrawMessage(self, actionInvocationModel, sourcePoint);
                 self.messageManager.setTypeBeingDragged(true);
             });
             this.processorConnectPoint.on("mouseover", function () {
-                self.processorConnectorPoint
+                self.processorConnectPoint
                     .style("fill", "#444")
                     .style("fill-opacity", 0.5)
                     .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
             });
             this.processorConnectPoint.on("mouseout", function () {
-                self.processorConnectorPoint.style("fill-opacity", 0.01);
+                self.processorConnectPoint.style("fill-opacity", 0.01);
             });
 
             this.getBoundingBox().on('top-edge-moved', function(dy){
-                self.processorConnectorPoint.attr('cy',  parseFloat(self.processorConnectorPoint.attr('cy')) + dy);
+                self.processorConnectPoint.attr('cy',  parseFloat(self.processorConnectPoint.attr('cy')) + dy);
             });
         };
 
-        ActionInvocationStatementView.prototype.renderArrows = function (context) {
-            this.setDiagramRenderingContext(context);
+        ActionInvocationStatementView.prototype.renderArrows = function (renderingContext) {
+            this.setDiagramRenderingContext(renderingContext);
             var actionInvocationModel = this._model.getChildren()[1].getChildren()[0];
             var connectorModel = actionInvocationModel.getConnector();
 
@@ -192,75 +193,106 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 this._backArrowHead = D3Utils.outputTriangle(Math.round(startPoint.x()), Math.round(startPoint.y()) + 8, this._arrowGroup).classed("action-arrow", true);
                 this._backArrowHead.attr("transform", "translate(0,0)");
 
+                this.renderProcessorConnectEndPoint(renderingContext);
+
+                this.getBoundingBox().on('top-edge-moved', function (offset) {
+                    var currentY1ProcessorConnector = this._processorConnector.attr('y1');
+                    var currentY1ProcessorConnector2 = this._processorConnector2.attr('y1');
+                    var currentY2ProcessorConnector = this._processorConnector.attr('y2');
+                    var currentY2ProcessorConnector2 = this._processorConnector2.attr('y2');
+                    var forwardArrowTransformX = this._forwardArrowHead.node().transform.baseVal.consolidate().matrix.e;
+                    var forwardArrowTransformY = this._forwardArrowHead.node().transform.baseVal.consolidate().matrix.f;
+                    var backwardArrowTransformX = this._backArrowHead.node().transform.baseVal.consolidate().matrix.e;
+                    var backwardArrowTransformY = this._backArrowHead.node().transform.baseVal.consolidate().matrix.f;
+
+                    this._processorConnector.attr('y1', parseFloat(currentY1ProcessorConnector) + offset);
+                    this._processorConnector2.attr('y1', parseFloat(currentY1ProcessorConnector2) + offset);
+                    this._processorConnector.attr('y2', parseFloat(currentY2ProcessorConnector) + offset);
+                    this._processorConnector2.attr('y2', parseFloat(currentY2ProcessorConnector2) + offset);
+                    this._forwardArrowHead.node().transform.baseVal.getItem(0).setTranslate(forwardArrowTransformX + 0, forwardArrowTransformY + offset);
+                    this._backArrowHead.node().transform.baseVal.getItem(0).setTranslate(backwardArrowTransformX + 0, backwardArrowTransformY + offset);
+
+                    d3.select(this.processorConnectPoint.node()).attr("transform", "translate(" + backwardArrowTransformX + "," + (backwardArrowTransformY + offset) + ")");
+                    d3.select(this.processorConnectEndPoint.node()).attr("transform", "translate(" + forwardArrowTransformX + "," + (forwardArrowTransformY + offset) + ")");
+                }, this);
+
                 this.getBoundingBox().on('right-edge-moved', function (offset) {
                     var currentX1ProcessorConnector = this._processorConnector.attr('x1');
                     var currentX1ProcessorConnector2 = this._processorConnector2.attr('x1');
-                    this._processorConnector.attr('x1', parseFloat(currentX1ProcessorConnector) + offset);
-                    this._processorConnector2.attr('x1', parseFloat(currentX1ProcessorConnector2) + offset);
-
                     var backwardArrowTransformX = this._backArrowHead.node().transform.baseVal.consolidate().matrix.e;
                     var backwardArrowTransformY = this._backArrowHead.node().transform.baseVal.consolidate().matrix.f;
+
+                    this._processorConnector.attr('x1', parseFloat(currentX1ProcessorConnector) + offset);
+                    this._processorConnector2.attr('x1', parseFloat(currentX1ProcessorConnector2) + offset);
                     this._backArrowHead.node().transform.baseVal.getItem(0).setTranslate(backwardArrowTransformX + offset, backwardArrowTransformY + 0);
                 }, this);
 
                 this.connector.getBoundingBox().on('moved', function (offset) {
                     var currentX2ProcessorConnector = this._processorConnector.attr('x2');
                     var currentX2ProcessorConnector2 = this._processorConnector2.attr('x2');
-                    this._processorConnector.attr('x2', parseFloat(currentX2ProcessorConnector) + offset.dx);
-                    this._processorConnector2.attr('x2', parseFloat(currentX2ProcessorConnector2) + offset.dx);
-
                     var forwardArrowTransformX = this._forwardArrowHead.node().transform.baseVal.consolidate().matrix.e;
                     var forwardArrowTransformY = this._forwardArrowHead.node().transform.baseVal.consolidate().matrix.f;
+
+                    this._processorConnector.attr('x2', parseFloat(currentX2ProcessorConnector) + offset.dx);
+                    this._processorConnector2.attr('x2', parseFloat(currentX2ProcessorConnector2) + offset.dx);
                     this._forwardArrowHead.node().transform.baseVal.getItem(0).setTranslate(forwardArrowTransformX + offset.dx, forwardArrowTransformY + offset.dy);
+                    d3.select(this.processorConnectEndPoint.node()).attr("transform", "translate(" + (forwardArrowTransformX + offset.dx) + "," + (forwardArrowTransformY + offset.dy) + ")");
                 }, this);
 
                 this.processorConnectPoint.style("display", "none");
-
-                var arrowHeadEnd = D3Utils.circle(Math.round(connectorCenterPointX) - 5, Math.round(startPoint.y()), 10, parent);
-                arrowHeadEnd
-                    .attr("fill-opacity", 0.01)
-                    .style("fill", "#444");
-
-                this.arrowHeadEndPoint = arrowHeadEnd;
 
                 var self = this;
 
                 connectorModel.addConnectorActionReference(this);
 
-                this.arrowHeadEndPoint.on("mousedown", function () {
+                this.processorConnectEndPoint.on("mousedown", function () {
                     d3.event.preventDefault();
                     d3.event.stopPropagation();
 
-                    var x =  parseFloat(self.arrowHeadEndPoint.attr('cx'));
-                    var y =  parseFloat(self.arrowHeadEndPoint.attr('cy'));
+                    var x =  parseFloat(self.processorConnectEndPoint.attr('cx'));
+                    var y =  parseFloat(self.processorConnectEndPoint.attr('cy'));
                     var x1 =  parseFloat(self._processorConnector.attr('x1'));
                     var y1 =  parseFloat(self._processorConnector.attr('y1'));
 
                     var sourcePoint = self.toGlobalCoordinates(new Point(x, y));
                     var connectorPoint = self.toGlobalCoordinates(new Point(x1, y1));
-                    
+
                     connectorModel.removeConnectorActionReference(self.getModel().id);
 
-                    self.messageManager.startDrawMessage(actionInvocationModel, sourcePoint, connectorPoint);
+                    self.messageManager.startDrawMessage(self, actionInvocationModel, sourcePoint, connectorPoint);
                     self.messageManager.setTypeBeingDragged(true);
 
                     self._forwardArrowHead.remove();
                     self._processorConnector.remove();
                     self._processorConnector2.remove();
                     self._backArrowHead.remove();
-                    self.arrowHeadEndPoint.remove();
+                    self.processorConnectEndPoint.remove();
                 });
 
-                this.arrowHeadEndPoint.on("mouseover", function () {
-                    arrowHeadEnd
+                this.processorConnectEndPoint.on("mouseover", function () {
+                    self.processorConnectEndPoint
                         .style("fill-opacity", 0.5)
                         .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
                 });
 
-                this.arrowHeadEndPoint.on("mouseout", function () {
-                    arrowHeadEnd.style("fill-opacity", 0.01);
+                this.processorConnectEndPoint.on("mouseout", function () {
+                    self.processorConnectEndPoint.style("fill-opacity", 0.01);
                 });
             }
+        };
+
+        ActionInvocationStatementView.prototype.renderProcessorConnectEndPoint = function (renderingContext) {
+            var boundingBox = this.getBoundingBox();
+            var width = boundingBox.w();
+            var height = boundingBox.h();
+            var x = boundingBox.getRight();
+            var y = boundingBox.getTop();
+
+            var processorConnectEndPoint = D3Utils.circle(parseFloat(this._processorConnector2.attr('x2')) - 3, ((y + height / 2)), 10, this.getStatementGroup());
+            processorConnectEndPoint
+                .attr("fill-opacity", 0.01)
+                .style("fill", "#444");
+            this.processorConnectEndPoint = processorConnectEndPoint;
         };
 
         ActionInvocationStatementView.prototype.renderProcessorConnectPoint = function (renderingContext) {
