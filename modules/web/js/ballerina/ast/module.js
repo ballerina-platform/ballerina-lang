@@ -26,7 +26,7 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
         './action-invocation-expression', './ballerina-ast-deserializer', './function-invocation-expression',
         './left-operand-expression', './right-operand-expression', './connector-action', './struct-definition',
         './action-invocation-statement', './variable-definition-statement','./type-struct-definition', './resource-parameter',
-        './return-type','./worker-invoke'],
+        './return-type','./worker-invoke','./block-statement'],
     function (BallerinaASTFactory, BallerinaASTRoot, ConditionalStatement, ConnectorDeclaration, ConnectorDefinition,
               ConstantDefinition, Expression, FunctionDefinition, IfElseStatement, IfStatement, ElseStatement,
               ElseIfStatement, TryCatchStatement, TryStatement, CatchStatement, ASTNode, ReplyStatement,
@@ -36,7 +36,7 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
               FunctionInvocation, ArithmeticExpression, LogicalExpression, ActionInvocationExpression,
               BallerinaASTDeserializer, FunctionInvocationExpression, LeftOperandExpression, RightOperandExpression,
               ConnectorAction, StructDefinition, ActionInvocationStatement, VariableDefinitionStatement,TypeStructDefinition,
-	      ResourceParameter,ReturnType,WorkerInvoke) {
+	      ResourceParameter,ReturnType,WorkerInvoke,BlockStatement) {
 
         return  {
             BallerinaASTFactory: BallerinaASTFactory,
@@ -86,7 +86,8 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
             TypeStructDefinition : TypeStructDefinition,
             ResourceParameter: ResourceParameter,
             ReturnType: ReturnType,
-            WorkerInvoke: WorkerInvoke
+            WorkerInvoke: WorkerInvoke,
+            BlockStatement: BlockStatement
         }
     });
 

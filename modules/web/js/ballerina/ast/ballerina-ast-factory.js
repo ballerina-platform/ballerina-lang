@@ -31,7 +31,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
         './if-condition', './array-map-access-expression', './map-init-expression', './key-value-expression', './binary-expression', './connector-action', './struct-definition',
         './constant-definition', './variable-definition-statement','./type-struct-definition','./struct-type','./symbol-name','./struct-field-access-expression'
-        ,'./field-expression','./type-casting-expression', './worker-invoke'],
+        ,'./field-expression','./type-casting-expression', './worker-invoke','./block-statement'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -41,7 +41,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
               thenBody, ifCondition, arrayMapAccessExpression, mapInitExpression, keyValueExpression, binaryExpression, connectorAction, structDefinition,
-              constantDefinition, variableDefinitionStatement,typeStructDefinition,structType,symbolName,structFieldAccessExpression,fieldExpression,typeCastingExpression, workerInvoke) {
+              constantDefinition, variableDefinitionStatement,typeStructDefinition,structType,symbolName,structFieldAccessExpression,fieldExpression,typeCastingExpression, workerInvoke,
+              blockStatement) {
 
 
         /**
@@ -415,6 +416,14 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createLogicalExpression = function (args) {
             return new logicalExpression(args);
+        };
+
+        /**
+         * creates BlockStatement
+         * @param args
+         */
+        BallerinaASTFactory.createBlockStatement = function (args) {
+            return new blockStatement(args);
         };
 
         /**
