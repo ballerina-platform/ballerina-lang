@@ -38,7 +38,7 @@
 .struct {
     cursor: move;
     border: 1px solid gray;
-    width: 200px;
+    width: 500px;
     height: auto;
     background: #3d3d3d;
     color: #ffffff;
@@ -47,11 +47,32 @@
 .property {
     padding: 5;
     font-size: 16px;
-    border: 1px solid #D8D8D8;
     background-color: #ffffff;
     cursor: pointer;
+    color: black;
 }
 
 svg.plumbConnect path {
     stroke:#3d3d3d;
+}
+
+.jstree-default .jstree-last {
+    background: #ffffff;
+}
+
+.typeMapperList {
+    display: none;
+}
+
+.tree-container{
+    background: #ffffff;
+}
+
+.jstree-default .jstree-hovered {
+    color : #000000;
+}
+
+.jstree-default .jstree-clicked {
+    background : #ffffff;
+    color: #000000;
 }
