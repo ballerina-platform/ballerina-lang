@@ -159,12 +159,6 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
             ballerinaAstRoot.addChild(packageDefinition);
             ballerinaAstRoot.setPackageDefinition(packageDefinition);
 
-            //import declarations
-            var importDeclaration_langSystem = BallerinaASTFactory.createImportDeclaration();
-            importDeclaration_langSystem.setPackageName("ballerina.lang.system");
-            importDeclaration_langSystem.setParent(ballerinaAstRoot);
-            ballerinaAstRoot.addImport(importDeclaration_langSystem);
-
             return ballerinaAstRoot;
         },
 

@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerina.core.semantics;
 
-import org.wso2.ballerina.core.exception.LinkerException;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
 import org.wso2.ballerina.core.interpreter.ConstantLocation;
@@ -375,13 +374,17 @@ public class SemanticAnalyzer implements NodeVisitor {
         openScope(action);
         currentCallableUnit = action;
 
-        // Check whether the return statement is missing. Ignore if the function does not return anything.
-        // TODO Define proper error message codes
-        //checkForMissingReturnStmt(action, "missing return statement at end of action");
-
         for (ParameterDef parameterDef : action.getParameterDefs()) {
             parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
             parameterDef.accept(this);
+        }
+
+        // First parameter should be of type connector in which these actions are defined.
+        ParameterDef firstParamDef = action.getParameterDefs()[0];
+        if (firstParamDef.getType() != action.getConnectorDef()) {
+            throw new SemanticException(getNodeLocationStr(action.getNodeLocation()) +
+                    "incompatible types: expected '" + action.getConnectorDef() +
+                    "', found '" + firstParamDef.getType() + "'");
         }
 
         for (ParameterDef parameterDef : action.getReturnParameters()) {
@@ -520,6 +523,25 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         visitSingleValueExpr(rExpr);
+        BType rType = rExpr.getType();
+        if (rExpr instanceof TypeCastExpression && rType == null) {
+            rType = BTypes.resolveType(((TypeCastExpression) rExpr).getTypeName(), currentScope, null);
+        }
+
+        // TODO Remove the MAP related logic when type casting is implemented
+        if ((varBType != BTypes.typeMap) && (rType != BTypes.typeMap) &&
+                (!varBType.equals(rType))) {
+
+            TypeCastExpression newExpr = checkWideningPossible(varBType, rExpr);
+            if (newExpr != null) {
+                newExpr.accept(this);
+                varDefStmt.setRExpr(newExpr);
+            } else {
+                throw new SemanticException(getNodeLocationStr(varDefStmt.getNodeLocation()) +
+                        "incompatible types: '" + rExpr.getType() +
+                        "' cannot be converted to '" + varBType + "'");
+            }
+        }
     }
 
     @Override
@@ -838,7 +860,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         linkAction(actionIExpr);
 
         //Find the return types of this function invocation expression.
-        BType[] returnParamTypes  = actionIExpr.getCallableUnit().getReturnParamTypes();
+        BType[] returnParamTypes = actionIExpr.getCallableUnit().getReturnParamTypes();
         actionIExpr.setTypes(returnParamTypes);
     }
 
@@ -1155,9 +1177,38 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
         connectorInitExpr.setType(inheritedType);
 
-        Expression[] argExprs = connectorInitExpr.getArgExprs();
-        for (Expression argExpr : argExprs) {
+        for (Expression argExpr : connectorInitExpr.getArgExprs()) {
             visitSingleValueExpr(argExpr);
+        }
+
+        if (inheritedType instanceof AbstractNativeConnector) {
+            AbstractNativeConnector nativeConnector = (AbstractNativeConnector) inheritedType;
+            for (int i = 0; i < nativeConnector.getArgumentTypeNames().length; i++) {
+                SimpleTypeName simpleTypeName = nativeConnector.getArgumentTypeNames()[i];
+                BType argType = BTypes.resolveType(simpleTypeName, currentScope, connectorInitExpr.getNodeLocation());
+                if (argType != connectorInitExpr.getArgExprs()[i].getType()) {
+                    throw new SemanticException(getNodeLocationStr(connectorInitExpr.getNodeLocation()) +
+                            "incompatible types: expected '" + argType +
+                            "', found '" + connectorInitExpr.getArgExprs()[i].getType() + "'");
+                }
+
+            }
+            return;
+        }
+
+        Expression[] argExprs = connectorInitExpr.getArgExprs();
+        ParameterDef[] parameterDefs = ((BallerinaConnectorDef) inheritedType).getParameterDefs();
+        for (int i = 0; i < argExprs.length; i++) {
+            SimpleTypeName simpleTypeName = parameterDefs[i].getTypeName();
+            BType paramType = BTypes.resolveType(simpleTypeName, currentScope, connectorInitExpr.getNodeLocation());
+            parameterDefs[i].setType(paramType);
+
+            Expression argExpr = argExprs[i];
+            if (parameterDefs[i].getType() != argExpr.getType()) {
+                throw new SemanticException(getNodeLocationStr(connectorInitExpr.getNodeLocation()) +
+                        "incompatible types: expected '" + parameterDefs[i].getType() +
+                        "', found '" + argExpr.getType() + "'");
+            }
         }
     }
 
@@ -1835,9 +1886,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                         String funcName = (typeCastExpression.getPackageName() != null) ?
                                 typeCastExpression.getPackageName() + ":" +
                                         typeCastExpression.getName() : typeCastExpression.getName();
-                        throw new SemanticException(typeCastExpression.getNodeLocation().getFileName() + ":" +
-                                typeCastExpression.getNodeLocation().getLineNumber() +
-                                ": undefined function '" + funcName + "'");
+                        throw new SemanticException(getNodeLocationStr(typeCastExpression.getNodeLocation()) +
+                                "'" + sourceType + "' cannot be cast to '" + targetType + "'");
                     }
 
                     if (typeConvertorSymbol instanceof NativeUnitProxy) {
@@ -1865,10 +1915,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                         // Link the function with the function invocation expression
                         typeCastExpression.setCallableUnit(typeConvertor);
                     } else {
-                        throw new LinkerException(typeCastExpression.getNodeLocation().getFileName() + ":" +
-                                typeCastExpression.getNodeLocation().getLineNumber() +
-                                ": type converter cannot be found for '" + sourceType
-                                + " to " + targetType + "'");
+                        throw new SemanticException(getNodeLocationStr(typeCastExpression.getNodeLocation()) +
+                                "'" + sourceType + "' cannot be cast to '" + targetType + "'");
                     }
                 }
             }
@@ -2001,11 +2049,14 @@ public class SemanticAnalyzer implements NodeVisitor {
             functionBuilder.setPkgPath(connectorDef.getPackagePath());
             functionBuilder.setBody(blockStmtBuilder.build());
             connectorDef.setInitFunction(functionBuilder.buildFunction());
+        }
 
+        for (BallerinaConnectorDef connectorDef : connectorDefArray) {
             // Define actions
             openScope(connectorDef);
 
             for (BallerinaAction bAction : connectorDef.getActions()) {
+                bAction.setConnectorDef(connectorDef);
                 defineAction(bAction, connectorDef);
             }
 
