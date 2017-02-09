@@ -111,7 +111,6 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             toolGroupID: "main-tool-group",
             toolDefinitions: mainToolDefArray
         });
-        ToolPalette.push(elements);
 
         var createIfStatementTool = {
             id: "if",
@@ -189,7 +188,23 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             toolOrder: "horizontal",
             toolDefinitions: statementToolDefArray
         });
-        ToolPalette.push(statements);
+
+        var seperator = {
+            id: "constructs_seperator",
+            seperator: true
+        };
+
+        //creating a one gourp for constructs
+        var constructsToolDefArray = _.union(mainToolDefArray, [ seperator ] , statementToolDefArray);
+
+        var constructs = new ToolGroup({
+            toolGroupName: "Constructs",
+            toolGroupID: "constructs-tool-group",
+            toolOrder: "horizontal",
+            toolDefinitions: constructsToolDefArray
+        });
+
+        ToolPalette.push(constructs);
 
         return ToolPalette;
 });

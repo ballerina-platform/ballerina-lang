@@ -80,6 +80,11 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
             var dragCursorOffset = _.isUndefined(this.model.dragCursorOffset) ?  { left: 30, top: -10 } : this.model.dragCursorOffset;
             this._dragCursorOffset = dragCursorOffset;
             var self = this;
+
+            if(!_.isNil(this.model.attributes.seperator) && this.model.attributes.seperator ){
+                parent.append("<div class='clear-fix '/><div class='tool-separator' />");
+                return;
+            }
             // setting id for the div
             this.$el.attr('id', this.model.id);
             if (orderVertical) {
