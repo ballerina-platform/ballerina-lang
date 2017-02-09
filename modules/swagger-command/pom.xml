@@ -42,6 +42,11 @@
           <artifactId>swagger2ballerina-connector</artifactId>
           <version>0.8-SNAPSHOT</version>
       </dependency>
+      <dependency>
+          <groupId>org.testng</groupId>
+          <artifactId>testng</artifactId>
+          <version>${testng.version}</version>
+      </dependency>
   </dependencies>
 
     <build>
