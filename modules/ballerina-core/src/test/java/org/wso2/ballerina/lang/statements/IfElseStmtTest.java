@@ -146,7 +146,6 @@ public class IfElseStmtTest {
     public void testIfElseBlockScopes() {
         BValue[] args = { new BInteger(1) };
         BValue[] returns = Functions.invoke(bFile, "ifElseScope", args);
-
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
         BInteger actual = (BInteger) returns[0];
