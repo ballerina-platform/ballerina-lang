@@ -42,6 +42,7 @@ import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.FunctionReference;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameReference;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
@@ -194,28 +195,47 @@ public class BallerinaPsiImplUtil {
         return parent;
     }
 
-    public static Collection getAllFunctions(PsiElement element) {
+    public static List<PsiElement> getAllFunctions(PsiElement element) {
+        ArrayList<PsiElement> results = new ArrayList<>();
         PsiFile file = element.getContainingFile();
-        Collection ruleSpecNodes =
-                PsiTreeUtil.findChildrenOfAnyType(file,
-                        FunctionDefinitionNode.class);
+        //        Collection ruleSpecNodes =
+        //                PsiTreeUtil.findChildrenOfAnyType(file,
+        //                        FunctionDefinitionNode.class);
+        Collection<? extends PsiElement> all = XPath.findAll(BallerinaLanguage.INSTANCE, file,
+                "//functionDefinition/Identifier");
 
-        return ruleSpecNodes;
+        for (PsiElement psiElement : all) {
+            if (!psiElement.getText().equals("IntellijIdeaRulezzz")) {
+                results.add(psiElement);
+            }
+        }
+        //        IntellijIdeaRulezzz
+        return results;
     }
 
-    public static Collection getAllPackages(PsiElement element) {
+    public static ArrayList<PsiElement> getAllImportedPackages(PsiElement element) {
         PsiFile file = element.getContainingFile();
 
-        final Collection<String> added = new ArrayList<>();
-        Collection<PackageNameNode> allPackages = PsiTreeUtil.findChildrenOfAnyType(file, PackageNameNode.class);
-        Collection<PackageNameNode> filteredPackages = new ArrayList<>();
+        //        final Collection<String> added = new ArrayList<>();
+        Collection<ImportDeclarationNode> allImports = PsiTreeUtil.findChildrenOfAnyType(file,
+                ImportDeclarationNode.class);
+        ArrayList<PsiElement> filteredPackages = new ArrayList<>();
 
-        for (PackageNameNode node : allPackages) {
-            String text = node.getText();
-            if (!added.contains(text)) {
-                added.add(text);
-                filteredPackages.add(node);
-            }
+        for (ImportDeclarationNode importDeclaration : allImports) {
+            //            String text = importDeclaration.getText();
+            //            if (!added.contains(text)) {
+            //                added.add(text);
+            //                filteredPackages.add(importDeclaration);
+
+            Collection<? extends PsiElement> packagePathNodes =
+                    XPath.findAll(BallerinaLanguage.INSTANCE, importDeclaration, "//packagePath");
+
+            PsiElement packagePathNode = packagePathNodes.iterator().next();
+
+            PsiElement lastChild = packagePathNode.getLastChild();
+
+            filteredPackages.add(lastChild);
+            //            }
         }
         return filteredPackages;
     }
@@ -537,18 +557,19 @@ public class BallerinaPsiImplUtil {
             // Package is not imported. Return the empty results.
             PsiReference[] references = identifier.getReferences();
 
-            if(references.length==0){
+            if (references.length == 0) {
                 return results;
             }
             for (PsiReference psiReference : references) {
 
-//                PsiElement resolved = psiReference.resolve();
+                //                PsiElement resolved = psiReference.resolve();
 
                 ResolveResult[] resolveResults = ((FunctionReference) psiReference).multiResolve(false);
 
                 for (ResolveResult resolveResult : resolveResults) {
                     Collection<? extends PsiElement> actionDefinitions =
-                            XPath.findAll(BallerinaLanguage.INSTANCE, resolveResult.getElement().getParent(), "//actionDefinition");
+                            XPath.findAll(BallerinaLanguage.INSTANCE, resolveResult.getElement().getParent(),
+                                    "//actionDefinition");
 
                     for (PsiElement actionDefinition : actionDefinitions) {
 
@@ -559,7 +580,8 @@ public class BallerinaPsiImplUtil {
                     }
 
                     Collection<? extends PsiElement> functionDefinitions =
-                            XPath.findAll(BallerinaLanguage.INSTANCE, resolveResult.getElement().getParent(), "//functionDefinition");
+                            XPath.findAll(BallerinaLanguage.INSTANCE, resolveResult.getElement().getParent(),
+                                    "//functionDefinition");
                     for (PsiElement functionDefinition : functionDefinitions) {
 
                         PsiElement nameIdentifier = ((IdentifierDefSubtree) functionDefinition).getNameIdentifier();
