@@ -169,8 +169,8 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
      *
      * @return the escaped term
      */
-
-/*  @Override  public String escapeReservedWord(String name) {
+    //@Override
+    /*public String escapeReservedWord(String name) {
         if (this.reservedWordsMappings().containsKey(name)) {
             return this.reservedWordsMappings().get(name);
         }

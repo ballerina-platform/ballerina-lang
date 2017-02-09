@@ -231,25 +231,9 @@ public class Generate implements Runnable {
         applyTypeMappingsKvp(typeMappings, configurator);
         applyAdditionalPropertiesKvp(additionalProperties, configurator);
         applyLanguageSpecificPrimitivesCsv(languageSpecificPrimitives, configurator);
-//        applyReservedWordsMappingsKvp(reservedWordsMappings, configurator);
+        //applyReservedWordsMappingsKvp(reservedWordsMappings, configurator);
         final ClientOptInput clientOptInput = configurator.toClientOptInput();
 
         new DefaultGenerator().opts(clientOptInput).generate();
-    }
-
-    public void setLang(String lang) {
-        this.lang = lang;
-    }
-
-    public void setOutput(String output) {
-        this.output = output;
-    }
-
-    public void setApiPackage(String apiPackage) {
-        this.apiPackage = apiPackage;
-    }
-
-    public void setSpec(String spec) {
-        this.spec = spec;
     }
 }
