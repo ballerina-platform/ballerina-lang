@@ -26,11 +26,11 @@ importDeclaration
     ;
 
 serviceDefinition
-    :   annotation* 'service' Identifier serviceBody
+    :   annotation* 'service' Identifier '{' serviceBody '}'
     ;
 
 serviceBody
-    :   '{' serviceBodyDeclaration '}'
+    :   serviceBodyDeclaration
     ;
 
 serviceBodyDeclaration
@@ -39,38 +39,38 @@ serviceBodyDeclaration
 
 
 resourceDefinition
-    :   annotation* 'resource' Identifier '(' parameterList ')' functionBody
+    :   annotation* 'resource' Identifier '(' parameterList ')' '{' functionBody '}'
     ;
 
 functionDefinition
-    :   annotation* 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? functionBody
+    :   annotation* 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? '{' functionBody '}'
     |   annotation* 'native'? 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? ';'
     ;
 
 //todo rename, this is used in resource, action and funtion
 functionBody
-    : '{' workerDeclaration* statement+ '}'
+    :   workerDeclaration* statement+
     ;
 
 connectorDefinition
-    :   annotation* 'connector' Identifier '(' parameterList ')' connectorBody
+    :   annotation* 'connector' Identifier '(' parameterList ')' '{' connectorBody '}'
     ;
 
 connectorBody
-    :   '{' variableDefinitionStatement* actionDefinition+ '}'
+    :   variableDefinitionStatement* actionDefinition+
     ;
 
 actionDefinition
-    :   annotation* 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? functionBody
+    :   annotation* 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? '{' functionBody '}'
     |   annotation* 'native'? 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? ';'
     ;
 
 structDefinition
-    :   'struct' Identifier structDefinitionBody
+    :   'struct' Identifier '{' structDefinitionBody '}'
     ;
 
 structDefinitionBody
-    :   '{' (typeName Identifier ';')+ '}'
+    :   (typeName Identifier ';')+
     ;
 
 typeConvertorDefinition
@@ -281,15 +281,7 @@ variableReferenceList
     ;
 
 ifElseStatement
-    :   'if' '(' expression ')' '{' statement* '}' elseIfClause* elseClause?
-    ;
-
-elseIfClause
-    :   'else' 'if' '(' expression ')' '{' statement* '}'
-    ;
-
-elseClause
-    :   'else' '{' statement*'}'
+    :   'if' '(' expression ')' '{' statement* '}' ('else' 'if' '(' expression ')' '{' statement* '}')* ('else' '{' statement* '}')?
     ;
 
 iterateStatement
@@ -324,13 +316,9 @@ timeoutClause
     :   'timeout' '(' expression ')' '(' typeName Identifier ')'  '{' statement+ '}'
     ;
 
-tryCatchStatement
-    :   'try' '{' statement+ '}' catchClause
-    ;
-
 // below tyeName is only 'exception'
-catchClause
-    :   'catch' '(' typeName Identifier ')' '{' statement+ '}'
+tryCatchStatement
+    :   'try' '{' statement+ '}' 'catch' '(' typeName Identifier ')' '{' statement+ '}'
     ;
 
 throwStatement

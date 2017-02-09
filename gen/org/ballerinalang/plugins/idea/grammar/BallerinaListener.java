@@ -568,26 +568,6 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitIfElseStatement(BallerinaParser.IfElseStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#elseIfClause}.
-	 * @param ctx the parse tree
-	 */
-	void enterElseIfClause(BallerinaParser.ElseIfClauseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#elseIfClause}.
-	 * @param ctx the parse tree
-	 */
-	void exitElseIfClause(BallerinaParser.ElseIfClauseContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#elseClause}.
-	 * @param ctx the parse tree
-	 */
-	void enterElseClause(BallerinaParser.ElseClauseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#elseClause}.
-	 * @param ctx the parse tree
-	 */
-	void exitElseClause(BallerinaParser.ElseClauseContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#iterateStatement}.
 	 * @param ctx the parse tree
 	 */
@@ -667,16 +647,6 @@ public interface BallerinaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitTryCatchStatement(BallerinaParser.TryCatchStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#catchClause}.
-	 * @param ctx the parse tree
-	 */
-	void enterCatchClause(BallerinaParser.CatchClauseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#catchClause}.
-	 * @param ctx the parse tree
-	 */
-	void exitCatchClause(BallerinaParser.CatchClauseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#throwStatement}.
 	 * @param ctx the parse tree
