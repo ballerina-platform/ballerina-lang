@@ -25,7 +25,7 @@
     <packaging>pom</packaging>
     <groupId>org.wso2.carbon.transport</groupId>
     <artifactId>org.wso2.carbon.transport.parent</artifactId>
-    <version>4.0.1-SNAPSHOT</version>
+    <version>4.1.1-SNAPSHOT</version>
     <name>WSO2 Carbon Transport Parent</name>
 
     <modules>
@@ -279,7 +279,7 @@
 
 
 
-        <carbon.messaging.version>2.0.1-SNAPSHOT</carbon.messaging.version>
+        <carbon.messaging.version>2.1.0</carbon.messaging.version>
         <carbon.messaging.package.import.version.range>[2.0.0, 3.0.0)</carbon.messaging.package.import.version.range>
         <slf4j.version>1.7.5</slf4j.version>
         <!--Logging API version range-->
