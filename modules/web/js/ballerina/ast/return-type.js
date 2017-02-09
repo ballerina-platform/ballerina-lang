@@ -25,6 +25,24 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
     ReturnType.prototype.constructor = ReturnType;
 
     /**
+     * Gets the value of struct-type child
+     * @return {string} - String structType.
+     */
+    ReturnType.prototype.getStructType = function() {
+        var structType = undefined;
+        var ballerinaASTFactory = this.getFactory();
+
+        _.forEach(this.getChildren(), function (child) {
+            if (ballerinaASTFactory.isStructType(child)) {
+                structType = child.getTypeName();
+                return false;
+            }
+        });
+        return structType;
+    };
+
+
+    /**
      * initialize from json
      * @param jsonNode
      */
