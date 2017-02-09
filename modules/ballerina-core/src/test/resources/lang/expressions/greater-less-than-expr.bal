@@ -21,3 +21,8 @@ function testFloatRanges(float a) (int) {
         }
         return retunType;
 }
+
+function testIntAndFloatCompare(int a, float b) (boolean) {
+    return a > b;
+}
+

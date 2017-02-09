@@ -37,7 +37,7 @@ public class Symbol {
     private TypeConvertor typeConvertor;
     private Action action;
     private Connector connector;
-    private BallerinaStruct struct;
+    private StructDef structDef;
 
     public Symbol(BType type, SymScope.Name scopeName, MemoryLocation location) {
         this.type = type;
@@ -61,8 +61,8 @@ public class Symbol {
         this.connector = connector;
     }
 
-    public Symbol(BallerinaStruct struct) {
-        this.struct = struct;
+    public Symbol(StructDef structDef) {
+        this.structDef = structDef;
     }
 
     public BType getType() {
@@ -93,8 +93,8 @@ public class Symbol {
         return connector;
     }
     
-    public BallerinaStruct getStruct() {
-        return struct;
+    public StructDef getStructDef() {
+        return structDef;
     }
 }
 

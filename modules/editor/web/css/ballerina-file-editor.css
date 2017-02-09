@@ -380,6 +380,8 @@
 .return-types-detail-wrapper input[type=text] {
     width: 175px;
     margin-left: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 .return-types-heading-separator {
@@ -602,13 +604,10 @@
 
 span.package-pane {
     padding: 5px;
-    margin-left: -20px;
+    margin-left: 0px;
     background-color: #fff;
-    border: 1px solid #f0f0f0;
+    border: 1px solid #bfbfbf;
     display: none;
-    position: absolute;
-    top: 0px;
-    left: 90px;
     color: #333;
     float: left;
 }
@@ -631,7 +630,6 @@ input#package-name-input {
 
 .package-definition-main-wrapper {
     height: 50px;
-    position: absolute;
 }
 
 .tooltip-inner {

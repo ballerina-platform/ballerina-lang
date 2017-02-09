@@ -23,30 +23,33 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.interpreter.SymScope;
+import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.GlobalScope;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
+import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
+import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
-import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
+import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.OPTIONS;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.GET;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.OPTIONS;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
  * Basic classes which exposes ballerina language object model over REST service.
@@ -113,19 +116,22 @@ public class BLangFileRestService {
         CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
 
         BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
+        ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
 
-        BLangModelBuilder modelBuilder = new BLangModelBuilder();
-        BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
+        GlobalScope globalScope = GlobalScope.getInstance();
+        BTypes.loadBuiltInTypes(globalScope);
+        BLangPackage bLangPackage = new BLangPackage(globalScope);
 
-        ballerinaParser.addParseListener(langModelBuilder);
+        BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(bLangPackage);
+        BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
+        ballerinaParser.addParseListener(ballerinaBaseListener);
         ballerinaParser.compilationUnit();
+        BallerinaFile bFile = bLangModelBuilder.build();
 
-        BallerinaFile bFile = modelBuilder.build();
+        BuiltInNativeConstructLoader.loadConstructs(globalScope);
 
-        SymScope globalScope = GlobalScopeHolder.getInstance().getScope();
-        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, globalScope);
-        // TODO: There is a bug in SemanticAnalyzer of the Ballerina engine. Temporary avoiding Semantic Analyzing due to that issue.
-        //bFile.accept(semanticAnalyzer);
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, bLangPackage);
+        bFile.accept(semanticAnalyzer);
 
         JsonObject response = new JsonObject();
         BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(response);

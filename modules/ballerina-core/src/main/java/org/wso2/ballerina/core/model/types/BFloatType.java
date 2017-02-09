@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -33,8 +34,8 @@ class BFloatType extends BType {
      *
      * @param typeName string name of the type
      */
-    BFloatType(String typeName) {
-        super(typeName, BFloat.class);
+    BFloatType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BFloat.class);
     }
 
     @SuppressWarnings("unchecked")

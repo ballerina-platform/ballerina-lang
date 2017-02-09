@@ -1,6 +1,3 @@
-import ballerina.net.http;
-import ballerina.lang.system;
-
 @BasePath ("/var")
 service echo {
 
@@ -10,8 +7,6 @@ service echo {
     @Path ("/message")
     resource echo (message m) {
         int_value = 10;
-        system:println(int_value);
-        http:convertToResponse(m);
         reply m;
     }
 }

@@ -23,6 +23,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -94,6 +95,24 @@ public class GreaterLessThanExprTest {
         expected = 3;
         Assert.assertEquals(actual, expected);
     }
+
+    @Test(description = "Test Integer and long comparison")
+    public void testIntAndFloatComparison() {
+        int a = 10;
+        float b = 20f;
+
+        boolean expectedResult = a > b;
+
+        BValue[] args = {new BInteger(a), new BFloat(b)};
+        BValue[] returns = Functions.invoke(bFile, "testIntAndFloatCompare", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+
+        boolean actualResult = ((BBoolean) returns[0]).booleanValue();
+
+        Assert.assertEquals(actualResult, expectedResult);
+    }
     
     /*
      * Negative tests
@@ -101,64 +120,64 @@ public class GreaterLessThanExprTest {
 
     @Test(description = "Test greater-than check for two different types",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "incompatible-type-greater-than.bal:6: incompatible " +
-                    "types in binary expression: int vs boolean")
+            expectedExceptionsMessageRegExp = "incompatible-type-greater-than.bal:6: invalid operation: " +
+                    "incompatible types 'int' and 'boolean'")
     public void testIncompatibleGreaterThan() {
         ParserUtils.parseBalFile("lang/expressions/incompatible-type-greater-than.bal");
     }
 
     @Test(description = "Test greater-than-equal check for two different types",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "incompatible-type-greater-than-equal.bal:6: " +
-                    "incompatible types in binary expression: int vs boolean")
+            expectedExceptionsMessageRegExp = "incompatible-type-greater-than-equal.bal:6: invalid operation: " +
+                    "incompatible types 'int' and 'boolean'")
     public void testIncompatibleGreaterThanEqual() {
         ParserUtils.parseBalFile("lang/expressions/incompatible-type-greater-than-equal.bal");
     }
 
     @Test(description = "Test less-than check for two different types",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "incompatible-type-less-than.bal:6: incompatible " +
-                    "types in binary expression: int vs boolean")
+            expectedExceptionsMessageRegExp = "incompatible-type-less-than.bal:6: invalid operation: " +
+                    "incompatible types 'int' and 'boolean'")
     public void testIncompatibleLessThan() {
         ParserUtils.parseBalFile("lang/expressions/incompatible-type-less-than.bal");
     }
 
     @Test(description = "Test less-than-equal check for two different types",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "incompatible-type-less-than-equal.bal:6: incompatible " +
-                    "types in binary expression: int vs boolean")
+            expectedExceptionsMessageRegExp = "incompatible-type-less-than-equal.bal:6: invalid operation: " +
+                    "incompatible types 'int' and 'boolean'")
     public void testIncompatibleLessThanEqual() {
         ParserUtils.parseBalFile("lang/expressions/incompatible-type-less-than-equal.bal");
     }
     
     @Test(description = "Test less-than check for unsupported types (json)",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Less than operation is not supported for type: json in " +
-            "unsupported-type-less-than.bal:9")
+            expectedExceptionsMessageRegExp = "unsupported-type-less-than.bal:9: invalid operation: " +
+                    "operator < not defined on 'json'")
     public void testUnsupportedTypeLessThan() {
         ParserUtils.parseBalFile("lang/expressions/unsupported-type-less-than.bal");
     }
     
     @Test(description = "Test greater-than check for unsupported types (json)",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Greater than operation is not supported for type: json in " +
-            "unsupported-type-greater-than.bal:9")
+            expectedExceptionsMessageRegExp = "unsupported-type-greater-than.bal:9: invalid operation: " +
+                    "operator > not defined on 'json'")
     public void testUnsupportedTypeGreaterThan() {
         ParserUtils.parseBalFile("lang/expressions/unsupported-type-greater-than.bal");
     }
     
     @Test(description = "Test greater-than-equal check for unsupported types (json)",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Greater than equal operation is not supported for type: json in " +
-            "unsupported-type-greater-than-equal.bal:9")
+            expectedExceptionsMessageRegExp = "unsupported-type-greater-than-equal.bal:9: invalid operation: " +
+                    "operator >= not defined on 'json'")
     public void testUnsupportedTypeGreaterThanEqual() {
         ParserUtils.parseBalFile("lang/expressions/unsupported-type-greater-than-equal.bal");
     }
     
     @Test(description = "Test less-than-equal check for unsupported types (json)",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Less than equal operation is not supported for type: json in " +
-            "unsupported-type-less-than-equal.bal:9")
+            expectedExceptionsMessageRegExp = "unsupported-type-less-than-equal.bal:9: invalid operation: " +
+                    "operator <= not defined on 'json'")
     public void testUnsupportedTypeLessThanEqual() {
         ParserUtils.parseBalFile("lang/expressions/unsupported-type-less-than-equal.bal");
     }

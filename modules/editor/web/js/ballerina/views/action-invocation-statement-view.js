@@ -186,14 +186,32 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 this._processorConnector = D3Utils.line(Math.round(startPoint.x()), Math.round(startPoint.y()), Math.round(connectorCenterPointX),
                     Math.round(startPoint.y()), this._arrowGroup).classed("action-line", true);
                 this._forwardArrowHead = D3Utils.inputTriangle(Math.round(connectorCenterPointX) - 5, Math.round(startPoint.y()), this._arrowGroup).classed("action-arrow", true);
+                this._forwardArrowHead.attr("transform", "translate(0,0)");
                 this._processorConnector2 = D3Utils.line(Math.round(startPoint.x()), Math.round(startPoint.y()) + 8, Math.round(connectorCenterPointX),
                     Math.round(startPoint.y()) + 8, this._arrowGroup).classed("action-dash-line", true);
                 this._backArrowHead = D3Utils.outputTriangle(Math.round(startPoint.x()), Math.round(startPoint.y()) + 8, this._arrowGroup).classed("action-arrow", true);
+                this._backArrowHead.attr("transform", "translate(0,0)");
 
-                this.getBoundingBox().on('moved', function (offset) {
-                    var transformX = this._arrowGroup.node().transform.baseVal.consolidate().matrix.e;
-                    var transformY = this._arrowGroup.node().transform.baseVal.consolidate().matrix.f;
-                    this._arrowGroup.node().transform.baseVal.getItem(0).setTranslate(transformX + offset.dx, transformY + offset.dy);
+                this.getBoundingBox().on('right-edge-moved', function (offset) {
+                    var currentX1ProcessorConnector = this._processorConnector.attr('x1');
+                    var currentX1ProcessorConnector2 = this._processorConnector2.attr('x1');
+                    this._processorConnector.attr('x1', parseFloat(currentX1ProcessorConnector) + offset);
+                    this._processorConnector2.attr('x1', parseFloat(currentX1ProcessorConnector2) + offset);
+
+                    var backwardArrowTransformX = this._backArrowHead.node().transform.baseVal.consolidate().matrix.e;
+                    var backwardArrowTransformY = this._backArrowHead.node().transform.baseVal.consolidate().matrix.f;
+                    this._backArrowHead.node().transform.baseVal.getItem(0).setTranslate(backwardArrowTransformX + offset, backwardArrowTransformY + 0);
+                }, this);
+
+                this.connector.getBoundingBox().on('moved', function (offset) {
+                    var currentX2ProcessorConnector = this._processorConnector.attr('x2');
+                    var currentX2ProcessorConnector2 = this._processorConnector2.attr('x2');
+                    this._processorConnector.attr('x2', parseFloat(currentX2ProcessorConnector) + offset.dx);
+                    this._processorConnector2.attr('x2', parseFloat(currentX2ProcessorConnector2) + offset.dx);
+
+                    var forwardArrowTransformX = this._forwardArrowHead.node().transform.baseVal.consolidate().matrix.e;
+                    var forwardArrowTransformY = this._forwardArrowHead.node().transform.baseVal.consolidate().matrix.f;
+                    this._forwardArrowHead.node().transform.baseVal.getItem(0).setTranslate(forwardArrowTransformX + offset.dx, forwardArrowTransformY + offset.dy);
                 }, this);
 
                 this.processorConnectPoint.style("display", "none");
@@ -207,6 +225,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
 
                 var self = this;
 
+                connectorModel.addConnectorActionReference(this);
+
                 this.arrowHeadEndPoint.on("mousedown", function () {
                     d3.event.preventDefault();
                     d3.event.stopPropagation();
@@ -218,6 +238,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
 
                     var sourcePoint = self.toGlobalCoordinates(new Point(x, y));
                     var connectorPoint = self.toGlobalCoordinates(new Point(x1, y1));
+                    
+                    connectorModel.removeConnectorActionReference(self.getModel().id);
 
                     self.messageManager.startDrawMessage(actionInvocationModel, sourcePoint, connectorPoint);
                     self.messageManager.setTypeBeingDragged(true);

@@ -101,21 +101,53 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
         BallerinaASTRootVisitor.prototype.visitConnectorDefinition = function (connectorDefinition) {
             var connector = BallerinaEnvFactory.createConnector();
             connector.setName(connectorDefinition.getConnectorName());
+            connector.setId(connectorDefinition.getConnectorName());
             this.getPackage().addConnectors(connector);
+
+            var self = this;
+            connectorDefinition.on('tree-modified', function (modifiedData) {
+                var attributeName = modifiedData.data.attributeName;
+                var newValue = modifiedData.data.newValue;
+                var oldValue = modifiedData.data.oldValue;
+                if (BallerinaASTFactory.isConnectorDefinition(modifiedData.origin) && _.isEqual(attributeName, 'connector_name')) {
+                    self.updateConnectorDefinition(oldValue, newValue);
+                }
+            });
 
             //TODO : move this to the visit method
             _.each(connectorDefinition.getChildren(), function (child) {
                 if (BallerinaASTFactory.isConnectorAction(child)) {
                     var connectorAction = BallerinaEnvFactory.createConnectorAction();
                     connectorAction.setName(child.getActionName());
+                    connectorAction.setId(child.getActionName());
                     connector.addAction(connectorAction);
+
+                    child.on('tree-modified', function (modifiedData) {
+                        var attributeName = modifiedData.data.attributeName;
+                        var newValue = modifiedData.data.newValue;
+                        var oldValue = modifiedData.data.oldValue;
+                        if (BallerinaASTFactory.isConnectorDefinition(modifiedData.origin) && _.isEqual(attributeName, 'connector_name')) {
+                            self.updateConnectorActionDefinition(child.getParent().getName(), oldValue, newValue);
+                        }
+                    });
+
                 }
             });
             connectorDefinition.on('child-added', function (child) {
                 if (BallerinaASTFactory.isConnectorAction(child)) {
                     var connectorAction = BallerinaEnvFactory.createConnectorAction();
                     connectorAction.setName(child.getActionName());
+                    connectorAction.setId(child.getActionName());
                     connector.addAction(connectorAction);
+
+                    child.on('tree-modified', function (modifiedData) {
+                        var attributeName = modifiedData.data.attributeName;
+                        var newValue = modifiedData.data.newValue;
+                        var oldValue = modifiedData.data.oldValue;
+                        if (BallerinaASTFactory.isConnectorAction(modifiedData.origin) && _.isEqual(attributeName, 'action_name')) {
+                            self.updateConnectorActionDefinition(child.getParent().getConnectorName(), oldValue, newValue);
+                        }
+                    });
                 }
             }, this);
         };
@@ -137,6 +169,29 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
             var functionDefinition = this.getPackage().getFunctionDefinitionByName(oldValue);
             functionDefinition.setName(newValue);
             functionDefinition.setId(newValue);
+        };
+
+        /**
+         * updates connector definition with new value
+         * @param {Object} oldValue - old value
+         * @param {Object} newValue - new value
+         */
+        BallerinaASTRootVisitor.prototype.updateConnectorDefinition = function (oldValue, newValue) {
+            var connectorDefinition = this.getPackage().getConnectorByName(oldValue);
+            connectorDefinition.setName(newValue);
+            connectorDefinition.setId(newValue);
+        };
+
+        /**
+         * updates connector definition with new value
+         * @param {Object} connector - connector for the action
+         * @param {Object} oldValue - old value
+         * @param {Object} newValue - new value
+         */
+        BallerinaASTRootVisitor.prototype.updateConnectorActionDefinition = function (connector, oldValue, newValue) {
+          var connectorActionDefinition = this.getPackage().getConnectorByName(connector).getActionByName(oldValue);
+            connectorActionDefinition.setName(newValue);
+            connectorActionDefinition.setId(newValue);
         };
 
         return BallerinaASTRootVisitor;

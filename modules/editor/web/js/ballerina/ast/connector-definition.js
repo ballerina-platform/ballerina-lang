@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node', 'log'], function(_, ASTNode, log){
+define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode, log, CommonUtils){
 
     /**
      * Constructor for ConnectorDefinition
@@ -25,7 +25,7 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
     var ConnectorDefinition = function(args) {
         ASTNode.call(this, "ConnectorDefinition");
         this.BallerinaASTFactory = this.getFactory();
-        this.connector_name = _.get(args, 'connector_name', 'newConnector');
+        this.connector_name = _.get(args, 'connector_name');
         this.annotations = _.get(args, 'annotations', []);
         this.arguments = _.get(args, 'arguments', []);
     };
@@ -124,49 +124,102 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
     };
 
     /**
-     * Get the variable declarations
-     * @return {VariableDeclaration[]}
+     * Gets the variable definition statements of the connector definition.
+     * @return {VariableDefinitionStatement[]}
      */
-    ConnectorDefinition.prototype.getVariableDeclarations = function () {
-        var variableDeclarations = [];
+    ConnectorDefinition.prototype.getVariableDefinitionStatements = function () {
+        var variableDefinitionStatements = [];
         var self = this;
 
         _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isVariableDeclaration(child)) {
-                variableDeclarations.push(child);
+            if (self.getFactory().isVariableDefinitionStatement(child)) {
+                variableDefinitionStatements.push(child);
             }
         });
-        return variableDeclarations;
+        return variableDefinitionStatements;
     };
 
     /**
-     * Adds new variable declaration.
+     * Adds new variable definition statement.
+     * @param {string} bType - The ballerina type of the variable definition statement.
+     * @param {string} identifier - The identifier of the variable definition statement.
+     * @param {string} assignedValue - The right hand expression.
      */
-    ConnectorDefinition.prototype.addVariableDeclaration = function (newVariableDeclaration) {
-        var self = this;
+    ConnectorDefinition.prototype.addVariableDefinitionStatement = function (bType, identifier, assignedValue) {
 
-        // Get the index of the last variable declaration.
-        var index = _.findLastIndex(this.getChildren(), function (child) {
-            return self.BallerinaASTFactory.isVariableDeclaration(child);
-        });
-
-        // index = -1 when there are not any variable declarations, hence get the index for connector
-        // declarations.
-        if (index == -1) {
-            index = _.findLastIndex(this.getChildren(), function (child) {
-                return self.BallerinaASTFactory.isConnectorDeclaration(child);
-            });
+        // Check is identifier is not null or empty.
+        if (_.isNil(identifier) || _.isEmpty(identifier)) {
+            var errorStringOfEmptyIdentifier = "A variable definition requires an identifier.";
+            log.error(errorStringOfEmptyIdentifier);
+            throw errorStringOfEmptyIdentifier;
         }
 
-        this.addChild(newVariableDeclaration, index + 1);
+        // Check if already variable definition statement exists with same identifier.
+        var identifierAlreadyExists = _.findIndex(this.getVariableDefinitionStatements(),
+                function (variableDefinitionStatement) {
+                    return _.isEqual(variableDefinitionStatement.getIdentifier(), identifier);
+                }) !== -1;
+
+        // If variable definition statement with the same identifier exists, then throw an error. Else create the new
+        // variable definition statement.
+        if (identifierAlreadyExists) {
+            var errorString = "A variable definition with identifier '" + identifier + "' already exists.";
+            log.error(errorString);
+            throw errorString;
+        } else {
+            // Creating new constant definition.
+            var newVariableDefinitionStatement = this.getFactory().createVariableDefinitionStatement();
+            newVariableDefinitionStatement.setLeftExpression(bType + " " + identifier);
+            if (!_.isNil(assignedValue) && !_.isEmpty(assignedValue)) {
+                newVariableDefinitionStatement.setRightExpression(assignedValue);
+            }
+
+            var self = this;
+
+            // Get the index of the last variable definition statement.
+            var index = _.findLastIndex(this.getChildren(), function (child) {
+                return self.getFactory().isVariableDefinitionStatement(child);
+            });
+
+            if (index == -1) {
+                index = _.findLastIndex(this.getChildren(), function (child) {
+                    return self.getFactory().isConnectorDeclaration(child);
+                })
+            }
+
+            this.addChild(newVariableDefinitionStatement, index + 1);
+        }
     };
 
     /**
-     * Remove a variable declaration.
+     * Removes an existing variable definition statement.
+     * @param {string} modelID - The model ID of variable definition statement.
      */
-    ConnectorDefinition.prototype.removeVariableDeclaration = function (variableDeclaration) {
-        this.removeChild(variableDeclaration)
+    ConnectorDefinition.prototype.removeVariableDefinitionStatement = function (modelID) {
+        var self = this;
+        // Deleting the variable definition statement from the children.
+        var variableDefinitionStatementToRemove = _.find(this.getChildren(), function (child) {
+            return self.getFactory().isVariableDefinitionStatement(child) && _.isEqual(child.id, modelID);
+        });
+
+        this.removeChild(variableDefinitionStatementToRemove);
     };
+
+    //// Start of connector action definitions functions
+
+    ConnectorDefinition.prototype.getConnectorActionDefinitions = function () {
+        var connectorActionDefinitions = [];
+        var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.getFactory().isConnectorAction(child)) {
+                connectorActionDefinitions.push(child);
+            }
+        });
+        return connectorActionDefinitions;
+    };
+
+    //// End of connector action definitions functions
 
     /**
      * initialize ConnectorDefinition from json object
@@ -204,6 +257,27 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
         return this.BallerinaASTFactory.isConnectorAction(node)
             || this.BallerinaASTFactory.isVariableDeclaration(node)
             || this.BallerinaASTFactory.isConnectorDeclaration(node);
+    };
+
+    /**
+     * @inheritDoc
+     * @override
+     */
+    ConnectorDefinition.prototype.generateUniqueIdentifiers = function () {
+        CommonUtils.generateUniqueIdentifier({
+            node: this,
+            attributes: [{
+                defaultValue: "newConnector",
+                setter: this.setConnectorName,
+                getter: this.getConnectorName,
+                parents: [{
+                    // ballerina-ast-node
+                    node: this.parent,
+                    getChildrenFunc: this.parent.getConnectorDefinitions,
+                    getter: this.getConnectorName
+                }]
+            }]
+        });
     };
 
     return ConnectorDefinition;

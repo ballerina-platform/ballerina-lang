@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.values.BConnector;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -32,8 +33,8 @@ public class BConnectorType extends BType {
      *
      * @param typeName string name of the type
      */
-    public BConnectorType(String typeName) {
-        super(typeName, BConnector.class);
+    public BConnectorType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BConnector.class);
     }
 
     @SuppressWarnings("unchecked")

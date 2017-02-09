@@ -19,11 +19,10 @@ package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.ExecutableExpr;
 import org.wso2.ballerina.core.model.Node;
-import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.types.BType;
 
 /**
- * {@code Expression} represents a generic expression in Ballerina.
+ * {@code Expression} represents a generic expression node in Ballerina.
  *
  * @see AddExpression
  * @see VariableRefExpr
@@ -36,22 +35,7 @@ public interface Expression extends Node, ExecutableExpr {
 
     void setType(BType type);
 
-    int getOffset();
-
     void setOffset(int offset);
-    
-    /**
-     * Get the source location of this expression.
-     * Return the source file and the line number of this expression.
-     * 
-     * @return  Source location of this expression
-     */
-    public Position getLocation();
-    
-    /**
-     * Set the source location of this expression.
-     * 
-     * @param location  Source location of this expression.
-     */
-    public void setLocation(Position location);
+
+    boolean isMultiReturnExpr();
 }
