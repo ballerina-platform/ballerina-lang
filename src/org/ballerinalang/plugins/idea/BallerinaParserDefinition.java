@@ -223,6 +223,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new ActionInvocationNode(node);
             case BallerinaParser.RULE_constantDefinition:
                 return new ConstantDefinitionNode(node);
+            case BallerinaParser.RULE_structDefinition:
+                return new StructDefinitionNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

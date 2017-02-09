@@ -13,7 +13,17 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.ballerinalang.plugins.idea.psi;
 
-public class StructReference {
+import com.intellij.lang.ASTNode;
+import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
+import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
+import org.jetbrains.annotations.NotNull;
+
+public class StructDefinitionNode extends IdentifierDefSubtree {
+
+    public StructDefinitionNode(@NotNull ASTNode node) {
+        super(node, BallerinaParserDefinition.ID);
+    }
 }
