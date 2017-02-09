@@ -90,7 +90,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             name: "Type Mapper",
             icon: "images/tool-icons/type-converter.svg",
             title: "Type Mapper",
-            nodeFactoryMethod: BallerinaASTFactory.createTypeMapperDefinition
+            nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createTypeMapperDefinition
         };
 
         var createWorkerDecTool = {
