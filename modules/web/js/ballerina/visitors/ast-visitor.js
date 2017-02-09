@@ -156,6 +156,10 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.visitTypeMapperDefinition(node);
         } else if(node instanceof AST.TypeStructDefinition){
             return this.visitTypeStructDefinition(node);
+        } else if(node instanceof AST.ResourceParameter){
+            return this.visitResourceParameter(node);
+        } else if(node instanceof AST.ReturnType){
+            return this.visitReturnType(node);
         }
 
     };
@@ -294,6 +298,26 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
     ASTVisitor.prototype.visitTypeStructDefinition = function(typeStructDefinition){
     };
     ASTVisitor.prototype.endVisitTypeStructDefinition = function(typeStructDefinition){
+    };
+
+    ASTVisitor.prototype.canVisitResourceParameter = function(resourceParameter){
+        return false;
+    };
+    ASTVisitor.prototype.beginVisitResourceParameter = function(resourceParameter){
+    };
+    ASTVisitor.prototype.visitResourceParameter = function(resourceParameter){
+    };
+    ASTVisitor.prototype.endVisitResourceParameter = function(resourceParameter){
+    };
+
+    ASTVisitor.prototype.canVisitReturnType = function(returnType){
+        return false;
+    };
+    ASTVisitor.prototype.beginVisitReturnType = function(returnType){
+    };
+    ASTVisitor.prototype.visitReturnType = function(returnType){
+    };
+    ASTVisitor.prototype.endVisitReturnType = function(returnType){
     };
 
     ASTVisitor.prototype.canVisitPackageDefinition = function(packageDefinition){
