@@ -1032,9 +1032,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         constantDefinitionDefine.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
                 BLangJSONModelConstants.CONSTANT_DEFINITION);
         constantDefinitionDefine.addProperty(BLangJSONModelConstants.CONSTANT_DEFINITION_BTYPE,
-                constant.getType().toString());
+                constant.getTypeName().getName());
         constantDefinitionDefine.addProperty(BLangJSONModelConstants.CONSTANT_DEFINITION_IDENTIFIER,
-                constant.getName().toString());
+                constant.getName());
         constantDefinitionDefine.addProperty(BLangJSONModelConstants.CONSTANT_DEFINITION_VALUE,
                 ((BasicLiteral)constant.getRhsExpr()).getBValue().stringValue());
         tempJsonArrayRef.peek().add(constantDefinitionDefine);
