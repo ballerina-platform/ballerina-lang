@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './node', './callable-definition'],
-    function (_, log, ASTNode, CallableDefinition) {
+define(['lodash', 'log', './node', './callable-definition', '../utils/common-utils'],
+    function (_, log, ASTNode, CallableDefinition, CommonUtils) {
 
     /**
      * Constructor for FunctionDefinition
@@ -29,7 +29,7 @@ define(['lodash', 'log', './node', './callable-definition'],
     var FunctionDefinition = function (args) {
         this.id = autoGenerateId();
         CallableDefinition.call(this, 'Function');
-        this._functionName = _.get(args, 'functionName') || 'newFunction';
+        this._functionName = _.get(args, 'functionName');
         this._isPublic = _.get(args, "isPublic") || false;
         this._annotations = _.get(args, 'annotations', []);
         this.BallerinaASTFactory = this.getFactory();
@@ -85,16 +85,16 @@ define(['lodash', 'log', './node', './callable-definition'],
         return this._isPublic;
     };
 
-    FunctionDefinition.prototype.getVariableDeclarations = function () {
-        var variableDeclarations = [];
+    FunctionDefinition.prototype.getVariableDefinitionStatements = function () {
+        var variableDefinitionStatements = [];
         var self = this;
 
         _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isVariableDeclaration(child)) {
-                variableDeclarations.push(child);
+            if (self.BallerinaASTFactory.isVariableDefinitionStatement(child)) {
+                variableDefinitionStatements.push(child);
             }
         });
-        return variableDeclarations;
+        return variableDefinitionStatements;
     };
 
     /**
@@ -382,6 +382,27 @@ define(['lodash', 'log', './node', './callable-definition'],
             var child = self.BallerinaASTFactory.createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
+        });
+    };
+
+    /**
+     * @inheritDoc
+     * @override
+     */
+    FunctionDefinition.prototype.generateUniqueIdentifiers = function () {
+        CommonUtils.generateUniqueIdentifier({
+            node: this,
+            attributes: [{
+                defaultValue: "newFunction",
+                setter: this.setFunctionName,
+                getter: this.getFunctionName,
+                parents: [{
+                    // ballerina-ast-node
+                    node: this.parent,
+                    getChildrenFunc: this.parent.getFunctionDefinitions,
+                    getter: this.getFunctionName
+                }]
+            }]
         });
     };
 

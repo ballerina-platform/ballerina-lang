@@ -15,12 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['./ace-mode','./dropdown', './ace-formatter'],
-    function (AceMode, Dropdown, AceFormatter) {
+define(['./ace-mode','./dropdown', './ace-formatter', './common-utils'],
+    function (AceMode, Dropdown, AceFormatter, CommonUtils) {
         return  {
             AceMode: AceMode,
             Dropdown: Dropdown,
-            AceFormatter: AceFormatter
+            AceFormatter: AceFormatter,
+            CommonUtils: CommonUtils
         }
     });
 

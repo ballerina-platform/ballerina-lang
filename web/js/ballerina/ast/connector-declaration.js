@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function(_, ASTNode){
+define(['lodash', './node', '../utils/common-utils'], function(_, ASTNode, CommonUtils){
 
     /**
      * Defines a connector declaration AST node.
@@ -32,12 +32,13 @@ define(['lodash', './node'], function(_, ASTNode){
     var ConnectorDeclaration = function(options) {
         ASTNode.call(this, "ConnectorDeclaration");
         this._connectorName = _.get(options, "connectorName", "HTTPConnector");
-        this._connectorVariable = _.get(options, "connectorVariable", "endpoint1");
+        this._connectorVariable = _.get(options, "connectorVariable");
         this._connectorType = _.get(options, "connectorType", "ConnectorDeclaration");
         this._connectorPkgName = _.get(options, "connectorPackageName", "http");
         this._timeout = _.get(options, "timeout", "");
         this._params = _.get(options, "params", '\"http://localhost:9090\"');
         this._arguments = _.get(options, "arguments", []);
+        this._connectorActionsReference = _.get(options, "connectorActionsReference", []);
     };
 
     ConnectorDeclaration.prototype = Object.create(ASTNode.prototype);
@@ -49,7 +50,12 @@ define(['lodash', './node'], function(_, ASTNode){
     ConnectorDeclaration.prototype.setConnectorName = function (name, options) {
         this.setAttribute('_connectorName', name, options);
     };
-
+    ConnectorDeclaration.prototype.addConnectorActionReference = function (object) {
+        this._connectorActionsReference.push(object);
+    };
+    ConnectorDeclaration.prototype.removeConnectorActionReference = function (id) {
+        _.pullAllBy(this._connectorActionsReference, [{ 'id': id }], 'id');
+    };
     ConnectorDeclaration.prototype.setConnectorVariable = function (connectorVariable, options) {
         this.setAttribute('_connectorVariable', connectorVariable, options);
     };
@@ -122,6 +128,10 @@ define(['lodash', './node'], function(_, ASTNode){
 
     ConnectorDeclaration.prototype.getConnectorName = function () {
         return this._connectorName;
+    };
+    
+    ConnectorDeclaration.prototype.getConnectorActionsReference = function () {
+        return this._connectorActionsReference;
     };
 
     ConnectorDeclaration.prototype.getConnectorVariable = function () {
@@ -220,6 +230,49 @@ define(['lodash', './node'], function(_, ASTNode){
         }
         expression += ")";
         return expression;
+    };
+
+    /**
+     * @inheritDoc
+     * @override
+     */
+    ConnectorDeclaration.prototype.generateUniqueIdentifiers = function () {
+        var uniqueIDGenObject = {
+            node: this,
+            attributes: [{
+                defaultValue: "endpoint",
+                setter: this.setConnectorVariable,
+                getter: this.getConnectorVariable,
+                parents: [{
+                    // resource/service definition.
+                    node: this.parent,
+                    getChildrenFunc: this.parent.getConnectionDeclarations,
+                    getter: this.getConnectorVariable
+                }]
+            }]
+        };
+
+        if (this.getFactory().isResourceDefinition(this.parent)) {
+            uniqueIDGenObject.attributes[0].parents.push({
+                // service definition
+                node: this.parent.parent,
+                getChildrenFunc: this.parent.getConnectionDeclarations,
+                getter: this.getConnectorVariable
+            })
+        } else if (this.getFactory().isServiceDefinition(this.parent)) {
+            var resourceDefinitions = this.parent.getResourceDefinitions();
+            var self = this;
+            _.forEach(resourceDefinitions, function (resourceDefinition) {
+                uniqueIDGenObject.attributes[0].parents.push({
+                    // resource definition
+                    node: resourceDefinition,
+                    getChildrenFunc: self.parent.getConnectionDeclarations,
+                    getter: self.getConnectorVariable
+                })
+            });
+        }
+
+        CommonUtils.generateUniqueIdentifier(uniqueIDGenObject);
     };
 
     return ConnectorDeclaration;

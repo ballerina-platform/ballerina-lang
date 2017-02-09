@@ -309,6 +309,22 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 var workerDeclarationView = new WorkerDeclarationView(workerDeclarationOptions);
                 workerDeclarationView.setParent(this);
                 workerDeclarationView.render();
+
+                // Creating Expression Editor
+                var editableProperty = {
+                    propertyType: "text",
+                    key: "WorkerDeclaration",
+                    model: workerDeclarationView._model,
+                    getterMethod: workerDeclarationView._model.getWorkerDeclarationStatement,
+                    setterMethod: workerDeclarationView._model.setWorkerDeclarationStatement,
+                    getDisplayTitle: workerDeclarationView._model.getWorkerName
+                };
+                workerDeclarationView.createPropertyPane({
+                    model: workerDeclarationView._model,
+                    lifeLineGroup:workerDeclarationView._rootGroup,
+                    editableProperties: editableProperty
+                });
+
                 var statementContainer = workerDeclarationView.renderStatementContainer(this.diagramRenderingContext);
                 this.diagramRenderingContext.getViewModelMap()[workerDeclaration.id] = workerDeclarationView;
                 this.listenWorkerToHorizontalMargin(workerDeclarationView);
@@ -994,7 +1010,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 key: "ConnectorDeclaration",
                     model: connectorDeclarationView._model,
                 getterMethod: connectorDeclarationView._model.getConnectorExpression,
-                setterMethod: connectorDeclarationView._model.setConnectorExpression
+                setterMethod: connectorDeclarationView._model.setConnectorExpression,
+                getDisplayTitle: connectorDeclarationView._model.getConnectorVariable
             };
             connectorDeclarationView.createPropertyPane({
                 model: connectorDeclarationView._model,

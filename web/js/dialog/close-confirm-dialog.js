@@ -37,6 +37,7 @@ define(['jquery', './modal-dialog'], function ($, ModalDialog) {
         this._dontSaveBtn = dontSaveBtn;
         this._saveBtn.after(dontSaveBtn);
         this.setSubmitBtnText("Save");
+        this.setCloseBtnText("Cancel");
 
         this._initialized = true;
     }

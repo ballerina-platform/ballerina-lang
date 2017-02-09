@@ -62,14 +62,14 @@ public class SwaggerServiceMapperTest {
         ballerinaParser.addParseListener(langModelBuilder);
         ballerinaParser.compilationUnit();
         BallerinaFile bFile = modelBuilder.build();
-        List<Service> services = bFile.getServices();
+        Service[] services = bFile.getServices();
         Swagger swaggerDefinition = new Swagger();
-        if (services.size() > 0) {
+        if (services.length > 0) {
             //TODO this need to improve iterate through multiple services and generate single swagger file.
             SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper();
             //TODO mapper type need to set according to expected type.
             //swaggerServiceMapper.setObjectMapper(io.swagger.util.Yaml.mapper());
-            swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger(services.get(0));
+            swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger(services[0]);
         }
         //TODO add complete logic to test all attributes present in swagger object
         Assert.assertEquals(swaggerDefinition.getBasePath().toString(), "/echo");
