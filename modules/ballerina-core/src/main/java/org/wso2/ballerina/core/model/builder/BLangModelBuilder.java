@@ -69,6 +69,7 @@ import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.BreakStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
@@ -996,6 +997,13 @@ public class BLangModelBuilder {
         // Add the while statement to the statement block which is at the top of the stack.
         WhileStmt whileStmt = whileStmtBuilder.build();
         blockStmtBuilderStack.peek().addStmt(whileStmt);
+    }
+
+    public void createBreakStmt(NodeLocation location) {
+        BreakStmt.BreakStmtBuilder breakStmtBuilder = new BreakStmt.BreakStmtBuilder();
+        breakStmtBuilder.setNodeLocation(location);
+        BreakStmt breakStmt = breakStmtBuilder.build();
+        addToBlockStmt(breakStmt);
     }
 
     public void startIfElseStmt(NodeLocation location) {

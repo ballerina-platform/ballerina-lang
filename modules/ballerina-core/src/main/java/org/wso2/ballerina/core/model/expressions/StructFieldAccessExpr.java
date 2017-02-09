@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.model.LinkedNodeExecutor;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
@@ -195,6 +196,11 @@ public class StructFieldAccessExpr extends UnaryExpression implements ReferenceE
     @Override
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this);
+    }
+
+    @Override
+    public void executeLNode(LinkedNodeExecutor executor) {
+        executor.visit(this);
     }
 
     /**

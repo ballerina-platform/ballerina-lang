@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.nativeimpl;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
+import org.wso2.ballerina.core.exception.LinkerException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.ConstDef;
@@ -62,6 +63,7 @@ public abstract class AbstractNativeTypeConvertor implements NativeUnit, TypeCon
     private BType[] parameterTypes;
     private SimpleTypeName[] returnParamTypeNames;
     private SimpleTypeName[] argTypeNames;
+    private int tempStackFrameSize;
 
     public AbstractNativeTypeConvertor() {
         parameterDefs = new ArrayList<>();
@@ -159,6 +161,20 @@ public abstract class AbstractNativeTypeConvertor implements NativeUnit, TypeCon
     @Override
     public void setStackFrameSize(int stackFrameSize) {
         this.stackFrameSize = stackFrameSize;
+    }
+
+    @Override
+    public int getTempStackFrameSize() {
+        return tempStackFrameSize;
+    }
+
+    @Override
+    public void setTempStackFrameSize(int stackFrameSize) {
+        if (this.tempStackFrameSize > 0 && stackFrameSize != this.tempStackFrameSize) {
+            throw new LinkerException("Attempt to Overwrite tempValue Frame size. current :" + this.tempStackFrameSize +
+                    ", new :" + stackFrameSize);
+        }
+        this.tempStackFrameSize = stackFrameSize;
     }
 
     @Override

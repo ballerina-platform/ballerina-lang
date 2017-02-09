@@ -30,6 +30,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
@@ -60,26 +61,44 @@ public class Get extends AbstractHTTPAction {
         logger.debug("Executing Native Action : Get");
 
         try {
-            // Extract Argument values
-            BConnector bConnector = (BConnector) getArgument(context, 0);
-            String path = getArgument(context, 1).stringValue();
-            BMessage bMessage = (BMessage) getArgument(context, 2);
-
-            Connector connector = bConnector.value();
-            if (!(connector instanceof HTTPConnector)) {
-                throw new BallerinaException("Need to use a HTTPConnector as the first argument", context);
-            }
-            // Prepare the message
-            CarbonMessage cMsg = bMessage.value();
-            prepareRequest(connector, path, cMsg);
-            cMsg.setProperty(Constants.HTTP_METHOD,
-                             Constants.HTTP_METHOD_GET);
-
             // Execute the operation
-            return executeAction(context, cMsg);
+            return executeAction(context, createCarbonMsg(context));
         } catch (Throwable t) {
             throw new BallerinaException("Failed to invoke 'get' action in " + HTTPConnector.CONNECTOR_NAME
-                + ". " + t.getMessage(), context);
+                    + ". " + t.getMessage(), context);
         }
+    }
+
+    @Override
+    public void execute(Context context, BalConnectorCallback callback) {
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing Native Action (non-blocking): {}", this.getName());
+        }
+        try {
+            // Execute the operation
+            executeNonBlockingAction(context, createCarbonMsg(context), callback);
+        } catch (Throwable t) {
+            throw new BallerinaException("Failed to invoke 'get' action in " + HTTPConnector.CONNECTOR_NAME
+                    + ". " + t.getMessage(), context);
+        }
+    }
+
+    private CarbonMessage createCarbonMsg(Context context) {
+        // Extract Argument values
+        BConnector bConnector = (BConnector) getArgument(context, 0);
+        String path = getArgument(context, 1).stringValue();
+        BMessage bMessage = (BMessage) getArgument(context, 2);
+
+        Connector connector = bConnector.value();
+        if (!(connector instanceof HTTPConnector)) {
+            throw new BallerinaException("Need to use a HTTPConnector as the first argument", context);
+        }
+        // Prepare the message
+        CarbonMessage cMsg = bMessage.value();
+        prepareRequest(connector, path, cMsg);
+        cMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_METHOD_GET);
+
+        return cMsg;
     }
 }

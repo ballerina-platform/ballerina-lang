@@ -30,13 +30,13 @@ import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.Locale;
 
 /**
  * {@code Execute} action can be used to invoke execute a http call with any httpVerb.
- *
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
@@ -63,33 +63,49 @@ public class Execute extends AbstractHTTPAction {
 
         logger.debug("Executing Native Action : Execute");
         try {
-            // Extract Argument values
-            BConnector bConnector = (BConnector) getArgument(context, 0);
-            String httpVerb = getArgument(context, 1).stringValue();
-            String path = getArgument(context, 2).stringValue();
-            BMessage bMessage = (BMessage) getArgument(context, 3);
-
-            Connector connector = bConnector.value();
-            if (!(connector instanceof HTTPConnector)) {
-                throw new BallerinaException("Need to use a HTTPConnector as the first argument", context);
-            }
-
-            // Prepare the message
-            CarbonMessage cMsg = bMessage.value();
-            prepareRequest(connector, path, cMsg);
-
-            // If the verb is not specified, use the verb in incoming message
-            if (httpVerb == null || "".equals(httpVerb)) { 
-                httpVerb = (String) cMsg.getProperty(Constants.HTTP_METHOD);
-            }
-            cMsg.setProperty(Constants.HTTP_METHOD,
-                             httpVerb.trim().toUpperCase(Locale.getDefault()));
-
             // Execute the operation
-            return executeAction(context, cMsg);
+            return executeAction(context, createCarbonMsg(context));
         } catch (Throwable t) {
             throw new BallerinaException("Failed to invoke 'execute' action in " + HTTPConnector.CONNECTOR_NAME
-                + ". " + t.getMessage(), context);
+                    + ". " + t.getMessage(), context);
         }
+    }
+
+    @Override
+    public void execute(Context context, BalConnectorCallback connectorCallback) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing Native Action (non-blocking): {}", this.getName());
+        }
+        try {
+            // Execute the operation
+            executeNonBlockingAction(context, createCarbonMsg(context), connectorCallback);
+        } catch (Throwable t) {
+            throw new BallerinaException("Failed to invoke 'execute' action in " + HTTPConnector.CONNECTOR_NAME
+                    + ". " + t.getMessage(), context);
+        }
+    }
+
+    private CarbonMessage createCarbonMsg(Context context) {
+        // Extract Argument values
+        BConnector bConnector = (BConnector) getArgument(context, 0);
+        String httpVerb = getArgument(context, 1).stringValue();
+        String path = getArgument(context, 2).stringValue();
+        BMessage bMessage = (BMessage) getArgument(context, 3);
+
+        Connector connector = bConnector.value();
+        if (!(connector instanceof HTTPConnector)) {
+            throw new BallerinaException("Need to use a HTTPConnector as the first argument", context);
+        }
+
+        // Prepare the message
+        CarbonMessage cMsg = bMessage.value();
+        prepareRequest(connector, path, cMsg);
+
+        // If the verb is not specified, use the verb in incoming message
+        if (httpVerb == null || "".equals(httpVerb)) {
+            httpVerb = (String) cMsg.getProperty(Constants.HTTP_METHOD);
+        }
+        cMsg.setProperty(Constants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
+        return cMsg;
     }
 }

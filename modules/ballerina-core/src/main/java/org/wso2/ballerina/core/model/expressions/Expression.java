@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.ExecutableExpr;
+import org.wso2.ballerina.core.model.LinkedNode;
 import org.wso2.ballerina.core.model.Node;
 import org.wso2.ballerina.core.model.types.BType;
 
@@ -29,7 +30,7 @@ import org.wso2.ballerina.core.model.types.BType;
  * @see FunctionInvocationExpr
  * @since 0.8.0
  */
-public interface Expression extends Node, ExecutableExpr {
+public interface Expression extends Node, ExecutableExpr, LinkedNode {
 
     BType getType();
 
@@ -38,4 +39,18 @@ public interface Expression extends Node, ExecutableExpr {
     void setOffset(int offset);
 
     boolean isMultiReturnExpr();
+
+    /**
+     * Get Temporary Location of the stack frame of the expression.
+     *
+     * @return temporary offset in the stack frame.
+     */
+    int getTempOffset();
+
+    /**
+     * Set Temporary Location in stack frame for storing expression result.
+     *
+     * @param tempOffset calculated temporary offset.
+     */
+    void setTempOffset(int tempOffset);
 }

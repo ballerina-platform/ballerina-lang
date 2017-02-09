@@ -81,6 +81,20 @@ public interface CallableUnit extends BLangSymbol, Node {
     void setStackFrameSize(int frameSize);
 
     /**
+     * Return size of the current stack's temporary value frame.
+     *
+     * @return size of the temporary value frame
+     */
+    int getTempStackFrameSize();
+
+    /**
+     * Replace size of the current stack's temporary value frame.
+     *
+     * @param frameSize size of the temporary value frame
+     */
+    void setTempStackFrameSize(int frameSize);
+
+    /**
      * Returns the body of the callable unit as a {@code BlockStmt}.
      *
      * @return body of the callable unit
@@ -90,7 +104,7 @@ public interface CallableUnit extends BLangSymbol, Node {
     /**
      * Get Types of the return parameters.
      *
-     * @return  Types of the return parameters
+     * @return Types of the return parameters
      */
     BType[] getReturnParamTypes();
 
@@ -104,7 +118,7 @@ public interface CallableUnit extends BLangSymbol, Node {
     /**
      * Get Types of the return input arguments.
      *
-     * @return  Types of the return input arguments
+     * @return Types of the return input arguments
      */
     BType[] getArgumentTypes();
 

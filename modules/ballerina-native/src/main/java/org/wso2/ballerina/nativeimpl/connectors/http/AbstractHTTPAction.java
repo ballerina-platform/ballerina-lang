@@ -120,20 +120,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         try {
             BalConnectorCallback balConnectorCallback = new BalConnectorCallback(context);
             // Handle the message built scenario
-            if (message.isAlreadyRead()) {
-                MessageDataSource messageDataSource = message.getMessageDataSource();
-                if (messageDataSource != null) {
-                    messageDataSource.serializeData();
-                    message.setEndOfMsgAdded(true);
-                    message.getHeaders().remove(Constants.HTTP_CONTENT_LENGTH);
-                    message.getHeaders()
-                            .set(Constants.HTTP_CONTENT_LENGTH, String.valueOf(message.getFullMessageLength()));
-
-                } else {
-                    message.setEndOfMsgAdded(true);
-                    logger.debug("Sending an empty message");
-                }
-            }
+            handleIfMessageBuilt(message);
             ClientConnector clientConnector = BallerinaConnectorManager.getInstance().
                     getClientConnector(Constants.PROTOCOL_HTTP);
 
@@ -162,6 +149,32 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         return null;
     }
 
+    void executeNonBlockingAction(Context context, CarbonMessage message, BalConnectorCallback balConnectorCallback) {
+
+        try {
+            // Handle the message built scenario
+            handleIfMessageBuilt(message);
+            ClientConnector clientConnector = BallerinaConnectorManager.getInstance().
+                    getClientConnector(Constants.PROTOCOL_HTTP);
+
+            if (clientConnector == null) {
+                throw new BallerinaException("Http client connector is not available");
+            }
+
+            clientConnector.send(message, balConnectorCallback);
+
+        } catch (ClientConnectorException e) {
+            throw new BallerinaException("Failed to send the message to an endpoint ", context);
+        } catch (Throwable e) {
+            throw new BallerinaException(e.getMessage(), context);
+        }
+    }
+
+    @Override
+    public void validate(BalConnectorCallback callback) {
+        handleTransportException(callback.getValueRef());
+    }
+
     private void handleTransportException(BValue valueRef) {
         if (valueRef instanceof BMessage) {
             BMessage bMsg = (BMessage) valueRef;
@@ -173,6 +186,31 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             }
         } else {
             throw new BallerinaException("Invalid message received for the action invocation");
+        }
+    }
+
+    /**
+     * Handle If the given carbon message is already built.
+     *
+     * @param message Carbon message instance to process.
+     */
+    private void handleIfMessageBuilt(CarbonMessage message) {
+        // Handle the message built scenario
+        if (message.isAlreadyRead()) {
+            MessageDataSource messageDataSource = message.getMessageDataSource();
+            if (messageDataSource != null) {
+                messageDataSource.serializeData();
+                message.setEndOfMsgAdded(true);
+                message.getHeaders().remove(Constants.HTTP_CONTENT_LENGTH);
+                message.getHeaders()
+                        .set(Constants.HTTP_CONTENT_LENGTH, String.valueOf(message.getFullMessageLength()));
+
+            } else {
+                message.setEndOfMsgAdded(true);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Sending an empty message");
+                }
+            }
         }
     }
 }
