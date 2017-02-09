@@ -24,7 +24,6 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
-import io.netty.handler.codec.http2.Http2FrameLogger;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ApplicationProtocolNegotiationHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
@@ -35,10 +34,7 @@ import org.wso2.carbon.transport.http.netty.config.RequestSizeValidationConfigur
 import org.wso2.carbon.transport.http.netty.listener.CustomHttpObjectAggregator;
 import org.wso2.carbon.transport.http.netty.listener.CustomHttpRequestDecoder;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
-import org.wso2.carbon.transport.http.netty.listener.http2.HTTP2SourceHandlerBuilder;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
-
-import static io.netty.handler.logging.LogLevel.DEBUG;
 
 /**
  * {@code HTTPProtocolNegotiationHandler}  negotiates with the client if HTTP2 or HTTP is going to be used. Once
@@ -47,7 +43,6 @@ import static io.netty.handler.logging.LogLevel.DEBUG;
 public class HTTPProtocolNegotiationHandler extends ApplicationProtocolNegotiationHandler {
 
     private static final Logger log = LoggerFactory.getLogger(HTTPProtocolNegotiationHandler.class);
-    private static final Http2FrameLogger logger = new Http2FrameLogger(DEBUG, HTTPProtocolNegotiationHandler.class);
     protected ConnectionManager connectionManager;
     protected ListenerConfiguration listenerConfiguration;
 

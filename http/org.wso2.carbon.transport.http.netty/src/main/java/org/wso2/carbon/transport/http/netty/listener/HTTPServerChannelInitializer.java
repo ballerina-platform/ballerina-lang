@@ -20,6 +20,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpRequestDecoder;
+import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.codec.http2.Http2CodecUtil;
@@ -51,16 +52,19 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
     private ConnectionManager connectionManager;
 
     private Map<Integer, ListenerConfiguration> listenerConfigurationMap = new HashMap<>();
+    private Map<Integer, SslContext> sslContextMap = new HashMap<>();
 
     public HTTPServerChannelInitializer() {
     }
 
-    public void registerListenerConfig(ListenerConfiguration listenerConfiguration) {
+    public void registerListenerConfig(ListenerConfiguration listenerConfiguration, SslContext sslContext) {
         listenerConfigurationMap.put(listenerConfiguration.getPort(), listenerConfiguration);
+        sslContextMap.put(listenerConfiguration.getPort(), sslContext);
     }
 
     public void unRegisterListenerConfig(ListenerConfiguration listenerConfiguration) {
         listenerConfigurationMap.remove(listenerConfiguration.getPort());
+        sslContextMap.remove(listenerConfiguration.getPort());
     }
 
     @Override
@@ -83,31 +87,36 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         }
         int port = ch.localAddress().getPort();
         ListenerConfiguration listenerConfiguration = listenerConfigurationMap.get(port);
-        // Check listener has enable https
-        if (listenerConfiguration.getSslConfig() != null) {
-            /**
-             * If listener has enable HTTP2 over TLS , HTTP2 use Application Layer Protocol Negotiation (ALPN)
-             * protocol for decide which protocol version needs to use over SSL.
-             */
-            if (listenerConfiguration.isHttp2TLS()) {
-                // Construct ssl context with ALPN configuration
-                SslContext sslContext = new SSLHandlerFactory(listenerConfiguration.getSslConfig())
-                        .createHttp2TLSContext();
-                // ALPN handler will be added to decide http protocol version
-                configureHttp2upgrade(ch, listenerConfiguration, sslContext);
+        ChannelPipeline p = ch.pipeline();
+        /*
+         * HTTP2 required ALPN Protocol support. Server is required to have ALPN protocol libraries at class path
+         * If http2 in enabled , Assume required libraries available and HTTP/1 and HTTP2 requests will be handled.
+         */
+        if (listenerConfiguration.isHttp2()) {
+            SslContext sslContext = sslContextMap.get(port);
+            if (sslContextMap.get(port) != null) {
+                /*
+                 * In HTTP2 we have two upgrade handlers for HTTPS and HTTP
+                 * HTTP - Default upgrade handler
+                 * HTTPS - Upgrade during SSL Handshake using Application Layer Protocol negotiation .
+                 */
+                // Configure Upgrade handler for HTTP/2 requests Over TLS
+                configureHttp2TLSPipeline(ch, listenerConfiguration, sslContext);
             } else {
-                // If ALPN protocol has not been enabled, HTTP will be used over SSL.
-                SslHandler sslHandler = new SSLHandlerFactory(listenerConfiguration.getSslConfig()).create();
-                ch.pipeline().addLast("ssl", sslHandler);
-                // Configure the pipeline handlers for HTTP after ssl handshake.
-                configureHTTPPipeline(ch, listenerConfiguration, connectionManager);
+                // Configure Upgrade handler for HTTP/2 requests
+                configureHttp2Pipeline(ch, listenerConfiguration);
             }
         } else {
-            // If SSL not enabled HTTP1 > HTTP2 upgrade handler will be configured
-            configureHttp2upgrade(ch, listenerConfiguration);
+            // Configure Pipeline to handle HTTP/1 requests if HTTP/2 not enabled.
+            if (listenerConfiguration.getSslConfig() != null) {
+                SslHandler sslHandler = new SSLHandlerFactory(listenerConfiguration.getSslConfig()).create();
+                ch.pipeline().addLast("ssl", sslHandler);
+
+            }
+            p.addLast("encoder", new HttpResponseEncoder());
+            configureHTTPPipeline(ch, listenerConfiguration);
         }
     }
-
 
     /**
      * Configure the pipeline for TLS NPN negotiation to HTTP/2.
@@ -116,12 +125,11 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
      * @param listenerConfiguration Listener Configuration
      * @param sslContext            Netty http2 ALPN SSL context
      */
-    private void configureHttp2upgrade(SocketChannel ch, ListenerConfiguration listenerConfiguration, SslContext
+    private void configureHttp2TLSPipeline(SocketChannel ch, ListenerConfiguration listenerConfiguration, SslContext
             sslContext) {
         ChannelPipeline p = ch.pipeline();
         p.addLast("ssl", sslContext.newHandler(ch.alloc()));
-        p.addLast("http-upgrade", new HTTPProtocolNegotiationHandler(connectionManager,
-                listenerConfiguration));
+        p.addLast("http-upgrade", new HTTPProtocolNegotiationHandler(connectionManager, listenerConfiguration));
 
     }
 
@@ -131,7 +139,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
      * @param ch                    Channel
      * @param listenerConfiguration Listener Configuration
      */
-    private void configureHttp2upgrade(SocketChannel ch, ListenerConfiguration listenerConfiguration) {
+    private void configureHttp2Pipeline(SocketChannel ch, ListenerConfiguration listenerConfiguration) {
         ChannelPipeline p = ch.pipeline();
         // Add http2 upgrade decoder and upgrade handler for check http version
         final HttpServerCodec sourceCodec = new HttpServerCodec();
@@ -146,10 +154,10 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         p.addLast("encoder", sourceCodec);
         p.addLast("http2-upgrade", new HttpServerUpgradeHandler(sourceCodec, upgradeCodecFactory));
         /**
-         * Requests will be propagated to following handlers if no upgrade has been attempted and the client is just
-         * talking HTTP. Then pipeline will be configured to handle HTTP/1 requests.
+         * Requests will be propagated to next handlers if no upgrade has been attempted and the client is just
+         * talking HTTP.
          */
-        configureHTTPPipeline(ch, listenerConfiguration, connectionManager);
+        configureHTTPPipeline(ch, listenerConfiguration);
     }
 
     /**
@@ -157,12 +165,10 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
      *
      * @param ch                    Channel
      * @param listenerConfiguration Listener Configuration
-     * @param connectionManager     Connection Manager
      */
-    public static void configureHTTPPipeline(SocketChannel ch, ListenerConfiguration listenerConfiguration,
-                                             ConnectionManager connectionManager) {
+    public void configureHTTPPipeline(SocketChannel ch, ListenerConfiguration listenerConfiguration) {
         ChannelPipeline p = ch.pipeline();
-        // Removed the default encoder since http version upgrader already added to pipeline
+        // Removed the default encoder since http/2 version upgrade already added to pipeline
         if (RequestSizeValidationConfiguration.getInstance().isHeaderSizeValidation()) {
             p.addLast("decoder", new CustomHttpRequestDecoder());
         } else {

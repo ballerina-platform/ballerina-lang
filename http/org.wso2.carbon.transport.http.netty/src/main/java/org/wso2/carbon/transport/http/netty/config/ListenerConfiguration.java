@@ -60,7 +60,7 @@ public class ListenerConfiguration {
     private String scheme = "http";
 
     @XmlAttribute
-    private boolean http2TLS = false;
+    private boolean http2 = false;
 
     @XmlAttribute
     private String keyStoreFile;
@@ -154,12 +154,12 @@ public class ListenerConfiguration {
         this.scheme = scheme;
     }
 
-    public boolean isHttp2TLS() {
-        return http2TLS;
+    public boolean isHttp2() {
+        return http2;
     }
 
-    public void setHttp2TLS(boolean http2TLS) {
-        this.http2TLS = http2TLS;
+    public void setHttp2(boolean http2) {
+        this.http2 = http2;
     }
 
     public List<Parameter> getParameters() {
