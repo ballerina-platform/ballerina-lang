@@ -1282,7 +1282,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        modelBuilder.createArrayInitExpr(getCurrentLocation(ctx));
+        boolean argsAvailable = false;
+        if (ctx.expressionList() != null) {
+            argsAvailable = true;
+        }
+
+        modelBuilder.createArrayInitExpr(getCurrentLocation(ctx), argsAvailable);
     }
 
     @Override

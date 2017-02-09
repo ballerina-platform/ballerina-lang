@@ -668,9 +668,9 @@ public class BLangModelBuilder {
         exprStack.push(typeCastExpression);
     }
 
-    public void createArrayInitExpr(NodeLocation location) {
+    public void createArrayInitExpr(NodeLocation location, boolean argsAvailable) {
         List<Expression> argExprList;
-        if (!exprListStack.isEmpty()) {
+        if (argsAvailable) {
             argExprList = exprListStack.pop();
         } else {
             argExprList = new ArrayList<>(0);
