@@ -19,6 +19,9 @@
 package org.wso2.siddhi.core.executor.function;
 
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -26,20 +29,20 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.Map;
 
-//@Description("Returns the maximum value of the input parameters.")
-//@Parameters({
-//        @Parameter(name = "arg", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
-//})
-//
-//@Return(type = {
-//        DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT
-//})
 @Extension(
         name = "maximum",
         namespace = "",
-        description = "",
-        parameters = {},
-        returnAttributes = {}
+        description = "Returns the maximum value of the input parameters.",
+        parameters = {
+                @Parameter(name = "arg",
+                        description = "This function accepts one or more parameters. " +
+                                "They can belong to any one of the available types. " +
+                                "All the specified parameters should be of the same type.",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+        },
+        returnAttributes = @ReturnAttribute(
+                description = "This will be the same as the type of the first input parameter.",
+                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
 )
 public class MaximumFunctionExecutor extends FunctionExecutor {
 
@@ -48,25 +51,28 @@ public class MaximumFunctionExecutor extends FunctionExecutor {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         Attribute.Type attributeTypeOne = attributeExpressionExecutors[0].getReturnType();
-        if (!((attributeTypeOne == Attribute.Type.DOUBLE) || (attributeTypeOne == Attribute.Type.INT) || (attributeTypeOne == Attribute.Type.FLOAT)
-                || (attributeTypeOne == Attribute.Type.LONG))) {
-            throw new ExecutionPlanValidationException("Invalid parameter type found for the argument" + 1 + " of maximum() function, " +
+        if (!((attributeTypeOne == Attribute.Type.DOUBLE) || (attributeTypeOne == Attribute.Type.INT) ||
+                (attributeTypeOne == Attribute.Type.FLOAT) || (attributeTypeOne == Attribute.Type.LONG))) {
+            throw new ExecutionPlanValidationException("Invalid parameter type found for the argument" + 1 +
+                    " of maximum() function, " +
                     "required " + Attribute.Type.INT + " or " + Attribute.Type.LONG +
                     " or " + Attribute.Type.FLOAT + " or " + Attribute.Type.DOUBLE +
                     ", but found " + attributeTypeOne.toString());
         }
         for (int i = 1; i < attributeExpressionExecutors.length; i++) {
             Attribute.Type attributeType = attributeExpressionExecutors[i].getReturnType();
-            if (!((attributeType == Attribute.Type.DOUBLE) || (attributeType == Attribute.Type.INT) || (attributeType == Attribute.Type.FLOAT)
-                    || (attributeType == Attribute.Type.LONG))) {
-                throw new ExecutionPlanValidationException("Invalid parameter type found for the argument" + i + " of maximum() function, " +
+            if (!((attributeType == Attribute.Type.DOUBLE) || (attributeType == Attribute.Type.INT) ||
+                    (attributeType == Attribute.Type.FLOAT) || (attributeType == Attribute.Type.LONG))) {
+                throw new ExecutionPlanValidationException("Invalid parameter type found for the argument" + i +
+                        " of maximum() function, " +
                         "required " + Attribute.Type.INT + " or " + Attribute.Type.LONG +
                         " or " + Attribute.Type.FLOAT + " or " + Attribute.Type.DOUBLE +
                         ", but found " + attributeType.toString());
             }
             if (attributeTypeOne != attributeType) {
-                throw new ExecutionPlanValidationException("Invalid parameter type found for arguments  of maximum() function, " +
-                        "all parameters should be of same type, but found " + attributeTypeOne + " and " + attributeExpressionExecutors[i].getReturnType());
+                throw new ExecutionPlanValidationException("Invalid parameter type found for arguments  " +
+                        "of maximum() function, all parameters should be of same type, but found " +
+                        attributeTypeOne + " and " + attributeExpressionExecutors[i].getReturnType());
             }
 
         }

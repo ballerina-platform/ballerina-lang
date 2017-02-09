@@ -19,6 +19,9 @@
 package org.wso2.siddhi.core.executor.function;
 
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -26,14 +29,14 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import java.util.Map;
 import java.util.UUID;
 
-//@Description("Generates a UUID (Universally Unique Identifier).")
-//@Return(type = {DataType.STRING})
 @Extension(
         name = "UUID",
         namespace = "",
-        description = "",
+        description = "Generates a UUID (Universally Unique Identifier).",
         parameters = {},
-        returnAttributes = {}
+        returnAttributes = @ReturnAttribute(
+                description = "Returns a UUID string.",
+                type = {DataType.STRING})
 )
 public class UUIDFunctionExecutor extends FunctionExecutor {
 

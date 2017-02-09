@@ -19,6 +19,9 @@
 package org.wso2.siddhi.core.executor.function;
 
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -26,26 +29,19 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.Map;
 
-/**
- * instanceOfFloat(input)
- * This method returns true if and only if the input is a instance of Float
- * input - the value to check for Float instance eg: 2.3
- * Accept Type(s) for instanceOfFloat(input);
- *         input: BOOLEAN, STRING, INT, FLOAT, DOUBLE, LONG
- * Return Type(s): BOOLEAN
- */
-//@Description("Checks whether the parameter is an instance of Float or not.")
-//@Parameters({
-//        @Parameter(name = "arg", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
-//                DataType.STRING, DataType.BOOL, DataType.OBJECT})
-//})
-//@Return(type = {DataType.BOOL})
 @Extension(
         name = "instanceOfFloat",
         namespace = "",
-        description = "",
-        parameters = {},
-        returnAttributes = {}
+        description = "Checks whether the parameter is an instance of Float or not.",
+        parameters = {
+                @Parameter(name = "arg",
+                        description = "The parameter to be checked.",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                                DataType.STRING, DataType.BOOL, DataType.OBJECT})
+        },
+        returnAttributes = @ReturnAttribute(
+                description = "Returned type will be boolean and true if and only if the input is a instance of Float.",
+                type = {DataType.BOOL})
 )
 public class InstanceOfFloatFunctionExecutor extends FunctionExecutor {
 
@@ -54,14 +50,15 @@ public class InstanceOfFloatFunctionExecutor extends FunctionExecutor {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to instanceOfFloat() function, " +
-                    "required only 1, but found " + attributeExpressionExecutors.length);
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to instanceOfFloat() " +
+                    "function, required only 1, but found " + attributeExpressionExecutors.length);
         }
     }
 
     @Override
     protected Object execute(Object[] data) {
-        return null;//Since the instanceOfFloat function takes in 1 parameter, this method does not get called. Hence, not implemented.
+        return null;//Since the instanceOfFloat function takes in 1 parameter, this method does not get called. Hence,
+        // not implemented.
     }
 
     @Override

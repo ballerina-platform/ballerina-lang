@@ -33,22 +33,28 @@ import java.util.Map;
 @Extension(
         name = "ifThenElse",
         namespace = "",
-        description = "Evaluates the 'condition' parameter and returns value of the 'ifExpression' parameter if the condition " +
-                "is true, or returns value of the 'elseExpression' parameter if the condition is false. Here both 'ifExpression' " +
-                "and 'elseExpression' should be of the same type",
+        description = "Evaluates the 'condition' parameter and returns value of the 'ifExpression' parameter " +
+                "if the condition is true, or returns value of the 'elseExpression' parameter " +
+                "if the condition is false. Here both 'ifExpression' and 'elseExpression' should be of the same type.",
         parameters = {
-                @Parameter(name = "condition", type = {DataType.BOOL}),
+                @Parameter(name = "condition",
+                        description = "This specifies the if then else condition value.",
+                        type = {DataType.BOOL}),
                 @Parameter(name = "ifExpression",
+                        description = "This specifies the value to be returned if " +
+                                "the value of the condition parameter is true.",
                         type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
                                 DataType.STRING, DataType.BOOL, DataType.OBJECT}),
                 @Parameter(name = "elseExpression",
+                        description = "This specifies the value to be returned if " +
+                                "the value of the condition parameter is false.",
                         type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
                                 DataType.STRING, DataType.BOOL, DataType.OBJECT})
         },
-        returnAttributes = @ReturnAttribute(type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
-                DataType.STRING, DataType.BOOL, DataType.OBJECT},
-                description = "Returned type will be same as the 'ifExpression' and 'elseExpression' type")
-
+        returnAttributes = @ReturnAttribute(
+                description = "Returned type will be same as the 'ifExpression' and 'elseExpression' type.",
+                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                DataType.STRING, DataType.BOOL, DataType.OBJECT})
 )
 public class IfThenElseFunctionExecutor extends FunctionExecutor {
     private static final Logger log = Logger.getLogger(IfThenElseFunctionExecutor.class);
@@ -63,12 +69,13 @@ public class IfThenElseFunctionExecutor extends FunctionExecutor {
                     "required only 3, but found " + attributeExpressionExecutors.length);
         } else if (!attributeExpressionExecutors[0].getReturnType().equals(Attribute.Type.BOOL)) {
             // check whether first argument Boolean or not
-            throw new ExecutionPlanValidationException("Input type of if in ifThenElse function should be of type BOOL, " +
-                    "but found " + attributeExpressionExecutors[0].getReturnType());
-        } else if (!attributeExpressionExecutors[1].getReturnType().equals(attributeExpressionExecutors[2].getReturnType())) {
+            throw new ExecutionPlanValidationException("Input type of if in ifThenElse function should be of " +
+                    "type BOOL, but found " + attributeExpressionExecutors[0].getReturnType());
+        } else if (!attributeExpressionExecutors[1].getReturnType().equals(
+                attributeExpressionExecutors[2].getReturnType())) {
             // check whether second and thirds argument's return type are equivalent.
-            throw new ExecutionPlanValidationException("Input type of then in ifThenElse function and else in ifThenElse " +
-                    "function should be of equivalent type. but found then type: " +
+            throw new ExecutionPlanValidationException("Input type of then in ifThenElse function and else in " +
+                    "ifThenElse function should be of equivalent type. but found then type: " +
                     attributeExpressionExecutors[1].getReturnType() + " and else type: " +
                     attributeExpressionExecutors[2].getReturnType());
         } else {

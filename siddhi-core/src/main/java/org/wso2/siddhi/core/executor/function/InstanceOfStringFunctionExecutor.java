@@ -18,11 +18,9 @@
 
 package org.wso2.siddhi.core.executor.function;
 
-//import org.wso2.siddhi.annotation.Description;
-//import org.wso2.siddhi.annotation.Parameter;
-//import org.wso2.siddhi.annotation.Parameters;
-//import org.wso2.siddhi.annotation.Return;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -31,26 +29,20 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.Map;
 
-/**
- * instanceOfString(input)
- * This method returns true if and only if the input is a instance of String
- * input - the value to check for String instance eg: WSO2
- * Accept Type(s) for instanceOfString(input);
- *      input : BOOLEAN, STRING, INT, FLOAT, DOUBLE, LONG
- * Return Type(s): BOOLEAN
- */
-//@Description("Checks whether the parameter is an instance of String or not.")
-//@Parameters({
-//        @Parameter(name = "arg", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
-//                DataType.STRING, DataType.BOOL, DataType.OBJECT})
-//})
-//@Return(type = {DataType.BOOL})
 @Extension(
         name = "instanceOfString",
         namespace = "",
-        description = "",
-        parameters = {},
-        returnAttributes = {}
+        description = "Checks whether the parameter is an instance of String or not.",
+        parameters = {
+                @Parameter(name = "arg",
+                        description = "The parameter to be checked.",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                                DataType.STRING, DataType.BOOL, DataType.OBJECT})
+        },
+        returnAttributes = @ReturnAttribute(
+                description = "Returned type will be boolean and true if and only if the input is " +
+                        "a instance of String.",
+                type = {DataType.BOOL})
 )
 public class InstanceOfStringFunctionExecutor extends FunctionExecutor {
 
@@ -59,14 +51,15 @@ public class InstanceOfStringFunctionExecutor extends FunctionExecutor {
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to instanceOfString() function, " +
-                    "required only 1, but found " + attributeExpressionExecutors.length);
+            throw new ExecutionPlanValidationException("Invalid no of arguments passed to instanceOfString() " +
+                    "function, required only 1, but found " + attributeExpressionExecutors.length);
         }
     }
 
     @Override
     protected Object execute(Object[] data) {
-        return null;//Since the instanceOfString function takes in 1 parameter, this method does not get called. Hence, not implemented.
+        return null;//Since the instanceOfString function takes in 1 parameter, this method does not get called.
+        // Hence, not implemented.
     }
 
     @Override

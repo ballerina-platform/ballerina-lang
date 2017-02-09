@@ -30,7 +30,6 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.Map;
 
-
 @Extension(
         name = "cast",
         namespace = "",
@@ -39,13 +38,19 @@ import java.util.Map;
                 "attributes of the object type. You can use this function to cast the object to an accurate and " +
                 "concrete type.",
         parameters = {
-                @Parameter(name = "toBeCaster", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
-                        DataType.STRING, DataType.BOOL, DataType.OBJECT}),
-                @Parameter(name = "castTo", type = {DataType.STRING})
+                @Parameter(name = "toBeCaster",
+                        description = "This specifies the attribute to be casted.",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                                DataType.STRING, DataType.BOOL, DataType.OBJECT}),
+                @Parameter(name = "castTo",
+                        description = "A string constant parameter expressing the cast to type using one of the " +
+                                "following strings values: int, long, float, double, string, bool.",
+                        type = {DataType.STRING})
         },
-        returnAttributes = @ReturnAttribute(type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
-                DataType.STRING, DataType.BOOL, DataType.OBJECT})
-
+        returnAttributes = @ReturnAttribute(
+                description = "Returned type will be defined by the castTo string constant value.",
+                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                        DataType.STRING, DataType.BOOL, DataType.OBJECT})
 )
 public class CastFunctionExecutor extends FunctionExecutor {
     private Attribute.Type returnType = Attribute.Type.OBJECT;
@@ -74,7 +79,8 @@ public class CastFunctionExecutor extends FunctionExecutor {
             } else if (type.toLowerCase().equals("string")) {
                 returnType = Attribute.Type.STRING;
             } else {
-                throw new ExecutionPlanValidationException("Type must be one of int,long,float,double,bool,string");
+                throw new ExecutionPlanValidationException("Type must be one of int, long, float, double, bool, " +
+                        "string");
             }
         }
     }
