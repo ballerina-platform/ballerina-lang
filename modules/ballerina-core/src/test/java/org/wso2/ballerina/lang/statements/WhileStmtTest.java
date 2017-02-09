@@ -66,6 +66,24 @@ public class WhileStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Check the scope managing in while block")
+    public void testWhileBlockScopes() {
+        BValue[] args = { new BInteger(1) };
+        BValue[] returns = Functions.invoke(bFile, "testWhileScope", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
+        BInteger actual = (BInteger) returns[0];
+        Assert.assertEquals(actual.intValue(), 200, "mismatched output value");
+
+        args = new BValue[] { new BInteger(2) };
+        returns = Functions.invoke(bFile, "testWhileScope", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
+        actual = (BInteger) returns[0];
+        Assert.assertEquals(actual.intValue(), 400, "mismatched output value");
+    }
+
     @Test(description = "Test while statement with incompatible types",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "while-stmnt-with-incompatible-types.bal:2: incompatible type: " +

@@ -142,6 +142,24 @@ public class IfElseStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Check the scope managing in ifelse block")
+    public void testIfElseBlockScopes() {
+        BValue[] args = { new BInteger(1) };
+        BValue[] returns = Functions.invoke(bFile, "ifElseScope", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
+        BInteger actual = (BInteger) returns[0];
+        Assert.assertEquals(actual.intValue(), 200, "mismatched output value");
+
+        args = new BValue[] { new BInteger(16) };
+        returns = Functions.invoke(bFile, "ifElseScope", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
+        actual = (BInteger) returns[0];
+        Assert.assertEquals(actual.intValue(), 500, "mismatched output value");
+    }
+
     @Test(description = "Test if statement with incompatible types",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "if-stmnt-with-incompatible-types.bal:2: incompatible type: " +
