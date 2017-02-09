@@ -1073,11 +1073,14 @@ button.variable-list {
 .hoverable {
     opacity: 0.4;
     cursor: pointer;
-    font-size: 14px;
+    height: 30px;
+    padding-top: 8px;
 }
 
 .hoverable:hover {
-    opacity: 1;
+    opacity: 0.9;
+    background-color: #333;
+    color:#fff;
 }
 
 .name-container-div {
@@ -1094,8 +1097,6 @@ button.variable-list {
 
 .canvas-operations-wrapper {
     float: right;
-    margin-right: 1px;
-    padding-top: 4px;
 }
 
 .annotation-icon {
@@ -1113,9 +1114,11 @@ button.variable-list {
     -ms-transform: scale(1, 2);
     -o-transform: scale(1, 2);
     transform: scale(1, 2);
-    margin-top: 6px;
+    transform: scale(1, 2);
+    margin-top: 4px;
     color: #d8d8d8;
-    font-size: 8px;
+    font-size: 17px;
+    font-weight: 300;
 }
 
 .service-annotation-action-icon {
@@ -1428,7 +1431,7 @@ span.fw-stack.fw-lg {
     border-radius: 5px 0 0 5px;
     height: 26px;
     font-size: 12px;
-    opacity: 0.6;
+    opacity: 1;
 }
 
 .package-name-btn{
@@ -1449,4 +1452,9 @@ span.fw-stack.fw-lg {
     width: 26px;
     padding: 6px 3px 0 9px;
     font-size: 12px;
+}
+
+.left-tool-bar .nav-tabs li.active a{
+    background: #333 !important;
+    border-left: 3px solid #f17b31 !important;
 }
