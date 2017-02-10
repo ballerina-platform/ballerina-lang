@@ -68,7 +68,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .after(PACKAGE).spaceIf(true)
                 .after(REPLY).spaceIf(true)
                 .after(RESOURCE).spaceIf(true)
-                .after(RETURN).spaceIf(true)
                 .after(SERVICE).spaceIf(true)
                 .after(STRUCT).spaceIf(true)
                 .after(THROW).spaceIf(true)
@@ -85,7 +84,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(COLON).spaceIf(false)
                 .before(ARGUMENT_LIST).spaceIf(false)
                 .around(PARAMETER_LIST).spaceIf(false)
-                .around(EXPRESSION_LIST).spaceIf(false)
                 .around(RETURN_TYPE_LIST).spaceIf(false)
                 .around(TYPE_CONVERTER_INPUT).spaceIf(false)
                 .between(TYPE_CONVERTER_TYPE, IDENTIFIER).spaceIf(true)
@@ -108,7 +106,8 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .before(RETURN_PARAMETERS).spaceIf(true)
                 .around(SENDARROW).spaceIf(true)
                 .around(RECEIVEARROW).spaceIf(true)
-                .before(TILDE).spaceIf(false);
+                .before(TILDE).spaceIf(false)
+                .between(RETURN, EXPRESSION_LIST).spaceIf(true);
     }
 
     @Nullable
