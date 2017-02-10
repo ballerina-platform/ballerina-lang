@@ -28,6 +28,10 @@
     position: relative;
 }
 
+.canvas-top-controls-container{
+    float: left;
+}
+
 .canvas-heading-new h4{
     background: #dae9bd;
 }

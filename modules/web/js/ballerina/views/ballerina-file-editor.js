@@ -288,6 +288,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var container = $(this._container).find(_.get(viewOptions, 'design_view.container'));
             this._$designViewContainer = container;
             var canvasContainer = $('<div></div>');
+            canvasContainer.addClass(_.get(viewOptions, 'cssClass.canvas_container'));
             var canvasTopControlsContainer = $('<div></div>')
                 .addClass(_.get(viewOptions, 'cssClass.canvas_top_controls_container'))
                 .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_package_define')))
@@ -817,9 +818,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
         BallerinaFileEditor.prototype._createConstantDefinitionsView = function(container) {
 
-            var constantsWrapper = $("<div/>",{
-                class: "constant-definition-main-wrapper"
-            }).appendTo(container);
+            var costantDefinitionWrapper = _.get(this._viewOptions, 'cssClass.canvas_top_control_constants_define');
+            var constantsWrapper = $('.' + costantDefinitionWrapper);
 
             var constantsDefinitionPaneProperties = {
                 model: this.getModel(),
