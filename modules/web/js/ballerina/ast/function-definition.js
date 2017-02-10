@@ -339,6 +339,20 @@ define(['lodash', 'log', './node', './callable-definition', '../utils/common-uti
 
     //// End of return type functions.
 
+    FunctionDefinition.prototype.getConnectionDeclarations = function () {
+        var connectorDeclaration = [];
+        var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.getFactory().isConnectorDeclaration(child)) {
+                connectorDeclaration.push(child);
+            }
+        });
+        return _.sortBy(connectorDeclaration, [function (connectorDeclaration) {
+            return connectorDeclaration.getConnectorVariable();
+        }]);
+    };
+
     /**
      * Override the super call to addChild
      * @param child
