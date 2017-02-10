@@ -66,6 +66,7 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
          */
         TypeMapperDefinitionView.prototype.render = function (diagramRenderingContext) {
             this.setDiagramRenderingContext(diagramRenderingContext);
+            var selectedSourceStruct = undefined;
 
             // Draws the outlying body of the function.
             this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().type.toLowerCase(),
@@ -132,20 +133,6 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
 
             this.loadSchemasToComboBox(currentContainer, "#" + sourceId,"#"+targetId, predefinedStructs);
 
-//            var returnStatementExpression = self.getModel().getReturnStatementExpression();
-//
-//            if(!_.isUndefined(returnStatementExpression)){
-//                var sourceAndTargetObjects = self.getModel().getSourceAndTaergetObjects(returnStatementExpression);
-//                self.setSchemaNamesToComboBox(currentContainer,"#" + sourceId,"#"+targetId,sourceAndTargetObjects.source.getTypeStructName(),
-//                    sourceAndTargetObjects.target.getTypeStructName());
-//
-//                //setAdditional information to children
-//                sourceAndTargetObjects.source.setOnConnectInstance(self.onAttributesConnect);
-//                sourceAndTargetObjects.source.setOnDisconnectInstance(self.onAttributesDisConnect);
-//                sourceAndTargetObjects.target.setOnConnectInstance(self.onAttributesConnect);
-//                sourceAndTargetObjects.target.setOnDisconnectInstance(self.onAttributesDisConnect);
-//            }
-
             $("#"+sourceId +",#"+targetId).on({
                 mousedown: function() {
                     var predefinedStructs = self._package.getStructDefinitions();
@@ -162,6 +149,7 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
                 var sourceDropDown = $("#" + sourceId + " option:selected");
                 var selectedArrayIndex = sourceDropDown.val();
                 var selectedStructNameForSource = sourceDropDown.text();
+                selectedSourceStruct = selectedStructNameForSource;
                 self.getModel().addResourceParameterChild(selectedStructNameForSource,"y");
 
 

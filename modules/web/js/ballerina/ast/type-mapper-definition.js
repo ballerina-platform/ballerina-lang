@@ -265,8 +265,13 @@ define(['lodash', './node'], function (_, ASTNode) {
      */
     TypeMapperDefinition.prototype.fillReturnStatement = function (identifier) {
 
+        var self = this;
         var ballerinaASTFactory = this.getFactory();
-        var returnStatement = _.find(this.getChildren(), function (child) {
+        var blockStatement = _.find(self.getChildren(), function (child) {
+            return ballerinaASTFactory.isBlockStatement(child);
+        });
+
+        var returnStatement = _.find(blockStatement.getChildren(), function (child) {
             return ballerinaASTFactory.isReturnStatement(child);
         });
 
@@ -287,8 +292,18 @@ define(['lodash', './node'], function (_, ASTNode) {
      */
     TypeMapperDefinition.prototype.fillVariableDefStatement = function (structName,identifier) {
 
+        var self = this;
         var ballerinaASTFactory = this.getFactory();
-        var leftOperandExpression = _.find(this.getChildren(), function (child) {
+
+        var blockStatement = _.find(self.getChildren(), function (child) {
+            return ballerinaASTFactory.isBlockStatement(child);
+        });
+
+        var variableDefStatement = _.find(blockStatement.getChildren(), function (child) {
+            return ballerinaASTFactory.isVariableDefinitionStatement(child);
+        });
+
+        var leftOperandExpression = _.find(variableDefStatement.getChildren(), function (child) {
             return ballerinaASTFactory.isLeftOperandExpression(child);
         });
 
