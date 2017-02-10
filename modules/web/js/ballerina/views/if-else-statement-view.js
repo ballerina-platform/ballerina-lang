@@ -119,11 +119,6 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
                 editableProperties: editableProperty
             });
 
-            this._createDebugIndicator({
-                model: this._model,
-                statementGroup: ifElseGroup
-            });
-
             // If the top-edge-moved event triggered we only move the First child statement (If Statement).
             // Because other child statements are listening to it's previous sibling and accordingly move
             this.getBoundingBox().on('top-edge-moved', function (offset) {
@@ -131,6 +126,11 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             });
 
             this._model.accept(this);
+
+            this._createDebugIndicator({
+                model: this._model,
+                statementGroup: ifElseGroup
+            });
         };
 
         IfElseStatementView.prototype.visitChildStatement = function (statement) {
