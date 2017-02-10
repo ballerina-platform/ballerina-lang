@@ -46,7 +46,7 @@ define(['require', 'lodash', 'jquery', 'log', './../ast/package-definition',
 
             var packageWrapper = $("<div/>", {
                                     class: "package-definition-main-wrapper"
-                                    }).insertBefore($(currentContainer).find('.constant-definition-main-wrapper'));
+                                    }).appendTo($(currentContainer).find('.package-definition-wrapper'));
             var packageDefinitionsButton = $("<div class='package-name-btn' data-toggle='tooltip' title='Package Name' data-placement='bottom'></div>")
                 .appendTo(packageWrapper);
 
