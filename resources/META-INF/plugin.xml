@@ -70,6 +70,15 @@
         <completion.contributor language="Ballerina"
                                 implementationClass="org.ballerinalang.plugins.idea.completion.KeywordCompletionContributor"/>
 
+
+        <lang.braceMatcher language="Ballerina"
+                           implementationClass="org.ballerinalang.plugins.idea.completion.BallerinaPairedBraceMatcher"/>
+
+        <enterHandlerDelegate
+                implementation="org.ballerinalang.plugins.idea.codeinsight.editor.actions.BallerinaEnterAfterUnmatchedBraceHandler"/>
+        <!--order="before afterUnmatchedBrace"-->
+
+
         <!--line marker-->
         <codeInsight.lineMarkerProvider language="Ballerina"
                                         implementationClass="org.ballerinalang.plugins.idea.marker.GoRecursiveCallMarkerProvider"/>
