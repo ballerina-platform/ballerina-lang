@@ -474,7 +474,6 @@ GT              : '>';
 LT              : '<';
 BANG            : '!';
 TILDE           : '~';
-QUESTION        : '?';
 COLON           : ':';
 EQUAL           : '==';
 LE              : '<=';
@@ -490,7 +489,6 @@ BITAND          : '&';
 BITOR           : '|';
 CARET           : '^';
 MOD             : '%';
-DOLLAR_SIGN     : '$';
 AT              : '@';
 
 // §3.10.1 Integer Literals
