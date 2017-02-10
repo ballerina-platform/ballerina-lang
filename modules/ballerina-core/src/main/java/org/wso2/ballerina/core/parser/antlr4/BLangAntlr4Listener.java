@@ -1470,7 +1470,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
             terminalNode = ctx.NullLiteral();
             if (terminalNode != null) {
-                modelBuilder.createNullLiteral(terminalNode.getText(), getCurrentLocation(ctx));
+                modelBuilder.createNullLiteral(getCurrentLocation(ctx));
             }
         }
     }

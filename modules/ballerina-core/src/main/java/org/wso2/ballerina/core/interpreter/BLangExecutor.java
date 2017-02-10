@@ -44,6 +44,7 @@ import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MapStructInitKeyValueExpr;
+import org.wso2.ballerina.core.model.expressions.NullLiteral;
 import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
 import org.wso2.ballerina.core.model.expressions.ReferenceExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
@@ -66,6 +67,7 @@ import org.wso2.ballerina.core.model.types.BMapType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.util.BValueUtils;
+import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BConnector;
@@ -73,6 +75,7 @@ import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BMessage;
+import org.wso2.ballerina.core.model.values.BNull;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BStruct;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -618,6 +621,11 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     @Override
+    public BValue visit(NullLiteral nullLiteral) {
+        return nullLiteral.getBValue();
+    }
+
+    @Override
     public BValue visit(StackVarLocation stackVarLocation) {
         int offset = stackVarLocation.getStackFrameOffset();
         return controlStack.getValue(offset);
@@ -919,6 +927,12 @@ public class BLangExecutor implements NodeExecutor {
         ReferenceExpr currentVarRefExpr = fieldExpr.getVarRef();
         if (currentVal == null) {
             throw new BallerinaException("field '" + currentVarRefExpr.getVarName() + "' is null");
+        }
+
+        if (currentVal instanceof BNull) {
+            throw new BallerinaException(
+                    LangModelUtils.getNodeLocationStr(fieldExpr.getNodeLocation()) + "Symbol " + fieldExpr.getVarRef()
+                            .getSymbolName() + " is null");
         }
 
         if (!(currentVal instanceof BArray || currentVal instanceof BMap<?, ?>)) {
