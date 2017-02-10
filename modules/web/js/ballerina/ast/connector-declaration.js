@@ -163,14 +163,14 @@ define(['lodash', './node', '../utils/common-utils'], function(_, ASTNode, Commo
      * @param {Object} jsonNode to initialize from
      */
     ConnectorDeclaration.prototype.initFromJson = function (jsonNode) {
-        this.setConnectorName(jsonNode.connector_name, {doSilently: true});
-        this.setConnectorPkgName(jsonNode.connector_pkg_name, {doSilently: true});
-        this.setConnectorVariable(jsonNode.connector_variable, {doSilently: true});
+        this.setConnectorName(jsonNode.children[0].variable_def_options.type_name, {doSilently: true});
+        this.setConnectorPkgName(jsonNode.children[0].variable_def_options.package_name, {doSilently: true});
+        this.setConnectorVariable(jsonNode.children[0].variable_reference_name, {doSilently: true});
         this.setConnectorType('ConnectorDeclaration', {doSilently: true});
         var self = this;
         self._arguments = [];
-        if (!_.isUndefined(jsonNode.children[0])) {
-            _.each(jsonNode.children, function (argNode) {
+        if (!_.isUndefined(jsonNode.children[1].arguments)) {
+            _.each(jsonNode.children[1].arguments, function (argNode) {
                 var arg = self.getFactory().createFromJson(argNode);
                 arg.initFromJson(argNode);
                 self.setArguments(arg);

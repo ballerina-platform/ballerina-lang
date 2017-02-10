@@ -41,7 +41,7 @@ define(['lodash', './node'], function (_, ASTNode) {
      * @param jsonNode
      */
     TypeName.prototype.initFromJson = function (jsonNode) {
-        this.setTypeName(jsonNode.type_name, {doSilently: true});
+        this.setTypeName(jsonNode.variable_reference_name, {doSilently: true});
     };
 
     return TypeName;
