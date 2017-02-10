@@ -143,7 +143,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     };
                     action.icon = "images/tool-icons/action.svg";
                     action.title = action.getName();
-                    action.nodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression;
+                    action.nodeFactoryMethod = BallerinaASTFactory.createActionInvocationExpression;
                     action.id = connector.getName() + '-' + action.getAction();
                     definitions.push(action);
 
@@ -157,7 +157,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     var actionIcon = "images/tool-icons/action.svg";
                     var toolGroupID = package.getName() + "-tool-group";
                     action.classNames = "tool-connector-action";
-                    var actionNodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression;
+                    var actionNodeFactoryMethod = BallerinaASTFactory.createActionInvocationExpression;
                     self.addToToolGroup(toolGroupID, action, actionNodeFactoryMethod, actionIcon);
                 });
             });
@@ -205,7 +205,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     var actionIcon = "images/tool-icons/action.svg";
                     action.classNames = "tool-connector-action";
                     action.setId(action.getId());
-                    var actionNodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression;
+                    var actionNodeFactoryMethod = BallerinaASTFactory.createActionInvocationExpression;
                     self.addToToolGroup(toolGroupID, action, actionNodeFactoryMethod, actionIcon);
 
                     action.on('name-modified', function (newName, oldName) {

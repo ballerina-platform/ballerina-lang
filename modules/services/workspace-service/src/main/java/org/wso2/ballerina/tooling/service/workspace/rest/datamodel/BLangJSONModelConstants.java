@@ -168,6 +168,8 @@ public class BLangJSONModelConstants {
 
     public static final String VARIABLE_REFERENCE_EXPRESSION = "variable_reference_expression";
 
+    public static final String VARIABLE_REFERENCE_TYPE = "type";
+
     public static final String VARIABLE_REFERENCE_NAME = "variable_reference_name";
 
     public static final String ARRAY_INIT_EXPRESSION = "array_init_expression";
@@ -221,4 +223,8 @@ public class BLangJSONModelConstants {
     public static final String CONNECTOR_INIT_EXPR = "connector_init_expr";
 
     public static final String ARGUMENTS = "arguments";
+
+    public static final String VARIABLE_DEF_OPTIONS = "variable_def_options";
+
+    public static final String REFERENCE_TYPE_INIT_EXPR = "reference_type_init_expression";
 }
