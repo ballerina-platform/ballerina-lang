@@ -143,6 +143,11 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
     SourceView.prototype.isVisible = function(){
        return  $(this._container).is(':visible')
     };
+
+    SourceView.prototype.format = function(){
+        var selectedRange = this._editor.selection.getRange();//TODO format selection
+        this._fomatter.beautify(this._editor.getSession());
+    };
     
     //dbeugger related functions. 
 

@@ -89,9 +89,11 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
             // change tab header class to match look and feel of source view
             fileEditor.on('source-view-activated swagger-view-activated', function(){
                 this.getHeader().addClass('inverse');
+                this.app.workspaceManager.updateMenuItems();
             }, this);
             fileEditor.on('design-view-activated', function(){
                 this.getHeader().removeClass('inverse');
+                this.app.workspaceManager.updateMenuItems();
             }, this);
 
             fileEditor.on('add-breakpoint', function(row){
