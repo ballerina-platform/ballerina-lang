@@ -277,29 +277,38 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
          * {@link BallerinaFileEditor#_canvasList} and calls {@link BallerinaFileEditor#render}.
          */
         BallerinaFileEditor.prototype.init = function () {
+            var viewOptions = this._viewOptions;
             var errMsg;
-            if (!_.has(this._viewOptions, 'design_view.container')) {
+            if (!_.has(viewOptions, 'design_view.container')) {
                 errMsg = 'unable to find configuration for container';
                 log.error(errMsg);
                 throw errMsg;
             }
             // this._viewOptions.container is the root div for tab content
-            var container = $(this._container).find(_.get(this._viewOptions, 'design_view.container'));
+            var container = $(this._container).find(_.get(viewOptions, 'design_view.container'));
             this._$designViewContainer = container;
             var canvasContainer = $('<div></div>');
-            canvasContainer.addClass(_.get(this._viewOptions, 'cssClass.canvas_container'));
+            var canvasTopControlsContainer = $('<div></div>')
+                .addClass(_.get(viewOptions, 'cssClass.canvas_top_controls_container'))
+                .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_package_define')))
+                .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_packages_import')))
+                .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_constants_define')));
+            canvasContainer.append(canvasTopControlsContainer);
+            
             this._$designViewContainer.append(canvasContainer);
             this._$canvasContainer = canvasContainer;
             // check whether container element exists in dom
             if (!container.length > 0) {
-                errMsg = 'unable to find container for file editor with selector: ' + _.get(this._viewOptions, 'design_view.container');
+                errMsg = 'unable to find container for file editor with selector: ' + _.get(viewOptions, 'design_view.container');
                 log.error(errMsg);
                 throw errMsg;
             }
 
             var toolPaletteItemProvider = new ToolPaletteItemProvider();
-            var toolPaletteContainer = $(this._container).find(_.get(this._viewOptions, 'design_view.tool_palette.container')).get(0);
-            var toolPaletteOpts = _.clone(_.get(this._viewOptions, 'design_view.tool_palette'));
+            var toolPaletteContainer = $(this._container)
+                                        .find(_.get(viewOptions, 'design_view.tool_palette.container'))
+                                        .get(0);
+            var toolPaletteOpts = _.clone(_.get(viewOptions, 'design_view.tool_palette'));
             toolPaletteOpts.itemProvider = toolPaletteItemProvider;
             toolPaletteOpts.container = toolPaletteContainer;
             toolPaletteOpts.ballerinaFileEditor = this;
