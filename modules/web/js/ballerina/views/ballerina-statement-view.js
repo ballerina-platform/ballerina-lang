@@ -305,7 +305,6 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
 
                 $(addBreakpointButtonRect.node()).click(function(event){
                     // TODO: handle line number  is not defined for new nodes
-                    console.log(model)
                     event.stopPropagation();
                     // Hiding property button pane.
                     $(propertyPaneWrapper).remove();

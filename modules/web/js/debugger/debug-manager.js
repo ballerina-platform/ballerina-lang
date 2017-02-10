@@ -121,7 +121,6 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
 
     DebugManager.prototype.hasBreakPoint = function (line, fileName) {
         fileName = fileName === "<unknown>" ? "untitled" : fileName;
-        console.log(this.debugPoints, {line: line, fileName: fileName})
         return !!_.find(this.debugPoints, {line: line, fileName: fileName});
     };
 
