@@ -56,7 +56,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     private ParameterDef[] parameterDefs;
     private BType[] parameterTypes;
     private Worker[] workers;
-    private ParameterDef[] returnParams;
+    private ParameterDef[] returnParameters;
     private BType[] returnParamTypes;
     private BlockStmt functionBody;
     private int stackFrameSize;
@@ -158,7 +158,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
 
     @Override
     public ParameterDef[] getReturnParameters() {
-        return this.returnParams;
+        return this.returnParameters;
     }
 
     @Override
@@ -278,7 +278,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
 
             bFunc.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
             bFunc.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
-            bFunc.returnParams = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);
+            bFunc.returnParameters = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);
             bFunc.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
             bFunc.functionBody = this.body;
             return bFunc;

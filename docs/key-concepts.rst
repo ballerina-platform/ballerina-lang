@@ -8,12 +8,13 @@ As you create your program, there are several constructs available that you can 
 * **Service**: When defining a Ballerina program as a service instead of an executable program, the ``service`` construct acts as the top-level container that holds all the integration logic and can interact with the rest of the world. Its base path is the context part of the URL that you use when sending requests to the service. Note that you can have multiple services in a single Ballerina program, each with their own base path. This is useful in more complex scenarios like the Content-Based Routing sample. 
 * **Resource**: A resource is a single request handler within a service. When you create a service in Ballerina using the visual editor, a default resource is automatically created as well. The resource contains the integration logic.   
 * **Function**: A function is a single operation. Ballerina includes a set of native functions you can call, such as the ``ConvertToResponse()`` function you used in the Tutorial, and you can define additional functions within your Ballerina programs.
+* **Worker**: A worker is a thread that executes a function. 
 * **Connector**: A connector represents a participant in the integration and is used to interact with an external system or a service you've defined in Ballerina. Ballerina includes a set of standard connectors that allow you to connect to Twitter, Facebook, and more, and you can define additional connectors within your Ballerina programs.
 * **Action**: An action is an operation you can execute against a connector. It represents a single interaction with a participant of the integration.
 
-You can also define constants, variables, structured types, and more as you do with other programming languages, and you can use logic statements like if and while. For more information, see the Language Reference. 
+You can also define constants, variables, structured types, and more as you do with other programming languages, and you can use logic statements like if and while. For more information, see the :doc:`language-ref`. 
 
-TODO: add a diagram without workers
+.. image:: images/Figure1-1.png
 
 -------------------
 Executable programs

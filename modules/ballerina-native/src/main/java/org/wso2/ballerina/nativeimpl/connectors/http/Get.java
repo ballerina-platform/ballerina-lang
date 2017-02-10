@@ -27,7 +27,9 @@ import org.wso2.ballerina.core.model.values.BConnector;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
+import org.wso2.ballerina.core.nativeimpl.annotations.Attribute;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
@@ -51,6 +53,14 @@ import org.wso2.carbon.messaging.CarbonMessage;
         name = "action.net.http.get",
         immediate = true,
         service = AbstractNativeAction.class)
+@BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
+value = "GET action implementation of the HTTP Connector") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "connector",
+value = "Connector") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "path",
+value = "Request path") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "message",
+value = "message") })
 public class Get extends AbstractHTTPAction {
 
     private static final Logger logger = LoggerFactory.getLogger(Get.class);
