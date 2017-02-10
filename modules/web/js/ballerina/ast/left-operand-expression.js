@@ -58,7 +58,7 @@ define(['lodash', './statement'], function(_, Statement){
             if (childJsonNode.type === 'variable_reference_expression') {
                 expression += childJsonNode.variable_reference_name;
             } else {
-                var child = self.getFactory().createFromJson(childNode);
+                var child = self.getFactory().createFromJson(childJsonNode);
                 self.addChild(child);
                 child.initFromJson(childJsonNode);
                 expression += child.getExpression();
