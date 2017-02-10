@@ -23,7 +23,6 @@ import org.wso2.siddhi.query.api.definition.*;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.execution.ExecutionElement;
-import org.wso2.siddhi.query.api.execution.Subscription;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
@@ -159,23 +158,6 @@ public class ExecutionPlan {
         }
         executionElementNameList.add(name);
         this.executionElementList.add(query);
-        return this;
-    }
-
-    public ExecutionPlan addSubscription(Subscription subscription) {
-        if (subscription == null) {
-            throw new ExecutionPlanValidationException("Subscription should not be null");
-        }
-        String name = null;
-        Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_INFO, SiddhiConstants.ANNOTATION_ELEMENT_NAME, subscription.getAnnotations());
-        if (element != null) {
-            name = element.getValue();
-        }
-        if (name != null && executionElementNameList.contains(name)) {
-            throw new ExecutionPlanValidationException("Cannot add Subscription as another Execution Element already uses its name=" + name);
-        }
-        executionElementNameList.add(name);
-        this.executionElementList.add(subscription);
         return this;
     }
 

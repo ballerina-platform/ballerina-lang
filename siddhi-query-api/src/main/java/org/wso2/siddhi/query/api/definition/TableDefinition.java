@@ -18,11 +18,8 @@
 package org.wso2.siddhi.query.api.definition;
 
 import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.definition.io.Store;
 
 public class TableDefinition extends AbstractDefinition {
-
-    private Store store;
 
     protected TableDefinition(String id) {
         super(id);
@@ -30,15 +27,6 @@ public class TableDefinition extends AbstractDefinition {
 
     public static TableDefinition id(String id) {
         return new TableDefinition(id);
-    }
-
-    public TableDefinition store(Store store){
-        this.store = store;
-        return this;
-    }
-
-    public Store getStore(){
-        return store;
     }
 
     public TableDefinition attribute(String attributeName, Attribute.Type type) {
@@ -58,7 +46,6 @@ public class TableDefinition extends AbstractDefinition {
                 "id='" + id + '\'' +
                 ", attributeList=" + attributeList +
                 ", annotations=" + annotations +
-                ", store=" + store +
                 '}';
     }
 
