@@ -38,6 +38,8 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
             this._model.on('child-removed', function (child) {
                 if (BallerinaASTFactory.isFunctionDefinition(child)) {
                     this.removeFunctionDefinition(child);
+                }else if(BallerinaASTFactory.isConnectorDefinition(child)){
+                    this.removeConnectorDefinition(child);
                 }
             }, this);
         };
@@ -158,6 +160,14 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
          */
         BallerinaASTRootVisitor.prototype.removeFunctionDefinition = function (functionDef) {
             this.getPackage().removeFunctionDefinition(functionDef);
+        };
+
+        /**
+         * remove given connector definition from the package object
+         * @param {Object} connectorDef - connector definition to be removed
+         */
+        BallerinaASTRootVisitor.prototype.removeConnectorDefinition  = function (connectorDef) {
+            this.getPackage().removeConnectorDefinition(connectorDef);
         };
 
         /**

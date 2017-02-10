@@ -341,6 +341,20 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
         });
     };
 
+    ConnectorAction.prototype.getConnectionDeclarations = function () {
+        var connectorDeclaration = [];
+        var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.getFactory().isConnectorDeclaration(child)) {
+                connectorDeclaration.push(child);
+            }
+        });
+        return _.sortBy(connectorDeclaration, [function (connectorDeclaration) {
+            return connectorDeclaration.getConnectorVariable();
+        }]);
+    };
+
     /**
      * initialize ConnectorAction from json object
      * @param {Object} jsonNode to initialize from

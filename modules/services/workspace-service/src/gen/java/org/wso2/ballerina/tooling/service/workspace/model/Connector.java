@@ -17,8 +17,10 @@
 package org.wso2.ballerina.tooling.service.workspace.model;
 
 import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,149 +28,164 @@ import java.util.List;
  * Connector
  */
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen", date = "2017-01-27T07:45:46.625Z")
-public class Connector   {
-  @JsonProperty("name")
-  private String name = null;
+public class Connector {
+    @JsonProperty("name")
+    private String name = null;
 
-  @JsonProperty("annotations")
-  private List<Annotation> annotations = new ArrayList<Annotation>();
+    @JsonProperty("annotations")
+    private List<Annotation> annotations = new ArrayList<Annotation>();
 
-  @JsonProperty("parameters")
-  private List<Parameter> parameters = new ArrayList<Parameter>();
+    @JsonProperty("returnParams")
+    private List<Parameter> returnParameters = new ArrayList<>();
 
-  @JsonProperty("actions")
-  private List<Action> actions = new ArrayList<Action>();
+    @JsonProperty("parameters")
+    private List<Parameter> parameters = new ArrayList<Parameter>();
 
-  public Connector name(String name) {
-    this.name = name;
-    return this;
-  }
+    @JsonProperty("actions")
+    private List<Action> actions = new ArrayList<Action>();
 
-   /**
-   * Get name
-   * @return name
-  **/
-  @ApiModelProperty(value = "")
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public Connector annotations(List<Annotation> annotations) {
-    this.annotations = annotations;
-    return this;
-  }
-
-  public Connector addAnnotationsItem(Annotation annotationsItem) {
-    this.annotations.add(annotationsItem);
-    return this;
-  }
-
-   /**
-   * Get annotations
-   * @return annotations
-  **/
-  @ApiModelProperty(value = "")
-  public List<Annotation> getAnnotations() {
-    return annotations;
-  }
-
-  public void setAnnotations(List<Annotation> annotations) {
-    this.annotations = annotations;
-  }
-
-  public Connector parameters(List<Parameter> parameters) {
-    this.parameters = parameters;
-    return this;
-  }
-
-  public Connector addParametersItem(Parameter parametersItem) {
-    this.parameters.add(parametersItem);
-    return this;
-  }
-
-   /**
-   * Get parameters
-   * @return parameters
-  **/
-  @ApiModelProperty(value = "")
-  public List<Parameter> getParameters() {
-    return parameters;
-  }
-
-  public void setParameters(List<Parameter> parameters) {
-    this.parameters = parameters;
-  }
-
-  public Connector actions(List<Action> actions) {
-    this.actions = actions;
-    return this;
-  }
-
-  public Connector addActionsItem(Action actionsItem) {
-    this.actions.add(actionsItem);
-    return this;
-  }
-
-   /**
-   * Get actions
-   * @return actions
-  **/
-  @ApiModelProperty(value = "")
-  public List<Action> getActions() {
-    return actions;
-  }
-
-  public void setActions(List<Action> actions) {
-    this.actions = actions;
-  }
-
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
+    public Connector name(String name) {
+        this.name = name;
+        return this;
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    /**
+     * Get name
+     *
+     * @return name
+     **/
+    @ApiModelProperty(value = "")
+    public String getName() {
+        return name;
     }
-    Connector connector = (Connector) o;
-    return Objects.equals(this.name, connector.name) &&
-        Objects.equals(this.annotations, connector.annotations) &&
-        Objects.equals(this.parameters, connector.parameters) &&
-        Objects.equals(this.actions, connector.actions);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(name, annotations, parameters, actions);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class Connector {\n");
-    
-    sb.append("    name: ").append(toIndentedString(name)).append("\n");
-    sb.append("    annotations: ").append(toIndentedString(annotations)).append("\n");
-    sb.append("    parameters: ").append(toIndentedString(parameters)).append("\n");
-    sb.append("    actions: ").append(toIndentedString(actions)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
+    public void setName(String name) {
+        this.name = name;
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    public Connector annotations(List<Annotation> annotations) {
+        this.annotations = annotations;
+        return this;
+    }
+
+    public Connector addAnnotationsItem(Annotation annotationsItem) {
+        this.annotations.add(annotationsItem);
+        return this;
+    }
+
+    /**
+     * Get annotations
+     *
+     * @return annotations
+     **/
+    @ApiModelProperty(value = "")
+    public List<Annotation> getAnnotations() {
+        return annotations;
+    }
+
+    public void setAnnotations(List<Annotation> annotations) {
+        this.annotations = annotations;
+    }
+
+    public Connector parameters(List<Parameter> parameters) {
+        this.parameters = parameters;
+        return this;
+    }
+
+    public Connector addParametersItem(Parameter parametersItem) {
+        this.parameters.add(parametersItem);
+        return this;
+    }
+
+    /**
+     * Get parameters
+     *
+     * @return parameters
+     **/
+    @ApiModelProperty(value = "")
+    public List<Parameter> getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(List<Parameter> parameters) {
+        this.parameters = parameters;
+    }
+
+    public Connector actions(List<Action> actions) {
+        this.actions = actions;
+        return this;
+    }
+
+    public Connector addActionsItem(Action actionsItem) {
+        this.actions.add(actionsItem);
+        return this;
+    }
+
+    /**
+     * Get actions
+     *
+     * @return actions
+     **/
+    @ApiModelProperty(value = "")
+    public List<Action> getActions() {
+        return actions;
+    }
+
+    public void setActions(List<Action> actions) {
+        this.actions = actions;
+    }
+
+    @ApiModelProperty(value = "")
+    public List<Parameter> getReturnParameters() {
+        return returnParameters;
+    }
+
+    public void setReturnParameters(List<Parameter> returnParameters) {
+        this.returnParameters = returnParameters;
+    }
+
+    @Override
+    public boolean equals(java.lang.Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Connector connector = (Connector) o;
+        return Objects.equals(this.name, connector.name) &&
+                Objects.equals(this.annotations, connector.annotations) &&
+                Objects.equals(this.parameters, connector.parameters) &&
+                Objects.equals(this.actions, connector.actions);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, annotations, parameters, actions);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class Connector {\n");
+
+        sb.append("    name: ").append(toIndentedString(name)).append("\n");
+        sb.append("    annotations: ").append(toIndentedString(annotations)).append("\n");
+        sb.append("    parameters: ").append(toIndentedString(parameters)).append("\n");
+        sb.append("    actions: ").append(toIndentedString(actions)).append("\n");
+        sb.append("}");
+        return sb.toString();
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private String toIndentedString(java.lang.Object o) {
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
+    }
 }
 

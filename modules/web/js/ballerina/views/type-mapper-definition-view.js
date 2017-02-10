@@ -86,8 +86,6 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
 
             var self = this;
 
-            // todo verify this.getBoundingBox().fromTopLeft(new Point(0, 0), currentContainer.width(), currentContainer.height());
-
             $(this.getTitle()).text(this.getModel().getTypeMapperName())
                 .on("change paste keyup", function () {
                     self.getModel().setTypeMapperName($(this).text());

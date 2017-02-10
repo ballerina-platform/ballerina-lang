@@ -107,6 +107,7 @@ define(['lodash', './expression'], function (_, Expression) {
         this.setPackageName(jsonNode.package_name, {doSilently: true});
         this.setFunctionName(jsonNode.function_name, {doSilently: true});
         this.setParams(this._generateArgsString(jsonNode),  {doSilently: true});
+        this.setExpression(this.generateExpression());
     };
 
     /**
@@ -149,7 +150,10 @@ define(['lodash', './expression'], function (_, Expression) {
             }
         }
 
-        return this.getFunctionName() + '(' + argsString +  ')';
+        var functionName = (_.isUndefined(this.getPackageName()))? this.getFunctionName()
+            : this.getPackageName() + ":" + this.getFunctionName();
+
+        return functionName + '(' + this._params +  ')';
     };
 
     return FunctionInvocationExpression;

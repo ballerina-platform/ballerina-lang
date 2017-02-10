@@ -36,7 +36,7 @@ define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapp
         TypeMapperBlockStatementView.prototype = Object.create(BallerinaView.prototype);
         TypeMapperBlockStatementView.prototype.constructor = TypeMapperBlockStatementView;
 
-        TypeMapperBlockStatementView.prototype.canVisitBlockStatementView = function (blockStatementView) {
+        TypeMapperBlockStatementView.prototype.canVisitBlockStatement = function (blockStatement) {
             return true;
         };
 

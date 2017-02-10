@@ -18,6 +18,14 @@ package org.wso2.ballerina.tooling.service.workspace.rest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+import org.wso2.ballerina.core.model.types.SimpleTypeName;
+import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
+import org.wso2.ballerina.core.nativeimpl.NativeUnitProxy;
+import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.tooling.service.workspace.api.NotFoundException;
 import org.wso2.ballerina.tooling.service.workspace.api.PackagesApiService;
 import org.wso2.ballerina.tooling.service.workspace.model.Action;
@@ -26,6 +34,7 @@ import org.wso2.ballerina.tooling.service.workspace.model.Connector;
 import org.wso2.ballerina.tooling.service.workspace.model.Function;
 import org.wso2.ballerina.tooling.service.workspace.model.ModelPackage;
 import org.wso2.ballerina.tooling.service.workspace.model.Parameter;
+import org.wso2.ballerina.tooling.service.workspace.scope.APIScope;
 
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -48,6 +57,13 @@ public class PackagesApiServiceImpl extends PackagesApiService {
     private static final String ACCESS_CONTROL_ALLOW_HEADERS_VALUE = "content-type";
     private static final String ACCESS_CONTROL_ALLOW_METHODS_NAME = "Access-Control-Allow-Methods";
     private static final String ACCESS_CONTROL_ALLOW_METHODS_VALUE = "OPTIONS, GET, POST";
+    private APIScope apiScope;
+
+    public PackagesApiServiceImpl() {
+        this.apiScope = new APIScope();
+        BuiltInNativeConstructLoader constructLoader = new BuiltInNativeConstructLoader();
+        constructLoader.loadConstructs(this.apiScope);
+    }
 
     @Override
     public Response packagesGet(Integer limit, Integer offset, String query, String accept, String ifNoneMatch)
@@ -73,116 +89,181 @@ public class PackagesApiServiceImpl extends PackagesApiService {
 
     private Map<String, ModelPackage> getAllPackages() {
         Map<String, ModelPackage> packages = new HashMap<>();
-        ModelPackage modelPackage = new ModelPackage();
 
-        modelPackage.setName("ballerina.net.http");
+        for (Map.Entry<SymbolName, BLangSymbol> entry : apiScope.getSymbolMap().entrySet()) {
+            SymbolName key = entry.getKey();
+            BLangSymbol symbol = entry.getValue();
+            if (((NativeUnitProxy) symbol).load() instanceof AbstractNativeFunction) {
+                AbstractNativeFunction abstractNativeFunction = (AbstractNativeFunction) ((NativeUnitProxy) symbol).load();
+                if (packages.containsKey(key.getPkgPath())) {
+                    ModelPackage modelPackage = packages.get(key.getPkgPath());
+                    List<Parameter> parameters = new ArrayList<>();
+                    addParameters(parameters, abstractNativeFunction.getArgumentTypeNames());
 
-        //adding function setStatusCode
-        List<Parameter> params = new ArrayList<>();
-        params.add(createNewParameter("message", "message"));
-        params.add(createNewParameter("int", "statusCode"));
-        List<Parameter> returnParams = new ArrayList<>();
-        returnParams.add(createNewParameter("int", null));
-        List<Annotation> annotations = new ArrayList<>();
-        annotations.add(createNewAnnotation("Description", ""));
-        annotations.add(createNewAnnotation("Param", "message"));
-        annotations.add(createNewAnnotation("Param", "status code"));
-        modelPackage.addFunctionsItem(createNewFunction("setStatusCode", annotations, params, returnParams));
+                    List<Parameter> returnParameters = new ArrayList<>();
+                    addParameters(returnParameters, abstractNativeFunction.getReturnParamTypeNames());
 
-        //adding function setStatusCode
-        params = new ArrayList<>();
-        params.add(createNewParameter("message", "message"));
-        returnParams = new ArrayList<>();
-        returnParams.add(createNewParameter("int", null));
-        annotations = new ArrayList<>();
-        annotations.add(createNewAnnotation("Description", ""));
-        annotations.add(createNewAnnotation("Param", "message"));
-        annotations.add(createNewAnnotation("Return", "status code"));
-        modelPackage.addFunctionsItem(createNewFunction("getStatusCode", annotations, params, returnParams));
+                    List<Annotation> annotations = new ArrayList<>();
+                    addAnnotations(annotations, abstractNativeFunction.getAnnotations());
 
-        //adding function setContentLength
-        params = new ArrayList<>();
-        params.add(createNewParameter("message", "message"));
-        params.add(createNewParameter("int", "contentLength"));
-        returnParams = new ArrayList<>();
-        returnParams.add(createNewParameter("int", null));
-        annotations = new ArrayList<>();
-        annotations.add(createNewAnnotation("Description", ""));
-        annotations.add(createNewAnnotation("Param", "message"));
-        annotations.add(createNewAnnotation("Param", "content length"));
-        modelPackage.addFunctionsItem(createNewFunction("setContentLength", annotations, params, returnParams));
+                    modelPackage.addFunctionsItem(createNewFunction(abstractNativeFunction.getName(),
+                            annotations, parameters, returnParameters));
+                } else {
+                    ModelPackage modelPackage = new ModelPackage();
+                    modelPackage.setName(key.getPkgPath());
+                    List<Parameter> parameters = new ArrayList<>();
+                    addParameters(parameters, abstractNativeFunction.getArgumentTypeNames());
 
-        //adding function setContentLength
-        params = new ArrayList<>();
-        params.add(createNewParameter("message", "message"));
-        returnParams = new ArrayList<>();
-        returnParams.add(createNewParameter("int", null));
-        annotations = new ArrayList<>();
-        annotations.add(createNewAnnotation("Description", ""));
-        annotations.add(createNewAnnotation("Param", "message"));
-        annotations.add(createNewAnnotation("Return", "content length"));
-        modelPackage.addFunctionsItem(createNewFunction("getContentLength", annotations, params, returnParams));
+                    List<Parameter> returnParameters = new ArrayList<>();
+                    addParameters(returnParameters, abstractNativeFunction.getReturnParamTypeNames());
 
-        //adding function setReasonPhrase
-        params = new ArrayList<>();
-        params.add(createNewParameter("message", "message"));
-        params.add(createNewParameter("string", "reasonPhrase"));
-        returnParams = new ArrayList<>();
-        returnParams.add(createNewParameter("int", null));
-        annotations = new ArrayList<>();
-        annotations.add(createNewAnnotation("Description", ""));
-        annotations.add(createNewAnnotation("Param", "message"));
-        annotations.add(createNewAnnotation("Param", "reason phrase"));
-        modelPackage.addFunctionsItem(createNewFunction("setReasonPhrase", annotations, params, returnParams));
+                    List<Annotation> annotations = new ArrayList<>();
+                    addAnnotations(annotations, abstractNativeFunction.getAnnotations());
 
-        //adding action GET
-        List<Action> actions = new ArrayList<>();
-        List<Parameter> actionParams = new ArrayList<>();
-        actionParams.add(createNewParameter("HttpConnector", "h"));
-        actionParams.add(createNewParameter("string", "path"));
-        actionParams.add(createNewParameter("message", "m"));
-        returnParams = new ArrayList<>();
-        returnParams.add(createNewParameter("message", null));
-        annotations = new ArrayList<>();
-        annotations.add(createNewAnnotation("Description", ""));
-        actions.add(createNewAction("get", actionParams, returnParams, annotations));
+                    modelPackage.addFunctionsItem(createNewFunction(abstractNativeFunction.getName(),
+                            annotations, parameters, returnParameters));
+                    packages.put(key.getPkgPath(), modelPackage);
+                }
+            } else if (((NativeUnitProxy) symbol).load() instanceof AbstractNativeConnector) {
+                AbstractNativeConnector abstractNativeConnector = (AbstractNativeConnector) ((NativeUnitProxy) symbol).load();
+                if (packages.containsKey(key.getPkgPath())) {
+                    ModelPackage modelPackage = packages.get(key.getPkgPath());
+                    List<Parameter> parameters = new ArrayList<>();
+                    addParameters(parameters, abstractNativeConnector.getArgumentTypeNames());
 
-        //adding action POST
-        actionParams = new ArrayList<>();
-        actionParams.add(createNewParameter("HttpConnector", "h"));
-        actionParams.add(createNewParameter("string", "path"));
-        actionParams.add(createNewParameter("message", "m"));
-        returnParams = new ArrayList<>();
-        returnParams.add(createNewParameter("message", null));
-        annotations = new ArrayList<>();
-        annotations.add(createNewAnnotation("Description", ""));
-        actions.add(createNewAction("post", actionParams, returnParams, annotations));
+                    List<Parameter> returnParameters = new ArrayList<>();
+                    addParameters(returnParameters, abstractNativeConnector.getReturnParamTypeNames());
 
-        //adding action PUT
-        actionParams = new ArrayList<>();
-        actionParams.add(createNewParameter("HttpConnector", "h"));
-        actionParams.add(createNewParameter("string", "path"));
-        actionParams.add(createNewParameter("message", "m"));
-        returnParams = new ArrayList<>();
-        returnParams.add(createNewParameter("message", null));
-        annotations = new ArrayList<>();
-        annotations.add(createNewAnnotation("Description", ""));
-        actions.add(createNewAction("put", actionParams, returnParams, annotations));
+                    List<Annotation> annotations = new ArrayList<>();
+                    List<Action> actions = new ArrayList<>();
+                    addActions(actions, abstractNativeConnector);
 
-        //adding action DELETE
-        actionParams = new ArrayList<>();
-        actionParams.add(createNewParameter("HttpConnector", "h"));
-        actionParams.add(createNewParameter("string", "path"));
-        actionParams.add(createNewParameter("message", "m"));
-        returnParams = new ArrayList<>();
-        returnParams.add(createNewParameter("message", null));
-        annotations = new ArrayList<>();
-        annotations.add(createNewAnnotation("Description", ""));
-        actions.add(createNewAction("delete", actionParams, returnParams, annotations));
+                    modelPackage.addConnectorsItem(createNewConnector(abstractNativeConnector.getName(),
+                            annotations, actions, parameters, returnParameters));
+                } else {
+                    ModelPackage modelPackage = new ModelPackage();
+                    modelPackage.setName(key.getPkgPath());
 
-        modelPackage.addConnectorsItem(createNewConnector("HTTPConnector", annotations, actions, params));
-        packages.put(modelPackage.getName(), modelPackage);
+                    List<Parameter> parameters = new ArrayList<>();
+                    addParameters(parameters, abstractNativeConnector.getArgumentTypeNames());
+
+                    List<Parameter> returnParameters = new ArrayList<>();
+                    addParameters(returnParameters, abstractNativeConnector.getReturnParamTypeNames());
+
+                    List<Annotation> annotations = new ArrayList<>();
+                    List<Action> actions = new ArrayList<>();
+                    addActions(actions, abstractNativeConnector);
+
+                    modelPackage.addConnectorsItem(createNewConnector(abstractNativeConnector.getName(),
+                            annotations, actions, parameters, returnParameters));
+                    packages.put(key.getPkgPath(), modelPackage);
+                }
+            }
+        }
         return packages;
+    }
+
+    private void addParameters(List<Parameter> params, SimpleTypeName[] argumentTypeNames) {
+        for (int i = 0; i < argumentTypeNames.length; i++) {
+            params.add(createNewParameter(argumentTypeNames[i].getName(), argumentTypeNames[i].getSymbolName().getName()));
+        }
+    }
+
+    private void addAnnotations(List<Annotation> annotations, org.wso2.ballerina.core.model.Annotation[] annotationsFromModel) {
+        for (int i = 0; i < annotationsFromModel.length; i++) {
+            annotations.add(createNewAnnotation(annotationsFromModel[i].getName(), annotationsFromModel[i].getValue()));
+        }
+    }
+
+    private void addActions(List<Action> actions, AbstractNativeConnector connector) {
+        SymbolName execute = new SymbolName("HTTPConnector.execute.ballerina.net.http:HTTPConnector.string.string.message",
+                "ballerina.net.http");
+        SymbolName head = new SymbolName("HTTPConnector.head.ballerina.net.http:HTTPConnector.string.message",
+                "ballerina.net.http");
+        SymbolName delete = new SymbolName("HTTPConnector.delete.ballerina.net.http:HTTPConnector.string.message",
+                "ballerina.net.http");
+        SymbolName put = new SymbolName("HTTPConnector.put.ballerina.net.http:HTTPConnector.string.message",
+                "ballerina.net.http");
+        SymbolName post = new SymbolName("HTTPConnector.post.ballerina.net.http:HTTPConnector.string.message",
+                "ballerina.net.http");
+        SymbolName patch = new SymbolName("HTTPConnector.patch.ballerina.net.http:HTTPConnector.string.message",
+                "ballerina.net.http");
+        SymbolName get = new SymbolName("HTTPConnector.get.ballerina.net.http:HTTPConnector.string.message",
+                "ballerina.net.http");
+
+        AbstractNativeAction executeAction = getAction(execute, connector);
+        List<Parameter> parameters = new ArrayList<>();
+        addParameters(parameters, executeAction.getArgumentTypeNames());
+        List<Annotation> annotations = new ArrayList<>();
+        addAnnotations(annotations, executeAction.getAnnotations());
+        List<Parameter> returnParameters = new ArrayList<>();
+        addParameters(returnParameters, executeAction.getReturnParamTypeNames());
+
+        actions.add(createNewAction(executeAction.getName(),parameters, returnParameters,annotations));
+
+        AbstractNativeAction headAction = getAction(head, connector);
+        parameters = new ArrayList<>();
+        addParameters(parameters, headAction.getArgumentTypeNames());
+        annotations = new ArrayList<>();
+        addAnnotations(annotations, headAction.getAnnotations());
+        returnParameters = new ArrayList<>();
+        addParameters(returnParameters, headAction.getReturnParamTypeNames());
+
+        actions.add(createNewAction(headAction.getName(),parameters, returnParameters, annotations));
+
+        AbstractNativeAction deleteAction = getAction(delete, connector);
+        parameters = new ArrayList<>();
+        addParameters(parameters, deleteAction.getArgumentTypeNames());
+        annotations = new ArrayList<>();
+        addAnnotations(annotations, deleteAction.getAnnotations());
+        returnParameters = new ArrayList<>();
+        addParameters(returnParameters, deleteAction.getReturnParamTypeNames());
+
+        actions.add(createNewAction(deleteAction.getName(),parameters, returnParameters, annotations));
+
+        AbstractNativeAction putAction = getAction(put, connector);
+        parameters = new ArrayList<>();
+        addParameters(parameters, putAction.getArgumentTypeNames());
+        annotations = new ArrayList<>();
+        addAnnotations(annotations, putAction.getAnnotations());
+        returnParameters = new ArrayList<>();
+        addParameters(returnParameters, putAction.getReturnParamTypeNames());
+
+        actions.add(createNewAction(putAction.getName(),parameters, returnParameters, annotations));
+
+        AbstractNativeAction postAction = getAction(post, connector);
+        parameters = new ArrayList<>();
+        addParameters(parameters, postAction.getArgumentTypeNames());
+        annotations = new ArrayList<>();
+        addAnnotations(annotations, postAction.getAnnotations());
+        returnParameters = new ArrayList<>();
+        addParameters(returnParameters, postAction.getReturnParamTypeNames());
+
+        actions.add(createNewAction(postAction.getName(),parameters, returnParameters, annotations));
+
+        AbstractNativeAction patchAction = getAction(patch, connector);
+        parameters = new ArrayList<>();
+        addParameters(parameters, patchAction.getArgumentTypeNames());
+        annotations = new ArrayList<>();
+        addAnnotations(annotations, patchAction.getAnnotations());
+        returnParameters = new ArrayList<>();
+        addParameters(returnParameters, patchAction.getReturnParamTypeNames());
+
+        actions.add(createNewAction(patchAction.getName(),parameters, returnParameters, annotations));
+
+        AbstractNativeAction getAction = getAction(get,connector);
+        parameters = new ArrayList<>();
+        addParameters(parameters, getAction.getArgumentTypeNames());
+        annotations = new ArrayList<>();
+        addAnnotations(annotations, getAction.getAnnotations());
+        returnParameters = new ArrayList<>();
+        addParameters(returnParameters, getAction.getReturnParamTypeNames());
+
+        actions.add(createNewAction(getAction.getName(),parameters, returnParameters, annotations));
+    }
+
+    private AbstractNativeAction getAction(SymbolName symbolName, AbstractNativeConnector connector){
+        return (AbstractNativeAction)((NativeUnitProxy)connector.resolve(symbolName)).load();
     }
 
     private Action createNewAction(String name, List<Parameter> params, List<Parameter> returnParams,
@@ -220,12 +301,13 @@ public class PackagesApiServiceImpl extends PackagesApiService {
     }
 
     private Connector createNewConnector(String name, List<Annotation> annotations, List<Action> actions,
-                                         List<Parameter> params) {
+                                         List<Parameter> params, List<Parameter> returnParams) {
         Connector connector = new Connector();
         connector.setName(name);
         connector.setActions(actions);
         connector.setParameters(params);
         connector.setAnnotations(annotations);
+        connector.setReturnParameters(returnParams);
         return connector;
     }
 

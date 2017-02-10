@@ -33,7 +33,7 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
             this.addServiceDefinitions(_.get(args, 'serviceDefinitions', []));
             this.addFunctionDefinitions(_.get(args, 'functionDefinitions', []));
             this.addStructDefinitions(_.get(args, 'structDefinitions', []));
-            this._connectors = _.get(args, 'connectors', []);
+            this._connectorDefinitions = _.get(args, 'connectors', []);
             this.addTypeDefinitions(_.get(args, 'typeDefinitions', []));
             this.addTypeMapperDefinitions(_.get(args, 'typeMapperDefinitions', []));
             this.addConstantDefinitions(_.get(args, 'constantDefinitions', []));
@@ -233,7 +233,7 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
                     });
                 }
             }
-            this._connectors = _.concat(this._connectors , connectors);
+            this._connectorDefinitions = _.concat(this._connectorDefinitions , connectors);
             /**
              * fired when new connectors are added to the package.
              * @event Package#connector-defs-added
@@ -247,7 +247,7 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
          * @returns {[Connector]}
          */
         Package.prototype.getConnectors = function() {
-            return this._connectors;
+            return this._connectorDefinitions;
         };
 
         /**
@@ -354,6 +354,18 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
                 return _.isEqual(functionDefinitionItem.getName(), functionDefinition.getFunctionName());
             });
             this.trigger("function-def-removed", functionDefinition);
+        };
+
+        /**
+         * remove connector definition
+         * @param connectorDefinition - connector definition to be removed
+         */
+        Package.prototype.removeConnectorDefinition  = function (connectorDefinition) {
+            _.remove(this._connectorDefinitions, function (connectorDefinitionItem) {
+                //TODO Need to check param types along with function name to support overloaded functions
+                return _.isEqual(connectorDefinitionItem.getName(), connectorDefinition.getConnectorName())
+            });
+            this.trigger("connector-def-removed", connectorDefinition);
         };
 
         /**

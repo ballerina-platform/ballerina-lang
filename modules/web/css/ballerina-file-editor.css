@@ -21,6 +21,15 @@
     height: auto;
     min-height: 1000px;
     overflow: hidden;
+    position: relative;
+}
+
+.canvas-heading-new h4{
+    background: #dae9bd;
+}
+
+.canvas-heading-new h4 a{
+    font-size: 105%;
 }
 
 .container-outer-div {
