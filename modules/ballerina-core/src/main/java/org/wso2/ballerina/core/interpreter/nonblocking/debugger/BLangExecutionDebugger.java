@@ -432,4 +432,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
         }
     }
 
+    public void clearDebugPoints() {
+        positionHashMap.clear();
+    }
 }
