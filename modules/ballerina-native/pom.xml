@@ -47,6 +47,11 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     
     <build>

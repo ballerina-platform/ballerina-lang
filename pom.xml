@@ -291,6 +291,12 @@
                 <artifactId>HikariCP</artifactId>
                 <version>${com.zaxxer.hikaricp.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.hsqldb</groupId>
+                <artifactId>hsqldb</artifactId>
+                <version>${hyperSQL.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -474,6 +480,7 @@
 
         <!--data services dependencies -->
         <com.zaxxer.hikaricp.version>2.5.1</com.zaxxer.hikaricp.version>
+        <hyperSQL.version>2.3.4</hyperSQL.version>
     </properties>
 
     <modules>
