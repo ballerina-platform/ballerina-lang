@@ -90,12 +90,20 @@ define(["require", "ace/token_iterator"],
             {
                 type: 'ballerina-keyword-primitive-type',
                 prepend: false,
-                append: true
+                append: true,
+                skipAppendUponNext:{
+                    type: 'paren.lparen',
+                    value: '['
+                }
             },
             {
                 type: 'ballerina-keyword-non-primitive-type',
                 prepend: false,
-                append: true
+                append: true,
+                skipAppendUponNext:{
+                    type: 'paren.lparen',
+                    value: '['
+                }
             },
             {
                 type: 'ballerina-keyword-definition',
@@ -172,7 +180,17 @@ define(["require", "ace/token_iterator"],
                             value = space + token.value;
                         }
                         if (spaceRule.append) {
-                            value += space;
+                            if(_.has(spaceRule, 'skipAppendUponNext')){
+                               var  skipAppendUponNext = _.get(spaceRule, 'skipAppendUponNext');
+                               if(_.isEqual(skipAppendUponNext.type, nextToken.type)
+                                    && _.isEqual(skipAppendUponNext.value, nextToken.value)){
+                                   // do nothing for now
+                               } else {
+                                   value += space;
+                               }
+                            } else {
+                                value += space;
+                            }
                         }
                     }
                 });
