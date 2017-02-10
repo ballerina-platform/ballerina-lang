@@ -24,11 +24,14 @@ define(['require', 'lodash', 'jquery'], function (require, _, $) {
         var propertyValue = _.isNil(property.getterMethod.call(property.model)) ? "" : property.getterMethod.call(property.model);
         var propertyInputValue = $("<input type='text' value=''>").appendTo(propertyWrapper);
         $(propertyInputValue).css('border', '1px solid');
+        $(propertyInputValue).css('text-align', 'center');
         $(propertyInputValue).focus();
         $(propertyInputValue).val(propertyValue);
         $(propertyInputValue).css("width", ((propertyValue.length + 1) * widthMultiFactor) + "px");
-        $(propertyInputValue).on("change paste keyup", function () {
+        $(propertyInputValue).on("paste keyup", function () {
             $(this).css("width", (($(this).val().length + 1) * widthMultiFactor) + "px");
+        });
+        $(propertyInputValue).on("change", function(){
             // Do not set the value to the model directly, instead fire the event.
             property.model.trigger('update-property-text', $(this).val(), property.key);
         });
