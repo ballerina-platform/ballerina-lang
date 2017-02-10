@@ -176,7 +176,8 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     functionDef.nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationStatement;
                 }
                 functionDef.meta = {
-                    functionName: packageName + ":" + functionDef.getName()
+                    functionName: functionDef.getName(),
+                    packageName: packageName
                 };
                 functionDef.icon = "images/tool-icons/function.svg";
                 functionDef.title = functionDef.getName();
