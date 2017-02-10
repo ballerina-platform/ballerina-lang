@@ -160,6 +160,12 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     var actionNodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression;
                     self.addToToolGroup(toolGroupID, action, actionNodeFactoryMethod, actionIcon);
                 });
+
+                connector.on('connector-action-removed', function (action) {
+                    var toolGroupID = package.getName() + "-tool-group";
+                    var toolId = action.getActionName();
+                    self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
+                });
             });
 
             _.each(package.getFunctionDefinitions(), function (functionDef) {
@@ -213,6 +219,13 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     });
 
                 });
+
+                connector.on('connector-action-removed', function (action) {
+                    var toolGroupID = package.getName() + "-tool-group";
+                    var toolId = action.getActionName();
+                    self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
+                });
+
             }, this);
 
             package.on('function-defs-added', function (functionDef) {
