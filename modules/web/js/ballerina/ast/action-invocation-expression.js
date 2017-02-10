@@ -25,7 +25,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
     var ActionInvocationExpression = function (args) {
         // TODO: Implement the expression visitor and extend from Expression
         Statement.call(this, "ActionInvocationExpression");
-        this._variableAccessor = _.get(args, 'accessor', '');
+        this._variableAccessor = _.get(args, 'accessor', 'var1');
         this._actionName = _.get(args, 'action', '');
         this._actionPackageName = _.get(args, 'actionPackageName', '');
         this._actionConnectorName = _.get(args, 'actionConnectorName', '');
