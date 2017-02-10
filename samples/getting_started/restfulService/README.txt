@@ -10,12 +10,6 @@ This sample illustrates a RESTful service that comprises of three resources and 
 
 
 
-Note:
-ToDo: Once we have the support for service and resource level annotations, this sample has to be further improve with to reflect all the RESTful service concepts.
-
-
-
-
 How to run this sample
 ======================
 bin$ ./ballerina service ../samples/restfulService/ecommerceService.bal
@@ -28,7 +22,7 @@ Invoking the service
 ====================
 
 
-curl -X GET "http://localhost:9090/ecommerceservice/products/123456"
+curl -X GET "http://localhost:9090/ecommerceservice/products/123000"
 
 curl -X POST -d '{ "Product": { "ID": "123456", "Name": "XYZ", "Description": "Sample product."}}'  "http://localhost:9090/ecommerceservice/products"
 
