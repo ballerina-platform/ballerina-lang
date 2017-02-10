@@ -263,7 +263,6 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
                     }
                 $(deleteButtonRect.node()).click(function(event){
                     event.stopPropagation();
-                    model.remove();
                     self._model.remove();
                     // Hiding property button pane.
                     $(propertyPaneWrapper).remove();
