@@ -74,7 +74,7 @@ structDefinitionBody
     ;
 
 typeConvertorDefinition
-    :   'typeconvertor' Identifier '(' typeConvertorInput ')' '('typeConvertorType')' typeConvertorBody
+    :   'typeconvertor' Identifier '(' typeConvertorInput ')' '('typeConvertorType')' '{' typeConvertorBody '}'
     ;
 
 typeConvertorInput
@@ -83,7 +83,7 @@ typeConvertorInput
 
 // cannot have conector declaration, need to validate at semantic analyzing
 typeConvertorBody
-    :   '{' statement+ '}'
+    :   statement+
     ;
 
 constantDefinition
@@ -753,3 +753,41 @@ LINE_COMMENT
 ERRCHAR
 	:	.	-> channel(HIDDEN)
 	;
+
+
+// Other tokens
+SENDARROW       :   '->';
+RECEIVEARROW    :   '<-';
+
+LPAREN          : '(';
+RPAREN          : ')';
+LBRACE          : '{';
+RBRACE          : '}';
+LBRACK          : '[';
+RBRACK          : ']';
+SEMI            : ';';
+COMMA           : ',';
+DOT             : '.';
+
+ASSIGN          : '=';
+GT              : '>';
+LT              : '<';
+BANG            : '!';
+TILDE           : '~';
+QUESTION        : '?';
+COLON           : ':';
+EQUAL           : '==';
+LE              : '<=';
+GE              : '>=';
+NOTEQUAL        : '!=';
+AND             : '&&';
+OR              : '||';
+ADD             : '+';
+SUB             : '-';
+MUL             : '*';
+DIV             : '/';
+BITAND          : '&';
+BITOR           : '|';
+CARET           : '^';
+MOD             : '%';
+DOLLAR_SIGN     : '$';
