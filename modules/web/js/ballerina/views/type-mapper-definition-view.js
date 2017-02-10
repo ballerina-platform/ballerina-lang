@@ -146,6 +146,18 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
 //                sourceAndTargetObjects.target.setOnDisconnectInstance(self.onAttributesDisConnect);
 //            }
 
+            $("#"+sourceId +",#"+targetId).on({
+                mousedown: function() {
+                    var predefinedStructs = self._package.getStructDefinitions();
+                    if (predefinedStructs.length > 0) {
+                        $("#"+sourceId +",#"+targetId).empty().append('<option value="-1">--Select--</option>');
+                        self.getSourceInfo()["predefinedStructs"] = predefinedStructs;
+                        self.getTargetInfo()["predefinedStructs"] = predefinedStructs;
+                        self.loadSchemasToComboBox(currentContainer, "#" + sourceId,"#"+targetId, predefinedStructs);
+                    }
+                }
+            });
+
             $(currentContainer).find("#" + sourceId).change(function () {
                 var sourceDropDown = $("#" + sourceId + " option:selected");
                 var selectedArrayIndex = sourceDropDown.val();
