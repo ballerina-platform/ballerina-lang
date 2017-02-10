@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel', './debug-point', 'mousetrap', ],
-    function (require, $, Backbone, _ ,EventChannel, Channel, DebugPoint, Mousetrap) {
+define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel', './debug-point', 'mousetrap', 'log'],
+    function (require, $, Backbone, _ ,EventChannel, Channel, DebugPoint, Mousetrap, log) {
 	var instance;
 
     var DebugManager = function(args) {
@@ -93,12 +93,14 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
     }; 
 
     DebugManager.prototype.addBreakPoint = function(line, fileName){
+        log.debug('debug point added', line, fileName);
         var point = new DebugPoint({ "fileName": fileName , "line": line});
     	this.debugPoints.push(point);
     	this.trigger("breakpoint-added");
     };
 
     DebugManager.prototype.removeBreakPoint = function(line, fileName){
+        log.debug('debug point removed', line, fileName);
         var point = new DebugPoint({ "fileName": fileName , "line": line});
         _.remove(this.debugPoints, function(item) {
             return item.fileName == point.fileName && item.line == point.line ;
