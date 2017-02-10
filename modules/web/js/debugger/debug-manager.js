@@ -93,6 +93,7 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
     }; 
 
     DebugManager.prototype.addBreakPoint = function(line, fileName){
+        fileName = fileName === "<unknown>" ? "untitled" : fileName;
         log.debug('debug point added', line, fileName);
         var point = new DebugPoint({ "fileName": fileName , "line": line});
     	this.debugPoints.push(point);
@@ -100,6 +101,7 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
     };
 
     DebugManager.prototype.removeBreakPoint = function(line, fileName){
+        fileName = fileName === "<unknown>" ? "untitled" : fileName;
         log.debug('debug point removed', line, fileName);
         var point = new DebugPoint({ "fileName": fileName , "line": line});
         _.remove(this.debugPoints, function(item) {
@@ -118,11 +120,17 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
     };
 
     DebugManager.prototype.hasBreakPoint = function (line, fileName) {
+        fileName = fileName === "<unknown>" ? "untitled" : fileName;
+        console.log(this.debugPoints, {line: line, fileName: fileName})
         return !!_.find(this.debugPoints, {line: line, fileName: fileName});
     };
 
     DebugManager.prototype.isEnabled = function(){
         return this.enable;
+    };
+
+    DebugManager.prototype.getDebugPoints = function () {
+        return this.debugPoints;
     };
 
     return (instance = (instance || new DebugManager()));

@@ -364,7 +364,7 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
     };
 
     ASTNode.prototype.setLineNumber = function (lineNumber, options) {
-        this.setAttribute('_lineNumber', lineNumber, options);
+        this.setAttribute('_lineNumber', parseInt(lineNumber), options);
     };
 
     ASTNode.prototype.getFileName = function () {

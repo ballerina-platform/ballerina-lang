@@ -56,6 +56,15 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
         });
         this._editor.setBehavioursEnabled(true);
         var self = this;
+
+        self.on('reset-breakpoints', function(breakpoints) {
+            breakpoints = breakpoints || [];
+            // ace editor breakpoints counts from 0;
+            var sourceViewBreakPoints = _.map(breakpoints, function(breakpoint) {
+                return breakpoint - 1;
+            });
+            self._editor.getSession().setBreakpoints(breakpoints);
+        });
         //bind auto complete to key press
         this._editor.commands.on("afterExec", function(e){
             if (e.command.name == "insertstring"&&/^[\w.]$/.test(e.args)) {
