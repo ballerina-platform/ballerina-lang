@@ -63,6 +63,7 @@ public class WebSocketBasicRemoteEndpoint implements RemoteEndpoint.Basic {
     @Override
     @Deprecated
     public void sendText(String partialMessage, boolean isLast) throws IOException {
+        throw new UnsupportedOperationException("Method is not supported");
     }
 
     @Override
@@ -75,23 +76,23 @@ public class WebSocketBasicRemoteEndpoint implements RemoteEndpoint.Basic {
 
     @Override
     public OutputStream getSendStream() throws IOException {
-        return null;
+        throw new UnsupportedOperationException("Method is not supported");
     }
 
     @Override
     public Writer getSendWriter() throws IOException {
-        return null;
+        throw new UnsupportedOperationException("Method is not supported");
     }
 
     @Override
     public void sendObject(Object data) throws IOException, EncodeException {
-
+        throw new UnsupportedOperationException("Method is not supported");
     }
 
 
     @Override
     public void setBatchingAllowed(boolean allowed) throws IOException {
-
+        throw new UnsupportedOperationException("Method is not supported");
     }
 
     @Override
@@ -101,7 +102,7 @@ public class WebSocketBasicRemoteEndpoint implements RemoteEndpoint.Basic {
 
     @Override
     public void flushBatch() throws IOException {
-
+        throw new UnsupportedOperationException("Method is not supported");
     }
 
     @Override
