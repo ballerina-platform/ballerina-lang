@@ -295,15 +295,14 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     TypeMapperRenderer.prototype.addConnection = function (connection) {
         var jsTreeContainerPrefix = 'jstree-container';
         var anchorEnd = '_anchor';
-
         var sourceId =  jsTreeContainerPrefix + this.viewIdSeperator +  connection.sourceStruct
                         + this.viewIdSeperator + this.viewId + this.idNameSeperator
                         + connection.sourceProperty + this.nameTypeSeperator + connection.sourceType+ anchorEnd;
-
         var targetId =  jsTreeContainerPrefix + this.viewIdSeperator +  connection.targetStruct
             + this.viewIdSeperator + this.viewId + this.idNameSeperator
             + connection.targetProperty + this.nameTypeSeperator + connection.targetType + anchorEnd;
 
+        this.jsPlumbInstance.detach({source: sourceId, target: targetId});
         this.jsPlumbInstance.connect({source: sourceId, target: targetId});
         this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
     };
