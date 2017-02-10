@@ -294,10 +294,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      */
     TypeMapperRenderer.prototype.addConnection = function (connection) {
         this.jsPlumbInstance.connect({
-            source: connection.sourceStruct + this.idNameSeperator + connection.sourceProperty
-            + this.idNameSeperator + connection.sourceType,
-            target: connection.targetStruct + this.idNameSeperator + connection.targetProperty
-            + this.idNameSeperator + connection.targetType
+            source: connection.sourceStruct + this.viewIdSeperator + this.viewId + this.idNameSeperator
+                + connection.sourceProperty + this.idNameSeperator + connection.sourceType,
+            target: connection.targetStruct + this.viewIdSeperator + this.viewId + this.idNameSeperator
+                + connection.targetProperty + this.idNameSeperator + connection.targetType
         });
         this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
     };
