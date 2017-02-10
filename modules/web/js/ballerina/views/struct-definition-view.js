@@ -52,6 +52,15 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
 
             var self = this;
 
+            //Scroll to the added position and highlight the heading
+            var currentContainer = $('#' + this.getModel().getID());
+            $(_.get(this._viewOptions, "design_view.container", "")).scrollTop(currentContainer.parent().position().top);
+            var hadingBox = $('#' + this.getModel().getID() + "_heading");
+            var canvas_heading_new = _.get(this._viewOptions, "cssClass.canvas_heading_new", "");
+            var new_drop_timeout = _.get(this._viewOptions, "design_view.new_drop_timeout", "");
+            hadingBox.addClass(canvas_heading_new);
+            setTimeout(function(){hadingBox.removeClass(canvas_heading_new)}, new_drop_timeout);
+
             $(this.getTitle()).text(this.getModel().getStructName())
                 .on("change paste keyup", function () {
                     self.getModel().setStructName($(this).text());
