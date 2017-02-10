@@ -18,8 +18,6 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.model.builder.CallableUnitBuilder;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
@@ -47,8 +45,6 @@ import java.util.concurrent.Future;
  */
 @SuppressWarnings("unused")
 public class Worker implements SymbolScope, CompilationUnit, CallableUnit  {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Worker.class);
 
     private Future<BValue> resultFuture;
     private NodeLocation location;

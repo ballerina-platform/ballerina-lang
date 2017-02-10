@@ -38,17 +38,13 @@ import java.util.List;
 public final class BMessage implements BRefType<CarbonMessage> {
     private CarbonMessage value;
     private Headers headers;
-    // This holds the content which is set within the ballerina runtime. This needs to be always synchronized with the
-    // MessageDataSource of value (CarbonMessage)
-    //BallerinaMessageDataSource ballerinaMessageDataSource;
-    private boolean isDefaultMessage = false;
 
     /**
      * Create a message value in ballerina.
      */
     public BMessage() {
         this(new DefaultCarbonMessage());
-        setDefaultMessage(true);
+        setAlreadyRead(true);
     }
 
     /**
@@ -116,7 +112,7 @@ public final class BMessage implements BRefType<CarbonMessage> {
     public void setMessageDataSource(BallerinaMessageDataSource messageDataSource) {
         // Set the message data source once the message is built
         //this.ballerinaMessageDataSource = messageDataSource;
-        //this.ballerinaMessageDataSource.setOutputStream(this.value.getOutputStream());
+        messageDataSource.setOutputStream(this.value.getOutputStream());
         this.value.setMessageDataSource(messageDataSource);
         setAlreadyRead(true);
     }
@@ -127,8 +123,6 @@ public final class BMessage implements BRefType<CarbonMessage> {
      * @param message String payload of this message
      */
     public void setMessageDataSource(String message) {
-//        ballerinaMessageDataSource =
-//                new StringDataSource(message, this.value.getOutputStream());
         this.value.setMessageDataSource(new StringDataSource(message, this.value.getOutputStream()));
         setAlreadyRead(true);
     }
@@ -224,10 +218,7 @@ public final class BMessage implements BRefType<CarbonMessage> {
     public String stringValue() {
         if (this.isAlreadyRead()) {
             return this.value.getMessageDataSource().getMessageAsString();
-        } else if (this.isDefaultMessage()) {
-            return "";
         }
-
         return MessageUtils.getStringFromInputStream(this.value.getInputStream());
     }
 
@@ -248,14 +239,5 @@ public final class BMessage implements BRefType<CarbonMessage> {
                     getMessageDataSource()).clone());
         }
         return clonedMessage;
-    }
-
-
-    public boolean isDefaultMessage() {
-        return isDefaultMessage;
-    }
-
-    public void setDefaultMessage(boolean defaultMessage) {
-        isDefaultMessage = defaultMessage;
     }
 }

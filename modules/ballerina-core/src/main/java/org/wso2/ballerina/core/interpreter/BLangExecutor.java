@@ -104,6 +104,7 @@ public class BLangExecutor implements NodeExecutor {
     private Context bContext;
     private ControlStack controlStack;
     private boolean returnedOrReplied;
+    private ExecutorService executor = Executors.newFixedThreadPool(100);
 
     public BLangExecutor(RuntimeEnvironment runtimeEnv, Context bContext) {
         this.runtimeEnv = runtimeEnv;
@@ -282,7 +283,6 @@ public class BLangExecutor implements NodeExecutor {
 //            return workerContext.getControlStack().getCurrentFrame().returnVals[0];
 //        };
         WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
-        ExecutorService executor = Executors.newFixedThreadPool(1);
         Future<BValue> future = executor.submit(workerRunner);
         worker.setResultFuture(future);
 

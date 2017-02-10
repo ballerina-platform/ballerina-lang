@@ -41,4 +41,11 @@ under the License.
             <package name="org.wso2.ballerina.nativeimpl.convertors"/>
         </packages>
     </test>
+
+    <!-- Worker Related Test Cases -->
+    <test name="ballerina-core-worker-unit-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.wso2.ballerina.core.lang.worker"/>
+        </packages>
+    </test>
 </suite>
