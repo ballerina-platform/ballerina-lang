@@ -18,11 +18,8 @@
 define(['lodash', './node'], function (_, ASTNode) {
 
     var TypeMapperDefinition = function (args) {
-        ASTNode.call(this, 'TypeMapperDefinition');
         this._typeMapperName = _.get(args, 'typeMapperName', 'newTypeMapper');
-        this._returnStatementExpression = _.get(args, 'returnStatementExpression', undefined);
-        this._selectedTypeStructNameForSource = _.get(args, 'selectedTypeStructNameForSource', 'default');
-        this._selectedTypeStructNameForTarget = _.get(args, 'selectedTypeStructNameForTarget', 'default');
+        ASTNode.call(this, 'TypeMapperDefinition');
     };
 
     TypeMapperDefinition.prototype = Object.create(ASTNode.prototype);
@@ -160,48 +157,6 @@ define(['lodash', './node'], function (_, ASTNode) {
             }
         });
         return inputParam + " " + identifier;
-    };
-
-    /**
-     * Set the already selected type struct name for source
-     * @param selectedStructNameForSource
-     */
-    TypeMapperDefinition.prototype.setSelectedStructNameForSource = function (selectedStructNameForSource, options) {
-        if (!_.isNil(selectedStructNameForSource)) {
-            this.setAttribute('_selectedTypeStructNameForSource', selectedStructNameForSource, options);
-        } else {
-            log.error('Invalid TypeStructName [' + selectedStructNameForSource + '] Provided');
-            throw 'Invalid TypeStructName [' + selectedStructNameForSource + '] Provided';
-        }
-    };
-
-    /**
-     * Returns the selected type struct name for source
-     * @returns {string} type struct name for source
-     */
-    TypeMapperDefinition.prototype.getSelectedStructNameForSource = function () {
-        return this._selectedTypeStructNameForSource;
-    };
-
-    /**
-     * Set the already selected type struct name for target
-     * @param selectedStructNameForTarget
-     */
-    TypeMapperDefinition.prototype.setSelectedStructNameForTarget = function (selectedStructNameForTarget, options) {
-        if (!_.isNil(selectedStructNameForTarget)) {
-            this.setAttribute('_selectedTypeStructNameForTarget', selectedStructNameForTarget, options);
-        } else {
-            log.error('Invalid TypeStructName [' + selectedStructNameForTarget + '] Provided');
-            throw 'Invalid TypeStructName [' + selectedStructNameForTarget + '] Provided';
-        }
-    };
-
-    /**
-     * Returns the selected type struct name for target
-     * @returns {string} type struct name for target
-     */
-    TypeMapperDefinition.prototype.getSelectedStructNameForTarget = function () {
-        return this._selectedTypeStructNameForTarget;
     };
 
     /**
@@ -349,27 +304,33 @@ define(['lodash', './node'], function (_, ASTNode) {
      * @param {string} targetValue
      * @returns {AssignmentStatement}
      */
-    TypeMapperDefinition.prototype.returnConstuctedAssignmentStatement = function (sourceIdentifier,targetIdentifier,sourceValue,targetValue) {
+    TypeMapperDefinition.prototype.returnConstructedAssignmentStatement = function (sourceIdentifier,targetIdentifier,sourceValue,targetValue) {
 
         // Creating a new Assignment Statement.
         var newAssignmentStatement = this.getFactory().createAssignmentStatement();
         var newExpression = this.getFactory().createExpression();
 
         var sourceStructFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
-        var sourceVariableReferenceExpression = this.getFactory().createVariableReferenceExpression();
-        sourceVariableReferenceExpression.setVariableReferenceName(sourceIdentifier);
+        var sourceVariableReferenceExpressionForIdentifier = this.getFactory().createVariableReferenceExpression();
+        sourceVariableReferenceExpressionForIdentifier.setVariableReferenceName(sourceIdentifier);
         var sourceFieldExpression = this.getFactory().createFieldExpression();
-        sourceFieldExpression.setFieldName(sourceValue);
-        sourceStructFieldAccessExpression.addChild(sourceVariableReferenceExpression);
+        var sourceVariableReferenceExpressionForValue = this.getFactory().createVariableReferenceExpression();
+        sourceVariableReferenceExpressionForValue.setVariableReferenceName(sourceValue);
+        sourceFieldExpression.addChild(sourceVariableReferenceExpressionForValue);
+        sourceStructFieldAccessExpression.addChild(sourceVariableReferenceExpressionForIdentifier);
         sourceStructFieldAccessExpression.addChild(sourceFieldExpression);
 
         newExpression.addChild(sourceStructFieldAccessExpression);
 
         var targetStructFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
-        var targetVariableReferenceExpression = this.getFactory().createVariableReferenceExpression();
-        targetVariableReferenceExpression.setVariableReferenceName(targetIdentifier);
+        var targetVariableReferenceExpressionForIdentifier = this.getFactory().createVariableReferenceExpression();
+        targetVariableReferenceExpressionForIdentifier.setVariableReferenceName(targetIdentifier);
         var targetFieldExpression = this.getFactory().createFieldExpression();
-        targetFieldExpression.setFieldName(targetValue);
+        var targetVariableReferenceExpressionForTarget = this.getFactory().createVariableReferenceExpression();
+        targetVariableReferenceExpressionForTarget.setVariableReferenceName(targetValue);
+        targetFieldExpression.addChild(targetVariableReferenceExpressionForTarget);
+        targetStructFieldAccessExpression.addChild(targetVariableReferenceExpressionForIdentifier);
+        targetStructFieldAccessExpression.addChild(targetFieldExpression);
 
         newAssignmentStatement.addChild(newExpression);
         newAssignmentStatement.addChild(targetStructFieldAccessExpression);
@@ -392,6 +353,23 @@ define(['lodash', './node'], function (_, ASTNode) {
         if(!_.isUndefined(statement)){
             statement.addChild(assignmentStatement);
         }
+    };
+
+    /**
+     * Gets the reference of block statement child
+     * @return {string} - String blockStatement.
+     */
+    TypeMapperDefinition.prototype.getBlockStatement = function() {
+        var blockStatement = undefined;
+        var ballerinaASTFactory = this.getFactory();
+
+        _.forEach(this.getChildren(), function (child) {
+            if (ballerinaASTFactory.isBlockStatement(child)) {
+                blockStatement = child;
+                return false;
+            }
+        });
+        return blockStatement;
     };
 
     return TypeMapperDefinition;

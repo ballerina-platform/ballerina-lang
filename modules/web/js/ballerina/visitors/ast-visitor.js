@@ -160,6 +160,8 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.visitResourceParameter(node);
         } else if(node instanceof AST.ReturnType){
             return this.visitReturnType(node);
+        } else if(node instanceof AST.BlockStatement){
+            return this.visitBlockStatement(node);
         }
 
     };
@@ -308,6 +310,16 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
     ASTVisitor.prototype.visitResourceParameter = function(resourceParameter){
     };
     ASTVisitor.prototype.endVisitResourceParameter = function(resourceParameter){
+    };
+
+    ASTVisitor.prototype.canVisitBlockStatement = function(blockStatement){
+        return false;
+    };
+    ASTVisitor.prototype.beginVisitBlockStatement = function(blockStatement){
+    };
+    ASTVisitor.prototype.visitBlockStatement = function(blockStatement){
+    };
+    ASTVisitor.prototype.endVisitBlockStatement = function(blockStatement){
     };
 
     ASTVisitor.prototype.canVisitReturnType = function(returnType){
