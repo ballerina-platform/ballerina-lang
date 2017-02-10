@@ -30,6 +30,7 @@
 
 .canvas-top-controls-container{
     float: left;
+    width: 100%;
 }
 
 .canvas-heading-new h4{

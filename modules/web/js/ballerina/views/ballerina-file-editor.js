@@ -816,10 +816,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             return this._sourceView;
         };
 
-        BallerinaFileEditor.prototype._createConstantDefinitionsView = function(container) {
-
+        BallerinaFileEditor.prototype._createConstantDefinitionsView = function(canvasContainer) {
+            
             var costantDefinitionWrapper = _.get(this._viewOptions, 'cssClass.canvas_top_control_constants_define');
-            var constantsWrapper = $('.' + costantDefinitionWrapper);
+            var constantsWrapper = canvasContainer.find('.' +costantDefinitionWrapper);
 
             var constantsDefinitionPaneProperties = {
                 model: this.getModel(),
