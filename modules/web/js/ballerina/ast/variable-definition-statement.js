@@ -29,7 +29,7 @@ define(['lodash', './statement', '../utils/common-utils', './variable-declaratio
     var VariableDefinitionStatement = function (args) {
         Statement.call(this, 'VariableDefinitionStatement');
         this._leftExpression = _.get(args, 'leftExpression', "string str");
-        this._rightExpression = _.get(args, 'rightExpression', "\"string value\"");
+        this._rightExpression = _.get(args, 'rightExpression');
     };
 
     VariableDefinitionStatement.prototype = Object.create(Statement.prototype);
@@ -183,10 +183,13 @@ define(['lodash', './statement', '../utils/common-utils', './variable-declaratio
                 + " " + lhs.variable_reference_name;
             this.setLeftExpression(expressionValue);
         }
-        var rightExpressionChild = self.getFactory().createFromJson(rhs);
-        self.addChild(rightExpressionChild);
-        rightExpressionChild.initFromJson(rhs);
-        this.setRightExpression(rightExpressionChild.getExpression());
+
+        if (!_.isNil(rhs)) {
+            var rightExpressionChild = self.getFactory().createFromJson(rhs);
+            self.addChild(rightExpressionChild);
+            rightExpressionChild.initFromJson(rhs);
+            this.setRightExpression(rightExpressionChild.getExpression());
+        }
     };
 
     return VariableDefinitionStatement;
