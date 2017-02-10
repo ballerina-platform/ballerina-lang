@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
-import org.wso2.siddhi.query.api.definition.io.Store;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
@@ -76,18 +75,4 @@ public class DefineTableTestCase {
                 streamDefinition.toString());
     }
 
-    @Test
-    public void Test5() throws SiddhiParserException {
-        TableDefinition tableDefinition = SiddhiCompiler.parseTableDefinition("" +
-                "define table FooTable (time long, data string) " +
-                "store rdbms options (url \"http://localhost:8900\", " +
-                "username \"test\");");
-        Store store = Store.store("rdbms").
-                option("url", "http://localhost:8900").
-                option("username", "test");
-        Assert.assertEquals(TableDefinition.id("FooTable").
-                attribute("time", Attribute.Type.LONG).
-                attribute("data", Attribute.Type.STRING).store(store).toString(),
-                tableDefinition.toString());
-    }
 }
