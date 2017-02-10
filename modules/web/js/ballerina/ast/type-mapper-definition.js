@@ -240,7 +240,9 @@ define(['lodash', './node'], function (_, ASTNode) {
         newSymbolName.setName(identifier);
         newResourceParameter.addChild(newStructType);
         newResourceParameter.addChild(newSymbolName);
-        this.addChild(newResourceParameter);
+
+        var lastIndex = _.findLastIndex(this.getChildren());
+        this.addChild(newResourceParameter, lastIndex - 1);
     };
 
     /**
@@ -259,7 +261,9 @@ define(['lodash', './node'], function (_, ASTNode) {
         newSymbolName.setName(identifier);
         newReturnType.addChild(newStructType);
         newReturnType.addChild(newSymbolName);
-        this.addChild(newReturnType);
+
+        var lastIndex = _.findLastIndex(this.getChildren());
+        this.addChild(newReturnType, lastIndex - 1);
     };
 
     /**
@@ -308,6 +312,8 @@ define(['lodash', './node'], function (_, ASTNode) {
 
         // Creating a new Assignment Statement.
         var newAssignmentStatement = this.getFactory().createAssignmentStatement();
+        var leftOperandExpression = this.getFactory().createLeftOperandExpression();
+        var rightOperandExpression = this.getFactory().createRightOperandExpression();
         var newExpression = this.getFactory().createExpression();
 
         var sourceStructFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
@@ -332,8 +338,10 @@ define(['lodash', './node'], function (_, ASTNode) {
         targetStructFieldAccessExpression.addChild(targetVariableReferenceExpressionForIdentifier);
         targetStructFieldAccessExpression.addChild(targetFieldExpression);
 
-        newAssignmentStatement.addChild(newExpression);
-        newAssignmentStatement.addChild(targetStructFieldAccessExpression);
+        leftOperandExpression.addChild(newExpression);
+        newAssignmentStatement.addChild(leftOperandExpression);
+        rightOperandExpression.addChild(targetStructFieldAccessExpression);
+        newAssignmentStatement.addChild(rightOperandExpression);
 
         return newAssignmentStatement;
     };

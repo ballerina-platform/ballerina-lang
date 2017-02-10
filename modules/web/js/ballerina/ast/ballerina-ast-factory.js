@@ -813,6 +813,24 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * instanceof check for LeftOperandExpression
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isLeftOperandExpression = function (child) {
+            return child instanceof leftOperandExpression;
+        };
+
+        /**
+         * instanceof check for RightOperandExpression
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isRightOperandExpression = function (child) {
+            return child instanceof rightOperandExpression;
+        };
+
+        /**
          * instanceof check for FieldExpression
          * @param child - Object for instanceof check
          * @returns {boolean} - true if same type, else false

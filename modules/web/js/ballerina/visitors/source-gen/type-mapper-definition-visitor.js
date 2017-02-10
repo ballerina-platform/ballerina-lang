@@ -35,6 +35,10 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
             return true;
         };
 
+        TypeMapperDefinitionVisitor.prototype.canVisitBlockStatementView = function (blockStatementView) {
+            return true;
+        };
+
         TypeMapperDefinitionVisitor.prototype.beginVisitTypeMapperDefinition = function(typeMapperDefinition){
             /**
              * set the configuration start for the type mapper definition language construct
