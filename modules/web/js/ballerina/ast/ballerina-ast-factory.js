@@ -31,7 +31,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
         './if-condition', './array-map-access-expression', './map-init-expression', './key-value-expression', './binary-expression', './connector-action', './struct-definition',
         './constant-definition', './variable-definition-statement','./type-struct-definition','./struct-type','./symbol-name','./struct-field-access-expression'
-        ,'./field-expression','./type-casting-expression', './worker-invoke','./block-statement'],
+        ,'./field-expression','./type-casting-expression', './worker-invoke','./block-statement','./struct-field-access-expression'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -801,6 +801,24 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.isExpression = function (child) {
             return child instanceof expression;
+        };
+
+        /**
+         * instanceof check for StructFieldAccessExpression
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isStructFieldAccessExpression = function (child) {
+            return child instanceof structFieldAccessExpression;
+        };
+
+        /**
+         * instanceof check for FieldExpression
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isFieldExpression = function (child) {
+            return child instanceof fieldExpression;
         };
 
         /**

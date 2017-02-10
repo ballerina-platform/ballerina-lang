@@ -29,6 +29,8 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             //set initial height for the type mapper container svg
             this._onConnectInstance = _.get(args, 'onConnectInstance', {});
             this._onDisconnectInstance = _.get(args, 'onDisconnectInstance', {});
+            this._sourceInfo = _.get(args, 'sourceInfo', {});
+            this._targetInfo = _.get(args, 'targetInfo', {});
 
             if (_.isNil(this._model) || !(BallerinaASTFactory.isTypeMapperDefinition(this._model))) {
                 log.error("Type Mapper definition is undefined or is of different type." + this._model);
@@ -75,6 +77,8 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
 
             //Get all the structs which are defined for current package
             var predefinedStructs = this._package.getStructDefinitions();
+            this.getSourceInfo()["predefinedStructs"] = predefinedStructs;
+            this.getTargetInfo()["predefinedStructs"] = predefinedStructs;
 
             var self = this;
 
@@ -102,8 +106,8 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
                 });
 
             var dataMapperContainerId = "data-mapper-container___" + this._model.id;
-            var sourceId = 'sourceStructs' + this._model.id;
-            var targetId = 'targetStructs' + this._model.id;
+            var sourceId = 'sourceStructs' + this.getModel().id;
+            var targetId = 'targetStructs' + this.getModel().id;
             var selectorContainer = $('<div class="selector">' +
                 '<div class="source-view">' +
                 '<span>Source :</span>' +
@@ -147,6 +151,8 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
                 self.getModel().addResourceParameterChild(selectedStructNameForSource,"y");
 
 
+
+
 //                self.getModel().removeTypeStructDefinition("SOURCE");
 //                var schema = predefinedStructs[selectedArrayIndex];
 //
@@ -177,7 +183,7 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
                 var selectedArrayIndex = targetDropDown.val();
                 var selectedStructNameForTarget = targetDropDown.text();
                 self.getModel().addReturnTypeChild(selectedStructNameForTarget,"x");
-                self.getModel().addStatement("x");
+
                 //todo add variable definition statement
 
 
@@ -236,11 +242,12 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             }
         };
 
-        TypeMapperDefinitionView.prototype.setSchemaNamesToComboBox = function (parentId, sourceComboboxId,targetComboboxId,sourceName,taregetName) {
-
+        TypeMapperDefinitionView.prototype.setSourceSchemaNameToComboBox = function (sourceComboboxId,sourceName) {
             $(sourceComboboxId+" option:contains(" + sourceName + ")").attr('selected', 'selected');
-            $(targetComboboxId+" option:contains(" + taregetName + ")").attr('selected', 'selected');
+        };
 
+        TypeMapperDefinitionView.prototype.setTargetSchemaNameToComboBox = function (targetComboboxId,targetName) {
+            $(targetComboboxId+" option:contains(" + targetName + ")").attr('selected', 'selected');
         };
 
         /**
@@ -250,10 +257,35 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
         TypeMapperDefinitionView.prototype.visitResourceParameter = function (resourceParameter) {
             log.debug("Visiting resource parameter");
             var self = this;
+            var sourceStructName = undefined;
+
+            var resourceParameter = _.find(this.getModel().getChildren(), function (child) {
+                return BallerinaASTFactory.isResourceParameter(child);
+            });
+
+            _.find(resourceParameter.getChildren(), function (child) {
+                if(BallerinaASTFactory.isStructType(child)){
+                    sourceStructName = child.getTypeName();
+                    return false;
+                }
+            });
+
+            self.getSourceInfo()["sourceStructName"] = sourceStructName;
+            var predefinedStructs = self.getSourceInfo().predefinedStructs;
+
+            _.each(predefinedStructs, function(struct) {
+                if(struct.getStructName() == sourceStructName){
+                    self.getSourceInfo()["sourceStruct"] = struct;
+                    return false;
+                }
+            });
+
+            self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id,sourceStructName);
             var inputStructView = new InputStructView({
                 model: resourceParameter, parentView: this,onConnectInstance: self.getOnConnectInstance(),
-                onDisconnectInstance: self.getOnDisconnectInstance()
+                onDisconnectInstance: self.getOnDisconnectInstance(),sourceInfo: self.getSourceInfo()
             });
+
             inputStructView.render(this.diagramRenderingContext, this._typeMapper);
         };
 
@@ -264,10 +296,36 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
         TypeMapperDefinitionView.prototype.visitReturnType = function (returnType) {
             log.debug("Visiting return type");
             var self = this;
+            var targetStructName = undefined;
+
+            var returnType = _.find(this.getModel().getChildren(), function (child) {
+                return BallerinaASTFactory.isReturnType(child);
+            });
+
+            _.find(returnType.getChildren(), function (child) {
+                if(BallerinaASTFactory.isStructType(child)){
+                    targetStructName = child.getTypeName();
+                    return false;
+                }
+            });
+
+            self.getTargetInfo()["targetStructName"] = targetStructName;
+            var predefinedStructs = self.getTargetInfo().predefinedStructs;
+
+            _.each(predefinedStructs, function(struct) {
+                if(struct.getStructName() == targetStructName){
+                    self.getTargetInfo()["targetStruct"] = struct;
+                    return false;
+                }
+            });
+
+            self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id,targetStructName);
+
             var outputStructView = new OutputStructView({
                 model: returnType, parentView: this,onConnectInstance: self.getOnConnectInstance(),
-                onDisconnectInstance: self.getOnDisconnectInstance()
+                onDisconnectInstance: self.getOnDisconnectInstance(),targetInfo: self.getTargetInfo()
             });
+            //todo set combobox value
             outputStructView.render(this.diagramRenderingContext, this._typeMapper);
         };
 
@@ -278,10 +336,10 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
         TypeMapperDefinitionView.prototype.visitBlockStatement = function (blockStatement) {
             var self = this;
             var typeMapperBlockStatementView = new TypeMapperBlockStatement({
-                model: blockStatement, parentView: this
+                model: blockStatement, parentView: this,sourceInfo: self.getSourceInfo(),targetInfo: self.getTargetInfo()
             });
 
-            typeMapperBlockStatementView.render(this.diagramRenderingContext, this._typeMapper);
+            typeMapperBlockStatementView.render(this.diagramRenderingContext);
 
         }
 
@@ -329,6 +387,14 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             }
         };
 
+        /**
+         * returns the type mapper renderer
+         * @returns {object}
+         */
+        TypeMapperDefinitionView.prototype.getTypeMapperRenderer = function () {
+            return this._typeMapper;
+        };
+
         TypeMapperDefinitionView.prototype.getModel = function () {
             return this._model;
         };
@@ -337,24 +403,24 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             return this._container;
         };
 
-        TypeMapperDefinitionView.prototype.getViewOptions = function () {
-            return this._viewOptions;
-        };
-
-        TypeMapperDefinitionView.prototype.getChildContainer = function () {
-            return this._childContainer;
-        };
-
-        TypeMapperDefinitionView.prototype.setViewOptions = function (viewOptions) {
-            this._viewOptions = viewOptions;
-        };
-
         TypeMapperDefinitionView.prototype.getPackage = function () {
             return this._package;
         };
 
         TypeMapperDefinitionView.prototype.getTypes = function () {
             return this.getDiagramRenderingContext().getEnvironment().getTypes();
+        };
+
+        TypeMapperDefinitionView.prototype.getParentView = function () {
+            return this._parentView;
+        };
+
+        TypeMapperDefinitionView.prototype.getSourceInfo = function () {
+            return this._sourceInfo;
+        };
+
+        TypeMapperDefinitionView.prototype.getTargetInfo = function () {
+            return this._targetInfo;
         };
 
         return TypeMapperDefinitionView;
