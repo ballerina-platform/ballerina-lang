@@ -17,21 +17,19 @@
  *
  */
 
-package org.wso2.ballerina.core.nativeimpl.connectors.websocket.server;
+package org.wso2.ballerina.core.runtime.dispatching;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
-import org.wso2.ballerina.core.runtime.dispatching.ResourceDispatcher;
+import org.wso2.carbon.connector.framework.websocket.SessionManager;
 import org.wso2.carbon.messaging.BinaryCarbonMessage;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ControlCarbonMessage;
 import org.wso2.carbon.messaging.StatusCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
-import org.wso2.carbon.serverconnector.framework.websocket.SessionManager;
 
 import javax.websocket.Session;
 

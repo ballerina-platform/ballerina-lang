@@ -22,6 +22,8 @@ import org.wso2.ballerina.core.runtime.dispatching.HTTPResourceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.HTTPServiceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.ResourceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
+import org.wso2.ballerina.core.runtime.dispatching.WebSocketResourceDispatcher;
+import org.wso2.ballerina.core.runtime.dispatching.WebSocketServiceDispatcher;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.ballerina.core.nativeimpl.net.ws;
+package org.wso2.ballerina.nativeimpl.net.ws;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
-import org.wso2.carbon.serverconnector.framework.websocket.SessionManager;
+import org.wso2.carbon.connector.framework.websocket.SessionManager;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 
 import javax.websocket.Session;
