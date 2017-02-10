@@ -40,6 +40,14 @@
     margin-right: 43px;
 }
 
+.close-file-confirm-dialog-btn{
+    float: left;
+}
+
+.close-file-confirm-dialog{
+    width: 500px;
+}
+
 .errors-container{
     margin: 50px 20px 20px 20px;
 }
