@@ -207,7 +207,7 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
                     var saveServiceURL = workspaceServiceURL + "/write";
                     var activeTab = app.tabController.activeTab;
                     var ballerinaFileEditor= activeTab.getBallerinaFileEditor();
-                    var config = ballerinaFileEditor.generateSource();
+                    var config = ballerinaFileEditor.getContent();
                     var payload = "location=" + btoa(location.val()) + "&configName=" + btoa(configName.val()) + "&config=" + (btoa(config));
 
                     $.ajax({

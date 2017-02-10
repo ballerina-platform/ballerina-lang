@@ -211,6 +211,7 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
         this.updateMenuItems = function(){
             this.updateUndoRedoMenus();
             this.updateSaveMenuItem();
+            this.updateCodeFormatMenu();
         };
 
         this.updateSaveMenuItem = function(){
@@ -228,6 +229,21 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
             } else {
                 saveMenuItem.disable();
                 saveAsMenuItem.disable();
+            }
+        };
+
+        this.updateCodeFormatMenu = function(){
+            var activeTab = app.tabController.getActiveTab(),
+                codeFormatMenuItem = app.menuBar.getMenuItemByID('code.format');
+            if(activeTab instanceof Tab.FileTab){
+                var fileEditor = activeTab.getBallerinaFileEditor();
+                if(!_.isNil(fileEditor) && fileEditor.isInSourceView()){
+                    codeFormatMenuItem.enable()
+                } else {
+                    codeFormatMenuItem.disable()
+                }
+            } else {
+                codeFormatMenuItem.disable();
             }
         };
 
@@ -273,6 +289,12 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
             }
         };
 
+        this.handleFormat = function() {
+            if(app.tabController.getActiveTab() instanceof Tab.FileTab){
+                app.tabController.getActiveTab().getBallerinaFileEditor().getSourceView().format();
+            }
+        };
+
         this.showAboutDialog = function(){
             var aboutModal = $(_.get(app, 'config.about_dialog.selector'));
             aboutModal.modal('show')
@@ -301,6 +323,8 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
         app.commandManager.registerHandler('redo', this.handleRedo);
 
         app.commandManager.registerHandler('save', this.handleSave);
+
+        app.commandManager.registerHandler('format', this.handleFormat);
 
         // Open file save dialog
         app.commandManager.registerHandler('open-file-save-dialog', this.openFileSaveDialog, this);

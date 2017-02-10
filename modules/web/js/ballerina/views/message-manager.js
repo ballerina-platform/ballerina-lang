@@ -56,24 +56,31 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
         return this.activatedDropTarget;
     };
 
-    MessageManager.prototype.updateActivatedTarget = function (target) {
-        if (!_.isUndefined(target)) {
-            this.getMessageSource().setConnector(target);
-            this.getMessageSource().setActionPackageName(target.getConnectorPkgName());
-            this.getMessageSource().setActionConnectorName(target.getConnectorName());
-            this.getMessageSource().setConnectorVariableReference(target.getConnectorVariable());
+    MessageManager.prototype.updateActivatedTarget = function (target, actionInvocationModel) {
+        if(actionInvocationModel) {
+            actionInvocationModel = this.getMessageSource().getModel().getChildren()[1].getChildren()[0];
         }
         else {
-            this.getMessageSource().setConnector(undefined);
-            this.getMessageSource().setActionPackageName(undefined);
-            this.getMessageSource().setActionConnectorName(undefined);
-            this.getMessageSource().setConnectorVariableReference(undefined);
+            actionInvocationModel = this.getMessageSource();
+        }
+
+        if (!_.isUndefined(target)) {
+            actionInvocationModel.setConnector(target);
+            actionInvocationModel.setActionPackageName(target.getConnectorPkgName());
+            actionInvocationModel.setActionConnectorName(target.getConnectorName());
+            actionInvocationModel.setConnectorVariableReference(target.getConnectorVariable());
+        }
+        else {
+            actionInvocationModel.setConnector(undefined);
+            actionInvocationModel.setActionPackageName(undefined);
+            actionInvocationModel.setActionConnectorName(undefined);
+            actionInvocationModel.setConnectorVariableReference(undefined);
         }
         //set the right hand expression to set the statement string of the assignment-statement containing the
         //action invocation expression. This is to keep action invocation statement UI and source-gen in sync
         //when action invocation is configured
-        if (BallerinaASTFactory.isRightOperandExpression(rightOp = this.getMessageSource().getParent())){
-            rightOp.setRightOperandExpressionString(this.getMessageSource().getExpression());
+        if (BallerinaASTFactory.isRightOperandExpression(rightOp = actionInvocationModel.getParent())){
+            rightOp.setRightOperandExpressionString(actionInvocationModel.getExpression());
         }
     };
 
@@ -145,7 +152,7 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
         this.typeBeingDragged = undefined;
     };
 
-    MessageManager.prototype.startDrawMessage = function(source, sourcePoint, connectorPoint){
+    MessageManager.prototype.startDrawMessage = function(source, actionInvocationModel, sourcePoint, connectorPoint){
         var connectorStartPoint,
             connectorEndPoint;
 
@@ -157,9 +164,12 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
             connectorStartPoint = sourcePoint.x();
             connectorEndPoint = sourcePoint.y();
         }
+
         this.setMessageSource(source);
+
         var self = this,
             container = d3.select(this._canvas.getSVG().get(0));
+
         var tempLine = container.append("line")
             .attr("x1",connectorStartPoint )
             .attr("y1",connectorEndPoint )
@@ -190,11 +200,12 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
             var endPoint = new Point(tempLine.attr("x2"),tempLine.attr("y2"));
 
             if(self.isAtValidDropTarget()){
-                self.updateActivatedTarget(self.getActivatedDropTarget());
+                self.updateActivatedTarget(self.getActivatedDropTarget(), actionInvocationModel);
             }
+
             tempLine.remove();
             arrowPoint.remove();
-            self.getMessageSource().trigger("drawConnectionForAction",startPoint, container);
+            self.getMessageSource().getModel().trigger("drawConnectionForAction", startPoint, container);
             self.trigger('drop-target-changed', undefined);
             self.reset();
         });
@@ -202,4 +213,3 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
 
     return MessageManager;
 });
-

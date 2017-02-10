@@ -587,7 +587,8 @@
             debugger: "js/debugger/debugger",
 			expression_editor_utils: "js/expression-editor/expression-editor-utils",
             constants: 'js/constants/constants',
-            typeMapper: 'js/type-mapper/type-mapper-renderer'
+            typeMapper: 'js/type-mapper/type-mapper-renderer',
+            environment_content: "js/ballerina/env/environment-content"
         },
         shim: {
             "bootstrap": {"deps": ['jquery']},
@@ -749,6 +750,7 @@
                                 // relative selector within container for a tab
                                 container: '.design-view-container',
                                 canvas_container: '.canvas-container',
+                                new_drop_timeout: 3000,
                                 tool_palette: {
                                     // relative selector within container for design view
                                     container: ".tool-palette-container",
@@ -818,7 +820,8 @@
                                 panel_annotation_icon: 'fw fw-annotation pull-right right-icon-clickable hoverable',
                                 panel_args_icon: 'fw fw-import pull-right right-icon-clickable hoverable',
                                 type_mapper_icon: 'fw fw-dgm-service fw-inverse',
-                                type_struct_icon: 'fw fw-dgm-service fw-inverse'
+                                type_struct_icon: 'fw fw-dgm-service fw-inverse',
+                                canvas_heading_new: 'canvas-heading-new'
                             },
                             notifications: {
                                 container: '#notification-container'
