@@ -1006,8 +1006,6 @@ public class BLangModelBuilder {
 
         BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
-
-        currentScope = blockStmtBuilder.getCurrentScope();
     }
 
     public void startElseIfClause(NodeLocation location) {
