@@ -44,22 +44,6 @@
             <fileMode>644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>ballerina-home/bin</directory>
-            <outputDirectory>bin</outputDirectory>
-            <includes>
-                <include>**/editor</include>
-            </includes>
-            <fileMode>755</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>ballerina-home/bin</directory>
-            <outputDirectory>bin</outputDirectory>
-            <includes>
-                <include>**/editor.bat</include>
-            </includes>
-            <fileMode>644</fileMode>
-        </fileSet>
-        <fileSet>
             <directory>../../samples/getting_started</directory>
             <outputDirectory>samples</outputDirectory>
             <excludes>
@@ -83,34 +67,6 @@
                 <exclude>ballerina/lang/types/**</exclude>
             </excludes>
             <fileMode>444</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>../editor/web</directory>
-            <outputDirectory>resources/editor/web</outputDirectory>
-            <excludes>
-                <exclude>target/**</exclude>
-                <exclude>**/*.ipr</exclude>
-                <exclude>**/*.iwr</exclude>
-                <exclude>**/*.eclipse</exclude>
-                <exclude>**/*.iml</exclude>
-            </excludes>
-            <fileMode>644</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>../editor/services/workspace-service/target/</directory>
-            <outputDirectory>resources/editor/services</outputDirectory>
-            <includes>
-                <include>workspace-service*.jar</include>
-            </includes>
-            <fileMode>644</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>../editor/services/workspace-service/src/main/resources/</directory>
-            <outputDirectory>resources/editor/services</outputDirectory>
-            <includes>
-                <include>netty-transports.yml</include>
-            </includes>
-            <fileMode>644</fileMode>
         </fileSet>
     </fileSets>
 
@@ -142,9 +98,10 @@
             <includes>
                 <include>org.wso2.ballerina:ballerina-core:jar</include>
                 <include>org.wso2.ballerina:ballerina-launcher:jar</include>
+                <include>org.wso2.ballerina:ballerina-native:jar</include>
                 <include>org.wso2.orbit.org.antlr:antlr4-runtime</include>
                 <include>org.wso2.carbon.transport:org.wso2.carbon.transport.http.netty</include>
-                <include>org.wso2.carbon.transport:org.wso2.carbon.serverconnector.framework</include>
+                <include>org.wso2.carbon.transport:org.wso2.carbon.connector.framework</include>
                 <include>org.wso2.carbon.messaging:org.wso2.carbon.messaging</include>
                 <include>org.wso2.orbit.net.sf.saxon:Saxon-HE</include>
                 <include>com.google.code.gson:gson</include>

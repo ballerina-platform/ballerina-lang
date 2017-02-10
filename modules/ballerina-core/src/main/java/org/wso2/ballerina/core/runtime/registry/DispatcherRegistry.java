@@ -18,10 +18,8 @@
 
 package org.wso2.ballerina.core.runtime.registry;
 
-import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPResourceDispatcher;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPServiceDispatcher;
-import org.wso2.ballerina.core.nativeimpl.connectors.websocket.server.WebSocketResourceDispatcher;
-import org.wso2.ballerina.core.nativeimpl.connectors.websocket.server.WebSocketServiceDispatcher;
+import org.wso2.ballerina.core.runtime.dispatching.HTTPResourceDispatcher;
+import org.wso2.ballerina.core.runtime.dispatching.HTTPServiceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.ResourceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
 
