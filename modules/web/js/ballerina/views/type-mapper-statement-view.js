@@ -125,11 +125,7 @@ define(['lodash', 'log','./ballerina-view','ballerina/ast/ballerina-ast-factory'
                 return BallerinaASTFactory.isLeftOperandExpression(child);
             });
 
-            var expression = _.find(leftOperandExpression.getChildren(), function (child) {
-                return BallerinaASTFactory.isExpression(child);
-            });
-
-            var sourceStructFieldAccessExpression = _.find(expression.getChildren(), function (child) {
+            var sourceStructFieldAccessExpression = _.find(leftOperandExpression.getChildren(), function (child) {
                 return BallerinaASTFactory.isStructFieldAccessExpression(child);
             });
 
