@@ -27,7 +27,7 @@ define(['lodash', './node'], function (_, ASTNode) {
         this._inheritedType = _.get(args, 'inheritedType');
     };
 
-    RefTypeInitExpression.prototype = Object.create(Expression.prototype);
+    RefTypeInitExpression.prototype = Object.create(ASTNode.prototype);
     RefTypeInitExpression.prototype.constructor = RefTypeInitExpression;
 
     /**

@@ -71,6 +71,29 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
         var typeMapperDefinition = BallerinaASTFactory.createTypeMapperDefinition(args);
         var blockStatement = BallerinaASTFactory.createBlockStatement(args);
         var returnStatement = BallerinaASTFactory.createReturnStatement(args);
+        var variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement(args);
+        var leftOperandExpression = BallerinaASTFactory.createLeftOperandExpression(args);
+        var rightOperandExpression = BallerinaASTFactory.createRightOperandExpression(args);
+        var referenceTypeInitiExpression = BallerinaASTFactory.createReferenceTypeInitExpression(args);
+
+        var variableReferenceExpression = BallerinaASTFactory.createVariableReferenceExpression(args);
+        var variableDefinition = BallerinaASTFactory.createVariableDefinition(args);
+        var simpleTypeName = BallerinaASTFactory.createSimpleTypeName(args);
+        variableDefinition.addChild(simpleTypeName);
+        variableReferenceExpression.addChild(variableDefinition);
+        leftOperandExpression.addChild(variableReferenceExpression);
+
+        rightOperandExpression.addChild(referenceTypeInitiExpression);
+
+        var expression = BallerinaASTFactory.createExpression(args);
+        var returnStatementVariableReferenceExpression = BallerinaASTFactory.createVariableReferenceExpression(args);
+        expression.addChild(returnStatementVariableReferenceExpression);
+        returnStatement.addChild(expression);
+
+        variableDefinitionStatement.addChild(leftOperandExpression);
+        variableDefinitionStatement.addChild(rightOperandExpression);
+
+        blockStatement.addChild(variableDefinitionStatement);
         blockStatement.addChild(returnStatement);
         typeMapperDefinition.addChild(blockStatement);
         return typeMapperDefinition;

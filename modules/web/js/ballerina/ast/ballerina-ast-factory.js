@@ -31,7 +31,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
         './if-condition', './array-map-access-expression', './map-init-expression', './key-value-expression', './binary-expression', './connector-action', './struct-definition',
         './constant-definition', './variable-definition-statement','./type-struct-definition','./struct-type','./symbol-name','./struct-field-access-expression'
-        ,'./field-expression','./type-casting-expression', './worker-invoke','./block-statement','./struct-field-access-expression','./simple-type-name'],
+        ,'./field-expression','./type-casting-expression', './worker-invoke','./block-statement','./struct-field-access-expression','./simple-type-name','./ref-type-init-expression',
+        './variable-definition'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -42,7 +43,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
               thenBody, ifCondition, arrayMapAccessExpression, mapInitExpression, keyValueExpression, binaryExpression, connectorAction, structDefinition,
               constantDefinition, variableDefinitionStatement,typeStructDefinition,structType,symbolName,structFieldAccessExpression,fieldExpression,typeCastingExpression, workerInvoke,
-              blockStatement,structFieldAccessExpression,simpleTypeName) {
+              blockStatement,structFieldAccessExpression,simpleTypeName,referenceTypeInitExpression,variableDefinition) {
 
 
         /**
@@ -394,6 +395,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         }
 
         /**
+         * creates ReferenceTypeInitExpression
+         * @param {Object} args
+         * @returns {ReferenceTypeInitExpression}
+         */
+        BallerinaASTFactory.createReferenceTypeInitExpression = function (args) {
+            return new referenceTypeInitExpression(args);
+        }
+
+        /**
          * creates FieldExpression
          * @param {Object} args
          * @returns {FieldExpression}
@@ -432,6 +442,14 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createReturnStatement = function (args) {
             return new returnStatement(args);
+        };
+
+        /**
+         * creates VariableDefinition
+         * @param args
+         */
+        BallerinaASTFactory.createVariableDefinition = function (args) {
+            return new variableDefinition(args);
         };
 
          /**
@@ -1057,6 +1075,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.isVariableReferenceExpression = function (child) {
             return child instanceof variableReferenceExpression;
+        };
+
+        /**
+         * instanceof check for VariableDefinition
+         * @param child
+         * @returns {boolean}
+         */
+        BallerinaASTFactory.isVariableDefinition = function (child) {
+            return child instanceof variableDefinition;
         };
 
         /**

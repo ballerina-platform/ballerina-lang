@@ -260,6 +260,56 @@ define(['lodash', './node'], function (_, ASTNode) {
     };
 
     /**
+     * fill return statement.
+     * @param {string} identifier
+     */
+    TypeMapperDefinition.prototype.fillReturnStatement = function (identifier) {
+
+        var ballerinaASTFactory = this.getFactory();
+        var returnStatement = _.find(this.getChildren(), function (child) {
+            return ballerinaASTFactory.isReturnStatement(child);
+        });
+
+        var expression = _.find(returnStatement.getChildren(), function (child) {
+            return ballerinaASTFactory.isExpression(child);
+        });
+
+        var variableReferenceExpression = _.find(expression.getChildren(), function (child) {
+            return ballerinaASTFactory.isVariableReferenceExpression(child);
+        });
+
+        variableReferenceExpression.setVariableReferenceName(identifier);
+    };
+
+    /**
+     * fill return statement.
+     * @param {string} identifier
+     */
+    TypeMapperDefinition.prototype.fillVariableDefStatement = function (structName,identifier) {
+
+        var ballerinaASTFactory = this.getFactory();
+        var leftOperandExpression = _.find(this.getChildren(), function (child) {
+            return ballerinaASTFactory.isLeftOperandExpression(child);
+        });
+
+        var variableReferenceExpression = _.find(leftOperandExpression.getChildren(), function (child) {
+            return ballerinaASTFactory.isVariableReferenceExpression(child);
+        });
+
+        var variableDefinition = _.find(variableReferenceExpression.getChildren(), function (child) {
+            return ballerinaASTFactory.isVariableDefinition(child);
+        });
+
+        variableDefinition.setName(identifier);
+
+        var simpleTypeName = _.find(variableDefinition.getChildren(), function (child) {
+            return ballerinaASTFactory.isSimpleTypeName(child);
+        });
+
+        simpleTypeName.setName(structName);
+    };
+
+    /**
      * Adds new variable definition statement.
      * @param {string} typeStructName
      * @param {string} identifier
@@ -268,7 +318,6 @@ define(['lodash', './node'], function (_, ASTNode) {
 
         // Creating a new ResourceParameter.
         var newReturnType = this.getFactory().createReturnType();
-        //todo check setting annotations
         var newStructType =this.getFactory().createStructType();
         newStructType.setTypeName(typeStructName);
         var newSymbolName =this.getFactory().createSymbolName();
@@ -307,7 +356,6 @@ define(['lodash', './node'], function (_, ASTNode) {
         var newAssignmentStatement = this.getFactory().createAssignmentStatement();
         var leftOperandExpression = this.getFactory().createLeftOperandExpression();
         var rightOperandExpression = this.getFactory().createRightOperandExpression();
-        var newExpression = this.getFactory().createExpression();
 
         var sourceStructFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
         var sourceVariableReferenceExpressionForIdentifier = this.getFactory().createVariableReferenceExpression();
@@ -319,7 +367,6 @@ define(['lodash', './node'], function (_, ASTNode) {
         sourceStructFieldAccessExpression.addChild(sourceVariableReferenceExpressionForIdentifier);
         sourceStructFieldAccessExpression.addChild(sourceFieldExpression);
 
-        newExpression.addChild(sourceStructFieldAccessExpression);
 
         var targetStructFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
         var targetVariableReferenceExpressionForIdentifier = this.getFactory().createVariableReferenceExpression();
@@ -331,7 +378,7 @@ define(['lodash', './node'], function (_, ASTNode) {
         targetStructFieldAccessExpression.addChild(targetVariableReferenceExpressionForIdentifier);
         targetStructFieldAccessExpression.addChild(targetFieldExpression);
 
-        leftOperandExpression.addChild(newExpression);
+        leftOperandExpression.addChild(sourceStructFieldAccessExpression);
         newAssignmentStatement.addChild(leftOperandExpression);
         rightOperandExpression.addChild(targetStructFieldAccessExpression);
         newAssignmentStatement.addChild(rightOperandExpression);
