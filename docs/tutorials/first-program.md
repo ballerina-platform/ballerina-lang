@@ -110,9 +110,9 @@ After you save the program, a file explorer on the left shows the `bin` director
 
 1. At your command prompt, navigate to your Ballerina `bin` directory, and enter the command to run the Ballerina server and deploy your myEcho program:
 
-```
-./ballerina service myEcho.bal
-```
+  ```
+  ./ballerina service myEcho.bal
+  ```
 
 Your service is now deployed and running on the Ballerina server. 
 
@@ -120,13 +120,12 @@ Your service is now deployed and running on the Ballerina server.
 
 1. From a separate command prompt, use curl to send a request to your program:
 
-```
-curl -v http://localhost:9090/echo2 -d "Hello World......"
-```
+  ```
+  curl -v http://localhost:9090/echo2 -d "Hello World......"
+  ```
 
 The service receives the request, takes the text `Hello World......` from the incoming message, converts it into a response, and sends it back to the command line where the request was sent.
 
 ## Where to go next
 
 Now that you're familiar with running Ballerina in standalone and server mode, using the editor to build an integration program, and creating a service and resource, you are ready to learn more about the constructs you can use in your program, the native functions available in Ballerina, and the Ballerina language syntax. 
-
