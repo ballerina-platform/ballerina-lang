@@ -284,6 +284,13 @@
                 <artifactId>snakeyaml</artifactId>
                 <version>${org.snakeyaml.version}</version>
             </dependency>
+
+            <!-- Data Services dependencies -->
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>${com.zaxxer.hikaricp.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -464,6 +471,9 @@
         <native.constructs.provider.package>org.wso2.ballerina.nativeimpl</native.constructs.provider.package>
         <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
+
+        <!--data services dependencies -->
+        <com.zaxxer.hikaricp.version>2.5.1</com.zaxxer.hikaricp.version>
     </properties>
 
     <modules>
