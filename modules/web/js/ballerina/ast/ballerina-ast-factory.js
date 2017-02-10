@@ -83,13 +83,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
             var functionDefinition = BallerinaASTFactory.createFunctionDefinition(args);
             functionDefinition.setFunctionName("main");
             functionDefinition.addArgument("string[]", "args");
-            var printHelloWorldStatement = BallerinaASTFactory.createFunctionInvocationStatement(args);
-            var functionInvocationExpr = BallerinaASTFactory.createFunctionInvocationExpression(args);
-            functionInvocationExpr.setPackageName("system");
-            functionInvocationExpr.setFunctionName("println");
-            functionInvocationExpr.setParams('"Hello world"');
-            printHelloWorldStatement.addChild(functionInvocationExpr);
-            functionDefinition.addChild(printHelloWorldStatement);
             return functionDefinition;
         };
 
