@@ -538,6 +538,7 @@
 <script src="lib/requirejs-2.3.2/require.js"></script>
 <script type="text/javascript">
     requirejs.config({
+        package_listing: "http://localhost:8289/service/packages",
         baseUrl: window.location.protocol + "//" + window.location.host + window.location.pathname.split("/").slice(0, -1).join("/"),
         paths: {
             lib: "lib",
