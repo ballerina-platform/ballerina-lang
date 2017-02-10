@@ -35,7 +35,7 @@ define(['lodash', './node'], function (_, ASTNode) {
      */
     SimpleTypeName.prototype.setName = function (name, options) {
         if (!_.isNil(name)) {
-            this.setAttribute('_typeName', name, options);
+            this.setAttribute('_name', name, options);
         } else {
             log.error('Invalid Name [' + name + '] Provided');
             throw 'Invalid Name [' + name + '] Provided';
