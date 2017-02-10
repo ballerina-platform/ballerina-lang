@@ -320,6 +320,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
          * @param options - View options of the file editor.
          */
         BallerinaFileEditor.prototype.render = function (diagramRenderingContext, parent, options) {
+            var self = this;
             this.diagramRenderingContext = diagramRenderingContext;
             //TODO remove this for adding filecontext to the map
             this.diagramRenderingContext.ballerinaFileEditor = this;
@@ -329,20 +330,23 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 // adding current package to the tool palette with functions, connectors, actions etc. of the current package
                 this.addCurrentPackageToToolPalette();
             }
-            //adding default packages TODO : this needs to be rendered by referring to imports in the model
-            var httpPackage = BallerinaEnvironment.searchPackage("ballerina.net.http");
-            this.toolPalette.getItemProvider().addImport(httpPackage[0]);
 
-            // render tool palette
-            this.toolPalette.render();
-
+            var importDeclarations = [];
             if(!this._parseFailed){
                 // Creating the constants view.
                 this._createConstantDefinitionsView(this._$canvasContainer);
                 this._model.accept(this);
+                importDeclarations = this._model.getImportDeclarations();
             }
 
-            var self = this;
+            // add current imported packages to tool pallet
+            _.forEach(importDeclarations, function (importDeclaration) {
+                var package = BallerinaEnvironment.searchPackage(importDeclaration.getPackageName());
+                self.toolPalette.getItemProvider().addImport(package[0]);
+            });
+
+            // render tool palette
+            this.toolPalette.render();
 
             // container for per-tab source view TODO improve source view to wrap this logic
             var sourceViewContainer = $(this._container).find(_.get(this._viewOptions, 'source_view.container'));
@@ -669,6 +673,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         //Clear the import value box
                         importPackageTextBox.val("");
 
+                        // add import to the tool pallet
+                        var newPackage = BallerinaEnvironment.searchPackage(newImportDeclaration.getPackageName())[0];
+                        self.toolPalette.getItemProvider().addImportToolGroup(newPackage);
+
                         // Updating current imports view.
                         addImportsToView(currentASTRoot, propertyPane.find(".imports-wrapper"));
                     }
@@ -767,6 +775,13 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             // adding current package to the tool palette with functions, connectors, actions etc. of the current package
             this.addCurrentPackageToToolPalette();
             this._model.accept(this);
+
+            // adding declared import packages to tool palette
+            _.forEach(this._model.getImportDeclarations(), function (importDeclaration) {
+                var package = BallerinaEnvironment.searchPackage(importDeclaration.getPackageName());
+                self.toolPalette.getItemProvider().addImport(package[0]);
+            });
+
             this.initDropTarget();
             this.trigger('redraw');
         };
