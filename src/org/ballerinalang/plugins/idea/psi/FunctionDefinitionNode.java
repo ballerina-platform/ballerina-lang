@@ -41,8 +41,13 @@ public class FunctionDefinitionNode extends IdentifierDefSubtree implements Scop
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//functionDefinition/Identifier");
         } else if (element.getParent() instanceof VariableReferenceNode) {
-            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
+            PsiElement resolved = SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//parameter/Identifier");
+            if (resolved == null) {
+                resolved = SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
+                        "//namedParameter/Identifier");
+            }
+            return resolved;
         } else if (element.getParent() instanceof SimpleTypeNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//connectorDefinition/Identifier");
