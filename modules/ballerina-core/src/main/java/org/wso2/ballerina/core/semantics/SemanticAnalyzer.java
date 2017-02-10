@@ -674,7 +674,16 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(BlockStmt blockStmt) {
         openScope(blockStmt);
 
-        for (Statement stmt : blockStmt.getStatements()) {
+        for (int i = 0; i < blockStmt.getStatements().length; i++) {
+            Statement stmt = blockStmt.getStatements()[i];
+            if (stmt instanceof ReturnStmt) {
+                int stmtLocation = i + 1;
+                if (blockStmt.getStatements().length > stmtLocation) {
+                    throw new SemanticException(
+                            LangModelUtils.getNodeLocationStr(blockStmt.getStatements()[stmtLocation].getNodeLocation())
+                                    + "unreachable statement");
+                }
+            }
             stmt.accept(this);
         }
 
