@@ -114,4 +114,8 @@ public class CallableUnitBuilder {
     public BTypeConvertor buildTypeConverter() {
         return null;
     }
+
+    public Worker buildWorker() {
+        return null;
+    }
 }

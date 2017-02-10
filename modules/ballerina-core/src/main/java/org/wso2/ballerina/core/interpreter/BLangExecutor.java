@@ -31,6 +31,7 @@ import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.core.model.TypeConvertor;
 import org.wso2.ballerina.core.model.VariableDef;
+import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
@@ -62,6 +63,8 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.statements.WorkerInvocationStmt;
+import org.wso2.ballerina.core.model.statements.WorkerReplyStmt;
 import org.wso2.ballerina.core.model.types.BMapType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
@@ -82,6 +85,13 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+import org.wso2.ballerina.core.runtime.worker.WorkerCallback;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 
 /**
  * {@code BLangExecutor} executes a Ballerina application.
@@ -216,6 +226,83 @@ public class BLangExecutor implements NodeExecutor {
     @Override
     public void visit(ActionInvocationStmt actionIStmt) {
         actionIStmt.getActionInvocationExpr().executeMultiReturn(this);
+    }
+
+    @Override
+    public void visit(WorkerInvocationStmt workerInvocationStmt) {
+        // Create the Stack frame
+        Worker worker = workerInvocationStmt.getCallableUnit();
+
+        int sizeOfValueArray = worker.getStackFrameSize();
+        BValue[] localVals = new BValue[sizeOfValueArray];
+
+        // Evaluate the argument expression
+        BValue argValue = workerInvocationStmt.getInMsg().execute(this);
+
+        if (argValue instanceof BMessage) {
+            argValue = ((BMessage) argValue).clone();
+        }
+
+        // Setting argument value in the stack frame
+        localVals[0] = argValue;
+
+        // Get values for all the worker arguments
+        int valueCounter = 1;
+
+        for (ParameterDef returnParam : worker.getReturnParameters()) {
+            // Check whether these are unnamed set of return types.
+            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
+            if (returnParam.getName() == null) {
+                break;
+            }
+
+            localVals[valueCounter] = returnParam.getType().getDefaultValue();
+            valueCounter++;
+        }
+
+
+        // Create an array in the stack frame to hold return values;
+        BValue[] returnVals = new BValue[1];
+
+        // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
+        // return values and worker invocation location;
+        CallableUnitInfo functionInfo = new CallableUnitInfo(worker.getName(), worker.getPackagePath(),
+                workerInvocationStmt.getNodeLocation());
+
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
+        Context workerContext = new Context();
+        workerContext.getControlStack().pushFrame(stackFrame);
+        WorkerCallback workerCallback = new WorkerCallback(workerContext);
+        workerContext.setBalCallback(workerCallback);
+        BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
+
+
+//        Callable<BValue> task = () -> {
+//            worker.getCallableUnitBody().execute(workerExecutor);
+//            return workerContext.getControlStack().getCurrentFrame().returnVals[0];
+//        };
+        WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
+        ExecutorService executor = Executors.newFixedThreadPool(1);
+        Future<BValue> future = executor.submit(workerRunner);
+        worker.setResultFuture(future);
+
+
+        //controlStack.popFrame();
+    }
+
+    @Override
+    public void visit(WorkerReplyStmt workerReplyStmt) {
+        Worker worker = workerReplyStmt.getWorker();
+        Future<BValue> future = worker.getResultFuture();
+        try {
+            BValue result = future.get();
+            VariableRefExpr variableRefExpr = workerReplyStmt.getReceiveExpr();
+            assignValueToVarRefExpr(result, variableRefExpr);
+        } catch (InterruptedException e) {
+            throw new BallerinaException("Worker " + worker.getName() + " has been interrupted", e);
+        } catch (ExecutionException e) {
+            throw new BallerinaException("Worker " + worker.getName() + " execution failed", e);
+        }
     }
 
     @Override
@@ -722,6 +809,9 @@ public class BLangExecutor implements NodeExecutor {
 
             int connectorMemOffset = ((ConnectorVarLocation) memoryLocation).getConnectorMemAddrOffset();
             bConnector.setValue(connectorMemOffset, rValue);
+        } else if (memoryLocation instanceof WorkerVarLocation) {
+            int stackFrameOffset = ((WorkerVarLocation) memoryLocation).getworkerMemAddrOffset();
+            controlStack.setValue(stackFrameOffset, rValue);
         }
     }
 
@@ -764,6 +854,12 @@ public class BLangExecutor implements NodeExecutor {
         Expression varRef = structFieldAccessExpr.getVarRef();
         BValue value = varRef.execute(this);
         return getFieldExprValue(structFieldAccessExpr, value);
+    }
+
+    @Override
+    public BValue visit(WorkerVarLocation workerVarLocation) {
+        int offset = workerVarLocation.getworkerMemAddrOffset();
+        return controlStack.getValue(offset);
     }
 
     /**

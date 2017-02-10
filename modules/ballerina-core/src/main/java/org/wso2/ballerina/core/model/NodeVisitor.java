@@ -22,6 +22,7 @@ import org.wso2.ballerina.core.interpreter.ConstantLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
+import org.wso2.ballerina.core.interpreter.WorkerVarLocation;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
@@ -63,6 +64,8 @@ import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.statements.WorkerInvocationStmt;
+import org.wso2.ballerina.core.model.statements.WorkerReplyStmt;
 
 /**
  * {@code NodeVisitor} responsible for executing a Ballerina applications by traversing statements and expressions.
@@ -124,6 +127,9 @@ public interface NodeVisitor {
 
     void visit(ActionInvocationStmt actionInvocationStmt);
 
+    void visit(WorkerInvocationStmt workerInvocationStmt);
+
+    void visit(WorkerReplyStmt workerReplyStmt);
 
     // Expressions
 
@@ -199,4 +205,6 @@ public interface NodeVisitor {
     void visit(MainInvoker mainInvoker);
 
     void visit(StructVarLocation structVarLocation);
+
+    void visit(WorkerVarLocation workerVarLocation);
 }

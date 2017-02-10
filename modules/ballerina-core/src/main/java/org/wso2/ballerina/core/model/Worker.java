@@ -18,137 +18,300 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.model.statements.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.model.builder.CallableUnitBuilder;
+import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+import org.wso2.ballerina.core.model.types.BType;
+import org.wso2.ballerina.core.model.values.BValue;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Future;
 
 /**
  * A {@code worker} is a thread of execution that the integration developer programs as a lifeline.
  * <p>
- * <p>
- * Workers are defined as follows:
- * <p>
- * worker WorkerName (message m) {
- * ConnectionDeclaration;*
- * VariableDeclaration;*
- * Statement;+
- * [reply MessageName;]
- * }
  *
- * @since 0.8.0
+ * Workers are defined as follows:
+ *
+ *  worker WorkerName (message m) {
+ *      ConnectionDeclaration;*
+ *      VariableDeclaration;*
+ *      Statement;+
+ *      [reply MessageName;]
+ *  }
+ *
+ *  @since 0.8.0
  */
-public class Worker implements Node {
+@SuppressWarnings("unused")
+public class Worker implements SymbolScope, CompilationUnit, CallableUnit  {
 
-    private List<ConnectorDcl> connectorDcls;
-    private List<VariableDef> variables;
-    private List<Statement> statements;
+    private static final Logger LOG = LoggerFactory.getLogger(Worker.class);
 
-    public Worker(NodeLocation location, List<VariableDef> variables, List<Statement> statements) {
-        this.variables = variables;
-        this.statements = statements;
+    private Future<BValue> resultFuture;
+    private NodeLocation location;
+
+    // BLangSymbol related attributes
+    protected String name;
+    protected String pkgPath;
+    protected boolean isPublic;
+    protected SymbolName symbolName;
+
+    private Annotation[] annotations;
+    private ParameterDef[] parameterDefs;
+    private BType[] parameterTypes;
+    private Worker[] workers;
+    private ParameterDef[] returnParams;
+    private BType[] returnParamTypes;
+    private BlockStmt workerBody;
+    private int stackFrameSize;
+
+    // Scope related variables
+    private SymbolScope enclosingScope;
+    private Map<SymbolName, BLangSymbol> symbolMap;
+
+    public Worker(String name) {
+        this.name = name;
     }
 
-    public Worker() {
+    private Worker(SymbolScope enclosingScope) {
+        this.enclosingScope = enclosingScope;
+        this.symbolMap = new HashMap<>();
     }
 
-    /**
-     * Get all Connections declared within the Worker.
-     *
-     * @return list of all the Connections belongs to the Worker
-     */
-    public List<ConnectorDcl> getConnectorDcls() {
-        return connectorDcls;
-    }
-
-    /**
-     * Assign connections to the Worker.
-     *
-     * @param connectorDcls list of connections to be assigned to the Worker
-     */
-    public void setConnectorDcls(List<ConnectorDcl> connectorDcls) {
-        this.connectorDcls = connectorDcls;
-    }
-
-    /**
-     * Add a {@code Connection} to the Worker.
-     *
-     * @param connectorDcl Connection to be added to the Worker
-     */
-    public void addConnection(ConnectorDcl connectorDcl) {
-        if (connectorDcls == null) {
-            connectorDcls = new ArrayList<ConnectorDcl>();
-        }
-        connectorDcls.add(connectorDcl);
-    }
-
-    /**
-     * Get all the variables declared in the Worker.
-     *
-     * @return list of all Worker scoped variables
-     */
-    public List<VariableDef> getVariables() {
-        return variables;
-    }
-
-    /**
-     * Assign variables to the Worker.
-     *
-     * @param variables list of variables
-     */
-    public void setVariables(List<VariableDef> variables) {
-        this.variables = variables;
-    }
-
-    /**
-     * Add a {@code Variable} to the Worker.
-     *
-     * @param variable variable to be added the Worker
-     */
-    public void addVariable(VariableDef variable) {
-        if (variables == null) {
-            variables = new ArrayList<VariableDef>();
-        }
-        variables.add(variable);
-    }
-
-    /**
-     * Get all the Statements associated with the Worker.
-     *
-     * @return list of Statements associated with the Worker
-     */
-    public List<Statement> getStatements() {
-        return statements;
-    }
-
-    /**
-     * Set Statements to be associated with the Worker.
-     *
-     * @param statements list of Statements
-     */
-    public void setStatements(List<Statement> statements) {
-        this.statements = statements;
-    }
-
-    /**
-     * Add a {@code Statement} to the Worker.
-     *
-     * @param statement a Statement to be added to the Worker
-     */
-    public void addStatement(Statement statement) {
-        if (statements == null) {
-            statements = new ArrayList<Statement>();
-        }
-        statements.add(statement);
-    }
+    public Worker(){}
 
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
+    /**
+     * Returns the location of this node.
+     * <p>
+     * {@link NodeLocation} includes the source filename and the line number.
+     *
+     * @return location of this node
+     */
     @Override
     public NodeLocation getNodeLocation() {
         return null;
+    }
+
+    /**
+     * Returns the name of the callable unit.
+     *
+     * @return the name
+     */
+    @Override
+    public String getName() {
+        return this.name;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return null;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return false;
+    }
+
+    @Override
+    public boolean isNative() {
+        return false;
+    }
+
+    /**
+     * Replaces the symbol name of this callable unit with the specified symbol name.
+     *
+     * @param symbolName name of the symbol.
+     */
+    @Override
+    public void setSymbolName(SymbolName symbolName) {
+        this.symbolName = symbolName;
+
+    }
+
+    @Override
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
+    @Override
+    public SymbolScope getSymbolScope() {
+        return this;
+    }
+
+
+    // Methods in the SymbolScope interface
+
+    @Override
+    public ScopeName getScopeName() {
+        return ScopeName.WORKER;
+    }
+
+    @Override
+    public SymbolScope getEnclosingScope() {
+        return enclosingScope;
+    }
+
+    @Override
+    public void define(SymbolName name, BLangSymbol symbol) {
+        symbolMap.put(name, symbol);
+    }
+
+    @Override
+    public BLangSymbol resolve(SymbolName name) {
+        return resolve(symbolMap, name);
+    }
+
+    /**
+     * Returns an array of annotations attached this callable unit.
+     *
+     * @return an array of annotations
+     */
+    @Override
+    public Annotation[] getAnnotations() {
+        return new Annotation[0];
+    }
+
+    /**
+     * Returns an array of parameters of this callable unit.
+     *
+     * @return an array of parameters
+     */
+    @Override
+    public ParameterDef[] getParameterDefs() {
+        return this.parameterDefs;
+    }
+
+    /**
+     * Returns an array of variable declarations of this callable unit.
+     *
+     * @return an array of variable declarations
+     */
+    @Override
+    public VariableDef[] getVariableDefs() {
+        return new VariableDef[0];
+    }
+
+    /**
+     * Returns an array of return parameters (values) of this callable unit.
+     *
+     * @return an array of return parameters
+     */
+    @Override
+    public ParameterDef[] getReturnParameters() {
+        return this.returnParams;
+    }
+
+
+    /**
+     * Returns size of the stack frame which should be allocated for each invocations.
+     *
+     * @return size of the stack frame
+     */
+    @Override
+    public int getStackFrameSize() {
+        return this.stackFrameSize;
+    }
+
+    /**
+     * Replaces the size of the current stack frame with the specified size.
+     *
+     * @param frameSize size of the stack frame
+     */
+    @Override
+    public void setStackFrameSize(int frameSize) {
+        this.stackFrameSize = frameSize;
+    }
+
+    /**
+     * Returns the body of the callable unit as a {@code BlockStmt}.
+     *
+     * @return body of the callable unit
+     */
+    @Override
+    public BlockStmt getCallableUnitBody() {
+        return this.workerBody;
+    }
+
+    /**
+     * Get Types of the return parameters.
+     *
+     * @return Types of the return parameters
+     */
+    @Override
+    public BType[] getReturnParamTypes() {
+        return this.returnParamTypes;
+    }
+
+    /**
+     * Sets a {@code BType} array containing the types of return parameters of this callable unit.
+     *
+     * @param returnParamTypes array of the return parameters
+     */
+    @Override
+    public void setReturnParamTypes(BType[] returnParamTypes) {
+        this.returnParamTypes = returnParamTypes;
+    }
+
+    /**
+     * Get Types of the return input arguments.
+     *
+     * @return Types of the return input arguments
+     */
+    @Override
+    public BType[] getArgumentTypes() {
+        return new BType[0];
+    }
+
+    /**
+     * Sets a {@code BType} array containing the types of input parameters of this callable unit.
+     *
+     * @param parameterTypes array of the input parameters
+     */
+    @Override
+    public void setParameterTypes(BType[] parameterTypes) {
+        this.parameterTypes = parameterTypes;
+    }
+
+    public Future<BValue> getResultFuture() {
+        return resultFuture;
+    }
+
+    public void setResultFuture(Future<BValue> resultFuture) {
+        this.resultFuture = resultFuture;
+    }
+
+    /**
+     * {@code WorkerBuilder} is responsible for building a {@code Worker} node.
+     *
+     * @since 0.8.0
+     */
+    public static class WorkerBuilder extends CallableUnitBuilder {
+        private Worker bWorker;
+
+        public WorkerBuilder(SymbolScope enclosingScope) {
+            bWorker = new Worker(enclosingScope);
+            currentScope = bWorker;
+        }
+
+        public Worker buildWorker() {
+            bWorker.location = this.location;
+            bWorker.name = this.name;
+            bWorker.pkgPath = this.pkgPath;
+            bWorker.symbolName = new SymbolName(name, pkgPath);
+
+            bWorker.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
+            bWorker.returnParams = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);
+            bWorker.workerBody = this.body;
+            return bWorker;
+        }
+
     }
 }

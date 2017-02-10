@@ -54,6 +54,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     private boolean isArrayType;
 
+    // Variable to keep whether worker creation has been started. This is used at BLangAntlr4Listener class
+    // to create parameter when there is a named parameter
+    private boolean isWorkerStarted = false;
+
     public BLangAntlr4Listener(BLangModelBuilder modelBuilder) {
         this.modelBuilder = modelBuilder;
     }
@@ -463,11 +467,35 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx) {
+        if (ctx.exception == null) {
+            isWorkerStarted = true;
+            modelBuilder.startWorkerUnit();
+            modelBuilder.startCallableUnitBody(getCurrentLocation(ctx));
+        }
     }
 
     @Override
     public void exitWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx) {
+        if (ctx.exception == null && ctx.Identifier() != null) {
+            //modelBuilder.createSymbolName(ctx.Identifier().getText());
+            modelBuilder.endCallableUnitBody();
+            modelBuilder.createWorker(ctx.Identifier().getText(), getCurrentLocation(ctx));
+            isWorkerStarted = false;
+        }
+
     }
+
+//    @Override
+//    public void enterWorkerInputParameter(BallerinaParser.WorkerInputParameterContext ctx) {
+//
+//    }
+//
+//    @Override
+//    public void exitWorkerInputParameter(BallerinaParser.WorkerInputParameterContext ctx) {
+//        if (ctx.exception == null) {
+//            modelBuilder.createParam(ctx.Identifier().getText(), getCurrentLocation(ctx));
+//        }
+//    }
 
     @Override
     public void enterReturnParameters(BallerinaParser.ReturnParametersContext ctx) {
@@ -500,8 +528,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-
-        modelBuilder.createNamedReturnParam(getCurrentLocation(ctx), ctx.Identifier().getText());
+        // If worker is started, then this is an input parameter definition
+        if (isWorkerStarted) {
+            modelBuilder.addParam(ctx.Identifier().getText(), getCurrentLocation(ctx));
+        } else {
+            modelBuilder.createNamedReturnParam(getCurrentLocation(ctx), ctx.Identifier().getText());
+        }
     }
 
     @Override
@@ -1020,6 +1052,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitTriggerWorker(BallerinaParser.TriggerWorkerContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.createWorkerInvocationStmt(ctx.Identifier(0).getText(), ctx.Identifier(1).getText(),
+                    getCurrentLocation(ctx));
+        }
     }
 
     @Override
@@ -1028,6 +1064,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitWorkerReply(BallerinaParser.WorkerReplyContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.createWorkerReplyStmt(ctx.Identifier(0).getText(), ctx.Identifier(1).getText(),
+                    getCurrentLocation(ctx));
+        }
     }
 
     @Override

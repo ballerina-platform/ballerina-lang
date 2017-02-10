@@ -25,6 +25,7 @@ import org.wso2.ballerina.core.interpreter.ConstantLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
+import org.wso2.ballerina.core.interpreter.WorkerVarLocation;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
@@ -85,6 +86,8 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.statements.WorkerInvocationStmt;
+import org.wso2.ballerina.core.model.statements.WorkerReplyStmt;
 
 import java.util.Stack;
 import java.util.function.BiConsumer;
@@ -418,28 +421,15 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject jsonWorker = new JsonObject();
         jsonWorker.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.WORKER_DEFINITION);
         tempJsonArrayRef.push(new JsonArray());
-        if (worker.getConnectorDcls() != null) {
-            for (ConnectorDcl connectDcl : worker.getConnectorDcls()) {
-                connectDcl.accept(this);
-            }
-        }
-        if (worker.getVariables() != null) {
-            for (VariableDef variableDef : worker.getVariables()) {
+        if (worker.getParameterDefs() != null) {
+            for (VariableDef variableDef : worker.getParameterDefs()) {
                 variableDef.accept(this);
             }
         }
-        if (worker.getStatements() != null) {
-            for (Statement statement : worker.getStatements()) {
-                if (isExprAsString) {
-                    JsonObject jsonObject = new JsonObject();
-                    statement.accept(exprVisitor);
-                    jsonObject.addProperty(BLangJSONModelConstants.STATEMENT,
-                            exprVisitor.getBuffer().toString());
-                    tempJsonArrayRef.peek().add(jsonObject);
-                } else {
-                    statement.accept(this);
-                }
-            }
+        if (worker.getCallableUnitBody() != null) {
+            Statement statement = worker.getCallableUnitBody();
+            statement.accept(this);
+
         }
         jsonWorker.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
@@ -632,6 +622,16 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(ActionInvocationStmt actionInvocationStmt) {
+
+    }
+
+    @Override
+    public void visit(WorkerInvocationStmt workerInvocationStmt) {
+
+    }
+
+    @Override
+    public void visit(WorkerReplyStmt workerReplyStmt) {
 
     }
 
@@ -1058,6 +1058,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     @Override
     public void visit(StructVarLocation structVarLocation) {
         // TODO
+    }
+
+    @Override
+    public void visit(WorkerVarLocation workerVarLocation) {
+
     }
 
     @Override

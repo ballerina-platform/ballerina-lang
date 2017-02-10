@@ -37,6 +37,7 @@ import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.VariableDef;
+import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
@@ -76,6 +77,8 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.statements.WorkerInvocationStmt;
+import org.wso2.ballerina.core.model.statements.WorkerReplyStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
@@ -122,6 +125,9 @@ public class BLangModelBuilder {
     // Builds functions, actions and resources.
     private CallableUnitBuilder currentCUBuilder;
 
+    // Keep the parent CUBuilder for worker
+    private CallableUnitBuilder parentCUBuilder;
+    
     // Builds user defined structs.
     private StructDef.StructBuilder currentStructBuilder;
 
@@ -753,6 +759,14 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
+    public void startWorkerUnit() {
+        if (currentCUBuilder != null) {
+            parentCUBuilder = currentCUBuilder;
+        }
+        currentCUBuilder = new Worker.WorkerBuilder(currentScope);
+        currentScope = currentCUBuilder.getCurrentScope();
+    }
+
     public void addFunction(NodeLocation location, String name, boolean isPublic) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
@@ -822,6 +836,23 @@ public class BLangModelBuilder {
 
         currentScope = resource.getEnclosingScope();
         currentCUBuilder = null;
+    }
+
+    public void createWorker(String name, NodeLocation sourceLocation) {
+        currentCUBuilder.setName(name);
+        currentCUBuilder.setNodeLocation(sourceLocation);
+
+        Worker worker = currentCUBuilder.buildWorker();
+        parentCUBuilder.addWorker(worker);
+
+        currentCUBuilder = parentCUBuilder;
+        parentCUBuilder = null;
+//        // Take the function body and set that as the CUBuilder body
+//        if (!blockStmtBuilderStack.empty()) {
+//            BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+//            BlockStmt blockStmt = blockStmtBuilder.build();
+//            currentCUBuilder.setBody(blockStmt);
+//        }
     }
 
     public void startActionDef() {
@@ -1085,6 +1116,21 @@ public class BLangModelBuilder {
         FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
         FunctionInvocationStmt functionInvocationStmt = new FunctionInvocationStmt(location, invocationExpr);
         blockStmtBuilderStack.peek().addStmt(functionInvocationStmt);
+    }
+
+    public void createWorkerInvocationStmt(String receivingMsgRef, String workerName, NodeLocation sourceLocation) {
+        VariableRefExpr variableRefExpr = new VariableRefExpr(sourceLocation, new SymbolName(receivingMsgRef));
+        WorkerInvocationStmt workerInvocationStmt = new WorkerInvocationStmt(workerName, sourceLocation);
+        //workerInvocationStmt.setLocation(sourceLocation);
+        workerInvocationStmt.setInMsg(variableRefExpr);
+        blockStmtBuilderStack.peek().addStmt(workerInvocationStmt);
+    }
+
+    public void createWorkerReplyStmt(String receivingMsgRef, String workerName, NodeLocation sourceLocation) {
+        VariableRefExpr variableRefExpr = new VariableRefExpr(sourceLocation, new SymbolName(receivingMsgRef));
+        WorkerReplyStmt workerReplyStmt = new WorkerReplyStmt(variableRefExpr, workerName, sourceLocation);
+        //workerReplyStmt.setLocation(sourceLocation);
+        blockStmtBuilderStack.peek().addStmt(workerReplyStmt);
     }
 
     public void createActionInvocationStmt(NodeLocation location, String actionName) {

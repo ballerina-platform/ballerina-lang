@@ -52,6 +52,8 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.statements.WorkerInvocationStmt;
+import org.wso2.ballerina.core.model.statements.WorkerReplyStmt;
 import org.wso2.ballerina.core.model.types.BTypes;
 
 import java.util.Stack;
@@ -234,6 +236,16 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         buffer.append(bufferStack.peek());
         bufferStack.pop();
         buffer.append(";");
+    }
+
+    @Override
+    public void visit(WorkerInvocationStmt workerInvocationStmt) {
+
+    }
+
+    @Override
+    public void visit(WorkerReplyStmt workerReplyStmt) {
+
     }
 
     @Override
@@ -596,6 +608,11 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     @Override
     public void visit(StructVarLocation structVarLocation) {
         //TODO
+    }
+
+    @Override
+    public void visit(WorkerVarLocation workerVarLocation) {
+
     }
 
     @Override
