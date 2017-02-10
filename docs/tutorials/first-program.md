@@ -66,7 +66,7 @@ Now, let's set the base path for this service. This will be the context portion 
 1. In the upper right corner of the service box (not the resource box this time), click the `@` symbol. 
 1. Make sure BasePath is selected in the list, type `/echo2` in the text box, and then press Enter or click the + symbol to its right. 
 
-...We are naming it `/echo2` so that it doesn't conflict with the existing echo sample. 
+   We are naming it `/echo2` so that it doesn't conflict with the existing echo sample. 
 
 The base path is now set, so that when you deploy this service, clients will be able to send requests to it using the URL http://localhost:9090/echo2.
 
