@@ -76,6 +76,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             } else {
                 var generatedSource = this.generateSource();
                 this._sourceView.setContent(generatedSource);
+                this._sourceView.format(true);
                 return this._sourceView.getContent();
             }
         };
@@ -391,6 +392,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self.toolPalette.hide();
                 // Get the generated source and append it to the source view container's content
                 self._sourceView.setContent(generatedSource);
+                self._sourceView.format();
                 sourceViewContainer.show();
                 swaggerViewContainer.hide();
                 self._$designViewContainer.hide();

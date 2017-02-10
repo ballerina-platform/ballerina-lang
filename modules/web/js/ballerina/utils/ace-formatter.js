@@ -120,8 +120,16 @@ define(["require", "ace/token_iterator"],
             }
         ];
 
-        BallerinaFormatter.beautify = function (session) {
-            var iterator = new TokenIterator(session, 0, 0);
+        BallerinaFormatter.beautify = function (session, start, end) {
+            if(_.isNil(start)){
+                start = 0;
+            }
+
+            if(_.isNil(end)){
+                end = 0;
+            }
+
+            var iterator = new TokenIterator(session, start, end);
             this.session = session;
             var code = this.format(iterator);
             session.setValue(code);
