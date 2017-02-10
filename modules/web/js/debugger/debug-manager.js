@@ -119,5 +119,9 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
         return this.enable;
     };
 
+    DebugManager.prototype.createDebugPoint = function(line, fileName){
+        return new DebugPoint({ "fileName": fileName , "line": line});
+    };    
+
     return (instance = (instance || new DebugManager()));
 });
