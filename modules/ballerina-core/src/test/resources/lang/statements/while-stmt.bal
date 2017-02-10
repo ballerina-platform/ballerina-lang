@@ -22,3 +22,26 @@ function testWhileScope(int number)(int) {
     }
     return i;
 }
+
+function testWhileScopeWithIf()(int, double) {
+    double[] values = [];
+    string operator;
+    double sum = 0.0d;
+    string[] args = ["+" , "10", "20"];
+
+    int i = 0;
+        while (i < 3) {
+           if(i == 0){
+                 operator = args[0];
+           } else {
+                 values[i -1] = (double)args[i];
+           }
+           i = i + 1;
+           }
+    int j = 0;
+    while(j < 2) {
+        sum = sum + values[j];
+        j = j + 1;
+    }
+    return j, sum;
+}
