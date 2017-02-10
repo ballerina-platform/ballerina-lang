@@ -19,10 +19,12 @@
 package org.wso2.ballerina.nativeimpl.connectors;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.nativeimpl.util.Functions;
 import org.wso2.ballerina.nativeimpl.util.ParserUtils;
@@ -46,9 +48,78 @@ public class SQLConnectorTest {
     }
 
     @Test
-    public void testDoubleArrayLength() {
-        BValue[] returns = Functions.invoke(bFile, "testInsertTable");
+    public void testInsertTableData() {
+        BValue[] returns = Functions.invoke(bFile, "testInsertTableData");
         BInteger retValue = (BInteger) returns[0];
-        Assert.assertEquals(1, retValue.intValue(), "Data Insertion Failed");
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test
+    public void testCreateTable() {
+        BValue[] returns = Functions.invoke(bFile, "testCreateTable");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 0);
+    }
+
+    @Test
+    public void testUpdateTableData() {
+        BValue[] returns = Functions.invoke(bFile, "testUpdateTableData");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test
+    public void testGeneratedKeyOnInsert() {
+        BValue[] returns = Functions.invoke(bFile, "testGeneratedKeyOnInsert");
+        BString retValue = (BString) returns[0];
+        Assert.assertTrue(retValue.intValue() > 0);
+    }
+
+    @Test
+    public void testGeneratedKeyWithColumn() {
+        BValue[] returns = Functions.invoke(bFile, "testGeneratedKeyWithColumn");
+        BString retValue = (BString) returns[0];
+        Assert.assertTrue(retValue.intValue() > 0);
+    }
+
+    @Test
+    public void testSelectData() {
+        BValue[] returns = Functions.invoke(bFile, "testSelectData");
+        BString retValue = (BString) returns[0];
+
+        final String expected = "Peter";
+        Assert.assertEquals(retValue.stringValue(), expected);
+    }
+
+    @Test
+    public void testCallProcedure() {
+        BValue[] returns = Functions.invoke(bFile, "testCallProcedure");
+        BString retValue = (BString) returns[0];
+
+        final String expected = "James";
+        Assert.assertEquals(retValue.stringValue(), expected);
+    }
+
+    @Test
+    public void testConnectorWithDataSource() {
+        BValue[] returns = Functions.invoke(bFile, "testConnectorWithDataSource");
+        BString retValue = (BString) returns[0];
+
+        final String expected = "Peter";
+        Assert.assertEquals(retValue.stringValue(), expected);
+    }
+
+    @Test
+    public void testConnectionPoolProperties() {
+        BValue[] returns = Functions.invoke(bFile, "testConnectionPoolProperties");
+        BString retValue = (BString) returns[0];
+
+        final String expected = "Peter";
+        Assert.assertEquals(retValue.stringValue(), expected);
+    }
+
+    @AfterSuite
+    public void cleanup() {
+        SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));
     }
 }
