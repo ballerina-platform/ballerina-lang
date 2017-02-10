@@ -33,10 +33,11 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.core.util.transport.PassThroughInputMapper;
+import org.wso2.siddhi.core.stream.input.source.PassThroughInputMapper;
 import org.wso2.siddhi.extension.input.mapper.text.TextInputMapper;
 import org.wso2.siddhi.extension.output.mapper.text.TextOutputMapper;
 import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.execution.Subscription;
@@ -44,7 +45,8 @@ import org.wso2.siddhi.query.api.execution.io.Transport;
 import org.wso2.siddhi.query.api.execution.io.map.Mapping;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
+import org.wso2.siddhi.query.api.execution.query.selection.Selector;
+import org.wso2.siddhi.query.api.expression.Variable;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -200,23 +202,34 @@ public class KafkaInputTransportTestCase {
                         .attribute("price", Attribute.Type.INT)
                         .attribute("volume", Attribute.Type.FLOAT);
 
+                StreamDefinition outputDefinition = StreamDefinition.id("BarStream")
+                        .attribute("symbol", Attribute.Type.STRING)
+                        .attribute("price", Attribute.Type.INT)
+                        .attribute("volume", Attribute.Type.FLOAT)
+                        .annotation(Annotation.annotation("sink")
+                                .element("type", "kafka")
+                                .element("topic", "page_visits")
+                                .element("meta.broker.list", "localhost:9092")
+                                .annotation(Annotation.annotation("map")
+                                        .element("type", "text")
+                                        .annotation(Annotation.annotation("payload")
+                                                .element("{{symbol}},{{price}},{{volume}}"))));
+
                 Query query = Query.query();
                 query.from(
                         InputStream.stream("FooStream")
                 );
-                query.publish(
-                        Transport.transport("kafka")
-                                .option("topic", "page_visits")
-                                .option("meta.broker.list", "localhost:9092"),
-                        OutputStream.OutputEventType.CURRENT_EVENTS,
-                        Mapping.format("text").map("{{symbol}},{{price}},{{volume}}")
+                query.select(
+                        Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new Variable("volume"))
                 );
+                query.insertInto("BarStream");
 
                 SiddhiManager siddhiManager = new SiddhiManager();
                 siddhiManager.setExtension("outputmapper:text", TextOutputMapper.class);
 
                 ExecutionPlan executionPlan = new ExecutionPlan("ep1");
                 executionPlan.defineStream(streamDefinition);
+                executionPlan.defineStream(outputDefinition);
                 executionPlan.addQuery(query);
                 ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
                 InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");

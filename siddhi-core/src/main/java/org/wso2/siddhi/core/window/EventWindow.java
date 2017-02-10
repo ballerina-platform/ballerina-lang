@@ -101,7 +101,7 @@ public class EventWindow implements FindableProcessor, Snapshotable {
     private StreamEventPool streamEventPool;
 
     /**
-     * Converter to convert {@link StateEvent}s to {@link StreamEvent}s
+     * TemplateBuilder to convert {@link StateEvent}s to {@link StreamEvent}s
      */
     private final ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
 

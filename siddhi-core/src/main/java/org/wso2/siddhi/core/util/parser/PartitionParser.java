@@ -52,6 +52,8 @@ public class PartitionParser {
                     executionPlanRuntimeBuilder.getWindowDefinitionMap(),
                     executionPlanRuntimeBuilder.getEventTableMap(),
                     executionPlanRuntimeBuilder.getEventWindowMap(),
+                    executionPlanRuntimeBuilder.getEventSourceMap(),
+                    executionPlanRuntimeBuilder.getEventSinkMap(),
                     executionPlanRuntimeBuilder.getLockSynchronizer());
             MetaStateEvent metaStateEvent = createMetaEventForPartitioner(queryRuntime.getMetaComplexEvent());
             partitionRuntime.addQuery(queryRuntime);

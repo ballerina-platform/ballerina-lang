@@ -19,8 +19,6 @@ package org.wso2.siddhi.query.api.execution.query;
 
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.execution.ExecutionElement;
-import org.wso2.siddhi.query.api.execution.io.Transport;
-import org.wso2.siddhi.query.api.execution.io.map.Mapping;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.OutputRate;
 import org.wso2.siddhi.query.api.execution.query.output.stream.*;
@@ -117,14 +115,6 @@ public class Query implements ExecutionElement {
 
     public void insertOverwriteBy(String outputTableId, OutputStream.OutputEventType outputEventType, Expression onUpdateExpression) {
         this.outputStream = new InsertOverwriteStream(outputTableId, outputEventType, onUpdateExpression);
-    }
-
-    public void publish(Transport transport, Mapping mapping) {
-        this.outputStream = new PublishStream(transport, mapping);
-    }
-
-    public void publish(Transport transport, OutputStream.OutputEventType outputEventType, Mapping mapping) {
-        this.outputStream = new PublishStream(transport, outputEventType, mapping);
     }
 
     public OutputStream getOutputStream() {

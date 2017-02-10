@@ -18,7 +18,7 @@
 package org.wso2.siddhi.core.util.extension.holder;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.publisher.OutputTransport;
+import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 
 import java.util.concurrent.ConcurrentHashMap;
 

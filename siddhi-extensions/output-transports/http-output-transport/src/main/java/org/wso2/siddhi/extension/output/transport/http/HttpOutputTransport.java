@@ -26,18 +26,13 @@ import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.exception.OutputTransportException;
 import org.wso2.siddhi.core.exception.TestConnectionNotSupportedException;
-import org.wso2.siddhi.core.publisher.MessageType;
-import org.wso2.siddhi.core.publisher.OutputTransport;
-import org.wso2.siddhi.query.api.execution.io.Transport;
+import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 
 import javax.xml.bind.DatatypeConverter;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
@@ -85,12 +80,9 @@ public class HttpOutputTransport extends OutputTransport {
     private String contentType;
     private HttpClient httpClient = null;
     private HostConfiguration hostConfiguration = null;
-    private Map<String, String> options;
 
     @Override
-    public void init(Transport transportOptions, Map<String, String> unmappedDynamicOptions)
-            throws OutputTransportException {
-        options = transportOptions.getOptions();
+    public void init(String type, Map<String, String> options, Map<String, String> unmappedDynamicOptions) {
         if (executorService == null) {
             int minThread = (options.get(ADAPTER_MIN_THREAD_POOL_SIZE_NAME) != null)
                     ? Integer.parseInt(options.get(ADAPTER_MIN_THREAD_POOL_SIZE_NAME))
@@ -167,15 +159,6 @@ public class HttpOutputTransport extends OutputTransport {
     @Override
     public boolean isPolled() {
         return false;
-    }
-
-    @Override
-    public List<String> getSupportedMessageFormats() {
-        return new ArrayList<String>() {{
-            add(MessageType.TEXT);
-            add(MessageType.XML);
-            add(MessageType.JSON);
-        }};
     }
 
     private void checkHTTPClientInit(Map<String, String> staticProperties) {

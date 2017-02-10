@@ -80,77 +80,32 @@ public class DefineStreamTestCase {
                         id("cseStream").
                         attribute("symbol", Attribute.Type.STRING).
                         attribute("price", Attribute.Type.INT).
-                        attribute("volume", Attribute.Type.FLOAT).annotation(Annotation.create("Foo").element("name", "bar").element("Custom")),
-                streamDefinition);
-    }
-
-    @Test
-    public void testNestedAnnotations() throws SiddhiParserException {
-        StreamDefinition streamDefinition = SiddhiCompiler.parseStreamDefinition("" +
-                "@source(" +
-                "   @attributes(" +
-                "       a = '//h:time', " +
-                "       b= '//h:data'" +
-                "   ), " +
-                "   type=\"http\", " +
-                "   context=\"/test\", " +
-                "   transport=\"http,https\", " +
-                "   @map(" +
-                "       type=\"xml\", " +
-                "       namespace = \"h=uri, a=uri\"" +
-                "   )" +
-                ") " +
-                "define stream fooStream (id int, name string);");
-
-        Assert.assertEquals(
-                StreamDefinition
-                        .id("fooStream")
-                        .attribute("id", Attribute.Type.INT)
-                        .attribute("name", Attribute.Type.STRING)
-                        .annotation(Annotation.create("source")
-                                .annotation(Annotation.create("attributes")
-                                        .element("a", "//h:time")
-                                        .element("b", "//h:data")
-                                )
-                                .element("type", "http")
-                                .element("context", "/test")
-                                .element("transport", "http,https")
-                                .annotation(Annotation.create("map")
-                                        .element("type", "xml")
-                                        .element("namespace", "h=uri, a=uri")
-                                )
-                        ),
+                        attribute("volume", Attribute.Type.FLOAT).annotation(Annotation.annotation("Foo").element("name", "bar").element("Custom")),
                 streamDefinition);
     }
 
     @Test
     public void testMultilevelNestedAnnotations1() throws SiddhiParserException {
-        StreamDefinition streamDefinition = SiddhiCompiler.parseStreamDefinition("" +
-                "@sink( url='http://foo.com/test/{{data}}', " +
-                "   @map(type='xml', body=\"\"\"" +
-                "       <test>\n" +
-                "           <time>{{time}}</time>\n" +
-                "           <data>{{data}}</data>\n" +
-                "           </test>\"\"\"" +
+        StreamDefinition streamDefinition = SiddhiCompiler.parseStreamDefinition(
+                "@sink(url='http://foo.com/test/{{data}}', " +
+                "   @map(type='xml', " +
+                        "@payload('<test><time>{{time}}</time></test>')" +
                 "   )" +
                 ") " +
-                "define stream fooStream (id int, name string);");
+                "define stream fooStream (id int, name string);"
+        );
 
         Assert.assertEquals(
                 StreamDefinition
                         .id("fooStream")
                         .attribute("id", Attribute.Type.INT)
                         .attribute("name", Attribute.Type.STRING)
-                        .annotation(Annotation.create("sink")
+                        .annotation(Annotation.annotation("sink")
                                 .element("url", "http://foo.com/test/{{data}}")
-                                .annotation(Annotation.create("map")
+                                .annotation(Annotation.annotation("map")
                                         .element("type", "xml")
-                                        .element("body", "       <test>\n" +
-                                                "           <time>{{time}}</time>\n" +
-                                                "           <data>{{data}}</data>\n" +
-                                                "           </test>")
-                                )
-                        ),
+                                        .annotation(Annotation.annotation("payload")
+                                                .element("<test><time>{{time}}</time></test>")))),
                 streamDefinition);
     }
 
@@ -165,8 +120,8 @@ public class DefineStreamTestCase {
                 "       type='xml', " +
                 "       namespace = \"h=uri, a=uri\", " +
                 "       @attributes(" +
-                "           a = '//h:time', " +
-                "           b= '//h:data'" +
+                "           '//h:time', " +
+                "           '//h:data'" +
                 "       )" +
                 "   )" +
                 ") " +
@@ -177,16 +132,16 @@ public class DefineStreamTestCase {
                         .id("fooStream")
                         .attribute("id", Attribute.Type.INT)
                         .attribute("name", Attribute.Type.STRING)
-                        .annotation(Annotation.create("source")
+                        .annotation(Annotation.annotation("source")
                                 .element("type", "http")
                                 .element("context", "/test")
                                 .element("transport", "http,https")
-                                .annotation(Annotation.create("map")
+                                .annotation(Annotation.annotation("map")
                                         .element("type", "xml")
                                         .element("namespace", "h=uri, a=uri")
-                                        .annotation(Annotation.create("attributes")
-                                                .element("a", "//h:time")
-                                                .element("b", "//h:data")
+                                        .annotation(Annotation.annotation("attributes")
+                                                .element("//h:time")
+                                                .element("//h:data")
                                         )
                                 )
                         ),

@@ -26,15 +26,13 @@ import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
-import org.wso2.siddhi.core.util.transport.PassThroughOutputMapper;
+import org.wso2.siddhi.core.stream.output.sink.PassThroughOutputMapper;
 import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.execution.io.Transport;
-import org.wso2.siddhi.query.api.execution.io.map.Mapping;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Variable;
 
@@ -81,28 +79,36 @@ public class TestOutputTransportTestCase {
             }
         });
 
-        StreamDefinition streamDefinition = StreamDefinition.id("FooStream")
+        StreamDefinition inputDefinition = StreamDefinition.id("FooStream")
                 .attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.INT)
                 .attribute("volume", Attribute.Type.FLOAT);
+
+        StreamDefinition outputDefinition = StreamDefinition.id("BarStream")
+                .attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.INT)
+                .attribute("volume", Attribute.Type.FLOAT)
+                .annotation(Annotation.annotation("sink")
+                        .element("type", "test")
+                        .element("topic", "{{symbol}}")
+                        .annotation(Annotation.annotation("map")
+                                .element("type", "text")));
 
         Query query = Query.query();
         query.from(
                 InputStream.stream("FooStream")
         );
         query.select(
-                Selector.selector().select(new Variable("symbol"))
+                Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new Variable("volume"))
         );
-        query.publish(
-                Transport.transport("test").option("topic", "{{symbol}}"), OutputStream.OutputEventType.CURRENT_EVENTS,
-                Mapping.format("text")
-        );
+        query.insertInto("BarStream");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("outputmapper:text", PassThroughOutputMapper.class);
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(streamDefinition);
+        executionPlan.defineStream(inputDefinition);
+        executionPlan.defineStream(outputDefinition);
         executionPlan.addQuery(query);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
         try {
@@ -152,13 +158,14 @@ public class TestOutputTransportTestCase {
 
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
-                "define stream FooStream (symbol string, price float, volume long); ";
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(type='test', topic='{{symbol}}', @map(type='text')) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
 
         String query = "" +
                 "from FooStream " +
-                "select symbol " +
-                "publish test options (topic '{{symbol}}') " +
-                "map text; ";
+                "select * " +
+                "insert into BarStream; ";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
         try {

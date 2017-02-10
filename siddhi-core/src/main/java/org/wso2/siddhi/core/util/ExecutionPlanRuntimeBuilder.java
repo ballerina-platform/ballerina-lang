@@ -28,22 +28,18 @@ import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoWindowCallback;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
-import org.wso2.siddhi.core.query.output.callback.PublishStreamCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputManager;
-import org.wso2.siddhi.core.subscription.SubscriptionRuntime;
+import org.wso2.siddhi.core.stream.input.source.InputTransport;
+import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.trigger.EventTrigger;
 import org.wso2.siddhi.core.util.lock.LockSynchronizer;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.core.window.EventWindow;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.FunctionDefinition;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.definition.TableDefinition;
-import org.wso2.siddhi.query.api.definition.TriggerDefinition;
-import org.wso2.siddhi.query.api.definition.WindowDefinition;
+import org.wso2.siddhi.query.api.definition.*;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -57,6 +53,8 @@ public class ExecutionPlanRuntimeBuilder {
     private ConcurrentMap<String, TriggerDefinition> triggerDefinitionMap = new ConcurrentHashMap<String, TriggerDefinition>(); //contains trigger definition
     private ConcurrentMap<String, QueryRuntime> queryProcessorMap = new ConcurrentHashMap<String, QueryRuntime>();
     private ConcurrentMap<String, StreamJunction> streamJunctionMap = new ConcurrentHashMap<String, StreamJunction>(); //contains stream junctions
+    private ConcurrentMap<String, List<InputTransport>> eventSourceMap = new ConcurrentHashMap<String, List<InputTransport>>(); //contains event sources
+    private ConcurrentMap<String, List<OutputTransport>> eventSinkMap = new ConcurrentHashMap<String, List<OutputTransport>>(); //contains event sinks
     private ConcurrentMap<String, EventTable> eventTableMap = new ConcurrentHashMap<String, EventTable>(); //contains event tables
     private ConcurrentMap<String, EventWindow> eventWindowMap = new ConcurrentHashMap<String, EventWindow>(); //contains event tables
     private ConcurrentMap<String, EventTrigger> eventTriggerMap = new ConcurrentHashMap<String, EventTrigger>(); //contains event tables
@@ -77,6 +75,8 @@ public class ExecutionPlanRuntimeBuilder {
             streamDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
         }
         DefinitionParserHelper.addStreamJunction(streamDefinition, streamJunctionMap, executionPlanContext);
+        DefinitionParserHelper.addEventSource(streamDefinition, eventSourceMap, executionPlanContext);
+        DefinitionParserHelper.addEventSink(streamDefinition, eventSinkMap, executionPlanContext);
     }
 
     public void defineTable(TableDefinition tableDefinition) {
@@ -106,43 +106,6 @@ public class ExecutionPlanRuntimeBuilder {
 
     public void addPartition(PartitionRuntime partitionRuntime) {
         partitionMap.put(partitionRuntime.getPartitionId(), partitionRuntime);
-    }
-
-    public void addSubscription(SubscriptionRuntime subscriptionRuntime) {
-        // TODO: 11/23/16  fix subscription mgt
-        OutputCallback outputCallback = subscriptionRuntime.getOutputCallback();
-
-        if (outputCallback != null && outputCallback instanceof InsertIntoStreamCallback) {
-            InsertIntoStreamCallback insertIntoStreamCallback = (InsertIntoStreamCallback) outputCallback;
-            StreamDefinition streamDefinition = insertIntoStreamCallback.getOutputStreamDefinition();
-
-            streamDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
-            DefinitionParserHelper.validateOutputStream(streamDefinition, streamDefinitionMap.get(streamDefinition.getId()));
-            StreamJunction outputStreamJunction = streamJunctionMap.get(streamDefinition.getId());
-
-            if (outputStreamJunction == null) {
-                outputStreamJunction = new StreamJunction(streamDefinition,
-                        executionPlanContext.getExecutorService(),
-                        executionPlanContext.getBufferSize(), executionPlanContext);
-                streamJunctionMap.putIfAbsent(streamDefinition.getId(), outputStreamJunction);
-            }
-            insertIntoStreamCallback.init(streamJunctionMap.get(insertIntoStreamCallback.getOutputStreamDefinition().getId()));
-        } else if (outputCallback != null && outputCallback instanceof InsertIntoWindowCallback) {
-            InsertIntoWindowCallback insertIntoWindowCallback = (InsertIntoWindowCallback) outputCallback;
-            StreamDefinition streamDefinition = insertIntoWindowCallback.getOutputStreamDefinition();
-
-            windowDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
-            DefinitionParserHelper.validateOutputStream(streamDefinition, windowDefinitionMap.get(streamDefinition.getId()));
-            StreamJunction outputStreamJunction = streamJunctionMap.get(streamDefinition.getId());
-
-            if (outputStreamJunction == null) {
-                outputStreamJunction = new StreamJunction(streamDefinition,
-                        executionPlanContext.getExecutorService(),
-                        executionPlanContext.getBufferSize(), executionPlanContext);
-                streamJunctionMap.putIfAbsent(streamDefinition.getId(), outputStreamJunction);
-            }
-            insertIntoWindowCallback.getEventWindow().setPublisher(streamJunctionMap.get(insertIntoWindowCallback.getOutputStreamDefinition().getId()).constructPublisher());
-        }
     }
 
     public String addQuery(QueryRuntime queryRuntime) {
@@ -188,9 +151,6 @@ public class ExecutionPlanRuntimeBuilder {
                 streamJunctionMap.putIfAbsent(streamDefinition.getId(), outputStreamJunction);
             }
             insertIntoWindowCallback.getEventWindow().setPublisher(streamJunctionMap.get(insertIntoWindowCallback.getOutputStreamDefinition().getId()).constructPublisher());
-        } else if (outputCallback != null && outputCallback instanceof PublishStreamCallback) {
-            PublishStreamCallback publishStreamCallback = (PublishStreamCallback) outputCallback;
-            publishStreamCallback.init(executionPlanContext);
         }
 
         return queryRuntime.getQueryId();
@@ -224,6 +184,14 @@ public class ExecutionPlanRuntimeBuilder {
         return tableDefinitionMap;
     }
 
+    public ConcurrentMap<String, List<InputTransport>> getEventSourceMap() {
+        return eventSourceMap;
+    }
+
+    public ConcurrentMap<String, List<OutputTransport>> getEventSinkMap() {
+        return eventSinkMap;
+    }
+
     public ConcurrentMap<String, AbstractDefinition> getWindowDefinitionMap() {
         return windowDefinitionMap;
     }
@@ -233,7 +201,9 @@ public class ExecutionPlanRuntimeBuilder {
     }
 
     public ExecutionPlanRuntime build() {
-        return new ExecutionPlanRuntime(streamDefinitionMap, tableDefinitionMap, inputManager, queryProcessorMap, streamJunctionMap, eventTableMap, partitionMap, executionPlanContext, executionPlanRuntimeMap);
+        return new ExecutionPlanRuntime(streamDefinitionMap, tableDefinitionMap, inputManager, queryProcessorMap,
+                streamJunctionMap, eventTableMap, eventSourceMap, eventSinkMap, partitionMap, executionPlanContext,
+                executionPlanRuntimeMap);
     }
 
 }
