@@ -305,7 +305,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
 
                 $(addBreakpointButtonRect.node()).click(function(event){
                     // TODO: handle line number  is not defined for new nodes
-//                    self.trigger('add-breakpoint', model.getLineNumber());
+                    console.log(model)
                     event.stopPropagation();
                     // Hiding property button pane.
                     $(propertyPaneWrapper).remove();
@@ -332,11 +332,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         viewOptions.breakpointIndicator = _.get(args, "viewOptions.breakpointIndicator", {});
         viewOptions.breakpointIndicator.width = _.get(args, "viewOptions.breakpoint.width", 22);
         viewOptions.breakpointIndicator.height = _.get(args, "viewOptions.breakpoint.height", 22);
-//        viewOptions.breakpointIndicator.canShow = _.get(args, "viewOptions.breakpoint.canShow", false);
-//        viewOptions.breakpointIndicator.canShow = DebugManager.hasBreakPoint(model.getLineNumber(), model.getFileName());
         viewOptions.breakpointIndicator.class = _.get(args, "breakpointIndicator.class", "statement-view-breakpoint-indicator");
-//        viewOptions.breakpointIndicator.class = viewOptions.breakpointIndicator.canShow ? viewOptions.breakpointIndicator.class :
-//            viewOptions.breakpointIndicator.class;
 
         var debugIndicatorGroup = D3Utils.group(statementGroup);
 
@@ -356,8 +352,9 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
             .attr("height", "14");
 
         var statementBoundingBox = this.getBoundingBox();
-        var pointX = statementBoundingBox.x() + statementBoundingBox.w() - viewOptions.breakpointIndicator.width;
-        var pointY = statementBoundingBox.y();
+        var pointX = statementBoundingBox.x() + statementBoundingBox.w() - viewOptions.breakpointIndicator.width +
+            (viewOptions.breakpointIndicator.width /2);
+        var pointY = statementBoundingBox.y() - (viewOptions.breakpointIndicator.height/2)
 
         var removeBreakpointButton = D3Utils.rect(pointX, pointY,
             viewOptions.breakpointIndicator.width, viewOptions.breakpointIndicator.height, 0, 0, debugIndicatorGroup)

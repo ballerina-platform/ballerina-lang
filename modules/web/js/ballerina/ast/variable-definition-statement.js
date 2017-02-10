@@ -167,7 +167,8 @@ define(['lodash', './statement', '../utils/common-utils', './variable-declaratio
     };
 
     VariableDefinitionStatement.prototype.initFromJson = function (jsonNode) {
-
+        this.setFileName(jsonNode.file_name, {doSilently: true});
+        this.setLineNumber(jsonNode.line_number, {doSilently: true});
     };
 
     return VariableDefinitionStatement;

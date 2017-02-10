@@ -52,6 +52,8 @@ define(['lodash', './statement'], function (_, Statement) {
      */
     Assignment.prototype.initFromJson = function (jsonNode) {
         this.setExpression('a = b', {doSilently: true});
+        this.setFileName(jsonNode.file_name, {doSilently: true});
+        this.setLineNumber(jsonNode.line_number, {doSilently: true});
     };
 
     return Assignment;
