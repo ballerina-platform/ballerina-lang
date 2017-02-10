@@ -48,7 +48,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
         render: function () {
             Tab.prototype.render.call(this);
             // if file already has content
-            if(!_.isNil(this._file.getContent())){
+            if(!_.isNil(this._file.getContent()) && !_.isEmpty(this._file.getContent().trim())){
                 var response = this.backend.parse(this._file.getContent());
                 if (response.error != undefined && response.error) {
                     this.renderBallerinaEditor(this._astRoot, true);

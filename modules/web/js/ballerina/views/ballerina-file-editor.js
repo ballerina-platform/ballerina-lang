@@ -445,17 +445,28 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 var isSwaggerChanged = !self._swaggerView.isClean();
                 if (isSourceChanged || savedWhileInSourceView || self._parseFailed) {
                     var source = self._sourceView.getContent();
-                    var response = self.backend.parse(source);
-                    //if there are errors display the error.
-                    //@todo: proper error handling need to get the service specs
-                    if (response.error != undefined && response.error) {
-                        alerts.error('cannot switch to design view due to parse errors');
-                        return;
+                    var root;
+                    if (!_.isEmpty(source.trim())) {
+                        var response = self.backend.parse(source);
+                        //if there are errors display the error.
+                        //@todo: proper error handling need to get the service specs
+                        if (response.error != undefined && response.error) {
+                            alerts.error('cannot switch to design view due to parse errors');
+                            return;
+                        }
+                        self._parseFailed = false;
+                        //if no errors display the design.
+                        //@todo
+                        root = self.deserializer.getASTModel(response);
+                    } else {
+                        root = BallerinaASTFactory.createBallerinaAstRoot();
+
+                        //package definition
+                        var packageDefinition = BallerinaASTFactory.createPackageDefinition();
+                        packageDefinition.setPackageName("");
+                        root.addChild(packageDefinition);
+                        root.setPackageDefinition(packageDefinition);
                     }
-                    self._parseFailed = false;
-                    //if no errors display the design.
-                    //@todo
-                    var root = self.deserializer.getASTModel(response);
                     self.setModel(root);
                     // reset source editor delta stack
                     self._sourceView.markClean();
