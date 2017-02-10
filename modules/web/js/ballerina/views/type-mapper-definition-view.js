@@ -56,6 +56,10 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             return true;
         };
 
+        TypeMapperDefinitionView.prototype.canVisitBlockStatementView = function (blockStatementView) {
+            return true;
+        };
+
         /**
          * Rendering the view of the Type Mapper definition.
          * @param {Object} diagramRenderingContext - the object which is carrying data required for rendering

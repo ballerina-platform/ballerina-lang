@@ -64,10 +64,8 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.canVisitStructDefinition(node);
         } else if(node instanceof AST.TypeMapperDefinition){
             return this.canVisitTypeMapperDefinition(node);
-        } else if(node instanceof AST.TypeStructDefinition){
-            return this.canVisitTypeStructDefinition(node);
         } else if(node instanceof AST.BlockStatement){
-            return this.canVisitBlockStatement(node);
+            return this.canVisitBlockStatementView(node);
         }
     };
 
@@ -113,8 +111,6 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.beginVisitTypeMapperDefinition(node);
         } else if(node instanceof AST.TypeStructDefinition){
             return this.beginVisitTypeStructDefinition(node);
-        } else if(node instanceof AST.BlockStatement){
-            return this.beginVisitBlockStatement(node);
         }
     };
 
@@ -212,8 +208,6 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.endVisitTypeMapperDefinition(node);
         } else if(node instanceof AST.TypeStructDefinition){
             return this.endVisitTypeStructDefinition(node);
-        } else if(node instanceof AST.BlockStatement){
-            return this.endVisitBlockStatement(node);
         }
 
     };
