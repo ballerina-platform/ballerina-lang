@@ -23,6 +23,7 @@ import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.GlobalScope;
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
@@ -68,7 +69,7 @@ public class ParserUtils {
         BallerinaParser ballerinaParser = getBallerinaParser(sourceFilePath);
 
         // Create Ballerina model builder class
-        GlobalScope globalScope = new GlobalScope();
+        GlobalScope globalScope = GlobalScope.getInstance();
         BTypes.loadBuiltInTypes(globalScope);
         BLangPackage bLangPackage = new BLangPackage(globalScope);
         BLangModelBuilder modelBuilder = new BLangModelBuilder(bLangPackage);
@@ -116,7 +117,8 @@ public class ParserUtils {
         return new BallerinaParser(ballerinaToken);
     }
 
-    public static BallerinaFile parseBalFile(String sourceFilePath, SymScope globalSymScope, boolean isAbsolutePath) {
+    public static BallerinaFile parseBalFile(String sourceFilePath, SymbolScope globalSymScope,
+            boolean isAbsolutePath) {
 
         BallerinaParser ballerinaParser = getBallerinaParser(sourceFilePath, isAbsolutePath);
 
