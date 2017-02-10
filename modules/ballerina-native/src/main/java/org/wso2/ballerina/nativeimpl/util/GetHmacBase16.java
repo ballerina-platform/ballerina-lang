@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.util;
+package org.wso2.ballerina.nativeimpl.util;
 
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
@@ -60,7 +60,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class GetHmacBase16 extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(GetHmac.class);
+    private static final Logger log = LoggerFactory.getLogger(GetHmacBase16.class);
 
     @Override public BValue[] execute(Context context) {
         String baseString = getArgument(context, 0).stringValue();

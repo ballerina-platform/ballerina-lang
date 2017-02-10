@@ -13,7 +13,7 @@ import ballerina.util;
 connector AmazonLambda(string accessKeyId, string secretAccessKey,
                 string region, string serviceName, string terminationString) {
 
-    sample:AmazonAuthConnector amazonAuthConnector = new sample:AmazonAuthConnector("AKIAIJ2IBQUCKKAL72IA", "AeUD3+Ic9BWH6ZEq+3K7zhxJ/zjzXkuicA883dPd", "us-east-1", "lambda", "aws4_request", "https://lambda.us-east-1.amazonaws.com");
+    AmazonAuthConnector amazonAuthConnector = create AmazonAuthConnector("AKIAIJ2IBQUCKKAL72IA", "AeUD3+Ic9BWH6ZEq+3K7zhxJ/zjzXkuicA883dPd", "us-east-1", "lambda", "aws4_request", "https://lambda.us-east-1.amazonaws.com");
 
     action invokeFunction(AmazonLambda amz, string arn) (message) throws exception {
 
@@ -29,7 +29,7 @@ connector AmazonLambda(string accessKeyId, string secretAccessKey,
         endpoint = "https://lambda." + region + ".amazonaws.com";
 
         message:setHeader(requestMsg, "Host", endpoint);
-        response = sample:AmazonAuthConnector.req(amazonAuthConnector, requestMsg, httpMethod, requestURI, "");
+        response = AmazonAuthConnector.req(amazonAuthConnector, requestMsg, httpMethod, requestURI, "");
 
         return response;
     }
@@ -49,7 +49,7 @@ connector AmazonLambda(string accessKeyId, string secretAccessKey,
             endpoint = "https://lambda." + region + ".amazonaws.com";
 
             message:setHeader(requestMsg, "Host", host);
-            response = sample:AmazonAuthConnector.req(amazonAuthConnector, requestMsg, httpMethod, requestURI, "");
+            response = AmazonAuthConnector.req(amazonAuthConnector, requestMsg, httpMethod, requestURI, "");
 
             return response;
     }
@@ -69,7 +69,7 @@ connector AmazonLambda(string accessKeyId, string secretAccessKey,
             endpoint = "https://lambda." + region + ".amazonaws.com";
 
             message:setHeader(requestMsg, "Host", host);
-            response = sample:AmazonAuthConnector.req(amazonAuthConnector, requestMsg, httpMethod, requestURI, "");
+            response = AmazonAuthConnector.req(amazonAuthConnector, requestMsg, httpMethod, requestURI, "");
 
             return response;
     }
@@ -89,7 +89,7 @@ connector AmazonLambda(string accessKeyId, string secretAccessKey,
             endpoint = "https://lambda." + region + ".amazonaws.com";
 
             message:setHeader(requestMsg, "Host", host);
-            response = sample:AmazonAuthConnector.req(amazonAuthConnector, requestMsg, httpMethod, requestURI, "");
+            response = AmazonAuthConnector.req(amazonAuthConnector, requestMsg, httpMethod, requestURI, "");
 
             return response;
     }
@@ -109,7 +109,7 @@ connector AmazonLambda(string accessKeyId, string secretAccessKey,
             endpoint = "https://lambda." + region + ".amazonaws.com";
 
             message:setHeader(requestMsg, "Host", host);
-            response = sample:AmazonAuthConnector.req(amazonAuthConnector, requestMsg, httpMethod, requestURI, "");
+            response = AmazonAuthConnector.req(amazonAuthConnector, requestMsg, httpMethod, requestURI, "");
 
             return response;
     }
@@ -129,7 +129,7 @@ connector AmazonLambda(string accessKeyId, string secretAccessKey,
             endpoint = "https://lambda." + region + ".amazonaws.com";
 
             message:setHeader(requestMsg, "Host", host);
-            response = sample:AmazonAuthConnector.req(amazonAuthConnector, requestMsg, httpMethod, requestURI, "");
+            response = AmazonAuthConnector.req(amazonAuthConnector, requestMsg, httpMethod, requestURI, "");
 
             return response;
     }
@@ -138,7 +138,8 @@ connector AmazonLambda(string accessKeyId, string secretAccessKey,
 connector AmazonAuthConnector(string accessKeyId, string secretAccessKey,
                 string region, string serviceName, string terminationString, string endpoint) {
 
-    http:HTTPConnector awsEP = new http:HTTPConnector("https://lambda.us-east-1.amazonaws.com");
+
+    http:HTTPConnector awsEP = new http:HTTPConnector(endpoint);
 
     action req(AmazonAuthConnector amz, message requestMsg, string httpMethod, string requestURI, string payload) (message) throws exception {
 
@@ -165,12 +166,11 @@ connector AmazonAuthConnector(string accessKeyId, string secretAccessKey,
 
 function main (string[] args) {
 
-    sample:AmazonLambda amzLamConnector = new sample:AmazonLambda("AKIAIJ2IBQUCKKAL72IA", "AeUD3+Ic9BWH6ZEq+3K7zhxJ/zjzXkuicA883dPd", "us-east-1", "lambda", "aws4_request");
-
+    AmazonLambda amzLamConnector = create AmazonLambda("AKIAIJ2IBQUCKKAL72IA", "AeUD3+Ic9BWH6ZEq+3K7zhxJ/zjzXkuicA883dPd", "us-east-1", "lambda", "aws4_request");
     message lambdaResponse;
     json lambdaJSONResponse;
 
-    lambdaResponse = sample:AmazonLambda.invokeFunction(amzLamConnector, "arn:aws:lambda:us-east-1:141896495686:function:testFunction");
+    lambdaResponse = AmazonLambda.invokeFunction(amzLamConnector, "arn:aws:lambda:us-east-1:141896495686:function:testFunction");
 
     lambdaJSONResponse = message:getJsonPayload(lambdaResponse);
     system:println(json:toString(lambdaJSONResponse));
@@ -179,7 +179,8 @@ function main (string[] args) {
 
 
 
-function generateSignature(message msg, string accessKeyId, string secretAccessKey, string region, string serviceName, string terminationString, string httpMethod, string requestURI, string payload) (message) throws exception {
+function generateSignature(message msg, string accessKeyId, string secretAccessKey, string region, string serviceName,
+    string terminationString, string httpMethod, string requestURI, string payload) (message) throws exception {
 
     string canonicalRequest;
     string canonicalQueryString;
@@ -192,7 +193,6 @@ function generateSignature(message msg, string accessKeyId, string secretAccessK
     string amzDate;
     string shortDate;
 
-
     string signedHeader;
     string canonicalHeaders;
 
@@ -202,8 +202,6 @@ function generateSignature(message msg, string accessKeyId, string secretAccessK
     string signingKey;
 
     algorithm = "SHA256";
-
-
 
     amzDate = system:getDateFormat("yyyyMMdd'T'HHmmss'Z'");
     shortDate = system:getDateFormat("yyyyMMdd");
@@ -288,7 +286,9 @@ function generateSignature(message msg, string accessKeyId, string secretAccessK
     stringToSign = stringToSign + string:toLowerCase(util:getHash(canonicalRequest, algorithm));
 
 
-    signingKey =  util:getHmacFromBase64( terminationString,util:getHmacFromBase64( serviceName,util:getHmacFromBase64( region,util:getHmacFromBase64(shortDate,util:base64encode("AWS4" + secretAccessKey), algorithm), algorithm), algorithm), algorithm);
+    signingKey =  util:getHmacFromBase64( terminationString,util:getHmacFromBase64( serviceName,
+    util:getHmacFromBase64( region,util:getHmacFromBase64(shortDate,util:base64encode("AWS4" + secretAccessKey),
+    algorithm), algorithm), algorithm), algorithm);
 
 
     authHeader = authHeader + ("AWS4-HMAC-SHA256");

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.util;
+package org.wso2.ballerina.nativeimpl.util;
 
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
@@ -56,7 +56,7 @@ public class DigestMessage extends AbstractNativeFunction {
     /**
      * Hashes the string contents (assumed to be UTF-8) using the SHA-256 algorithm.
      */
-    private static final Logger log = LoggerFactory.getLogger(GetHmac.class);
+    private static final Logger log = LoggerFactory.getLogger(DigestMessage.class);
 
     @Override public BValue[] execute(Context context) {
         String baseString = getArgument(context, 0).stringValue();
