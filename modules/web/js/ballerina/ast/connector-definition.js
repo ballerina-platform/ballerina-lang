@@ -205,7 +205,20 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
         this.removeChild(variableDefinitionStatementToRemove);
     };
 
-    //// Start of connector action definitions functions
+    ConnectorDefinition.prototype.getConnectionDeclarations = function () {
+        var connectorDeclaration = [];
+        var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.getFactory().isConnectorDeclaration(child)) {
+                connectorDeclaration.push(child);
+            }
+        });
+
+        return _.sortBy(connectorDeclaration, [function (connectorDeclaration) {
+            return connectorDeclaration.getConnectorVariable();
+        }]);
+    };
 
     ConnectorDefinition.prototype.getConnectorActionDefinitions = function () {
         var connectorActionDefinitions = [];
@@ -218,8 +231,6 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
         });
         return connectorActionDefinitions;
     };
-
-    //// End of connector action definitions functions
 
     /**
      * initialize ConnectorDefinition from json object

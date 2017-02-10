@@ -38,6 +38,7 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
         this._debugger = _.get(args, 'debugger', undefined);
         this._markers = {};
         this._gutter = 25;
+        this._fomatter = require('ballerina').utils.AceFormatter;
     };
 
     SourceView.prototype = Object.create(EventChannel.prototype);
@@ -46,6 +47,7 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
     SourceView.prototype.render = function () {
         var self = this;
         this._editor = ace.edit(this._container);
+        this._editor.getSession().setMode(_.get(this._options, 'mode'));
         //Avoiding ace warning
         this._editor.$blockScrolling = Infinity;
         this._editor.setTheme(_.get(this._options, 'theme'));
@@ -62,7 +64,6 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
         });
 
         this._editor.getSession().setValue(this._content);
-        this._editor.getSession().setMode(_.get(this._options, 'mode'));
         this._editor.renderer.setScrollMargin(_.get(this._options, 'scroll_margin'), _.get(this._options, 'scroll_margin'));
         this._editor.setOptions({
             fontSize: _.get(this._options, 'font_size')
@@ -90,8 +91,6 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
         // avoid triggering change event on format
         this._inSilentMode = true;
         this._editor.session.setValue(content);
-        var fomatter = require('ballerina').utils.AceFormatter;
-        fomatter.beautify(this._editor.getSession());
         this._inSilentMode = false;
         this.markClean();
     };
@@ -143,6 +142,17 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
 
     SourceView.prototype.isVisible = function(){
        return  $(this._container).is(':visible')
+    };
+
+    SourceView.prototype.format = function(doSilently){
+        var selectedRange = this._editor.selection.getRange();//TODO format selection
+        if(doSilently){
+            this._inSilentMode = true;
+        }
+        this._fomatter.beautify(this._editor.getSession());
+        if(doSilently){
+            this._inSilentMode = false;
+        }
     };
     
     //dbeugger related functions. 
