@@ -192,6 +192,9 @@
     color: #fff;
 }
 
+.import-packages-pane {
+    overflow: visible;
+}
 /** Resource parameter CSS **/
 
 .resource-parameters-main-action-wrapper {
@@ -475,6 +478,32 @@
 }
 
 /** End of Return type CSS **/
+
+/** typeahead CSS **/
+.twitter-typeahead {
+    display: inline !important;
+}
+
+.tt-hint {
+    width: 276px;
+    color: #999;
+    margin-top: -1px;
+}
+
+.tt-menu {
+    width: 276px;
+    margin-top: 6px;
+    margin-left: 2px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 10px rgba(0,0,0,.2);
+}
+
+.tt-suggestion {
+    padding: 3px 7px;
+}
+/** End of typeahead CSS **/
 
 /** Struct view CSS **/
 .struct-content-wrapper {
