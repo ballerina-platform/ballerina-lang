@@ -25,21 +25,17 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         ActionInvocationStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
         ActionInvocationStatementVisitor.prototype.constructor = ActionInvocationStatementVisitor;
 
-        ActionInvocationStatementVisitor.prototype.canVisitActionInvocationStatement = function(action){
-            return action instanceof ActionInvocation;
+        ActionInvocationStatementVisitor.prototype.canVisitActionInvocationExpression = function(actionInvocationExpression){
+            return true;
         };
 
-        ActionInvocationStatementVisitor.prototype.beginVisitActionInvocationStatement = function(action){
-            var self = action;
-            var connectorVariable = !_.isNil(self.getConnector()) ?
-                self.getConnector().getConnectorVariable() : "untitledEndpoint";
-            this.appendSource(self.getActionPackageName() + ':' + self.getActionConnectorName() + '.' + self.getActionName() +
-                '(' + connectorVariable + ',' + self.getPath() + ',' + self.getMessageVariableReference() + ')');
+        ActionInvocationStatementVisitor.prototype.beginVisitActionInvocationExpression = function(actionInvocationExpression){
+            this.appendSource(actionInvocationExpression.getExpression());
             log.debug('Begin Visit action invocation expression');
         };
 
-        ActionInvocationStatementVisitor.prototype.endVisitActionInvocationStatement = function(action){
-            this.getParent().appendSource(this.getGeneratedSource());
+        ActionInvocationStatementVisitor.prototype.endVisitActionInvocationExpression = function(action){
+            this.getParent().appendSource(this.getGeneratedSource() + ";");
             log.debug('End Visit action Invocation Expression');
         };
 

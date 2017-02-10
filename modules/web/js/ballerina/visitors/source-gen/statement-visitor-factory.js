@@ -84,6 +84,8 @@ LeftOperandExpressionVisitor, RightOperandExpressionVisitor, VariableDefinitionS
             return new VariableDefinitionStatement(parent);
         } else if (statement instanceof AST.WorkerInvoke) {
             return new WorkerInvoke(parent);
+        } else if (statement instanceof AST.ActionInvocationExpression) {
+            return new ActionInvocationExpressionVisitor(parent);
         }
     };
 

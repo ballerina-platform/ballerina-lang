@@ -891,10 +891,18 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     @Override
     public void visit(VariableRefExpr variableRefExpr) {
         JsonObject variableRefObj = new JsonObject();
-        variableRefObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
-                BLangJSONModelConstants.VARIABLE_REFERENCE_EXPRESSION);
+        variableRefObj.addProperty(BLangJSONModelConstants.VARIABLE_REFERENCE_TYPE,
+                BLangJSONModelConstants.VARIABLE_REFERENCE_NAME);
         variableRefObj.addProperty(BLangJSONModelConstants.VARIABLE_REFERENCE_NAME,
                 variableRefExpr.getSymbolName().getName());
+        if (variableRefExpr.getVariableDef() != null) {
+            JsonObject variableDef= new JsonObject();
+            variableDef.addProperty(BLangJSONModelConstants.TYPE_NAME,
+                    variableRefExpr.getVariableDef().getTypeName().getName());
+            variableDef.addProperty(BLangJSONModelConstants.PACKAGE_NAME,
+                    variableRefExpr.getVariableDef().getTypeName().getPackageName());
+            variableRefObj.add(BLangJSONModelConstants.VARIABLE_DEF_OPTIONS, variableDef);
+        }
         tempJsonArrayRef.peek().add(variableRefObj);
     }
 
@@ -935,7 +943,10 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(RefTypeInitExpr refTypeInitExpr) {
-
+        JsonObject refTypeInitExprObj = new JsonObject();
+        refTypeInitExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.REFERENCE_TYPE_INIT_EXPR);
+        tempJsonArrayRef.peek().add(refTypeInitExprObj);
     }
 
     @Override

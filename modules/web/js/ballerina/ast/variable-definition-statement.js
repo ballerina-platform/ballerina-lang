@@ -167,7 +167,26 @@ define(['lodash', './statement', '../utils/common-utils', './variable-declaratio
     };
 
     VariableDefinitionStatement.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+        var lhs = jsonNode.children[0];
+        var rhs = jsonNode.children[1];
 
+        if (!_.isNil(lhs.variable_def_options)) {
+            /**
+             * Sample1: message m = 'messageValue';
+             * Sample2: http:HTTPConnector connector = .....
+             *          <packageName>:<> <variable reference>
+             */
+            var expressionValue = (!_.isNil(lhs.variable_def_options.package_name) ?
+                lhs.variable_def_options.package_name + ":" : "")
+                + lhs.variable_def_options.type_name
+                + " " + lhs.variable_reference_name;
+            this.setLeftExpression(expressionValue);
+        }
+        var rightExpressionChild = self.getFactory().createFromJson(rhs);
+        self.addChild(rightExpressionChild);
+        rightExpressionChild.initFromJson(rhs);
+        this.setRightExpression(rightExpressionChild.getExpression());
     };
 
     return VariableDefinitionStatement;
