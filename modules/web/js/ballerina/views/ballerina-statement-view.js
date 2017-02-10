@@ -263,12 +263,14 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
                     }
                 $(deleteButtonRect.node()).click(function(event){
                     event.stopPropagation();
-                    model.remove();
+                    self._model.remove();
                     // Hiding property button pane.
                     $(propertyPaneWrapper).remove();
                     $(deleteButtonPaneGroup.node()).remove();
                     $(propertyButtonPaneGroup.node()).remove();
                     $(smallArrow.node()).remove();
+                    $(statementView._statementGroup).remove();
+                    $(statementGroup).remove();
                 });
 
             }.bind(statementGroup.node(), this));

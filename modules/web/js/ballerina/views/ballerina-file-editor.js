@@ -20,11 +20,11 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         './../visitors/source-gen/ballerina-ast-root-visitor','./../visitors/symbol-table/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
         './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer', './connector-definition-view', './struct-definition-view',
         './../env/package', './../env/package-scoped-environment', './../env/environment', './constant-definitions-pane-view', './../item-provider/tool-palette-item-provider',
-        './package-definition-pane-view','./type-mapper-definition-view', 'alerts'],
+        './package-definition-pane-view','./type-mapper-definition-view', 'alerts', 'typeahead'],
     function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory,
               PackageDefinition, SourceView, SwaggerView, SourceGenVisitor, SymbolTableGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer,
               ConnectorDefinitionView, StructDefinitionView, Package, PackageScopedEnvironment, BallerinaEnvironment,
-              ConstantsDefinitionsPaneView, ToolPaletteItemProvider, PackageDefinitionView,TypeMapperDefinitionView, alerts) {
+              ConstantsDefinitionsPaneView, ToolPaletteItemProvider, PackageDefinitionView,TypeMapperDefinitionView, alerts, typeahead) {
 
         /**
          * The view to represent a ballerina file editor which is an AST visitor.
@@ -39,7 +39,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._parseFailed = _.get(args, "parseFailed");
             BallerinaView.call(this, args);
             this._canvasList = _.get(args, 'canvasList', []);
-            this._debugger = _.get(args, 'debugger'); 
+            this._debugger = _.get(args, 'debugger');
             this._file = _.get(args, 'file');
             this._id = _.get(args, "id", "Ballerina File Editor");
 
@@ -358,7 +358,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._sourceView.on('add-breakpoint', function (row) {
                 self.trigger('add-breakpoint', row);
             });
-          
+
             this._sourceView.on('modified', function () {
                 self._undoManager.reset();
                 self.trigger('content-modified');
@@ -384,7 +384,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             _.set(swaggerViewOpts, 'backend', new Backend({url : _.get(this._backendEndpointsOptions, 'swagger.endpoint')}));
             this._swaggerView = new SwaggerView(swaggerViewOpts);
             this._swaggerView.render();
-            
+
             var sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
             sourceViewBtn.click(function () {
                 lastRenderedTimestamp = self._file.getLastPersisted();
@@ -581,6 +581,42 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             var packageButton = $(propertyPane).parent().find(".package-btn");
 
+            var substringMatcher = function(strs) {
+              return function findMatches(q, cb) {
+                var matches, substringRegex;
+
+                // an array that will be populated with substring matches
+                matches = [];
+
+                // regex used to determine if a string contains the substring `q`
+                substrRegex = new RegExp(q, 'i');
+
+                // iterate through the pool of strings and for any string that
+                // contains the substring `q`, add it to the `matches` array
+                $.each(strs, function(i, str) {
+                  if (substrRegex.test(str)) {
+                    matches.push(str);
+                  }
+                });
+
+                cb(matches);
+              };
+            };
+
+            var packages = BallerinaEnvironment.getPackages();
+            var packageNames = _.map(packages, function(p){return p._name});
+
+            propertyPane.find("#import-package-text").typeahead({
+                    hint: true,
+                    highlight: true,
+                    minLength: 1
+                },
+                {
+                    name: 'packages',
+                    source: substringMatcher(packageNames)
+                }
+            );
+
             // Package button click event.
             $(packageButton).click(function (event) {
                 // If property pane is already shown, cancel this event.
@@ -603,7 +639,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     event.stopPropagation();
                 });
 
-                var importPackageTextBox = propertyPane.find(".action-content-wrapper-heading input[type=text]");
+                var importPackageTextBox = propertyPane.find("#import-package-text");
                 var addImportButton = $(propertyPane).find(".action-icon-wrapper");
 
                 // Click event for adding an import.
@@ -757,8 +793,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
         BallerinaFileEditor.prototype.debugHit = function (position) {
             this._sourceView.debugHit(position);
-        };        
+        };
 
         return BallerinaFileEditor;
     });
-

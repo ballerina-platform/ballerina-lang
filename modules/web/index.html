@@ -162,13 +162,12 @@
             <!-- Start: TopRight Controls Container -->
             <div class="top-right-controls-container">
                 <!--Property Pane for editing package name and imports-->
-                <div class="top-right-controls-container-editor-pane main-action-wrapper">
+                <div class="top-right-controls-container-editor-pane main-action-wrapper import-packages-pane">
                     <div class="action-content-wrapper">
                         <div class="action-content-wrapper-heading import-wrapper-heading">
                             <span>Import :</span>
-                            <input type="text">
+                            <input id="import-package-text" type="text">
                             <div class="action-icon-wrapper">
-                                <span class="fw fw-add"></span>
                                 <span class="fw-stack fw-lg">
                                     <i class="fw fw-square fw-stack-2x"></i>
                                     <i class="fw fw-add fw-stack-1x fw-inverse"></i>
@@ -233,7 +232,7 @@
                 <div class="view-source-btn btn-icon">
                     <i class="fw fw-code-view fw-inverse"></i>
                     <span class="bottom-view-label">Source View</span>
-                </div>               
+                </div>
             </div>
             <!-- End: BottomRight Controls Container  -->
         </div>
@@ -567,6 +566,7 @@
             respond: "lib/respond_1.4.2/respond.min",
             jsPlumb: "lib/jsPlumb-2.2.8/jsPlumb-2.2.8-min",
             yaml: "lib/js-yaml-v3.7.0/dist/js-yaml.min",
+            typeahead: "lib/typeahead_v0.11.1/typeahead.bundle.min",
             ///////////////////////
             // custom modules ////
             //////////////////////
@@ -598,7 +598,13 @@
                 deps: ['jquery','jquery_ui'],
                 exports: 'jsPlumb'
             },
-            "mcustom_scroller":{"deps": ['jquery', "jquery_mousewheel"]}
+            "mcustom_scroller":{"deps": ['jquery', "jquery_mousewheel"]},
+            "typeahead": {
+                deps: ['jquery'],
+                init: function ($) {
+                    return require.s.contexts._.registry['typeahead.js'].factory( $ );
+                }
+            }
         },
         map: {
             "*": {
