@@ -25,11 +25,11 @@
     <packaging>pom</packaging>
     <groupId>org.wso2.carbon.transport</groupId>
     <artifactId>org.wso2.carbon.transport.parent</artifactId>
-    <version>4.0.1-SNAPSHOT</version>
+    <version>4.1.1-SNAPSHOT</version>
     <name>WSO2 Carbon Transport Parent</name>
 
     <modules>
-        <module>server-connector-framework</module>
+        <module>connector-framework</module>
         <module>http</module>
         <module>features</module>
     </modules>
@@ -106,7 +106,7 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.transport</groupId>
-                <artifactId>org.wso2.carbon.serverconnector.framework</artifactId>
+                <artifactId>org.wso2.carbon.connector.framework</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -263,7 +263,7 @@
 
 
 
-        <carbon.messaging.version>2.0.0</carbon.messaging.version>
+        <carbon.messaging.version>2.1.0</carbon.messaging.version>
         <carbon.messaging.package.import.version.range>[2.0.0, 3.0.0)</carbon.messaging.package.import.version.range>
         <slf4j.version>1.7.5</slf4j.version>
         <!--Logging API version range-->
@@ -275,8 +275,8 @@
 
         <!-- Package exports -->
         <netty.transport.package.export.version>${project.version}</netty.transport.package.export.version>
-        <serverconnector.framework.package.export.version>${project.version}
-        </serverconnector.framework.package.export.version>
+        <connector.framework.package.export.version>${project.version}
+        </connector.framework.package.export.version>
 
         <!-- Following two properties should be removed once the versions are added the wso2 parent pom CARBON-15729 -->
         <maven.checkstyle.plugin.version>2.17</maven.checkstyle.plugin.version>

@@ -31,7 +31,7 @@ import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.listener.HTTPServerConnector;
 import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
 import org.wso2.carbon.transport.http.netty.listener.ServerConnectorController;
-import org.wso2.carbon.transport.http.netty.sender.HTTPSender;
+import org.wso2.carbon.transport.http.netty.sender.HTTPClientConnector;
 import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
 
 import java.io.IOException;
@@ -90,12 +90,13 @@ public class TestUtil {
 
         Set<ListenerConfiguration> listenerConfigurationSet = transportsConfiguration.getListenerConfigurations();
 
-        HTTPSender httpSender = new HTTPSender(transportsConfiguration.getSenderConfigurations(),
-                                               transportsConfiguration.getTransportProperties());
+        HTTPClientConnector httpClientConnector =
+                new HTTPClientConnector(transportsConfiguration.getSenderConfigurations(),
+                        transportsConfiguration.getTransportProperties());
 
         HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
 
-        carbonMessageProcessor.setTransportSender(httpSender);
+        carbonMessageProcessor.setClientConnector(httpClientConnector);
 
         Thread transportRunner = new Thread(() -> {
             try {
@@ -204,10 +205,11 @@ public class TestUtil {
     public static void updateMessageProcessor(CarbonMessageProcessor carbonMessageProcessor,
             TransportsConfiguration transportsConfiguration) {
 
-        HTTPSender httpSender = new HTTPSender(transportsConfiguration.getSenderConfigurations(),
-                transportsConfiguration.getTransportProperties());
+        HTTPClientConnector httpClientConnector =
+                new HTTPClientConnector(transportsConfiguration.getSenderConfigurations(),
+                        transportsConfiguration.getTransportProperties());
 
-        carbonMessageProcessor.setTransportSender(httpSender);
+        carbonMessageProcessor.setClientConnector(httpClientConnector);
         HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
     }
 
