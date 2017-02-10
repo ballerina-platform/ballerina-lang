@@ -144,7 +144,7 @@ simpleType
     ;
 
 simpleTypeArray
-    :   Identifier '[]'
+    :   Identifier '[' ']'
     ;
 
 simpleTypeIterate
@@ -156,7 +156,7 @@ withFullSchemaType
 	;
 
 withFullSchemaTypeArray
-	:	Identifier '<' '{' QuotedStringLiteral '}' Identifier '>' '[]'
+	:	Identifier '<' '{' QuotedStringLiteral '}' Identifier '>' '[' ']'
 	;
 
 withFullSchemaTypeIterate
@@ -168,7 +168,7 @@ withScheamURLType
 	;
 
 withSchemaURLTypeArray
-	:	Identifier '<' '{' QuotedStringLiteral '}' '>' '[]'
+	:	Identifier '<' '{' QuotedStringLiteral '}' '>' '[' ']'
 	;
 
 withSchemaURLTypeIterate
@@ -180,7 +180,7 @@ withSchemaIdType
 	;
 
 withScheamIdTypeArray
-	:	Identifier '<' Identifier '>' '[]'
+	:	Identifier '<' Identifier '>' '[' ']'
 	;
 
 withScheamIdTypeIterate
@@ -407,7 +407,7 @@ expression
     |   expression ('==' | '!=') expression             # binaryEqualExpression
     |   expression '&&' expression                      # binaryAndExpression
     |   expression '||' expression                      # binaryOrExpression
-    |   '[]'                                            # arrayInitExpression
+    |   '['']'                                            # arrayInitExpression
     |   '[' expressionList ']'                          # arrayInitExpression // couldn't match empty array with:  '[' expressionList? ']' hence writing in two branches
     |   '{' mapStructInitKeyValueList? '}'              # refTypeInitExpression
     |   'create' typeName argumentList                  # connectorInitExpression
@@ -491,6 +491,7 @@ BITOR           : '|';
 CARET           : '^';
 MOD             : '%';
 DOLLAR_SIGN     : '$';
+AT              : '@';
 
 // §3.10.1 Integer Literals
 IntegerLiteral
