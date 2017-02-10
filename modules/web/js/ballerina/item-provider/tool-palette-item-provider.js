@@ -241,6 +241,13 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
             });
 
+            // registering event handler for 'connector-def-removed' event
+            package.on('connector-def-removed', function (connectorDef) {
+                var toolGroupID = package.getName() + "-tool-group";
+                var toolId = connectorDef.getConnectorName();
+                self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
+            });
+
             return group;
         };
 
