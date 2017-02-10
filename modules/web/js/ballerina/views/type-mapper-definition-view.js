@@ -177,7 +177,6 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
                 var selectedArrayIndex = targetDropDown.val();
                 var selectedStructNameForTarget = targetDropDown.text();
                 self.getModel().addReturnTypeChild(selectedStructNameForTarget,"x");
-                self.getModel().addStatement("x");
                 //todo add variable definition statement
 
 
