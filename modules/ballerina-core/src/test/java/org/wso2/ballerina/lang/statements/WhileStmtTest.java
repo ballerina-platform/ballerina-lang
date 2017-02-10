@@ -22,6 +22,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.utils.ParserUtils;
@@ -64,6 +65,35 @@ public class WhileStmtTest {
         int actual = ((BInteger) returns[0]).intValue();
         int expected = 0;
         Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Check the scope managing in while block")
+    public void testWhileBlockScopes() {
+        BValue[] args = { new BInteger(1) };
+        BValue[] returns = Functions.invoke(bFile, "testWhileScope", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
+        BInteger actual = (BInteger) returns[0];
+        Assert.assertEquals(actual.intValue(), 200, "mismatched output value");
+
+        args = new BValue[] { new BInteger(2) };
+        returns = Functions.invoke(bFile, "testWhileScope", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
+        actual = (BInteger) returns[0];
+        Assert.assertEquals(actual.intValue(), 400, "mismatched output value");
+    }
+
+    @Test(description = "Check the scope managing in while block with ifelse")
+    public void testWhileBlockScopesWithIf() {
+        BValue[] returns = Functions.invoke(bFile, "testWhileScopeWithIf");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type of return param1 mismatched");
+        Assert.assertSame(returns[1].getClass(), BDouble.class, "Class type of return param2 mismatched");
+        BInteger actual = (BInteger) returns[0];
+        Assert.assertEquals(actual.intValue(), 2, "mismatched output value");
+        BDouble sum = (BDouble) returns[1];
+        Assert.assertEquals(sum.doubleValue(), 30.0, "mismatched output value");
     }
 
     @Test(description = "Test while statement with incompatible types",
