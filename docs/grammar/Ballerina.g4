@@ -48,7 +48,7 @@ functionDefinition
     ;
 
 nativeFunction
-    :   'native' 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? ';'
+    :   annotation* 'native' 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? ';'
     ;
 
 function
@@ -82,7 +82,7 @@ connectorBody
     ;
 
 nativeAction
-    :   'native' 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? ';'
+    :   annotation* 'native' 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? ';'
     ;
 
 action
