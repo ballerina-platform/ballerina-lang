@@ -233,13 +233,10 @@ define(['lodash', './node'], function (_, ASTNode) {
 
         // Creating a new ResourceParameter.
         var newResourceParameter = this.getFactory().createResourceParameter();
-        //todo check setting annotations
-        var newStructType =this.getFactory().createStructType();
-        newStructType.setTypeName(typeStructName);
-        var newSymbolName =this.getFactory().createSymbolName();
-        newSymbolName.setName(identifier);
-        newResourceParameter.addChild(newStructType);
-        newResourceParameter.addChild(newSymbolName);
+        newResourceParameter.setIdentifier(identifier);
+        var newSimpleTypeName = this.getFactory().createSimpleTypeName();
+        newSimpleTypeName.setName(typeStructName);
+        newResourceParameter.addChild(newSimpleTypeName);
 
         var lastIndex = _.findLastIndex(this.getChildren());
         this.addChild(newResourceParameter, lastIndex - 1);
@@ -254,13 +251,9 @@ define(['lodash', './node'], function (_, ASTNode) {
 
         // Creating a new ResourceParameter.
         var newReturnType = this.getFactory().createReturnType();
-        //todo check setting annotations
-        var newStructType =this.getFactory().createStructType();
-        newStructType.setTypeName(typeStructName);
-        var newSymbolName =this.getFactory().createSymbolName();
-        newSymbolName.setName(identifier);
-        newReturnType.addChild(newStructType);
-        newReturnType.addChild(newSymbolName);
+        var newSimpleTypeName = this.getFactory().createSimpleTypeName();
+        newSimpleTypeName.setName(typeStructName);
+        newReturnType.addChild(newSimpleTypeName);
 
         var lastIndex = _.findLastIndex(this.getChildren());
         this.addChild(newReturnType, lastIndex - 1);

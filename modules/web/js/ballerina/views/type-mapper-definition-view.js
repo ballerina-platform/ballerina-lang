@@ -265,8 +265,8 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             });
 
             _.find(resourceParameter.getChildren(), function (child) {
-                if(BallerinaASTFactory.isStructType(child)){
-                    sourceStructName = child.getTypeName();
+                if(BallerinaASTFactory.isSimpleTypeName(child)){
+                    sourceStructName = child.getName();
                     return false;
                 }
             });
@@ -304,8 +304,8 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             });
 
             _.find(returnType.getChildren(), function (child) {
-                if(BallerinaASTFactory.isStructType(child)){
-                    targetStructName = child.getTypeName();
+                if(BallerinaASTFactory.isSimpleTypeName(child)){
+                    targetStructName = child.getName();
                     return false;
                 }
             });
