@@ -36,7 +36,6 @@ import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
-import org.wso2.siddhi.query.api.definition.io.Store;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.execution.query.Query;
@@ -699,40 +698,6 @@ public class DefineTableTestCase {
             Assert.assertEquals(2, streamEvents.size());
             instance_1.getLifecycleService().terminate();
             Thread.sleep(10000);
-        } finally {
-            executionPlanRuntime.shutdown();
-        }
-    }
-
-    @Test
-    public void testQuery23() throws InterruptedException {
-        log.info("testTableDefinition23 - OUT 0");
-
-        /*define table FooTable (time long, data string)
-         store hazelcast options (well.known.addresses “http://localhost:8900”,
-         cluster.name “test”) ;*/
-
-        SiddhiManager siddhiManager = new SiddhiManager();
-
-        Store store = Store.store("hazelcast").
-                option("well.known.addresses", "http://localhost:8900").
-                option("cluster.name", "test");
-
-        TableDefinition tableDefinition = TableDefinition.id("FooTable").
-                attribute("time", Attribute.Type.LONG).
-                attribute("data", Attribute.Type.STRING).
-                store(store);
-
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineTable(tableDefinition);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        try {
-            List<String> hciNames = new ArrayList<String>();
-            for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
-                hciNames.add(hci.getName());
-            }
-            Assert.assertTrue(hciNames.contains(HazelcastEventTableConstants.HAZELCAST_INSTANCE_PREFIX +
-                    executionPlanRuntime.getName()));
         } finally {
             executionPlanRuntime.shutdown();
         }

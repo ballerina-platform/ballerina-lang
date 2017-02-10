@@ -19,12 +19,12 @@ package org.wso2.siddhi.core.util;
 
 public final class SiddhiConstants {
 
-    public static final String EVENT_TABLE = "eventtable";
-    public static final String INPUT_TRANSPORT = "inputtransport";
-    public static final String INPUT_MAPPER = "inputmapper";
+    public static final String NAMESPACE_EVENT_TABLE = "eventtable";
+    public static final String NAMESPACE_INPUT_TRANSPORT = "inputtransport";
+    public static final String NAMESPACE_INPUT_MAPPER = "inputmapper";
 
-    public static final String OUTPUT_TRANSPORT = "outputtransport";
-    public static final String OUTPUT_MAPPER = "outputmapper";
+    public static final String NAMESPACE_OUTPUT_TRANSPORT = "outputtransport";
+    public static final String NAMESPACE_OUTPUT_MAPPER = "outputmapper";
 
     public static final int BEFORE_WINDOW_DATA_INDEX = 0;
     public static final int ON_AFTER_WINDOW_DATA_INDEX = 1;

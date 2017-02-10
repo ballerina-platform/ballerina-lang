@@ -23,22 +23,19 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
-import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
+import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.input.source.InputMapper;
 import org.wso2.siddhi.core.stream.input.source.InputTransport;
 import org.wso2.siddhi.core.util.AttributeConverter;
+import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.execution.io.map.AttributeMapping;
+import org.wso2.siddhi.core.util.transport.AttributeMapping;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * This mapper converts JSON string input to {@link ComplexEventChunk}. This extension accepts optional mapping to
@@ -69,22 +66,7 @@ public class JsonInputMapper implements InputMapper {
     /**
      * Output StreamDefinition of the input mapper.
      */
-    private StreamDefinition outputStreamDefinition;
-
-    /**
-     * SinkCallback to which the converted event must be sent.
-     */
-    private OutputCallback outputCallback;
-
-    /**
-     * StreamEventPool used to borrow a new event.
-     */
-    private StreamEventPool streamEventPool;
-
-    /**
-     * StreamEventConverter to convert {@link Event} to {@link StreamEvent}.
-     */
-    private StreamEventConverter streamEventConverter;
+    private StreamDefinition streamDefinition;
 
     /**
      * Array of information about event mapping.
@@ -96,37 +78,21 @@ public class JsonInputMapper implements InputMapper {
      */
     private List<Attribute> streamAttributes;
 
-
-    /**
-     * Initialize the mapper and the mapping configurations.
-     *
-     * @param outputStreamDefinition the output StreamDefinition
-     * @param outputCallback         the SinkCallback to which the output has to be sent
-     * @param metaStreamEvent        the MetaStreamEvent
-     * @param options                additional mapping options
-     * @param attributeMappingList   list of attributes mapping
-     */
     @Override
-    public void init(StreamDefinition outputStreamDefinition, OutputCallback outputCallback, MetaStreamEvent
-            metaStreamEvent, Map<String, String> options, List<AttributeMapping> attributeMappingList) {
+    public void init(StreamDefinition streamDefinition, OptionHolder mapOptionHolder) {
+        this.streamDefinition = streamDefinition;
+        this.streamAttributes = this.streamDefinition.getAttributeList();
 
-        this.outputStreamDefinition = outputStreamDefinition;
-        this.outputCallback = outputCallback;
-        this.outputStreamDefinition = metaStreamEvent.getOutputStreamDefinition();
-        this.streamEventConverter = new ZeroStreamEventConverter();
-        this.streamEventPool = new StreamEventPool(metaStreamEvent, 5);
-        this.streamAttributes = this.outputStreamDefinition.getAttributeList();
-
-        int attributesSize = this.outputStreamDefinition.getAttributeList().size();
+        int attributesSize = this.streamDefinition.getAttributeList().size();
         this.mappingPositions = new MappingPositionData[attributesSize];
 
         // Create the position mapping arrays
-        if (attributeMappingList != null && attributeMappingList.size() > 0) {
+        if (streamAttributes.size() > 0) {
             // Custom mapping parameters are given
-            for (int i = 0; i < attributeMappingList.size(); i++) {
+            for (int i = 0; i < streamAttributes.size(); i++) {
                 // i represents the position of attributes as given by the user in mapping
 
-                AttributeMapping attributeMapping = attributeMappingList.get(i);
+                AttributeMapping attributeMapping = streamAttributes.get(i);
 
                 // The optional name given by the user in attribute mapping
                 String attributeName = attributeMapping.getRename();
@@ -136,7 +102,7 @@ public class JsonInputMapper implements InputMapper {
 
                 if (attributeName != null) {
                     // Use the name to determine the position
-                    position = outputStreamDefinition.getAttributePosition(attributeName);
+                    position = this.streamDefinition.getAttributePosition(attributeName);
                 } else {
                     // Use the same order as provided by the user
                     position = i;
@@ -147,7 +113,7 @@ public class JsonInputMapper implements InputMapper {
             // Use the attribute names of the output stream in order
             for (int i = 0; i < attributesSize; i++) {
                 this.mappingPositions[i] = new MappingPositionData(i, DEFAULT_JSON_MAPPING_PREFIX + this
-                        .outputStreamDefinition.getAttributeList().get(i).getName());
+                        .streamDefinition.getAttributeList().get(i).getName());
             }
         }
     }
@@ -163,6 +129,11 @@ public class JsonInputMapper implements InputMapper {
         StreamEvent borrowedEvent = streamEventPool.borrowEvent();
         streamEventConverter.convertEvent(convertToEvent(eventObject), borrowedEvent);
         outputCallback.send(new ComplexEventChunk<StreamEvent>(borrowedEvent, borrowedEvent, true));
+    }
+
+    @Override
+    protected void mapAndProcess(Object eventObject, InputHandler inputHandler) {
+
     }
 
     /**
@@ -184,7 +155,7 @@ public class JsonInputMapper implements InputMapper {
                             .getCanonicalName());
         }
 
-        Event event = new Event(this.outputStreamDefinition.getAttributeList().size());
+        Event event = new Event(this.streamDefinition.getAttributeList().size());
         Object[] data = event.getData();
 
         // Parse the JSON string and build the data

@@ -21,19 +21,19 @@ package org.wso2.siddhi.extension.input.transport.kafka;
 import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.stream.input.source.InputCallback;
+import org.wso2.siddhi.core.stream.input.source.SourceCallback;
 
 
 public class KafkaConsumer implements Runnable {
 
     private KafkaStream stream;
     private String evento;
-    private InputCallback inputCallback;
+    private SourceCallback sourceCallback;
     private static final Logger log = Logger.getLogger(KafkaConsumer.class);
 
-    public KafkaConsumer(KafkaStream inStream, InputCallback inputCallback) {
+    public KafkaConsumer(KafkaStream inStream, SourceCallback sourceCallback) {
         stream = inStream;
-        this.inputCallback = inputCallback;
+        this.sourceCallback = sourceCallback;
     }
 
     public void run() {
@@ -44,7 +44,7 @@ public class KafkaConsumer implements Runnable {
                 if (log.isDebugEnabled()) {
                     log.debug("Event received in Kafka Event Adaptor - " + evento);
                 }
-                inputCallback.onEvent(evento);
+                sourceCallback.onEvent(evento);
             }
         } catch (Throwable t) {
             log.error("Error while consuming event " + t);

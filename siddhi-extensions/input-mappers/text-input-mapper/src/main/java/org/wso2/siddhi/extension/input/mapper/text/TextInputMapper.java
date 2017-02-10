@@ -21,23 +21,19 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
-import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
+import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.input.source.InputMapper;
 import org.wso2.siddhi.core.stream.input.source.InputTransport;
 import org.wso2.siddhi.core.util.AttributeConverter;
+import org.wso2.siddhi.core.util.transport.AttributeMapping;
+import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
-import org.wso2.siddhi.query.api.execution.io.map.AttributeMapping;
 
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,7 +46,7 @@ import java.util.regex.Pattern;
         namespace = "inputmapper",
         description = ""
 )
-public class TextInputMapper implements InputMapper {
+public class TextInputMapper extends InputMapper {
 
     /**
      * Logger to log the events.
@@ -65,22 +61,7 @@ public class TextInputMapper implements InputMapper {
     /**
      * Output StreamDefinition of the input mapper.
      */
-    private StreamDefinition outputStreamDefinition;
-
-    /**
-     * SinkCallback to which the converted event must be sent.
-     */
-    private OutputCallback outputCallback;
-
-    /**
-     * StreamEventPool used to borrow a new event.
-     */
-    private StreamEventPool streamEventPool;
-
-    /**
-     * StreamEventConverter to convert {@link Event} to {@link StreamEvent}.
-     */
-    private StreamEventConverter streamEventConverter;
+    private StreamDefinition streamDefinition;
 
     /**
      * Attributes of the output stream.
@@ -96,24 +77,16 @@ public class TextInputMapper implements InputMapper {
     /**
      * Initialize the mapper and the mapping configurations.
      *
-     * @param outputStreamDefinition the output StreamDefinition
-     * @param outputCallback         the SinkCallback to which the output has to be sent
-     * @param metaStreamEvent        the MetaStreamEvent
-     * @param options                additional mapping options
-     * @param attributeMappingList   list of attributes mapping
+     * @param streamDefinition     the  StreamDefinition
+     * @param optionHolder         mapping options
+     * @param attributeMappingList list of attributes mapping
      */
     @Override
-    public void init(StreamDefinition outputStreamDefinition, OutputCallback outputCallback, MetaStreamEvent
-            metaStreamEvent, Map<String, String> options, List<AttributeMapping> attributeMappingList) {
+    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, List<AttributeMapping> attributeMappingList) {
+        this.streamDefinition = streamDefinition;
+        this.streamAttributes = this.streamDefinition.getAttributeList();
 
-        this.outputStreamDefinition = outputStreamDefinition;
-        this.outputCallback = outputCallback;
-        this.outputStreamDefinition = metaStreamEvent.getOutputStreamDefinition();
-        this.streamEventConverter = new ZeroStreamEventConverter();
-        this.streamEventPool = new StreamEventPool(metaStreamEvent, 5);
-        this.streamAttributes = this.outputStreamDefinition.getAttributeList();
-
-        int attributesSize = this.outputStreamDefinition.getAttributeList().size();
+        int attributesSize = this.streamDefinition.getAttributeList().size();
         this.mappingPositions = new MappingPositionData[attributesSize];
 
         // Create the position regex arrays
@@ -132,13 +105,13 @@ public class TextInputMapper implements InputMapper {
 
                 if (attributeName != null) {
                     // Use the name to determine the position
-                    position = outputStreamDefinition.getAttributePosition(attributeName);
+                    position = this.streamDefinition.getAttributePosition(attributeName);
                 } else {
                     // Use the same order as provided by the user
                     position = i;
                 }
                 String[] mappingComponents = attributeMapping.getMapping().split("\\[");
-                String regex = options.get(mappingComponents[0]);
+                String regex = optionHolder.getStaticOption(mappingComponents[0]);
                 int index = Integer.parseInt(mappingComponents[1].substring(0, mappingComponents[1].length() - 1));
                 if (regex == null) {
                     throw new ExecutionPlanValidationException("The regex " + mappingComponents[0] + " does not have " +
@@ -151,26 +124,27 @@ public class TextInputMapper implements InputMapper {
             for (int i = 0; i < attributesSize; i++) {
                 regexBuilder.append(DEFAULT_MAPPING_REGEX).append(",?");
             }
-            String regex = regexBuilder.toString();
+            //String regex = regexBuilder.toString();
             for (int i = 0; i < attributesSize; i++) {
                 this.mappingPositions[i] = new MappingPositionData(i, regexBuilder.toString(), i + 1);
             }
         }
-
     }
+
 
     /**
      * Receive TEXT string from {@link InputTransport}, convert to {@link ComplexEventChunk} and send to the
      * {@link OutputCallback}.
      *
-     * @param eventObject the TEXT string
+     * @param eventObject  the TEXT string
+     * @param inputHandler input handler
      */
     @Override
-    public void onEvent(Object eventObject) {
-        synchronized (this) {
-            StreamEvent borrowedEvent = streamEventPool.borrowEvent();
-            streamEventConverter.convertEvent(convertToEvent(eventObject), borrowedEvent);
-            outputCallback.send(new ComplexEventChunk<StreamEvent>(borrowedEvent, borrowedEvent, true));
+    protected void mapAndProcess(Object eventObject, InputHandler inputHandler) throws InterruptedException {
+        if (eventObject != null) {
+            synchronized (this) {
+                inputHandler.send(convertToEvent(eventObject));
+            }
         }
     }
 
@@ -193,7 +167,7 @@ public class TextInputMapper implements InputMapper {
                             .getCanonicalName());
         }
 
-        Event event = new Event(this.outputStreamDefinition.getAttributeList().size());
+        Event event = new Event(this.streamDefinition.getAttributeList().size());
         Object[] data = event.getData();
 
         for (MappingPositionData mappingPositionData : this.mappingPositions) {

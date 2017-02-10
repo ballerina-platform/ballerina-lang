@@ -25,10 +25,10 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.function.EvalScript;
 import org.wso2.siddhi.core.stream.StreamJunction;
-import org.wso2.siddhi.core.stream.output.sink.OutputMapper;
-import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.stream.input.source.InputMapper;
 import org.wso2.siddhi.core.stream.input.source.InputTransport;
+import org.wso2.siddhi.core.stream.output.sink.OutputMapper;
+import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.table.InMemoryEventTable;
 import org.wso2.siddhi.core.trigger.CronEventTrigger;
@@ -38,15 +38,14 @@ import org.wso2.siddhi.core.trigger.StartEventTrigger;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.extension.holder.*;
+import org.wso2.siddhi.core.util.transport.AttributeMapping;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.*;
-import org.wso2.siddhi.query.api.definition.io.Store;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
-import org.wso2.siddhi.query.api.execution.io.map.AttributeMapping;
 import org.wso2.siddhi.query.api.extension.Extension;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
@@ -95,7 +94,6 @@ public class DefinitionParserHelper {
                     executionPlanContext.getExecutorService(),
                     executionPlanContext.getBufferSize(), executionPlanContext);
             streamJunctionMap.putIfAbsent(streamDefinition.getId(), streamJunction);
-
         }
     }
 
@@ -121,29 +119,13 @@ public class DefinitionParserHelper {
             Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM,
                     tableDefinition.getAnnotations()); //// TODO: 12/5/16 this must be removed
 
-            Store store = tableDefinition.getStore();
-
             EventTable eventTable;
             if (annotation != null) {
-                final String evenTableType = annotation.getElement(SiddhiConstants.EVENT_TABLE);
+                final String evenTableType = annotation.getElement(SiddhiConstants.NAMESPACE_EVENT_TABLE);
                 Extension extension = new Extension() {
                     @Override
                     public String getNamespace() {
-                        return SiddhiConstants.EVENT_TABLE;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return evenTableType;
-                    }
-                };
-                eventTable = (EventTable) SiddhiClassLoader.loadExtensionImplementation(extension, EventTableExtensionHolder.getInstance(executionPlanContext));
-            } else if (store != null) {
-                final String evenTableType = store.getType();
-                Extension extension = new Extension() { //// TODO: 12/5/16 check this
-                    @Override
-                    public String getNamespace() {
-                        return SiddhiConstants.EVENT_TABLE;
+                        return SiddhiConstants.NAMESPACE_EVENT_TABLE;
                     }
 
                     @Override
@@ -238,44 +220,23 @@ public class DefinitionParserHelper {
                     final String mapType = mapAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
                     if (sourceType != null && mapType != null) {
                         // load input transport extension
-                        Extension source = new Extension() {
-                            @Override
-                            public String getNamespace() {
-                                return SiddhiConstants.INPUT_TRANSPORT;
-                            }
-
-                            @Override
-                            public String getName() {
-                                return sourceType.toLowerCase();
-                            }
-                        };
+                        Extension source = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_SOURCE,
+                                sourceType, sourceAnnotation, SiddhiConstants.NAMESPACE_INPUT_TRANSPORT);
                         InputTransport inputTransport = (InputTransport) SiddhiClassLoader.loadExtensionImplementation(
                                 source, InputTransportExecutorExtensionHolder.getInstance(executionPlanContext));
 
                         // load input mapper extension
-                        Extension mapper = new Extension() {
-                            @Override
-                            public String getNamespace() {
-                                return SiddhiConstants.INPUT_MAPPER;
-                            }
-
-                            @Override
-                            public String getName() {
-                                return mapType.toLowerCase();
-                            }
-                        };
+                        Extension mapper = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_MAP,
+                                mapType, sourceAnnotation, SiddhiConstants.NAMESPACE_INPUT_MAPPER);
                         InputMapper inputMapper = (InputMapper) SiddhiClassLoader.loadExtensionImplementation(
                                 mapper, InputMapperExecutorExtensionHolder.getInstance(executionPlanContext));
 
-                        MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
-                        metaStreamEvent.setOutputDefinition(streamDefinition);
-                        streamDefinition.getAttributeList().forEach(metaStreamEvent::addOutputData);
+                        OptionHolder sourceOptionHolder = constructOptionProcessor(streamDefinition, sourceAnnotation);
+                        OptionHolder mapOptionHolder = constructOptionProcessor(streamDefinition, mapAnnotation);
 
-//                        inputMapper.init(streamDefinition, outputCallback, metaStreamEvent,
-//                                (Map<String, String>) constructOptionProcessor(mapAnnotation)[0], getAttributeMappings(mapAnnotation));
-//                        inputTransport.init(constructOptionProcessor(streamDefinition, sourceAnnotation)[0], inputMapper);
+                        inputMapper.init(streamDefinition, mapType, mapOptionHolder, getAttributeMappings(mapAnnotation));
+                        inputTransport.init(sourceOptionHolder, inputMapper);
 
-                        executionPlanContext.addEternalReferencedHolder(inputTransport);
                         List<InputTransport> eventSources = eventSourceMap.get(streamDefinition.getId());
                         if (eventSources == null) {
                             eventSources = new ArrayList<InputTransport>();
@@ -303,63 +264,15 @@ public class DefinitionParserHelper {
                     final String sinkType = sinkAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
                     final String mapType = mapAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
                     if (sinkType != null && mapType != null) {
-                        String[] sinkNamespaceAndName = sinkType.split(SiddhiConstants.EXTENSION_SEPARATOR);
-                        String sinkNamespace;
-                        String sinkName;
-                        if (sinkNamespaceAndName.length == 1) {
-                            sinkNamespace = "";
-                            sinkName = sinkNamespaceAndName[0];
-                        } else if (sinkNamespaceAndName.length == 2) {
-                            sinkNamespace = sinkNamespaceAndName[0];
-                            sinkName = sinkNamespaceAndName[1];
-                        } else {
-                            throw new ExecutionPlanCreationException("Malformed sink sinkAnnotation type '" + sinkNamespaceAndName + "' " +
-                                    "provided, for stream '" + streamDefinition.getId() + "' it should be either '<namespace>:<name>' or " +
-                                    "'<name>'");
-                        }
-
                         // load input transport extension
-                        Extension sink = new Extension() {
-                            @Override
-                            public String getNamespace() {
-                                return sinkNamespace;
-                            }
-
-                            @Override
-                            public String getName() {
-                                return sinkName;
-                            }
-                        };
+                        Extension sink = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_SINK,
+                                sinkType, sinkAnnotation, SiddhiConstants.NAMESPACE_OUTPUT_TRANSPORT);
                         OutputTransport outputTransport = (OutputTransport) SiddhiClassLoader.loadExtensionImplementation(
                                 sink, OutputTransportExecutorExtensionHolder.getInstance(executionPlanContext));
 
-                        String[] mapNamespaceAndName = mapType.split(SiddhiConstants.EXTENSION_SEPARATOR);
-                        String mapNamespace;
-                        String mapName;
-                        if (mapNamespaceAndName.length == 1) {
-                            mapNamespace = "";
-                            mapName = mapNamespaceAndName[0];
-                        } else if (mapNamespaceAndName.length == 2) {
-                            mapNamespace = mapNamespaceAndName[0];
-                            mapName = mapNamespaceAndName[1];
-                        } else {
-                            throw new ExecutionPlanCreationException("Malformed sink keyvalue sinkAnnotation type '" + mapNamespaceAndName + "' " +
-                                    "provided, for sink '" + sinkType + "' on stream '" + streamDefinition.getId() + "' it should be either '<namespace>:<name>' or " +
-                                    "'<name>'");
-                        }
-
                         // load input mapper extension
-                        Extension mapper = new Extension() {
-                            @Override
-                            public String getNamespace() {
-                                return mapNamespace;
-                            }
-
-                            @Override
-                            public String getName() {
-                                return mapName;
-                            }
-                        };
+                        Extension mapper = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_MAP,
+                                mapType, sinkAnnotation, SiddhiConstants.NAMESPACE_OUTPUT_MAPPER);
                         OutputMapper outputMapper = (OutputMapper) SiddhiClassLoader.loadExtensionImplementation(
                                 mapper, OutputMapperExecutorExtensionHolder.getInstance(executionPlanContext));
 
@@ -384,8 +297,35 @@ public class DefinitionParserHelper {
                 }
             }
         }
+    }
 
+    private static Extension constructExtension(StreamDefinition streamDefinition, String typeName, String typeValue,
+                                                Annotation annotation, String defaultNamespace) {
+        String[] namespaceAndName = typeValue.split(SiddhiConstants.EXTENSION_SEPARATOR);
+        String namespace;
+        String name;
+        if (namespaceAndName.length == 1) {
+            namespace = defaultNamespace;
+            name = namespaceAndName[0];
+        } else if (namespaceAndName.length == 2) {
+            namespace = namespaceAndName[0];
+            name = namespaceAndName[1];
+        } else {
+            throw new ExecutionPlanCreationException("Malformed '" + typeName + "' annotation type '" + typeValue + "' " +
+                    "provided, for annotation '" + annotation + "' on stream '" + streamDefinition.getId() + "', " +
+                    "it should be either '<namespace>:<name>' or '<name>'");
+        }
+        return new Extension() {
+            @Override
+            public String getNamespace() {
+                return namespace;
+            }
 
+            @Override
+            public String getName() {
+                return name;
+            }
+        };
     }
 
     private static List<AttributeMapping> getAttributeMappings(Annotation mapAnnotation) {

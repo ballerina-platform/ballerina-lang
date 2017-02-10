@@ -19,29 +19,39 @@
 package org.wso2.siddhi.core.stream.input.source;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
+import org.wso2.siddhi.core.util.transport.OptionHolder;
 
-import java.util.Map;
-
+@Extension(
+        name = "inMemory",
+        namespace = "inputtransport",
+        description = "In-memory transport that can communicate with other in-memory transports within the same JVM, it " +
+                "is assumed that the publisher and subscriber of a topic uses same event schema (stream definition).",
+        parameters = @Parameter(name = "topic", type = DataType.STRING, description = "Subscribes to sent on the given" +
+                " topic.")
+)
 public class InMemoryInputTransport extends InputTransport {
     private static final Logger log = Logger.getLogger(InMemoryInputTransport.class);
     private static final String TOPIC_KEY = "topic";
-    private InputCallback inputCallback;
+    private SourceCallback sourceCallback;
     private InMemoryBroker.Subscriber subscriber;
 
     @Override
-    public void init(Map<String, String> transportOptions, InputCallback inputCallback) {
-        this.inputCallback = inputCallback;
+    public void init(SourceCallback sourceCallback, OptionHolder transportOptionHolder) {
+        this.sourceCallback = sourceCallback;
         this.subscriber = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object event) {
-                inputCallback.onEvent(event);
+                sourceCallback.onEvent(event);
             }
 
             @Override
             public String getTopic() {
-                return transportOptions.get(TOPIC_KEY);
+                return transportOptionHolder.getStaticOption(TOPIC_KEY);
             }
         };
     }
@@ -61,13 +71,4 @@ public class InMemoryInputTransport extends InputTransport {
         // do nothing
     }
 
-    @Override
-    public boolean isEventDuplicatedInCluster() {
-        return false;
-    }
-
-    @Override
-    public boolean isPolling() {
-        return false;
-    }
 }

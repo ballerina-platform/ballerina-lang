@@ -24,7 +24,6 @@ import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
-import org.wso2.siddhi.core.stream.input.source.SubscriptionRuntime;
 import org.wso2.siddhi.core.util.ElementIdGenerator;
 import org.wso2.siddhi.core.util.ExecutionPlanRuntimeBuilder;
 import org.wso2.siddhi.core.util.SiddhiConstants;
@@ -43,7 +42,6 @@ import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.execution.ExecutionElement;
-import org.wso2.siddhi.query.api.execution.Subscription;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
@@ -213,17 +211,6 @@ public class ExecutionPlanParser {
                             executionPlanRuntimeBuilder.getEventSinkMap(),
                             executionPlanRuntimeBuilder.getLockSynchronizer());
                     executionPlanRuntimeBuilder.addQuery(queryRuntime);
-                } else if (executionElement instanceof Subscription) {
-                    SubscriptionRuntime subscriptionRuntime = SubscriptionParser.parse((Subscription) executionElement, executionPlanContext,
-                            executionPlanRuntimeBuilder.getStreamDefinitionMap(),
-                            executionPlanRuntimeBuilder.getTableDefinitionMap(),
-                            executionPlanRuntimeBuilder.getWindowDefinitionMap(),
-                            executionPlanRuntimeBuilder.getEventTableMap(),
-                            executionPlanRuntimeBuilder.getEventWindowMap(),
-                            executionPlanRuntimeBuilder.getEventSourceMap(),
-                            executionPlanRuntimeBuilder.getEventSinkMap(),
-                            executionPlanRuntimeBuilder.getLockSynchronizer());
-                    executionPlanRuntimeBuilder.addSubscription(subscriptionRuntime);
                 } else {
                     PartitionRuntime partitionRuntime = PartitionParser.parse(executionPlanRuntimeBuilder,
                             (Partition) executionElement, executionPlanContext,

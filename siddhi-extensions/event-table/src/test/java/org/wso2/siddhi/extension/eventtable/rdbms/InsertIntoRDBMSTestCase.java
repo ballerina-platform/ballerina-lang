@@ -72,47 +72,4 @@ public class InsertIntoRDBMSTestCase {
         }
 
     }
-
-
-    @Test
-    public void insertIntoRDBMSTableTest2() throws InterruptedException {
-        log.info("InsertIntoTableTest2");
-
-        SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
-
-        try {
-            if (dataSource.getConnection() != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
-                String streams = "" +
-                        "define stream StockStream (symbol string, price float, volume long); " +
-                        "define table StockTable (symbol string, price float, volume long) " +
-                        "store rdbms options (datasource.name '" + RDBMSTestConstants.DATA_SOURCE_NAME +
-                        "' , table.name '" + RDBMSTestConstants.TABLE_NAME + "'); ";
-
-                String query = "" +
-                        "@info(name = 'query1') " +
-                        "from StockStream   " +
-                        "insert into StockTable ;";
-
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-
-                executionPlanRuntime.start();
-
-                stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-                stockStream.send(new Object[]{"IBM", 75.6f, 100l});
-                stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
-                Thread.sleep(1000);
-
-                long totalRowsInTable = DBConnectionHelper.getDBConnectionHelperInstance().getRowsInTable(dataSource);
-                Assert.assertEquals("Insertion failed", 3, totalRowsInTable);
-
-                executionPlanRuntime.shutdown();
-            }
-        } catch (SQLException e) {
-            log.info("Test case ignored due to DB connection unavailability");
-        }
-    }
 }

@@ -27,8 +27,8 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 @Extension(
         name = "passThrough",
-        namespace = "",
-        description = "Pass-through mapper passed events through  without any mapping or modifications."
+        namespace = "outputmapper",
+        description = "Pass-through mapper passed events (Event[]) through without any mapping or modifications."
 )
 public class PassThroughOutputMapper extends OutputMapper {
 

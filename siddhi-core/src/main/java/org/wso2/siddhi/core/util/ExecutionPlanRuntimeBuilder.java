@@ -30,9 +30,8 @@ import org.wso2.siddhi.core.query.output.callback.InsertIntoWindowCallback;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputManager;
-import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.stream.input.source.InputTransport;
-import org.wso2.siddhi.core.stream.input.source.SubscriptionRuntime;
+import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.trigger.EventTrigger;
 import org.wso2.siddhi.core.util.lock.LockSynchronizer;
@@ -107,43 +106,6 @@ public class ExecutionPlanRuntimeBuilder {
 
     public void addPartition(PartitionRuntime partitionRuntime) {
         partitionMap.put(partitionRuntime.getPartitionId(), partitionRuntime);
-    }
-
-    public void addSubscription(SubscriptionRuntime subscriptionRuntime) {
-        // TODO: 11/23/16  fix subscription mgt
-        OutputCallback outputCallback = subscriptionRuntime.getOutputCallback();
-
-        if (outputCallback != null && outputCallback instanceof InsertIntoStreamCallback) {
-            InsertIntoStreamCallback insertIntoStreamCallback = (InsertIntoStreamCallback) outputCallback;
-            StreamDefinition streamDefinition = insertIntoStreamCallback.getOutputStreamDefinition();
-
-            streamDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
-            DefinitionParserHelper.validateOutputStream(streamDefinition, streamDefinitionMap.get(streamDefinition.getId()));
-            StreamJunction outputStreamJunction = streamJunctionMap.get(streamDefinition.getId());
-
-            if (outputStreamJunction == null) {
-                outputStreamJunction = new StreamJunction(streamDefinition,
-                        executionPlanContext.getExecutorService(),
-                        executionPlanContext.getBufferSize(), executionPlanContext);
-                streamJunctionMap.putIfAbsent(streamDefinition.getId(), outputStreamJunction);
-            }
-            insertIntoStreamCallback.init(streamJunctionMap.get(insertIntoStreamCallback.getOutputStreamDefinition().getId()));
-        } else if (outputCallback != null && outputCallback instanceof InsertIntoWindowCallback) {
-            InsertIntoWindowCallback insertIntoWindowCallback = (InsertIntoWindowCallback) outputCallback;
-            StreamDefinition streamDefinition = insertIntoWindowCallback.getOutputStreamDefinition();
-
-            windowDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
-            DefinitionParserHelper.validateOutputStream(streamDefinition, windowDefinitionMap.get(streamDefinition.getId()));
-            StreamJunction outputStreamJunction = streamJunctionMap.get(streamDefinition.getId());
-
-            if (outputStreamJunction == null) {
-                outputStreamJunction = new StreamJunction(streamDefinition,
-                        executionPlanContext.getExecutorService(),
-                        executionPlanContext.getBufferSize(), executionPlanContext);
-                streamJunctionMap.putIfAbsent(streamDefinition.getId(), outputStreamJunction);
-            }
-            insertIntoWindowCallback.getEventWindow().setPublisher(streamJunctionMap.get(insertIntoWindowCallback.getOutputStreamDefinition().getId()).constructPublisher());
-        }
     }
 
     public String addQuery(QueryRuntime queryRuntime) {

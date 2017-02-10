@@ -38,7 +38,7 @@ public abstract class OutputTransport implements OutputTransportCallback {
     private String type;
     private OptionHolder optionHolder;
     private OutputMapper mapper;
-    private boolean tryConnect = true;
+    private boolean tryConnect = false;
 
 
     public void init(StreamDefinition streamDefinition, String type, OptionHolder optionHolder, OutputMapper outputMapper) {
@@ -84,6 +84,7 @@ public abstract class OutputTransport implements OutputTransportCallback {
             ConnectionUnavailableException;
 
     public void connectWithRetry(ExecutorService executorService) {
+        tryConnect = true;
         try {
             connect();
         } catch (ConnectionUnavailableException e) {

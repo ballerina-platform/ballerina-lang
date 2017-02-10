@@ -18,22 +18,24 @@
 
 package org.wso2.siddhi.core.stream.input.source;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
+import org.wso2.siddhi.core.util.transport.OptionHolder;
 
-import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
-public abstract class InputTransport implements EternalReferencedHolder {
 
-    private ExecutionPlanContext executionPlanContext;
+public abstract class InputTransport {
+    private static final Logger log = Logger.getLogger(InputTransport.class);
+    private InputMapper mapper;
+    private boolean tryConnect = false;
 
-    void init(Map<String, String> transportOptions, InputCallback inputCallback, ExecutionPlanContext executionPlanContext) {
-        this.executionPlanContext = executionPlanContext;
+    public void init(OptionHolder transportOptionHolder, InputMapper inputMapper) {
+        this.mapper = inputMapper;
+        init(inputMapper, transportOptionHolder);
     }
 
-    public abstract void init(Map<String, String> transportOptions, InputCallback inputCallback);
-//    void testConnect() throws TestConnectionNotSupportedException, ConnectionUnavailableException;
+    public abstract void init(SourceCallback sourceCallback, OptionHolder transportOptionHolder);
 
     public abstract void connect() throws ConnectionUnavailableException;
 
@@ -41,24 +43,23 @@ public abstract class InputTransport implements EternalReferencedHolder {
 
     public abstract void destroy();
 
-    public abstract boolean isEventDuplicatedInCluster();
-
-    public abstract boolean isPolling();
-
-    @Override
-    public void start() {
+    public void connectWithRetry(ExecutorService executorService) {
+        tryConnect = true;
         try {
             connect();
         } catch (ConnectionUnavailableException e) {
-//            executionPlanContext.getScheduledExecutorService().schedule()
-            e.printStackTrace();//todo implement exponential back off retry
+            log.error(e.getMessage(), e);
         }
+        // TODO: 2/9/17 Implement exponential retry
     }
 
-    @Override
-    public void stop() {
+    public InputMapper getMapper() {
+        return mapper;
+    }
+
+    public void shutdown() {
+        tryConnect = false;
         disconnect();
         destroy();
-
     }
 }

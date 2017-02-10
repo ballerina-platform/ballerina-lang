@@ -34,7 +34,7 @@ import org.wso2.siddhi.core.stream.input.source.InputTransport;
 import org.wso2.siddhi.core.util.AttributeConverter;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.execution.io.map.AttributeMapping;
+import org.wso2.siddhi.core.util.transport.AttributeMapping;
 
 import java.util.HashMap;
 import java.util.List;

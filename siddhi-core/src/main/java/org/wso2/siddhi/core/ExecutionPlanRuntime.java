@@ -104,6 +104,12 @@ public class ExecutionPlanRuntime {
                     new SinkCallback(outputTransportEntries.getValue(),
                             streamDefinitionMap.get(outputTransportEntries.getKey())));
         }
+        for (Map.Entry<String, List<InputTransport>> inputTransportEntries : eventSourceMap.entrySet()) {
+            InputHandler inputHandler = getInputHandler(inputTransportEntries.getKey());
+            for (InputTransport inputTransport : inputTransportEntries.getValue()) {
+                inputTransport.getMapper().setInputHandler(inputHandler);
+            }
+        }
     }
 
     public String getName() {
@@ -148,6 +154,12 @@ public class ExecutionPlanRuntime {
     }
 
     public synchronized void shutdown() {
+        for (List<InputTransport> inputTransports : eventSourceMap.values()) {
+            for (InputTransport inputTransport : inputTransports) {
+                inputTransport.shutdown();
+            }
+        }
+
         for (List<OutputTransport> outputTransports : eventSinkMap.values()) {
             for (OutputTransport outputTransport : outputTransports) {
                 outputTransport.shutdown();
@@ -210,6 +222,11 @@ public class ExecutionPlanRuntime {
         }
         for (StreamJunction streamJunction : streamJunctionMap.values()) {
             streamJunction.startProcessing();
+        }
+        for (List<InputTransport> inputTransports : eventSourceMap.values()) {
+            for (InputTransport inputTransport : inputTransports) {
+                inputTransport.connectWithRetry(executionPlanContext.getExecutorService());
+            }
         }
     }
 

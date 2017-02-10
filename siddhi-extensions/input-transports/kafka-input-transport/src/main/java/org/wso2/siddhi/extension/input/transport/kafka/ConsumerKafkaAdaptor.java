@@ -22,7 +22,7 @@ import kafka.consumer.ConsumerConfig;
 import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.stream.input.source.InputCallback;
+import org.wso2.siddhi.core.stream.input.source.SourceCallback;
 
 import java.util.HashMap;
 import java.util.List;
@@ -51,7 +51,7 @@ public class ConsumerKafkaAdaptor {
         }
     }
 
-    public void run(int numThreads, InputCallback inputCallback) {
+    public void run(int numThreads, SourceCallback sourceCallback) {
         try {
             Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
             topicCountMap.put(topic, numThreads);
@@ -61,7 +61,7 @@ public class ConsumerKafkaAdaptor {
             executor = Executors.newFixedThreadPool(numThreads);
             // now create an object to consume the messages
             for (final KafkaStream stream : streams) {
-                executor.submit(new KafkaConsumer(stream, inputCallback));
+                executor.submit(new KafkaConsumer(stream, sourceCallback));
             }
         } catch (Throwable t) {
             log.error("Error while creating KafkaConsumer ", t);

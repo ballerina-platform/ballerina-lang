@@ -18,19 +18,51 @@
 
 package org.wso2.siddhi.core.stream.input.source;
 
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.query.output.callback.OutputCallback;
+import org.apache.log4j.Logger;
+import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.util.transport.AttributeMapping;
+import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.execution.io.map.AttributeMapping;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Convert custom input from {@link InputTransport} to {@link org.wso2.siddhi.core.event.ComplexEventChunk}.
  */
-public interface InputMapper extends InputCallback {
+public abstract class InputMapper implements SourceCallback {
 
-    void init(StreamDefinition outputStreamDefinition, OutputCallback outputCallback, MetaStreamEvent
-            metaStreamEvent, Map<String, String> options, List<AttributeMapping> attributeMappingList);
+    private InputHandler inputHandler;
+    private StreamDefinition streamDefinition;
+    private String mapType;
+    private static final Logger log = Logger.getLogger(InputMapper.class);
+
+
+    public void init(StreamDefinition streamDefinition, String mapType, OptionHolder mapOptionHolder,
+                     List<AttributeMapping> attributeMappings) {
+        this.streamDefinition = streamDefinition;
+        this.mapType = mapType;
+        init(streamDefinition, mapOptionHolder, attributeMappings);
+    }
+
+    public abstract void init(StreamDefinition streamDefinition, OptionHolder optionHolder, List<AttributeMapping> attributeMappingList);
+
+    public void setInputHandler(InputHandler inputHandler) {
+        this.inputHandler = inputHandler;
+    }
+
+    public InputHandler getInputHandler() {
+        return inputHandler;
+    }
+
+    public void onEvent(Object eventObject) {
+        try {
+            mapAndProcess(eventObject, inputHandler);
+        } catch (InterruptedException e) {
+            log.error("Error while processing '" + eventObject + "', for the input Mapping '" + mapType +
+                    "' for the stream '" + streamDefinition.getId() + "'");
+        }
+    }
+
+    protected abstract void mapAndProcess(Object eventObject, InputHandler inputHandler) throws InterruptedException;
+
 }

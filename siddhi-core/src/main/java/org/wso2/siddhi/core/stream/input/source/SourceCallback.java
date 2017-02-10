@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.stream.input.source;
 
-public interface InputCallback {
+public interface SourceCallback {
 
     void onEvent(Object eventObject);
 }
