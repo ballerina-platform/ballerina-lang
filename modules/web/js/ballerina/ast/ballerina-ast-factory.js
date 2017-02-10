@@ -84,10 +84,10 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
             functionDefinition.setFunctionName("main");
             functionDefinition.addArgument("string[]", "args");
             var printHelloWorldStatement = BallerinaASTFactory.createFunctionInvocationStatement(args);
-            printHelloWorldStatement.setPackageName("system");
-            printHelloWorldStatement.setFunctionName("println");
-            printHelloWorldStatement.setParams('"Hello world"');
             var functionInvocationExpr = BallerinaASTFactory.createFunctionInvocationExpression(args);
+            functionInvocationExpr.setPackageName("system");
+            functionInvocationExpr.setFunctionName("println");
+            functionInvocationExpr.setParams('"Hello world"');
             printHelloWorldStatement.addChild(functionInvocationExpr);
             functionDefinition.addChild(printHelloWorldStatement);
             return functionDefinition;
