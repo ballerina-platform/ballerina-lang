@@ -15,14 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapper'],
-    function (_, log, BallerinaView,BlockStatement, TypeMapperRenderer) {
+define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapper','./type-mapper-statement-view'],
+    function (_, log, BallerinaView,BlockStatement, TypeMapperRenderer,TypeMapperStatement) {
 
         var TypeMapperBlockStatementView = function (args) {
             BallerinaView.call(this, args);
             this._parentView = _.get(args, "parentView");
             this._onConnectInstance = _.get(args, 'onConnectInstance', {});
             this._onDisconnectInstance = _.get(args, 'onDisconnectInstance', {});
+            this._sourceInfo = _.get(args, 'sourceInfo', {});
+            this._targetInfo = _.get(args, 'targetInfo', {});
 
             if (_.isNil(this.getModel()) || !(this._model instanceof BlockStatement)) {
                 log.error("Block Statement is undefined or is of different type." + this.getModel());
@@ -42,18 +44,14 @@ define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapp
          * Rendering the view of the Block Statement.
          * @param {Object} diagramRenderingContext - the object which is carrying data required for rendering
          */
-        TypeMapperBlockStatementView.prototype.render = function (diagramRenderingContext, mapper) {
+        TypeMapperBlockStatementView.prototype.render = function (diagramRenderingContext) {
             this._diagramRenderingContext = diagramRenderingContext;
             var self = this;
-
-            if(!mapper) {
-                mapper = new TypeMapperRenderer(self.onAttributesConnect, self.onAttributesDisConnect, this._parentView);
-                this._parentView._typeMapper = mapper;
-            }
 
             this._parentView.setOnConnectInstance(self.onAttributesConnect);
             this._parentView.setOnDisconnectInstance(self.onAttributesDisConnect);
 
+            this._model.accept(this);
             this._model.on('child-added', function (child) {
                this.visit(child)
             }, this)
@@ -65,15 +63,15 @@ define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapp
          * @param {statement} statement - The statement model.
          */
         TypeMapperBlockStatementView.prototype.visitStatement = function (statement) {
-//            var self = this;
-//            var typeMapperStatementView = new TypeMapperStatement({
-//                model: statement, parentView: this
-//            });
 
-            //alert(7777);
+            var self = this;
+            var typeMapperStatementView = new TypeMapperStatement({
+                model: statement, parentView: this, typeMapperRenderer: this._parentView.getTypeMapperRenderer(),sourceInfo: self.getSourceInfo(),
+                targetInfo: self.getTargetInfo()
+            });
 
-
-        }
+            typeMapperStatementView.render(this.diagramRenderingContext);
+        };
 
 
         /**
@@ -120,10 +118,21 @@ define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapp
                 connection.targetProperty);
         };
 
+        /**
+         * returns the source info
+         * @returns {object}
+         */
+        TypeMapperBlockStatementView.prototype.getSourceInfo = function () {
+            return this._sourceInfo;
+        };
 
-
-
-
+        /**
+         * returns the source info
+         * @returns {object}
+         */
+        TypeMapperBlockStatementView.prototype.getTargetInfo = function () {
+            return this._targetInfo;
+        };
 
         return TypeMapperBlockStatementView;
 });

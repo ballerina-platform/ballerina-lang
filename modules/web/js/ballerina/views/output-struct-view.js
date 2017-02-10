@@ -23,6 +23,7 @@ define(['lodash', 'log','./ballerina-view','./../ast/return-type', 'typeMapper']
             this._parentView = _.get(args, "parentView");
             this._onConnectInstance = _.get(args, 'onConnectInstance', {});
             this._onDisconnectInstance = _.get(args, 'onDisconnectInstance', {});
+            this._targetInfo = _.get(args, 'targetInfo', {});
 
             if (_.isNil(this.getModel()) || !(this._model instanceof ReturnType)) {
                 log.error("Return type is undefined or is of different type." + this.getModel());
@@ -47,15 +48,7 @@ define(['lodash', 'log','./ballerina-view','./../ast/return-type', 'typeMapper']
             this._diagramRenderingContext = diagramRenderingContext;
 
             var typeStructName = this.getModel().getStructType();
-            var avaialableTypeStructs = diagramRenderingContext.getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
-            var typeStructSchema = undefined;
-
-            _.forEach(avaialableTypeStructs, function (typeStruct) {
-                if(typeStruct.getStructName() == typeStructName){
-                    typeStructSchema = typeStruct;
-                    return false;
-                }
-            });
+            var typeStructSchema = this.getTargetInfo().targetStruct;
 
             if(!mapper) {
                 mapper = new TypeMapperRenderer(self.getOnConnectInstance(), self.getOnDisconnectInstance(), this._parentView);
@@ -92,9 +85,9 @@ define(['lodash', 'log','./ballerina-view','./../ast/return-type', 'typeMapper']
          * set the call back function for connecting a source and a target
          * @param onConnectInstance
          */
-        OutputStructView.prototype.setOnConnectInstance = function (onConnectInstance, options) {
+        OutputStructView.prototype.setOnConnectInstance = function (onConnectInstance) {
             if (!_.isNil(onConnectInstance)) {
-                this.setAttribute('_onConnectInstance', onConnectInstance, options);
+                this._onConnectInstance = onConnectInstance;
             } else {
                 log.error('Invalid onConnectInstance [' + onConnectInstance + '] Provided');
                 throw 'Invalid onConnectInstance [' + onConnectInstance + '] Provided';
@@ -113,16 +106,22 @@ define(['lodash', 'log','./ballerina-view','./../ast/return-type', 'typeMapper']
          * set the call back function for disconnecting a source and a target
          * @param onDisconnectInstance
          */
-        OutputStructView.prototype.setOnDisconnectInstance = function (onDisconnectInstance, options) {
+        OutputStructView.prototype.setOnDisconnectInstance = function (onDisconnectInstance) {
             if (!_.isNil(onDisconnectInstance)) {
-                this.setAttribute('_onDisconnectInstance', onDisconnectInstance, options);
+                this._onDisconnectInstance = onDisconnectInstance;
             } else {
                 log.error('Invalid onDisconnectInstance [' + onDisconnectInstance + '] Provided');
                 throw 'Invalid onDisconnectInstance [' + onDisconnectInstance + '] Provided';
             }
         };
 
-
+        /**
+         * returns the source info
+         * @returns {object}
+         */
+        OutputStructView.prototype.getTargetInfo = function () {
+            return this._targetInfo;
+        };
 
         return OutputStructView;
 });

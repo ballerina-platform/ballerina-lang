@@ -23,6 +23,7 @@ define(['lodash', 'log','./ballerina-view','./../ast/resource-parameter', 'typeM
             this._parentView = _.get(args, "parentView");
             this._onConnectInstance = _.get(args, 'onConnectInstance', {});
             this._onDisconnectInstance = _.get(args, 'onDisconnectInstance', {});
+            this._sourceInfo = _.get(args, 'sourceInfo', {});
 
             if (_.isNil(this.getModel()) || !(this._model instanceof ResourceParameter)) {
                 log.error("Resource parameter is undefined or is of different type." + this.getModel());
@@ -45,17 +46,8 @@ define(['lodash', 'log','./ballerina-view','./../ast/resource-parameter', 'typeM
         InputStructView.prototype.render = function (diagramRenderingContext, mapper) {
             var self = this;
             this._diagramRenderingContext = diagramRenderingContext;
-
             var typeStructName = this.getModel().getStructType();
-            var avaialableTypeStructs = diagramRenderingContext.getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
-            var typeStructSchema = undefined;
-
-            _.forEach(avaialableTypeStructs, function (typeStruct) {
-                if(typeStruct.getStructName() == typeStructName){
-                    typeStructSchema = typeStruct;
-                    return false;
-                }
-            });
+            var typeStructSchema = this.getSourceInfo().sourceStruct;
 
             if(!mapper) {
                 mapper = new TypeMapperRenderer(self.getOnConnectInstance(), self.getOnDisconnectInstance(), this._parentView);
@@ -93,9 +85,9 @@ define(['lodash', 'log','./ballerina-view','./../ast/resource-parameter', 'typeM
          * set the call back function for connecting a source and a target
          * @param onConnectInstance
          */
-        InputStructView.prototype.setOnConnectInstance = function (onConnectInstance, options) {
+        InputStructView.prototype.setOnConnectInstance = function (onConnectInstance) {
             if (!_.isNil(onConnectInstance)) {
-                this.setAttribute('_onConnectInstance', onConnectInstance, options);
+                this._onConnectInstance = onConnectInstance;
             } else {
                 log.error('Invalid onConnectInstance [' + onConnectInstance + '] Provided');
                 throw 'Invalid onConnectInstance [' + onConnectInstance + '] Provided';
@@ -114,16 +106,22 @@ define(['lodash', 'log','./ballerina-view','./../ast/resource-parameter', 'typeM
          * set the call back function for disconnecting a source and a target
          * @param onDisconnectInstance
          */
-        InputStructView.prototype.setOnDisconnectInstance = function (onDisconnectInstance, options) {
+        InputStructView.prototype.setOnDisconnectInstance = function (onDisconnectInstance) {
             if (!_.isNil(onDisconnectInstance)) {
-                this.setAttribute('_onDisconnectInstance', onDisconnectInstance, options);
+                this._onDisconnectInstance = onDisconnectInstance;
             } else {
                 log.error('Invalid onDisconnectInstance [' + onDisconnectInstance + '] Provided');
                 throw 'Invalid onDisconnectInstance [' + onDisconnectInstance + '] Provided';
             }
         };
 
-
+        /**
+         * returns the source info
+         * @returns {object}
+         */
+        InputStructView.prototype.getSourceInfo = function () {
+            return this._sourceInfo;
+        };
 
         return InputStructView;
 });
