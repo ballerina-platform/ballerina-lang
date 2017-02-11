@@ -82,4 +82,8 @@ public class FrameDTO {
     public void setLineID(int lineID) {
         this.lineID = lineID;
     }
+
+    public List<VariableDTO> getVariables() {
+        return variables;
+    }
 }
