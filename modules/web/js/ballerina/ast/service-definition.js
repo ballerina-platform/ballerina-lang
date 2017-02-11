@@ -233,9 +233,9 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
         }
         _.each(jsonNode.children, function (childNode) {
             var child = undefined;
-            if (childNode.type === "variable_definition" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+            if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                 child = self.BallerinaASTFactory.createConnectorDeclaration();
-            } else if (childNode.type === "variable_definition" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'action_invocation_expression') {
+            } else if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'action_invocation_expression') {
                 child = self.BallerinaASTFactory.createActionInvocationExpression();
             }
             else {
