@@ -81,3 +81,4 @@ service nasdaqStocksQuote {
 
         reply response;
     }
+}
