@@ -38,6 +38,7 @@ import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -58,48 +59,30 @@ import javax.ws.rs.core.Response;
 public class BLangFileRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(BLangFileRestService.class);
-
+    
     @GET
     @Path("/model")
-    @Produces("application/json")
-    public Response getBallerinaJsonDataModelGivenLocation(@QueryParam("location") String location) {
-        try {
-            InputStream stream = new FileInputStream(new File(location));
-            String response = parseJsonDataModel(stream);
-            return Response.ok(response, MediaType.APPLICATION_JSON).build();
-        } catch (IOException ex) {
-            logger.error("error: failed to generate JSON data model for ballerina file", ex.getMessage());
-            JsonObject entity = new JsonObject();
-            entity.addProperty("Error", "Error Generating JSON Model");
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(entity)
-                    .header("Access-Control-Allow-Origin", '*')
-                    .type(MediaType.APPLICATION_JSON).build();
-        }
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBallerinaJsonDataModelGivenLocation(@QueryParam("location") String location) throws IOException {
+        InputStream stream = new FileInputStream(new File(location));
+        String response = parseJsonDataModel(stream);
+        return Response.ok(response, MediaType.APPLICATION_JSON).build();
     }
-
+    
     @POST
     @Path("/model/content")
-    @Consumes("application/json")
-    @Produces("application/json")
-    public Response getBallerinaJsonDataModelGivenContent(BFileContent content) {
-        try {
-            InputStream stream = new ByteArrayInputStream(content.getContent().getBytes(StandardCharsets.UTF_8));
-            String response = parseJsonDataModel(stream);
-            return Response.ok(response, MediaType.APPLICATION_JSON).header("Access-Control-Allow-Origin", '*').build();
-        } catch (Throwable e) {
-            logger.error("error: failed to generate JSON data model for ballerina file", e.getMessage());
-            JsonObject entity = new JsonObject();
-            entity.addProperty("Error", "Error Generating JSON Model");
-            return Response.status(Response.Status.BAD_REQUEST).entity(entity)
-                           .header("Access-Control-Allow-Origin", '*')
-                           .type(MediaType.APPLICATION_JSON).build();
-        }
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBallerinaJsonDataModelGivenContent(BFileContent content) throws IOException {
+        InputStream stream = new ByteArrayInputStream(content.getContent().getBytes(StandardCharsets.UTF_8));
+        String response = parseJsonDataModel(stream);
+        return Response.ok(response, MediaType.APPLICATION_JSON).header("Access-Control-Allow-Origin", '*').build();
     }
 
     @OPTIONS
     @Path("/model/content")
-    @Consumes("application/json")
-    @Produces("application/json")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response options() {
         return Response.ok()
                        .header("Access-Control-Allow-Origin", "*")
@@ -108,7 +91,13 @@ public class BLangFileRestService {
                        .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With")
                        .build();
     }
-
+    
+    /**
+     * Parses an input stream into a json model. During this parsing we are compiling the code as well.
+     * @param stream - The input stream.
+     * @return A string which contains a json model.
+     * @throws IOException
+     */
     private String parseJsonDataModel(InputStream stream) throws IOException {
 
         ANTLRInputStream antlrInputStream = new ANTLRInputStream(stream);

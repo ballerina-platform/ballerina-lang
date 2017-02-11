@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
-    function (require, log, $, Backbone, CommandManager, Ballerina) {
+define(['require', 'lodash', 'log', 'jquery', 'backbone', 'command', 'ballerina', 'alerts'],
+    function (require, _, log, $, Backbone, CommandManager, Ballerina, alerts) {
 
         var FirstLaunchWelcomePage = Backbone.View.extend({
             initialize: function (options) {
@@ -151,14 +151,20 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                                             dataType: "json",
                                             success: function (data, textStatus, xhr) {
                                                 if (xhr.status == 200) {
-                                                    var BallerinaASTDeserializer = Ballerina.ast.BallerinaASTDeserializer;
-                                                    root = BallerinaASTDeserializer.getASTModel(data);
+                                                    if (!_.isUndefined(data.errorMessage)) {
+                                                        alerts.error("Unable to parse the source: " + data.errorMessage);
+                                                    } else {
+                                                        var BallerinaASTDeserializer = Ballerina.ast.BallerinaASTDeserializer;
+                                                        root = BallerinaASTDeserializer.getASTModel(data);
+                                                    }
                                                 } else {
-                                                    log.error("Error while parsing the source. " + JSON.stringify(xhr));
+                                                    log.error("Error while parsing the source: " + JSON.stringify(xhr));
+                                                    alerts.error("Error while parsing the source.");
                                                 }
                                             },
                                             error: function (res, errorCode, error) {
                                                 log.error("Error while parsing the source. " + JSON.stringify(res));
+                                                alerts.error("Error while parsing the source.");
                                             }
                                         });
                                         command.dispatch("create-new-tab", {tabOptions: {astRoot: root}});
@@ -169,6 +175,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                             servicePreview.render();
                         },
                         error: function() {
+                            alerts.error("Unable to read a sample file.");
                             throw "Unable to read a sample file.";
                         }
                     });

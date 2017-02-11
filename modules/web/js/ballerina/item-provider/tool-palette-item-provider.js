@@ -35,7 +35,8 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
             this._toolGroups = _.get(args, 'toolGroups', []);
             // array which contains tool groups that are added on the fly
             this._dynamicToolGroups = _.get(args, 'dynamicToolGroups', []);
-            this._defaultImportedPackages = ["ballerina.lang.*", "ballerina.net.http"];
+            // Packages to be added to the tool palette by default in order.
+            this._defaultImportedPackages = ["ballerina.net.http", "ballerina.lang.*"];
             this.init();
         };
 

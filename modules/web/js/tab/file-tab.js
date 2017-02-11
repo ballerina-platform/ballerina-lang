@@ -16,8 +16,8 @@
  * under the License.
  */
 define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/file', 'ballerina/diagram-render/diagram-render-context',
-        'ballerina/views/backend', 'ballerina/ast/ballerina-ast-deserializer', '../debugger/debug-manager'],
-    function (require, log, $, _, Tab, Ballerina, File, DiagramRenderContext, Backend, BallerinaASTDeserializer, DebugManager) {
+        'ballerina/views/backend', 'ballerina/ast/ballerina-ast-deserializer', '../debugger/debug-manager', 'alerts'],
+    function (require, log, $, _, Tab, Ballerina, File, DiagramRenderContext, Backend, BallerinaASTDeserializer, DebugManager, alerts) {
     var FileTab;
 
     FileTab = Tab.extend({
@@ -52,6 +52,10 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
                 var response = this.backend.parse(this._file.getContent());
                 if (response.error != undefined && response.error) {
                     this.renderBallerinaEditor(this._astRoot, true);
+                    return;
+                } else if (!_.isUndefined(response.errorMessage)) {
+                    this.renderBallerinaEditor(this._astRoot, true);
+                    alerts.error("Unable to parse the source: " + response.errorMessage);
                     return;
                 }
                 //if no errors display the design.

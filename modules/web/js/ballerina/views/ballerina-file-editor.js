@@ -416,6 +416,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     if (response.error != undefined && response.error) {
                         alerts.error('cannot switch to swagger view due to parse errors');
                         return;
+                    } else if (!_.isUndefined(response.errorMessage)) {
+                        alerts.error("Unable to parse the source: " + response.errorMessage);
+                        return;
                     }
                     self._parseFailed = false;
                     //if no errors display the design.
@@ -456,6 +459,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         //@todo: proper error handling need to get the service specs
                         if (response.error != undefined && response.error) {
                             alerts.error('cannot switch to design view due to parse errors');
+                            return;
+                        } else if (!_.isUndefined(response.errorMessage)) {
+                            alerts.error("Unable to parse the source: " + response.errorMessage);
                             return;
                         }
                         self._parseFailed = false;
