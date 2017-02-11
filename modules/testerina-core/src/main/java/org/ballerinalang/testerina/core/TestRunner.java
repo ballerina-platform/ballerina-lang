@@ -18,23 +18,23 @@
 package org.ballerinalang.testerina.core;
 
 //import org.ballerinalang.testerina.core.langutils.Functions;
+
 import org.ballerinalang.testerina.core.entity.TesterinaFile;
 import org.ballerinalang.testerina.core.entity.TesterinaFunction;
-import org.ballerinalang.testerina.core.langutils.FunctionUtils;
 import org.ballerinalang.testerina.core.langutils.ParserUtils;
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.nativeimpl.lang.system.PrintlnInt;
-import org.wso2.ballerina.nativeimpl.lang.system.PrintlnString;
-//import org.wso2.ballerina.core.model.BallerinaFile;
-//import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.model.GlobalScope;
+import org.wso2.ballerina.core.model.SymbolScope;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Logger;
+
+//import org.wso2.ballerina.core.model.BallerinaFile;
+//import org.wso2.ballerina.core.model.values.BValue;
 
 /**
  * TestRunner entity class
@@ -48,9 +48,9 @@ public class TestRunner {
     public void runMain(Path sourceFilePath) {
 
         logger.info("sourceFilePath: " + sourceFilePath.toString());
-        SymScope symScope = new SymScope(null);
-        FunctionUtils.addNativeFunction(symScope, new PrintlnInt());
-        FunctionUtils.addNativeFunction(symScope, new PrintlnString());
+        SymbolScope symScope = GlobalScope.getInstance();
+        //FunctionUtils.addNativeFunction(symScope, new PrintlnInt());
+        //FunctionUtils.addNativeFunction(symScope, new PrintlnString());
         bFile = ParserUtils.parseBalFile(sourceFilePath.toString(), symScope, true);
 
         TesterinaFile tFile = new TesterinaFile(getFileNameFromResourcePath(sourceFilePath.toString()),
