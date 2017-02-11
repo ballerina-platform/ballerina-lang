@@ -13,6 +13,10 @@
     height: 100%;
 }
 
+.source-view-container {
+    height: 100%;
+}
+
 .canvas-container {
     padding-left: 20px;
     padding-top: 20px;
