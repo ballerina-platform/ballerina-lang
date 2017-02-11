@@ -157,6 +157,8 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             this.listenTo(statementView.getBoundingBox(), 'bottom-edge-moved', function(dy){
                 if(!this._pendingContainerMove){
                     this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+                } else {
+                    this._pendingContainerMove = false;
                 }
             });
         };
