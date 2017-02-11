@@ -31,7 +31,7 @@ public class PackageImportTest {
      */
     
     @Test(expectedExceptions = {RuntimeException.class },
-            expectedExceptionsMessageRegExp = "duplicate-import.bal:4: redeclared imported package name 'system'")
+            expectedExceptionsMessageRegExp = "duplicate-import.bal:4: duplicated import package name 'system'")
     public void testDuplicatePackageImports() {
         ParserUtils.parseBalFile("lang/statements/duplicate-import.bal");
     }

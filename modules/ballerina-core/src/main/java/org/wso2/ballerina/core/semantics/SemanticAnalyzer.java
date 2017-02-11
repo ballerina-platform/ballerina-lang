@@ -1133,7 +1133,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         BType inheritedType = refTypeInitExpr.getInheritedType();
         if (BTypes.isValueType(inheritedType) || inheritedType instanceof BArrayType ||
                 inheritedType instanceof BXMLType || inheritedType instanceof BConnectorType) {
-            BaLangExceptionHelper.throwSemanticError(refTypeInitExpr, SemanticErrors.REF_TYPE_INTI_NOT_ALLOWED);
+            BaLangExceptionHelper.throwSemanticError(refTypeInitExpr, SemanticErrors.REF_TYPE_INTI_NOT_ALLOWED_HERE);
         }
 
         Expression[] argExprs = refTypeInitExpr.getArgExprs();
@@ -1191,7 +1191,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(ArrayInitExpr arrayInitExpr) {
         BType inheritedType = arrayInitExpr.getInheritedType();
         if (!(inheritedType instanceof BArrayType)) {
-            BaLangExceptionHelper.throwSemanticError(arrayInitExpr, SemanticErrors.ARRAY_INIT_IS_ALLOWED);
+            BaLangExceptionHelper.throwSemanticError(arrayInitExpr, SemanticErrors.ARRAY_INIT_NOT_ALLOWED_HERE);
         }
 
         arrayInitExpr.setType(inheritedType);

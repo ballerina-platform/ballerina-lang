@@ -32,10 +32,10 @@ public enum SemanticErrors {
     INCOMPATIBLE_TYPES_BOOLEAN_EXPECTED("incompatible.types.boolean.expected", "SEMANTIC_0007"),
     NO_STATEMENTS_WHILE_LOOP("no.statements.while.loop", "SEMANTIC_0008"),
     UNKNOWN_OPERATOR_IN_UNARY("unknown.operator.in.unary", "SEMANTIC_0009"),
-    REF_TYPE_INTI_NOT_ALLOWED("ref.type.inti.not.allowed", "SEMANTIC_0010"),
+    REF_TYPE_INTI_NOT_ALLOWED_HERE("ref.type.inti.not.allowed.here", "SEMANTIC_0010"),
     STRUCT_MAP_INIT_NOT_ALLOWED("struct.map.init.not.allowed", "SEMANTIC_0011"),
     CONNECTOR_INIT_NOT_ALLOWED("connector.init.not.allowed", "SEMANTIC_0012"),
-    ARRAY_INIT_IS_ALLOWED("array.init.is.allowed", "SEMANTIC_0013"),
+    ARRAY_INIT_NOT_ALLOWED_HERE("array.init.not.allowed.here", "SEMANTIC_0013"),
     INVALID_FIELD_NAME_STRUCT_INIT("invalid.field.name.struct.init", "SEMANTIC_0014"),
     UNKNOWN_FIELD_IN_STRUCT("unknown.field.in.struct", "SEMANTIC_0015"),
     INVALID_TYPE_IN_MAP_INDEX_EXPECTED_STRING("invalid.type.in.map.index.expected.string", "SEMANTIC_0016"),
@@ -64,7 +64,15 @@ public enum SemanticErrors {
     INVALID_OPERATION_OPERATOR_NOT_DEFINED("invalid.operation.operator.not.defined", "SEMANTIC_0039"),
     STRUCT_NOT_FOUND("struct.not.found", "SEMANTIC_0040"),
     MUST_BE_STRUCT_TYPE("must.be.struct.type", "SEMANTIC_0041"),
-    INVALID_OPERATION_INCOMPATIBLE_TYPES("invalid.operation.incompatible.types", "SEMANTIC_0042");
+    INVALID_OPERATION_INCOMPATIBLE_TYPES("invalid.operation.incompatible.types", "SEMANTIC_0042"),
+    UNUSED_IMPORT_PACKAGE("unused.import.package", "SEMANTIC_0043"),
+    DUPLICATED_IMPORT_PACKAGE("duplicated.import.package", "SEMANTIC_0044"),
+    UNSUPPORTED_OPERATOR("unsupported.operator", "SEMANTIC_0045"),
+    ACTION_INVOCATION_NOT_ALLOWED_HERE("action.invocation.not.allowed.here", "SEMANTIC_0046"),
+    REF_TYPE_MESSAGE_ALLOWED("ref.type.message.allowed", "SEMANTIC_0047"),
+    UNDEFINED_PACKAGE_NAME("undefined.package.name", "SEMANTIC_0048"),
+    TEMPLATE_EXPRESSION_NOT_ALLOWED_HERE("template.expression.not.allowed.here", "SEMANTIC_0049"),
+    CONNECTOR_INIT_NOT_ALLOWED_HERE("connector.init.not.allowed.here", "SEMANTIC_0050");
 
     private String errorMsgKey;
     private String errorCode;

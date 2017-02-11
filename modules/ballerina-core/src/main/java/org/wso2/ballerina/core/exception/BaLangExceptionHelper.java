@@ -39,4 +39,12 @@ public class BaLangExceptionHelper {
         String errorMsg = MessageFormat.format(messageBundle.getString(semanticError.getErrorMsgKey()), params);
         throw new SemanticException(location + errorMsg);
     }
+
+    public static String constructSemanticError(NodeLocation nodeLocation, SemanticErrors semanticError,
+            Object... params) {
+        String location = nodeLocation.getFileName() + ":" + nodeLocation.getLineNumber() + ": ";
+        String errorMsg = MessageFormat.format(messageBundle.getString(semanticError.getErrorMsgKey()), params);
+        return  location + errorMsg;
+
+    }
 }
