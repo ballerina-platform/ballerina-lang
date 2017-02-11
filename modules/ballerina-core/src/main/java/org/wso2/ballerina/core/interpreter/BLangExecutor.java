@@ -91,6 +91,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -104,7 +105,7 @@ public class BLangExecutor implements NodeExecutor {
     private Context bContext;
     private ControlStack controlStack;
     private boolean returnedOrReplied;
-    private ExecutorService executor = Executors.newFixedThreadPool(100);
+    private ExecutorService executor;
 
     public BLangExecutor(RuntimeEnvironment runtimeEnv, Context bContext) {
         this.runtimeEnv = runtimeEnv;
@@ -277,11 +278,7 @@ public class BLangExecutor implements NodeExecutor {
         workerContext.setBalCallback(workerCallback);
         BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
 
-
-//        Callable<BValue> task = () -> {
-//            worker.getCallableUnitBody().execute(workerExecutor);
-//            return workerContext.getControlStack().getCurrentFrame().returnVals[0];
-//        };
+        executor = Executors.newSingleThreadExecutor();
         WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
         Future<BValue> future = executor.submit(workerRunner);
         worker.setResultFuture(future);
@@ -298,10 +295,17 @@ public class BLangExecutor implements NodeExecutor {
             BValue result = future.get();
             VariableRefExpr variableRefExpr = workerReplyStmt.getReceiveExpr();
             assignValueToVarRefExpr(result, variableRefExpr);
+            executor.shutdown();
+            if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+                executor.shutdownNow();
+            }
         } catch (InterruptedException e) {
             throw new BallerinaException("Worker " + worker.getName() + " has been interrupted", e);
         } catch (ExecutionException e) {
             throw new BallerinaException("Worker " + worker.getName() + " execution failed", e);
+        } finally {
+            // Finally, try again to shutdown if not done already
+            executor.shutdownNow();
         }
     }
 

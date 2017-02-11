@@ -26,18 +26,17 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.nativeimpl.util.Functions;
 import org.wso2.ballerina.nativeimpl.util.ParserUtils;
 
-public class WorkerInFunctionTest {
+public class WorkerCallingFunction {
     private BallerinaFile bFile;
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("samples/worker-declaration-stmt.bal");
+        bFile = ParserUtils.parseBalFile("samples/worker-calling-function.bal");
     }
 
     @Test(description = "Test worker declaration")
     public void testWorkerDeclaration() {
-        BValue[] args = {new BMessage()};
-        BValue[] returns = Functions.invoke(bFile, "testworker", args);
+        BValue[] returns = Functions.invoke(bFile, "testWorker");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BMessage);
         final String expected = "{\"name\":\"chanaka\"}";
