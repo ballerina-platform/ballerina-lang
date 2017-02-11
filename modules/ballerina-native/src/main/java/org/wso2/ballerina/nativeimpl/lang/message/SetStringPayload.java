@@ -29,6 +29,8 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.nativeimpl.lang.utils.Constants;
+import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.MessageUtil;
 
 /**
  * Native function to get payload as String..
@@ -49,6 +51,9 @@ public class SetStringPayload extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BMessage msg = (BMessage) getArgument(context, 0);
         BString payload = (BString) getArgument(context, 1);
+        // Clone the message without content
+        CarbonMessage cmsg = MessageUtil.cloneCarbonMessageWithOutData(msg.value());
+        msg.setValue(cmsg);
         msg.setMessageDataSource(payload.stringValue());
         msg.setHeader(Constants.CONTENT_TYPE, Constants.TEXT_PLAIN);
         if (log.isDebugEnabled()) {
