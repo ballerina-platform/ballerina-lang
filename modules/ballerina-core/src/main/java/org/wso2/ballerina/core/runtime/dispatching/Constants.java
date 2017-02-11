@@ -19,7 +19,7 @@
 package org.wso2.ballerina.core.runtime.dispatching;
 
 /**
- * Constants for HTTP.
+ * Constants for Protocols.
  *
  * @since 0.8.0
  */
@@ -64,7 +64,15 @@ public class Constants {
     public static final String ANNOTATION_METHOD_PATCH = HTTP_METHOD_PATCH;
     public static final String ANNOTATION_METHOD_DELETE = HTTP_METHOD_DELETE;
     public static final String ANNOTATION_METHOD_OPTIONS = HTTP_METHOD_OPTIONS;
-
-
+    public static final String ANNOTATION_NAME_ONMESSAGE = "OnMessage";
     public static final String ANNOTATION_SOURCE_KEY_INTERFACE = "interface";
+    public static final String ANNOTATION_PROTOCOL = "protocol";
+
+    // jms destination
+    public static final String JMS_DESTINATION = "JMS_DESTINATION";
+    // jms protocol name
+    public static final String PROTOCOL_JMS = "jms";
+    public static final String JMS_SERVICE_ID = "JMS_SERVICE_ID";
+
+
 }
