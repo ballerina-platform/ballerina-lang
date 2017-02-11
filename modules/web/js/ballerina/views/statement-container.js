@@ -33,8 +33,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
      * @param args.cssClass.group {string} - css class for the group
      *
      * @class StatementContainerView
-     * @augments BallerinaView
      * @constructor
+     * @extends BallerinaView
      */
     var StatementContainerView = function (args) {
         BallerinaView.call(this, args);
@@ -233,10 +233,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 if (statementView === this._widestStatementView) {
                     /* 'statementView' was the widest one. Since its width has been decreased, we need to compute the
                      new widest statement view.*/
-                    var widestStatement = _.maxBy(this._managedStatements, function (statement) {
-                        return this.diagramRenderingContext.getViewOfModel(statement).getBoundingBox().w();
-                    }.bind(this));
-                    this._widestStatementView = this.diagramRenderingContext.getViewOfModel(widestStatement);
+                    this._widestStatementView = computeWidestStatementView(this._managedStatements, this.diagramRenderingContext);
                     this._updateContainerWidth(this._widestStatementView.getBoundingBox().w());
                 } else {
                     // 'statementView' wasn't the widest one. As its width has been decreased, it isn't the widest now.
@@ -455,6 +452,13 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         }
 
         this._managedStatements.splice(childStatementIndex, 1);
+
+        if (this._widestStatementView === childStatementView) {
+            // we have deleted the widest statement.
+            this._widestStatementView = computeWidestStatementView(this._managedStatements,
+                                                                   this.diagramRenderingContext);
+            this._updateContainerWidth(this._widestStatementView.getBoundingBox().w());
+        }
     };
 
     /**
@@ -505,6 +509,19 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this.getBoundingBox().h(h, true);
         this._mainDropZone.attr('height', h);
     };
+
+    /**
+     * Returns the widest statement view of the given statements.
+     * @param statements {Statement[]} statements
+     * @param diagramRenderingContext {DiagramRenderContext} diagram rendering context
+     * @return {BallerinaStatementView} widest statement view
+     */
+    function computeWidestStatementView(statements, diagramRenderingContext) {
+        var widestStatement = _.maxBy(statements, function (statement) {
+            return diagramRenderingContext.getViewOfModel(statement).getBoundingBox().w();
+        });
+        return diagramRenderingContext.getViewOfModel(widestStatement);
+    }
 
     return StatementContainerView;
 });
