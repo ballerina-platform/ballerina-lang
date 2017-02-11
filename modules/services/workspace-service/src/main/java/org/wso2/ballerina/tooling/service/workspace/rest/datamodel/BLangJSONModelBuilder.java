@@ -1104,7 +1104,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     @Override
     public void visit(VariableDefStmt varDefStmt) {
         JsonObject variableDefObj = new JsonObject();
-        variableDefObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.VARIABLE_DEFINITION);
+        variableDefObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.VARIABLE_DEFINITION_STATEMENT);
         tempJsonArrayRef.push(new JsonArray());
         JsonObject childrenObj = new JsonObject();
 

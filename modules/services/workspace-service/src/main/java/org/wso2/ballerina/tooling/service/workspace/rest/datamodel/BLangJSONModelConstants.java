@@ -76,6 +76,8 @@ public class BLangJSONModelConstants {
 
     public static final String VARIABLE_DEFINITION = "variable_definition";
 
+    public static final String VARIABLE_DEFINITION_STATEMENT = "variable_definition_statement";
+
     public static final String LEFT_EXPRESSION = "left_expression";
 
     public static final String RIGHT_EXPRESSION = "right_expression";
