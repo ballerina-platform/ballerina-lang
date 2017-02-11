@@ -397,7 +397,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             for (ParameterDef parameterDef : action.getReturnParameters()) {
                 JsonObject typeObj = new JsonObject();
                 typeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_ARGUMENT);
-                typeObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameterDef.getType().toString());
+                typeObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameterDef.getTypeName().toString());
                 if (parameterDef.getName() != null) {
                     typeObj.addProperty(BLangJSONModelConstants.PARAMETER_NAME, parameterDef.getName().toString());
                 }
@@ -509,9 +509,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(VariableDef variableDef) {
         JsonObject variableDclObj = new JsonObject();
         variableDclObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
-                BLangJSONModelConstants.VARIABLE_DECLARATION);
+                BLangJSONModelConstants.VARIABLE_DEFINITION);
         variableDclObj.addProperty(BLangJSONModelConstants.VARIABLE_NAME, variableDef.getName());
-        variableDclObj.addProperty(BLangJSONModelConstants.VARIABLE_TYPE, variableDef.getType().toString());
+        variableDclObj.addProperty(BLangJSONModelConstants.VARIABLE_TYPE, variableDef.getTypeName().toString());
         tempJsonArrayRef.peek().add(variableDclObj);
     }
 
@@ -898,7 +898,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         if (variableRefExpr.getVariableDef() != null) {
             JsonObject variableDef= new JsonObject();
             variableDef.addProperty(BLangJSONModelConstants.TYPE_NAME,
-                    variableRefExpr.getVariableDef().getTypeName().getName());
+                    variableRefExpr.getVariableDef().getTypeName().toString());
             variableDef.addProperty(BLangJSONModelConstants.PACKAGE_NAME,
                     variableRefExpr.getVariableDef().getTypeName().getPackageName());
             variableRefObj.add(BLangJSONModelConstants.VARIABLE_DEF_OPTIONS, variableDef);

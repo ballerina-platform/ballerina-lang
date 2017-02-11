@@ -35,6 +35,8 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
             this._toolGroups = _.get(args, 'toolGroups', []);
             // array which contains tool groups that are added on the fly
             this._dynamicToolGroups = _.get(args, 'dynamicToolGroups', []);
+            // Packages to be added to the tool palette by default in order.
+            this._defaultImportedPackages = ["ballerina.net.http", "ballerina.lang.*"];
             this.init();
         };
 
@@ -45,8 +47,18 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
          * init function
          */
         ToolPaletteItemProvider.prototype.init = function () {
+            var self = this;
+
             this._initialToolGroups = _.slice(InitialTools);
             this._toolGroups = _.merge(this._initialToolGroups, this._dynamicToolGroups);
+
+            // Adding default packages
+            _.forEach(this._defaultImportedPackages, function (defaultPackageString) {
+                var packagesToImport = Environment.searchPackage(defaultPackageString);
+                _.forEach(packagesToImport, function (packageToImport) {
+                    self.addImport(packageToImport);
+                });
+            });
         };
 
         /**
@@ -77,11 +89,16 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
          * function to add imports. Packages will be converted to a ToolGroup and added to relevant arrays
          * @param package - package to be imported
          */
-        ToolPaletteItemProvider.prototype.addImport = function (package) {
+        ToolPaletteItemProvider.prototype.addImport = function (package, index) {
             if (package instanceof Package) {
                 var group = this.getToolGroup(package);
-                this._dynamicToolGroups.push(group);
-                this._toolGroups.push(group);
+                if (_.isNil(index)) {
+                    this._dynamicToolGroups.push(group);
+                    this._toolGroups.push(group);
+                } else {
+                    this._dynamicToolGroups.splice(index, 0, group);
+                    this._toolGroups.splice(index, 0, group);
+                }
             }
         };
 

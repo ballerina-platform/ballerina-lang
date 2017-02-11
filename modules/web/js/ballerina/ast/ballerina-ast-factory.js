@@ -29,8 +29,10 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
         './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression',
         './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
-        './if-condition', './array-map-access-expression', './map-init-expression', './key-value-expression', './binary-expression', './connector-action', './struct-definition',
-        './constant-definition', './variable-definition-statement','./type-struct-definition', './type-casting-expression', './worker-invoke', './reference-type-init-expression'],
+        './if-condition', './array-map-access-expression', './map-init-expression', './key-value-expression',
+        './binary-expression', './connector-action', './struct-definition', './constant-definition',
+        './variable-definition-statement','./type-struct-definition', './type-casting-expression', './worker-invoke',
+        './reference-type-init-expression', './array-init-expression'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -39,8 +41,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               functionInvocationExpression, variableReferenceExpression, actionInvocationStatement, arithmeticExpression,
               logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
-              thenBody, ifCondition, arrayMapAccessExpression, mapInitExpression, keyValueExpression, binaryExpression, connectorAction, structDefinition,
-              constantDefinition, variableDefinitionStatement,typeStructDefinition, typeCastingExpression, workerInvoke, referenceTypeInitExpression) {
+              thenBody, ifCondition, arrayMapAccessExpression, mapInitExpression, keyValueExpression, binaryExpression,
+              connectorAction, structDefinition, constantDefinition, variableDefinitionStatement,typeStructDefinition,
+              typeCastingExpression, workerInvoke, referenceTypeInitExpression, arrayInitExpression) {
 
 
         /**
@@ -169,6 +172,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createReferenceTypeInitExpression = function (args) {
             return new referenceTypeInitExpression(args);
+        };
+
+        /**
+         * creates ArrayInitExpression
+         * @param {Object} args - object for TypeCastingExpression creation
+         * @returns {ArrayInitExpression}
+         */
+        BallerinaASTFactory.createArrayInitExpression = function (args) {
+            return new arrayInitExpression(args);
         };
 
         /**
@@ -1207,6 +1219,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'reference_type_init_expression':
                         node = BallerinaASTFactory.createReferenceTypeInitExpression();
+                        break;
+                    case 'array_init_expression':
+                        node = BallerinaASTFactory.createArrayInitExpression();
                         break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;

@@ -396,7 +396,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self.toolPalette.hide();
                 // Get the generated source and append it to the source view container's content
                 self._sourceView.setContent(generatedSource);
-                self._sourceView.format();
+                self._sourceView.format(true);
                 sourceViewContainer.show();
                 swaggerViewContainer.hide();
                 self._$designViewContainer.hide();
@@ -415,6 +415,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     //@todo: proper error handling need to get the service specs
                     if (response.error != undefined && response.error) {
                         alerts.error('cannot switch to swagger view due to parse errors');
+                        return;
+                    } else if (!_.isUndefined(response.errorMessage)) {
+                        alerts.error("Unable to parse the source: " + response.errorMessage);
                         return;
                     }
                     self._parseFailed = false;
@@ -456,6 +459,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         //@todo: proper error handling need to get the service specs
                         if (response.error != undefined && response.error) {
                             alerts.error('cannot switch to design view due to parse errors');
+                            return;
+                        } else if (!_.isUndefined(response.errorMessage)) {
+                            alerts.error("Unable to parse the source: " + response.errorMessage);
                             return;
                         }
                         self._parseFailed = false;
@@ -531,7 +537,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
          * actions etc. of the current package
          */
         BallerinaFileEditor.prototype.addCurrentPackageToToolPalette = function () {
-            this.toolPalette.getItemProvider().addImport(this.generateCurrentPackage());
+            this.toolPalette.getItemProvider().addImport(this.generateCurrentPackage(), 0);
         };
 
     BallerinaFileEditor.prototype.initDropTarget = function() {
@@ -660,7 +666,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 // Click event for adding an import.
                 $(addImportButton).click(function () {
                     // TODO : Validate new import package name.
-                    if (importPackageTextBox.val() != "") {
+                    if (!_.isEmpty(importPackageTextBox.val().trim())) {
                         var currentASTRoot = self.getModel();
                         log.debug("Adding new import");
 
@@ -668,17 +674,21 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         var newImportDeclaration = BallerinaASTFactory.createImportDeclaration();
                         newImportDeclaration.setPackageName(importPackageTextBox.val());
 
-                        currentASTRoot.addImport(newImportDeclaration);
+                        try {
+                            currentASTRoot.addImport(newImportDeclaration);
 
-                        //Clear the import value box
-                        importPackageTextBox.val("");
+                            //Clear the import value box
+                            importPackageTextBox.val("");
 
-                        // add import to the tool pallet
-                        var newPackage = BallerinaEnvironment.searchPackage(newImportDeclaration.getPackageName())[0];
-                        self.toolPalette.getItemProvider().addImportToolGroup(newPackage);
+                            // add import to the tool pallet
+                            var newPackage = BallerinaEnvironment.searchPackage(newImportDeclaration.getPackageName())[0];
+                            self.toolPalette.getItemProvider().addImportToolGroup(newPackage);
 
-                        // Updating current imports view.
-                        addImportsToView(currentASTRoot, propertyPane.find(".imports-wrapper"));
+                            // Updating current imports view.
+                            addImportsToView(currentASTRoot, propertyPane.find(".imports-wrapper"));
+                        } catch (error) {
+                            alerts.error(error);
+                        }
                     }
                 });
 
@@ -747,6 +757,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         };
 
         BallerinaFileEditor.prototype.reDraw = function (args) {
+            var self = this;
             if (!_.has(this._viewOptions, 'design_view.container')) {
                 var errMsg = 'unable to find configuration for container';
                 log.error(errMsg);
