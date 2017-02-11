@@ -34,7 +34,7 @@ serviceBody
     ;
 
 serviceBodyDeclaration
-    :  variableDefinitionStatement* resourceDefinition+
+    :  variableDefinitionStatement* resourceDefinition*
     ;
 
 
@@ -49,7 +49,7 @@ functionDefinition
 
 //todo rename, this is used in resource, action and funtion
 functionBody
-    :   workerDeclaration* statement+
+    :   workerDeclaration* statement*
     ;
 
 connectorDefinition
@@ -57,7 +57,7 @@ connectorDefinition
     ;
 
 connectorBody
-    :   variableDefinitionStatement* actionDefinition+
+    :   variableDefinitionStatement* actionDefinition*
     ;
 
 actionDefinition
@@ -70,7 +70,7 @@ structDefinition
     ;
 
 structDefinitionBody
-    :   (typeName Identifier ';')+
+    :   (typeName Identifier ';')*
     ;
 
 typeConvertorDefinition
@@ -83,7 +83,7 @@ typeConvertorInput
 
 // cannot have conector declaration, need to validate at semantic analyzing
 typeConvertorBody
-    :   statement+
+    :   statement*
     ;
 
 constantDefinition
@@ -93,7 +93,7 @@ constantDefinition
 // cannot have conector declaration, need to validate at semantic analyzing
 // typeName below is only 'message' type
 workerDeclaration
-    :   'worker' Identifier '(' namedParameter ')'  '{' statement+ '}'
+    :   'worker' Identifier '(' namedParameter ')'  '{' statement* '}'
     ;
 
 returnParameters
@@ -289,7 +289,7 @@ iterateStatement
     ;
 
 whileStatement
-    :   'while' '(' expression ')' '{' statement+ '}'
+    :   'while' '(' expression ')' '{' statement* '}'
     ;
 
 breakStatement
@@ -298,12 +298,12 @@ breakStatement
 
 // typeName is only message
 forkJoinStatement
-    :   'fork' '(' typeName Identifier ')' '{' workerDeclaration+ '}' joinClause? timeoutClause?
+    :   'fork' '(' typeName Identifier ')' '{' workerDeclaration* '}' joinClause? timeoutClause?
     ;
 
 // below typeName is only 'message[]'
 joinClause
-    :   'join' '(' joinConditions ')' '(' typeName Identifier ')'  '{' statement+ '}'
+    :   'join' '(' joinConditions ')' '(' typeName Identifier ')'  '{' statement* '}'
     ;
 
 joinConditions
@@ -313,12 +313,12 @@ joinConditions
 
 // below typeName is only 'message[]'
 timeoutClause
-    :   'timeout' '(' expression ')' '(' typeName Identifier ')'  '{' statement+ '}'
+    :   'timeout' '(' expression ')' '(' typeName Identifier ')'  '{' statement* '}'
     ;
 
 // below tyeName is only 'exception'
 tryCatchStatement
-    :   'try' '{' statement+ '}' 'catch' '(' typeName Identifier ')' '{' statement+ '}'
+    :   'try' '{' statement+ '}' 'catch' '(' typeName Identifier ')' '{' statement* '}'
     ;
 
 throwStatement
@@ -789,5 +789,3 @@ LINE_COMMENT
 ERRCHAR
 	:	.	-> channel(HIDDEN)
 	;
-
-
