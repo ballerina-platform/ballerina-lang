@@ -39,7 +39,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 @BallerinaAction(
         packageName = "ballerina.net.http",
         actionName = "post",
-        connectorName = HTTPConnector.CONNECTOR_NAME,
+        connectorName = ClientConnector.CONNECTOR_NAME,
         args = {
                 @Argument(name = "connector",
                         type = TypeEnum.CONNECTOR),
@@ -67,8 +67,8 @@ public class Post extends AbstractHTTPAction {
             BMessage bMessage = (BMessage) getArgument(context, 2);
 
             Connector connector = bConnector.value();
-            if (!(connector instanceof HTTPConnector)) {
-                throw new BallerinaException("Need to use a HTTPConnector as the first argument", context);
+            if (!(connector instanceof ClientConnector)) {
+                throw new BallerinaException("Need to use a ClientConnector as the first argument", context);
             }
 
             // Prepare the message
@@ -80,8 +80,8 @@ public class Post extends AbstractHTTPAction {
             // Execute the operation
             return executeAction(context, cMsg);
         } catch (Throwable t) {
-            throw new BallerinaException("Failed to invoke 'post' action in " + HTTPConnector.CONNECTOR_NAME
-                + ". " + t.getMessage(), context);
+            throw new BallerinaException("Failed to invoke 'post' action in " + ClientConnector.CONNECTOR_NAME
+                                         + ". " + t.getMessage(), context);
         }
     }
 }
