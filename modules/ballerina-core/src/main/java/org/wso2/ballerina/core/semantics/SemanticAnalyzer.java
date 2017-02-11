@@ -438,8 +438,9 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(Worker worker) {
-        // Open a new symbol scope
-        openScope(worker);
+        // Open a new symbol scope. This is done manually to avoid falling back to package scope
+        SymbolScope parentScope = currentScope;
+        currentScope = worker;
         parentCallableUnit = currentCallableUnit;
         currentCallableUnit = worker;
 
@@ -478,7 +479,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Close the symbol scope
         workerMemAddrOffset = -1;
         currentCallableUnit = parentCallableUnit;
-        closeScope();
+        // Close symbol scope. This is done manually to avoid falling back to package scope
+        currentScope = parentScope;
     }
 
     private void addWorkerSymbol(Worker worker) {

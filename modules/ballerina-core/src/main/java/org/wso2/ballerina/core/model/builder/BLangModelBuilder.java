@@ -145,6 +145,9 @@ public class BLangModelBuilder {
     private Stack<MapStructInitKeyValueExpr> mapStructInitKVStack = new Stack<>();
     private Stack<List<MapStructInitKeyValueExpr>> mapStructInitKVListStack = new Stack<>();
 
+    // This variable keeps the package scope so that workers (and any global things) can be added to package scope
+    private SymbolScope packageScope = null;
+
     // We need to keep a map of import packages.
     // This is useful when analyzing import functions, actions and types.
     private Map<String, ImportPackage> importPkgMap = new HashMap<>();
@@ -156,6 +159,7 @@ public class BLangModelBuilder {
 
     public BLangModelBuilder(SymbolScope packageScope) {
         this.currentScope = packageScope;
+        this.packageScope = packageScope;
 
         // TODO Add a description why.
         startRefTypeInitExpr();
@@ -764,7 +768,7 @@ public class BLangModelBuilder {
         if (currentCUBuilder != null) {
             parentCUBuilder = currentCUBuilder;
         }
-        currentCUBuilder = new Worker.WorkerBuilder(currentScope);
+        currentCUBuilder = new Worker.WorkerBuilder(packageScope);
         currentScope = currentCUBuilder.getCurrentScope();
     }
 
