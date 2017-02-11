@@ -83,7 +83,9 @@ public class BallerinaBlock extends AbstractBlock {
 
                 if (childElementType == FUNCTION_BODY || childElementType == CONNECTOR_BODY
                         || childElementType == SERVICE_BODY || childElementType == STRUCT_BODY) {
-                    indent = Indent.getSpaceIndent(4);
+                    if (child.getFirstChildNode() != null && child.getLastChildNode() != null) {
+                        indent = Indent.getSpaceIndent(4);
+                    }
                 } else if (childElementType == STATEMENT) {
                     if (parentElementType == IF_ELSE_STATEMENT || parentElementType == ITERATE_STATEMENT
                             || parentElementType == WHILE_STATEMENT || parentElementType == JOIN_CLAUS
@@ -103,63 +105,6 @@ public class BallerinaBlock extends AbstractBlock {
                     }
 
                 }
-
-
-                //                if (childElementType == SERVICE_BODY || childElementType == FUNCTION_BODY ||
-                //                        childElementType == CONNECTOR_BODY || childElementType ==
-                // TYPE_CONVERTOR_BODY) {
-                //                    indent = Indent.getSpaceIndent(4);
-                //                }
-                //
-                //                if (parentElementType == SERVICE_DEFINITION || parentElementType ==
-                // FUNCTION_DEFINITION ||
-                //                        parentElementType == CONNECTOR_DEFINITION || parentElementType ==
-                // RESOURCE_DEFINITION ||
-                //                        parentElementType == TYPE_CONVERTOR_DEFINITION) {
-                //                    if (childElementType == LINE_COMMENT) {
-                //                        indent = Indent.getSpaceIndent(4);
-                //                    }
-                //                }
-                //
-                //                boolean isInsideABlock = false;
-                //
-                //                if (parentElementType == IF_ELSE_STATEMENT) {
-                //                    if (childElementType == IF_ELSE_IF_CLAUSE_BODY) {
-                //                        indent = Indent.getSpaceIndent(4);
-                //                    }
-                //                    isInsideABlock = true;
-                //                } else if (parentElementType == ELSE_CLAUSE) {
-                //                    if (childElementType == IF_ELSE_IF_CLAUSE_BODY) {
-                //                        indent = Indent.getSpaceIndent(2);
-                //                    }
-                //                    isInsideABlock = true;
-                //                } else if (parentElementType == ELSE_IF_CLAUSE) {
-                //                    if (childElementType == IF_ELSE_IF_CLAUSE_BODY) {
-                //                        indent = Indent.getSpaceIndent(2);
-                //                    }
-                //                    isInsideABlock = true;
-                //                } else if (parentElementType == WHILE_STATEMENT) {
-                //                    if (childElementType == WHILE_STATEMENT_BODY) {
-                //                        indent = Indent.getSpaceIndent(4);
-                //                    }
-                //                    isInsideABlock = true;
-                //                } else if (parentElementType == TRY_CATCH_STATEMENT) {
-                //                    if (childElementType == TRY_CATCH_STATEMENT_BODY) {
-                //                        indent = Indent.getSpaceIndent(4);
-                //                    }
-                //                    isInsideABlock = true;
-                //                } else if (parentElementType == CATCH_CLAUSE) {
-                //                    if (childElementType == TRY_CATCH_STATEMENT_BODY) {
-                //                        indent = Indent.getSpaceIndent(2);
-                //                    }
-                //                    isInsideABlock = true;
-                //                }
-                //
-                //                if (isInsideABlock) {
-                //                    if (childElementType == LINE_COMMENT) {
-                //                        indent = Indent.getSpaceIndent(4);
-                //                    }
-                //                }
 
                 Block block = new BallerinaBlock(
                         child,
