@@ -91,12 +91,12 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
      * @param schema     Schema of the provided JSON, as a string
      */
     public BJSON(String jsonString, String schema) {
+        if (jsonString == null || jsonString.isEmpty()) {
+            throw new IllegalArgumentException("cannot parse an empty string to json");
+        }
+        
         try {
-            if (jsonString != null && !jsonString.isEmpty()) {
-                this.value = OBJECT_MAPPER.readTree(jsonString);
-            } else {
-                throw new IllegalArgumentException("Cannot parse an empty string to json.");
-            }
+            this.value = OBJECT_MAPPER.readTree(jsonString);
             if (schema != null) {
                 this.schema = OBJECT_MAPPER.readTree(schema);
             }
@@ -177,7 +177,7 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
             }
             gen.flush();
         } catch (Throwable t) {
-            handleJsonException("error occurred during writing the message to the output stream", t);
+            handleJsonException("error occurred during writing the message to the output stream: ", t);
         }
     }
 
