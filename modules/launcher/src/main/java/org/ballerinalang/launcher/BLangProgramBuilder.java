@@ -17,6 +17,9 @@
 */
 package org.ballerinalang.launcher;
 
+import org.wso2.ballerina.core.ProgramPackageRepository;
+import org.wso2.ballerina.core.SystemPackageRepository;
+import org.wso2.ballerina.core.UserPackageRepository;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.BLangExecutor;
 import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
@@ -30,6 +33,7 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.GlobalScope;
 import org.wso2.ballerina.core.model.NodeLocation;
+import org.wso2.ballerina.core.model.PackageRepository;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.expressions.Expression;
@@ -43,6 +47,8 @@ import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -70,75 +76,75 @@ public class BLangProgramBuilder {
     }
 
     public static void main(String[] args) {
+        // TODO WIP Code. We will change this soon
+        System.setProperty("ballerina.home", "");
+
         // Get the global scope
         GlobalScope globalScope = GlobalScope.getInstance();
         BTypes.loadBuiltInTypes(globalScope);
         BuiltInNativeConstructLoader.loadConstructs(globalScope);
 
-        // TODO WIP Code. We will change this soon
-        Path basePath = Paths.get("/Users/sameera/Work/wso2/clones/sameera/ballerina/my-bal-proj");
-        Path packagePath = Paths.get("org/sameera/calc");
+        Path progDirPath = Paths.get("");
+        Path packagePath = Paths.get("");
+
+        PackageRepository packageRepository = initPackageRepositories(progDirPath);
 
         // Creates program scope for this Ballerina program
-        BLangProgram bLangProgram = new BLangProgram(globalScope, basePath);
-
-        // Remove redundant stuff using the Paths and Files API
-        BLangPackageLoader packageBuilder = new BLangPackageLoader(bLangProgram, basePath, packagePath);
-        BLangPackage mainPackage = packageBuilder.build();
+        BLangProgram bLangProgram = new BLangProgram(globalScope, progDirPath);
+        BLangPackage mainPackage = BLangPackageLoader.load(bLangProgram, progDirPath, packagePath);
         bLangProgram.setMainPackage(mainPackage);
 
-        // Define main package
-        bLangProgram.define(new SymbolName(mainPackage.getPackagePath()), mainPackage);
 
-        resolveDependencies(mainPackage, bLangProgram);
+//        bLangProgram.define(new SymbolName(mainPackage.getPackagePath()), mainPackage);
+
+//        // Remove redundant stuff using the Paths and Files API
+//        BLangPackageLoader packageBuilder = new BLangPackageLoader(bLangProgram, basePath, packagePath);
+//        BLangPackage mainPackage = packageBuilder.build();
+//
+//        // Define main package
+//
+//        resolveDependencies(mainPackage, bLangProgram);
 
 
         SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bLangProgram);
         bLangProgram.accept(semanticAnalyzer);
     }
 
-    private static void resolveDependencies(BLangPackage parentPackage, BLangProgram bLangProgram) {
-        for (SymbolName impPkgSymName : parentPackage.getDependentPackageNames()) {
-
-            // Check whether this package is already resolved.
-            BLangPackage dependentPkg = (BLangPackage) bLangProgram.resolve(impPkgSymName);
-            if (dependentPkg != null) {
-                parentPackage.addDependentPackage(dependentPkg);
-                return;
-            }
-
-            // TODO Detect cyclic dependencies
-            // Remove redundant stuff using the Paths and Files API
-            // This builder or loader should throw an error if the package cannot be found.
-            // 1) If the parent package is loaded from the program repository (current directory), then follow this
-            //    search order:
-            //      i) Search the program repository
-            //      ii) Search the system repository
-            //      iii) Search the personal/user repository
-            // 2) If the parent is loaded from the system directory, then all the children should be
-            //    available in the system repository.  DO NOT Search other repositories.
-            // 3) If the parent is loaded from the personal/user repository, then use following search order:
-            //      i) Search the system repository
-            //      ii) Search the personal/user repository
-            // 4) None of the above applies if the package name starts with 'ballerina'
-
-            Path packagePath = convertPkgSymbolNameToPath(impPkgSymName);
-            BLangPackageLoader packageBuilder = new BLangPackageLoader(bLangProgram,
-                    bLangProgram.getProgramFilePath(), packagePath);
-            dependentPkg = packageBuilder.build();
-
-            // Define main package
-            bLangProgram.define(new SymbolName(dependentPkg.getPackagePath()), dependentPkg);
-            parentPackage.addDependentPackage(dependentPkg);
-
-            resolveDependencies(dependentPkg, bLangProgram);
+    public static PackageRepository initPackageRepositories(Path programDirPath) {
+        // TODO Refactor this method
+        // 1) Create System repository
+        String ballerinaHome = System.getProperty("ballerina.home");
+        if (ballerinaHome == null || ballerinaHome.isEmpty()) {
+            throw new IllegalStateException("ballerina.home is not set");
         }
-    }
 
-    private static Path convertPkgSymbolNameToPath(SymbolName pkgSymbol) {
-        String[] dirs = pkgSymbol.toString().split("\\.");
-        return (dirs.length == 1) ? Paths.get(dirs[0]) :
-                Paths.get(dirs[0], Arrays.copyOfRange(dirs, 1, dirs.length));
+        Path systemRepoPath = Paths.get(ballerinaHome);
+        if (Files.notExists(systemRepoPath)) {
+            throw new IllegalStateException("ballerina installation directory does not exists");
+        }
+
+        SystemPackageRepository systemPkgRepo = new SystemPackageRepository(systemRepoPath);
+
+        // 2) Create user repository
+        Path userPkgRepoPath;
+        String ballerinaRepoProp = System.getenv("BALLERINA_REPOSITORY");
+        if (ballerinaRepoProp == null || ballerinaRepoProp.isEmpty()) {
+            String userHome = System.getProperty("user.home");
+            userPkgRepoPath = Paths.get(userHome, ".ballerina");
+            if (Files.notExists(userPkgRepoPath)) {
+                try {
+                    Files.createDirectory(userPkgRepoPath);
+                } catch (IOException e) {
+                    throw new IllegalStateException("failed to create user repository at '" +
+                            userPkgRepoPath.toString() + "'");
+                }
+            }
+        }  else {
+            userPkgRepoPath = Paths.get(ballerinaRepoProp);
+        }
+
+        UserPackageRepository userPkgRepo = new UserPackageRepository(userPkgRepoPath, systemPkgRepo);
+        return new ProgramPackageRepository(programDirPath, systemPkgRepo, userPkgRepo);
     }
 
     public static BLangProgram buildFile() {
