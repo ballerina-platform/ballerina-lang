@@ -58,7 +58,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             log.debug("Drawing connections for http connector actions");
 
             // TODO : Please alter this logic
-            if(!_.isNil(this.getModel().getChildren()[1].getChildren()[0].getConnector())) {
+            if(!_.isNil(this.getModel().getConnector())) {
                 var connector = this.getDiagramRenderingContext().getViewModelMap()[this.messageManager.getActivatedDropTarget().id];
                 actionInvocationModel.setConnector(this.messageManager.getActivatedDropTarget());
                 this.renderArrows(this.getDiagramRenderingContext());
@@ -140,7 +140,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 var y =  parseFloat(self.processorConnectPoint.attr('cy'));
                 var sourcePoint = self.toGlobalCoordinates(new Point(x, y));
 
-                self.messageManager.startDrawMessage(self, actionInvocationModel, sourcePoint);
+                self.messageManager.startDrawMessage(self, model, sourcePoint);
                 self.messageManager.setTypeBeingDragged(true);
             });
             this.processorConnectPoint.on("mouseover", function () {
