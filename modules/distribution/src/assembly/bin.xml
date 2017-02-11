@@ -146,6 +146,7 @@
                 <include>org.wso2.orbit.org.antlr:antlr4-runtime</include>
                 <include>org.wso2.carbon.transport:org.wso2.carbon.transport.http.netty</include>
                 <include>org.wso2.carbon.transport:org.wso2.carbon.connector.framework</include>
+                <include>org.wso2.carbon.transport:org.wso2.carbon.transport.jms</include>
                 <include>org.wso2.carbon.messaging:org.wso2.carbon.messaging</include>
                 <include>org.wso2.orbit.net.sf.saxon:Saxon-HE</include>
                 <include>com.google.code.gson:gson</include>
@@ -166,6 +167,7 @@
                 <include>io.netty:netty-handler</include>
                 <include>io.netty:netty-codec</include>
                 <include>io.netty:netty-codec-http</include>
+                <include>javax.jms:javax.jms-api</include>
                 <include>commons-pool.wso2:commons-pool</include>
                 <include>org.wso2.orbit.org.yaml:snakeyaml</include>
                 <include>commons-logging:commons-logging</include>
