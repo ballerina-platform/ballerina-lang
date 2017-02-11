@@ -18,12 +18,15 @@
 package org.wso2.ballerina.annotation.processor;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
+import org.wso2.ballerina.core.model.BLangPackage;
+import org.wso2.ballerina.core.model.GlobalScope;
 import org.wso2.ballerina.core.model.NativeUnit;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.nativeimpl.NativeConstructLoader;
+import org.wso2.ballerina.core.nativeimpl.NativePackageProxy;
 import org.wso2.ballerina.core.nativeimpl.NativeUnitProxy;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
@@ -53,6 +56,7 @@ public class ConstructProviderClassBuilder {
     private static final String SERVICES = "services" + File.separator;
     private static final String META_INF = "META-INF" + File.separator;
     private static final String GLOBAL_SCOPE = "globalScope";
+    private static final String PACKAGE_SCOPE = "nativePackage";
     private static final String EMPTY = "";
     
     private Writer sourceFileWriter;
@@ -62,41 +66,17 @@ public class ConstructProviderClassBuilder {
     private String symbolNameClass = SymbolName.class.getSimpleName();
     private String nativeProxyClass = NativeUnitProxy.class.getSimpleName();
     private Map<String, PackageHolder> nativePackages;
-    
-    private final String importPkg = "import " + SymbolScope.class.getCanonicalName() + ";\n" + 
+    private String symbolNameStr = "new %s(\"%s\",\"%s\")";
+    private final String importPkg = "import " + GlobalScope.class.getCanonicalName() + ";\n" + 
                                      "import " + NativeUnitProxy.class.getCanonicalName() + ";\n" + 
                                      "import " + SymbolName.class.getCanonicalName() + ";\n" + 
                                      "import " + NativeConstructLoader.class.getCanonicalName() + ";\n" +
                                      "import " + SimpleTypeName.class.getCanonicalName() + ";\n" +
                                      "import " + AbstractNativeConnector.class.getCanonicalName() + ";\n" +
-                                     "import " + NativeUnit.class.getCanonicalName() + ";\n\n";
+                                     "import " + NativeUnit.class.getCanonicalName() + ";\n\n" +
+                                     "import " + BLangPackage.class.getCanonicalName() + ";\n\n" +
+                                     "import " + NativePackageProxy.class.getCanonicalName() + ";\n\n";
     
-    private String symbolNameStr = "new %s(\"%s\",\"%s\")";
-    
-    private String getsuplierInsertionStr(String nativeUnitVarName, String classVarName) {
-        String supplierInsertStr = "%s.define(%s,%n" +
-                "  new %s(() -> {%n" +
-                "      %s " + nativeUnitVarName + " = null;%n" +
-                "      try {%n" +
-                "          Class<?> " + classVarName + " = Class.forName(\"%s\");%n" +
-                "          " + nativeUnitVarName + " = ((%s) " + classVarName + 
-                ".getConstructor(%s).newInstance(%s));%n" +
-                "          " + nativeUnitVarName + ".setName(\"%s\");%n" +
-                "          " + nativeUnitVarName + ".setPackagePath(\"%s\");%n" +
-                "          " + nativeUnitVarName + ".setArgTypeNames(%s);%n" +
-                "          " + nativeUnitVarName + ".setReturnParamTypeNames(%s);%n" +
-                "          " + nativeUnitVarName + ".setStackFrameSize(%s);%n" +
-                "          " + nativeUnitVarName + ".setSymbolName(%s);%n" +
-                "          %s" +
-                "      } catch (Exception ignore) {%n" +
-                "      }%n" +
-                "      return " + nativeUnitVarName + ";%n" +
-                "  })%n" +
-                ");%n%n";
-        
-        return supplierInsertStr;
-    }
-
     /**
      * Create a construct provider builder.
      * 
@@ -133,7 +113,7 @@ public class ConstructProviderClassBuilder {
         stringBuilder.append("public class " + className + 
                 " implements " + NativeConstructLoader.class.getSimpleName() + " {\n\n");
         stringBuilder.append("public " + className + "() {}\n\n");
-        stringBuilder.append("public void load(" + SymbolScope.class.getSimpleName() + " globalScope) {\n");
+        stringBuilder.append("public void load(" + GlobalScope.class.getSimpleName() + " globalScope) {\n");
         
         try {
             JavaFileObject javaFile = filer.createSourceFile(packageName + "." + className);
@@ -181,6 +161,113 @@ public class ConstructProviderClassBuilder {
     }
     
     /**
+     * Build the class. Append the remaining implemented methods and and write the source
+     * file to the target (package) location.
+     */
+    public void build() {
+        String pkgProxyClass = NativePackageProxy.class.getSimpleName();
+        String pkgClass = BLangPackage.class.getSimpleName();
+        try {
+            for (PackageHolder pkgHolder : nativePackages.values()) {
+                String nativePkgName = pkgHolder.getPackageName();
+                String pkgInsertionStr = 
+                        GLOBAL_SCOPE + ".define(new " + symbolNameClass + "(\"" + nativePkgName + "\"),\n" +
+                        "\tnew " + pkgProxyClass + "(() -> {\n" + 
+                        "\t\t" + pkgClass + " " + PACKAGE_SCOPE + " = new " + pkgClass + "(" + GLOBAL_SCOPE 
+                        + ");\n" + 
+                        "\t\t" + PACKAGE_SCOPE + ".setPackagePath(\"" + nativePkgName + "\");\n";
+                sourceFileWriter.write(pkgInsertionStr);
+                writeFunctions(pkgHolder.getFunctions());
+                writeConnectors(pkgHolder.getConnectors());
+                writeTypeConvertors(pkgHolder.getTypeConvertors());
+                sourceFileWriter.write("\treturn nativePackage;\n\t})\n);\n\n");
+            }
+            sourceFileWriter.write("}\n}\n");
+        } catch (IOException e) {
+            throw new BallerinaException("error while writing source to file: " + e.getMessage());
+        } finally {
+            if (sourceFileWriter != null) {
+                try {
+                    sourceFileWriter.close();
+                } catch (IOException ignore) {
+                }
+            }
+        }
+    }
+    
+    /**
+     * Write all the function defining to the provider class.
+     * 
+     * @param functions Function holders array containing ballerina function annotations
+     */
+    private void writeFunctions(FunctionHolder[] functions) {
+        for (FunctionHolder functionHolder : functions) {
+            BallerinaFunction function = functionHolder.getBalFunction();
+            String pkgName = function.packageName();
+            String className = functionHolder.getClassName();
+            String functionQualifiedName = Utils.getFunctionQualifiedName(function);
+            writeNativeConstruct(pkgName, function.functionName(), functionQualifiedName, className,
+                function.args(), function.returnType());
+        }
+    }
+    
+    /**
+     * Write all the type convertors defining to the provider class.
+     * 
+     * @param typeConvertors Type convertor holders array containing ballerina type convertor annotations
+     */
+    private void writeTypeConvertors(TypeConvertorHolder[] typeConvertors) {
+        for (TypeConvertorHolder typeConvertorHolder : typeConvertors) {
+            BallerinaTypeConvertor typeConvertor = typeConvertorHolder.getBalTypeConvertor();
+            String pkgName = typeConvertor.packageName();
+            String className = typeConvertorHolder.getClassName();
+            String typeConvertorQualifiedName = Utils.getTypeConverterQualifiedName(typeConvertor);
+            writeNativeConstruct(pkgName, typeConvertor.typeConverterName(), 
+                typeConvertorQualifiedName, className, typeConvertor.args(), typeConvertor.returnType());
+        }
+    }
+
+    /**
+     * Write all the type connectors defining to the provider class.
+     * 
+     * @param connectors Connector holders array containing ballerina connector annotations
+     */
+    public void writeConnectors(ConnectorHolder[] connectors) {
+        String connectorVarName = "nativeConnector";
+        for  (ConnectorHolder con : connectors) {
+            BallerinaConnector balConnector = con.getBalConnector();
+            String connectorName = balConnector.connectorName();
+            String connectorPkgName = balConnector.packageName();
+            String connectorClassName = con.getClassName();
+            StringBuilder strBuilder = new StringBuilder();
+            
+            // Add all the actions of this connector, ad generate the insertion string
+            for (ActionHolder action : con.getActions()) {
+                BallerinaAction balAction = action.getBalAction();
+                String actionQualifiedName = Utils.getActionQualifiedName(balAction, connectorName, connectorPkgName);
+                String actionPkgName = balAction.packageName();
+                String actionClassName = action.getClassName();
+                String actionAddStr = getConstructInsertStr(connectorVarName, actionPkgName, balAction.actionName(),
+                    actionQualifiedName, null, null, actionClassName, balAction.args(), balAction.returnType(),
+                    "nativeAction", null, nativeUnitClass, "nativeActionClass", connectorName, connectorPkgName);
+                strBuilder.append(actionAddStr);
+            }
+            
+            // Generate the connector insertion string with the actions as 
+            String nativeConnectorClassName = AbstractNativeConnector.class.getSimpleName();
+            String symbolScopClass = SymbolScope.class.getName() + ".class";
+            String connectorAddStr = getConstructInsertStr(PACKAGE_SCOPE, connectorPkgName, connectorName,
+                connectorName, symbolScopClass, PACKAGE_SCOPE, connectorClassName, balConnector.args(), null,
+                connectorVarName, strBuilder.toString(), nativeConnectorClassName, "nativeConnectorClass", null, null);
+            try {
+                sourceFileWriter.write(connectorAddStr);
+            } catch (IOException e) {
+                throw new BallerinaException("failed to write to source file: " + e.getMessage());
+            }
+        }
+    }
+    
+    /**
      * Write a native construct to the generated ConstructProviderClass source file.
      * 
      * @param packageName Package name of the construct
@@ -192,7 +279,7 @@ public class ConstructProviderClassBuilder {
      */
     public void writeNativeConstruct(String packageName, String constructName, String constructQualifiedName, 
             String constructImplClassName, Argument[] arguments, ReturnType[] returnTypes) {
-        String functionSupplier = getConstructInsertStr(GLOBAL_SCOPE, packageName, constructName, 
+        String functionSupplier = getConstructInsertStr(PACKAGE_SCOPE, packageName, constructName, 
             constructQualifiedName, null, null, constructImplClassName, arguments, returnTypes, 
             "nativeCallableUnit", null, nativeUnitClass, "nativeUnitClass", null, null);
         try {
@@ -209,7 +296,7 @@ public class ConstructProviderClassBuilder {
      * @param constructPkgName Package name of the construct
      * @param constructName Simple name of the construct
      * @param constructQualifiedName Qualified name of the construct
-     * @param constructArgType Input parameter class type for the parameterized constructor of this construct impl class
+     * @param constructArgType Input parameter class for the parameterized constructor of this construct impl class
      * @param constructArg  Input parameter for the parameterized constructor of this construct impl class
      * @param constructImplClassName Name of the construct implementation class
      * @param arguments Input parameters for the native construct
@@ -225,7 +312,7 @@ public class ConstructProviderClassBuilder {
      * @return
      */
     private String getConstructInsertStr(String scope, String constructPkgName, String constructName, 
-            String constructQualifiedName, String constructArgType, String constructArg, String constructImplClassName, 
+            String constructQualifiedName, String constructArgType, String constructArg, String constructImplClassName,
             Argument[] arguments, ReturnType[] returnTypes, String constructVarName, 
             String scopeElements, String nativeUnitClass, String nativeUnitClassVarName, String enclosingScopeName,
             String enclosingScopePkg) {
@@ -233,7 +320,7 @@ public class ConstructProviderClassBuilder {
             constructPkgName);
         String retrunTypesArrayStr = getReturnTypes(returnTypes);
         String argsTypesArrayStr = getArgTypes(arguments, enclosingScopeName, enclosingScopePkg);
-        String supplierInsertStr = getsuplierInsertionStr(constructVarName, nativeUnitClassVarName);
+        String supplierInsertStr = getConstructSuplierInsertionStr(constructVarName, nativeUnitClassVarName);
         if (constructArgType == null) {
             constructArgType = EMPTY;
         }
@@ -324,99 +411,25 @@ public class ConstructProviderClassBuilder {
         
     }
     
-    /**
-     * Build the class. Append the remaining implemented methods and and write the source
-     * file to the target (package) location.
-     */
-    public void build() {
-        try {
-            for (PackageHolder pkgHolder : nativePackages.values()) {
-                writeFunctions(pkgHolder.getFunctions());
-                addConnectors(pkgHolder.getConnectors());
-                writeTypeConvertors(pkgHolder.getTypeConvertors());
-            }
-            sourceFileWriter.write("}\n}\n");
-        } catch (IOException e) {
-            throw new BallerinaException("error while writing source to file: " + e.getMessage());
-        } finally {
-            if (sourceFileWriter != null) {
-                try {
-                    sourceFileWriter.close();
-                } catch (IOException ignore) {
-                }
-            }
-        }
-    }
-    
-    /**
-     * Write all the function defining to the provider class.
-     * 
-     * @param functions Function holders array containing ballerina function annotations
-     */
-    private void writeFunctions(FunctionHolder[] functions) {
-        for (FunctionHolder functionHolder : functions) {
-            BallerinaFunction function = functionHolder.getBalFunction();
-            String pkgName = function.packageName();
-            String className = functionHolder.getClassName();
-            String functionQualifiedName = Utils.getFunctionQualifiedName(function);
-            writeNativeConstruct(pkgName, function.functionName(), functionQualifiedName, className,
-                function.args(), function.returnType());
-        }
-    }
-    
-    /**
-     * Write all the type convertors defining to the provider class.
-     * 
-     * @param typeConvertors Type convertor holders array containing ballerina type convertor annotations
-     */
-    private void writeTypeConvertors(TypeConvertorHolder[] typeConvertors) {
-        for (TypeConvertorHolder typeConvertorHolder : typeConvertors) {
-            BallerinaTypeConvertor typeConvertor = typeConvertorHolder.getBalTypeConvertor();
-            String pkgName = typeConvertor.packageName();
-            String className = typeConvertorHolder.getClassName();
-            String typeConvertorQualifiedName = Utils.getTypeConverterQualifiedName(typeConvertor);
-            writeNativeConstruct(pkgName, typeConvertor.typeConverterName(), 
-                typeConvertorQualifiedName, className, typeConvertor.args(), typeConvertor.returnType());
-        }
-    }
-
-    /**
-     * Write all the type connectors defining to the provider class.
-     * 
-     * @param connectors Connector holders array containing ballerina connector annotations
-     */
-    public void addConnectors(ConnectorHolder[] connectors) {
-        String connectorVarName = "nativeConnector";
-        for  (ConnectorHolder con : connectors) {
-            BallerinaConnector balConnector = con.getBalConnector();
-            String connectorName = balConnector.connectorName();
-            String connectorPkgName = balConnector.packageName();
-            String connectorClassName = con.getClassName();
-            StringBuilder strBuilder = new StringBuilder();
-            
-            // Add all the actions of this connector, ad generate the insertion string
-            for (ActionHolder action : con.getActions()) {
-                BallerinaAction balAction = action.getBalAction();
-                String actionQualifiedName = Utils.getActionQualifiedName(balAction, connectorName, connectorPkgName);
-                String actionPkgName = balAction.packageName();
-                String actionClassName = action.getClassName();
-                String actionAddStr = getConstructInsertStr(connectorVarName, actionPkgName, balAction.actionName(),
-                    actionQualifiedName, null, null, actionClassName, balAction.args(), balAction.returnType(),
-                    "nativeAction", null, nativeUnitClass, "nativeActionClass", connectorName, connectorPkgName);
-                strBuilder.append(actionAddStr);
-            }
-            
-            // Generate the connector insertion string with the actions as 
-            String nativeConnectorClassName = AbstractNativeConnector.class.getSimpleName();
-            String symbolScopClass = SymbolScope.class.getName() + ".class";
-            String connectorAddStr = getConstructInsertStr(GLOBAL_SCOPE, connectorPkgName, connectorName, connectorName,
-                    symbolScopClass, GLOBAL_SCOPE, connectorClassName, balConnector.args(), null, connectorVarName, 
-                    strBuilder.toString(), nativeConnectorClassName, "nativeConnectorClass", null, null);
-            try {
-                sourceFileWriter.write(connectorAddStr);
-            } catch (IOException e) {
-                throw new BallerinaException("failed to write to source file: " + e.getMessage());
-            }
-        }
+    private String getConstructSuplierInsertionStr(String nativeUnitVarName, String classVarName) {
+        return "\t\t%s.define(%s,%n" +
+               "\t\t    new %s(() -> {%n" +
+               "\t\t        %s " + nativeUnitVarName + " = null;%n" +
+               "\t\t        try {%n" +
+               "\t\t            Class<?> " + classVarName + " = Class.forName(\"%s\");%n" +
+               "\t\t            " + nativeUnitVarName + " = ((%s) " + classVarName + 
+               "\t\t.getConstructor(%s).newInstance(%s));%n" +
+               "\t\t            " + nativeUnitVarName + ".setName(\"%s\");%n" +
+               "\t\t            " + nativeUnitVarName + ".setPackagePath(\"%s\");%n" +
+               "\t\t            " + nativeUnitVarName + ".setArgTypeNames(%s);%n" +
+               "\t\t            " + nativeUnitVarName + ".setReturnParamTypeNames(%s);%n" +
+               "\t\t            " + nativeUnitVarName + ".setStackFrameSize(%s);%n" +
+               "\t\t            " + nativeUnitVarName + ".setSymbolName(%s);%n" +
+               "\t\t            %s" +
+               "\t\t            } catch (Exception ignore) {%n" +
+               "\t\t        }%n" +
+               "\t\t        return " + nativeUnitVarName + ";%n" +
+               "\t\t    })%n" +
+               "\t\t);%n%n";
     }
 }
