@@ -66,7 +66,7 @@ public enum SemanticErrors {
     MUST_BE_STRUCT_TYPE("must.be.struct.type", "SEMANTIC_0041"),
     INVALID_OPERATION_INCOMPATIBLE_TYPES("invalid.operation.incompatible.types", "SEMANTIC_0042"),
     UNUSED_IMPORT_PACKAGE("unused.import.package", "SEMANTIC_0043"),
-    DUPLICATED_IMPORT_PACKAGE("duplicated.import.package", "SEMANTIC_0044"),
+    REDECLARED_IMPORT_PACKAGE("redeclared.import.package", "SEMANTIC_0044"),
     UNSUPPORTED_OPERATOR("unsupported.operator", "SEMANTIC_0045"),
     ACTION_INVOCATION_NOT_ALLOWED_HERE("action.invocation.not.allowed.here", "SEMANTIC_0046"),
     REF_TYPE_MESSAGE_ALLOWED("ref.type.message.allowed", "SEMANTIC_0047"),

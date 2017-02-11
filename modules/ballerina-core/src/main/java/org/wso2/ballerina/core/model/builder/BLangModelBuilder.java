@@ -194,7 +194,7 @@ public class BLangModelBuilder {
 
         if (importPkgMap.get(importPkg.getName()) != null) {
             String errMsg = BaLangExceptionHelper
-                    .constructSemanticError(location, SemanticErrors.DUPLICATED_IMPORT_PACKAGE, importPkg.getName());
+                    .constructSemanticError(location, SemanticErrors.REDECLARED_IMPORT_PACKAGE, importPkg.getName());
             errorMsgs.add(errMsg);
         }
 
