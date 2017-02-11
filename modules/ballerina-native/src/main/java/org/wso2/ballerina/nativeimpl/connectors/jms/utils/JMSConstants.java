@@ -24,15 +24,47 @@ package org.wso2.ballerina.nativeimpl.connectors.jms.utils;
 
 public class JMSConstants {
 
-    /**
-     * Acknowledgements to client
-     */
-    public static final String JMS_MESSAGE_DELIVERY_ERROR = "ERROR";
-    public static final String JMS_MESSAGE_DELIVERY_SUCCESS = "SUCCESS";
-    public static final String JMS_MESSAGE_DELIVERY_STATUS = "JMS_MESSAGE_DELIVERY_STATUS";
+    public static final String CONNECTION_FACTORY_JNDI_PARAM_NAME = "ConnectionFactoryJNDIName";
+    public static final String CONNECTION_FACTORY_TYPE_PARAM_NAME = "ConnectionFactoryType";
+    public static final String DESTINATION_PARAM_NAME = "Destination";
+    public static final String NAMING_FACTORY_INITIAL_PARAM_NAME = "FactoryInitial";
+    public static final String PROVIDER_URL_PARAM_NAME = "ProviderUrl";
+    public static final String CACHE_LEVEL = "CacheLevel";
+
+    public static final String CONNECTION_USERNAME = "ConnectionUsername";
+    public static final String CONNECTION_PASSWORD = "ConnectionPassword";
+    public static final String MAP_DATA = "MapData";
+
+    public static final String JMS_MESSAGE_TYPE = "JMS_MESSAGE_TYPE";
+    public static final String GENERIC_MESSAGE_TYPE = "Message";
+    public static final String TEXT_MESSAGE_TYPE = "TextMessage";
+    public static final String BYTES_MESSAGE_TYPE = "BytesMessage";
+    public static final String OBJECT_MESSAGE_TYPE = "ObjectMessage";
+    public static final String MAP_MESSAGE_TYPE = "MapMessage";
 
     /**
-     * JMS Message type
+     * Do not cache any JMS resources between tasks (when sending) or JMS CF's
+     * (when sending)
      */
-    public static final String JMS_MESSAGE_TYPE = "JMS_MESSAGE_TYPE";
+    public static final int CACHE_NONE = 0;
+    /**
+     * Cache only the JMS connection between tasks (when receiving), or JMS CF's
+     * (when sending)
+     */
+    public static final int CACHE_CONNECTION = 1;
+    /**
+     * Cache only the JMS connection and Session between tasks (receiving), or
+     * JMS CF's (sending)
+     */
+    public static final int CACHE_SESSION = 2;
+    /**
+     * Cache the JMS connection, Session and Consumer between tasks when
+     * receiving
+     */
+    public static final int CACHE_CONSUMER = 3;
+    /**
+     * Cache the JMS connection, Session and Producer within a
+     * JMSConnectionFactory when sending
+     */
+    public static final int CACHE_PRODUCER = 4;
 }
