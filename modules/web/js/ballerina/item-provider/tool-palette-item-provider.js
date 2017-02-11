@@ -36,8 +36,16 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
             // array which contains tool groups that are added on the fly
             this._dynamicToolGroups = _.get(args, 'dynamicToolGroups', []);
 
+            var self = this;
             // Packages to be added to the tool palette by default in order.
-            this._defaultImportedPackages = ["ballerina.net.http", "ballerina.lang.*"];
+            this._defaultImportedPackages = [];
+            _.forEach(["ballerina.net.http", "ballerina.lang.*"],
+                function (defaultPackageString) {
+                    var packagesToImport = Environment.searchPackage(defaultPackageString);
+                    _.forEach(packagesToImport, function (packageToImport) {
+                        self._defaultImportedPackages.push(packageToImport);
+                    });
+                });
 
             // views added to tool palette for each imported package keyed by package name
             this._importedPackagesViews = {};
@@ -58,11 +66,8 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
             this._toolGroups = _.merge(this._initialToolGroups, this._dynamicToolGroups);
 
             // Adding default packages
-            _.forEach(this._defaultImportedPackages, function (defaultPackageString) {
-                var packagesToImport = Environment.searchPackage(defaultPackageString);
-                _.forEach(packagesToImport, function (packageToImport) {
-                    self.addImport(packageToImport);
-                });
+            _.forEach(self._defaultImportedPackages, function (packageToImport) {
+                self.addImport(packageToImport);
             });
         };
 
@@ -113,9 +118,13 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
          */
         ToolPaletteItemProvider.prototype.addImportToolGroup = function (package) {
             if (package instanceof Package) {
-                var group = this.getToolGroup(package);
-                var groupView = this._toolPalette.addVerticallyFormattedToolGroup({group: group});
-                this._importedPackagesViews[package.getName()] = groupView;
+                var isADefaultPackage = _.includes(this._defaultImportedPackages, package);
+                if (!isADefaultPackage) { // Removing existing package
+                    // Re-adding the package
+                    var group = this.getToolGroup(package);
+                    var groupView = this._toolPalette.addVerticallyFormattedToolGroup({group: group});
+                    this._importedPackagesViews[package.getName()] = groupView;
+                }
             }
         };
 
