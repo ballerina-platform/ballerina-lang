@@ -582,6 +582,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
             return new binaryExpression(args);
         };
 
+        /**
+         * Create Unary Expression
+         * @param {Object} args - Arguments for the creating new expression creation
+         * @return {UnaryExpression}
+         * */
+        BallerinaASTFactory.createUnaryExpression = function (args) {
+            //TODO: Implement Unary model
+        };
+
 
         /**
          * creates ArrayMapAccessExpression
@@ -1109,6 +1118,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                     case 'variable_reference_name':
                         node = BallerinaASTFactory.createVariableReferenceExpression();
                         break;
+                    case 'variable_reference_expression':
+                        node = BallerinaASTFactory.createVariableReferenceExpression();
+                        break;
                     case 'action_invocation_expression':
                         node = BallerinaASTFactory.createActionInvocationExpression();
                         break;
@@ -1177,6 +1189,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'not_equal_expression':
                         node = BallerinaASTFactory.createBinaryExpression({"operator" : "!="});
+                        break;
+                    case 'unary_expression':
+                        node = BallerinaASTFactory.createUnaryExpression({"operator" : "!"});
                         break;
                     case 'array_map_access_expression':
                         node = BallerinaASTFactory.createArrayMapAccessExpression();
