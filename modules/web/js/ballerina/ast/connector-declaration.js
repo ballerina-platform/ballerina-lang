@@ -237,6 +237,7 @@ define(['lodash', './node', '../utils/common-utils'], function(_, ASTNode, Commo
      * @override
      */
     ConnectorDeclaration.prototype.generateUniqueIdentifiers = function () {
+        var self = this;
         var uniqueIDGenObject = {
             node: this,
             attributes: [{
@@ -261,11 +262,27 @@ define(['lodash', './node', '../utils/common-utils'], function(_, ASTNode, Commo
             })
         } else if (this.getFactory().isServiceDefinition(this.parent)) {
             var resourceDefinitions = this.parent.getResourceDefinitions();
-            var self = this;
             _.forEach(resourceDefinitions, function (resourceDefinition) {
                 uniqueIDGenObject.attributes[0].parents.push({
                     // resource definition
                     node: resourceDefinition,
+                    getChildrenFunc: self.parent.getConnectionDeclarations,
+                    getter: self.getConnectorVariable
+                })
+            });
+        } else if (this.getFactory().isConnectorAction(this.parent)) {
+            uniqueIDGenObject.attributes[0].parents.push({
+                // connector definition
+                node: this.parent.parent,
+                getChildrenFunc: this.parent.getConnectionDeclarations,
+                getter: this.getConnectorVariable
+            })
+        } else if (this.getFactory().isConnectorDefinition(this.parent)) {
+            var connectorActions = this.parent.getConnectorActionDefinitions();
+            _.forEach(connectorActions, function (connectionAction) {
+                uniqueIDGenObject.attributes[0].parents.push({
+                    // connector action definition
+                    node: connectionAction,
                     getChildrenFunc: self.parent.getConnectionDeclarations,
                     getter: self.getConnectorVariable
                 })

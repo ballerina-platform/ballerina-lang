@@ -293,12 +293,17 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @param {object} connection connection object which specified source and target
      */
     TypeMapperRenderer.prototype.addConnection = function (connection) {
-        this.jsPlumbInstance.connect({
-            source: connection.sourceStruct + this.idNameSeperator + connection.sourceProperty
-            + this.idNameSeperator + connection.sourceType,
-            target: connection.targetStruct + this.idNameSeperator + connection.targetProperty
-            + this.idNameSeperator + connection.targetType
-        });
+        var jsTreeContainerPrefix = 'jstree-container';
+        var anchorEnd = '_anchor';
+        var sourceId =  jsTreeContainerPrefix + this.viewIdSeperator +  connection.sourceStruct
+                        + this.viewIdSeperator + this.viewId + this.idNameSeperator
+                        + connection.sourceProperty + this.nameTypeSeperator + connection.sourceType+ anchorEnd;
+        var targetId =  jsTreeContainerPrefix + this.viewIdSeperator +  connection.targetStruct
+            + this.viewIdSeperator + this.viewId + this.idNameSeperator
+            + connection.targetProperty + this.nameTypeSeperator + connection.targetType + anchorEnd;
+
+        this.jsPlumbInstance.detach({source: sourceId, target: targetId});
+        this.jsPlumbInstance.connect({source: sourceId, target: targetId});
         this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
     };
 

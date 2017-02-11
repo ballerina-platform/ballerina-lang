@@ -56,12 +56,17 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             return true;
         };
 
+        TypeMapperDefinitionView.prototype.canVisitBlockStatementView = function (blockStatementView) {
+            return true;
+        };
+
         /**
          * Rendering the view of the Type Mapper definition.
          * @param {Object} diagramRenderingContext - the object which is carrying data required for rendering
          */
         TypeMapperDefinitionView.prototype.render = function (diagramRenderingContext) {
             this.setDiagramRenderingContext(diagramRenderingContext);
+            var selectedSourceStruct = undefined;
 
             // Draws the outlying body of the function.
             this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().type.toLowerCase(),
@@ -81,8 +86,6 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             this.getTargetInfo()["predefinedStructs"] = predefinedStructs;
 
             var self = this;
-
-            // todo verify this.getBoundingBox().fromTopLeft(new Point(0, 0), currentContainer.width(), currentContainer.height());
 
             $(this.getTitle()).text(this.getModel().getTypeMapperName())
                 .on("change paste keyup", function () {
@@ -130,24 +133,23 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
 
             this.loadSchemasToComboBox(currentContainer, "#" + sourceId,"#"+targetId, predefinedStructs);
 
-//            var returnStatementExpression = self.getModel().getReturnStatementExpression();
-//
-//            if(!_.isUndefined(returnStatementExpression)){
-//                var sourceAndTargetObjects = self.getModel().getSourceAndTaergetObjects(returnStatementExpression);
-//                self.setSchemaNamesToComboBox(currentContainer,"#" + sourceId,"#"+targetId,sourceAndTargetObjects.source.getTypeStructName(),
-//                    sourceAndTargetObjects.target.getTypeStructName());
-//
-//                //setAdditional information to children
-//                sourceAndTargetObjects.source.setOnConnectInstance(self.onAttributesConnect);
-//                sourceAndTargetObjects.source.setOnDisconnectInstance(self.onAttributesDisConnect);
-//                sourceAndTargetObjects.target.setOnConnectInstance(self.onAttributesConnect);
-//                sourceAndTargetObjects.target.setOnDisconnectInstance(self.onAttributesDisConnect);
-//            }
+            $("#"+sourceId +",#"+targetId).on({
+                mousedown: function() {
+                    var predefinedStructs = self._package.getStructDefinitions();
+                    if (predefinedStructs.length > 0) {
+                        $("#"+sourceId +",#"+targetId).empty().append('<option value="-1">--Select--</option>');
+                        self.getSourceInfo()["predefinedStructs"] = predefinedStructs;
+                        self.getTargetInfo()["predefinedStructs"] = predefinedStructs;
+                        self.loadSchemasToComboBox(currentContainer, "#" + sourceId,"#"+targetId, predefinedStructs);
+                    }
+                }
+            });
 
             $(currentContainer).find("#" + sourceId).change(function () {
                 var sourceDropDown = $("#" + sourceId + " option:selected");
                 var selectedArrayIndex = sourceDropDown.val();
                 var selectedStructNameForSource = sourceDropDown.text();
+                selectedSourceStruct = selectedStructNameForSource;
                 self.getModel().addResourceParameterChild(selectedStructNameForSource,"y");
 
 
@@ -183,8 +185,8 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
                 var selectedArrayIndex = targetDropDown.val();
                 var selectedStructNameForTarget = targetDropDown.text();
                 self.getModel().addReturnTypeChild(selectedStructNameForTarget,"x");
-
-                //todo add variable definition statement
+                self.getModel().fillReturnStatement("x");
+                self.getModel().fillVariableDefStatement(selectedStructNameForTarget,"x");
 
 
 
@@ -264,8 +266,8 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             });
 
             _.find(resourceParameter.getChildren(), function (child) {
-                if(BallerinaASTFactory.isStructType(child)){
-                    sourceStructName = child.getTypeName();
+                if(BallerinaASTFactory.isSimpleTypeName(child)){
+                    sourceStructName = child.getName();
                     return false;
                 }
             });
@@ -303,8 +305,8 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             });
 
             _.find(returnType.getChildren(), function (child) {
-                if(BallerinaASTFactory.isStructType(child)){
-                    targetStructName = child.getTypeName();
+                if(BallerinaASTFactory.isSimpleTypeName(child)){
+                    targetStructName = child.getName();
                     return false;
                 }
             });

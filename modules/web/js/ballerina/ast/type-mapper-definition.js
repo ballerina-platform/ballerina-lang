@@ -233,14 +233,13 @@ define(['lodash', './node'], function (_, ASTNode) {
 
         // Creating a new ResourceParameter.
         var newResourceParameter = this.getFactory().createResourceParameter();
-        //todo check setting annotations
-        var newStructType =this.getFactory().createStructType();
-        newStructType.setTypeName(typeStructName);
-        var newSymbolName =this.getFactory().createSymbolName();
-        newSymbolName.setName(identifier);
-        newResourceParameter.addChild(newStructType);
-        newResourceParameter.addChild(newSymbolName);
-        this.addChild(newResourceParameter);
+        newResourceParameter.setIdentifier(identifier);
+        var newSimpleTypeName = this.getFactory().createSimpleTypeName();
+        newSimpleTypeName.setName(typeStructName);
+        newResourceParameter.addChild(newSimpleTypeName);
+
+        var lastIndex = _.findLastIndex(this.getChildren());
+        this.addChild(newResourceParameter, lastIndex - 1);
     };
 
     /**
@@ -252,14 +251,77 @@ define(['lodash', './node'], function (_, ASTNode) {
 
         // Creating a new ResourceParameter.
         var newReturnType = this.getFactory().createReturnType();
-        //todo check setting annotations
-        var newStructType =this.getFactory().createStructType();
-        newStructType.setTypeName(typeStructName);
-        var newSymbolName =this.getFactory().createSymbolName();
-        newSymbolName.setName(identifier);
-        newReturnType.addChild(newStructType);
-        newReturnType.addChild(newSymbolName);
-        this.addChild(newReturnType);
+        var newSimpleTypeName = this.getFactory().createSimpleTypeName();
+        newSimpleTypeName.setName(typeStructName);
+        newReturnType.addChild(newSimpleTypeName);
+
+        var lastIndex = _.findLastIndex(this.getChildren());
+        this.addChild(newReturnType, lastIndex - 1);
+    };
+
+    /**
+     * fill return statement.
+     * @param {string} identifier
+     */
+    TypeMapperDefinition.prototype.fillReturnStatement = function (identifier) {
+
+        var self = this;
+        var ballerinaASTFactory = this.getFactory();
+        var blockStatement = _.find(self.getChildren(), function (child) {
+            return ballerinaASTFactory.isBlockStatement(child);
+        });
+
+        var returnStatement = _.find(blockStatement.getChildren(), function (child) {
+            return ballerinaASTFactory.isReturnStatement(child);
+        });
+
+        var expression = _.find(returnStatement.getChildren(), function (child) {
+            return ballerinaASTFactory.isExpression(child);
+        });
+
+        var variableReferenceExpression = _.find(expression.getChildren(), function (child) {
+            return ballerinaASTFactory.isVariableReferenceExpression(child);
+        });
+
+        variableReferenceExpression.setVariableReferenceName(identifier);
+    };
+
+    /**
+     * fill return statement.
+     * @param {string} identifier
+     */
+    TypeMapperDefinition.prototype.fillVariableDefStatement = function (structName,identifier) {
+
+        var self = this;
+        var ballerinaASTFactory = this.getFactory();
+
+        var blockStatement = _.find(self.getChildren(), function (child) {
+            return ballerinaASTFactory.isBlockStatement(child);
+        });
+
+        var variableDefStatement = _.find(blockStatement.getChildren(), function (child) {
+            return ballerinaASTFactory.isVariableDefinitionStatement(child);
+        });
+
+        var leftOperandExpression = _.find(variableDefStatement.getChildren(), function (child) {
+            return ballerinaASTFactory.isLeftOperandExpression(child);
+        });
+
+        var variableReferenceExpression = _.find(leftOperandExpression.getChildren(), function (child) {
+            return ballerinaASTFactory.isVariableReferenceExpression(child);
+        });
+
+        var variableDefinition = _.find(variableReferenceExpression.getChildren(), function (child) {
+            return ballerinaASTFactory.isVariableDefinition(child);
+        });
+
+        variableDefinition.setName(identifier);
+
+        var simpleTypeName = _.find(variableDefinition.getChildren(), function (child) {
+            return ballerinaASTFactory.isSimpleTypeName(child);
+        });
+
+        simpleTypeName.setName(structName);
     };
 
     /**
@@ -271,7 +333,6 @@ define(['lodash', './node'], function (_, ASTNode) {
 
         // Creating a new ResourceParameter.
         var newReturnType = this.getFactory().createReturnType();
-        //todo check setting annotations
         var newStructType =this.getFactory().createStructType();
         newStructType.setTypeName(typeStructName);
         var newSymbolName =this.getFactory().createSymbolName();
@@ -308,7 +369,8 @@ define(['lodash', './node'], function (_, ASTNode) {
 
         // Creating a new Assignment Statement.
         var newAssignmentStatement = this.getFactory().createAssignmentStatement();
-        var newExpression = this.getFactory().createExpression();
+        var leftOperandExpression = this.getFactory().createLeftOperandExpression();
+        var rightOperandExpression = this.getFactory().createRightOperandExpression();
 
         var sourceStructFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
         var sourceVariableReferenceExpressionForIdentifier = this.getFactory().createVariableReferenceExpression();
@@ -320,7 +382,6 @@ define(['lodash', './node'], function (_, ASTNode) {
         sourceStructFieldAccessExpression.addChild(sourceVariableReferenceExpressionForIdentifier);
         sourceStructFieldAccessExpression.addChild(sourceFieldExpression);
 
-        newExpression.addChild(sourceStructFieldAccessExpression);
 
         var targetStructFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
         var targetVariableReferenceExpressionForIdentifier = this.getFactory().createVariableReferenceExpression();
@@ -332,8 +393,10 @@ define(['lodash', './node'], function (_, ASTNode) {
         targetStructFieldAccessExpression.addChild(targetVariableReferenceExpressionForIdentifier);
         targetStructFieldAccessExpression.addChild(targetFieldExpression);
 
-        newAssignmentStatement.addChild(newExpression);
-        newAssignmentStatement.addChild(targetStructFieldAccessExpression);
+        leftOperandExpression.addChild(sourceStructFieldAccessExpression);
+        newAssignmentStatement.addChild(leftOperandExpression);
+        rightOperandExpression.addChild(targetStructFieldAccessExpression);
+        newAssignmentStatement.addChild(rightOperandExpression);
 
         return newAssignmentStatement;
     };

@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapper','./type-mapper-statement-view'],
-    function (_, log, BallerinaView,BlockStatement, TypeMapperRenderer,TypeMapperStatement) {
+define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapper','./type-mapper-statement-view','ballerina/ast/ballerina-ast-factory'],
+    function (_, log, BallerinaView,BlockStatement, TypeMapperRenderer,TypeMapperStatement,BallerinaASTFactory) {
 
         var TypeMapperBlockStatementView = function (args) {
             BallerinaView.call(this, args);
@@ -36,7 +36,7 @@ define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapp
         TypeMapperBlockStatementView.prototype = Object.create(BallerinaView.prototype);
         TypeMapperBlockStatementView.prototype.constructor = TypeMapperBlockStatementView;
 
-        TypeMapperBlockStatementView.prototype.canVisitBlockStatementView = function (blockStatementView) {
+        TypeMapperBlockStatementView.prototype.canVisitBlockStatement = function (blockStatement) {
             return true;
         };
 
@@ -65,12 +65,15 @@ define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapp
         TypeMapperBlockStatementView.prototype.visitStatement = function (statement) {
 
             var self = this;
-            var typeMapperStatementView = new TypeMapperStatement({
-                model: statement, parentView: this, typeMapperRenderer: this._parentView.getTypeMapperRenderer(),sourceInfo: self.getSourceInfo(),
-                targetInfo: self.getTargetInfo()
-            });
+            if(BallerinaASTFactory.isAssignmentStatement(statement)){
+                var typeMapperStatementView = new TypeMapperStatement({
+                    model: statement, parentView: this, typeMapperRenderer: this._parentView.getTypeMapperRenderer(),sourceInfo: self.getSourceInfo(),
+                    targetInfo: self.getTargetInfo()
+                });
 
-            typeMapperStatementView.render(this.diagramRenderingContext);
+                typeMapperStatementView.render(this.diagramRenderingContext);
+            }
+
         };
 
 

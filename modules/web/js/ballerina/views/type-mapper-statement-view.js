@@ -120,11 +120,12 @@ define(['lodash', 'log','./ballerina-view','ballerina/ast/ballerina-ast-factory'
             var targetStructName = self.getTargetInfo().targetStructName;
             var targetPropertyType;
 
-            var expression = _.find(this.getModel().getChildren(), function (child) {
-                return BallerinaASTFactory.isExpression(child);
+
+            var leftOperandExpression = _.find(this.getModel().getChildren(), function (child) {
+                return BallerinaASTFactory.isLeftOperandExpression(child);
             });
 
-            var sourceStructFieldAccessExpression = _.find(expression.getChildren(), function (child) {
+            var sourceStructFieldAccessExpression = _.find(leftOperandExpression.getChildren(), function (child) {
                 return BallerinaASTFactory.isStructFieldAccessExpression(child);
             });
 
@@ -145,7 +146,11 @@ define(['lodash', 'log','./ballerina-view','ballerina/ast/ballerina-ast-factory'
                 }
             });
 
-            var targetStructFieldAccessExpression = _.find(this.getModel().getChildren(), function (child) {
+            var rightOperandExpression = _.find(this.getModel().getChildren(), function (child) {
+                return BallerinaASTFactory.isRightOperandExpression(child);
+            });
+
+            var targetStructFieldAccessExpression = _.find(rightOperandExpression.getChildren(), function (child) {
                 return BallerinaASTFactory.isStructFieldAccessExpression(child);
             });
 
