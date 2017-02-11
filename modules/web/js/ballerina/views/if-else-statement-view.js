@@ -122,6 +122,7 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             // If the top-edge-moved event triggered we only move the First child statement (If Statement).
             // Because other child statements are listening to it's previous sibling and accordingly move
             this.getBoundingBox().on('top-edge-moved', function (offset) {
+                self._pendingContainerMove = true;
                 self._childrenViewsList[0].getBoundingBox().move(0, offset, false);
             });
 
@@ -148,10 +149,16 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
                 lastChildView.getBoundingBox().on('bottom-edge-moved', function (offset) {
                     statementView.getBoundingBox().move(0, offset, false);
                 });
+                this.stopListening(lastChildView.getBoundingBox(), 'bottom-edge-moved');
             }
             this._childrenViewsList.push(statementView);
             statementView.render(this._diagramRenderingContext);
             this.resizeOnChildRendered(statementView.getBoundingBox());
+            this.listenTo(statementView.getBoundingBox(), 'bottom-edge-moved', function(dy){
+                if(!this._pendingContainerMove){
+                    this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+                }
+            });
         };
 
         IfElseStatementView.prototype.resizeOnChildRendered = function (childBBox) {
