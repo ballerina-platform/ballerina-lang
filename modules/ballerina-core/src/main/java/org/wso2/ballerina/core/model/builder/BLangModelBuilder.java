@@ -770,6 +770,7 @@ public class BLangModelBuilder {
         }
         currentCUBuilder = new Worker.WorkerBuilder(packageScope);
         currentScope = currentCUBuilder.getCurrentScope();
+        annotationListStack.push(new ArrayList<>());
     }
 
     public void addFunction(NodeLocation location, String name, boolean isPublic) {
@@ -846,6 +847,9 @@ public class BLangModelBuilder {
     public void createWorker(String name, NodeLocation sourceLocation) {
         currentCUBuilder.setName(name);
         currentCUBuilder.setNodeLocation(sourceLocation);
+
+        List<Annotation> annotationList = annotationListStack.pop();
+        annotationList.forEach(currentCUBuilder::addAnnotation);
 
         Worker worker = currentCUBuilder.buildWorker();
         parentCUBuilder.addWorker(worker);
