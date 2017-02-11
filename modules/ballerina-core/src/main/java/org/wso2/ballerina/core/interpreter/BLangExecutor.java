@@ -931,8 +931,8 @@ public class BLangExecutor implements NodeExecutor {
 
         if (currentVal instanceof BNull) {
             throw new BallerinaException(
-                    LangModelUtils.getNodeLocationStr(fieldExpr.getNodeLocation()) + "Symbol " + fieldExpr.getVarRef()
-                            .getSymbolName() + " is null");
+                    LangModelUtils.getNodeLocationStr(fieldExpr.getNodeLocation()) + "Symbol " + currentVarRefExpr
+                            .getVarName() + " is null");
         }
 
         if (!(currentVal instanceof BArray || currentVal instanceof BMap<?, ?>)) {
