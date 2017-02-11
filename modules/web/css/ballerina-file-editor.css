@@ -28,6 +28,11 @@
     position: relative;
 }
 
+.canvas-top-controls-container{
+    float: left;
+    width: 100%;
+}
+
 .canvas-heading-new h4{
     background: #dae9bd;
 }
@@ -91,7 +96,7 @@
 }
 
 .btn-icon {
-    opacity: 0.5;
+    opacity: 0.8;
 }
 
 .btn-icon:hover {
