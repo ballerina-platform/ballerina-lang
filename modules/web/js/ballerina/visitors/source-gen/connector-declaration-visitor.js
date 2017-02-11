@@ -39,9 +39,11 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'],
              * If we need to add additional parameters which are dynamically added to the configuration start
              * that particular source generation has to be constructed here
              */
-            var constructedSource = connectorDeclaration.getConnectorPkgName() + ':' +
+            var connectorPkg = !_.isNil(connectorDeclaration.getConnectorPkgName()) ?
+                (connectorDeclaration.getConnectorPkgName() + ":") : "";
+            var constructedSource = connectorPkg +
                 connectorDeclaration.getConnectorName() + ' ' + connectorDeclaration.getConnectorVariable() +
-                ' = create ' + connectorDeclaration.getConnectorPkgName() + ':' + connectorDeclaration.getConnectorName() +
+                ' = create ' + connectorPkg + connectorDeclaration.getConnectorName() +
                 '(' + connectorDeclaration.getParams() + ')';
             this.appendSource(constructedSource);
             log.debug('Begin Visit Connector Declaration');
