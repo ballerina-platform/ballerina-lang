@@ -14,3 +14,5 @@ native function setXmlPayload (message m, xml payload);
 
 native function getJsonPayload (message m) (json);
 native function setJsonPayload (message m, json payload);
+
+native function getStringValue (message m, string key) (string);

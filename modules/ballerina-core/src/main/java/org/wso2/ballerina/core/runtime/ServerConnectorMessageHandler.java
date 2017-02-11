@@ -126,7 +126,7 @@ public class ServerConnectorMessageHandler {
                     .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
                     .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext), cMsg, callback);
         } catch (Exception e) {
-            throw new BallerinaException("Cannot handle error using the error handler for : " + protocol, e);
+            throw new BallerinaException(e);
         }
 
     }

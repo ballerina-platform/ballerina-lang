@@ -44,10 +44,6 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.transport</groupId>
-            <artifactId>org.wso2.carbon.transport.jms</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.transport</groupId>
             <artifactId>org.wso2.carbon.connector.framework</artifactId>
         </dependency>
         <dependency>
@@ -119,6 +115,16 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-broker</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.transport</groupId>
+            <artifactId>org.wso2.carbon.transport.jms</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

@@ -105,18 +105,12 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.transport</groupId>
-                <artifactId>org.wso2.carbon.transport.jms</artifactId>
-                <version>${carbon.transport.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.transport</groupId>
-                <artifactId>org.wso2.carbon.transport.http.netty.feature</artifactId>
-                <version>${carbon.transport.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.transport</groupId>
                 <artifactId>org.wso2.carbon.connector.framework</artifactId>
+                <version>${carbon.transport.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.transport</groupId>
+                <artifactId>org.wso2.carbon.transport.jms</artifactId>
                 <version>${carbon.transport.version}</version>
             </dependency>
             <dependency>
@@ -276,6 +270,11 @@
                 <version>${netty.version}</version>
             </dependency>
             <dependency>
+                <groupId>javax.jms</groupId>
+                <artifactId>javax.jms-api</artifactId>
+                <version>${javax.jms.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-codec</artifactId>
                 <version>${netty.version}</version>
@@ -294,6 +293,12 @@
                 <groupId>org.wso2.orbit.org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>${org.snakeyaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-broker</artifactId>
+                <version>${activemq.broker.vesion}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -475,6 +480,9 @@
         <native.constructs.provider.package>org.wso2.ballerina.nativeimpl</native.constructs.provider.package>
         <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
+
+        <activemq.broker.vesion>5.14.3</activemq.broker.vesion>
+        <javax.jms.version>2.0.1</javax.jms.version>
     </properties>
 
     <modules>

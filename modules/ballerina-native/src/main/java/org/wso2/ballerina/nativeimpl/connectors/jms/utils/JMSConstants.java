@@ -67,4 +67,11 @@ public class JMSConstants {
      * JMSConnectionFactory when sending
      */
     public static final int CACHE_PRODUCER = 4;
+
+    /**
+     * Acknowledgements to client
+     */
+    public static final String JMS_MESSAGE_DELIVERY_ERROR = "ERROR";
+    public static final String JMS_MESSAGE_DELIVERY_SUCCESS = "SUCCESS";
+    public static final String JMS_MESSAGE_DELIVERY_STATUS = "JMS_MESSAGE_DELIVERY_STATUS";
 }
