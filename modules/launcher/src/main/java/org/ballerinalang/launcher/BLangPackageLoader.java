@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.launcher;
 
+import org.wso2.ballerina.core.ProgramPackageRepository;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BLangProgram;
@@ -26,6 +27,7 @@ import org.wso2.ballerina.core.model.SymbolName;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -54,8 +56,67 @@ public class BLangPackageLoader {
         this.bLangPackage = new BLangPackage(enclosingScope);
     }
 
-    public BLangPackage load(BLangProgram bLangProgram, Path basePath, Path packagePath) {
+    public static BLangPackage load(BLangProgram bLangProgram, Path basePath, Path packagePath) {
+
+//        ProgramPackageRepository progPkgRepository = new ProgramPackageRepository(basePath);
+
+
+        // Remove redundant stuff using the Paths and Files API
+        BLangPackageLoader packageBuilder = new BLangPackageLoader(bLangProgram, basePath, packagePath);
+        BLangPackage mainPackage = packageBuilder.build();
+        bLangProgram.setMainPackage(mainPackage);
+
+        // Define main package
+        bLangProgram.define(new SymbolName(mainPackage.getPackagePath()), mainPackage);
+
+        resolveDependencies(mainPackage, bLangProgram);
+
         return null;
+    }
+
+    private static void resolveDependencies(BLangPackage parentPackage, BLangProgram bLangProgram) {
+        for (SymbolName impPkgSymName : parentPackage.getDependentPackageNames()) {
+
+            // Check whether this package is already resolved.
+            BLangPackage dependentPkg = (BLangPackage) bLangProgram.resolve(impPkgSymName);
+            if (dependentPkg != null) {
+                parentPackage.addDependentPackage(dependentPkg);
+                return;
+            }
+
+            // TODO Detect cyclic dependencies
+            // Remove redundant stuff using the Paths and Files API
+            // This builder or loader should throw an error if the package cannot be found.
+            // 1) If the parent package is loaded from the program repository (current directory), then follow this
+            //    search order:
+            //      i) Search the program repository
+            //      ii) Search the system repository
+            //      iii) Search the personal/user repository
+            // 2) If the parent is loaded from the system directory, then all the children should be
+            //    available in the system repository.  DO NOT Search other repositories.
+            // 3) If the parent is loaded from the personal/user repository, then use following search order:
+            //      i) Search the system repository
+            //      ii) Search the personal/user repository
+            // 4) None of the above applies if the package name starts with 'ballerina'
+
+            Path packagePath = convertPkgSymbolNameToPath(impPkgSymName);
+            BLangPackageLoader packageBuilder = new BLangPackageLoader(bLangProgram,
+                    bLangProgram.getProgramFilePath(), packagePath);
+            dependentPkg = packageBuilder.build();
+
+            // Define main package
+            bLangProgram.define(new SymbolName(dependentPkg.getPackagePath()), dependentPkg);
+            parentPackage.addDependentPackage(dependentPkg);
+
+            resolveDependencies(dependentPkg, bLangProgram);
+        }
+    }
+
+
+    private static Path convertPkgSymbolNameToPath(SymbolName pkgSymbol) {
+        String[] dirs = pkgSymbol.toString().split("\\.");
+        return (dirs.length == 1) ? Paths.get(dirs[0]) :
+                Paths.get(dirs[0], Arrays.copyOfRange(dirs, 1, dirs.length));
     }
 
     public BLangPackage build() {

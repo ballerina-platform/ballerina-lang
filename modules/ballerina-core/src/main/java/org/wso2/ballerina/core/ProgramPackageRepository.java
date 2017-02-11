@@ -19,9 +19,23 @@ package org.wso2.ballerina.core;
 
 import org.wso2.ballerina.core.model.PackageRepository;
 
+import java.nio.file.Path;
+
 /**
- *
  * @since 0.8.0
  */
 public class ProgramPackageRepository extends PackageRepository {
+    private Path programDirPath;
+    private SystemPackageRepository systemPackageRepo;
+    private UserPackageRepository userPackageRepo;
+
+
+    public ProgramPackageRepository(Path programDirPath,
+                                    SystemPackageRepository systemPackageRepo,
+                                    UserPackageRepository userPackageRepo) {
+
+        this.programDirPath = programDirPath;
+        this.systemPackageRepo = systemPackageRepo;
+        this.userPackageRepo = userPackageRepo;
+    }
 }
