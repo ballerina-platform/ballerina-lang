@@ -146,18 +146,6 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 //        }
 
 
-        if (bFile.getConnectors() != null) {
-            for (BallerinaConnectorDef connector : bFile.getConnectors()) {
-                connector.accept(this);
-            }
-        }
-    
-        if (bFile.getStructDefs() != null) {
-            for (StructDef struct : bFile.getStructDefs()) {
-                struct.accept(this);
-            }
-        }
-
 //        Collections.sort(rootElements, new Comparator<PositionAwareNode>() {
 //            @Override
 //            public int compare(PositionAwareNode o1, PositionAwareNode o2) {
