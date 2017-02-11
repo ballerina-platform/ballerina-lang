@@ -1031,8 +1031,8 @@ public class BLangModelBuilder {
         ifElseStmtBuilder.setThenBody(blockStmt);
 
         currentScope = blockStmt.getEnclosingScope();
-
     }
+    
     public void addElseIfClause() {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.peek();
 
