@@ -60,10 +60,6 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                     }
                     subPathAnnotationVal = Constants.DEFAULT_SUB_PATH;
                 }
-                if (subPathAnnotationVal.startsWith("\"")) {
-                    // TODO: What is this logic ?
-                    subPathAnnotationVal = subPathAnnotationVal.substring(1, subPathAnnotationVal.length() - 1);
-                }
 
                 Map<String, String> resourceArgumentValues = new HashMap<>();
                 //to enable dispatching with query params products/{productId}?regID={regID}

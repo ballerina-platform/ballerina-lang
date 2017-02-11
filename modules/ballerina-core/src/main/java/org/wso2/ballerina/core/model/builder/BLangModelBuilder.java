@@ -336,7 +336,8 @@ public class BLangModelBuilder {
 
     public void createAnnotationKeyValue(String key) {
         Expression expr = exprStack.peek();
-        if (expr instanceof BasicLiteral && expr.getType() == BTypes.typeString) {
+        if (expr instanceof BasicLiteral &&
+                ((BasicLiteral) expr).getTypeName().getName().equals(TypeConstants.STRING_TNAME)) {
             String value = ((BasicLiteral) expr).getBValue().stringValue();
             Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.peek();
             annotationBuilder.addKeyValuePair(new SymbolName(key), value);
@@ -1009,8 +1010,6 @@ public class BLangModelBuilder {
 
         BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
-
-        currentScope = blockStmtBuilder.getCurrentScope();
     }
 
     public void startElseIfClause(NodeLocation location) {
