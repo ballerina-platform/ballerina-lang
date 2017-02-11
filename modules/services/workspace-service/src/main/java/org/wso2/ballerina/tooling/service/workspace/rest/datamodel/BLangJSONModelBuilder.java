@@ -898,7 +898,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         if (variableRefExpr.getVariableDef() != null) {
             JsonObject variableDef= new JsonObject();
             variableDef.addProperty(BLangJSONModelConstants.TYPE_NAME,
-                    variableRefExpr.getVariableDef().getTypeName().getName());
+                    variableRefExpr.getVariableDef().getTypeName().toString());
             variableDef.addProperty(BLangJSONModelConstants.PACKAGE_NAME,
                     variableRefExpr.getVariableDef().getTypeName().getPackageName());
             variableRefObj.add(BLangJSONModelConstants.VARIABLE_DEF_OPTIONS, variableDef);
