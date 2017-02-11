@@ -46,6 +46,7 @@ public class BallerinaFile implements Node {
     private static final String MAIN_FUNCTION_NAME = "main";
 
     private String pkgName = null;
+    private String bFileName;
 
     // We need to keep a map of import packages.
     // This is useful when analyzing import functions, actions and types.
@@ -69,6 +70,7 @@ public class BallerinaFile implements Node {
 
     private BallerinaFile(
             String pkgName,
+            String bFileName,
             Map<String, ImportPackage> importPkgMap,
             ImportPackage[] importPkgs,
             CompilationUnit[] compilationUnits,
@@ -81,6 +83,7 @@ public class BallerinaFile implements Node {
             TypeLattice typeLattice) {
 
         this.pkgName = pkgName;
+        this.bFileName = bFileName;
         this.importPkgMap = importPkgMap;
         this.importPkgs = importPkgs;
         this.compilationUnits = compilationUnits;
@@ -102,6 +105,10 @@ public class BallerinaFile implements Node {
      */
     public String getPackagePath() {
         return pkgName;
+    }
+
+    public String getFileName() {
+        return bFileName;
     }
 
     /**
@@ -197,6 +204,7 @@ public class BallerinaFile implements Node {
      */
     public static class BFileBuilder {
         private String pkgName;
+        private String bFileName;
 
         // We need to keep a map of import packages.
         // This is useful when analyzing import functions, actions and types.
@@ -214,7 +222,8 @@ public class BallerinaFile implements Node {
 
         private List<StructDef> structDefList = new ArrayList<>();
 
-        public BFileBuilder() {
+        public BFileBuilder(String bFileName) {
+            this.bFileName = bFileName;
         }
 
         public void setPackagePath(String pkgName) {
@@ -277,6 +286,7 @@ public class BallerinaFile implements Node {
         public BallerinaFile build() {
             return new BallerinaFile(
                     pkgName,
+                    bFileName,
                     importPkgMap,
                     importPkgList.toArray(new ImportPackage[importPkgList.size()]),
                     compilationUnitList.toArray(new CompilationUnit[compilationUnitList.size()]),

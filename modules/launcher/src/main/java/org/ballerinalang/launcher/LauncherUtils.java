@@ -23,6 +23,7 @@ import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.wso2.ballerina.core.exception.LinkerException;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BLangPackage;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.GlobalScope;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
@@ -56,6 +57,37 @@ import java.util.List;
  */
 public class LauncherUtils {
 
+    static BallerinaFile buildBFile(Path sourceFilePath, Path basePath, BLangPackage packageScope) {
+        ANTLRInputStream antlrInputStream = getAntlrInputStream(sourceFilePath);
+
+        try {
+            // Setting the name of the source file being parsed, to the ANTLR input stream.
+            // This is required by the parser-error strategy.
+            Path relFilePath = getRelativeFilePath(sourceFilePath, basePath);
+            antlrInputStream.name = relFilePath.toString();
+
+            BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
+            CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
+
+            BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
+            ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
+
+            BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(packageScope,
+                    sourceFilePath.getFileName().toString());
+            BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder, relFilePath);
+            ballerinaParser.addParseListener(ballerinaBaseListener);
+            ballerinaParser.compilationUnit();
+            return bLangModelBuilder.build();
+
+        } catch (ParseCancellationException | SemanticException | LinkerException e) {
+            throw createLauncherException(makeFirstLetterUpperCase(e.getMessage()));
+
+        } catch (Throwable e) {
+            throw createLauncherException(getFileName(sourceFilePath) + ": " +
+                    makeFirstLetterUpperCase(e.getMessage()));
+        }
+    }
+
     static BallerinaFile buildLangModel(Path sourceFilePath) {
         ANTLRInputStream antlrInputStream = getAntlrInputStream(sourceFilePath);
 
@@ -72,7 +104,8 @@ public class LauncherUtils {
 
             GlobalScope globalScope = GlobalScope.getInstance();
             loadGlobalSymbols(globalScope);
-            BLangPackage bLangPackage = new BLangPackage(globalScope);
+            BLangProgram bLangProgram = new BLangProgram(globalScope);
+            BLangPackage bLangPackage = new BLangPackage(bLangProgram);
 
             BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(bLangPackage);
             BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
@@ -127,6 +160,10 @@ public class LauncherUtils {
     static String getFileName(Path sourceFilePath) {
         Path fileNamePath = sourceFilePath.getFileName();
         return (fileNamePath != null) ? fileNamePath.toString() : sourceFilePath.toString();
+    }
+
+    static Path getRelativeFilePath(Path sourceFilePath, Path basePath) {
+        return basePath.relativize(sourceFilePath).normalize();
     }
 
     static void printLauncherException(BLauncherException e, PrintStream outStream) {

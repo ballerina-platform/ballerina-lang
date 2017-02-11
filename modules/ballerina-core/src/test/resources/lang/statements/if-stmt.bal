@@ -30,3 +30,25 @@ function testAgeGroup(int age) (string) {
     }
     return group;
 }
+
+function ifElseScope(int number)(int) {
+int i = number;
+    if(i == 1) {
+        i = -10;
+        int j = 2;
+        if(j == 2) {
+            int k = 200;
+            i = k;
+        } else {
+            int k = -1;
+        }
+      } else if (1 == 2) {
+         int j = 400;
+         i = j;
+       } else {
+         i = 100;
+         int j = 500;
+         i = j;
+    }
+    return i;
+}

@@ -52,7 +52,7 @@ public class ImportPackage implements Node {
 
         this.path = path;
     }
-    
+
     public ImportPackage(NodeLocation location, String path) {
         this(path);
         this.location = location;
@@ -101,7 +101,7 @@ public class ImportPackage implements Node {
         }
 
         ImportPackage other = (ImportPackage) obj;
-        return this.name.equals(other.name) && this.path.equals(other.path);
+        return this.path.equals(other.path);
     }
 
     @Override

@@ -10,8 +10,8 @@ import ballerina.lang.json;
 @Service(description = "Service to do content based routing of request between Hotel and Car-rental services")
 service TravelManagerService {
 
-    http:HttpConnector hotelEP = new http:HttpConnector("http://localhost:9090/hotel", {"timeOut" : 30000});
-    http:HttpConnector carRentalEP = new http:HttpConnector("http://localhost:9090/carrental", {"timeOut" : 60000});
+    http:ClientConnector hotelEP = new http:ClientConnector("http://localhost:9090/hotel", {"timeOut" : 30000});
+    http:ClientConnector carRentalEP = new http:ClientConnector("http://localhost:9090/carrental", {"timeOut" : 60000});
 
     @POST
     @Path ("/reservation")
@@ -22,9 +22,9 @@ service TravelManagerService {
         jsonMsg = message:getJsonPayload(m);
         try {
           if (json:get(jsonMsg, "$.TravelpediaReservation.reservationType") == "CAR-RENTAL") {
-              response = http:HttpConnector.sendPost(hotelEP, m);
+              response = http:ClientConnector.sendPost(hotelEP, m);
           } else {
-              response = http:HttpConnector.sendPost(carRentalEP, m);
+              response = http:ClientConnector.sendPost(carRentalEP, m);
           }
         } catch (exception e) {
             errorMsg = `{"error" : "Error while sending to backend"}`;

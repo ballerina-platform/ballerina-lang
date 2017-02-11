@@ -17,8 +17,6 @@
 */
 package org.wso2.ballerina.core.model.builder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BTypeConvertor;
@@ -109,10 +107,8 @@ import static org.wso2.ballerina.core.model.util.LangModelUtils.getNodeLocationS
  * @since 0.8.0
  */
 public class BLangModelBuilder {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BLangModelBuilder.class);
-
     private String currentPackagePath;
-    private BallerinaFile.BFileBuilder bFileBuilder = new BallerinaFile.BFileBuilder();
+    private BallerinaFile.BFileBuilder bFileBuilder = new BallerinaFile.BFileBuilder(null);
 
     private SymbolScope currentScope;
 
@@ -150,6 +146,14 @@ public class BLangModelBuilder {
 
     public BLangModelBuilder(SymbolScope packageScope) {
         this.currentScope = packageScope;
+
+        // TODO Add a description why.
+        startRefTypeInitExpr();
+    }
+
+    public BLangModelBuilder(SymbolScope packageScope, String bFileName) {
+        this.currentScope = packageScope;
+        bFileBuilder = new BallerinaFile.BFileBuilder(bFileName);
 
         // TODO Add a description why.
         startRefTypeInitExpr();
@@ -332,7 +336,8 @@ public class BLangModelBuilder {
 
     public void createAnnotationKeyValue(String key) {
         Expression expr = exprStack.peek();
-        if (expr instanceof BasicLiteral && expr.getType() == BTypes.typeString) {
+        if (expr instanceof BasicLiteral &&
+                ((BasicLiteral) expr).getTypeName().getName().equals(TypeConstants.STRING_TNAME)) {
             String value = ((BasicLiteral) expr).getBValue().stringValue();
             Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.peek();
             annotationBuilder.addKeyValuePair(new SymbolName(key), value);
@@ -668,9 +673,9 @@ public class BLangModelBuilder {
         exprStack.push(typeCastExpression);
     }
 
-    public void createArrayInitExpr(NodeLocation location) {
+    public void createArrayInitExpr(NodeLocation location, boolean argsAvailable) {
         List<Expression> argExprList;
-        if (!exprListStack.isEmpty()) {
+        if (argsAvailable) {
             argExprList = exprListStack.pop();
         } else {
             argExprList = new ArrayList<>(0);
@@ -1005,8 +1010,6 @@ public class BLangModelBuilder {
 
         BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
-
-        currentScope = blockStmtBuilder.getCurrentScope();
     }
 
     public void startElseIfClause(NodeLocation location) {
@@ -1312,6 +1315,4 @@ public class BLangModelBuilder {
             this.pkgName = pkgName;
         }
     }
-
-
 }

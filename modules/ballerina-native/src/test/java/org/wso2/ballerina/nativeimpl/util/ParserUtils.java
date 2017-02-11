@@ -20,6 +20,7 @@ package org.wso2.ballerina.nativeimpl.util;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.wso2.ballerina.core.model.BLangPackage;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.GlobalScope;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
@@ -70,7 +71,8 @@ public class ParserUtils {
 
         // Create Ballerina model builder class
         BTypes.loadBuiltInTypes(globalScope);
-        BLangPackage bLangPackage = new BLangPackage(globalScope);
+        BLangProgram bLangProgram = new BLangProgram(globalScope);
+        BLangPackage bLangPackage = new BLangPackage(bLangProgram);
         BLangModelBuilder modelBuilder = new BLangModelBuilder(bLangPackage);
         BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
 
