@@ -83,7 +83,7 @@ public class BLangProgramBuilder {
         BLangProgram bLangProgram = new BLangProgram(globalScope, basePath);
 
         // Remove redundant stuff using the Paths and Files API
-        BLangPackageBuilder packageBuilder = new BLangPackageBuilder(bLangProgram, basePath, packagePath);
+        BLangPackageLoader packageBuilder = new BLangPackageLoader(bLangProgram, basePath, packagePath);
         BLangPackage mainPackage = packageBuilder.build();
         bLangProgram.setMainPackage(mainPackage);
 
@@ -114,7 +114,7 @@ public class BLangProgramBuilder {
             //    search order:
             //      i) Search the program repository
             //      ii) Search the system repository
-            //      iii) Search the persona/user repository
+            //      iii) Search the personal/user repository
             // 2) If the parent is loaded from the system directory, then all the children should be
             //    available in the system repository.  DO NOT Search other repositories.
             // 3) If the parent is loaded from the personal/user repository, then use following search order:
@@ -123,7 +123,7 @@ public class BLangProgramBuilder {
             // 4) None of the above applies if the package name starts with 'ballerina'
 
             Path packagePath = convertPkgSymbolNameToPath(impPkgSymName);
-            BLangPackageBuilder packageBuilder = new BLangPackageBuilder(bLangProgram,
+            BLangPackageLoader packageBuilder = new BLangPackageLoader(bLangProgram,
                     bLangProgram.getProgramFilePath(), packagePath);
             dependentPkg = packageBuilder.build();
 

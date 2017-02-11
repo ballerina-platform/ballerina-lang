@@ -32,9 +32,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ *
+ *
  * @since 0.8.0
  */
-public class BLangPackageBuilder {
+public class BLangPackageLoader {
     private Path basePathObj;
     private Path packagePathObj;
 
@@ -45,12 +47,15 @@ public class BLangPackageBuilder {
     private List<SymbolName> impPkgSymNameList;
 
     // TODO Here we assume that these paths are normalized and resolved.. So there won't be FNF errors
-    public BLangPackageBuilder(BLangProgram bLangProgram, Path basePath, Path packagePath) {
+    public BLangPackageLoader(BLangProgram bLangProgram, Path basePath, Path packagePath) {
         this.enclosingScope = bLangProgram;
         this.basePathObj = basePath;
         this.packagePathObj = packagePath;
         this.bLangPackage = new BLangPackage(enclosingScope);
+    }
 
+    public BLangPackage load(BLangProgram bLangProgram, Path basePath, Path packagePath) {
+        return null;
     }
 
     public BLangPackage build() {
