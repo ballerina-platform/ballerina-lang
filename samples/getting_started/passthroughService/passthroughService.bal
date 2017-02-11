@@ -6,8 +6,8 @@ service passthrough {
 
     @GET
     resource passthrough (message m) {
-        http:HTTPConnector nyseEP = create http:HTTPConnector("http://localhost:9090");
-        message response = http:HTTPConnector.get(nyseEP, "/nyseStock", m);
+        http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090");
+        message response = http:ClientConnector.get(nyseEP, "/nyseStock", m);
         reply response;
     }
 }
