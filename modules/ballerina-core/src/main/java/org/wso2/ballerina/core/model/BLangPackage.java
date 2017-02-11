@@ -43,6 +43,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     private Map<SymbolName, BLangSymbol> symbolMap = new HashMap<>();
 
     private boolean symbolsDefined = false;
+    private PackageRepository pkgRepo;
 
     public BLangPackage(BLangProgram programScope) {
         this.enclosingScope = programScope;
@@ -94,6 +95,15 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     public void setSymbolsDefined(boolean symbolsDefined) {
         this.symbolsDefined = symbolsDefined;
     }
+
+    public PackageRepository getPackageRepository() {
+        return pkgRepo;
+    }
+
+    public void setPackageRepository(PackageRepository pkgRepo) {
+        this.pkgRepo = pkgRepo;
+    }
+
 
     // Methods in the SymbolScope interface
 
