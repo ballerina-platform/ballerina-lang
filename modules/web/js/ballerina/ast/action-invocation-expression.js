@@ -199,7 +199,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
                 : (argsString = this.getConnectorVariableReference() + ' , ' + argsString);
         }
 
-        return this.getVariableAccessor() + " = " + this.getActionPackageName() + ':' + this.getActionConnectorName() + '.' + this.getActionName() +
+        return this.getVariableAccessor() + " = " + (!_.isNil(this.getActionPackageName()) ? this.getActionPackageName() + ':' : "") + this.getActionConnectorName() + '.' + this.getActionName() +
             '(' + argsString +  ')';
     };
 
