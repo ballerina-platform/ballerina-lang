@@ -339,14 +339,14 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 importDeclarations = this._model.getImportDeclarations();
             }
 
+            // render tool palette
+            this.toolPalette.render();
+
             // add current imported packages to tool pallet
             _.forEach(importDeclarations, function (importDeclaration) {
                 var package = BallerinaEnvironment.searchPackage(importDeclaration.getPackageName());
-                self.toolPalette.getItemProvider().addImport(package[0]);
+                self.toolPalette.getItemProvider().addImportToolGroup(package[0]);
             });
-
-            // render tool palette
-            this.toolPalette.render();
 
             // container for per-tab source view TODO improve source view to wrap this logic
             var sourceViewContainer = $(this._container).find(_.get(this._viewOptions, 'source_view.container'));
@@ -750,6 +750,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                             log.debug("Delete import clicked :" + event.data.packageName);
                             $(event.data.wrapper).remove();
                             event.data.model.deleteImport(event.data.packageName);
+                            self.toolPalette.getItemProvider().removeImportToolGroup(event.data.packageName);
                         });
                     });
                 }

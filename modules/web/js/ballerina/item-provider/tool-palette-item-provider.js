@@ -35,8 +35,13 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
             this._toolGroups = _.get(args, 'toolGroups', []);
             // array which contains tool groups that are added on the fly
             this._dynamicToolGroups = _.get(args, 'dynamicToolGroups', []);
+
             // Packages to be added to the tool palette by default in order.
             this._defaultImportedPackages = ["ballerina.net.http", "ballerina.lang.*"];
+
+            // views added to tool palette for each imported package keyed by package name
+            this._importedPackagesViews = {};
+
             this.init();
         };
 
@@ -109,7 +114,19 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
         ToolPaletteItemProvider.prototype.addImportToolGroup = function (package) {
             if (package instanceof Package) {
                 var group = this.getToolGroup(package);
-                this._toolPalette.addVerticallyFormattedToolGroup({group: group});
+                var groupView = this._toolPalette.addVerticallyFormattedToolGroup({group: group});
+                this._importedPackagesViews[package.getName()] = groupView;
+            }
+        };
+
+        /**
+         * Removes a tool group view from the tool palette for a given package name
+         * @param packageName - name of the package to be removed
+         */
+        ToolPaletteItemProvider.prototype.removeImportToolGroup = function (packageName) {
+            var removingView = this._importedPackagesViews[packageName];
+            if(!_.isNil(removingView)){
+                removingView.remove();
             }
         };
 

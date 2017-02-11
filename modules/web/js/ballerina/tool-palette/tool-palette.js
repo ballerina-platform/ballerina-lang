@@ -183,6 +183,7 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             var groupView = new ToolGroupView(toolGroupOptions);
             var group = groupView.render(this.$el.find('.tool-import-wrapper'), _.isEqual('vertical', args.group.get('toolOrder')));
             this.$el.addClass('non-user-selectable');
+            return groupView;
         },
 
         /**
