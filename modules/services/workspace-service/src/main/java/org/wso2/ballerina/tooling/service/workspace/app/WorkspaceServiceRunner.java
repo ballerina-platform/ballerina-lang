@@ -19,11 +19,15 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.tooling.service.workspace.api.PackagesApi;
 import org.wso2.ballerina.tooling.service.workspace.Constants;
+import org.wso2.ballerina.tooling.service.workspace.api.PackagesApi;
 import org.wso2.ballerina.tooling.service.workspace.rest.FileServer;
 import org.wso2.ballerina.tooling.service.workspace.rest.WorkspaceService;
 import org.wso2.ballerina.tooling.service.workspace.rest.datamodel.BLangFileRestService;
+import org.wso2.ballerina.tooling.service.workspace.rest.exception.DefaultExceptionMapper;
+import org.wso2.ballerina.tooling.service.workspace.rest.exception.FileNotFoundExceptionMapper;
+import org.wso2.ballerina.tooling.service.workspace.rest.exception.ParseCancellationExceptionMapper;
+import org.wso2.ballerina.tooling.service.workspace.rest.exception.SemanticExceptionMapper;
 import org.wso2.ballerina.tooling.service.workspace.swagger.factories.ServicesApiServiceFactory;
 import org.wso2.msf4j.MicroservicesRunner;
 
@@ -71,6 +75,10 @@ public class WorkspaceServiceRunner {
 
         Injector injector = Guice.createInjector(new WorkspaceServiceModule(isCloudMode));
         new MicroservicesRunner(Integer.getInteger(Constants.SYS_WORKSPACE_PORT, Constants.DEFAULT_WORKSPACE_PORT))
+                .addExceptionMapper(new SemanticExceptionMapper())
+                .addExceptionMapper(new ParseCancellationExceptionMapper())
+                .addExceptionMapper(new FileNotFoundExceptionMapper())
+                .addExceptionMapper(new DefaultExceptionMapper())
                 .deploy(injector.getInstance(WorkspaceService.class))
                 .deploy(new BLangFileRestService())
                 .deploy(new PackagesApi())
