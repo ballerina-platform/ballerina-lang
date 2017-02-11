@@ -396,7 +396,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self.toolPalette.hide();
                 // Get the generated source and append it to the source view container's content
                 self._sourceView.setContent(generatedSource);
-                self._sourceView.format();
+                self._sourceView.format(true);
                 sourceViewContainer.show();
                 swaggerViewContainer.hide();
                 self._$designViewContainer.hide();
