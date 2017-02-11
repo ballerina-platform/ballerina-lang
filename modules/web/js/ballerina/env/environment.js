@@ -100,7 +100,7 @@ define(['lodash', 'event_channel', './ballerina-env-factory', 'environment_conte
             var existing = _.filter(exclude_packages, function (ex) {
                 return package.getName() == ex;
             });
-            return (existing.length == 0) && (_.includes(package.getName().toUpperCase(), search_text.toUpperCase()));
+            return (existing.length == 0) && new RegExp(query.toUpperCase()).test(package.getName().toUpperCase());
         });
         return result;
     };
