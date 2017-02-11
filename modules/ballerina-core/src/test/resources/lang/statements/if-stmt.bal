@@ -42,7 +42,7 @@ int i = number;
         } else {
             int k = -1;
         }
-      } else if (1 == 2) {
+      } else if (i == 2) {
          int j = 400;
          i = j;
        } else {
