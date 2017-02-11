@@ -35,7 +35,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
 
     private List<CompilationUnit> compilationUnitList = new ArrayList<>();
     private BallerinaFile[] ballerinaFiles;
-    private SymbolName[] dependentPkgSymNames;
+    private ImportPackage[] importPackages;
     private List<BLangPackage> dependentPkgs = new ArrayList<>();
 
     // Scope related variables
@@ -46,6 +46,13 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     private PackageRepository pkgRepo;
 
     public BLangPackage(BLangProgram programScope) {
+        this.programScope = programScope;
+        symbolMap = new HashMap<>();
+    }
+
+    public BLangPackage(String packagePath, PackageRepository packageRepo, BLangProgram programScope) {
+        this.pkgPath = packagePath;
+        this.pkgRepo = packageRepo;
         this.programScope = programScope;
         symbolMap = new HashMap<>();
     }
@@ -63,12 +70,12 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         this.ballerinaFiles = ballerinaFiles;
     }
 
-    public SymbolName[] getDependentPackageNames() {
-        return dependentPkgSymNames;
+    public ImportPackage[] getImportPackages() {
+        return importPackages;
     }
 
-    public void setDependentPackageNames(SymbolName[] dependentPkgNames) {
-        this.dependentPkgSymNames = dependentPkgNames;
+    public void setImportPackages(ImportPackage[] importPackages) {
+        this.importPackages = importPackages;
     }
 
     public CompilationUnit[] getCompilationUntis() {

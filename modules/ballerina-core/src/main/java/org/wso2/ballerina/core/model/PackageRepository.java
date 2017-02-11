@@ -17,22 +17,68 @@
 */
 package org.wso2.ballerina.core.model;
 
-
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
+ *
+ *
  * @since 0.8.0
  */
-public class PackageRepository {
+public abstract class PackageRepository {
 
-    public PackageSource loadPackage(Path packageDirPath) {
-        return null;
+    public abstract PackageSource loadPackage(Path packageDirPath);
+
+    protected PackageSource loadPackageFromDirectory(Path baseDirPath, Path packageDirPath) {
+
+        // TODO construct the package-path from the give Path object
+        // E.g. org/sameera/calc -> org.sameera.calc
+        String pkgPathStr = replaceDelimiterWithDots(packageDirPath);
+
+        Map<String, InputStream> fileStreamMap;
+        try {
+            fileStreamMap = Files.list(baseDirPath.resolve(packageDirPath))
+                    .filter(filePath -> filePath.toString().endsWith(".bal"))
+                    .collect(Collectors.toMap(filePath -> filePath.getFileName().toString(), this::getInputStream));
+        } catch (IOException e) {
+            // TODO Handle error
+            throw new IllegalStateException(e.getMessage(), e);
+        }
+
+        return new PackageSource(packageDirPath, fileStreamMap, this);
+    }
+
+    private InputStream getInputStream(Path filePath) {
+        try {
+            return Files.newInputStream(filePath, StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS);
+        } catch (IOException e) {
+            // TODO Handle error
+            throw new IllegalStateException(e.getMessage(), e);
+        }
+    }
+
+    // TODO Remove duplicates
+    private static String replaceDelimiterWithDots(Path path) {
+        if (path.getNameCount() == 1) {
+            return path.toString();
+        }
+
+        StringBuilder strBuilder = new StringBuilder();
+        for (int i = 0; i < path.getNameCount() - 1; i++) {
+            strBuilder.append(path.getName(i)).append(".");
+        }
+
+        strBuilder.append(path.getName(path.getNameCount() - 1));
+        return strBuilder.toString();
     }
 
     /**
-     *
      * @since 0.8.0
      */
     public class PackageSource {

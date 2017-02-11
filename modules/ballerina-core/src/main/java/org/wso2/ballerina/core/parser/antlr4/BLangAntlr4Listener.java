@@ -60,12 +60,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
         this.modelBuilder = modelBuilder;
     }
 
-    public BLangAntlr4Listener(BLangModelBuilder modelBuilder, Path relFilePath) {
+    public BLangAntlr4Listener(BLangModelBuilder modelBuilder, Path sourceFilePath) {
         this.modelBuilder = modelBuilder;
-        this.fileName = relFilePath.getFileName().toString();
+        this.fileName = sourceFilePath.getFileName().toString();
 
-        if (relFilePath.getNameCount() >= 2) {
-            this.packageDirPath = relFilePath.subpath(0, relFilePath.getNameCount() - 1).toString();
+        if (sourceFilePath.getNameCount() >= 2) {
+            this.packageDirPath = sourceFilePath.subpath(0, sourceFilePath.getNameCount() - 1).toString();
         } else {
             this.packageDirPath = null;
         }

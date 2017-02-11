@@ -33,4 +33,9 @@ public class UserPackageRepository extends PackageRepository {
         this.userPacakgeRepoPath = userPacakgeRepoPath;
         this.systemPackageRepo = systemPackageRepo;
     }
+
+    @Override
+    public PackageSource loadPackage(Path packageDirPath) {
+        return null;
+    }
 }

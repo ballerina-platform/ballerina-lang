@@ -32,4 +32,9 @@ public class SystemPackageRepository extends PackageRepository {
     public SystemPackageRepository(Path systemRepoPath) {
         this.systemRepoPath = systemRepoPath;
     }
+
+    @Override
+    public PackageSource loadPackage(Path packageDirPath) {
+        return null;
+    }
 }

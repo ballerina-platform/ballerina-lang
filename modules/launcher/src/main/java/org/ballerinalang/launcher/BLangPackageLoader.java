@@ -15,70 +15,65 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
+
 package org.ballerinalang.launcher;
 
-import org.wso2.ballerina.core.ProgramPackageRepository;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.ImportPackage;
+import org.wso2.ballerina.core.model.PackageRepository;
 import org.wso2.ballerina.core.model.SymbolName;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- *
- *
  * @since 0.8.0
  */
 public class BLangPackageLoader {
-    private Path basePathObj;
-    private Path packagePathObj;
 
-    private BLangProgram enclosingScope;
-    private BLangPackage bLangPackage;
+    public static BLangPackage load(Path packagePath, PackageRepository packageRepo, BLangProgram bLangProgram) {
 
-    private List<BallerinaFile> bFileList = new ArrayList<>();
-    private List<SymbolName> impPkgSymNameList;
+        // Load package details (input streams of source files) from the given package repository
+        PackageRepository.PackageSource pkgSource = packageRepo.loadPackage(packagePath);
 
-    // TODO Here we assume that these paths are normalized and resolved.. So there won't be FNF errors
-    public BLangPackageLoader(BLangProgram bLangProgram, Path basePath, Path packagePath) {
-        this.enclosingScope = bLangProgram;
-        this.basePathObj = basePath;
-        this.packagePathObj = packagePath;
-        this.bLangPackage = new BLangPackage(enclosingScope);
+        String pkgPathStr = replaceDelimiterWithDots(packagePath);
+        BLangPackage bLangPackage = new BLangPackage(pkgPathStr, pkgSource.getPackageRepository(), bLangProgram);
+        List<BallerinaFile> bFileList = pkgSource.getSourceFileStreamMap().entrySet()
+                .stream()
+                .map(entry -> LauncherUtils.buildBFile(entry.getKey(), packagePath, entry.getValue(), bLangPackage))
+                .peek(bFile -> validatePackagePathInFile(pkgPathStr, packagePath, bFile))
+                .collect(Collectors.toList());
+
+        bLangPackage.setImportPackages(flattenImportPackages(bFileList));
+
+        // Define package in the program scope
+        bLangProgram.define(new SymbolName(bLangPackage.getPackagePath()), bLangPackage);
+
+        // Resolve dependent packages of this package
+        resolveDependencies(bLangPackage, bLangProgram);
+        return bLangPackage;
     }
 
-    public static BLangPackage load(BLangProgram bLangProgram, Path basePath, Path packagePath) {
-
-//        ProgramPackageRepository progPkgRepository = new ProgramPackageRepository(basePath);
-
-
-        // Remove redundant stuff using the Paths and Files API
-        BLangPackageLoader packageBuilder = new BLangPackageLoader(bLangProgram, basePath, packagePath);
-        BLangPackage mainPackage = packageBuilder.build();
-        bLangProgram.setMainPackage(mainPackage);
-
-        // Define main package
-        bLangProgram.define(new SymbolName(mainPackage.getPackagePath()), mainPackage);
-
-        resolveDependencies(mainPackage, bLangProgram);
-
-        return null;
+    private static void validatePackagePathInFile(String pkgPathStr, Path packagePath, BallerinaFile bFile) {
+        if (!pkgPathStr.equals(bFile.getPackagePath())) {
+            String actualPkgPath = (bFile.getPackagePath() != null) ? bFile.getPackagePath() : "";
+            String filePath = packagePath.resolve(bFile.getFileName()).toString();
+            throw new BallerinaException(filePath + ": incorrect package" +
+                    ": expected '" + pkgPathStr + "', found '" + actualPkgPath + "'");
+        }
     }
 
     private static void resolveDependencies(BLangPackage parentPackage, BLangProgram bLangProgram) {
-        for (SymbolName impPkgSymName : parentPackage.getDependentPackageNames()) {
+        for (ImportPackage importPackage : parentPackage.getImportPackages()) {
 
             // Check whether this package is already resolved.
-            BLangPackage dependentPkg = (BLangPackage) bLangProgram.resolve(impPkgSymName);
+            BLangPackage dependentPkg = (BLangPackage) bLangProgram.resolve(importPackage.getSymbolName());
             if (dependentPkg != null) {
                 parentPackage.addDependentPackage(dependentPkg);
                 return;
@@ -99,19 +94,13 @@ public class BLangPackageLoader {
             //      ii) Search the personal/user repository
             // 4) None of the above applies if the package name starts with 'ballerina'
 
-            Path packagePath = convertPkgSymbolNameToPath(impPkgSymName);
-            BLangPackageLoader packageBuilder = new BLangPackageLoader(bLangProgram,
-                    bLangProgram.getProgramFilePath(), packagePath);
-            dependentPkg = packageBuilder.build();
+            Path packagePath = convertPkgSymbolNameToPath(importPackage.getSymbolName());
+            dependentPkg = load(packagePath, parentPackage.getPackageRepository(), bLangProgram);
 
             // Define main package
-            bLangProgram.define(new SymbolName(dependentPkg.getPackagePath()), dependentPkg);
             parentPackage.addDependentPackage(dependentPkg);
-
-            resolveDependencies(dependentPkg, bLangProgram);
         }
     }
-
 
     private static Path convertPkgSymbolNameToPath(SymbolName pkgSymbol) {
         String[] dirs = pkgSymbol.toString().split("\\.");
@@ -119,37 +108,7 @@ public class BLangPackageLoader {
                 Paths.get(dirs[0], Arrays.copyOfRange(dirs, 1, dirs.length));
     }
 
-    public BLangPackage build() {
-        // TODO construct the package-path from the give Path object
-        // E.g. org/sameera/calc -> org.sameera.calc
-        String pkgPath = replaceDelimiterWithDots(packagePathObj);
-
-        try {
-            bFileList = Files.list(basePathObj.resolve(packagePathObj))
-                    .filter(filePath -> filePath.toString().endsWith(".bal"))
-                    .map(this::buildBLangFile)
-                    .peek(bFile -> {
-                        if (!pkgPath.equals(bFile.getPackagePath())) {
-                            String actualPkgPath = (bFile.getPackagePath() != null) ? bFile.getPackagePath() : "";
-                            throw new BallerinaException(bFile.getFileName() + ": incorrect package path" +
-                                    ": expected '" + pkgPath + "', found '" + actualPkgPath + "'");
-                        }
-                    })
-                    .collect(Collectors.toList());
-
-            flattenImportPackages();
-
-        } catch (IOException e) {
-            // TODO
-        }
-
-        bLangPackage.setDependentPackageNames(impPkgSymNameList.toArray(new SymbolName[impPkgSymNameList.size()]));
-        bLangPackage.setPackagePath(pkgPath);
-        bLangPackage.setBallerinaFiles(bFileList.toArray(new BallerinaFile[bFileList.size()]));
-        return bLangPackage;
-    }
-
-    private String replaceDelimiterWithDots(Path path) {
+    private static String replaceDelimiterWithDots(Path path) {
         if (path.getNameCount() == 1) {
             return path.toString();
         }
@@ -163,16 +122,11 @@ public class BLangPackageLoader {
         return strBuilder.toString();
     }
 
-    private BallerinaFile buildBLangFile(Path bFilePath) {
-        return LauncherUtils.buildBFile(bFilePath, basePathObj, bLangPackage);
-    }
-
-    private void flattenImportPackages() {
-        impPkgSymNameList = bFileList.stream()
+    private static ImportPackage[] flattenImportPackages(List<BallerinaFile> bFileList) {
+        return bFileList.stream()
                 .map(BallerinaFile::getImportPackages)
                 .flatMap(Arrays::stream)
                 .distinct()
-                .map(impPkg -> new SymbolName(impPkg.getPath()))
-                .collect(Collectors.toList());
+                .toArray(ImportPackage[]::new);
     }
 }

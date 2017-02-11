@@ -45,13 +45,11 @@ import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
-import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -91,23 +89,14 @@ public class BLangProgramBuilder {
 
         // Creates program scope for this Ballerina program
         BLangProgram bLangProgram = new BLangProgram(globalScope, progDirPath);
-        BLangPackage mainPackage = BLangPackageLoader.load(bLangProgram, progDirPath, packagePath);
+
+        // TODO Find cyclic dependencies
+        BLangPackage mainPackage = BLangPackageLoader.load(packagePath, packageRepository, bLangProgram);
         bLangProgram.setMainPackage(mainPackage);
 
-
-//        bLangProgram.define(new SymbolName(mainPackage.getPackagePath()), mainPackage);
-
-//        // Remove redundant stuff using the Paths and Files API
-//        BLangPackageLoader packageBuilder = new BLangPackageLoader(bLangProgram, basePath, packagePath);
-//        BLangPackage mainPackage = packageBuilder.build();
-//
-//        // Define main package
-//
-//        resolveDependencies(mainPackage, bLangProgram);
-
-
-        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bLangProgram);
-        bLangProgram.accept(semanticAnalyzer);
+        // Analyze the semantic properties of the Ballerina program
+//        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bLangProgram);
+//        bLangProgram.accept(semanticAnalyzer);
     }
 
     public static PackageRepository initPackageRepositories(Path programDirPath) {
