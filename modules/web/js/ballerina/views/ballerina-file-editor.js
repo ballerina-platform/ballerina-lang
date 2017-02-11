@@ -339,14 +339,14 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 importDeclarations = this._model.getImportDeclarations();
             }
 
+            // render tool palette
+            this.toolPalette.render();
+
             // add current imported packages to tool pallet
             _.forEach(importDeclarations, function (importDeclaration) {
                 var package = BallerinaEnvironment.searchPackage(importDeclaration.getPackageName());
-                self.toolPalette.getItemProvider().addImport(package[0]);
+                self.toolPalette.getItemProvider().addImportToolGroup(package[0]);
             });
-
-            // render tool palette
-            this.toolPalette.render();
 
             // container for per-tab source view TODO improve source view to wrap this logic
             var sourceViewContainer = $(this._container).find(_.get(this._viewOptions, 'source_view.container'));
@@ -396,7 +396,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self.toolPalette.hide();
                 // Get the generated source and append it to the source view container's content
                 self._sourceView.setContent(generatedSource);
-                self._sourceView.format();
+                self._sourceView.format(true);
                 sourceViewContainer.show();
                 swaggerViewContainer.hide();
                 self._$designViewContainer.hide();
@@ -415,6 +415,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     //@todo: proper error handling need to get the service specs
                     if (response.error != undefined && response.error) {
                         alerts.error('cannot switch to swagger view due to parse errors');
+                        return;
+                    } else if (!_.isUndefined(response.errorMessage)) {
+                        alerts.error("Unable to parse the source: " + response.errorMessage);
                         return;
                     }
                     self._parseFailed = false;
@@ -456,6 +459,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         //@todo: proper error handling need to get the service specs
                         if (response.error != undefined && response.error) {
                             alerts.error('cannot switch to design view due to parse errors');
+                            return;
+                        } else if (!_.isUndefined(response.errorMessage)) {
+                            alerts.error("Unable to parse the source: " + response.errorMessage);
                             return;
                         }
                         self._parseFailed = false;
@@ -744,6 +750,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                             log.debug("Delete import clicked :" + event.data.packageName);
                             $(event.data.wrapper).remove();
                             event.data.model.deleteImport(event.data.packageName);
+                            self.toolPalette.getItemProvider().removeImportToolGroup(event.data.packageName);
                         });
                     });
                 }

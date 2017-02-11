@@ -123,7 +123,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      */
     ActionInvocationExpression.prototype.initFromJson = function (jsonNode) {
         var action_invocation_expression = jsonNode.children[1];
-        if(!_.isUndefined(action_invocation_expression.children[0])) {
+        if(!_.isUndefined(action_invocation_expression.children) && !_.isUndefined(action_invocation_expression.children[0])) {
             var connector = _.head(this.getInvocationConnector(action_invocation_expression.children[0].variable_reference_name));
             this.setConnector(connector, {doSilently: true});
         }
@@ -199,8 +199,13 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
                 : (argsString = this.getConnectorVariableReference() + ' , ' + argsString);
         }
 
-        return this.getVariableAccessor() + " = " + (!_.isNil(this.getActionPackageName()) ? this.getActionPackageName() + ':' : "") + this.getActionConnectorName() + '.' + this.getActionName() +
-            '(' + argsString +  ')';
+        if (!_.isNil(this.getActionPackageName()) && !_.isEmpty(this.getActionPackageName().trim())) {
+            return this.getVariableAccessor() + " = " + this.getActionPackageName() + ':' + this.getActionConnectorName() + '.' + this.getActionName() +
+                '(' + argsString +  ')';
+        } else {
+            return this.getVariableAccessor() + " = " + this.getActionConnectorName() + '.' + this.getActionName() +
+                '(' + argsString +  ')';
+        }
     };
 
 
