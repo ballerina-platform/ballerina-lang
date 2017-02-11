@@ -23,15 +23,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DTO to hold Ballerina Action
+ * DTO to hold Ballerina action
  */
-public class Action {
+public class ActionHolder {
     
     BallerinaAction action;
     private String actionClassName;
-    private List<Annotation> annotations;
+    private List<AnnotationHolder> annotations;
     
-    public Action(BallerinaAction action, String className) {
+    public ActionHolder(BallerinaAction action, String className) {
         this.action = action;
         this.actionClassName = className;
         annotations = new ArrayList<>();
@@ -49,7 +49,7 @@ public class Action {
         this.annotations = Utils.getAnnotations(annotations);
     }
 
-    public List<Annotation> getAnnotations() {
+    public List<AnnotationHolder> getAnnotations() {
         return annotations;
     }
 }

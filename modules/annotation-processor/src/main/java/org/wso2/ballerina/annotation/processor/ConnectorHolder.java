@@ -28,27 +28,27 @@ import java.util.List;
 /**
  * DTO to hold Ballerina Connector
  */
-public class Connector {
+public class ConnectorHolder {
     
     private BallerinaConnector balConnector;
     private String connectorClassName;
-    private List<Action> actions;
-    private List<Annotation> annotations;
+    private List<ActionHolder> actions;
+    private List<AnnotationHolder> annotations;
     
     
-    Connector(BallerinaConnector balConnector, String className) {
+    ConnectorHolder(BallerinaConnector balConnector, String className) {
         this.balConnector = balConnector;
         this.connectorClassName = className;
         this.actions = new ArrayList<>();
         this.annotations = new ArrayList<>();
     }
     
-    public void addAction(Action action) {
+    public void addAction(ActionHolder action) {
         this.actions.add(action);
     }
     
-    public Action[] getActions() {
-        return actions.toArray(new Action[0]);
+    public ActionHolder[] getActions() {
+        return actions.toArray(new ActionHolder[0]);
     }
     
     public BallerinaConnector getBalConnector() {
@@ -70,7 +70,7 @@ public class Connector {
         sb.append("connector ").append(balConnector.connectorName());
         Utils.getInputParams(balConnector.args(), sb);
         sb.append(" {\n");
-        for (Action action : actions) {
+        for (ActionHolder action : actions) {
             BallerinaAction ballerinaAction = action.getBalAction();
             sb.append(action.getAnnotations().size() > 0 ? "\n\t" : "");
             Utils.appendAnnotationStrings(sb, action.getAnnotations(), "\n\t");
