@@ -393,7 +393,15 @@ define(['lodash', 'log', './node', './callable-definition', '../utils/common-uti
         var self = this;
 
         _.each(jsonNode.children, function (childNode) {
-            var child = self.BallerinaASTFactory.createFromJson(childNode);
+            var child = undefined;
+            if (childNode.type === "variable_definition" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+                child = self.BallerinaASTFactory.createConnectorDeclaration();
+            } else if (childNode.type === "variable_definition" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'action_invocation_expression') {
+                child = self.BallerinaASTFactory.createActionInvocationExpression();
+            }
+            else {
+                child = self.BallerinaASTFactory.createFromJson(childNode);
+            }
             self.addChild(child);
             child.initFromJson(childNode);
         });
