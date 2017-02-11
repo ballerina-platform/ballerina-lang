@@ -28,9 +28,9 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
 /**
- * Local function invocation test
+ * Local function invocation test.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class FuncInvocationExprTest {
 

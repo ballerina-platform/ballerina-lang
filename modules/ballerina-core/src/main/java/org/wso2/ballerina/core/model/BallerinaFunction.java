@@ -18,8 +18,13 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.model.builder.CallableUnitBuilder;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.types.BType;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A {@code BallerinaFunction} is an operation that is executed by a {@code Worker}.
@@ -35,127 +40,45 @@ import org.wso2.ballerina.core.model.types.BType;
  * Statement;+
  * }
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
-public class BallerinaFunction extends PositionAwareNode implements Function, Node {
+public class BallerinaFunction implements Function, SymbolScope, CompilationUnit {
+    private NodeLocation location;
 
-    // TODO: Rename this to BFunction after M1.
-    private SymbolName symbolName;
-    private String functionName;
-    private Position functionLocation;
+    // BLangSymbol related attributes
+    protected String name;
+    protected String pkgPath;
+    protected boolean isPublic;
+    protected SymbolName symbolName;
 
     private Annotation[] annotations;
-    private Parameter[] parameters;
-    private ConnectorDcl[] connectorDcls;
-    private VariableDcl[] variableDcls;
+    private ParameterDef[] parameterDefs;
+    private BType[] parameterTypes;
     private Worker[] workers;
-
-    private BType[] returnTypes;
+    private ParameterDef[] returnParameters;
+    private BType[] returnParamTypes;
     private BlockStmt functionBody;
-
-    private boolean publicFunc;
-
     private int stackFrameSize;
 
-    public BallerinaFunction(SymbolName name,
-                             Position position,
-                             Boolean isPublic,
-                             Annotation[] annotations,
-                             Parameter[] parameters,
-                             BType[] returnTypes,
-                             ConnectorDcl[] connectorDcls,
-                             VariableDcl[] variableDcls,
-                             Worker[] workers,
-                             BlockStmt functionBody) {
+    // Scope related variables
+    private SymbolScope enclosingScope;
+    private Map<SymbolName, BLangSymbol> symbolMap;
 
-        this.symbolName = name;
-        this.functionName = symbolName.getName();
-        this.functionLocation = position;
-        this.publicFunc = isPublic;
-        this.annotations = annotations;
-        this.parameters = parameters;
-        this.returnTypes = returnTypes;
-        this.connectorDcls = connectorDcls;
-        this.variableDcls = variableDcls;
-        this.workers = workers;
-        this.functionBody = functionBody;
+    private BallerinaFunction(SymbolScope enclosingScope) {
+        this.enclosingScope = enclosingScope;
+        this.symbolMap = new HashMap<>();
+    }
+
+    public int getStackFrameSize() {
+        return stackFrameSize;
+    }
+
+    public void setStackFrameSize(int stackFrameSize) {
+        this.stackFrameSize = stackFrameSize;
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return symbolName.getName();
-    }
-
-    @Override
-    public String getFunctionName() {
-        return this.functionName;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getPackageName() {
-        return symbolName.getPkgName();
-    }
-
-    /**
-     * Get the function Identifier
-     *
-     * @return function identifier
-     */
-    public SymbolName getSymbolName() {
-        return symbolName;
-    }
-
-    @Override
-    public void setSymbolName(SymbolName symbolName) {
-        this.symbolName = symbolName;
-    }
-
-    /**
-     * Get all the Annotations associated with a BallerinaFunction
-     *
-     * @return list of Annotations
-     */
-    public Annotation[] getAnnotations() {
-        return annotations;
-    }
-
-    /**
-     * Get list of Arguments associated with the function definition
-     *
-     * @return list of Arguments
-     */
-    public Parameter[] getParameters() {
-        return parameters;
-    }
-
-
-    /**
-     * Get all Connections declared within the BallerinaFunction scope
-     *
-     * @return list of all the Connections belongs to a BallerinaFunction
-     */
-    public ConnectorDcl[] getConnectorDcls() {
-        return connectorDcls;
-    }
-
-
-    /**
-     * Get all the variableDcls declared in the scope of BallerinaFunction
-     *
-     * @return list of all BallerinaFunction scoped variableDcls
-     */
-    public VariableDcl[] getVariableDcls() {
-        return variableDcls;
-    }
-
-    /**
-     * Get all the Workers associated with a BallerinaFunction
+     * Get all the Workers associated with a BallerinaFunction.
      *
      * @return list of Workers
      */
@@ -163,58 +86,175 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
         return workers;
     }
 
-    public BType[] getReturnTypes() {
-        return returnTypes;
-    }
-
     /**
-     * Check whether function is public, which means function is visible outside the package
+     * Get all Connections declared within the BallerinaFunction scope.
      *
-     * @return whether function is public
+     * @return list of all the Connections belongs to a BallerinaFunction
      */
-    public boolean isPublic() {
-        return publicFunc;
+    public ConnectorDcl[] getConnectorDcls() {
+        return null;
+    }
+
+
+    // Methods in CallableUnit interface
+
+    @Override
+    public void setSymbolName(SymbolName symbolName) {
+        this.symbolName = symbolName;
     }
 
     /**
-     * Mark function as public
+     * Get all the Annotations associated with a BallerinaFunction.
+     *
+     * @return list of Annotations
      */
-    public void makePublic() {
-        publicFunc = true;
+    @Override
+    public Annotation[] getAnnotations() {
+        return this.annotations;
     }
 
-    public BlockStmt getFunctionBody() {
+    /**
+     * Get list of Arguments associated with the function definition.
+     *
+     * @return list of Arguments
+     */
+    public ParameterDef[] getParameterDefs() {
+        return this.parameterDefs;
+    }
+
+    /**
+     * Get all the variableDcls declared in the scope of BallerinaFunction.
+     *
+     * @return list of all BallerinaFunction scoped variableDcls
+     */
+    @Override
+    public VariableDef[] getVariableDefs() {
+        return null;
+    }
+
+    @Override
+    public BlockStmt getCallableUnitBody() {
         return this.functionBody;
     }
 
-    public int getStackFrameSize() {
-        return stackFrameSize;
+    @Override
+    public ParameterDef[] getReturnParameters() {
+        return this.returnParameters;
     }
 
-
-    public void setStackFrameSize(int stackFrameSize) {
-        this.stackFrameSize = stackFrameSize;
+    @Override
+    public BType[] getReturnParamTypes() {
+        return returnParamTypes;
     }
+
+    @Override
+    public void setReturnParamTypes(BType[] returnParamTypes) {
+        this.returnParamTypes = returnParamTypes;
+    }
+
+    @Override
+    public BType[] getArgumentTypes() {
+        return parameterTypes;
+    }
+
+    @Override
+    public void setParameterTypes(BType[] parameterTypes) {
+        this.parameterTypes = parameterTypes;
+    }
+
+    // Methods in Node interface
 
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public Position getLocation() {
-        return functionLocation;
+    public NodeLocation getNodeLocation() {
+        return location;
+    }
+
+
+    // Methods in BLangSymbol interface
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    @Override
+    public boolean isNative() {
+        return false;
+    }
+
+    @Override
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
+    @Override
+    public SymbolScope getSymbolScope() {
+        return this;
+    }
+
+
+    // Methods in the SymbolScope interface
+
+    @Override
+    public ScopeName getScopeName() {
+        return ScopeName.LOCAL;
+    }
+
+    @Override
+    public SymbolScope getEnclosingScope() {
+        return enclosingScope;
+    }
+
+    @Override
+    public void define(SymbolName name, BLangSymbol symbol) {
+        symbolMap.put(name, symbol);
+    }
+
+    @Override
+    public BLangSymbol resolve(SymbolName name) {
+        return resolve(symbolMap, name);
     }
 
     /**
-     * {@inheritDoc}
+     * {@code BallerinaFunctionBuilder} is responsible for building a {@cdoe BallerinaFunction} node.
+     *
+     * @since 0.8.0
      */
-    @Override
-    public void setLocation(Position location) {
-        this.functionLocation = location;
-    }
+    public static class BallerinaFunctionBuilder extends CallableUnitBuilder {
+        private BallerinaFunction bFunc;
 
+        public BallerinaFunctionBuilder(SymbolScope enclosingScope) {
+            bFunc = new BallerinaFunction(enclosingScope);
+            currentScope = bFunc;
+        }
+
+        public BallerinaFunction buildFunction() {
+            bFunc.location = this.location;
+            bFunc.name = this.name;
+            bFunc.pkgPath = this.pkgPath;
+            bFunc.symbolName = new SymbolName(name, pkgPath);
+
+            bFunc.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            bFunc.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
+            bFunc.returnParameters = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);
+            bFunc.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
+            bFunc.functionBody = this.body;
+            return bFunc;
+        }
+    }
 }

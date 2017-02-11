@@ -1,6 +1,6 @@
-# Introducing Ballerina: A New Programming Language for Integration
+# Introducing Ballerina
 
-Ballerina is a new special purpose programming language for integration built on a sequence diagram metaphor. Ballerina is:
+Ballerina is a flexible, powerful, beautiful programming language designed for integration. Ballerina is:
 - Simple
 - Intuitive
 - Visual
@@ -10,22 +10,22 @@ Ballerina is a new special purpose programming language for integration built on
 - Container Native
 - Fun
 
-The conceptual model of Ballerina is that of a sequence diagram. Each participant in the integration (referred to as an `connector` in Ballerina) gets its own lifeline and Ballerina defines a complete syntax and semantics for how the sequence diagram works and executes the desired integration.
+The conceptual model of Ballerina is that of a sequence diagram. Each participant in the integration (referred to as a `connector` in Ballerina) gets its own lifeline, and Ballerina defines a complete syntax and semantics for how the sequence diagram works and executes the desired integration.
 
-Ballerina is not designed to be a general purpose language. Instead you should use Ballerina if you need to integrate a collection of network connected systems such as HTTP endpoints, Web APIs, JMS services, and databases. The result of the integration can either be just that - the integration that runs once or repeatedly on a schedule, or a reusable HTTP service that others can run.
+Ballerina is not designed to be a general-purpose language. Instead, you should use Ballerina if you need to integrate a collection of network-connected systems such as HTTP endpoints, Web APIs, JMS services, and databases. The result of the integration can either be just that - an integration that runs once or repeatedly on a schedule - or it can be a reusable HTTP service that others can run.
 
 This is an informal introduction to the Ballerina language.
 
 ## Introduction
 
-Every Ballerina program has both canonical representations both visually and textually.
+Every Ballerina program has canonical representations both visually and textually.
 
 ### Concepts
 
 - *Service*: A `service` is an HTTP web service described by a Swagger file. A service is the discrete unit of functionality that can be remotely accessed.
-- *Resource*: A `resource` is a single request handler within a service. The resource concept is designed to be access protocol independent - but in the initial release of the language it is intended to work with HTTP.
-- *Connector*: A `connector` represents a participant in the integration and is used to interact with an external system. Ballerina includes a set of standard connectors and anyone can program additional connectors in Ballerina itself.
-- *Action*: An `action` is an operation one can execute against a connector - i.e. a single interaction with a participant of the integration.
+- *Resource*: A `resource` is a single request handler within a service. The resource concept is designed to be access protocol independent, but in the initial release of the language it is intended to work with HTTP.
+- *Connector*: A `connector` represents a participant in the integration and is used to interact with an external system. Ballerina includes a set of standard connectors, and anyone can program additional connectors in Ballerina itself.
+- *Action*: An `action` is an operation one can execute against a connector, i.e., a single interaction with a participant of the integration.
 - *Worker*: A `worker` is a thread of execution that the integration developer programs as a lifeline.
 - *Function*: A `function` is an operation that is executed by a worker.
 
@@ -36,18 +36,18 @@ Every Ballerina program has both canonical representations both visually and tex
 
 Ballerina programs can be written in one or more files organized into packages. A package is represented by a directory.
 
-A package defines a namespace. All symbols (e.g. service names, type names and function names) defined in any file in the same package belong to that namespace. Only top level constructs marked `public` are visible outside a package.
+A package defines a namespace. All symbols (e.g., service names, type names, and function names) defined in any file in the same package belong to that namespace. Only top level constructs marked `public` are visible outside a package.
 
 Every symbol has a qualified name consisting of its package name and its own top level name. When written down in a program, qualified names are written as follows:
 
 ```
 PackageName:SymbolName
 ```
-Ballerina brings in versioning to the language. The details of this are still under development and will combine the versioning concepts from Maven, OSGi and Java to a model that is native to the language.
+Ballerina brings in versioning to the language. The details of this are still under development and will combine the versioning concepts from Maven, OSGi, and Java to a model that is native to the language.
 
-Every top level symbol has a version string associated with it (with a default value of "1.0.0"). Packages may define their version number in the Major.Minor.Patch format. Package import statements may indicate the version that they are importing in the Major.Minor format - i.e. patch version levels are not relevant to package importers.
+Every top-level symbol has a version string associated with it (with a default value of "1.0.0"). Packages may define their version number in the Major.Minor.Patch format. Package import statements may indicate the version that they are importing in the Major.Minor format; patch version levels are not relevant to package importers.
 
-In the initial release of Ballerina the details of versioning are still under development. As such, any version string other than "1.0" for an import version will be rejected by the compiler. Note that there is currently no provision for declaring the version of a package.
+In the initial release of Ballerina, the details of versioning are still under development. As such, any version string other than "1.0" for an import version will be rejected by the compiler. Note that there is currently no provision for declaring the version of a package.
 
 ## Structure of a Ballerina Program
 
@@ -64,7 +64,7 @@ A Ballerina file is structured as follows:
  ConstantDefinition)+
 ```
 
-**Note**: We follow the convention that terminals of the language (i.e. keywords) are lowercase words, non-terminals are uppercase words. 
+**Note**: We follow the convention that terminals of the language (keywords) are lowercase words, whereas non-terminals are uppercase words. 
 
 ### Services & Resources
 
@@ -97,7 +97,7 @@ The visual representation of this (without the annotations) in a sequence diagra
 
 ![Resources in a Service](images/bal-resource-skeleton.png)
 
-m1 and m2 are messages that are passed by a client as input to the resource named resource-1 and resource-2, respectively. resource-1 will produce the message response1 as a result, resource-2 will produce response2. In order to compute the response message, resource-1 relays message m1 to connector Connector-1 and will receive response1; similarly, resource-2 relays message m2 to connector Connector-2 and will receive response2.
+m1 and m2 are messages that are passed by a client as input to the resource named resource-1 and resource-2, respectively. resource-1 will produce the message response1 as a result, and resource-2 will produce response2. To compute the response message, resource-1 relays message m1 to connector Connector-1 and will receive response1; similarly, resource-2 relays message m2 to connector Connector-2 and will receive response2.
 
 ### Functions
 
@@ -169,7 +169,7 @@ worker WorkerName (message m) {
 
 #### Initiating the Worker
 
-Workers initially come into existence when the enclosing entity (resource, function or action)
+Workers initially come into existence when the enclosing entity (resource, function, or action)
 becomes active. However, similar to a resource, the worker does not execute until it
 has been sent a message.
 
@@ -194,8 +194,8 @@ If the worker wishes to reply to the enclosing entity, it can do so using a `rep
 ### Types & Variables
 
 Ballerina has variables of various types. The type system includes built-in primitive or value types, a
-collection of built-in structured types, and array, record and iterator type constructors. All variables
-of primitive types are allocated on the stack while all non-primitive types are allocated
+collection of built-in structured types, and array, record, and iterator type constructors. All variables
+of primitive types are allocated on the stack, while all non-primitive types are allocated
 on a heap using `new`.
 
 The type system is illustrated in the following:
@@ -210,7 +210,7 @@ A `VariableDeclaration` has the following structure:
 TypeName VariableName;
 ```
 
-A `TypeName` may be one of the following built-in *primitive types*:
+A `TypeName` can be one of the following built-in *primitive types*:
 - boolean
 - int
 - long
@@ -221,12 +221,12 @@ A `TypeName` may be one of the following built-in *primitive types*:
 Primitive types do not have to be dynamically allocated as they are always allocated
 on the stack.
 
-A `TypeName` may also be one of the following built-in *non-primitive types*:
+A `TypeName` can also be one of the following built-in *non-primitive types*:
 - message
 - map
 - exception
 
-A `TypeName` may also be the name of a *user defined type*.
+A `TypeName` can also be the name of a *user defined type*.
 
 #### Constructed Types (User Defined Types)
 
@@ -237,27 +237,27 @@ User defined record types are defined using the `struct` keyword as follows:
     TypeName VariableName;+
 }
 ```
-If a `struct` is marked `public` then it may be instantiated from another package.
+If a `struct` is marked `public`, it can be instantiated from another package.
 
 ##### Arrays
-Arrays may be defined using the array constructor `[]` as follows:
+Arrays are defined using the array constructor `[]` as follows:
 ```
 TypeName[]
 ```
 All arrays are unbounded in length and support 0 based indexing.
 
 ##### Iterators
-Iterators may be defined using the iterator constructor `~` as follows:
+Iterators are defined using the iterator constructor `~` as follows:
 ```
 TypeName~
 ```
-Iterator typed values can be navigated through using an `iterate` statement.
+Iterator typed values are navigated through using an `iterate` statement.
 
 Iterators are currently only available for the built-in types xml and json. In the future we will allow developers to define their own iterators for their types.
 
 #### XML & JSON Types
 
-Ballerina has built-in support for XML elements, XML documents and JSON documents. TypeName
+Ballerina has built-in support for XML elements, XML documents, and JSON documents. TypeName
 can be any of the following:
 - json\[\<json_schema_name\>\]
 - xml\[<{XSD_namespace_name}type_name\>\]
@@ -271,14 +271,14 @@ A variable of type `xml` can hold any XML element. The optional qualification of
 for an XML document indicates the qualified type name of the XML Schema type that the XML
 element is assumed to conform to.
 
-A variable of type `xmlDocument` can hold any XML document and the optional schema type is the type of the document element.
+A variable of type `xmlDocument` can hold any XML document, and the optional schema type is the type of the document element.
 
 #### Allocating Variables
 
 Primitive types do not have to be dynamically allocated as they are always allocated
 on the stack. 
 
-For all non-primitive types, user defined types and array types have to be
+All non-primitive types, user-defined types, and array types have to be
 allocated on the heap using `new` as follows:
 ```
 new TypeName[(ValueList)]
@@ -327,7 +327,7 @@ typeconverter TypeConverterName (TypeName VariableName) (TypeName) {
     Statement;+
 }
 ```
-If a TypeConvertor has been defined from Type1 to Type2, then it will be invoked by the runtime upon
+If a TypeConvertor has been defined from Type1 to Type2, it will be invoked by the runtime upon
 executing the following statement:
 ```
 Type1 t1;
@@ -337,14 +337,14 @@ t2 = (Type2) t1;
 ```
 
 That is, the registered type convertor is invoked by indicating the type cast as above. Note that while
-the compiler can auto-detect the right convertor to apply we have chosen to force the user to
+the compiler can auto-detect the right convertor to apply, we have chosen to force the user to
 request the appropriate convertor by applying a cast.
 
 ##### Built in Type Convertors
 
 In addition to the built-in value type coercions, Ballerina also ships with a few pre-defined type
 convertors to make development easier. The following predefined type convertors are declared in
-the Ballerina package `ballerina.lang.types`:
+the Ballerina package `ballerina.lang.convertors`:
 - string/xml/json to message: creates a new message with the given string/xml/json as its payload
 - down conversions for numeral types: int -> boolean (0 is false), long -> int/boolean, float -> int/boolean, double -> float/long/int/boolean,
 
@@ -352,7 +352,7 @@ Note that these must be triggered by indicating a type cast to the desired type.
 
 ### Statements
 
-A Statement may be one of the following:
+A Statement can be one of the following:
 - assignment statement
 - if statement
 - iterate statement
@@ -440,26 +440,26 @@ fork (MessageName) {
   Statement;*  
 }]
 ```
-Note that if the `join` clause is missing then it is equivalent to waiting for all workers to complete and ignorning the results.
+Note that if the `join` clause is missing, it is equivalent to waiting for all workers to complete and ignorning the results.
 
 The `JoinCondition` is one of the following:
-- `any IntegerValue [(WorkerNameList)]`: wait for any k (i.e. the IntegerValue) of the given workers or any of the workers
+- `any IntegerValue [(WorkerNameList)]`: wait for any k (i.e., the IntegerValue) of the given workers or any of the workers
 - `all [(WorkerNameList)]`: wait for all given workers or all of the workers
 
-where `WorkerNameList` is a list of comma separated names of workers.
+where `WorkerNameList` is a list of comma-separated names of workers.
 
-When the `JoinCondition` has been satisfied, the corresponding slots of the message array will be filled with the returned messages from the workers in the order the workers' lexical order. If the condition asks for up to some number of results to be available to satisfy the condition, it may be the case that more than that number are available by the time the statements within the join condition are executed. If a particular worker has completed but not sent a response message, or not yet completed, the corresponding message slot will be null.
+When the `JoinCondition` has been satisfied, the corresponding slots of the message array will be filled with the returned messages from the workers in the workers' lexical order. If the condition asks for up to some number of results to be available to satisfy the condition, it may be the case that more than that number are available by the time the statements within the join condition are executed. If a particular worker has completed but not sent a response message, or not yet completed, the corresponding message slot will be null.
 
 The `timeout` clause allows one to specify a maximum time (in milliseconds) within which the join condition must be satisfied.
 
 
 #### Exception Handling
 
-Ballerina supports exception handling as a way to address unexpected scenarios in a Ballerina program. This is provided by the built-in `exception` type, the `try/catch` statement and the `throw` statement. Furthermore, any function can indicate that it may throw an exception by saying `throws exception`.
+Ballerina supports exception handling as a way to address unexpected scenarios in a Ballerina program. This is provided by the built-in `exception` type, the `try/catch` statement, and the `throw` statement. Furthermore, any function can indicate that it may throw an exception by saying `throws exception`.
 
-The built-in `exception` type has three properties: its category (a string), its message (a string) and its properties (a map). These properties are manipulated using the functions defined in `ballerina.lang.exception` package.
+The built-in `exception` type has three properties: its category (a string), its message (a string), and its properties (a map). These properties are manipulated using the functions defined in the `ballerina.lang.exception` package.
 
-Note that there is only one built-in exception type - all exceptions use this type with different values for the category property. All standard exception "types" are defined by category string constants in the `ballerina.lang.exception` package.
+Note that there is only one built-in exception type, and all exceptions use this type with different values for the category property. All standard exception "types" are defined by category string constants in the `ballerina.lang.exception` package.
 
 The syntax of a `try/catch` is as follows:
 ```
@@ -491,28 +491,28 @@ reply Message?;
 
 #### Comment Statement
 
-Comments are quite different in Ballerina in comparison to other languages. Comments are only allowed as a statement - i.e., only inside a resource, action or function.
-Ballerina has designed, structured mechanisms via annotations to document all Ballerina outer level constructs (services, resources etc.) and comments only play the role of providing a comment about the logic of a resource, action or function.
+Comments are quite different in Ballerina in comparison to other languages. Comments are only allowed as a statement - i.e., only inside a resource, action, or function.
+Ballerina has designed structured mechanisms via annotations to document all Ballerina outer level constructs (services, resources, etc.), and comments only play the role of providing a comment about the logic of a resource, action, or function.
 
 Any statement that starts with the characters `//` is a comment.
 
 ### Expressions
-Similar to languages such as Java, Go etc, Ballerina supports following expressions. 
-* mathamtical expressions `(e.g. x + y, x/y etc)`
-* function calls `(e.g. foo(a,b))`
-* action calls `(e.g. tweet(twitterActor, "hello"))`
-* complex expressions `(e.g. foo(a,bar(c,d)))`
+Similar to languages such as Java, Go, etc, Ballerina supports the following expressions: 
+* mathamtical expressions `(x + y, x/y, etc.)`
+* function calls `(foo(a,b))`
+* action calls `(tweet(twitterActor, "hello"))`
+* complex expressions `(foo(a,bar(c,d)))`
 
-Please see grammer file for more details. 
+Please see the grammar file for more details. 
 
 ## Disabling Constructs from Execution
 
 In traditional programming languages, developers use commenting as a technique to disable a block of code from executing. In Ballerina, we do not allow comments arbitrarily - we only allow comments as statements.
 
-Ballerina instead allows the developer (either visually or textually) to mark any statement or function, action, connector, resource or service to be disabled by prefixing it with the `!` character. Disabling a construct does not prevent the language parser, type checker and other validations but it simply stops that construct from being executed at runtime.
+Ballerina instead allows the developer (either visually or textually) to mark any statement or function, action, connector, resource, or service to be disabled by prefixing it with the `!` character. Disabling a construct does not prevent the language parser, type checker, and other validations; it simply stops that construct from being executed at runtime.
 
 ## Configuration Management
 
 TODO!
 
-Several Ballerina constructs such as connectors and resources have configurable parameters. Examples include the URI of an HTTP endpoint and timeout values. These values MAY be set explicitly within the program using annotations but such values can be overridden from outside the program by applying appropriate property values. These values may be set via environment variables or other deployment management approaches.
+Several Ballerina constructs such as connectors and resources have configurable parameters. Examples include the URI of an HTTP endpoint and timeout values. These values MAY be set explicitly within the program using annotations, but such values can be overridden from outside the program by applying appropriate property values. These values may be set via environment variables or other deployment management approaches.

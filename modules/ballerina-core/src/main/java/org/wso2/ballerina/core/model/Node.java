@@ -18,8 +18,23 @@
 package org.wso2.ballerina.core.model;
 
 /**
+ * This class represents a Node in Ballerina AST (Abstract Syntax Tree).
  *
+ * @since 0.8.0
  */
 public interface Node {
+
+    /**
+     * @param visitor
+     */
     void accept(NodeVisitor visitor);
+
+    /**
+     * Returns the location of this node.
+     * <p>
+     * {@link NodeLocation} includes the source filename and the line number.
+     *
+     * @return location of this node
+     */
+    NodeLocation getNodeLocation();
 }

@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.model.values.BValue;
  * {@code StackFrame} represents frame in a control stack.
  * Holds references to parameters, local variables and return values
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class StackFrame {
     public BValue[] values;

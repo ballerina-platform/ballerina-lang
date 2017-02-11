@@ -26,34 +26,34 @@ import java.util.List;
 /**
  * A {@code worker} is a thread of execution that the integration developer programs as a lifeline.
  * <p>
- *
+ * <p>
  * Workers are defined as follows:
+ * <p>
+ * worker WorkerName (message m) {
+ * ConnectionDeclaration;*
+ * VariableDeclaration;*
+ * Statement;+
+ * [reply MessageName;]
+ * }
  *
- *  worker WorkerName (message m) {
- *      ConnectionDeclaration;*
- *      VariableDeclaration;*
- *      Statement;+
- *      [reply MessageName;]
- *  }
- *
- *  @since 1.0.0
+ * @since 0.8.0
  */
-@SuppressWarnings("unused")
 public class Worker implements Node {
 
     private List<ConnectorDcl> connectorDcls;
-    private List<VariableDcl> variables;
+    private List<VariableDef> variables;
     private List<Statement> statements;
 
-    public Worker(List<VariableDcl> variables, List<Statement> statements) {
+    public Worker(NodeLocation location, List<VariableDef> variables, List<Statement> statements) {
         this.variables = variables;
         this.statements = statements;
     }
 
-    public Worker(){}
+    public Worker() {
+    }
 
     /**
-     * Get all Connections declared within the Worker
+     * Get all Connections declared within the Worker.
      *
      * @return list of all the Connections belongs to the Worker
      */
@@ -62,7 +62,7 @@ public class Worker implements Node {
     }
 
     /**
-     * Assign connections to the Worker
+     * Assign connections to the Worker.
      *
      * @param connectorDcls list of connections to be assigned to the Worker
      */
@@ -71,7 +71,7 @@ public class Worker implements Node {
     }
 
     /**
-     * Add a {@code Connection} to the Worker
+     * Add a {@code Connection} to the Worker.
      *
      * @param connectorDcl Connection to be added to the Worker
      */
@@ -83,37 +83,37 @@ public class Worker implements Node {
     }
 
     /**
-     * Get all the variables declared in the Worker
+     * Get all the variables declared in the Worker.
      *
      * @return list of all Worker scoped variables
      */
-    public List<VariableDcl> getVariables() {
+    public List<VariableDef> getVariables() {
         return variables;
     }
 
     /**
-     * Assign variables to the Worker
+     * Assign variables to the Worker.
      *
      * @param variables list of variables
      */
-    public void setVariables(List<VariableDcl> variables) {
+    public void setVariables(List<VariableDef> variables) {
         this.variables = variables;
     }
 
     /**
-     * Add a {@code Variable} to the Worker
+     * Add a {@code Variable} to the Worker.
      *
      * @param variable variable to be added the Worker
      */
-    public void addVariable(VariableDcl variable) {
+    public void addVariable(VariableDef variable) {
         if (variables == null) {
-            variables = new ArrayList<VariableDcl>();
+            variables = new ArrayList<VariableDef>();
         }
         variables.add(variable);
     }
 
     /**
-     * Get all the Statements associated with the Worker
+     * Get all the Statements associated with the Worker.
      *
      * @return list of Statements associated with the Worker
      */
@@ -122,7 +122,7 @@ public class Worker implements Node {
     }
 
     /**
-     * Set Statements to be associated with the Worker
+     * Set Statements to be associated with the Worker.
      *
      * @param statements list of Statements
      */
@@ -131,7 +131,7 @@ public class Worker implements Node {
     }
 
     /**
-     * Add a {@code Statement} to the Worker
+     * Add a {@code Statement} to the Worker.
      *
      * @param statement a Statement to be added to the Worker
      */
@@ -145,5 +145,10 @@ public class Worker implements Node {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public NodeLocation getNodeLocation() {
+        return null;
     }
 }

@@ -23,10 +23,10 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 
 /**
- * {@code BArray} represents an array in Ballerina
+ * {@code BArray} represents an array in Ballerina.
  *
  * @param <V> Ballerina value stored in this array value
- * @since 1.0.0
+ * @since 0.8.0
  */
 public final class BArray<V extends BValue> implements BRefType {
 
@@ -101,7 +101,7 @@ public final class BArray<V extends BValue> implements BRefType {
 
     private void rangeCheck(int index) {
         if (index >= size) {
-            throw new BallerinaException("Array index out of range: " + outOfBoundsMsg(index));
+            throw new BallerinaException("array index out of range: " + outOfBoundsMsg(index));
         }
     }
 

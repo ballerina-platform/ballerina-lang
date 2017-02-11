@@ -22,7 +22,7 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * Default implementation of {@code BalCallback}
+ * Default implementation of {@code BalCallback}.
  */
 public class DefaultBalCallback implements BalCallback {
 

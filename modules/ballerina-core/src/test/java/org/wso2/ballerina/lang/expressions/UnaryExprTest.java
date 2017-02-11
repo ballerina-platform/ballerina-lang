@@ -20,6 +20,7 @@ package org.wso2.ballerina.lang.expressions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
@@ -31,9 +32,9 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
 /**
- * Test Unary expression
+ * Test Unary expression.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class UnaryExprTest {
 
@@ -196,6 +197,70 @@ public class UnaryExprTest {
         BBoolean x = (BBoolean) returns[0];
         Assert.assertSame(x.getClass(), BBoolean.class, "Invalid class type returned.");
         Assert.assertEquals(x.booleanValue(), true, "Invalid value returned.");
+    }
 
+    @Test(description = "Test unary negation expression")
+    public void unaryNegationTest() {
+        int a = 3;
+        int b = 2;
+
+        int expectedResult = a - -b;
+
+        BValue[] args = {new BInteger(a), new BInteger(b)};
+
+        BValue[] returns = Functions.invoke(bFile, "unaryNegationTest", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class, "Invalid class type returned.");
+
+        int actualResult = ((BInteger) returns[0]).intValue();
+
+        Assert.assertEquals(actualResult, expectedResult);
+
+    }
+
+    @Test(description = "Test unary positive negation expression")
+    public void unaryPositiveNegationTest() {
+        int a = 3;
+
+        int expectedResult = +-a;
+
+        BValue[] args = {new BInteger(a)};
+
+        BValue[] returns = Functions.invoke(bFile, "unaryPositiveNegationTest", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class, "Invalid class type returned.");
+
+        int actualResult = ((BInteger) returns[0]).intValue();
+
+        Assert.assertEquals(actualResult, expectedResult);
+
+    }
+    
+    /* negative Tests */
+    
+    @Test(description = "Test unary positive for unsupported types (json)",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "unsupported-types-unary-positive.bal:5: invalid operation: " +
+                    "operator \\+ not defined on 'json'")
+    public void testUnaryPositiveForUnsupportedTypes() {
+        ParserUtils.parseBalFile("lang/expressions/unsupported-types-unary-positive.bal");
+    }
+
+    @Test(description = "Test unary negative for unsupported types (json)",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "unsupported-types-unary-negative.bal:5: invalid operation: " +
+                    "operator - not defined on 'json'")
+    public void testUnaryNegativeForUnsupportedTypes() {
+        ParserUtils.parseBalFile("lang/expressions/unsupported-types-unary-negative.bal");
+    }
+
+    @Test(description = "Test unary not for unsupported types (json)",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "unsupported-types-unary-not.bal:5: invalid operation: " +
+                    "operator ! not defined on 'json'")
+    public void testUnaryNotForUnsupportedTypes() {
+        ParserUtils.parseBalFile("lang/expressions/unsupported-types-unary-not.bal");
     }
 }

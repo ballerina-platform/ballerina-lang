@@ -8,8 +8,8 @@ import ballerina.lang.message;
 @Service(title = "Content Based Routing Service", description = "Routing a message based on the content")
 service ContentBasedRouteService {
 
-  http:HttpConnector nyseEP = new http:HttpConnector("http://localhost:8080/exchange/nyse/", {"timeOut" : 30000});
-  http:HttpConnector nasdaqEP = new http:HttpConnector("http://localhost:8080/exchange/nasdaq/", {"timeOut" : 60000});
+  http:ClientConnector nyseEP = new http:ClientConnector("http://localhost:8080/exchange/nyse/", {"timeOut" : 30000});
+  http:ClientConnector nasdaqEP = new http:ClientConnector("http://localhost:8080/exchange/nasdaq/", {"timeOut" : 60000});
 
   @POST
   @Produces ("application/json")

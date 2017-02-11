@@ -18,48 +18,87 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.Action;
-import org.wso2.ballerina.core.model.ExecutableMultiReturnExpr;
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.Position;
-import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code ActionInvocationExpr} represents action invocation expression
+ * {@code ActionInvocationExpr} represents action invocation expression.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
-public class ActionInvocationExpr extends AbstractExpression implements ExecutableMultiReturnExpr {
-
-    private SymbolName actionName;
+public class ActionInvocationExpr extends AbstractExpression implements CallableUnitInvocationExpr<Action> {
+    private String name;
+    private String pkgName;
+    private String pkgPath;
+    private String connectorName;
     private Expression[] exprs;
     private Action action;
-    private Position actionInvokedLocation;
+    private BType[] types = new BType[0];
 
-    public ActionInvocationExpr(SymbolName actionName, Expression[] exprs) {
-        this.actionName = actionName;
+    public ActionInvocationExpr(NodeLocation location,
+                                String name,
+                                String pkgName,
+                                String pkgPath,
+                                String connectorName,
+                                Expression[] exprs) {
+        super(location);
+        this.name = name;
+        this.pkgName = pkgName;
+        this.pkgPath = pkgPath;
+        this.connectorName = connectorName;
         this.exprs = exprs;
     }
 
-    public SymbolName getActionName() {
-        return actionName;
+    public String getConnectorName() {
+        return connectorName;
     }
 
-    public void setActionName(SymbolName actionName) {
-        this.actionName = actionName;
+    @Override
+    public String getName() {
+        return name;
     }
 
-    public Expression[] getExprs() {
+    @Override
+    public String getPackageName() {
+        return pkgName;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
+    }
+
+    @Override
+    public Expression[] getArgExprs() {
         return exprs;
     }
 
-    public Action getAction() {
+    @Override
+    public Action getCallableUnit() {
         return action;
     }
 
-    public void setAction(Action action) {
-        this.action = action;
+    @Override
+    public void setCallableUnit(Action callableUnit) {
+        this.action = callableUnit;
+    }
+
+    @Override
+    public BType[] getTypes() {
+        return types;
+    }
+
+    @Override
+    public void setTypes(BType[] types) {
+        this.types = types;
+
+        multipleReturnsAvailable = types.length > 1;
+        if (!multipleReturnsAvailable && types.length == 1) {
+            this.type = types[0];
+        }
     }
 
     @Override
@@ -75,13 +114,5 @@ public class ActionInvocationExpr extends AbstractExpression implements Executab
     @Override
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this)[0];
-    }
-
-    public Position getLocation() {
-        return actionInvokedLocation;
-    }
-
-    public void setLocation(Position actionInvokedLocation) {
-        this.actionInvokedLocation = actionInvokedLocation;
     }
 }

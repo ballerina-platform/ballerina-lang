@@ -18,27 +18,27 @@
 package org.wso2.ballerina.core.model.types;
 
 /**
- * This class contains all the supported type names as string
+ * This class contains all the supported type names as string.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class TypeConstants {
 
-    static final String INT_TNAME = "int";
-    static final String LONG_TNAME = "long";
-    static final String DOUBLE_TNAME = "double";
-    static final String FLOAT_TNAME = "float";
-    static final String BOOLEAN_TNAME = "boolean";
-    static final String STRING_TNAME = "string";
-    static final String ARRAY_TNAME = "[]";
-
-    // TODO Correct the name
-    static final String MAP_TNAME = "map";
-    static final String XML_TNAME = "xml";
-    static final String JSON_TNAME = "json";
-    static final String MESSAGE_TNAME = "message";
-    static final String CONNECTOR_TNAME = "connector";
+    public static final String INT_TNAME = "int";
+    public static final String LONG_TNAME = "long";
+    public static final String DOUBLE_TNAME = "double";
+    public static final String FLOAT_TNAME = "float";
+    public static final String BOOLEAN_TNAME = "boolean";
+    public static final String STRING_TNAME = "string";
+    public static final String ARRAY_TNAME = "[]";
+    public static final String MAP_TNAME = "map";
+    public static final String XML_TNAME = "xml";
+    public static final String JSON_TNAME = "json";
+    public static final String MESSAGE_TNAME = "message";
+    public static final String CONNECTOR_TNAME = "connector";
+    public static final String STRUCT_TNAME = "struct";
     static final String EXCEPTION_TNAME = "exception";
     static final String ITERATOR_TNAME = "iterator";
+    static final String NATIVE_PACKAGE = "ballerina.lang.convertors";
 }
 

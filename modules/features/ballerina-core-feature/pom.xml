@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.wso2.ballerina</groupId>
         <artifactId>ballerina-features</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>0.8.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -105,6 +105,10 @@
         <dependency>
             <groupId>org.wso2.ballerina</groupId>
             <artifactId>gson-fragment</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.staxon</groupId>
+            <artifactId>staxon-core</artifactId>
         </dependency>
     </dependencies>
 
@@ -205,6 +209,10 @@
                                 <bundle>
                                     <symbolicName>gson-fragment</symbolicName>
                                     <version>${ballerina.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>staxon-core</symbolicName>
+                                    <version>${staxon.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>

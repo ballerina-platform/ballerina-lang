@@ -24,9 +24,9 @@ import org.wso2.ballerina.core.runtime.ServerConnectorMessageHandler;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * This contains test utils related to Ballerina service invocations
+ * This contains test utils related to Ballerina service invocations.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class Services {
 

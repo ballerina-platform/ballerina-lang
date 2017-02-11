@@ -18,18 +18,23 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.Expression;
 
 /**
  * {@code ForeachStmt} Represents a foreach statement.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class ForeachStmt extends AbstractStatement {
     private Expression condition;
 //    private IteratorType itr;
     private Statement forEachBlock;
+
+    public ForeachStmt(NodeLocation location) {
+        super(location);
+    }
 
 //    public ForeachStmt(Expression condition, IteratorType itr, Statement forEachBlock) {
 //        this.condition = condition;

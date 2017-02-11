@@ -28,19 +28,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPListenerManager;
 import org.wso2.ballerina.core.runtime.BalProgramExecutor;
 import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.MessageProcessor;
 import org.wso2.ballerina.core.runtime.deployer.BalDeployer;
-import org.wso2.ballerina.core.runtime.errors.handler.ServerConnectorErrorHandler;
+import org.wso2.ballerina.core.runtime.listner.HTTPListenerManager;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
+import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 import org.wso2.carbon.messaging.TransportListenerManager;
 import org.wso2.carbon.messaging.TransportSender;
 
 import java.io.File;
-
 
 /**
  * Service component for Ballerina.
@@ -64,8 +63,6 @@ public class BallerinaServiceComponent {
 
         // Registering HTTP Listener Manager with transport framework
         bundleContext.registerService(TransportListenerManager.class, HTTPListenerManager.getInstance(), null);
-
-        ServiceContextHolder.getInstance().setBundleContext(bundleContext);
 
         //Determine the runtime mode
         String runtimeMode = System.getProperty(Constants.SYSTEM_PROP_RUN_MODE);

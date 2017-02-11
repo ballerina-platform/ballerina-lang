@@ -21,8 +21,8 @@ Ballerina is not designed to be a general purpose language. Instead you should u
 ## Build from the source
 
 - Get a clone or download source from [github](https://github.com/wso2/ballerina)
-- Run maven build from the root directory
-- Extract the ballerina distribution created at ballerina/modules/distribution/target/ballerina-1.0.0-SNAPSHOT.zip in to your local directory
+- Run the Maven command ``mvn clean install`` from the root directory
+- Extract the ballerina distribution created at ballerina/modules/distribution/target/ballerina-0.8.0-SNAPSHOT.zip in to your local directory
 
 ## Running samples
 

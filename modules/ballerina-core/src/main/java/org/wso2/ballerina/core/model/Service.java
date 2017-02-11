@@ -18,8 +18,12 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.model.builder.CallableUnitGroupBuilder;
+import org.wso2.ballerina.core.model.statements.VariableDefStmt;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A {@code Service} is an HTTP web service described by a Swagger.
@@ -35,74 +39,41 @@ import org.slf4j.LoggerFactory;
  * ResourceDefinition;+
  * }
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
-@SuppressWarnings("unused")
-public class Service extends PositionAwareNode implements Node {
+public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
+    private NodeLocation location;
 
-    private static final Logger logger = LoggerFactory.getLogger(Service.class);
+    // BLangSymbol related attributes
+    protected String name;
+    protected String pkgPath;
+    protected SymbolName symbolName;
 
-    // TODO Refactor
-    private SymbolName symbolName;
-    private Position serviceLocation;
-    private SymbolName name;
     private Annotation[] annotations;
-    private ConnectorDcl[] connectorDcls;
-    private VariableDcl[] variableDcls;
     private Resource[] resources;
+    private VariableDefStmt[] variableDefStmts;
 
-    public Service(SymbolName serviceName, Position serviceLocation, Annotation[] annotations, 
-            ConnectorDcl[] connectorDcls, VariableDcl[] variableDcls, Resource[] resources) {
-        this.name = serviceName;
-        this.serviceLocation = serviceLocation;
-        this.annotations = annotations;
-        this.connectorDcls = connectorDcls;
-        this.variableDcls = variableDcls;
-        this.resources = resources;
-    }
+    private BallerinaFunction initFunction;
 
-    /**
-     * @param symbolName Service Identifier
-     */
-    public Service(SymbolName symbolName) {
-        this.name = symbolName;
-    }
+    // Scope related variables
+    private SymbolScope enclosingScope;
+    private Map<SymbolName, BLangSymbol> symbolMap;
 
-    /**
-     * Get the {@code Identifier} of the Service
-     *
-     * @return Service Identifier
-     */
-    public SymbolName getSymbolName() {
-        return name;
+    private Service(SymbolScope enclosingScope) {
+        this.enclosingScope = enclosingScope;
+        this.symbolMap = new HashMap<>();
     }
 
     public Annotation[] getAnnotations() {
         return annotations;
     }
 
-    public ConnectorDcl[] getConnectorDcls() {
-        return connectorDcls;
-    }
-
-    public VariableDcl[] getVariableDcls() {
-        return variableDcls;
-    }
-
     public void setAnnotations(Annotation[] annotations) {
         this.annotations = annotations;
     }
 
-    public void setConnectorDcls(ConnectorDcl[] connectorDcls) {
-        this.connectorDcls = connectorDcls;
-    }
-
-    public void setVariableDcls(VariableDcl[] variableDcls) {
-        this.variableDcls = variableDcls;
-    }
-
     /**
-     * Get all the Resources associated to a Service
+     * Get all the Resources associated to a Service.
      *
      * @return array of Resources belongs to a Service
      */
@@ -111,7 +82,7 @@ public class Service extends PositionAwareNode implements Node {
     }
 
     /**
-     * Assign Resources to the Service
+     * Assign Resources to the Service.
      *
      * @param resources List of Resources
      */
@@ -119,17 +90,111 @@ public class Service extends PositionAwareNode implements Node {
         this.resources = resources;
     }
 
+    public VariableDefStmt[] getVariableDefStmts() {
+        return variableDefStmts;
+    }
+
+    public BallerinaFunction getInitFunction() {
+        return initFunction;
+    }
+
+    public void setInitFunction(BallerinaFunction initFunction) {
+        this.initFunction = initFunction;
+    }
+
+
+    // Methods in Node interface
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
-    
+
+    @Override
+    public NodeLocation getNodeLocation() {
+        return location;
+    }
+
+
+    // Methods in BLangSymbol interface
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return false;
+    }
+
+    @Override
+    public boolean isNative() {
+        return false;
+    }
+
+    @Override
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
+    @Override
+    public SymbolScope getSymbolScope() {
+        return this;
+    }
+
+
+    // Methods in the SymbolScope interface
+
+    @Override
+    public ScopeName getScopeName() {
+        return ScopeName.SERVICE;
+    }
+
+    @Override
+    public SymbolScope getEnclosingScope() {
+        return enclosingScope;
+    }
+
+    @Override
+    public void define(SymbolName name, BLangSymbol symbol) {
+        symbolMap.put(name, symbol);
+    }
+
+    @Override
+    public BLangSymbol resolve(SymbolName name) {
+        return resolve(symbolMap, name);
+    }
+
     /**
-     * Get the location of this service in the ballerina source file.
-     * 
-     * @return  Location of this service in the ballerina source file.
+     * {@code ServiceBuilder} is responsible for building a {@cdoe Service} node.
+     *
+     * @since 0.8.0
      */
-    public Position getServiceLocation() {
-        return serviceLocation;
+    public static class ServiceBuilder extends CallableUnitGroupBuilder {
+        private Service service;
+
+        public ServiceBuilder(SymbolScope enclosingScope) {
+            service = new Service(enclosingScope);
+            currentScope = service;
+        }
+
+        public Service buildService() {
+            this.service.location = this.location;
+            this.service.name = this.name;
+            this.service.pkgPath = this.pkgPath;
+            this.service.symbolName = new SymbolName(name, pkgPath);
+
+            this.service.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            this.service.resources = this.resourceList.toArray(new Resource[this.resourceList.size()]);
+            this.service.variableDefStmts = this.variableDefStmtList.toArray(
+                    new VariableDefStmt[variableDefStmtList.size()]);
+            return service;
+        }
     }
 }

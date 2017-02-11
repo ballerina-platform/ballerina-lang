@@ -22,13 +22,13 @@
     <parent>
         <groupId>org.wso2.ballerina</groupId>
         <artifactId>ballerina</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>0.8.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ballerina-core</artifactId>
-    <packaging>bundle</packaging>
+    <packaging>jar</packaging>
 
     <name>WSO2 Ballerina - Core</name>
     <url>http://wso2.org</url>
@@ -41,6 +41,10 @@
         <dependency>
             <groupId>org.wso2.carbon.transport</groupId>
             <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.transport</groupId>
+            <artifactId>org.wso2.carbon.connector.framework</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.messaging</groupId>
@@ -104,17 +108,32 @@
             <groupId>org.apache.james</groupId>
             <artifactId>apache-mime4j-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.staxon</groupId>
+            <artifactId>staxon-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>@{argLine} -Dfile.encoding=UTF-8</argLine>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.7.8</version>
                 <configuration>
                     <excludes>
-                        <exclude>org/wso2/ballerina/core/parser/*</exclude>
+                        <exclude>org/wso2/ballerina/core/parser/Ballerina*</exclude>
                     </excludes>
                     <destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
                 </configuration>
@@ -126,8 +145,47 @@
                         </goals>
                     </execution>
                     <execution>
+                        <phase>prepare-package</phase>
+                        <id>check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
+                            <haltOnFailure>true</haltOnFailure>
+                            <rules>
+                                <rule >
+                                    <element>BUNDLE</element>
+                                    <!-- <limits>
+                                        <limit >
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.76</minimum>
+                                        </limit>
+                                        <limit >
+                                            <counter>BRANCH</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.62</minimum>
+                                        </limit>
+                                    </limits> -->
+                                    <excludes>
+                                        <exclude>*Test</exclude>
+                                        <exclude>org/wso2/ballerina/core/parser/
+                                            BallerinaBaseListener*</exclude>
+                                        <exclude>org/wso2/ballerina/core/parser/
+                                            BallerinaLexer*</exclude>
+                                        <exclude>org/wso2/ballerina/core/parser/
+                                            BallerinaListener*</exclude>
+                                        <exclude>org/wso2/ballerina/core/parser/
+                                            BallerinaParser*</exclude>
+                                    </excludes>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>jacoco-site</id>
-                        <phase>package</phase>
+                        <phase>test</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
@@ -212,13 +270,6 @@
                     <formats>
                         <format>html</format>
                     </formats>
-                     <reportSets>
-                         <reportSet>
-                             <reports>
-                                 <report>cobertura</report>
-                             </reports>
-                         </reportSet>
-                     </reportSets>
                 </configuration>
                 <executions>
                     <execution>
@@ -234,33 +285,6 @@
 
     <properties>
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
-
-        <export.package>
-            org.wso2.ballerina.core.*;version="${ballerina.package.export.version}"
-        </export.package>
-        <import.package>
-            org.osgi.framework.*;version="${osgi.framework.import.version.range}",
-            org.osgi.util.tracker;version="${osgi.service.tracker.import.version.range}",
-            org.wso2.carbon.kernel.utils.*;version="${carbon.kernel.package.import.version.range}",
-            org.wso2.carbon.kernel.transports.*;version="${carbon.kernel.package.import.version.range}",
-            org.wso2.carbon.kernel.deployment.*;version="${carbon.kernel.package.import.version.range}",
-            org.wso2.carbon.kernel.startupresolver.*;version="${carbon.kernel.package.import.version.range}",
-            org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
-            org.antlr.v4.runtime.*,
-            org.apache.axiom.*;version="0.0.0",
-            org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
-            org.wso2.carbon.deployment.engine.*;version="${carbon.deployment.export.version}",
-            com.google.gson.*;version="${gson.import.version.range}",
-            com.jayway.jsonpath.*;version="${jayway.jsonpath.import.version.range}",
-            org.jaxen.*;version="${jaxen.import.version.range}",
-            net.sf.saxon.*;version="${saxon.import.version.range}"
-        </import.package>
-        <carbon.component>
-            startup.listener;componentName="ballerina-native-provider";
-            requiredService="org.wso2.ballerina.core.model.AbstractNativeFunction",
-            osgi.service; objectClass="org.wso2.carbon.messaging.CarbonMessageProcessor";
-            requiredByComponentName="netty-transports-mgt"
-        </carbon.component>
     </properties>
 
 </project>

@@ -1,17 +1,22 @@
 Description
 ===========
-This sample will reply with a greeting message.
+This sample runs a service that replies to a request with a greeting message.
 
 
 How to run this sample
 ======================
-bin$ ./ballerinaserver.sh ../samples/helloWorldService/helloWorldService.bal
+bin$ ./ballerina service ../samples/helloWorldService/helloWorldService.bal
 
-the above command will start the ballerina server in the current terminal and deploy the helloWorldService.bal file and publish the service 'helloWorldService'.
+The above command will start the ballerina server in the current terminal, deploy the helloWorldService.bal file, and publish the service 'helloWorldService'.
 
 
 Invoking the service
 ====================
-curl -v http://localhost:9090/hello?name=wso2
+curl -v http://localhost:9090/hello
 
-Here the query parameter 'name' is optional, if we don't specify the name the greeting will not have any name.
+
+What did it do?
+===============
+When you ran the sample, you started the Ballerina server and deployed the helloWorld service.
+You sent a curl request that specified the Ballerina server host and port followed by the base path ("/hello") for the helloWorld service, thereby invoking that service.
+The helloWold service received the curl request, created a response message, and sent it back to the client that invoked the service: your terminal.

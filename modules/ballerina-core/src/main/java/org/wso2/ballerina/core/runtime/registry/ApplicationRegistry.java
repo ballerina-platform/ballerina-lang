@@ -24,9 +24,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The place where all Ballerina Applications are stored
+ * The place where all Ballerina Applications are stored.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class ApplicationRegistry {
 
@@ -82,26 +82,26 @@ public class ApplicationRegistry {
             });
         });
     }
-    
-    /**
-     * Remove a package from the application, and unregister the associated services.
-     * 
-     * @param aPackage  Package to be removed
-     */
-    public void removePackage(org.wso2.ballerina.core.model.Package aPackage) {
-        aPackage.getServices().forEach(service -> {
-            DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) -> {
-                dispatcher.serviceUnregistered(service);
-            });
-        });
-    }
+
+//    /**
+//     * Remove a package from the application, and unregister the associated services.
+//     *
+//     * @param aPackage  Package to be removed
+//     */
+//    public void removePackage(org.wso2.ballerina.core.model.Package aPackage) {
+//        aPackage.getServices().forEach(service -> {
+//            DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) -> {
+//                dispatcher.serviceUnregistered(service);
+//            });
+//        });
+//    }
 
     public Application getApplication(String appName) {
         return applications.get(appName);
     }
 
-    public Application getDefaultApplication() {
-        return applications.get(DEFAULT_APPLICATION);
-    }
+//    public Application getDefaultApplication() {
+//        return applications.get(DEFAULT_APPLICATION);
+//    }
 
 }

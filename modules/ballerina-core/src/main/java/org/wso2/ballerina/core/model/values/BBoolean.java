@@ -18,20 +18,20 @@
 package org.wso2.ballerina.core.model.values;
 
 /**
- * The {@code BBoolean} represents a boolean value in Ballerina
+ * The {@code BBoolean} represents a boolean value in Ballerina.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public final class BBoolean extends BValueType {
 
     /**
-     * The {@code BBoolean} object corresponding to the primitive
+     * The {@code BBoolean} object corresponding to the primitive.
      * value {@code true}.
      */
     public static final BBoolean TRUE = new BBoolean(true);
 
     /**
-     * The {@code BBoolean} object corresponding to the primitive
+     * The {@code BBoolean} object corresponding to the primitive.
      * value {@code true}.
      */
     public static final BBoolean FALSE = new BBoolean(false);

@@ -21,10 +21,10 @@ import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
 
 /**
- * {@code SymTable} represents a data structure which hold information about the program constructs
+ * {@code SymTable} represents a data structure which hold information about the program constructs.
  * <p>
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class SymTable {
 
@@ -53,5 +53,14 @@ public class SymTable {
 
     public Symbol lookup(SymbolName symName) {
         return current.lookup(symName);
+    }
+    
+    /**
+     * Get the parent scope of this scope.
+     * 
+     * @return  Parent scope
+     */
+    public SymScope getParentScope() {
+        return current.getParent();
     }
 }

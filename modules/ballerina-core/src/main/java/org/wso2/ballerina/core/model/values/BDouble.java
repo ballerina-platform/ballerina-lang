@@ -18,9 +18,9 @@
 package org.wso2.ballerina.core.model.values;
 
 /**
- * The {@code BDouble} represents a double value in Ballerina
+ * The {@code BDouble} represents a double value in Ballerina.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public final class BDouble extends BValueType {
 
@@ -32,17 +32,17 @@ public final class BDouble extends BValueType {
 
     @Override
     public int intValue() {
-        return 0;
+        return (int) this.value;
     }
 
     @Override
     public long longValue() {
-        return 0;
+        return (long) this.value;
     }
 
     @Override
     public float floatValue() {
-        return 0;
+        return (float) this.value;
     }
 
     @Override

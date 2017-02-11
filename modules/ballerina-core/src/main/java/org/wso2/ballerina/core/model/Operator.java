@@ -18,9 +18,9 @@
 package org.wso2.ballerina.core.model;
 
 /**
- * {code Operator} represents operators in Ballerina
+ * {code Operator} represents operators in Ballerina.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public enum Operator {
 
@@ -28,6 +28,7 @@ public enum Operator {
     SUB("-"),
     MUL("*"),
     DIV("/"),
+    MOD("%"),
     AND("&&"),
     OR("||"),
     EQUAL("=="),
@@ -43,5 +44,10 @@ public enum Operator {
 
     Operator(String opValue) {
         this.opValue = opValue;
+    }
+
+    @Override
+    public String toString() {
+        return opValue;
     }
 }

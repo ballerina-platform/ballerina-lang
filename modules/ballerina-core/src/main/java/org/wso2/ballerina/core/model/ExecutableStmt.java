@@ -18,14 +18,14 @@
 package org.wso2.ballerina.core.model;
 
 /**
- * {@code ExecutableStmt} interface makes a {@link org.wso2.ballerina.core.model.statements.Statement} executable
+ * {@code ExecutableStmt} interface makes a {@link org.wso2.ballerina.core.model.statements.Statement} executable.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public interface ExecutableStmt {
 
     /**
-     * Executes the statement
+     * Executes the statement.
      *
      * @param executor instance of a {@code NodeExecutor}
      */

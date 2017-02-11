@@ -31,7 +31,7 @@ public interface ServiceDispatcher {
 
 
     /**
-     * Find the Service which can handle a given Carbon Message
+     * Find the Service which can handle a given Carbon Message.
      *
      * @param cMsg Carbon Message
      * @param callback callback
@@ -40,21 +40,21 @@ public interface ServiceDispatcher {
     Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext);
 
     /**
-     * Get the protocol of the dispatcher
+     * Get the protocol of the dispatcher.
      *
      * @return protocol
      */
     String getProtocol();
 
     /**
-     * This is getting triggered when a new Service belongs to this protocol added to the Ballerina engine
+     * This is getting triggered when a new Service belongs to this protocol added to the Ballerina engine.
      *
      * @param service Service
      */
     void serviceRegistered(Service service);
 
     /**
-     * This is getting triggered when Service belongs to this protocol removed from Ballerina engine
+     * This is getting triggered when Service belongs to this protocol removed from Ballerina engine.
      *
      * @param service Service
      */

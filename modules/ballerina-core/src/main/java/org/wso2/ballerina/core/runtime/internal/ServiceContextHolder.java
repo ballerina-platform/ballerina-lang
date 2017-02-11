@@ -18,18 +18,16 @@
 
 package org.wso2.ballerina.core.runtime.internal;
 
-
-import org.osgi.framework.BundleContext;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.runtime.Constants;
-import org.wso2.ballerina.core.runtime.errors.handler.ServerConnectorErrorHandler;
+import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 import org.wso2.carbon.messaging.TransportSender;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * {@code ServiceContextHolder} is the place where Ballerina Service Component related information is kept
+ * {@code ServiceContextHolder} is the place where Ballerina Service Component related information is kept.
  */
 public class ServiceContextHolder {
 
@@ -39,8 +37,6 @@ public class ServiceContextHolder {
 
     /* Protocol specific error handlers */
     private Map<String, ServerConnectorErrorHandler> errorHandlers = new HashMap<>();
-
-    private BundleContext bundleContext;
 
     private BallerinaFile ballerinaFile;
 
@@ -76,7 +72,7 @@ public class ServiceContextHolder {
     }
 
     /**
-     * Register a transport specific ErrorHandler
+     * Register a transport specific ErrorHandler.
      *
      * @param errorHandler Error Handler
      */
@@ -85,7 +81,7 @@ public class ServiceContextHolder {
     }
 
     /**
-     * Unregister an ErrorHandler
+     * Unregister an ErrorHandler.
      *
      * @param protocol protocol of the Error Handler
      */
@@ -94,31 +90,13 @@ public class ServiceContextHolder {
     }
 
     /**
-     * Get the error handler associated with a particular protocol
+     * Get the error handler associated with a particular protocol.
      *
      * @param protocol transport protocol
      * @return Error Handler for a given protocol
      */
     public ServerConnectorErrorHandler getErrorHandler(String protocol) {
         return errorHandlers.get(protocol);
-    }
-
-    /**
-     * Get Ballerina Bundle Context.
-     *
-     * @return BundleContext instance.
-     */
-    public BundleContext getBundleContext() {
-        return this.bundleContext;
-    }
-
-    /**
-     * Set Ballerina Bundle Context instance.
-     *
-     * @param bundleContext of the Ballerina Bundle.
-     */
-    void setBundleContext(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
     }
 
     /**

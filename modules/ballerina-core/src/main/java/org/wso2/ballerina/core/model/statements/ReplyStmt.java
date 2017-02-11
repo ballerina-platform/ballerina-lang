@@ -18,19 +18,21 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.Expression;
 
 /**
- * {@code ReplyStmt} represents a reply statement
+ * {@code ReplyStmt} represents a reply statement.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class ReplyStmt extends AbstractStatement {
 
     private Expression replyExpr;
 
-    public ReplyStmt(Expression replyExpr) {
+    public ReplyStmt(NodeLocation location, Expression replyExpr) {
+        super(location);
         this.replyExpr = replyExpr;
     }
 
@@ -46,25 +48,5 @@ public class ReplyStmt extends AbstractStatement {
     @Override
     public void execute(NodeExecutor executor) {
         executor.visit(this);
-    }
-
-    /**
-     * Builds a {@code ReturnStmt} statement
-     *
-     * @since 1.0.0
-     */
-    public static class ReplyStmtBuilder {
-        Expression replyExpr;
-
-        public ReplyStmtBuilder() {
-        }
-
-        public void setExpression(Expression expr) {
-            replyExpr = expr;
-        }
-
-        public ReplyStmt build() {
-            return new ReplyStmt(replyExpr);
-        }
     }
 }

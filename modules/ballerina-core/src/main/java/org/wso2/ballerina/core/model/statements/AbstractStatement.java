@@ -18,7 +18,7 @@
 
 package org.wso2.ballerina.core.model.statements;
 
-import org.wso2.ballerina.core.model.Position;
+import org.wso2.ballerina.core.model.NodeLocation;
 
 /**
  * Represents an abstract statement. All statements nodes extends this abstract class.
@@ -26,16 +26,16 @@ import org.wso2.ballerina.core.model.Position;
  * A statement is a tree consisting of one or more of the concrete implementations
  * of {@link Statement} interface.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public abstract class AbstractStatement implements Statement {
-    protected Position expressionLocation;
-    
-    public Position getLocation() {
-        return expressionLocation;
+    protected NodeLocation location;
+
+    public AbstractStatement(NodeLocation location) {
+        this.location = location;
     }
 
-    public void setLocation(Position location) {
-        this.expressionLocation = location;
+    public NodeLocation getNodeLocation() {
+        return location;
     }
 }

@@ -18,29 +18,36 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.Expression;
 
 /**
  * An {@code AssignStmt} represents an assignment.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class AssignStmt extends AbstractStatement {
-    private Expression lhsExpr;
+    private Expression[] lhsExprs;
+
     private Expression rhsExpr;
 
-    public AssignStmt(Expression lhsExpr, Expression rhsExpr) {
-        this.lhsExpr = lhsExpr;
+    public AssignStmt(NodeLocation location, Expression[] lhsExprs, Expression rhsExpr) {
+        super(location);
+        this.lhsExprs = lhsExprs;
         this.rhsExpr = rhsExpr;
     }
 
-    public Expression getLExpr() {
-        return lhsExpr;
+    public Expression[] getLExprs() {
+        return lhsExprs;
     }
 
     public Expression getRExpr() {
         return rhsExpr;
+    }
+
+    public void setRExpr(Expression rhsExpr) {
+        this.rhsExpr = rhsExpr;
     }
 
     @Override
@@ -51,5 +58,9 @@ public class AssignStmt extends AbstractStatement {
     @Override
     public void execute(NodeExecutor executor) {
         executor.visit(this);
+    }
+
+    public void setRhsExpr(Expression rhsExpr) {
+        this.rhsExpr = rhsExpr;
     }
 }

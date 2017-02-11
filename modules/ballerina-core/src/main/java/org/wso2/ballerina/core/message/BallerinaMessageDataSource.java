@@ -23,7 +23,7 @@ import java.io.OutputStream;
 import java.util.Map;
 
 /**
- * This class holds the data related to carbon message once it is built
+ * This class holds the data related to carbon message once it is built.
  */
 public class BallerinaMessageDataSource implements MessageDataSource {
 
@@ -62,6 +62,16 @@ public class BallerinaMessageDataSource implements MessageDataSource {
         // This is where we write to output stream
     }
 
+//    @Override
+//    public String getMessageAsString() {
+//        return null;
+//    }
+
     public void setOutputStream(OutputStream outputStream) {
+    }
+
+    @Override
+    public String getMessageAsString() {
+        return null;
     }
 }

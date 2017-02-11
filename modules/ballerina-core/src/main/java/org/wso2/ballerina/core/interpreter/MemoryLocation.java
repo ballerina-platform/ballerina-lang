@@ -20,19 +20,25 @@ package org.wso2.ballerina.core.interpreter;
 import org.wso2.ballerina.core.model.ExecutableExpr;
 import org.wso2.ballerina.core.model.Node;
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code MemoryLocation} represents a location where a variable or constant is stored at runtime
+ * {@code MemoryLocation} represents a location where a variable or constant is stored at runtime.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class MemoryLocation implements Node, ExecutableExpr {
 
     @Override
     public void accept(NodeVisitor visitor) {
 
+    }
+
+    @Override
+    public NodeLocation getNodeLocation() {
+        return null;
     }
 
     @Override

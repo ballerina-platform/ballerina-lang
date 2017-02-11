@@ -1,6 +1,6 @@
 # Getting started samples
 
-1. [Hello World](helloWorldMainFunction) 
+1. [Hello World](helloWorld) 
 2. [Tweet the number of open pull requests](tweetOpenPR)
 3. [Tweet first Medium feed item's title](tweetMediumFeed)
 4. [Hello Wold Service](helloWorldService)

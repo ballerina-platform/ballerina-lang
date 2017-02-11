@@ -22,14 +22,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * {@code Annotation} represents an Annotation in Ballerina.
+ * {@code Annotation} represents an Annotation node in Ballerina.
  * <p>
  * Annotation can be associated with various Ballerina concepts like Service, Resource, Functions, etc.
  *
  * @see <a href="https://github.com/wso2/ballerina/blob/master/docs/SyntaxSummary.md">Ballerina Syntax Summary</a>
- * @since 1.0.0
+ * @since 0.8.0
  */
-@SuppressWarnings("unused")
 public class Annotation implements Node {
 
     // TODO Refactor these instance variables
@@ -38,30 +37,17 @@ public class Annotation implements Node {
     private String value;
     private Map<String, String> keyValPairs = new HashMap<>();
     private Map<SymbolName, String> elementPair = new HashMap<>();
-    protected Position sourceLocation;
+    private NodeLocation location;
 
-    public Annotation(String name) {
-        this.name = name;
-    }
-
-    public Annotation(String name, String value) {
-        this.name = name;
-        this.value = value;
-    }
-
-    public Annotation(String name, Map<String, String> keyValPairs) {
-        this.name = name;
-        this.keyValPairs = keyValPairs;
-    }
-
-    public Annotation(SymbolName name, String value, Map<SymbolName, String> keyValPairs) {
+    public Annotation(NodeLocation location, SymbolName name, String value, Map<SymbolName, String> keyValPairs) {
+        this.location = location;
         this.symbolName = name;
         this.value = value;
         this.elementPair = keyValPairs;
     }
 
     /**
-     * Get name of the annotation
+     * Get name of the annotation.
      *
      * @return name of the annotation
      */
@@ -74,7 +60,7 @@ public class Annotation implements Node {
     }
 
     /**
-     * Get the value of the annotation
+     * Get the value of the annotation.
      *
      * @return value of the annotation
      */
@@ -83,7 +69,7 @@ public class Annotation implements Node {
     }
 
     /**
-     * Get Key-Value pairs in the annotation
+     * Get Key-Value pairs in the annotation.
      *
      * @return all Key-Value pairs
      */
@@ -92,7 +78,7 @@ public class Annotation implements Node {
     }
 
     /**
-     * Get the value of the Key-Value pair
+     * Get the value of the Key-Value pair.
      *
      * @param key key
      * @return value of the Key-Value pair
@@ -101,19 +87,48 @@ public class Annotation implements Node {
         return keyValPairs.get(key);
     }
 
+    /**
+     * Get all element pairs defined with an annotation.
+     * @return all element paris with key-values.
+     */
+    public Map getElementPairs() {
+        return elementPair;
+    }
+
+    /**
+     * Get the value of the symbol in an annotation.
+     * @param symbolName key of the element
+     * @return value of the element
+     */
+    public String getValueOfElementPair(SymbolName symbolName) {
+        return elementPair.get(symbolName);
+    }
+
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
+    @Override
+    public NodeLocation getNodeLocation() {
+        return location;
+    }
+
     /**
-     * Builds an Annotation
+     * Builds an Annotation from parser events.
+     *
+     * @since 0.8.0
      */
     public static class AnnotationBuilder {
-
+        private NodeLocation location;
         private SymbolName name;
         private String value;
         private Map<SymbolName, String> keyValPairs = new HashMap<>();
+
+        public void setNodeLocation(NodeLocation location) {
+            this.location = location;
+        }
 
         public void setName(SymbolName name) {
             this.name = name;
@@ -128,26 +143,7 @@ public class Annotation implements Node {
         }
 
         public Annotation build() {
-            return new Annotation(name, value, keyValPairs);
+            return new Annotation(location, name, value, keyValPairs);
         }
-    }
-
-    /**
-     * Get the source location of this annotation.
-     * Return the source file and the line number of this annotation.
-     * 
-     * @return  Source location of this annotation
-     */
-    public Position getLocation() {
-        return sourceLocation;
-    }
-
-    /**
-     * Set the source location of this annotation.
-     * 
-     * @param location  Source location of this annotation.
-     */
-    public void setLocation(Position location) {
-        this.sourceLocation = location;
     }
 }

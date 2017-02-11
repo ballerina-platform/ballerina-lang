@@ -18,64 +18,58 @@
 package org.wso2.ballerina.core.model;
 
 /**
- * {@code SymbolName} represents an identifier in Ballerina
+ * {@code SymbolName} represents a package qualified name of a {@link Symbol} in Ballerina.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class SymbolName {
+    protected String name;
+    protected String pkgPath;
 
-    private String name;
-    private String pkgName;
-    private String connectorName;
-
-    public SymbolName(String name) {
+    public SymbolName(String name, String pkgPath) {
         this.name = name;
+        this.pkgPath = pkgPath;
     }
 
-    public SymbolName(String name, String pkgName) {
-        this.name = name;
-        this.pkgName = pkgName;
+    public SymbolName(String name) {
+        this(name, null);
     }
 
     /**
-     * Get the name of the Identifier.
+     * Returns the name of this {@code SymbolName}.
      *
-     * @return name of the Identifier
+     * @return name of the {@code SymbolName}
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Returns the package name of this symbol name.
+     * Returns the package path of this {@code SymbolName}.
      *
-     * @return package name of this symbol name
+     * @return package path of the {@code SymbolName}
      */
-    public String getPkgName() {
-        return pkgName;
+    public String getPkgPath() {
+        return pkgPath;
     }
 
-    /**
-     * Set the package name of this symbol name.
-     *
-     * @param pkgName package name of this symbol name
-     */
-    public void setPkgName(String pkgName) {
-        this.pkgName = pkgName;
-    }
+    protected boolean isNameAndPackagePathEqual(SymbolName other) {
+        boolean namesEqual = this.name.equals(other.getName());
 
-    public String getConnectorName() {
-        return connectorName;
-    }
-
-    public void setConnectorName(String connectorName) {
-        this.connectorName = connectorName;
+        // If both package paths are null or both package paths are not null,
+        //    then check their names. If not return false
+        return (this.pkgPath == null && other.getPkgPath() == null ||
+                this.pkgPath != null && other.getPkgPath() != null) && namesEqual;
     }
 
     @Override
     public boolean equals(Object obj) {
+        if (!(obj instanceof SymbolName)) {
+            return false;
+        }
+
         SymbolName other = (SymbolName) obj;
-        return this.name.equals(other.getName());
+        return isNameAndPackagePathEqual(other);
     }
 
     @Override
@@ -86,6 +80,6 @@ public class SymbolName {
     }
 
     public String toString() {
-        return (pkgName == null) ? name : pkgName + ":" + name;
+        return (pkgPath == null) ? name : pkgPath + ":" + name;
     }
 }

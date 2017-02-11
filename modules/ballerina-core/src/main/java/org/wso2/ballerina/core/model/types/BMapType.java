@@ -17,58 +17,34 @@
  */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code BMapType} represents a type of a map in Ballerina
+ * {@code BMapType} represents a type of a map in Ballerina.
  * <p>
  * Maps are defined using the map keyword as follows:
  * map mapName
  * <p>
  * All maps are unbounded in length and support key based indexing.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BMapType extends BType {
 
-    private BType elementType;
-
     /**
-     * Create a type from the given name
+     * Create a type from the given name.
      *
      * @param typeName string name of the type
      */
-    BMapType(String typeName, String elementType) {
-        super(typeName, BMap.class);
-        this.elementType = BTypes.getType(elementType);
-    }
-
-    /**
-     * Create a type from the given name
-     *
-     * @param typeName string name of the type
-     */
-    BMapType(String typeName) {
-        super(typeName, BMap.class);
-    }
-
-    public BType getElementType() {
-        return elementType;
+    BMapType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BMap.class);
     }
 
     @Override
     public <V extends BValue> V getDefaultValue() {
         return (V) new BMap<BString, V>();
-    }
-
-    public boolean equals(Object obj) {
-        if (obj instanceof BMapType) {
-            BMapType other = (BMapType) obj;
-            return this.elementType.equals(other.elementType);
-        }
-
-        return false;
     }
 }

@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.Expression;
@@ -25,16 +26,17 @@ import org.wso2.ballerina.core.model.expressions.Expression;
 import java.util.List;
 
 /**
- * {@code ForkJoinStmt} represents a fork/join statement
+ * {@code ForkJoinStmt} represents a fork/join statement.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class ForkJoinStmt extends AbstractStatement {
     private List<Worker> workers;
     private Expression joinCondition;
     private Statement joinBlock;
 
-    public ForkJoinStmt(List<Worker> workers, Expression joinCondition, Statement joinBlock) {
+    public ForkJoinStmt(NodeLocation location, List<Worker> workers, Expression joinCondition, Statement joinBlock) {
+        super(location);
         this.workers = workers;
         this.joinCondition = joinCondition;
         this.joinBlock = joinBlock;

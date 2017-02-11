@@ -17,23 +17,24 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.values.BConnector;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code BConnectorType} represents a {@link org.wso2.ballerina.core.model.Connector} in Ballerina
+ * {@code BConnectorType} represents a {@link org.wso2.ballerina.core.model.Connector} in Ballerina.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BConnectorType extends BType {
 
     /**
-     * Create a {@code BConnectorType} which represents the boolean type
+     * Create a {@code BConnectorType} which represents the boolean type.
      *
      * @param typeName string name of the type
      */
-    public BConnectorType(String typeName) {
-        super(typeName, BConnector.class);
+    public BConnectorType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BConnector.class);
     }
 
     @SuppressWarnings("unchecked")

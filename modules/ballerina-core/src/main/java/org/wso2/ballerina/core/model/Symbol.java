@@ -23,23 +23,21 @@ import org.wso2.ballerina.core.model.types.BType;
 
 /**
  * {@code Symbol} represents a data structure that simply defines the type of variables,
- * function invocation exprs etc
+ * function invocation exprs etc.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class Symbol {
 
     private BType type;
-    private int offset;
     private SymScope.Name scopeName;
     private MemoryLocation location;
 
-    private BType[] paramTypes;
-    private BType[] returnTypes;
     private Function function;
-
+    private TypeConvertor typeConvertor;
     private Action action;
     private Connector connector;
+    private StructDef structDef;
 
     public Symbol(BType type, SymScope.Name scopeName, MemoryLocation location) {
         this.type = type;
@@ -47,23 +45,25 @@ public class Symbol {
         this.location = location;
     }
 
-    public Symbol(Function function, BType[] paramTypes, BType[] returnTypes) {
+    public Symbol(Function function) {
         this.function = function;
-        this.paramTypes = paramTypes;
-        this.returnTypes = returnTypes;
     }
 
-    public Symbol(Action action, BType[] paramTypes, BType[] returnTypes) {
+    public Symbol(TypeConvertor typeConvertor) {
+        this.typeConvertor = typeConvertor;
+    }
+
+    public Symbol(Action action) {
         this.action = action;
-        this.paramTypes = paramTypes;
-        this.returnTypes = returnTypes;
     }
 
-    public Symbol(Connector connector, BType[] paramTypes) {
+    public Symbol(Connector connector) {
         this.connector = connector;
-        this.paramTypes = paramTypes;
     }
 
+    public Symbol(StructDef structDef) {
+        this.structDef = structDef;
+    }
 
     public BType getType() {
         return type;
@@ -73,24 +73,16 @@ public class Symbol {
         return scopeName;
     }
 
-    public int getOffset() {
-        return offset;
-    }
-
     public MemoryLocation getLocation() {
         return location;
     }
 
-    public BType[] getParamTypes() {
-        return paramTypes;
-    }
-
-    public BType[] getReturnTypes() {
-        return returnTypes;
-    }
-
     public Function getFunction() {
         return function;
+    }
+
+    public TypeConvertor getTypeConvertor() {
+        return typeConvertor;
     }
 
     public Action getAction() {
@@ -99,6 +91,10 @@ public class Symbol {
 
     public Connector getConnector() {
         return connector;
+    }
+    
+    public StructDef getStructDef() {
+        return structDef;
     }
 }
 

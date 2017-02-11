@@ -19,19 +19,21 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 
 /**
- * An {@code FunctionInvocationStmt} represents a function invocation statement
+ * An {@code FunctionInvocationStmt} represents a function invocation statement.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class FunctionInvocationStmt extends AbstractStatement {
 
     private FunctionInvocationExpr functionInvocationExpr;
 
-    private FunctionInvocationStmt(FunctionInvocationExpr functionInvocationExpr) {
+    public  FunctionInvocationStmt(NodeLocation location, FunctionInvocationExpr functionInvocationExpr) {
+        super(location);
         this.functionInvocationExpr = functionInvocationExpr;
     }
 
@@ -47,26 +49,6 @@ public class FunctionInvocationStmt extends AbstractStatement {
     @Override
     public void execute(NodeExecutor executor) {
         executor.visit(this);
-    }
-
-    /**
-     * Builds a {@code FunctionInvokeStmt} statement
-     *
-     * @since 1.0.0
-     */
-    public static class FunctionInvokeStmtBuilder {
-        private FunctionInvocationExpr functionInvocationExpr;
-
-        public FunctionInvokeStmtBuilder() {
-        }
-
-        public void setFunctionInvocationExpr(FunctionInvocationExpr functionInvocationExpr) {
-            this.functionInvocationExpr = functionInvocationExpr;
-        }
-
-        public FunctionInvocationStmt build() {
-            return new FunctionInvocationStmt(this.functionInvocationExpr);
-        }
     }
 }
 

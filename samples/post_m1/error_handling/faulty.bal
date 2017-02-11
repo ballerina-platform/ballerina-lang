@@ -8,8 +8,8 @@ import ballerina.net.http;
 
 service FaultyService {
 
-  http:HttpConnector nyseEP = new http:HttpConnector("http://localhost:8080/exchange/nyse/", {"timeOut" : 30000});
-  http:HttpConnector nasdaqEP = new http:HttpConnector("http://localhost:8080/exchange/nasdaq/", {"timeOut" : 60000});
+  http:ClientConnector nyseEP = new http:ClientConnector("http://localhost:8080/exchange/nyse/", {"timeOut" : 30000});
+  http:ClientConnector nasdaqEP = new http:ClientConnector("http://localhost:8080/exchange/nasdaq/", {"timeOut" : 60000});
 
   @GET
   @Path ("/*")
@@ -21,8 +21,8 @@ service FaultyService {
 }
 
 function faultyFunction(message in) (message) throws exception {
-      http:HttpConnector e1 = new http:HttpEndpoint ("http://localhost:2222");
+      http:ClientConnector e1 = new http:HttpEndpoint ("http://localhost:2222");
       message response;
-      response = http:HttpConnector.get (e1, "/test", in);
+      response = http:ClientConnector.get (e1, "/test", in);
       return response;
   }

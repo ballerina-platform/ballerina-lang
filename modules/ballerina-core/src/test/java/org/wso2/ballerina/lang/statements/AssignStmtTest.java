@@ -43,7 +43,7 @@ public class AssignStmtTest {
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("lang/statements/assign-stmt.bal");
+        bFile = ParserUtils.parseBalFile("lang/statements/assignment/assign-stmt.bal");
     }
 
     @Test(description = "Test successful assignment")
@@ -137,15 +137,23 @@ public class AssignStmtTest {
         expected = 250;
         Assert.assertEquals(actual, expected);
     }
-    
-    /*
-     * Negative tests
-     */
+
+    @Test(description = "Test successful assignment")
+    public void testAssignmentStmtWithMultiReturnFunc() {
+        // Int assignment test
+        BValue[] args = {};
+        BValue[] returns = Functions.invoke(bFile, "testMultiReturn", args);
+
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(5, ((BInteger) returns[0]).intValue());
+        Assert.assertEquals("john", ((BString) returns[1]).stringValue());
+        Assert.assertEquals(6, ((BInteger) returns[2]).intValue());
+    }
     
     @Test(expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Incompatible types: int cannot be converted to boolean in " +
-                "incompatible-type-assignment.bal:8")
-    public void testIncompatibleTypeAssignment() {
-        ParserUtils.parseBalFile("lang/expressions/incompatible-type-assignment.bal");
+            expectedExceptionsMessageRegExp = "constant-assignment.bal:6: cannot assign a value to constant 'a'")
+    public void testAssignmentToConst() {
+        ParserUtils.parseBalFile("lang/expressions/constant-assignment.bal");
     }
 }

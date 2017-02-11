@@ -17,24 +17,25 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
  * {@code BFloatType} represents a integer which is a 32-bit floating-point number according to the
- * standard IEEE 754 specifications
+ * standard IEEE 754 specifications.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 class BFloatType extends BType {
 
     /**
-     * Create a {@code BFloatType} which represents the boolean type
+     * Create a {@code BFloatType} which represents the boolean type.
      *
      * @param typeName string name of the type
      */
-    BFloatType(String typeName) {
-        super(typeName, BFloat.class);
+    BFloatType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BFloat.class);
     }
 
     @SuppressWarnings("unchecked")

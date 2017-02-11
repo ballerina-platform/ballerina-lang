@@ -29,9 +29,9 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
 /**
- * This contains methods to test different behaviours of the if-else statement
+ * This contains methods to test different behaviours of the if-else statement.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class IfElseStmtTest {
 
@@ -131,7 +131,7 @@ public class IfElseStmtTest {
         String expected = "elder";
         Assert.assertEquals(actual, expected);
 
-        args = new BValue[] { new BInteger(16) };
+        args = new BValue[]{new BInteger(16)};
         returns = Functions.invoke(bFile, "testAgeGroup", args);
 
         Assert.assertEquals(returns.length, 1);
@@ -141,12 +141,37 @@ public class IfElseStmtTest {
         expected = "minor";
         Assert.assertEquals(actual, expected);
     }
-    
+
+    @Test(description = "Check the scope managing in ifelse block")
+    public void testIfElseBlockScopes() {
+        BValue[] args = { new BInteger(1) };
+        BValue[] returns = Functions.invoke(bFile, "ifElseScope", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
+        BInteger actual = (BInteger) returns[0];
+        Assert.assertEquals(actual.intValue(), 200, "mismatched output value");
+
+        args = new BValue[] { new BInteger(16) };
+        returns = Functions.invoke(bFile, "ifElseScope", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
+        actual = (BInteger) returns[0];
+        Assert.assertEquals(actual.intValue(), 500, "mismatched output value");
+    }
+
     @Test(description = "Test if statement with incompatible types",
-            expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Incompatible types: expected a boolean expression in " +
-            "if-stmnt-with-incompatible-types.bal:2")
-    public void testMapAccessWithIndex() {
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "if-stmnt-with-incompatible-types.bal:2: incompatible type: " +
+                    "'boolean' expected, found 'string'")
+    public void testIfStmtWithIncompatibleTypes() {
         ParserUtils.parseBalFile("lang/statements/if-stmnt-with-incompatible-types.bal");
+    }
+
+    @Test(description = "Test else-if statement with incompatible types",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "elseif-stmnt-with-incompatible-types.bal:2: incompatible type: " +
+                    "'boolean' expected, found 'string'")
+    public void testElseIfStmtWithIncompatibleTypes() {
+        ParserUtils.parseBalFile("lang/statements/elseif-stmnt-with-incompatible-types.bal");
     }
 }

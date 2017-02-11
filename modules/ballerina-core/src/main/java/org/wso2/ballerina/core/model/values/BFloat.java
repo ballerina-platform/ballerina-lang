@@ -18,9 +18,9 @@
 package org.wso2.ballerina.core.model.values;
 
 /**
- * The {@code BFloat} represents a float value in Ballerina
+ * The {@code BFloat} represents a float value in Ballerina.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public final class BFloat extends BValueType {
 
@@ -32,12 +32,12 @@ public final class BFloat extends BValueType {
 
     @Override
     public int intValue() {
-        return 0;
+        return (int) this.value;
     }
 
     @Override
     public long longValue() {
-        return 0;
+        return (long) this.value;
     }
 
     @Override
@@ -47,7 +47,7 @@ public final class BFloat extends BValueType {
 
     @Override
     public double doubleValue() {
-        return 0;
+        return (double) this.value;
     }
 
     @Override

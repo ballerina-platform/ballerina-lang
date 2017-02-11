@@ -17,10 +17,6 @@
 */
 package org.wso2.ballerina.core.nativeimpl.annotations;
 
-import org.wso2.ballerina.core.model.Const;
-import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.types.BType;
-import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
@@ -36,20 +32,6 @@ import org.wso2.ballerina.core.nativeimpl.exceptions.MalformedEntryException;
  * Common Utils methods used in Annotations.
  */
 public class Utils {
-
-    /**
-     * Create Const instance from BallerinaConstant Annotation.
-     *
-     * @param constant annotation instance.
-     * @return Const instance.
-     * @throws MalformedEntryException when Type is not supported or when value conversion fails.
-     */
-    public static Const getConst(BallerinaConstant constant) throws MalformedEntryException {
-        BValue value = getBValueFromTypeEnum(constant.type(), constant.value());
-        SymbolName symbolName = new SymbolName(constant.identifier());
-        BType type = BTypes.getType(constant.type().getName());
-        return new Const(type, symbolName, value);
-    }
 
     /**
      * Get BValue from the TypeEnum and Value.

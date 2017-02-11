@@ -20,8 +20,11 @@ package org.wso2.ballerina.core.runtime.deployer;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.LinkerException;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.Application;
@@ -39,18 +42,16 @@ import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
-import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 
 /**
- * {@code BalDeployer} is responsible for all ballerina file deployment tasks
+ * {@code BalDeployer} is responsible for all ballerina file deployment tasks.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BalDeployer {
 
@@ -83,15 +84,15 @@ public class BalDeployer {
                 BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
                 ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
 
-                BLangModelBuilder bLangModelBuilder = new BLangModelBuilder();
+                BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(null);
                 BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
                 ballerinaParser.addParseListener(ballerinaBaseListener);
                 ballerinaParser.compilationUnit();
                 BallerinaFile balFile = bLangModelBuilder.build();
 
                 SymScope globalScope = GlobalScopeHolder.getInstance().getScope();
-                SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(balFile, globalScope);
-                balFile.accept(semanticAnalyzer);
+//                SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(balFile, globalScope);
+//                balFile.accept(semanticAnalyzer);
 
                 if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
                     BallerinaFunction function = (BallerinaFunction) balFile.getMainFunction();
@@ -122,8 +123,8 @@ public class BalDeployer {
                 Package aPackage = app.getPackage(file.getName());
                 if (aPackage == null) {
                     // check if package name is null
-                    if (balFile.getPackageName() != null) {
-                        aPackage = new Package(balFile.getPackageName());
+                    if (balFile.getPackagePath() != null) {
+                        aPackage = new Package(balFile.getPackagePath());
                     } else {
                         aPackage = new Package("default");
                     }
@@ -142,7 +143,7 @@ public class BalDeployer {
                 ApplicationRegistry.getInstance().updatePackage(aPackage);
                 successful = true;
                 log.info("Deployed ballerina file: " + file.getName());
-                return balFile.getServices().size();
+                return balFile.getServices().length;
             } else {
                 if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
                     log.error("Error: File extension not supported. Supported extensions {}.", FILE_EXTENSION);
@@ -151,11 +152,12 @@ public class BalDeployer {
                 log.error("Error: File extension not supported. Support only {}.", FILE_EXTENSION);
                 return 0;
             }
-
-        } catch (Throwable e) {
-            log.error("Error: Compilation failure in {}: {}", file.getName(), e.getMessage());
+        } catch (ParseCancellationException | SemanticException | LinkerException e) {
+            log.error(e.getMessage());
             successful = false;
-
+        } catch (Throwable e) {
+            log.error(file.getName() + ": " + e.getMessage());
+            successful = false;
         } finally {
             if (inputStream != null) {
                 try {
@@ -170,17 +172,17 @@ public class BalDeployer {
         return 0;
     }
 
-    /**
-     * Deploy all Ballerina files in a give directory.
-     *
-     * @param files to deploy.
-     */
-    public static void deployBalFiles(File[] files) {
-        if (files != null) {
-            Arrays.stream(files).filter(file1 -> file1.getName().endsWith(FILE_EXTENSION)).forEach
-                    (BalDeployer::deployBalFile);
-        }
-    }
+//    /**
+//     * Deploy all Ballerina files in a give directory.
+//     *
+//     * @param files to deploy.
+//     */
+//    public static void deployBalFiles(File[] files) {
+//        if (files != null) {
+//            Arrays.stream(files).filter(file1 -> file1.getName().endsWith(FILE_EXTENSION)).forEach
+//                    (BalDeployer::deployBalFile);
+//        }
+//    }
 
     /**
      * Undeploy a service registered through a ballerina file.

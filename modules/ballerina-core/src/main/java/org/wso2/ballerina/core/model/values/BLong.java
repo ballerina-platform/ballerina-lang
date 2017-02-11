@@ -18,9 +18,9 @@
 package org.wso2.ballerina.core.model.values;
 
 /**
- * The {@code BLong} represents a long value in Ballerina
+ * The {@code BLong} represents a long value in Ballerina.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public final class BLong extends BValueType {
 
@@ -32,7 +32,7 @@ public final class BLong extends BValueType {
 
     @Override
     public int intValue() {
-        return 0;
+        return (int) this.value;
     }
 
     @Override
@@ -42,12 +42,12 @@ public final class BLong extends BValueType {
 
     @Override
     public float floatValue() {
-        return 0;
+        return (float) this.value;
     }
 
     @Override
     public double doubleValue() {
-        return 0;
+        return (double) this.value;
     }
 
     @Override

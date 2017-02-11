@@ -18,9 +18,9 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Operator;
-import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -30,9 +30,9 @@ import org.wso2.ballerina.core.model.values.BValueType;
 import java.util.function.BiFunction;
 
 /**
- * {@code DivideExpr} represents a binary divide expression
+ * {@code DivideExpr} represents a binary divide expression.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class DivideExpr extends BinaryArithmeticExpression {
 
@@ -74,8 +74,8 @@ public class DivideExpr extends BinaryArithmeticExpression {
                 return new BDouble(lVal.doubleValue() / rVal.doubleValue());
             };
 
-    public DivideExpr(Expression lExpr, Expression rExpr, Position location) {
-        super(lExpr, Operator.DIV, rExpr, location);
+    public DivideExpr(NodeLocation location, Expression lExpr, Expression rExpr) {
+        super(location, lExpr, Operator.DIV, rExpr);
     }
 
     @Override

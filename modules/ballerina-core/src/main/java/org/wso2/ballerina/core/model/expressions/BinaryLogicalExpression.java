@@ -17,19 +17,19 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.Operator;
-import org.wso2.ballerina.core.model.Position;
 
 /**
- * {@code BinaryLogicalExpression} represents a logical expression in Ballerina
+ * {@code BinaryLogicalExpression} represents a logical expression in Ballerina.
  *
  * @see AndExpression
  * @see OrExpression
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BinaryLogicalExpression extends BinaryExpression {
 
-    public BinaryLogicalExpression(Expression lExpr, Operator op, Expression rExpr, Position location) {
-        super(lExpr, op, rExpr, location);
+    public BinaryLogicalExpression(NodeLocation location, Expression lExpr, Operator op, Expression rExpr) {
+        super(location, lExpr, op, rExpr);
     }
 }

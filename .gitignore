@@ -14,7 +14,11 @@ hs_err_pid*
 .idea
 *.iml
 *.ipr
+*.iws
 
 # generated files
 target
 /gen
+
+# mac
+.DS_Store

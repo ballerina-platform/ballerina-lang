@@ -18,16 +18,17 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class InstanceCreationExpr extends UnaryExpression {
 
-    public InstanceCreationExpr(Expression rExpr) {
-        super(null, rExpr);
+    public InstanceCreationExpr(NodeLocation location, Expression rExpr) {
+        super(location, null, rExpr);
     }
 
     @Override

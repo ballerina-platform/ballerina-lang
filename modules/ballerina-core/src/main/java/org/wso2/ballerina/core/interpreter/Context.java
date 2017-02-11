@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * {@code Context} represents the runtime state of a program.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class Context {
 

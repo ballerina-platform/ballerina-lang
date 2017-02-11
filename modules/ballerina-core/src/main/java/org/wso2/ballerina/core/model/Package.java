@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * {@code Package} represents a Package in a Ballerina Program.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class Package {
 
@@ -49,7 +49,7 @@ public class Package {
     }
 
     /**
-     * Get the Full qualified name of the package
+     * Get the Full qualified name of the package.
      *
      * @return FQN of the package
      */
@@ -58,7 +58,7 @@ public class Package {
     }
 
     /**
-     * Get the short name of the package
+     * Get the short name of the package.
      *
      * @return name of the package
      */
@@ -67,7 +67,7 @@ public class Package {
     }
 
     /**
-     * Get {@code BallerinaFile} list belongs to a package
+     * Get {@code BallerinaFile} list belongs to a package.
      *
      * @return list of files in the package
      */
@@ -76,7 +76,7 @@ public class Package {
     }
 
     /**
-     * Add a {@code BallerinaFile} to the package
+     * Add a {@code BallerinaFile} to the package.
      *
      * @param file Ballerina File
      */
@@ -84,7 +84,7 @@ public class Package {
         files.add(file);
 
         // Add references of top level entities in the Ballerina file to the package
-        services.addAll(file.getServices());
+        services.addAll(Arrays.asList(file.getServices()));
 
         Arrays.asList(file.getFunctions()).forEach(function -> {
             if (function.isPublic()) {
@@ -96,7 +96,7 @@ public class Package {
     }
 
     /**
-     * Get all {@code Service} definitions in the package
+     * Get all {@code Service} definitions in the package.
      *
      * @return list of all Services
      */
@@ -106,7 +106,7 @@ public class Package {
 
 
     /**
-     * Get public {@code Function} definitions in the package
+     * Get public {@code Function} definitions in the package.
      *
      * @return map of public Functions
      */
@@ -115,7 +115,7 @@ public class Package {
     }
 
     /**
-     * Get a public {@code Function} in the package
+     * Get a public {@code Function} in the package.
      *
      * @param functionName fqn of the function
      * @return public function
@@ -125,7 +125,7 @@ public class Package {
     }
 
     /**
-     * Get private {@code Function} definitions in the package
+     * Get private {@code Function} definitions in the package.
      *
      * @return map of private Functions
      */
@@ -134,7 +134,7 @@ public class Package {
     }
 
     /**
-     * Get a private {@code Function} in the package
+     * Get a private {@code Function} in the package.
      *
      * @param functionName fqn of the function
      * @return private function
@@ -144,7 +144,7 @@ public class Package {
     }
 
     /**
-     * Get a  {@code Action} in the package
+     * Get a  {@code Action} in the package.
      *
      * @return Action
      */

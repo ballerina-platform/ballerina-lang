@@ -18,9 +18,9 @@
 package org.wso2.ballerina.core.model.values;
 
 /**
- * The {@code BInteger} represents a int value in Ballerina
+ * The {@code BInteger} represents a int value in Ballerina.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public final class BInteger extends BValueType {
 
@@ -37,17 +37,17 @@ public final class BInteger extends BValueType {
 
     @Override
     public long longValue() {
-        return 0;
+        return (long) this.value;
     }
 
     @Override
     public float floatValue() {
-        return 0;
+        return (float) this.value;
     }
 
     @Override
     public double doubleValue() {
-        return 0;
+        return (double) this.value;
     }
 
     @Override

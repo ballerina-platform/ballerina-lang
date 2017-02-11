@@ -18,98 +18,9 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.model.types.BType;
-
 /**
  * {@code {@link Function}} represents any Ballerina function.
  */
-public interface Function {
-
-    /**
-     * Get Name of the function.
-     *
-     * @return name of the function.
-     */
-    String getName();
-
-    // TODO Refactor function name related methods
-    String getFunctionName();
-
-    /**
-     * Get package name of the function.
-     *
-     * @return package name of the function.
-     */
-    String getPackageName();
-
-    /**
-     * Get the function Identifier
-     *
-     * @return function identifier
-     */
-    SymbolName getSymbolName();
-
-    void setSymbolName(SymbolName symbolName);
-
-    /**
-     * Get all the Annotations associated with a BallerinaFunction
-     *
-     * @return list of Annotations
-     */
-    Annotation[] getAnnotations();
-
-    /**
-     * Get list of Arguments associated with the function definition
-     *
-     * @return list of Arguments
-     */
-    Parameter[] getParameters();
-
-    /**
-     * Get all the variableDcls declared in the scope of BallerinaFunction
-     *
-     * @return list of all BallerinaFunction scoped variableDcls
-     */
-    VariableDcl[] getVariableDcls();
-
-    /**
-     * Get list of return Types associated with function defintion.
-     *
-     * @return list of Return types.
-     */
-    BType[] getReturnTypes();
-
-    /**
-     * Check whether function is public, which means function is visible outside the package
-     *
-     * @return whether function is public
-     */
-    boolean isPublic();
-
-    /**
-     * get stack frame size
-     */
-    int getStackFrameSize();
-
-
-    /**
-     * set stack frame size
-     */
-    void setStackFrameSize(int frameSize);
-
-    /**
-     * Get the location of this function in the ballerina source file.
-     * Returns the ballerina file and line number of the function.
-     *
-     * @return location of this function in the ballerina source file
-     */
-    Position getLocation();
-
-    /**
-     * Set the location of this function in the ballerina source file.
-     *
-     * @param location Location of this function in the ballerina source file
-     */
-    void setLocation(Position location);
+public interface Function extends CallableUnit {
 
 }

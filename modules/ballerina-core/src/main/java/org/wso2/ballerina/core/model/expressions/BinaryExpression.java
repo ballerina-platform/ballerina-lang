@@ -18,29 +18,29 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.Operator;
-import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 
 import java.util.function.BiFunction;
 
 /**
- * {@code BinaryExpression} represents a binary expression
+ * {@code BinaryExpression} represents a binary expression.
  *
  * @see BinaryCompareExpression
  * @see BinaryArithmeticExpression
  * @see BinaryLogicalExpression
  * @see BinaryEqualityExpression
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BinaryExpression extends UnaryExpression {
 
     protected Expression lExpr;
     protected BiFunction<BValueType, BValueType, BValueType> evalFuncNewNew;
-    
-    public BinaryExpression(Expression lExpr, Operator op, Expression rExpr, Position location) {
-        super(op, rExpr, location);
+
+    public BinaryExpression(NodeLocation location, Expression lExpr, Operator op, Expression rExpr) {
+        super(location, op, rExpr);
         this.lExpr = lExpr;
     }
 
@@ -60,4 +60,11 @@ public class BinaryExpression extends UnaryExpression {
         return executor.visit(this);
     }
 
+    public void setRExpr(Expression rExpr) {
+        this.rExpr = rExpr;
+    }
+
+    public void setLExpr(Expression lExpr) {
+        this.lExpr = lExpr;
+    }
 }
