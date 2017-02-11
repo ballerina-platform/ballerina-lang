@@ -99,7 +99,6 @@ public class ConnectorDcl implements Node {
 
     @Override
     public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
     }
 
     @Override

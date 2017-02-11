@@ -22,16 +22,22 @@ package org.wso2.ballerina.core.model;
  * @since 0.8.0
  */
 public class NodeLocation {
+    private String pkgDirPath;
     private String fileName;
     private int lineNumber = -1;
-
-    public NodeLocation(String fileName) {
-        this.fileName = fileName;
-    }
 
     public NodeLocation(String fileName, int lineNumber) {
         this.fileName = fileName;
         this.lineNumber = lineNumber;
+    }
+
+    public NodeLocation(String pkgDirPath, String fileName, int lineNumber) {
+        this(fileName, lineNumber);
+        this.pkgDirPath = pkgDirPath;
+    }
+
+    public String getPackageDirPath() {
+        return pkgDirPath;
     }
 
     public String getFileName() {

@@ -26,6 +26,8 @@ import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BLangPackage;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
@@ -33,7 +35,6 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.CallableUnit;
 import org.wso2.ballerina.core.model.CompilationUnit;
-import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.ImportPackage;
@@ -117,10 +118,8 @@ import org.wso2.ballerina.core.nativeimpl.NativeUnitProxy;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -145,27 +144,56 @@ public class SemanticAnalyzer implements NodeVisitor {
     private static final String patternString = "\\$\\{((\\w+)(\\[(\\d+|\\\"(\\w+)\\\")\\])?)\\}";
     private static final Pattern compiledPattern = Pattern.compile(patternString);
 
-    // We need to keep a map of import packages.
-    // This is useful when analyzing import functions, actions and types.
-    private Map<String, ImportPackage> importPkgMap = new HashMap<>();
-
     private SymbolScope currentScope;
 
     public SemanticAnalyzer(BallerinaFile bFile, SymbolScope packageScope) {
         currentScope = packageScope;
+    }
+
+    public SemanticAnalyzer(BLangProgram programScope) {
+        currentScope = programScope;
+    }
+
+    @Override
+    public void visit(BLangProgram bLangProgram) {
+        BLangPackage mainPkg = bLangProgram.getMainPackage();
+        mainPkg.accept(this);
+
+        // TODO Support services
+    }
+
+    @Override
+    public void visit(BLangPackage bLangPackage) {
+        for(BLangPackage dependentPkg: bLangPackage.getDependentPackages()) {
+            if(dependentPkg.isSymbolsDefined()) {
+                continue;
+            }
+
+            dependentPkg.accept(this);
+        }
+
+        currentScope = bLangPackage;
+        for(BallerinaFile bFile: bLangPackage.getBallerinaFiles()) {
+            bFile.accept(this);
+        }
+
+        bLangPackage.setSymbolsDefined(true);
+    }
+
+    @Override
+    public void visit(BallerinaFile bFile) {
         currentPkg = bFile.getPackagePath();
-        importPkgMap = bFile.getImportPackageMap();
         packageTypeLattice = bFile.getTypeLattice();
 
+        // TODO Define constants
+        // TODO Define Structs
         defineConnectors(bFile.getConnectors());
         resolveStructFieldTypes(bFile.getStructDefs());
         defineFunctions(bFile.getFunctions());
         defineTypeConvertors(packageTypeLattice);
         defineServices(bFile.getServices());
-    }
 
-    @Override
-    public void visit(BallerinaFile bFile) {
+
         for (CompilationUnit compilationUnit : bFile.getCompilationUnits()) {
             compilationUnit.accept(this);
         }
@@ -444,10 +472,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(VariableDef varDef) {
-    }
-
-    @Override
-    public void visit(ConnectorDcl connectorDcl) {
     }
 
 
@@ -1789,7 +1813,7 @@ public class SemanticAnalyzer implements NodeVisitor {
      */
 
     /**
-     * visit and analyze ballerina struc-field-access-expressions.
+     * visit and analyze ballerina struct-field-access-expressions.
      */
     @Override
     public void visit(StructFieldAccessExpr structFieldAccessExpr) {

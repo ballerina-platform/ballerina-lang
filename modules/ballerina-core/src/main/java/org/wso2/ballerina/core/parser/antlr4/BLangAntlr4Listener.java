@@ -28,6 +28,7 @@ import org.wso2.ballerina.core.parser.BallerinaListener;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.BallerinaParser.AnnotationContext;
 
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -37,7 +38,8 @@ import java.util.List;
  * @since 0.8.0
  */
 public class BLangAntlr4Listener implements BallerinaListener {
-
+    private String fileName;
+    private String packageDirPath;
     private BLangModelBuilder modelBuilder;
     private static final String PUBLIC = "public";
 
@@ -45,17 +47,28 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     // Types related attributes
     private String typeName;
-//    private String schemaID;
+    // private String schemaID;
 
     private boolean isSimpleType;
-//    private boolean isSchemaIDType;
-//    private boolean isFullSchemaType;
-//    private boolean isSchemaURLType;
+    // private boolean isSchemaIDType;
+    // private boolean isFullSchemaType;
+    // private boolean isSchemaURLType;
 
     private boolean isArrayType;
 
     public BLangAntlr4Listener(BLangModelBuilder modelBuilder) {
         this.modelBuilder = modelBuilder;
+    }
+
+    public BLangAntlr4Listener(BLangModelBuilder modelBuilder, Path relFilePath) {
+        this.modelBuilder = modelBuilder;
+        this.fileName = relFilePath.getFileName().toString();
+
+        if (relFilePath.getNameCount() >= 2) {
+            this.packageDirPath = relFilePath.subpath(0, relFilePath.getNameCount() - 1).toString();
+        } else {
+            this.packageDirPath = null;
+        }
     }
 
     @Override
