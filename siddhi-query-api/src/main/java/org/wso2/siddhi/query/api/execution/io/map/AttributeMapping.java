@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.transport;
+package org.wso2.siddhi.query.api.execution.io.map;
 
 public class AttributeMapping {
     private String mapping;
