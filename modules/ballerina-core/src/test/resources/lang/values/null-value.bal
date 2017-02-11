@@ -13,13 +13,24 @@ struct Family {
    }
 
 function nullAssignment1 () (xml) {
-int k = 0;
-    xml x = null;
+    xml x;
+    x = null;
     return x;
 }
 
 function nullAssignment2 () (xml) {
     xml x = null;
+    return x;
+}
+
+function nullAssignment3 () (xml) {
+    xml x = getNull();
+    return x;
+}
+
+function nullAssignment4 () (xml) {
+    xml x;
+    x = getNull();
     return x;
 }
 
@@ -75,5 +86,7 @@ function settingStructElementOfNullStruct () {
     p.family = null;
     p.family.spouse = "test";
 }
+
+
 
 

@@ -496,7 +496,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         if (rExpr instanceof NullLiteral) {
-            checkTypeReferenced(rExpr);
+            checkTypeReferenced(varDef);
             rExpr.setType(varDef.getType());
             return;
         }
@@ -582,7 +582,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         if (rExpr instanceof NullLiteral) {
-            checkTypeReferenced(rExpr);
+            checkTypeReferenced(lExpr);
             rExpr.setType(lExpr.getType());
             return;
         }
@@ -2208,7 +2208,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     private void checkTypeReferenced(Expression expr) {
         if (BTypes.isValueType(expr.getType())) {
             throw new SemanticException(
-                    LangModelUtils.getNodeLocationStr(expr.getNodeLocation()) + expr.getType() + " cannot be null ");
+                    LangModelUtils.getNodeLocationStr(expr.getNodeLocation()) + expr.getType() + " cannot be null");
+        }
+    }
+    private void checkTypeReferenced(VariableDef varDef) {
+        if (BTypes.isValueType(varDef.getType())) {
+            throw new SemanticException(
+                    LangModelUtils.getNodeLocationStr(varDef.getNodeLocation()) + varDef.getType() + " cannot be null");
         }
     }
 }

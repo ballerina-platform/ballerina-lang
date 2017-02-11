@@ -21,6 +21,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.BallerinaException;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BNull;
@@ -40,7 +41,7 @@ public class BNullValueTest {
     }
 
     @Test(description = "Test null value assignment")
-    public void testNullValueAssignment() {
+    public void testNullValueAssignment1() {
         BValue[] returns = Functions.invoke(bFile, "nullAssignment1");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BNull.class);
@@ -48,9 +49,28 @@ public class BNullValueTest {
         Assert.assertNotNull(nullValue);
     }
 
+
+    @Test(description = "Test null value assignment from function invocation")
+    public void testNullValueAssignment2() {
+        BValue[] returns = Functions.invoke(bFile, "nullAssignment4");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BNull.class);
+        BNull nullValue = (BNull) returns[0];
+        Assert.assertNotNull(nullValue);
+    }
+
     @Test(description = "Test null value assignment at the variable definition")
-    public void testNullValueAssignmentInDefinition() {
+    public void testNullValueAssignmentInDefinition1() {
         BValue[] returns = Functions.invoke(bFile, "nullAssignment2");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BNull.class);
+        BNull nullValue = (BNull) returns[0];
+        Assert.assertNotNull(nullValue);
+    }
+
+    @Test(description = "Test null value assignment at the variable definition from function invocation")
+    public void testNullValueAssignmentInDefinition2() {
+        BValue[] returns = Functions.invoke(bFile, "nullAssignment3");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BNull.class);
         BNull nullValue = (BNull) returns[0];
@@ -110,5 +130,19 @@ public class BNullValueTest {
           expectedExceptionsMessageRegExp = ".* Symbol family is null")
     public void testSettingAStructElementOfNullStruct() {
         Functions.invoke(bFile, "settingStructElementOfNullStruct");
+    }
+
+    @Test(description = "Test string value define as null",
+          expectedExceptions = SemanticException.class,
+          expectedExceptionsMessageRegExp = "define-string-null-value.bal:3: string cannot be null")
+    public void testDefineStringNull() {
+        ParserUtils.parseBalFile("lang/values/define-string-null-value.bal");
+    }
+
+    @Test(description = "Test assign null to string",
+          expectedExceptions = SemanticException.class,
+          expectedExceptionsMessageRegExp = "assign-string-to-null-value.bal:4: string cannot be null")
+    public void testAssignStringToNull() {
+        ParserUtils.parseBalFile("lang/values/assign-string-to-null-value.bal");
     }
 }
