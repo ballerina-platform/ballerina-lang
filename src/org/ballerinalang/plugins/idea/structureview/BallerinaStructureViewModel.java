@@ -50,8 +50,8 @@ public class BallerinaStructureViewModel extends StructureViewModelBase
     @Override
     protected Class[] getSuitableClasses() {
 
-        //todo
-        //        return new Class[] {ANTLRv4FileRoot.class,
+        //Todo - add all suitable classes
+        //        return new Class[] {FileRoot.class,
         //                LexerRuleSpecNode.class,
         //                ParserRuleSpecNode.class};
         return super.getSuitableClasses();

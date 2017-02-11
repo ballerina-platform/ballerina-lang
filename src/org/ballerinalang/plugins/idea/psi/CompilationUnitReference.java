@@ -56,11 +56,6 @@ public class CompilationUnitReference extends BallerinaElementReference {
                     previousSibling = previousSibling.getPrevSibling();
                 }
             }
-
-            //            if ("public".equals(previousSibling.getText())) {
-            //                return new Object[]{"function", "connector", "struct", "const"};
-            //            }
-
             return new Object[0];
         }
 
@@ -69,11 +64,6 @@ public class CompilationUnitReference extends BallerinaElementReference {
             previousElement = previousElement.getPrevSibling();
         }
 
-        //        if (previousElement == null) {
-        //
-        //            return new Object[]{"package", "import", "service", "function", "connector", "struct",
-        // "typeconverter"};
-        //        }
         if (previousElement instanceof ImportDeclarationNode || previousElement instanceof PackageDeclarationNode) {
 
             if (previousSibling == null) {
@@ -81,7 +71,6 @@ public class CompilationUnitReference extends BallerinaElementReference {
                         "const"};
             }
             return new Object[0];
-            //            if(getElement().getPrevSibling().getPrevSibling())
         }
         return new Object[]{"service", "function", "connector", "struct", "typeconverter", "const"};
     }

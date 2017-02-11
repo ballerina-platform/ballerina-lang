@@ -68,7 +68,6 @@ public class BallerinaBlock extends AbstractBlock {
         this.spacingBuilder = spacingBuilder;
     }
 
-
     @Override
     protected List<Block> buildChildren() {
         List<Block> blocks = new ArrayList<>();
@@ -103,7 +102,6 @@ public class BallerinaBlock extends AbstractBlock {
                             || parentElementType == TYPE_CONVERTER_BODY || parentElementType == WORKER_DECLARATION) {
                         indent = Indent.getSpaceIndent(4);
                     }
-
                 }
 
                 Block block = new BallerinaBlock(

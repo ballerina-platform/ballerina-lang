@@ -80,19 +80,8 @@ public class BallerinaStructureViewElement implements StructureViewTreeElement, 
     @NotNull
     @Override
     public TreeElement[] getChildren() {
+        //Todo - Add more children types
         if (element instanceof BallerinaFile) {
-
-//            // now jump into grammar to look for rules
-//            Collection<ASTWrapperPsiElement> rules =
-//                    PsiTreeUtil.collectElementsOfType(element, new Class[]{LexerRuleSpecNode.class, ParserRuleSpecNode.class});
-//            //			System.out.println("rules="+rules);
-//            List<TreeElement> treeElements = new ArrayList<TreeElement>(rules.size());
-//            for (ASTWrapperPsiElement el : rules) {
-//                PsiElement rule = PsiTreeUtil.findChildOfAnyType(el, new Class[]{LexerRuleRefNode.class, ParserRuleRefNode.class});
-//                treeElements.add(new ANTLRv4StructureViewElement(rule));
-//            }
-//            return treeElements.toArray(new TreeElement[treeElements.size()]);
-
             List<TreeElement> treeElements = new ArrayList<>();
 
             Collection<? extends PsiElement> services = XPath.findAll(BallerinaLanguage.INSTANCE, element,

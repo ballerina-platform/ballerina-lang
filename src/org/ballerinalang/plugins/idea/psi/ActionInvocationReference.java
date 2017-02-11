@@ -15,10 +15,8 @@
  */
 package org.ballerinalang.plugins.idea.psi;
 
-import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
-import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveResult;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
@@ -41,7 +39,6 @@ public class ActionInvocationReference extends BallerinaElementReference {
     @Override
     public Object[] getVariants() {
         return new Object[0];
-        //        return BallerinaPsiImplUtil.suggestPackages(getElement());
     }
 
     @NotNull

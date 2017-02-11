@@ -127,61 +127,10 @@ public abstract class BallerinaElementReference extends PsiReferenceBase<Identif
                 if (!(commonContext instanceof FunctionBodyNode || commonContext instanceof ConnectorBodyNode)) {
                     return false;
                 }
-            } else if (definitionElement instanceof CallableUnitNameNode) {
-
-//
-//                if (!(myElement.getParent() instanceof CallableUnitNameNode)) {
-//                    Collection<? extends PsiElement> packagePaths =
-//                            XPath.findAll(BallerinaLanguage.INSTANCE, myElement.getParent().getParent().getParent(),
-//                                    "//packagePath");
-//
-//                    if (packagePaths.isEmpty()) {
-//                        return false;
-//                    }
-//                    PsiElement packagePathNode = packagePaths.iterator().next();
-//
-//                    PsiElement packageNameNode = packagePathNode.getLastChild();
-//
-//                    //        PsiReference reference = packageName.getReference();
-//
-//                    PsiElement identifier = ((IdentifierDefSubtree) packageNameNode).getNameIdentifier();
-//
-//                    // Get the reference.
-//                    PsiReference reference = identifier.getReference();
-//                    // Resolve the reference. This will mostly point to the import statement package name.
-//                    PsiElement resolvedImportPackageName = reference.resolve();
-//                }
-
-            } else if (definitionElement instanceof SimpleTypeNode) {
-
-                //3^
             }
 
             PsiElement id = ((PsiNameIdentifierOwner) definitionElement).getNameIdentifier();
             String defName = id != null ? id.getText() : null;
-
-
-            //            //Todo Parent is different for package, import, const
-            //            PsiElement parent = definitionElement;
-            //
-            //            //Todo Replace with (parent.getParent() instanceof compilableUnitNode)
-            //            while (!(parent.getParent().getParent() instanceof PsiFile)) {
-            //                parent = parent.getParent();
-            //            }
-            //
-            //            PsiElement temp = myElement;
-            //            boolean inScope = false;
-            //            while (!(temp instanceof PsiFile)) {
-            //                if (parent == temp) {
-            //                    inScope = true;
-            //                    break;
-            //                }
-            //                temp = temp.getParent();
-            //            }
-            //
-            //            if (!inScope) {
-            //                return false;
-            //            }
 
             return refName != null && defName != null && refName.equals(defName);
         }

@@ -39,7 +39,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public class GoRecursiveCallMarkerProvider implements LineMarkerProvider {
+public class BallerinaRecursiveCallMarkerProvider implements LineMarkerProvider {
 
     @Nullable
     @Override

@@ -74,7 +74,7 @@
 
         <!--line marker-->
         <codeInsight.lineMarkerProvider language="Ballerina"
-                                        implementationClass="org.ballerinalang.plugins.idea.marker.GoRecursiveCallMarkerProvider"/>
+                                        implementationClass="org.ballerinalang.plugins.idea.marker.BallerinaRecursiveCallMarkerProvider"/>
 
         <!--find org.ballerinalang.plugins.idea.usage-->
         <lang.findUsagesProvider language="Ballerina"

@@ -140,50 +140,12 @@ public class BallerinaPsiImplUtil {
                 PsiElement[] children = getFunctionInvocationStatement(element).getChildren()[1].getChildren()[1]
                         .getChildren();
 
-                //                Collection<ExpressionNode> argList = PsiTreeUtil.findChildrenOfType(
-                //                        getFunctionInvocationStatement(element), ExpressionNode.class);
-                //arg list
                 if (paramList.size() == children.length / 2 + 1) {
                     return resolvedElement;
                 }
             }
-            //            PsiElement resolvedElement = Trees.toMap(declarations).get(functionName);
-            //            if (resolvedElement != null) {
-            //                return resolvedElement;
-            //            }
-
-            //            Collection<FunctionDefinitionNode> functions = PsiTreeUtil.findChildrenOfType(psiFile,
-            //                    FunctionDefinitionNode.class);
-            //
-            //            for (FunctionDefinitionNode functionDefinitionNode : functions) {
-            //                String name = functionDefinitionNode.get.getText();
-            //
-            //                if (!name.equals(functionName)) {
-            //                    continue;
-            //                }
-            //
-            //
-            //
-            //            }
-
-
         }
-
         return null;
-        //        return PsiManager.getInstance(project).findFile(fileList.get(0));
-
-        //        Collection<? extends PsiElement> declarations =
-        //                XPath.findAll(BallerinaLanguage.INSTANCE, element.getContainingFile(),
-        //                        "/compilationUnit/importDeclaration/packagePath/packageName/Identifier");
-        //        String id = element.getName();
-        //        PsiElement resolvedElement = Trees.toMap(declarations).get(id);
-        //
-        //        if (resolvedElement == null) {
-        //            declarations = XPath.findAll(BallerinaLanguage.INSTANCE, element.getContainingFile(),
-        //                    "/compilationUnit/packageDeclaration/packagePath/packageName/Identifier");
-        //            resolvedElement = Trees.toMap(declarations).get(id);
-        //        }
-        //        return resolvedElement;
     }
 
     public static PsiElement getFunctionInvocationStatement(PsiElement element) {
@@ -216,16 +178,11 @@ public class BallerinaPsiImplUtil {
     public static ArrayList<PsiElement> getAllImportedPackages(PsiElement element) {
         PsiFile file = element.getContainingFile();
 
-        //        final Collection<String> added = new ArrayList<>();
         Collection<ImportDeclarationNode> allImports = PsiTreeUtil.findChildrenOfAnyType(file,
                 ImportDeclarationNode.class);
         ArrayList<PsiElement> filteredPackages = new ArrayList<>();
 
         for (ImportDeclarationNode importDeclaration : allImports) {
-            //            String text = importDeclaration.getText();
-            //            if (!added.contains(text)) {
-            //                added.add(text);
-            //                filteredPackages.add(importDeclaration);
 
             Collection<? extends PsiElement> packagePathNodes =
                     XPath.findAll(BallerinaLanguage.INSTANCE, importDeclaration, "//packagePath");
@@ -561,8 +518,6 @@ public class BallerinaPsiImplUtil {
                 return results;
             }
             for (PsiReference psiReference : references) {
-
-                //                PsiElement resolved = psiReference.resolve();
 
                 ResolveResult[] resolveResults = ((FunctionReference) psiReference).multiResolve(false);
 

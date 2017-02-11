@@ -57,9 +57,6 @@ public class StatementReference extends BallerinaElementReference {
         results.addAll(simpleTypesList);
 
         String text = getElement().getText();
-        //        if(text.equals("IntellijIdeaRulezzz")){
-        //            PsiElement parent = getElement().getParent().getParent().getParent();
-        //        }
 
         PsiElement prevSibling = getElement().getParent().getPrevSibling();
         if (prevSibling != null && prevSibling.getPrevSibling() != null) {
@@ -76,10 +73,8 @@ public class StatementReference extends BallerinaElementReference {
 
                     ResolveResult[] resolveResults = ((PackageNameReference) packageIdentifier.getReference())
                             .multiResolve(false);
-                    //        PsiElement resolvedPackage = packageReference.resolve();
 
                     for (ResolveResult resolveResult : resolveResults) {
-
 
                         List<PsiElement> allMatchingElementsFromPackage = BallerinaPsiImplUtil
                                 .getAllMatchingElementsFromPackage((PsiDirectory) resolveResult.getElement(),
@@ -88,8 +83,6 @@ public class StatementReference extends BallerinaElementReference {
                             results.add(psiElement);
                         }
                     }
-
-
                 }
             }
         } else {
@@ -104,11 +97,7 @@ public class StatementReference extends BallerinaElementReference {
         }
         results.addAll(BallerinaPsiImplUtil.getAllVariablesInResolvableScope(context));
 
-        //        all.addAll(BallerinaPsiImplUtil.getAllImportedPackages(getElement()));
-
         return results.toArray();
-        //                        return new Object[]{};
-        //                        return  null;
     }
 
     @NotNull
@@ -127,8 +116,6 @@ public class StatementReference extends BallerinaElementReference {
                         PsiElement packageIdentifier = ((IdentifierDefSubtree) importedPackage).getNameIdentifier();
 
                         PsiReference packageReference = packageIdentifier.getReference();
-                        //        PsiElement resolvedPackage = packageReference.resolve();
-
                         PsiElement resolved = packageReference.resolve();
 
                         List<PsiElement> allMatchingElementsFromPackage = BallerinaPsiImplUtil
@@ -137,23 +124,14 @@ public class StatementReference extends BallerinaElementReference {
                         for (PsiElement psiElement : allMatchingElementsFromPackage) {
                             results.add(new PsiElementResolveResult(psiElement));
                         }
-
                     }
                 }
             }
         }
-
         List<PsiElement> functions = BallerinaPsiImplUtil.resolveConnector(getElement());
-
         for (PsiElement function : functions) {
             results.add(new PsiElementResolveResult(function));
         }
-
-        //        PsiDirectory[] directories = BallerinaPsiImplUtil.resolveDirectory(getElement());
-
-        //        for (PsiDirectory directory : directories) {
-        //            results.add(new PsiElementResolveResult(directory));
-        //        }
         return results.toArray(new ResolveResult[results.size()]);
     }
 }

@@ -89,9 +89,6 @@ public class BallerinaFile extends PsiFileBase implements ScopeNode {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//constantDefinition/Identifier");
         }
-        //        else if (element.getParent() instanceof PackageNameNode) {
-        //            return BallerinaPsiImplUtil.resolveDirectory(element);
-        //        }
         return null;
     }
 

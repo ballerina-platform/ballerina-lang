@@ -51,7 +51,6 @@ public class BallerinaSyntaxHighlighter extends SyntaxHighlighterBase {
 
     private static final Map<IElementType, TextAttributesKey> ATTRIBUTES = new HashMap<>();
 
-
     static {
         PSIElementTypeFactory.defineLanguageIElementTypes(BallerinaLanguage.INSTANCE,
                 BallerinaParser.tokenNames, BallerinaParser.ruleNames);
@@ -59,7 +58,6 @@ public class BallerinaSyntaxHighlighter extends SyntaxHighlighterBase {
         fillMap(ATTRIBUTES, BallerinaParserDefinition.COMMENTS, BallerinaSyntaxHighlightingColors.LINE_COMMENT);
         fillMap(ATTRIBUTES, BallerinaParserDefinition.KEYWORDS, BallerinaSyntaxHighlightingColors.KEYWORD);
         fillMap(ATTRIBUTES, BallerinaParserDefinition.STRING, BallerinaSyntaxHighlightingColors.STRING);
-
     }
 
     @NotNull
