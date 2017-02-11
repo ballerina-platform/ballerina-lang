@@ -253,16 +253,23 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
         }
         _.each(jsonNode.children, function (childNode) {
             var child = undefined;
+            var childNodeTemp = undefined;
             if (childNode.type === "variable_definition" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                 child = self.BallerinaASTFactory.createConnectorDeclaration();
+                childNodeTemp = childNode;
             } else if (childNode.type === "variable_definition" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'action_invocation_expression') {
                 child = self.BallerinaASTFactory.createActionInvocationExpression();
-            }
-            else {
+                childNodeTemp = childNode;
+            } else if (childNode.type === "assignment_statement" && childNode.children[1].children[0].type === "action_invocation_expression") {
+                child = self.getFactory().createActionInvocationExpression();
+                childNodeTemp = {};
+                childNodeTemp.children = [childNode.children[0].children[0], childNode.children[1].children[0]];
+            } else {
                 child = self.BallerinaASTFactory.createFromJson(childNode);
+                childNodeTemp = childNode;
             }
             self.addChild(child);
-            child.initFromJson(childNode);
+            child.initFromJson(childNodeTemp);
         });
     };
 
