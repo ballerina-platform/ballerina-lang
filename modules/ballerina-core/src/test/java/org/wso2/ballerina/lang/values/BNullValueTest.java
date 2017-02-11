@@ -86,6 +86,24 @@ public class BNullValueTest {
         Assert.assertTrue(isNull.booleanValue(), "Null check false");
     }
 
+    @Test(description = "Test function signature parsing null")
+    public void testFunctionInvocationParsingNull1() {
+        BValue[] returns = Functions.invoke(bFile, "callFunctionWithNULLValue1");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BNull.class);
+        BNull nullValue = (BNull) returns[0];
+        Assert.assertNotNull(nullValue);
+    }
+
+    @Test(description = "Test function signature parsing null")
+    public void testFunctionInvocationParsingNull2() {
+        BValue[] returns = Functions.invoke(bFile, "callFunctionWithNULLValue2");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BNull.class);
+        BNull nullValue = (BNull) returns[0];
+        Assert.assertNotNull(nullValue);
+    }
+
     @Test(description = "Test null return statement")
     public void testNullReturnStatement() {
         BValue[] returns = Functions.invoke(bFile, "getNull");
@@ -144,5 +162,26 @@ public class BNullValueTest {
           expectedExceptionsMessageRegExp = "assign-string-to-null-value.bal:4: string cannot be null")
     public void testAssignStringToNull() {
         ParserUtils.parseBalFile("lang/values/assign-string-to-null-value.bal");
+    }
+
+    @Test(description = "Test null return for string ",
+          expectedExceptions = SemanticException.class,
+          expectedExceptionsMessageRegExp = "return-string-null.bal:2: string cannot be null")
+    public void testNullReturnAsString() {
+        ParserUtils.parseBalFile("lang/values/return-string-null.bal");
+    }
+
+    @Test(description = "Test string null check",
+          expectedExceptions = SemanticException.class,
+          expectedExceptionsMessageRegExp = "string-left-null-check.bal:3: string cannot be null")
+    public void testStringNullCheckLeft() {
+        ParserUtils.parseBalFile("lang/values/string-left-null-check.bal");
+    }
+
+    @Test(description = "Test string null check",
+          expectedExceptions = SemanticException.class,
+          expectedExceptionsMessageRegExp = "string-right-null-check.bal:3: string cannot be null")
+    public void testStringNullRight() {
+        ParserUtils.parseBalFile("lang/values/string-right-null-check.bal");
     }
 }

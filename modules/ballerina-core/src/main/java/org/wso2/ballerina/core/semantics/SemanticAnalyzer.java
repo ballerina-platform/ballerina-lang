@@ -38,6 +38,7 @@ import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NativeUnit;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.ParameterDef;
@@ -496,7 +497,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         if (rExpr instanceof NullLiteral) {
-            checkTypeReferenced(varDef);
+            checkTypeReferenced(varDef.getType(), varDef.getNodeLocation());
             rExpr.setType(varDef.getType());
             return;
         }
@@ -763,8 +764,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             Expression returnArgExpr = returnArgExprs[i];
             returnArgExpr.accept(this);
             if (returnArgExpr instanceof NullLiteral) {
-                checkTypeReferenced(returnArgExpr);
                 ParameterDef parameterDef = returnParamsOfCU[i];
+                checkTypeReferenced(parameterDef.getType(), returnArgExpr.getNodeLocation());
                 typesOfReturnExprs[i] = parameterDef.getType();
             } else {
                 typesOfReturnExprs[i] = returnArgExpr.getType();
@@ -1566,10 +1567,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression rExpr = binaryExpr.getRExpr();
         Expression lExpr = binaryExpr.getLExpr();
         if (rExpr instanceof NullLiteral) {
-            checkTypeReferenced(rExpr);
+            checkTypeReferenced(lExpr);
             rExpr.setType(lExpr.getType());
         }  else if (lExpr instanceof NullLiteral) {
-            checkTypeReferenced(lExpr);
+            checkTypeReferenced(rExpr);
             lExpr.setType(rExpr.getType());
         }
 
@@ -2211,10 +2212,10 @@ public class SemanticAnalyzer implements NodeVisitor {
                     LangModelUtils.getNodeLocationStr(expr.getNodeLocation()) + expr.getType() + " cannot be null");
         }
     }
-    private void checkTypeReferenced(VariableDef varDef) {
-        if (BTypes.isValueType(varDef.getType())) {
+    private void checkTypeReferenced(BType type, NodeLocation nodeLocation) {
+        if (BTypes.isValueType(type)) {
             throw new SemanticException(
-                    LangModelUtils.getNodeLocationStr(varDef.getNodeLocation()) + varDef.getType() + " cannot be null");
+                    LangModelUtils.getNodeLocationStr(nodeLocation) + type + " cannot be null");
         }
     }
 }

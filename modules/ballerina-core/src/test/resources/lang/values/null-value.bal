@@ -87,6 +87,41 @@ function settingStructElementOfNullStruct () {
     p.family.spouse = "test";
 }
 
+function callFunctionWithNULLValue1()(xml){
+    xml x = null;
+    xml y = testSignature(x);
+    return y;
+}
+
+function callFunctionWithNULLValue2()(xml){
+    xml x;
+    xml y;
+    x = null;
+    y = testSignature(x);
+    return y;
+}
+
+function testSignature(xml x)(xml) {
+    if(x == null) {
+    int a = 0;
+    }
+    return null;
+}
+
+function testSignature(xml x, json y)(xml) {
+    if(x == null) {
+        int a = 0;
+    }
+    return null;
+}
+
+function testSignature(json x)(xml) {
+    if(x == null) {
+        int a = 0;
+    }
+    return null;
+}
+
 
 
 
