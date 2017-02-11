@@ -47,9 +47,7 @@
         <!-- highlighting -->
         <lang.syntaxHighlighterFactory language="Ballerina"
                                        implementationClass="org.ballerinalang.plugins.idea.highlighter.BallerinaSyntaxHighlighterFactory"/>
-        <!--<colorSettingsPage implementation="org.ballerinalang.plugins.idea.highlighter.BallerinaColorSettingsPage"/>-->
-
-        <!--<annotator language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.highlighter.BallerinaAnnotator"/>-->
+        <colorSettingsPage implementation="org.ballerinalang.plugins.idea.highlighter.BallerinaColorSettingsPage"/>
 
         formatter
         <lang.formatter language="Ballerina"
@@ -73,11 +71,6 @@
 
         <lang.braceMatcher language="Ballerina"
                            implementationClass="org.ballerinalang.plugins.idea.completion.BallerinaPairedBraceMatcher"/>
-
-        <enterHandlerDelegate
-                implementation="org.ballerinalang.plugins.idea.codeinsight.editor.actions.BallerinaEnterAfterUnmatchedBraceHandler"/>
-        <!--order="before afterUnmatchedBrace"-->
-
 
         <!--line marker-->
         <codeInsight.lineMarkerProvider language="Ballerina"
