@@ -66,7 +66,7 @@ connectorDefinition
     ;
 
 nativeConnector
-    :   'native' 'connector' Identifier '(' parameterList ')' nativeConnectorBody
+    :   annotation* 'native' 'connector' Identifier '(' parameterList ')' nativeConnectorBody
     ;
 
 nativeConnectorBody
@@ -462,38 +462,6 @@ mapStructInitKeyValue
     ;
 
 // LEXER
-
-// §3.9 Ballerina keywords
-ACTION          : 'action';
-ALL             : 'all';
-ANY             : 'any';
-AS              : 'as';
-BREAK           : 'break';
-CATCH           : 'catch';
-CONNECTOR       : 'connector';
-CONST           : 'const';
-CREATE          : 'create';
-ELSE            : 'else';
-FORK            : 'fork';
-FUNCTION        : 'function';
-IF              : 'if';
-IMPORT          : 'import';
-ITERATE         : 'iterate';
-JOIN            : 'join';
-NULL            : 'null';
-PACKAGE         : 'package';
-REPLY           : 'reply';
-RESOURCE        : 'resource';
-RETURN          : 'return';
-SERVICE         : 'service';
-STRUCT          : 'struct';
-THROW           : 'throw';
-THROWS          : 'throws';
-TIMEOUT         : 'timeout';
-TRY             : 'try';
-TYPECONVERTOR   : 'typeconvertor';
-WHILE           : 'while';
-WORKER          : 'worker';
 
 // §3.10.1 Integer Literals
 IntegerLiteral
