@@ -17,6 +17,7 @@
 
 package org.wso2.ballerina.annotation.processor;
 
+import org.wso2.ballerina.core.BuiltinPackageRepository;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.GlobalScope;
@@ -57,6 +58,7 @@ public class ConstructProviderClassBuilder {
     private static final String META_INF = "META-INF" + File.separator;
     private static final String GLOBAL_SCOPE = "globalScope";
     private static final String PACKAGE_SCOPE = "nativePackage";
+    private static final String PACKAGE_REPO = "pkgRepo";
     private static final String EMPTY = "";
     
     private Writer sourceFileWriter;
@@ -65,6 +67,7 @@ public class ConstructProviderClassBuilder {
     private String nativeUnitClass = NativeUnit.class.getSimpleName();
     private String symbolNameClass = SymbolName.class.getSimpleName();
     private String nativeProxyClass = NativeUnitProxy.class.getSimpleName();
+    private String builtinPackageRepositoryClass = BuiltinPackageRepository.class.getSimpleName();
     private Map<String, PackageHolder> nativePackages;
     private String symbolNameStr = "new %s(\"%s\",\"%s\")";
     private final String importPkg = "import " + GlobalScope.class.getCanonicalName() + ";\n" + 
@@ -75,6 +78,7 @@ public class ConstructProviderClassBuilder {
                                      "import " + AbstractNativeConnector.class.getCanonicalName() + ";\n" +
                                      "import " + NativeUnit.class.getCanonicalName() + ";\n\n" +
                                      "import " + BLangPackage.class.getCanonicalName() + ";\n\n" +
+                                     "import " + BuiltinPackageRepository.class.getCanonicalName() + ";\n\n" +
                                      "import " + NativePackageProxy.class.getCanonicalName() + ";\n\n";
     
     /**
@@ -113,7 +117,9 @@ public class ConstructProviderClassBuilder {
         stringBuilder.append("public class " + className + 
                 " implements " + NativeConstructLoader.class.getSimpleName() + " {\n\n");
         stringBuilder.append("public " + className + "() {}\n\n");
-        stringBuilder.append("public void load(" + GlobalScope.class.getSimpleName() + " globalScope) {\n");
+        stringBuilder.append("public void load(" + GlobalScope.class.getSimpleName() + " globalScope) {\n\n");
+        stringBuilder.append(builtinPackageRepositoryClass + " " + PACKAGE_REPO + " = new " + 
+                builtinPackageRepositoryClass + "(" + className + ".class);\n\n");
         
         try {
             JavaFileObject javaFile = filer.createSourceFile(packageName + "." + className);
@@ -180,7 +186,9 @@ public class ConstructProviderClassBuilder {
                 writeFunctions(pkgHolder.getFunctions());
                 writeConnectors(pkgHolder.getConnectors());
                 writeTypeConvertors(pkgHolder.getTypeConvertors());
-                sourceFileWriter.write("\treturn nativePackage;\n\t})\n);\n\n");
+                String pkgInsertionEndStr = "\t" + PACKAGE_SCOPE + ".setPackageRepository(" + PACKAGE_REPO + ");\n" +
+                        "\treturn nativePackage;\n\t})\n);\n\n";
+                sourceFileWriter.write(pkgInsertionEndStr);
             }
             sourceFileWriter.write("}\n}\n");
         } catch (IOException e) {
