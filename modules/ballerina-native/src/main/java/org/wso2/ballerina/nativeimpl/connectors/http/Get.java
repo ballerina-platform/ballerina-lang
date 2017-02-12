@@ -43,7 +43,7 @@ import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 @BallerinaAction(
         packageName = "ballerina.net.http",
         actionName = "get",
-        connectorName = HTTPConnector.CONNECTOR_NAME,
+        connectorName = ClientConnector.CONNECTOR_NAME,
         args = {
                 @Argument(name = "connector",
                         type = TypeEnum.CONNECTOR),
@@ -55,14 +55,14 @@ import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
         name = "action.net.http.get",
         immediate = true,
         service = AbstractNativeAction.class)
-@BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-value = "GET action implementation of the HTTP Connector") })
-@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "connector",
-value = "Connector") })
-@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "path",
-value = "Request path") })
-@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "message",
-value = "message") })
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "GET action implementation of the HTTP Connector")})
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "connector",
+        value = "Connector")})
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "path",
+        value = "Request path")})
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "message",
+        value = "message")})
 public class Get extends AbstractHTTPAction {
 
     private static final Logger logger = LoggerFactory.getLogger(Get.class);
@@ -76,7 +76,7 @@ public class Get extends AbstractHTTPAction {
             // Execute the operation
             return executeAction(context, createCarbonMsg(context));
         } catch (Throwable t) {
-            throw new BallerinaException("Failed to invoke 'get' action in " + HTTPConnector.CONNECTOR_NAME
+            throw new BallerinaException("Failed to invoke 'get' action in " + ClientConnector.CONNECTOR_NAME
                     + ". " + t.getMessage(), context);
         }
     }
@@ -91,13 +91,13 @@ public class Get extends AbstractHTTPAction {
             // Execute the operation
             executeNonBlockingAction(context, createCarbonMsg(context), callback);
         } catch (ClientConnectorException | RuntimeException e) {
-            String msg = "Failed to invoke 'get' action in " + HTTPConnector.CONNECTOR_NAME
+            String msg = "Failed to invoke 'get' action in " + ClientConnector.CONNECTOR_NAME
                     + ". " + e.getMessage();
             BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
             context.getExecutor().handleBException(exception);
         } catch (Throwable t) {
             // This is should be a JavaError. Need to handle this properly.
-            throw new BallerinaException("Failed to invoke 'get' action in " + HTTPConnector.CONNECTOR_NAME
+            throw new BallerinaException("Failed to invoke 'get' action in " + ClientConnector.CONNECTOR_NAME
                     + ". " + t.getMessage(), context);
         }
     }
@@ -109,8 +109,8 @@ public class Get extends AbstractHTTPAction {
         BMessage bMessage = (BMessage) getArgument(context, 2);
 
         Connector connector = bConnector.value();
-        if (!(connector instanceof HTTPConnector)) {
-            throw new BallerinaException("Need to use a HTTPConnector as the first argument", context);
+        if (!(connector instanceof ClientConnector)) {
+            throw new BallerinaException("Need to use a ClientConnector as the first argument", context);
         }
         // Prepare the message
         CarbonMessage cMsg = bMessage.value();

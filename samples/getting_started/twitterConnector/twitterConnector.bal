@@ -8,7 +8,7 @@ import ballerina.util;
 
 connector Twitter (string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret) {
 
-    http:HTTPConnector tweeterEP = create http:HTTPConnector("https://api.twitter.com");
+    http:ClientConnector tweeterEP = create http:ClientConnector("https://api.twitter.com");
 
     action tweet(Twitter t, string msg) (message) {
 
@@ -19,7 +19,7 @@ connector Twitter (string consumerKey, string consumerSecret, string accessToken
 
         message:setHeader(request, "Authorization", oauthHeader);
 
-        message response = http:HTTPConnector.post(tweeterEP, tweetPath, request);
+        message response = http:ClientConnector.post(tweeterEP, tweetPath, request);
 
         return response;
     }

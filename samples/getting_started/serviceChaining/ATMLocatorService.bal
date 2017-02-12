@@ -9,8 +9,8 @@ service ATMLocator {
     @POST
     @Path ("/locator")
     resource locator (message m) {
-        http:HTTPConnector branchLocatorService = create http:HTTPConnector("http://localhost:9090/branchlocator");
-        http:HTTPConnector bankInfoService = create http:HTTPConnector("http://localhost:9090/bankinfo");
+        http:ClientConnector branchLocatorService = create http:ClientConnector("http://localhost:9090/branchlocator");
+        http:ClientConnector bankInfoService = create http:ClientConnector("http://localhost:9090/bankinfo");
 
         message backendServiceReq = {};
 
@@ -23,7 +23,7 @@ service ATMLocator {
         json:set(branchLocatorReq, "$.BranchLocator.ZipCode", zipCode);
         message:setJsonPayload(backendServiceReq, branchLocatorReq);
 
-        message response = http:HTTPConnector.post(branchLocatorService, "", backendServiceReq);
+        message response = http:ClientConnector.post(branchLocatorService, "", backendServiceReq);
 
         json branchLocatorRes = message:getJsonPayload(response);
 
@@ -34,7 +34,7 @@ service ATMLocator {
         json:set(bankInfoReq, "$.BranchInfo.BranchCode", branchCode);
         message:setJsonPayload(backendServiceReq, bankInfoReq);
 
-        response = http:HTTPConnector.post(bankInfoService, "", backendServiceReq);
+        response = http:ClientConnector.post(bankInfoService, "", backendServiceReq);
 
         reply response;
     }

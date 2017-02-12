@@ -604,32 +604,18 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(BlockStmt blockStmt) {
         openScope(blockStmt);
 
-        Statement lastStmt = null;
-        for (Statement stmt : blockStmt.getStatements()) {
-            if (lastStmt != null) {
-                if (lastStmt instanceof ReplyStmt) {
-                    throw new SemanticException("error: " + stmt.getNodeLocation().getFileName() + ":" +
-                            stmt.getNodeLocation().getLineNumber() + " Unreachable Statement after reply.");
-                } else if (lastStmt instanceof ReturnStmt) {
-                    throw new SemanticException("error: " + stmt.getNodeLocation().getFileName() + ":" +
-                            stmt.getNodeLocation().getLineNumber() + " Unreachable Statement after return.");
-                } else if (lastStmt instanceof BreakStmt) {
-                    throw new SemanticException("error: " + stmt.getNodeLocation().getFileName() + ":" +
-                            stmt.getNodeLocation().getLineNumber() + " Unreachable Statement after break.");
-                } else if (lastStmt instanceof ThrowStmt) {
-                    throw new SemanticException("error: " + stmt.getNodeLocation().getFileName() + ":" +
-                            stmt.getNodeLocation().getLineNumber() + " Unreachable Statement after throw.");
-                }
-                if (lastStmt instanceof BlockStmt) {
-                    // Liked statement implementation assume there is no Sibling block statements.
-                    // Execution shouldn't reach here.
-                    throw new SemanticException("Internal Error. Broken Link in "
-                            + stmt.getNodeLocation().getFileName() + ":"
-                            + stmt.getNodeLocation().getLineNumber() + ". Found Sibling Block statements.");
+        for (int i = 0; i < blockStmt.getStatements().length; i++) {
+            Statement stmt = blockStmt.getStatements()[i];
+            if (stmt instanceof ReturnStmt || stmt instanceof ReplyStmt || stmt instanceof BreakStmt ||
+                    stmt instanceof ThrowStmt) {
+                int stmtLocation = i + 1;
+                if (blockStmt.getStatements().length > stmtLocation) {
+                    throw new SemanticException(
+                            LangModelUtils.getNodeLocationStr(blockStmt.getStatements()[stmtLocation].getNodeLocation())
+                                    + "unreachable statement");
                 }
             }
             stmt.accept(this);
-            lastStmt = stmt;
         }
 
         closeScope();
