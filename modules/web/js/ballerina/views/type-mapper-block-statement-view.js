@@ -86,7 +86,9 @@ define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapp
             var assignmentStatementNode = connection.targetReference.getParent().
                 returnConstructedAssignmentStatement("y","x",connection.sourceProperty,connection.targetProperty);
             var blockStatement = connection.targetReference.getParent().getBlockStatement();
-            blockStatement.addChild(assignmentStatementNode);
+
+            var lastIndex = _.findLastIndex(blockStatement.getChildren());
+            blockStatement.addChild(assignmentStatementNode,lastIndex);
 //
 //            connection.targetReference.getParent().addAssignmentStatement(assignmentStatementNode);
 
