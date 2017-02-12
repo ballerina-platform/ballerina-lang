@@ -38,8 +38,6 @@ public class TestCmd implements BLauncherCmd {
     @Parameter(names = "--debug", hidden = true)
     private String debugPort;
 
-    TestRunner testRunner = new TestRunner();
-
     public void execute() {
         if (argList == null || argList.size() == 0) {
             throw LauncherUtils.createUsageException("no ballerina program or folder given to run tests");
