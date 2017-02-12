@@ -34,6 +34,10 @@ public class TestCmd implements BLauncherCmd {
 
     @Parameter(arity = 1, description = "arguments")
     private List<String> argList;
+
+    @Parameter(names = "--debug", hidden = true)
+    private String debugPort;
+
     TestRunner testRunner = new TestRunner();
 
     public void execute() {
@@ -41,9 +45,8 @@ public class TestCmd implements BLauncherCmd {
             throw LauncherUtils.createUsageException("no ballerina program or folder given to run tests");
         }
 
-        Path p = Paths.get(argList.get(0));
-        p = p.toAbsolutePath();
-        testRunner.runMain(p);
+        Path[] paths = argList.stream().map(Paths::get).toArray(Path[]::new);
+        TestRunner.runTest(paths);
     }
 
     @Override
