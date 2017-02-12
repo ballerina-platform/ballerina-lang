@@ -251,10 +251,10 @@ literalValue
  // ANNOTATION
 
  annotation
-     :   '@' annotationName ( '(' ( elementValuePairs | elementValue )? ')' )?
+     :   annotationName ( '(' ( elementValuePairs | elementValue )? ')' )?
      ;
 
- annotationName : Identifier ;
+ annotationName : '@' Identifier ;
 
  elementValuePairs
      :   elementValuePair (',' elementValuePair)*
