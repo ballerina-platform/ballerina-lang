@@ -332,7 +332,8 @@ public class BLangModelBuilder {
 
     public void createAnnotationKeyValue(String key) {
         Expression expr = exprStack.peek();
-        if (expr instanceof BasicLiteral && expr.getType() == BTypes.typeString) {
+        if (expr instanceof BasicLiteral &&
+                ((BasicLiteral) expr).getTypeName().getName().equals(TypeConstants.STRING_TNAME)) {
             String value = ((BasicLiteral) expr).getBValue().stringValue();
             Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.peek();
             annotationBuilder.addKeyValuePair(new SymbolName(key), value);
@@ -1002,7 +1003,9 @@ public class BLangModelBuilder {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = new IfElseStmt.IfElseStmtBuilder();
         ifElseStmtBuilder.setNodeLocation(location);
         ifElseStmtBuilderStack.push(ifElseStmtBuilder);
+    }
 
+    public void startIfClause(NodeLocation location) {
         BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
 
@@ -1016,6 +1019,20 @@ public class BLangModelBuilder {
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
+    public void addIfClause() {
+        IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.peek();
+
+        Expression condition = exprStack.pop();
+        checkArgExprValidity(ifElseStmtBuilder.getLocation(), condition);
+        ifElseStmtBuilder.setIfCondition(condition);
+
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+        BlockStmt blockStmt = blockStmtBuilder.build();
+        ifElseStmtBuilder.setThenBody(blockStmt);
+
+        currentScope = blockStmt.getEnclosingScope();
+    }
+    
     public void addElseIfClause() {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.peek();
 
@@ -1047,19 +1064,8 @@ public class BLangModelBuilder {
 
     public void addIfElseStmt() {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.pop();
-
-        Expression condition = exprStack.pop();
-        checkArgExprValidity(ifElseStmtBuilder.getLocation(), condition);
-        ifElseStmtBuilder.setIfCondition(condition);
-
-        BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
-        BlockStmt blockStmt = blockStmtBuilder.build();
-        ifElseStmtBuilder.setThenBody(blockStmt);
-
         IfElseStmt ifElseStmt = ifElseStmtBuilder.build();
         addToBlockStmt(ifElseStmt);
-
-        currentScope = blockStmt.getEnclosingScope();
     }
 
     public void createFunctionInvocationStmt(NodeLocation location) {
