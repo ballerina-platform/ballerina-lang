@@ -79,8 +79,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         return listenerConfiguration;
     }
 
-    public SourceHandler(ConnectionManager connectionManager, ListenerConfiguration listenerConfiguration)
-            throws Exception {
+    public SourceHandler(ConnectionManager connectionManager, ListenerConfiguration listenerConfiguration) {
         this.listenerConfiguration = listenerConfiguration;
         this.connectionManager = connectionManager;
     }
@@ -289,7 +288,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
 
         HttpRequest httpRequest = (HttpRequest) httpMessage;
-
         cMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
         cMsg.setProperty(Constants.SRC_HNDLR, this);
         cMsg.setProperty(Constants.HTTP_VERSION, httpRequest.getProtocolVersion().text());

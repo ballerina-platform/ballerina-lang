@@ -46,7 +46,6 @@ import java.nio.ByteBuffer;
 import javax.websocket.Session;
 
 /**
- * {@link SourceHandler} only handles the HTTP requests.
  * This class handles all kinds of WebSocketFrames
  * after connection is upgraded from HTTP to WebSocket.
  */
@@ -58,12 +57,20 @@ public class WebSocketSourceHandler extends SourceHandler {
     private final String channelId;
     private final boolean isSecured;
 
+    /**
+     * @param channelId This works as the session id of the WebSocket connection.
+     * @param connectionManager connection manager for WebSocket connection.
+     * @param listenerConfiguration Listener configuration for WebSocket connection.
+     * @param uri Requested URI of WebSocket connection.
+     * @param isSecured indication of whether the connection is secured or not.
+     * @param ctx {@link ChannelHandlerContext} of WebSocket connection.
+     */
     public WebSocketSourceHandler(String channelId,
                                   ConnectionManager connectionManager,
                                   ListenerConfiguration listenerConfiguration,
                                   String uri,
                                   boolean isSecured,
-                                  ChannelHandlerContext ctx) throws Exception {
+                                  ChannelHandlerContext ctx) {
         super(connectionManager, listenerConfiguration);
         this.uri = uri;
         this.channelId = channelId;
@@ -164,14 +171,10 @@ public class WebSocketSourceHandler extends SourceHandler {
         }
         cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
         cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
-
         cMsg.setProperty(Constants.TO, this.uri);
-
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT,
                          ((InetSocketAddress) ctx.channel().localAddress()).getPort());
-
         cMsg.setProperty(Constants.IS_SECURED_CONNECTION, isSecured);
-
         cMsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
         cMsg.setProperty(Constants.LOCAL_NAME, ((InetSocketAddress) ctx.channel().localAddress()).getHostName());
         cMsg.setProperty(Constants.REMOTE_ADDRESS, ctx.channel().remoteAddress());
