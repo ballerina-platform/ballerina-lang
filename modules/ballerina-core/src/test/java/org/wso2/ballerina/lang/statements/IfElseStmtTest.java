@@ -211,6 +211,25 @@ public class IfElseStmtTest {
         Assert.assertEquals(actual.intValue(), 600, "mismatched output value");
     }
 
+    @Test(description = "Test if condition parameter resolver scope")
+    public void testIfConditionScope() {
+        BallerinaFile balFile = ParserUtils.parseBalFile("lang/statements/if-condition-scope.bal");
+
+        BValue[] args1 = { new BInteger(3)};
+        BValue[] returns = Functions.invoke(balFile, "testConditionScope", args1);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
+        BInteger actual = (BInteger) returns[0];
+        Assert.assertEquals(actual.intValue(), 10, "if condition scope not set properly");
+
+        BValue[] args2 = new BValue[] { new BInteger(6) };
+        returns = Functions.invoke(balFile, "testConditionScope", args2);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
+        actual = (BInteger) returns[0];
+        Assert.assertEquals(actual.intValue(), 20, "elseif condition scope not set properly");
+    }
+
     @Test(description = "Test if statement with incompatible types",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "if-stmnt-with-incompatible-types.bal:2: incompatible type: " +
