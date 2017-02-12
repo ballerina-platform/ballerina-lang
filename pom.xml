@@ -43,6 +43,26 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.wso2.ballerina</groupId>
+                <artifactId>annotation-processor</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.ballerina</groupId>
+                <artifactId>ballerina-core</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.ballerina</groupId>
+                <artifactId>ballerina-launcher</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.antlr</groupId>
+                <artifactId>antlr4-runtime</artifactId>
+                <version>${antlr4.runtime.version}</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
@@ -69,10 +89,8 @@
     </build>
 
     <properties>
+        <ballerina.version>0.8.0-M4</ballerina.version>
 
-        <ballerina.core.version>0.8.0-SNAPSHOT</ballerina.core.version>
-
-        <ballerina.launcher.version>0.8.0-SNAPSHOT</ballerina.launcher.version>
         <com.beust.jcommander.version>1.60</com.beust.jcommander.version>
 
         <testerina.version>0.8.0-SNAPSHOT</testerina.version>
