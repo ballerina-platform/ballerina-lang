@@ -66,6 +66,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
                 expression += " , ";
             }
         }
+        expression = 'return ' + expression;
         this.setReturnExpression(expression, {doSilently: true});
     };
 
