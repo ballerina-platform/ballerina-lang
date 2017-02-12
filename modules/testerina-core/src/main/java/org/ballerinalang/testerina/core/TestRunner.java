@@ -109,7 +109,7 @@ public class TestRunner {
             //populate applications without services
             BallerinaFile bFile = getBFileWithoutServices(originalBFile, sourceFilePath);
             mockerinaRegistry.addBallerinaFile(originalBFile, bFile);
-            Arrays.stream(originalBFile.getServices())          // save the services list for later use by StartServer
+            Arrays.stream(originalBFile.getServices())          // save the services list for later use by StartService
                     .forEachOrdered(mockerinaRegistry::addService);
 
             // Create a runtime environment for this Ballerina application
