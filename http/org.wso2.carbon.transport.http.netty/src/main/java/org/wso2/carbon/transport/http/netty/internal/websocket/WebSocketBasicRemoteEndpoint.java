@@ -61,7 +61,6 @@ public class WebSocketBasicRemoteEndpoint implements RemoteEndpoint.Basic {
     }
 
     @Override
-    @Deprecated
     public void sendText(String partialMessage, boolean isLast) throws IOException {
         throw new UnsupportedOperationException("Method is not supported");
     }

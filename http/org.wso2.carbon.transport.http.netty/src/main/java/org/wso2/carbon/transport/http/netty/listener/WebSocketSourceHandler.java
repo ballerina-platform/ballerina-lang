@@ -114,7 +114,6 @@ public class WebSocketSourceHandler extends SourceHandler {
             byteBuf.release();
 
         }
-
         setupCarbonMessage(ctx);
         publishToMessageProcessor(cMsg);
     }
@@ -141,7 +140,6 @@ public class WebSocketSourceHandler extends SourceHandler {
         } else {
             LOGGER.error("Cannot find registered MessageProcessor to forward the message.");
         }
-
     }
 
     /*

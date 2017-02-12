@@ -44,24 +44,24 @@ public class WebSocketClient {
                                                         TestUtil.TEST_HOST, TestUtil.TEST_SERVER_PORT, "test"));
     private Channel channel = null;
 
-
-    public boolean handhshake(String host, int port) throws URISyntaxException, InterruptedException {
+    /**
+     * @param host host of the WebSocket client.
+     * @param port port of the WebSocket client.
+     * @return true if the handshake is done properly.
+     * @throws URISyntaxException throws if there is an error in the URI syntax.
+     * @throws InterruptedException throws if the connecting the server is interrupted.
+     */
+    public boolean handhshake(String host, int port) throws InterruptedException, URISyntaxException {
         URI uri = new URI(url);
         EventLoopGroup group = new NioEventLoopGroup();
-
         Bootstrap b = new Bootstrap();
-
         b.group(group)
                 .channel(NioSocketChannel.class)
                 .handler(new WebSocketClientInitializer());
-
         channel = b.connect(host, port).sync().channel();
-
         WebSocketClientHandshaker handshaker = WebSocketClientHandshakerFactory.
                 newHandshaker(uri, WebSocketVersion.V13, null, true, new DefaultHttpHeaders());
-
         boolean isDone = handshaker.handshake(channel).sync().isSuccess();
-
         return isDone;
     }
 
