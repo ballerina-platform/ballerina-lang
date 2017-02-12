@@ -38,4 +38,9 @@ public class ProgramPackageRepository extends PackageRepository {
         this.systemPackageRepo = systemPackageRepo;
         this.userPackageRepo = userPackageRepo;
     }
+
+    @Override
+    public PackageSource loadPackage(Path packageDirPath) {
+        return loadPackageFromDirectory(programDirPath, packageDirPath);
+    }
 }
