@@ -16,9 +16,9 @@
  * under the License.
  */
 define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './connector-action-visitor',
-        './variable-declaration-visitor', './connector-declaration-visitor'],
+        './variable-declaration-visitor', './connector-declaration-visitor', './statement-visitor-factory'],
     function(_, log, EventChannel, AbstractSourceGenVisitor, ConnectorActionVisitor,
-             VariableDeclarationVisitor, ConnectorDeclarationVisitor) {
+             VariableDeclarationVisitor, ConnectorDeclarationVisitor, StatementVisitorFactory) {
 
         /**
          * @param {ASTVisitor} parent - parent visitor
@@ -113,6 +113,16 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './co
         ConnectorDefinitionVisitor.prototype.visitVariableDeclaration = function(variableDeclaration){
             var variableDeclarationVisitor = new VariableDeclarationVisitor(this);
             variableDeclaration.accept(variableDeclarationVisitor);
+        };
+
+        /**
+         * Visit Statements
+         * @param {Statement} statement
+         */
+        ConnectorDefinitionVisitor.prototype.visitStatement = function (statement) {
+            var statementVisitorFactory = new StatementVisitorFactory();
+            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+            statement.accept(statementVisitor);
         };
 
         return ConnectorDefinitionVisitor;
