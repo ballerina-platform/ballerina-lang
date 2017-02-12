@@ -88,7 +88,7 @@ public class NativeBallerinaFileBuilder {
 
         // writes all native code defined in Ballerina also to the same targetDirectory
         try {
-            Path source = Paths.get(targetDirectory, "..", "src", "main", "resources", "ballerina");
+            Path source = Paths.get(targetDirectory, "..", "src", "main", "ballerina");
             Path target = Paths.get(targetDirectory, "ballerina");
             Files.walkFileTree(source, new BallerinaFileVisitor(source, target));
         } catch (IOException e) {
