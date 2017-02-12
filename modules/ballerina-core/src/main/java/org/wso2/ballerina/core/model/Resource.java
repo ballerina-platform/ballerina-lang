@@ -18,7 +18,7 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.exception.LinkerException;
+import org.wso2.ballerina.core.exception.FlowBuilderException;
 import org.wso2.ballerina.core.model.builder.CallableUnitBuilder;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
@@ -154,8 +154,8 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     @Override
     public void setTempStackFrameSize(int stackFrameSize) {
         if (this.tempStackFrameSize > 0 && stackFrameSize != this.tempStackFrameSize) {
-            throw new LinkerException("Attempt to Overwrite tempValue Frame size. current :" + this.tempStackFrameSize +
-                    ", new :" + stackFrameSize);
+            throw new FlowBuilderException("Attempt to Overwrite tempValue Frame size. current :" +
+                    this.tempStackFrameSize + ", new :" + stackFrameSize);
         }
         this.tempStackFrameSize = stackFrameSize;
     }

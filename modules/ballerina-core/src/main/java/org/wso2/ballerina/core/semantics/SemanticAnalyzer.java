@@ -97,11 +97,13 @@ import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.ThrowStmt;
+import org.wso2.ballerina.core.model.statements.TryCatchStmt;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.types.BArrayType;
 import org.wso2.ballerina.core.model.types.BConnectorType;
+import org.wso2.ballerina.core.model.types.BExceptionType;
 import org.wso2.ballerina.core.model.types.BJSONType;
 import org.wso2.ballerina.core.model.types.BMapType;
 import org.wso2.ballerina.core.model.types.BMessageType;
@@ -135,6 +137,9 @@ import static org.wso2.ballerina.core.model.util.LangModelUtils.getNodeLocationS
  * @since 0.8.0
  */
 public class SemanticAnalyzer implements NodeVisitor {
+    // following pattern matches ${anyString} or ${anyString[int]} or ${anyString["anyString"]}
+    private static final String patternString = "\\$\\{((\\w+)(\\[(\\d+|\\\"(\\w+)\\\")\\])?)\\}";
+    private static final Pattern compiledPattern = Pattern.compile(patternString);
     private int stackFrameOffset = -1;
     private int staticMemAddrOffset = -1;
     private int connectorMemAddrOffset = -1;
@@ -142,11 +147,6 @@ public class SemanticAnalyzer implements NodeVisitor {
     private String currentPkg;
     private TypeLattice packageTypeLattice;
     private CallableUnit currentCallableUnit = null;
-
-    // following pattern matches ${anyString} or ${anyString[int]} or ${anyString["anyString"]}
-    private static final String patternString = "\\$\\{((\\w+)(\\[(\\d+|\\\"(\\w+)\\\")\\])?)\\}";
-    private static final Pattern compiledPattern = Pattern.compile(patternString);
-
     // We need to keep a map of import packages.
     // This is useful when analyzing import functions, actions and types.
     private Map<String, ImportPackage> importPkgMap = new HashMap<>();
@@ -698,6 +698,33 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
+    public void visit(TryCatchStmt tryCatchStmt) {
+        tryCatchStmt.getTryBlock().accept(this);
+        tryCatchStmt.getCatchScope().getParameterDef().setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+        tryCatchStmt.getCatchScope().getParameterDef().accept(this);
+        tryCatchStmt.getCatchBlock().accept(this);
+    }
+
+    @Override
+    public void visit(ThrowStmt throwStmt) {
+        throwStmt.getExpr().accept(this);
+        if (throwStmt.getExpr() instanceof VariableRefExpr) {
+            if (throwStmt.getExpr().getType() instanceof BExceptionType) {
+                return;
+            }
+        } else {
+            FunctionInvocationExpr funcIExpr = (FunctionInvocationExpr) throwStmt.getExpr();
+            if (!funcIExpr.isMultiReturnExpr() && funcIExpr.getTypes().length > 0
+                    && funcIExpr.getTypes()[0] instanceof BExceptionType) {
+                return;
+            }
+        }
+        throw new SemanticException(throwStmt.getNodeLocation().getFileName() + ":" +
+                throwStmt.getNodeLocation().getLineNumber() +
+                ": only a variable reference of type 'exception' is allowed in throw statement");
+    }
+
+    @Override
     public void visit(FunctionInvocationStmt functionInvocationStmt) {
         functionInvocationStmt.getFunctionInvocationExpr().accept(this);
     }
@@ -1192,7 +1219,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (argExprs.length == 0) {
             refTypeInitExpr.setType(inheritedType);
 
-        } else if (inheritedType instanceof BJSONType || inheritedType instanceof BMessageType) {
+        } else if (inheritedType instanceof BJSONType || inheritedType instanceof BMessageType ||
+                inheritedType instanceof BExceptionType) {
             // If there are arguments, then only Structs and Map types are supported.
             throw new SemanticException(getNodeLocationStr(refTypeInitExpr.getNodeLocation()) +
                     "struct/map initializer is not allowed here");

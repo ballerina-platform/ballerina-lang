@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.builder.BLangLinkBuilder;
+import org.wso2.ballerina.core.model.builder.BLangExecutionFlowBuilder;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
@@ -211,7 +211,7 @@ public class DebuggerTest {
             funcIExpr.setOffset(1);
             funcIExpr.setCallableUnit(mainFun);
             funcIExpr.setParent(new StartNode(StartNode.Originator.MAIN_FUNCTION));
-            BLangLinkBuilder linkBuilder = new BLangLinkBuilder();
+            BLangExecutionFlowBuilder linkBuilder = new BLangExecutionFlowBuilder();
             funcIExpr.accept(linkBuilder);
 
             CallableUnitInfo functionInfo = new CallableUnitInfo(funcIExpr.getName(),

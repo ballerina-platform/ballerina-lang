@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.builder.BLangLinkBuilder;
+import org.wso2.ballerina.core.model.builder.BLangExecutionFlowBuilder;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
@@ -101,7 +101,7 @@ class BMainRunner {
                     mainFun.getName(), null, mainFun.getPackagePath(), exprs);
             funcIExpr.setOffset(1);
             funcIExpr.setCallableUnit(mainFun);
-            BLangLinkBuilder linker = new BLangLinkBuilder();
+            BLangExecutionFlowBuilder linker = new BLangExecutionFlowBuilder();
             funcIExpr.setParent(new StartNode(StartNode.Originator.MAIN_FUNCTION));
             linker.visit(funcIExpr);
 

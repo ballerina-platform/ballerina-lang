@@ -29,7 +29,13 @@ public class BallerinaException extends RuntimeException {
     private static final long serialVersionUID = 1L;
     private transient Context context;
 
+
 //    private String[] errorMessages = new String[0];
+
+
+    public BallerinaException() {
+        super();
+    }
 
     /**
      * Constructs a new {@link BallerinaException}.*
@@ -43,44 +49,49 @@ public class BallerinaException extends RuntimeException {
     /**
      * Constructs a new {@link BallerinaException} with the specified detail message.
      *
-     * @param message   Error Message
+     * @param message Error Message
      */
     public BallerinaException(String message) {
         super(message);
     }
 
+
+
     /**
      * Constructs a new {@link BallerinaException} with ballerina context.
-     * 
-     * @param message   Error message
-     * @param context     Ballerina context
+     *
+     * @param message Error message
+     * @param context Ballerina context
      */
     public BallerinaException(String message, Context context) {
         super(message);
         this.context = context;
     }
-    
+
+
     /**
      * Constructs a new {@link BallerinaException} with the specified detail message and cause.
      *
-     * @param message   Error message
-     * @param cause     Cause
+     * @param message Error message
+     * @param cause   Cause
      */
     public BallerinaException(String message, Throwable cause) {
         super(message, cause);
     }
-    
+
+
     /**
      * Constructs a new {@link BallerinaException} with the specified detail message, cause and ballerina context.
      *
-     * @param message   Error message
-     * @param cause     Cause
-     * @param context   Ballerina context
+     * @param message Error message
+     * @param cause   Cause
+     * @param context Ballerina context
      */
     public BallerinaException(String message, Throwable cause, Context context) {
         super(message, cause);
         this.context = context;
     }
+
 
     /**
      * Constructs a new {@link BallerinaException} with the cause.
@@ -90,7 +101,7 @@ public class BallerinaException extends RuntimeException {
     public BallerinaException(Throwable cause) {
         super(cause);
     }
-    
+
     public BallerinaException(Context stack) {
         this.context = stack;
     }
@@ -98,4 +109,5 @@ public class BallerinaException extends RuntimeException {
     public Context getContext() {
         return this.context;
     }
+
 }

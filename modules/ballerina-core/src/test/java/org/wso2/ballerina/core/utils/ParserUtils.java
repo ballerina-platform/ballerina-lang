@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.GlobalScope;
-import org.wso2.ballerina.core.model.builder.BLangLinkBuilder;
+import org.wso2.ballerina.core.model.builder.BLangExecutionFlowBuilder;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
@@ -87,7 +87,7 @@ public class ParserUtils {
         // Analyze semantic properties of the source code
         SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, bLangPackage);
         bFile.accept(semanticAnalyzer);
-        bFile.accept(new BLangLinkBuilder());
+        bFile.accept(new BLangExecutionFlowBuilder());
 
         return bFile;
     }

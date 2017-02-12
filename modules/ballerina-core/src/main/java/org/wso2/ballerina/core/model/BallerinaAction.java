@@ -18,7 +18,7 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.exception.LinkerException;
+import org.wso2.ballerina.core.exception.FlowBuilderException;
 import org.wso2.ballerina.core.model.builder.CallableUnitBuilder;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
@@ -67,7 +67,7 @@ public class BallerinaAction implements Action, SymbolScope, Node {
 
     // Linker related variables
     private int tempStackFrameSize;
-    private boolean isLinkerVisited;
+    private boolean isFlowBuilderVisited;
 
     private BallerinaAction(SymbolScope enclosingScope) {
         this.enclosingScope = enclosingScope;
@@ -111,8 +111,8 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     @Override
     public void setTempStackFrameSize(int stackFrameSize) {
         if (this.tempStackFrameSize > 0 && stackFrameSize != this.tempStackFrameSize) {
-            throw new LinkerException("Attempt to Overwrite tempValue Frame size. current :" + this.tempStackFrameSize +
-                    ", new :" + stackFrameSize);
+            throw new FlowBuilderException("Attempt to Overwrite tempValue Frame size. current :" +
+                    this.tempStackFrameSize + ", new :" + stackFrameSize);
         }
         this.tempStackFrameSize = stackFrameSize;
     }
@@ -225,12 +225,12 @@ public class BallerinaAction implements Action, SymbolScope, Node {
         return resolve(symbolMap, name);
     }
 
-    public boolean isLinkerVisited() {
-        return isLinkerVisited;
+    public boolean isFlowBuilderVisited() {
+        return isFlowBuilderVisited;
     }
 
-    public void setLinkerVisited(boolean linkerVisited) {
-        isLinkerVisited = linkerVisited;
+    public void setFlowBuilderVisited(boolean flowBuilderVisited) {
+        isFlowBuilderVisited = flowBuilderVisited;
     }
 
     /**

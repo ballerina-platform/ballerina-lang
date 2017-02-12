@@ -61,6 +61,8 @@ import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.model.statements.ThrowStmt;
+import org.wso2.ballerina.core.model.statements.TryCatchStmt;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.BMapType;
@@ -70,6 +72,7 @@ import org.wso2.ballerina.core.model.util.BValueUtils;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BConnector;
+import org.wso2.ballerina.core.model.values.BException;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BMap;
@@ -212,6 +215,42 @@ public class BLangExecutor implements NodeExecutor {
     @Override
     public void visit(BreakStmt breakStmt) {
 
+    }
+
+    @Override
+    public void visit(TryCatchStmt tryCatchStmt) {
+        // Note: This logic is based on Java exception and hence not recommended.
+        // This is added only to make it work with blocking executor. and will be removed in a future release.
+        StackFrame current = bContext.getControlStack().getCurrentFrame();
+        try {
+            tryCatchStmt.getTryBlock().execute(this);
+        } catch (BallerinaException be) {
+            while (bContext.getControlStack().getCurrentFrame() != current) {
+                if (controlStack.getStack().size() > 0) {
+                    controlStack.popFrame();
+                } else {
+                    // Throw this to handle at root error handler.
+                    throw new BallerinaException(be);
+                }
+            }
+            MemoryLocation memoryLocation = tryCatchStmt.getCatchScope().getParameterDef().getMemoryLocation();
+            if (memoryLocation instanceof StackVarLocation) {
+                int stackFrameOffset = ((StackVarLocation) memoryLocation).getStackFrameOffset();
+                controlStack.setValue(stackFrameOffset, new BException(be.getMessage()));
+            }
+            tryCatchStmt.getCatchBlock().execute(this);
+        }
+    }
+
+    @Override
+    public void visit(ThrowStmt throwStmt) {
+        // Note: This logic is based on Java exception and hence not recommended.
+        // This is added only to make it work with blocking executor. and will be removed in a future release.
+        BException exception = (BException) throwStmt.getExpr().execute(this);
+        if (exception.getMessage() != null && exception.getMessage().stringValue() != null) {
+            throw new BallerinaException(exception.getMessage().stringValue());
+        }
+        throw new BallerinaException();
     }
 
     @Override

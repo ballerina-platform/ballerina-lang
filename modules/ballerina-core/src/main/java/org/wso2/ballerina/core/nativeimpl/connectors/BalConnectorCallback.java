@@ -76,4 +76,8 @@ public class BalConnectorCallback extends DefaultBalCallback {
         }
     }
 
+    public Context getContext() {
+        return context;
+    }
+
 }

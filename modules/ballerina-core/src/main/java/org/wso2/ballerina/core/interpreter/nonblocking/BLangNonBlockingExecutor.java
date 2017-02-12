@@ -66,6 +66,7 @@ import org.wso2.ballerina.core.model.nodes.fragments.expressions.UnaryExpression
 import org.wso2.ballerina.core.model.nodes.fragments.statements.AssignStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ReturnStmtEndNode;
+import org.wso2.ballerina.core.model.nodes.fragments.statements.ThrowStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.VariableDefStmtEndNode;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
@@ -179,9 +180,9 @@ public class BLangNonBlockingExecutor extends BLangAbstractLinkedExecutor {
     }
 
     @Override
-    public void visit(ActionInvocationExpr actionInvocationExpr) {
-        super.visit(actionInvocationExpr);
-        actionInvocationExpr.next.executeLNode(this);
+    public void visit(ActionInvocationExpr actoinIExpr) {
+        super.visit(actoinIExpr);
+        actoinIExpr.next.executeLNode(this);
     }
 
     @Override
@@ -221,9 +222,9 @@ public class BLangNonBlockingExecutor extends BLangAbstractLinkedExecutor {
     }
 
     @Override
-    public void visit(FunctionInvocationExpr functionInvocationExpr) {
-        super.visit(functionInvocationExpr);
-        functionInvocationExpr.next.executeLNode(this);
+    public void visit(FunctionInvocationExpr functionIExpr) {
+        super.visit(functionIExpr);
+        functionIExpr.next.executeLNode(this);
     }
 
     @Override
@@ -239,9 +240,9 @@ public class BLangNonBlockingExecutor extends BLangAbstractLinkedExecutor {
     }
 
     @Override
-    public void visit(MapStructInitKeyValueExpr mapStructInitKeyValueExpr) {
-        super.visit(mapStructInitKeyValueExpr);
-        mapStructInitKeyValueExpr.next.executeLNode(this);
+    public void visit(MapStructInitKeyValueExpr expr) {
+        super.visit(expr);
+        expr.next.executeLNode(this);
     }
 
     @Override
@@ -251,15 +252,15 @@ public class BLangNonBlockingExecutor extends BLangAbstractLinkedExecutor {
     }
 
     @Override
-    public void visit(ResourceInvocationExpr resourceInvocationExpr) {
-        super.visit(resourceInvocationExpr);
-        resourceInvocationExpr.getResource().getResourceBody().executeLNode(this);
+    public void visit(ResourceInvocationExpr resourceIExpr) {
+        super.visit(resourceIExpr);
+        resourceIExpr.getResource().getResourceBody().executeLNode(this);
     }
 
     @Override
-    public void visit(StructFieldAccessExpr structFieldAccessExpr) {
-        super.visit(structFieldAccessExpr);
-        structFieldAccessExpr.next.executeLNode(this);
+    public void visit(StructFieldAccessExpr accessExpr) {
+        super.visit(accessExpr);
+        accessExpr.next.executeLNode(this);
     }
 
     @Override
@@ -337,6 +338,12 @@ public class BLangNonBlockingExecutor extends BLangAbstractLinkedExecutor {
     public void visit(AssignStmtEndNode assignStmtEndNode) {
         super.visit(assignStmtEndNode);
         assignStmtEndNode.next.executeLNode(this);
+    }
+
+    @Override
+    public void visit(ThrowStmtEndNode throwStmtEndNode) {
+        super.visit(throwStmtEndNode);
+        // Next will be called by supper.
     }
 
     @Override

@@ -19,7 +19,7 @@
 package org.wso2.ballerina.core.nativeimpl;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.exception.LinkerException;
+import org.wso2.ballerina.core.exception.FlowBuilderException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Function;
@@ -33,6 +33,7 @@ import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
+import org.wso2.ballerina.core.model.values.BException;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.exceptions.ArgumentOutOfRangeException;
 
@@ -109,15 +110,25 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
      * @param context Ballerina Context
      */
     public void executeNative(Context context) {
-        BValue[] retVals = execute(context);
-        BValue[] returnRefs = context.getControlStack().getCurrentFrame().returnValues;
-        if (returnRefs.length != 0) {
-            for (int i = 0; i < returnRefs.length; i++) {
-                if (i < retVals.length) {
-                    returnRefs[i] = retVals[i];
-                } else {
-                    break;
+        try {
+            BValue[] retVals = execute(context);
+            BValue[] returnRefs = context.getControlStack().getCurrentFrame().returnValues;
+            if (returnRefs.length != 0) {
+                for (int i = 0; i < returnRefs.length; i++) {
+                    if (i < retVals.length) {
+                        returnRefs[i] = retVals[i];
+                    } else {
+                        break;
+                    }
                 }
+            }
+        } catch (RuntimeException e) {
+            BException exception = new BException(e.getMessage());
+            // TODO : Fix this once we remove Blocking executor
+            if (context.getExecutor() != null) {
+                context.getExecutor().handleBException(exception);
+            } else {
+                throw e;
             }
         }
     }
@@ -191,8 +202,8 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     @Override
     public void setTempStackFrameSize(int stackFrameSize) {
         if (this.tempStackFrameSize > 0 && stackFrameSize != this.tempStackFrameSize) {
-            throw new LinkerException("Attempt to Overwrite tempValue Frame size. current :" + this.tempStackFrameSize +
-                    ", new :" + stackFrameSize);
+            throw new FlowBuilderException("Attempt to Overwrite tempValue Frame size. current :" +
+                    this.tempStackFrameSize + ", new :" + stackFrameSize);
         }
         this.tempStackFrameSize = stackFrameSize;
     }

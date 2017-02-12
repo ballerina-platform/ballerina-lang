@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
-import org.wso2.ballerina.core.exception.LinkerException;
+import org.wso2.ballerina.core.exception.FlowBuilderException;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.nodes.AbstractLinkedNode;
@@ -75,13 +75,13 @@ public abstract class AbstractExpression extends AbstractLinkedNode implements E
         if (isTempOffsetSet) {
             return tempOffset;
         }
-        throw new LinkerException("Internal Error. Set Temporary value before you access it.");
+        throw new FlowBuilderException("Internal Error. Set Temporary value before you access it.");
     }
 
     @Override
     public void setTempOffset(int index) {
         if (isTempOffsetSet && index != tempOffset) {
-            throw new LinkerException("Internal Error. Attempt to Overwrite tempOffset. current :" + tempOffset +
+            throw new FlowBuilderException("Internal Error. Attempt to Overwrite tempOffset. current :" + tempOffset +
                     ", new :" + index);
         }
         isTempOffsetSet = true;

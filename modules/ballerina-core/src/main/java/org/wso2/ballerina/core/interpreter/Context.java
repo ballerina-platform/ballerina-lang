@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
+import org.wso2.ballerina.core.model.Executor;
 import org.wso2.ballerina.core.runtime.BalCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -36,6 +37,8 @@ public class Context {
     private BalCallback balCallback;
     protected Map<String, Object> properties = new HashMap();
     private CallableUnitInfo serviceInfo;
+    private Executor executor;
+    private Object serverConnectorProtocol;
 
     public Context() {
         this.controlStack = new ControlStack();
@@ -80,5 +83,21 @@ public class Context {
 
     public void setServiceInfo(CallableUnitInfo serviceInfo) {
         this.serviceInfo = serviceInfo;
+    }
+
+    public void setExecutor(Executor executor) {
+        this.executor = executor;
+    }
+
+    public Executor getExecutor() {
+        return executor;
+    }
+
+    public Object getServerConnectorProtocol() {
+        return serverConnectorProtocol;
+    }
+
+    public void setServerConnectorProtocol(Object serverConnectorProtocol) {
+        this.serverConnectorProtocol = serverConnectorProtocol;
     }
 }

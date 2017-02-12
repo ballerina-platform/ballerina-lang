@@ -36,14 +36,18 @@ public class ThrowStmt extends AbstractStatement {
         this.expr = expr;
     }
 
+    public Expression getExpr() {
+        return expr;
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
-//        visitor.accept(this);
+        visitor.visit(this);
     }
 
     @Override
     public void execute(NodeExecutor executor) {
-
+        executor.visit(this);
     }
 
     @Override
