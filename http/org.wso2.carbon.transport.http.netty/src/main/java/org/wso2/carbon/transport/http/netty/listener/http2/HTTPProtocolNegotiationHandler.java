@@ -67,7 +67,6 @@ public class HTTPProtocolNegotiationHandler extends ApplicationProtocolNegotiati
         }
         // handles pipeline for HTTP/1 requests after SSL handshake
         if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
-
             p.addLast("encoder", new HttpResponseEncoder());
             if (RequestSizeValidationConfiguration.getInstance().isHeaderSizeValidation()) {
                 p.addLast("decoder", new CustomHttpRequestDecoder());

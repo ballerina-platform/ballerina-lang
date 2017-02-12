@@ -183,13 +183,19 @@ public final class Constants {
 
     public static final String LOCALHOST = "localhost";
 
-    //Callback related parameters
+    // Callback related parameters
     public static final String HTTP_CONNECTION_CLOSE = "close";
 
     // HTTP2 Related Parameters
     public static final String UPGRADE_RESPONSE_HEADER = "http-to-http2-upgrade";
     public static final String HTTP2_VERSION = "HTTP/2.0";
     public static final String STREAM_ID = "STREAM_ID";
+    public static final String SCHEME = "SCHEME";
+    public static final String AUTHORITY = "AUTHORITY";
+    public static final String HTTP2_METHOD = ":method";
+    public static final String HTTP2_PATH = ":path";
+    public static final String HTTP2_AUTHORITY = ":authority";
+    public static final String HTTP2_SCHEME = ":scheme";
 
     private Constants() {
     }
