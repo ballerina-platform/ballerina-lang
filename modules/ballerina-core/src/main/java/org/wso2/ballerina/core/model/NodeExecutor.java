@@ -89,7 +89,7 @@ public interface NodeExecutor {
 
     BValue visit(BinaryExpression binaryExpr);
 
-    BValue visit(BinaryEqualityExpression binaryExpr);
+    BValue visit(BinaryEqualityExpression binaryEqualityExpr);
 
     BValue visit(ArrayMapAccessExpr arrayMapAccessExpr);
 
