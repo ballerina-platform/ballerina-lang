@@ -204,7 +204,8 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
                 : (argsString = this.getConnectorVariableReference() + ' , ' + argsString);
         }
 
-        if (!_.isNil(this.getActionPackageName()) && !_.isEmpty(this.getActionPackageName().trim())) {
+        if (!_.isNil(this.getActionPackageName()) && !_.isEmpty(this.getActionPackageName().trim())
+                          && !_.isEqual(this.getActionPackageName().trim(), 'Current Package')) {
             if(this._isActionInvocationStatement){
                 return this.getActionPackageName() + ':' + this.getActionConnectorName() + '.' + this.getActionName() +
                     '(' + argsString +  ')';

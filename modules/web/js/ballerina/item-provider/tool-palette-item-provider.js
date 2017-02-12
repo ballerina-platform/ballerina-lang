@@ -180,7 +180,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                         action.classNames = "tool-connector-action tool-connector-last-action";
                     }
                     action.meta = {
-                        action: action.getAction(),
+                        action: action.getName(),
                         actionConnectorName: connector.getName(),
                         actionPackageName: packageName
                     };
