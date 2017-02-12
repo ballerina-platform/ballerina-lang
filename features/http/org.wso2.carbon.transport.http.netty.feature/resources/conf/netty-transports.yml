@@ -23,6 +23,9 @@ transportProperties:
  -
   name: "server.bootstrap.worker.group.size"
   value: 8
+ -
+  name: "event.group.executor.thread.size"
+  value: 15
 listenerConfigurations:
  -
   id: "default"
@@ -32,16 +35,6 @@ listenerConfigurations:
   id: "docker0"
   host: "0.0.0.0"
   port: 8280
- -
-
-# -
-#  id: "secured"
-#  host: "0.0.0.0"
-#  port: 8443
-#  scheme: https
-#  keyStoreFile: "/home/irunika/wso2/msf4j/distribution/binary/conf/wso2carbon.jks"
-#  keyStorePass: wso2carbon
-#  certPass: wso2carbon
 
 senderConfigurations:
  -

@@ -70,6 +70,9 @@ public final class Constants {
     //Worker group size of the server bootstrap
     public static final String SERVER_BOOTSTRAP_WORKER_GROUP_SIZE = "server.bootstrap.worker.group.size";
 
+    //Event group size of server bootstrap
+    public static final String EVENT_GROUP_EXECUTOR_THREAD_SIZE = "event.group.executor.thread.size";
+
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
 
     //Server side SSL Parameters

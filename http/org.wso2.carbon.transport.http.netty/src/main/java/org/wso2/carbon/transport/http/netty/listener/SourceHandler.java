@@ -52,6 +52,7 @@ import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
+import org.wso2.carbon.transport.http.netty.sender.channel.pool.PoolConfiguration;
 
 import java.net.InetSocketAddress;
 import java.net.ProtocolException;
@@ -171,7 +172,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
             //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
             ChannelPipeline pipeline = ctx.pipeline();
-            int maxThreads = 15;
+            int maxThreads = PoolConfiguration.getInstance().getEventGroupExecutorThreads();
             EventExecutorGroup executorGroup = new DefaultEventExecutorGroup(maxThreads);
             pipeline.addLast(executorGroup, "ws_handler",
                              new WebSocketSourceHandler(generateWebSocketChannelID(),
@@ -188,9 +189,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             Code 1002 : indicates that an endpoint is terminating the connection
             due to a protocol error.
              */
-            ctx.channel().write(new CloseWebSocketFrame(1002, ""));
+            ctx.channel().writeAndFlush(new CloseWebSocketFrame(1002, ""));
             ctx.close();
-            throw new ProtocolException("Error occurred in HTTP to WebSocket Upgrade.");
+            throw new ProtocolException("Error occurred in HTTP to WebSocket Upgrade : " + e.getMessage());
         }
     }
 
