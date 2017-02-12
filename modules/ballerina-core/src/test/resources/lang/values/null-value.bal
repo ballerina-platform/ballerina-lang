@@ -44,6 +44,16 @@ function nullCheck ()(boolean) {
     }
 }
 
+function notNullCheck ()(boolean) {
+    xml x;
+    x = null;
+    if (x != null) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 function getNull()(xml) {
     return null;
 }

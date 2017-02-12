@@ -27,6 +27,7 @@ import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
+import org.wso2.ballerina.core.model.expressions.BinaryEqualityExpression;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.ConnectorInitExpr;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
@@ -87,6 +88,8 @@ public interface NodeExecutor {
     BValue visit(UnaryExpression unaryExpr);
 
     BValue visit(BinaryExpression binaryExpr);
+
+    BValue visit(BinaryEqualityExpression binaryExpr);
 
     BValue visit(ArrayMapAccessExpr arrayMapAccessExpr);
 

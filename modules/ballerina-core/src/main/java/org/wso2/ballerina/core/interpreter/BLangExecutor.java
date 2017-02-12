@@ -36,6 +36,7 @@ import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
+import org.wso2.ballerina.core.model.expressions.BinaryEqualityExpression;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.CallableUnitInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.ConnectorInitExpr;
@@ -407,6 +408,22 @@ public class BLangExecutor implements NodeExecutor {
         BValueType lValue = (BValueType) lExpr.execute(this);
 
         return binaryExpr.getEvalFunc().apply(lValue, rValue);
+    }
+
+    @Override
+    public BValue visit(BinaryEqualityExpression equalExpr) {
+        Expression rExpr = equalExpr.getRExpr();
+        Expression lExpr = equalExpr.getLExpr();
+
+        if (rExpr.getType().equals(BTypes.typeNull) || lExpr.getType().equals(BTypes.typeNull)) {
+            BValue rValue = rExpr.execute(this);
+            BValue lValue = lExpr.execute(this);
+            return equalExpr.getRefTypeEvalFunction().apply(lValue, rValue);
+        } else {
+            BValueType rValue = (BValueType) rExpr.execute(this);
+            BValueType lValue = (BValueType) lExpr.execute(this);
+            return equalExpr.getEvalFunc().apply(lValue, rValue);
+        }
     }
 
     @Override
@@ -929,9 +946,9 @@ public class BLangExecutor implements NodeExecutor {
             throw new BallerinaException("field '" + currentVarRefExpr.getVarName() + "' is null");
         }
 
-        if (currentVal instanceof BNull) {
+        if (currentVal == BNull.getInstance()) {
             throw new BallerinaException(
-                    LangModelUtils.getNodeLocationStr(fieldExpr.getNodeLocation()) + "Symbol " + currentVarRefExpr
+                    LangModelUtils.getNodeLocationStr(fieldExpr.getNodeLocation()) + "variable " + currentVarRefExpr
                             .getVarName() + " is null");
         }
 

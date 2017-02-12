@@ -83,7 +83,16 @@ public class BNullValueTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         BBoolean isNull = (BBoolean) returns[0];
-        Assert.assertTrue(isNull.booleanValue(), "Null check false");
+        Assert.assertTrue(isNull.booleanValue(), "Null check failed");
+    }
+
+    @Test(description = "Test not null  expression")
+    public void testNotNullCheckExpression() {
+        BValue[] returns = Functions.invoke(bFile, "notNullCheck");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        BBoolean isNull = (BBoolean) returns[0];
+        Assert.assertFalse(isNull.booleanValue(), "Not null check failed");
     }
 
     @Test(description = "Test function signature parsing null")
@@ -124,28 +133,28 @@ public class BNullValueTest {
 
     @Test(description = "Test accessing a element of null assigned struct",
           expectedExceptions = BallerinaException.class,
-          expectedExceptionsMessageRegExp = ".* Symbol p is null")
+          expectedExceptionsMessageRegExp = ".* variable p is null")
     public void testAccessingAElementOfNullStruct() {
         Functions.invoke(bFile, "accessElementOfNullStruct");
     }
 
     @Test(description = "Test setting a value to a element of null assigned struct",
           expectedExceptions = BallerinaException.class,
-          expectedExceptionsMessageRegExp = ".* Symbol p is null")
+          expectedExceptionsMessageRegExp = ".* variable p is null")
     public void testSettingAElementOfNullStruct() {
         Functions.invoke(bFile, "settingElementOfNullStruct");
     }
 
     @Test(description = "Test accessing a value of a struct element of null assigned struct",
           expectedExceptions = BallerinaException.class,
-          expectedExceptionsMessageRegExp = ".* Symbol family is null")
+          expectedExceptionsMessageRegExp = ".* variable family is null")
     public void testAccessingAStructElementOfNullStruct() {
         Functions.invoke(bFile, "accessingStructElementOfNullStruct");
     }
 
     @Test(description = "Test setting a value to a element of struct of null assigned struct",
           expectedExceptions = BallerinaException.class,
-          expectedExceptionsMessageRegExp = ".* Symbol family is null")
+          expectedExceptionsMessageRegExp = ".* variable family is null")
     public void testSettingAStructElementOfNullStruct() {
         Functions.invoke(bFile, "settingStructElementOfNullStruct");
     }

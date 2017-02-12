@@ -34,6 +34,7 @@ import static org.wso2.ballerina.core.model.types.TypeConstants.JSON_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.LONG_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.MAP_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.MESSAGE_TNAME;
+import static org.wso2.ballerina.core.model.types.TypeConstants.NULL_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.STRING_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.XML_TNAME;
 import static org.wso2.ballerina.core.model.util.LangModelUtils.getNodeLocationStr;
@@ -50,6 +51,7 @@ public class BTypes {
     public static BType typeDouble;
     public static BType typeBoolean;
     public static BType typeString;
+    public static BType typeNull;
     public static BType typeXML;
     public static BType typeJSON;
     public static BType typeMessage;
@@ -71,6 +73,7 @@ public class BTypes {
         globalScope.define(typeDouble.getSymbolName(), typeDouble);
         globalScope.define(typeBoolean.getSymbolName(), typeBoolean);
         globalScope.define(typeString.getSymbolName(), typeString);
+        globalScope.define(typeNull.getSymbolName(), typeNull);
         globalScope.define(typeXML.getSymbolName(), typeXML);
         globalScope.define(typeJSON.getSymbolName(), typeJSON);
         globalScope.define(typeMessage.getSymbolName(), typeMessage);
@@ -88,6 +91,7 @@ public class BTypes {
         typeDouble = new BDoubleType(DOUBLE_TNAME, null, globalScope);
         typeBoolean = new BBooleanType(BOOLEAN_TNAME, null, globalScope);
         typeString = new BStringType(STRING_TNAME, null, globalScope);
+        typeNull = new BNullType(NULL_TNAME, null, globalScope);
         typeXML = new BXMLType(XML_TNAME, null, globalScope);
         typeJSON = new BJSONType(JSON_TNAME, null, globalScope);
         typeMessage = new BMessageType(MESSAGE_TNAME, null, globalScope);

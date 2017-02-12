@@ -17,8 +17,13 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.Operator;
+import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.model.values.BValueType;
+
+import java.util.function.BiFunction;
 
 /**
  * {@code BinaryEqualityExpression} represents a equality expression in Ballerina.
@@ -28,8 +33,21 @@ import org.wso2.ballerina.core.model.Operator;
  * @since 0.8.0
  */
 public class BinaryEqualityExpression extends BinaryExpression {
+    protected BiFunction<BValue, BValue, BValueType> evalFuncRef;
 
     public BinaryEqualityExpression(NodeLocation location, Expression lExpr, Operator op, Expression rExpr) {
         super(location, lExpr, op, rExpr);
+    }
+
+    public BValue execute(NodeExecutor executor) {
+        return executor.visit(this);
+    }
+
+    public void setRefTypeEvalFunction(BiFunction<BValue, BValue, BValueType> evalFuncRef) {
+        this.evalFuncRef = evalFuncRef;
+    }
+
+    public BiFunction<BValue, BValue, BValueType> getRefTypeEvalFunction() {
+        return evalFuncRef;
     }
 }

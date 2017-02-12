@@ -17,16 +17,15 @@
 */
 package org.wso2.ballerina.core.model.values;
 
-import org.wso2.ballerina.core.exception.BallerinaException;
-
 /**
  * The {@code BNull} represents a null value in Ballerina.
  *
  * @since 0.8.0
  */
-public final class BNull extends BValueType {
+public final class BNull implements BValue {
+    private static final BNull bNull = new BNull();
 
-    public BNull() {
+    private BNull() {
     }
 
     @Override
@@ -34,28 +33,7 @@ public final class BNull extends BValueType {
         return "null";
     }
 
-    @Override
-    public int intValue() {
-        throw new BallerinaException("null cannot be converted to integer");
-    }
-
-    @Override
-    public long longValue() {
-        throw new BallerinaException("null cannot be converted to long");
-    }
-
-    @Override
-    public float floatValue() {
-        throw new BallerinaException("null cannot be converted to float");
-    }
-
-    @Override
-    public double doubleValue() {
-        throw new BallerinaException("null cannot be converted to double");
-    }
-
-    @Override
-    public boolean booleanValue() {
-        throw new BallerinaException("null cannot be converted to boolean");
+    public static BNull getInstance() {
+        return bNull;
     }
 }

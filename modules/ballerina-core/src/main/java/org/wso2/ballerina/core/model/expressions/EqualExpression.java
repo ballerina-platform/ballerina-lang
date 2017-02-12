@@ -20,7 +20,7 @@ package org.wso2.ballerina.core.model.expressions;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.values.BBoolean;
-import org.wso2.ballerina.core.model.values.BNull;
+import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 
 import java.util.function.BiFunction;
@@ -52,8 +52,8 @@ public class EqualExpression extends BinaryEqualityExpression {
     public static final BiFunction<BValueType, BValueType, BValueType> EQUAL_STRING_FUNC =
             (lVal, rVal) -> new BBoolean(lVal.stringValue().equals(rVal.stringValue()));
 
-    public static final BiFunction<BValueType, BValueType, BValueType> EQUAL_NULL_FUNC =
-            (lVal, rVal) -> new BBoolean(lVal.getClass() == BNull.class && rVal.getClass() == BNull.class);
+    public static final BiFunction<BValue, BValue, BValueType> EQUAL_NULL_FUNC =
+            (lVal, rVal) -> new BBoolean(lVal ==  rVal);
 
     public EqualExpression(NodeLocation location, Expression lExpr, Expression rExpr) {
         super(location, lExpr, EQUAL, rExpr);

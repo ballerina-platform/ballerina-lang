@@ -15,38 +15,30 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model.expressions;
+package org.wso2.ballerina.core.model.types;
 
-import org.wso2.ballerina.core.model.NodeExecutor;
-import org.wso2.ballerina.core.model.NodeLocation;
-import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.types.BTypes;
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.values.BNull;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code NullLiteral} represents a null literal in Ballerina.
- * <p>
+ * {@code BNullType} represents a null.
+ *
  * @since 0.8.0
  */
-public class NullLiteral extends AbstractExpression {
-    private static final BValue bValue = BNull.getInstance();
+public class BNullType extends BType {
 
-    public NullLiteral(NodeLocation location) {
-        super(location);
-        setType(BTypes.typeNull);
+    /**
+     * Create a {@code BNullType} which represents the null type.
+     *
+     * @param typeName string name of the type
+     */
+    BNullType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BNull.class);
     }
 
-    public BValue getBValue() {
-        return bValue;
-    }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    public BValue execute(NodeExecutor executor) {
-        return executor.visit(this);
+    @SuppressWarnings("unchecked")
+    public <V extends BValue> V getDefaultValue() {
+        return (V) BNull.getInstance();
     }
 }

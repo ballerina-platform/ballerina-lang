@@ -498,7 +498,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (rExpr instanceof NullLiteral) {
             checkTypeReferenced(varDef.getType(), varDef.getNodeLocation());
-            rExpr.setType(varDef.getType());
             return;
         }
         if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
@@ -584,7 +583,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (rExpr instanceof NullLiteral) {
             checkTypeReferenced(lExpr);
-            rExpr.setType(lExpr.getType());
             return;
         }
 
@@ -766,10 +764,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (returnArgExpr instanceof NullLiteral) {
                 ParameterDef parameterDef = returnParamsOfCU[i];
                 checkTypeReferenced(parameterDef.getType(), returnArgExpr.getNodeLocation());
-                typesOfReturnExprs[i] = parameterDef.getType();
-            } else {
-                typesOfReturnExprs[i] = returnArgExpr.getType();
             }
+            typesOfReturnExprs[i] = returnArgExpr.getType();
         }
 
         // Now check whether this return contains a function invocation expression which returns multiple values
@@ -834,11 +830,12 @@ public class SemanticAnalyzer implements NodeVisitor {
                     }
                 }
 
-                if (!typesOfReturnExprs[i].equals(returnParamsOfCU[i].getType())) {
-                    throw new SemanticException(returnStmt.getNodeLocation().getFileName() + ":" +
-                            returnStmt.getNodeLocation().getLineNumber() +
-                            ": cannot use " + typesOfReturnExprs[i] + " as type " +
-                            returnParamsOfCU[i].getType() + " in return statement");
+                if (!typesOfReturnExprs[i].equals(returnParamsOfCU[i].getType()) && !typesOfReturnExprs[i]
+                        .equals(BTypes.typeNull)) {
+                    throw new SemanticException(
+                            returnStmt.getNodeLocation().getFileName() + ":" + returnStmt.getNodeLocation()
+                                    .getLineNumber() + ": cannot use " + typesOfReturnExprs[i] + " as type "
+                                    + returnParamsOfCU[i].getType() + " in return statement");
                 }
             }
         }
@@ -1083,8 +1080,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (compareExprType == BTypes.typeString) {
             equalExpr.setEvalFunc(EqualExpression.EQUAL_STRING_FUNC);
 
-        } else if (equalExpr.getRExpr() instanceof NullLiteral || equalExpr.getLExpr() instanceof NullLiteral) {
-            equalExpr.setEvalFunc(EqualExpression.EQUAL_NULL_FUNC);
+        } else if (compareExprType == BTypes.typeNull) {
+            equalExpr.setRefTypeEvalFunction(EqualExpression.EQUAL_NULL_FUNC);
 
         } else {
             throwInvalidBinaryOpError(equalExpr);
@@ -1106,6 +1103,9 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else if (compareExprType == BTypes.typeString) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_STRING_FUNC);
+
+        } else if (compareExprType == BTypes.typeNull) {
+            notEqualExpr.setRefTypeEvalFunction(NotEqualExpression.NOT_EQUAL_NULL_FUNC);
 
         } else {
             throwInvalidBinaryOpError(notEqualExpr);
@@ -1568,10 +1568,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression lExpr = binaryExpr.getLExpr();
         if (rExpr instanceof NullLiteral) {
             checkTypeReferenced(lExpr);
-            rExpr.setType(lExpr.getType());
         }  else if (lExpr instanceof NullLiteral) {
             checkTypeReferenced(rExpr);
-            lExpr.setType(rExpr.getType());
         }
 
         BType rType = rExpr.getType();
@@ -1584,7 +1582,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             lType = BTypes.resolveType(((TypeCastExpression) lExpr).getTypeName(), currentScope, null);
         }
 
-        if (!(rType.equals(lType))) {
+        if (!(rType.equals(lType)) && !(rType.equals(BTypes.typeNull) || lType.equals(BTypes.typeNull))) {
             TypeCastExpression newExpr;
             TypeEdge newEdge;
 
