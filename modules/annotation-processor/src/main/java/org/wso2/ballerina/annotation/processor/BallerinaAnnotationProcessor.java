@@ -89,11 +89,17 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         
         Map<String, String> options = processingEnv.getOptions();
         
-        // Generate the construct provider class
-        generateConstructProviderClass(options);
+        String targetDir = options.get(TARGET_DIR);
+        if (targetDir == null) {
+            throw new BallerinaException("target directory to store the generated ballerina files, must be specified.");
+        }
         
-        // Generate the native function ballerina files
-        generateNativeBalFiles(options);
+        // Generate the native ballerina files
+        generateNativeBalFiles(targetDir);
+        
+        // Generate the construct provider class. This should be invoked after 
+        // generating the native ballerina files
+        generateConstructProviderClass(options, targetDir);
         
         return true;
     }
@@ -102,8 +108,9 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
      * Generate the construct provider class.
      * 
      * @param options Annotation processor options
+     * @param targetDir 
      */
-    private void generateConstructProviderClass(Map<String, String> options) {
+    private void generateConstructProviderClass(Map<String, String> options, String targetDir) {
         Filer filer = processingEnv.getFiler();
         
         String classClassName = options.get(CLASS_NAME);
@@ -117,25 +124,20 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         }
         
         ConstructProviderClassBuilder constructProviderClassBuilder =
-                new ConstructProviderClassBuilder(filer, packageName, classClassName);
+                new ConstructProviderClassBuilder(filer, packageName, classClassName, targetDir);
         constructProviderClassBuilder.addNativePackages(nativePackages);
         constructProviderClassBuilder.build();
     }
     
     /**
-     * Generate the native ballerina files
+     * Generate the built-in ballerina files
      * 
-     * @param options Annotation processor options
+     * @param targetDir target directory to generate the built-in ballerina files
      */
-    private void generateNativeBalFiles(Map<String, String> options) {
-        String targetDir = options.get(TARGET_DIR);
-        if (targetDir == null) {
-            throw new BallerinaException("target directory to store the generated ballerina files, must be specified.");
-        }
+    private void generateNativeBalFiles(String targetDir) {
         NativeBallerinaFileBuilder nativeBallerinaFileBuilder = new NativeBallerinaFileBuilder(targetDir);
         nativeBallerinaFileBuilder.addNativePackages(nativePackages);
         nativeBallerinaFileBuilder.build();
-        
     }
 
     /**
