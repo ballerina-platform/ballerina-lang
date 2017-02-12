@@ -15,10 +15,9 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core;
+package org.ballerinalang.util.repository;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.model.PackageRepository;
 
 import java.io.BufferedReader;
 import java.io.File;

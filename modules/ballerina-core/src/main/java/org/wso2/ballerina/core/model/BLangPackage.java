@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model;
 
+import org.ballerinalang.util.repository.PackageRepository;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 
 import java.util.ArrayList;

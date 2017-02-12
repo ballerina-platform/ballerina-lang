@@ -17,7 +17,7 @@
 
 package org.wso2.ballerina.annotation.processor;
 
-import org.wso2.ballerina.core.BuiltinPackageRepository;
+import org.ballerinalang.util.repository.BuiltinPackageRepository;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.GlobalScope;

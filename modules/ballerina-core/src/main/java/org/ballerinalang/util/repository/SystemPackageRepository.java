@@ -15,9 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core;
-
-import org.wso2.ballerina.core.model.PackageRepository;
+package org.ballerinalang.util.repository;
 
 import java.nio.file.Path;
 
@@ -25,13 +23,12 @@ import java.nio.file.Path;
  *
  * @since 0.8.0
  */
-public class UserPackageRepository extends PackageRepository {
-    private Path userPacakgeRepoPath;
-    private SystemPackageRepository systemPackageRepo;
+public class SystemPackageRepository extends PackageRepository {
+    private Path systemRepoPath;
 
-    public UserPackageRepository(Path userPacakgeRepoPath, SystemPackageRepository systemPackageRepo) {
-        this.userPacakgeRepoPath = userPacakgeRepoPath;
-        this.systemPackageRepo = systemPackageRepo;
+
+    public SystemPackageRepository(Path systemRepoPath) {
+        this.systemRepoPath = systemRepoPath;
     }
 
     @Override
