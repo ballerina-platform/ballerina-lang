@@ -30,7 +30,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression',
         './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
         './if-condition', './array-map-access-expression', './map-init-expression', './key-value-expression',
-        './binary-expression', './connector-action', './struct-definition', './constant-definition',
+        './binary-expression', './unary-expression','./connector-action', './struct-definition', './constant-definition',
         './variable-definition-statement','./type-struct-definition', './type-casting-expression', './worker-invoke',
         './reference-type-init-expression', './array-init-expression'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
@@ -42,8 +42,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
               thenBody, ifCondition, arrayMapAccessExpression, mapInitExpression, keyValueExpression, binaryExpression,
-              connectorAction, structDefinition, constantDefinition, variableDefinitionStatement,typeStructDefinition,
-              typeCastingExpression, workerInvoke, referenceTypeInitExpression, arrayInitExpression) {
+              unaryExpression, connectorAction, structDefinition, constantDefinition, variableDefinitionStatement,
+              typeStructDefinition, typeCastingExpression, workerInvoke, referenceTypeInitExpression, arrayInitExpression) {
 
 
         /**
@@ -588,7 +588,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @return {UnaryExpression}
          * */
         BallerinaASTFactory.createUnaryExpression = function (args) {
-            //TODO: Implement Unary model
+            return new unaryExpression(args);
         };
 
 
@@ -1197,7 +1197,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         node = BallerinaASTFactory.createBinaryExpression({"operator" : "!="});
                         break;
                     case 'unary_expression':
-                        node = BallerinaASTFactory.createUnaryExpression({"operator" : "!"});
+                        node = BallerinaASTFactory.createUnaryExpression({"operator" : jsonNode.operator});
                         break;
                     case 'array_map_access_expression':
                         node = BallerinaASTFactory.createArrayMapAccessExpression();

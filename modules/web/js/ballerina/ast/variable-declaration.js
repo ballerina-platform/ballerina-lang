@@ -78,8 +78,8 @@ define(['lodash', 'log', './node'], function(_, log, ASTNode){
      * @param {string} jsonNode.variable_name - The identifier of the variable.
      */
     VariableDeclaration.prototype.initFromJson = function (jsonNode) {
-        this.setType(jsonNode.variable_type, {doSilently: true});
-        this.setIdentifier(jsonNode.variable_name, {doSilently: true});
+        this.setType(jsonNode.children[0].type, {doSilently: true});
+        this.setIdentifier(jsonNode.children[0].variable_reference_name, {doSilently: true});
     };
 
     return VariableDeclaration;
