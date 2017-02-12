@@ -97,6 +97,11 @@
                                 </a>
                             </li>
                             <li>
+                                <a href="#launcher" role="tab" data-toggle="tab" class="launcher-activate-btn">
+                                    <i class="fw fw-start fw-lg"></i>
+                                </a>
+                            </li>
+                            <li>
                                 <a href="#debugger" role="tab" data-toggle="tab" class="debugger-activate-btn">
                                     <i class="fw fw-bug fw-lg"></i>
                                 </a>
@@ -920,6 +925,36 @@
                         other: {
                             key: "ctrl+shift+d",
                             label: "Ctrl+Shift+d"
+                        }
+                    }
+                }
+            },
+            launcher : {
+                container: ".sidebar-left",
+                activateBtn: '.launcher-activate-btn',
+                separator: '.sidebar-left-separator',
+                containerToAdjust: ".right-container",
+                leftOffset: 40,
+                separatorOffset: 5,
+                defaultWidth: 250,
+                resizeLimits:{
+                    minX: 200,
+                    maxX: 800
+                },
+                containerId: "launcher",
+                cssClass: {
+                    container: 'launcher-container tab-pane'
+                },
+                command: {
+                    id: "toggle-launcher",
+                    shortcuts: {
+                        mac: {
+                            key: "command+shift+r",
+                            label: "\u2318\u21E7r"
+                        },
+                        other: {
+                            key: "ctrl+shift+r",
+                            label: "Ctrl+Shift+r"
                         }
                     }
                 }

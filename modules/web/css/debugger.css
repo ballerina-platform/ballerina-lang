@@ -56,9 +56,9 @@
     margin:0px !important;
 }
 
-.debug-center-btn{
-    border-left: 1px #232323 solid !important;
-    border-right: 1px #232323 solid !important;
+.btn-debug-action{
+    width: 20% !important;
+    padding:11px !important;
 }
 
 .btn-debug-action:hover , .btn-debug-activate:hover{

@@ -22,12 +22,12 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
 
     var Tools = function(){
         this._contentContainer = $('<div class="btn-group">' +
-            '<button type="button" class="btn btn-default btn-debug-activate col-xs-4" title="Start Debug ( Alt + C )">Start</button>' +
-            '<button type="button" class="btn btn-default debug-center-btn btn-debug-action col-xs-4 disabled" data-action="Resume"  title="Resume ( Alt + R )">Resume</button>' +
-            '<button type="button" class="btn btn-default btn-debug-action col-xs-4 disabled" data-action="StepIn"  title="Step In ( Alt + I )">StepIn</button>' +
-            '<button type="button" class="btn btn-default btn-debug-action col-xs-4 disabled" data-action="Stop"  title="Stop Debug ( Alt + P )">Stop</button>' +
-            '<button type="button" class="btn btn-default debug-center-btn btn-debug-action col-xs-4 disabled" data-action="StepOver"  title="Step Over ( Alt + O )">Step Over</button>' +
-            '<button type="button" class="btn btn-default btn-debug-action col-xs-4 disabled" data-action="StepOut"  title="Step Out ( Alt + U )">Step Out</button>' +
+            '<button type="button" class="btn btn-default btn-debug-activate col-xs-12" title="Start Debug ( Alt + C )">Remote Debug</button>' +
+            '<button type="button" class="btn btn-default btn-debug-action disabled" data-action="Stop"  title="Stop Debug ( Alt + P )"><i class="fw fw-stop" /></button>' +
+            '<button type="button" class="btn btn-default btn-debug-action disabled" data-action="Resume"  title="Resume ( Alt + R )"><i class="fw fw-start " /></button>' +
+            '<button type="button" class="btn btn-default btn-debug-action disabled" data-action="StepOver"  title="Step Over ( Alt + O )"><i class="fw fw-stepover " /></button>' +
+            '<button type="button" class="btn btn-default btn-debug-action disabled" data-action="StepIn"  title="Step In ( Alt + I )"><i class="fw fw-stepin " /></button>' +
+            '<button type="button" class="btn btn-default btn-debug-action disabled" data-action="StepOut"  title="Step Out ( Alt + U )"><i class="fw fw-stepout " /></button>' +
             '</div>');
 
         this.connectionDialog = $("#modalDebugConnection");
