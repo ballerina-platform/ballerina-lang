@@ -111,6 +111,7 @@ public class BalProgramExecutor {
         balContext.getControlStack().pushFrame(currentStackFrame);
         if (ModeResolver.getInstance().isNonblockingEnabled()) {
             BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
+            balContext.setExecutor(executor);
             new ResourceInvocationExpr(resource, exprs).executeLNode(executor);
         } else {
             BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);

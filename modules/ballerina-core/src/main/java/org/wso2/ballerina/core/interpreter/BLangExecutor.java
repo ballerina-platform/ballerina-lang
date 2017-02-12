@@ -86,6 +86,7 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
 
 /**
  * {@code BLangExecutor} executes a Ballerina application.
@@ -225,6 +226,13 @@ public class BLangExecutor implements NodeExecutor {
         try {
             tryCatchStmt.getTryBlock().execute(this);
         } catch (BallerinaException be) {
+            BException exception;
+            if (be.getBException() != null) {
+                exception = be.getBException();
+            } else {
+                exception = new BException(be.getMessage());
+            }
+            exception.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
             while (bContext.getControlStack().getCurrentFrame() != current) {
                 if (controlStack.getStack().size() > 0) {
                     controlStack.popFrame();
@@ -236,7 +244,7 @@ public class BLangExecutor implements NodeExecutor {
             MemoryLocation memoryLocation = tryCatchStmt.getCatchScope().getParameterDef().getMemoryLocation();
             if (memoryLocation instanceof StackVarLocation) {
                 int stackFrameOffset = ((StackVarLocation) memoryLocation).getStackFrameOffset();
-                controlStack.setValue(stackFrameOffset, new BException(be.getMessage()));
+                controlStack.setValue(stackFrameOffset, exception);
             }
             tryCatchStmt.getCatchBlock().execute(this);
         }
@@ -247,10 +255,8 @@ public class BLangExecutor implements NodeExecutor {
         // Note: This logic is based on Java exception and hence not recommended.
         // This is added only to make it work with blocking executor. and will be removed in a future release.
         BException exception = (BException) throwStmt.getExpr().execute(this);
-        if (exception.getMessage() != null && exception.getMessage().stringValue() != null) {
-            throw new BallerinaException(exception.getMessage().stringValue());
-        }
-        throw new BallerinaException();
+        exception.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
+        throw new BallerinaException(exception);
     }
 
     @Override

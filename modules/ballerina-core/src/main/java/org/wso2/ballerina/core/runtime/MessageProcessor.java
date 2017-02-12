@@ -20,7 +20,6 @@ package org.wso2.ballerina.core.runtime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 import org.wso2.ballerina.core.runtime.threadpool.RequestWorkerThread;
 import org.wso2.ballerina.core.runtime.threadpool.ResponseWorkerThread;
 import org.wso2.ballerina.core.runtime.threadpool.ThreadPoolFactory;
@@ -48,11 +47,7 @@ public class MessageProcessor implements CarbonMessageProcessor {
             ThreadPoolFactory.getInstance().getExecutor().execute(new RequestWorkerThread(cMsg, carbonCallback));
         } else {
             // For Response
-            if (ModeResolver.getInstance().isNonblockingEnabled()) {
-                ThreadPoolFactory.getInstance().getExecutor().execute(new ResponseWorkerThread(cMsg, carbonCallback));
-            } else {
-                ServerConnectorMessageHandler.handleOutbound(cMsg, carbonCallback);
-            }
+            ThreadPoolFactory.getInstance().getExecutor().execute(new ResponseWorkerThread(cMsg, carbonCallback));
         }
 
         return true;

@@ -17,60 +17,34 @@
 */
 package org.wso2.ballerina.core.model.values;
 
+import org.wso2.ballerina.core.model.ExceptionDef;
+
 /**
  * {@link BException} represents a exception value in Ballerina.
  */
-public class BException implements BRefType {
+public class BException implements BRefType<ExceptionDef> {
 
-    private BString category;
-    private BString message;
-    private BArray<BString> stackTrace;
+    private ExceptionDef exceptionDef;
 
     public BException() {
-        stackTrace = new BArray<>(BString.class);
+        this.exceptionDef = new ExceptionDef();
     }
 
     public BException(String message) {
-        this.message = new BString(message);
+        this.exceptionDef = new ExceptionDef(message);
     }
 
     public BException(String message, String category) {
-        this.message = new BString(message);
-        this.category = new BString(category);
+        this.exceptionDef = new ExceptionDef(message, category);
     }
 
     @Override
     public String stringValue() {
-        String stringValue = "{" + category.stringValue() + "}" + message.stringValue();
-        return stringValue;
+        return exceptionDef.toString();
     }
 
     @Override
-    public BException value() {
-        return this;
-    }
-
-    public BString getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = new BString(category);
-    }
-
-    public BString getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = new BString(message);
-    }
-
-    public void addStackTrace(String trace) {
-        stackTrace.add(stackTrace.size(), new BString(trace));
-    }
-
-    public BArray<BString> getStackTrace() {
-        return stackTrace;
+    public ExceptionDef value() {
+        return exceptionDef;
     }
 }

@@ -116,6 +116,7 @@ class BMainRunner {
             RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(balFile);
             if (ModeResolver.getInstance().isNonblockingEnabled()) {
                 BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
+                bContext.setExecutor(executor);
                 funcIExpr.executeLNode(executor);
             } else {
                 BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);

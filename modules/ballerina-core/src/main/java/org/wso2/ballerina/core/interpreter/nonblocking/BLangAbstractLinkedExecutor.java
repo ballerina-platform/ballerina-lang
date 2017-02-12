@@ -542,6 +542,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
             logger.debug("Executing ThrowStmt - EndNode");
         }
         BException exception = (BException) getTempResult(throwStmtEndNode.getStatement().getExpr().getTempOffset());
+        exception.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
         this.handleBException(exception);
     }
 
@@ -1028,10 +1029,10 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
      */
     public void handleBException(BException bException) {
         // SaveStack current StackTrace.
-        bException.addStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
+        bException.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
         if (tryCatchStackRefs.size() == 0) {
             // There is no tryCatch block to handle this exception. Pass this to handle at root.
-            throw new BallerinaException(bException.stringValue());
+            throw new BallerinaException(bException.value().getMessage().stringValue());
         }
         TryCatchStackRef ref = tryCatchStackRefs.pop();
         // unwind stack till we found the current frame.

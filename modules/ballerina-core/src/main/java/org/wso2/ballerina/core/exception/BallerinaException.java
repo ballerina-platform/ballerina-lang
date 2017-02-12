@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.exception;
 
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.model.values.BException;
 
 /**
  * This is the runtime exception occurs at executing ballerina code.
@@ -29,21 +30,11 @@ public class BallerinaException extends RuntimeException {
     private static final long serialVersionUID = 1L;
     private transient Context context;
 
-
-//    private String[] errorMessages = new String[0];
-
+    // TODO: Remove this once we remove Blocking executor.
+    private BException exception;
 
     public BallerinaException() {
         super();
-    }
-
-    /**
-     * Constructs a new {@link BallerinaException}.*
-     */
-    public BallerinaException(String[] errorMessages) {
-        super();
-        // TODO Need to find a better way to do this
-//        this.errorMessages = errorMessages;
     }
 
     /**
@@ -55,6 +46,12 @@ public class BallerinaException extends RuntimeException {
         super(message);
     }
 
+    /**
+     * @param bException
+     */
+    public BallerinaException(BException bException) {
+        this.exception = bException;
+    }
 
 
     /**
@@ -110,4 +107,7 @@ public class BallerinaException extends RuntimeException {
         return this.context;
     }
 
+    public BException getBException() {
+        return this.exception;
+    }
 }

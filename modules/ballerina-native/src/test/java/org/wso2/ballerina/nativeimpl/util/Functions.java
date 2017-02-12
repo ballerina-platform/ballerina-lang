@@ -127,6 +127,7 @@ public class Functions {
         // 7) Invoke the function
         if (ModeResolver.getInstance().isNonblockingEnabled()) {
             BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
+            bContext.setExecutor(executor);
             funcIExpr.executeLNode(executor);
             int length = funcIExpr.getCallableUnit().getReturnParameters().length;
             BValue[] result = new BValue[length];
