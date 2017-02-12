@@ -284,6 +284,19 @@
                 <artifactId>snakeyaml</artifactId>
                 <version>${org.snakeyaml.version}</version>
             </dependency>
+
+            <!--file server connector dependencies-->
+            <dependency>
+                <groupId>org.apache.commons.wso2</groupId>
+                <artifactId>commons-vfs2</artifactId>
+                <version>${commons-vfs2.wso2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.transport</groupId>
+                <artifactId>org.wso2.carbon.transport.file</artifactId>
+                <version>${carbon.transport.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -464,6 +477,9 @@
         <native.constructs.provider.package>org.wso2.ballerina.nativeimpl</native.constructs.provider.package>
         <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
+
+        <!--file server connector dependencies-->
+        <commons-vfs2.wso2.version>2.0-wso2v15</commons-vfs2.wso2.version>
     </properties>
 
     <modules>
