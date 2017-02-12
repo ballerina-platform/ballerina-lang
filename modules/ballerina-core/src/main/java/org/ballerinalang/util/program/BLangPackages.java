@@ -42,13 +42,13 @@ import java.util.stream.Collectors;
  */
 public class BLangPackages {
 
-    public static BLangPackage loadPackage(Path packagePath, PackageRepository packageRepo, BLangProgram bLangProgram) {
+    private static BLangPackage loadPackageInternal(PackageRepository.PackageSource pkgSource,
+                                                    BLangPackage bLangPackage,
+                                                    BLangProgram bLangProgram) {
 
-        // Load package details (input streams of source files) from the given package repository
-        PackageRepository.PackageSource pkgSource = packageRepo.loadPackage(packagePath);
-
+        Path packagePath = pkgSource.getPackagePath();
         String pkgPathStr = getPackagePathFromPath(packagePath);
-        BLangPackage bLangPackage = new BLangPackage(pkgPathStr, pkgSource.getPackageRepository(), bLangProgram);
+        System.out.println(pkgPathStr);
         List<BallerinaFile> bFileList = pkgSource.getSourceFileStreamMap().entrySet()
                 .stream()
                 .map(entry -> BLangFiles.loadFile(entry.getKey(), packagePath, entry.getValue(), bLangPackage))
@@ -60,6 +60,24 @@ public class BLangPackages {
 
         // Resolve dependent packages of this package
         resolveDependencies(bLangPackage, bLangProgram);
+        return bLangPackage;
+
+    }
+
+    public static BLangPackage loadPackage(Path packagePath,
+                                                   PackageRepository packageRepo,
+                                                   BLangProgram bLangProgram) {
+
+        // Load package details (input streams of source files) from the given package repository
+        PackageRepository.PackageSource pkgSource = packageRepo.loadPackage(packagePath);
+        if (pkgSource.getSourceFileStreamMap().isEmpty()) {
+            throw new RuntimeException("no bal files in the package: " + packagePath.toString());
+        }
+
+        String pkgPathStr = getPackagePathFromPath(packagePath);
+        BLangPackage bLangPackage = new BLangPackage(pkgPathStr, pkgSource.getPackageRepository(), bLangProgram);
+
+        loadPackageInternal(pkgSource, bLangPackage, bLangProgram);
         return bLangPackage;
     }
 
@@ -97,30 +115,29 @@ public class BLangPackages {
             // Check whether this package is already resolved.
             BLangPackage dependentPkg = (BLangPackage) bLangProgram.resolve(importPackage.getSymbolName());
             if (dependentPkg != null) {
-                parentPackage.addDependentPackage(dependentPkg);
-                return;
+
+            } else {
+
+                // TODO Detect cyclic dependencies
+                // Remove redundant stuff using the Paths and Files API
+                // This builder or loader should throw an error if the package cannot be found.
+                // 1) If the parent package is loaded from the program repository (current directory), then follow this
+                //    search order:
+                //      i) Search the program repository
+                //      ii) Search the system repository
+                //      iii) Search the personal/user repository
+                // 2) If the parent is loaded from the system directory, then all the children should be
+                //    available in the system repository.  DO NOT Search other repositories.
+                // 3) If the parent is loaded from the personal/user repository, then use following search order:
+                //      i) Search the system repository
+                //      ii) Search the personal/user repository
+                // 4) None of the above applies if the package name starts with 'ballerina'
+                Path packagePath = getPathFromPackagePath(importPackage.getSymbolName().getName());
+                dependentPkg = loadPackage(packagePath, parentPackage.getPackageRepository(), bLangProgram);
+
+                // Define package in the program scope
+                bLangProgram.define(new SymbolName(dependentPkg.getPackagePath()), dependentPkg);
             }
-
-            // TODO Detect cyclic dependencies
-            // Remove redundant stuff using the Paths and Files API
-            // This builder or loader should throw an error if the package cannot be found.
-            // 1) If the parent package is loaded from the program repository (current directory), then follow this
-            //    search order:
-            //      i) Search the program repository
-            //      ii) Search the system repository
-            //      iii) Search the personal/user repository
-            // 2) If the parent is loaded from the system directory, then all the children should be
-            //    available in the system repository.  DO NOT Search other repositories.
-            // 3) If the parent is loaded from the personal/user repository, then use following search order:
-            //      i) Search the system repository
-            //      ii) Search the personal/user repository
-            // 4) None of the above applies if the package name starts with 'ballerina'
-
-            Path packagePath = getPathFromPackagePath(importPackage.getSymbolName().getName());
-            dependentPkg = loadPackage(packagePath, parentPackage.getPackageRepository(), bLangProgram);
-
-            // Define package in the program scope
-            bLangProgram.define(new SymbolName(dependentPkg.getPackagePath()), dependentPkg);
 
             // Define main package
             parentPackage.addDependentPackage(dependentPkg);
