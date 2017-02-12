@@ -17,7 +17,7 @@ package org.wso2.ballerina.core.nativeimpl.connectors;
 
 
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.exception.LinkerException;
+import org.wso2.ballerina.core.exception.FlowBuilderException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
@@ -162,8 +162,8 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
     @Override
     public void setTempStackFrameSize(int stackFrameSize) {
         if (this.tempStackFrameSize > 0 && stackFrameSize != this.tempStackFrameSize) {
-            throw new LinkerException("Attempt to Overwrite tempValue Frame size. current :" + this.tempStackFrameSize +
-                    ", new :" + stackFrameSize);
+            throw new FlowBuilderException("Attempt to Overwrite tempValue Frame size. current :" +
+                    this.tempStackFrameSize + ", new :" + stackFrameSize);
         }
         this.tempStackFrameSize = stackFrameSize;
     }

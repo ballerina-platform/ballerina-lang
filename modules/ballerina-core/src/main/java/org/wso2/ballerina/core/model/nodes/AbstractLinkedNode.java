@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.model.nodes;
 
-import org.wso2.ballerina.core.exception.LinkerException;
+import org.wso2.ballerina.core.exception.FlowBuilderException;
 import org.wso2.ballerina.core.model.LinkedNode;
 import org.wso2.ballerina.core.model.LinkedNodeExecutor;
 
@@ -72,7 +72,7 @@ public class AbstractLinkedNode implements LinkedNode {
      */
     @Override
     public void executeLNode(LinkedNodeExecutor executor) {
-        throw new LinkerException("Unhandled LinkNode execution. " + this.getClass().getName());
+        throw new FlowBuilderException("Unhandled LinkedNode execution. " + this.getClass().getName());
     }
 
 }

@@ -20,7 +20,7 @@ package org.wso2.ballerina.core.interpreter.nonblocking;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.exception.LinkerException;
+import org.wso2.ballerina.core.exception.FlowBuilderException;
 import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
 import org.wso2.ballerina.core.interpreter.ConstantLocation;
@@ -1040,7 +1040,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
                 controlStack.popFrame();
             } else {
                 // Something has gone wrong. No StackFrame to pop ? this shouldn't be executed.
-                throw new LinkerException("Not handle catch statement in execution builder phase");
+                throw new FlowBuilderException("Not handle catch statement in execution builder phase");
             }
         }
         MemoryLocation memoryLocation = ref.getTryCatchStmt().getCatchScope().getParameterDef().getMemoryLocation();

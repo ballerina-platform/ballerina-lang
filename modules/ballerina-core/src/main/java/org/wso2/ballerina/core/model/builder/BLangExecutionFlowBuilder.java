@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.model.builder;
 
-import org.wso2.ballerina.core.exception.LinkerException;
+import org.wso2.ballerina.core.exception.FlowBuilderException;
 import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
 import org.wso2.ballerina.core.interpreter.ConstantLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
@@ -127,7 +127,7 @@ import java.util.Arrays;
 import java.util.Stack;
 
 /**
- * {@link BLangLinkBuilder} builds a linked Node list for non-blocking execution.
+ * {@link BLangExecutionFlowBuilder} builds a linked Node list for non-blocking execution.
  *
  * Based on execution logic, a statement or an expression can be divided into multiple executions blocks.
  * In the non-blocking implementation requires to execute these pieces in an ordered manner.
@@ -172,7 +172,7 @@ import java.util.Stack;
  * - This implementation doesn't validate any semantic errors in the Ballerina program. This visitor should engage after
  * the semantic analysis phase.
  */
-public class BLangLinkBuilder implements NodeVisitor {
+public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     private boolean nonblockingEnabled = false;
 
@@ -183,7 +183,7 @@ public class BLangLinkBuilder implements NodeVisitor {
     private Stack<OffSetCounter> offSetCounterStack;
     private Resource currentResource;
 
-    public BLangLinkBuilder() {
+    public BLangExecutionFlowBuilder() {
         loopingStack = new Stack<>();
         returningBlockStmtStack = new Stack<>();
         offSetCounterStack = new Stack<>();
@@ -395,7 +395,7 @@ public class BLangLinkBuilder implements NodeVisitor {
 
     @Override
     public void visit(CommentStmt commentStmt) {
-        throw new LinkerException("Internal Error. Comments statements are not considered as executable in " +
+        throw new FlowBuilderException("Internal Error. Comments statements are not considered as executable in " +
                 "this version.");
     }
 
@@ -477,7 +477,7 @@ public class BLangLinkBuilder implements NodeVisitor {
                 replyStmt.setNext(new EndNode());
             }
         } else {
-            throw new LinkerException(replyStmt.getNodeLocation().getFileName() + ":" +
+            throw new FlowBuilderException(replyStmt.getNodeLocation().getFileName() + ":" +
                     replyStmt.getNodeLocation().getLineNumber() + " reply is not allowed here.");
         }
     }
@@ -1427,8 +1427,8 @@ public class BLangLinkBuilder implements NodeVisitor {
                         location = node.getNodeLocation().getFileName() + ":" + node.getNodeLocation().getLineNumber();
                     }
                 }
-                throw new LinkerException("Internal Error. Broken Link in Class " + lastParent.getClass() + " line "
-                        + location);
+                throw new FlowBuilderException("Internal Error. Broken Link in Class " + lastParent.getClass() +
+                        " line " + location);
             }
         }
     }

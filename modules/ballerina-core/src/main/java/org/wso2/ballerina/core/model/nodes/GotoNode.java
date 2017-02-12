@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.model.nodes;
 
-import org.wso2.ballerina.core.exception.LinkerException;
+import org.wso2.ballerina.core.exception.FlowBuilderException;
 import org.wso2.ballerina.core.model.LinkedNode;
 import org.wso2.ballerina.core.model.LinkedNodeExecutor;
 
@@ -60,12 +60,12 @@ public class GotoNode extends AbstractLinkedNode {
 
     @Override
     public void setNext(LinkedNode statement) {
-        throw new LinkerException("Internal Error. Goto Node can't have next.");
+        throw new FlowBuilderException("Internal Error. Goto Node can't have next.");
     }
 
     @Override
     public LinkedNode next() {
-        throw new LinkerException("Internal Error. Goto Node doesn't have next.");
+        throw new FlowBuilderException("Internal Error. Goto Node doesn't have next.");
     }
 
     @Override

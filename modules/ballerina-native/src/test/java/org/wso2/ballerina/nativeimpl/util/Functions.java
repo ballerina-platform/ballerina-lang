@@ -28,7 +28,7 @@ import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.builder.BLangLinkBuilder;
+import org.wso2.ballerina.core.model.builder.BLangExecutionFlowBuilder;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
@@ -102,7 +102,7 @@ public class Functions {
         funcIExpr.setOffset(args.length);
         funcIExpr.setCallableUnit(function);
         // Linking.
-        BLangLinkBuilder linker = new BLangLinkBuilder();
+        BLangExecutionFlowBuilder linker = new BLangExecutionFlowBuilder();
         funcIExpr.setParent(new StartNode(StartNode.Originator.TEST));
         funcIExpr.accept(linker);
 
