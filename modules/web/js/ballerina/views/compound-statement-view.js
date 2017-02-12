@@ -151,6 +151,7 @@ define(
             model.accept(this);
         };
 
+        //TODO : rename as visitStatement to avoid conflicts with generic visit
         CompoundStatementView.prototype.visit = function (statement) {
             var args = {
                 model: statement,

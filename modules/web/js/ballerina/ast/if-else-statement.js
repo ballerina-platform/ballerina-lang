@@ -89,18 +89,49 @@ define(['lodash', 'log','./statement', './else-statement', './else-if-statement'
                 child.initFromJson(childNode);
                 self.getIfStatement().setCondition(child.getChildren()[0].getExpression());
             } else if(self.getFactory().isThenBody(child)){
-                _.each(childNode.children, function (childStatement) {
-                    var child = self.getFactory().createFromJson(childStatement);
+                _.each(childNode.children, function (childNode) {
+                    var child = undefined;
+                    var childNodeTemp = undefined;
+                    if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+                        child = self.getFactory().createConnectorDeclaration();
+                        childNodeTemp = childNode;
+                    } else if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'action_invocation_expression') {
+                        child = self.getFactory().createActionInvocationExpression();
+                        childNodeTemp = childNode;
+                    } else if (childNode.type === "assignment_statement" && childNode.children[1].children[0].type === "action_invocation_expression") {
+                        child = self.getFactory().createActionInvocationExpression();
+                        childNodeTemp = {};
+                        childNodeTemp.children = [childNode.children[0].children[0], childNode.children[1].children[0]];
+                    } else {
+                        child = self.getFactory().createFromJson(childNode);
+                        childNodeTemp = childNode;
+                    }
                     self._ifStatement.addChild(child);
-                    child.initFromJson(childStatement);
+                    child.initFromJson(childNodeTemp);
                 });
             }
         });
 
         _.each(jsonNode.else_statement, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
+            var child = undefined;
+            var childNodeTemp = undefined;
+            //TODO : generalize this logic
+            if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+                child = self.getFactory().createConnectorDeclaration();
+                childNodeTemp = childNode;
+            } else if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'action_invocation_expression') {
+                child = self.getFactory().createActionInvocationExpression();
+                childNodeTemp = childNode;
+            } else if (childNode.type === "assignment_statement" && childNode.children[1].children[0].type === "action_invocation_expression") {
+                child = self.getFactory().createActionInvocationExpression();
+                childNodeTemp = {};
+                childNodeTemp.children = [childNode.children[0].children[0], childNode.children[1].children[0]];
+            } else {
+                child = self.getFactory().createFromJson(childNode);
+                childNodeTemp = childNode;
+            }
             self._elseStatement.addChild(child);
-            child.initFromJson(childNode);
+            child.initFromJson(childNodeTemp);
         });
     };
 
