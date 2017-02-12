@@ -315,6 +315,20 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
         });
     };
 
+    /**
+     * Get the connector by name
+     * @param {string} connectorName
+     * @return {ConnectorDeclaration}
+     */
+    ServiceDefinition.prototype.getConnectorByName = function (connectorName) {
+        var factory = this.getFactory();
+        var connectorReference = _.find(this.getChildren(), function (child) {
+            return (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
+        });
+
+        return connectorReference;
+    };
+
     return ServiceDefinition;
 
 });

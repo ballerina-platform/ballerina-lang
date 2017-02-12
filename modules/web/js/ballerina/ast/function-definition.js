@@ -440,6 +440,20 @@ define(['lodash', 'log', './node', './callable-definition', '../utils/common-uti
         });
     };
 
+    /**
+     * Get the connector by name
+     * @param {string} connectorName
+     * @return {ConnectorDeclaration}
+     */
+    FunctionDefinition.prototype.getConnectorByName = function (connectorName) {
+        var factory = this.getFactory();
+        var connectorReference = _.find(this.getChildren(), function (child) {
+            return (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
+        });
+
+        return connectorReference;
+    };
+
     return FunctionDefinition;
 
 });
