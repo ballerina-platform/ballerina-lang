@@ -124,7 +124,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
     ActionInvocationExpression.prototype.initFromJson = function (jsonNode) {
         var action_invocation_expression = jsonNode.children[1];
         if(!_.isUndefined(action_invocation_expression.children) && !_.isUndefined(action_invocation_expression.children[0])) {
-            var connector = _.head(this.getInvocationConnector(action_invocation_expression.children[0].variable_reference_name));
+            var connector = this.getInvocationConnector(action_invocation_expression.children[0].variable_reference_name);
             this.setConnector(connector, {doSilently: true});
         }
         this.setActionName(action_invocation_expression.action_name, {doSilently: true});
@@ -165,18 +165,19 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
     ActionInvocationExpression.prototype.getInvocationConnector = function (connectorVariable) {
         var parent = this.getParent();
         var factory = this.getFactory();
+
+        // Iteratively we find the most atomic parent node which can hold a connector
+        // ATM those are [FunctionDefinition, ResourceDefinition, ConnectorAction]
         while (!factory.isBallerinaAstRoot(parent)) {
             if (factory.isResourceDefinition(parent) || factory.isFunctionDefinition(parent)
-                || factory.isServiceDefinition(parent) || factory.isConnectorAction(parent)) {
+                || factory.isConnectorAction(parent)) {
                 break;
             }
             parent = parent.getParent();
         }
-        var self = this;
-        var connectorReference = _.filter(parent.getChildren(), function (child) {
-            return (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorVariable));
-        });
-        return connectorReference;
+
+        var connector = parent.getConnectorByName(connectorVariable);
+        return connector;
     };
 
     /**

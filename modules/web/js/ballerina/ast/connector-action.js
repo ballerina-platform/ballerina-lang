@@ -426,5 +426,19 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
         });
     };
 
+    /**
+     * Get the connector by name
+     * @param {string} connectorName
+     * @return {ConnectorDeclaration}
+     */
+    ConnectorAction.prototype.getConnectorByName = function (connectorName) {
+        var factory = this.getFactory();
+        var connectorReference = _.find(this.getChildren(), function (child) {
+            return (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
+        });
+
+        return !_.isNil(connectorReference) ? connectorReference : this.getParent(). getConnectorByName(connectorName);
+    };
+
     return ConnectorAction;
 });
