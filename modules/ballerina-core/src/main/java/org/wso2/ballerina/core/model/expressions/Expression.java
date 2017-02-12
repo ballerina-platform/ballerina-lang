@@ -53,4 +53,6 @@ public interface Expression extends Node, ExecutableExpr, LinkedNode {
      * @param tempOffset calculated temporary offset.
      */
     void setTempOffset(int tempOffset);
+
+    boolean hasTemporaryValues();
 }

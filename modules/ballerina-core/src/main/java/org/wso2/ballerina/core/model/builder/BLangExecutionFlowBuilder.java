@@ -249,8 +249,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         blockStmt.setParent(new StartNode(StartNode.Originator.RESOURCE));
         // Visit Block Statement and ask it to handle its children.
         blockStmt.accept(this);
-        resource.setTempStackFrameSize(offSetCounterStack.pop().getMax());
-        // Cleaning up and Preparing for next Resource.
+        resource.setTempStackFrameSize(offSetCounterStack.pop().getCount());
     }
 
     @Override
@@ -292,7 +291,6 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(VariableDefStmt varDefStmt) {
-        offSetCounterStack.peek().reset();
         // Flow : AssignStmt -> (RHS Expr) -> LHS Expr(s) -> AssignStmtEndNode -> AssignStmt.nextSibling. -> ...
         Expression rExpr = varDefStmt.getRExpr();
         Expression lExpr = varDefStmt.getLExpr();
@@ -332,7 +330,6 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(AssignStmt assignStmt) {
-        offSetCounterStack.peek().reset();
         // Flow : AssignStmt -> RHS Expr -> LHS Expr(s) -> AssignStmtEndNode -> AssignStmt.nextSibling. -> ...
         Expression rExpr = assignStmt.getRExpr();
         assignStmt.setNext(rExpr);
@@ -401,7 +398,6 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(IfElseStmt ifElseStmt) {
-        offSetCounterStack.peek().reset();
         // Check (Link) If condition first. (Conditions are validate at runtime)
         // Flow : ifElseStmt -> IfCondition -> IfElseNode(true) -> ThenBlock -> ifElseStmt.nextSibling -> ...
         Expression condition = ifElseStmt.getCondition();
@@ -458,7 +454,6 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(ReplyStmt replyStmt) {
-        offSetCounterStack.peek().reset();
         // Reply Statement represent a end statement of a worker. This should always end with a EndNode.
         // Flow: ReplyStmt -> (ReplyExpr) -> EndNode.
         if (currentResource != null) {
@@ -484,7 +479,6 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(ReturnStmt returnStmt) {
-        offSetCounterStack.peek().reset();
         // Return Stmt's next is always jump out from the current callable unit.
         // Hence we need to find who is my current callable unit's blockStamt.
         // Flow : ReturnStmt -> FunctionInvocationExpr.nextSibling (or parent) -> ...
@@ -518,7 +512,6 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(WhileStmt whileStmt) {
-        offSetCounterStack.peek().reset();
         // While Stmt is modeled using ifElseBranch, where next is pointing to it self.
         // WhileStmt -> condition -> ifElseNode: IfElseNode (true) -> whileBlock -> ifElseNode: IfElseNode (goes loop)
         //                                              (false)->  whileStmt.nextSibling. -> ...
@@ -546,7 +539,6 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(BreakStmt breakStmt) {
-        offSetCounterStack.peek().reset();
         // BreakStmt has to link with looping Statement's blockStmt.
         // Flow : BreakStmt -> LoopingStmt(i.e while).nextSibling -> ...
         breakStmt.setNext(findNext(loopingStack.peek()));
@@ -578,7 +570,6 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(FunctionInvocationStmt funcIStmt) {
-        offSetCounterStack.peek().reset();
         // Flow : FunctionInvocationStmt -> FunctionInvocationExpr -> ... -> FunctionInvocationStmt.nextSibling -> ...
         FunctionInvocationExpr expr = funcIStmt.getFunctionInvocationExpr();
         funcIStmt.setNext(expr);
@@ -588,7 +579,6 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(ActionInvocationStmt actionInvocationStmt) {
-        offSetCounterStack.peek().reset();
         // Flow : ActionInvocationStmt -> ActionInvocationExpr -> ... -> ActionInvocationStmt.nextSibling -> ...
         ActionInvocationExpr expr = actionInvocationStmt.getActionInvocationExpr();
         actionInvocationStmt.setNext(expr);
@@ -705,7 +695,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
                 offSetCounterStack.push(new OffSetCounter());
                 bFunction.setFlowBuilderVisited(true);
                 blockStmt.accept(this);
-                funcInvExpr.getCallableUnit().setTempStackFrameSize(offSetCounterStack.pop().getMax());
+                funcInvExpr.getCallableUnit().setTempStackFrameSize(offSetCounterStack.pop().getCount());
                 returningBlockStmtStack.pop();
             }
         } else {
@@ -808,7 +798,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
                 offSetCounterStack.push(new OffSetCounter());
                 bAction.setFlowBuilderVisited(true);
                 blockStmt.accept(this);
-                actionInvExpr.getCallableUnit().setTempStackFrameSize(offSetCounterStack.pop().getMax());
+                actionInvExpr.getCallableUnit().setTempStackFrameSize(offSetCounterStack.pop().getCount());
                 returningBlockStmtStack.pop();
             }
         } else {
@@ -964,7 +954,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
                     offSetCounterStack.push(new OffSetCounter());
                     bTypeConvertor.setFlowBuilderVisited(true);
                     blockStmt.accept(this);
-                    castExpression.getCallableUnit().setTempStackFrameSize(offSetCounterStack.pop().getMax());
+                    castExpression.getCallableUnit().setTempStackFrameSize(offSetCounterStack.pop().getCount());
                     returningBlockStmtStack.pop();
                 }
             } else {
@@ -1229,7 +1219,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
                 offSetCounterStack.push(new OffSetCounter());
                 connectorDef.getInitFunction().setFlowBuilderVisited(true);
                 blockStmt.accept(this);
-                connectorDef.getInitFunction().setTempStackFrameSize(offSetCounterStack.pop().getMax());
+                connectorDef.getInitFunction().setTempStackFrameSize(offSetCounterStack.pop().getCount());
                 returningBlockStmtStack.pop();
             }
             callableUnitEndNode.setNext(findNext(connectorInitExpr));
@@ -1322,7 +1312,6 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(VariableRefExpr variableRefExpr) {
-        calculateTempOffSet(variableRefExpr);
         variableRefExpr.setNext(findNext(variableRefExpr));
     }
 
@@ -1362,7 +1351,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     }
 
     public int getCurrentTempStackSize() {
-        return offSetCounterStack.peek().getMax();
+        return offSetCounterStack.peek().getCount();
     }
 
     private void handelBinaryExpression(BinaryExpression binaryExpression) {
@@ -1437,10 +1426,10 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         int valRef;
         if (expr instanceof FunctionInvocationExpr) {
             valRef = offSetCounterStack.peek().incrementAndGet(
-                    ((FunctionInvocationExpr) expr).getCallableUnit().getReturnParameters().length);
+                    ((FunctionInvocationExpr) expr).getCallableUnit().getReturnParamTypes().length);
         } else if (expr instanceof ActionInvocationExpr) {
             valRef = offSetCounterStack.peek().incrementAndGet(
-                    ((ActionInvocationExpr) expr).getCallableUnit().getReturnParameters().length);
+                    ((ActionInvocationExpr) expr).getCallableUnit().getReturnParamTypes().length);
         } else {
             valRef = offSetCounterStack.peek().incrementAndGet();
         }
@@ -1452,38 +1441,26 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
      */
     private static class OffSetCounter {
 
-        private int max;
         private int count;
 
         OffSetCounter() {
             count = -1;
-            max = 0;
         }
 
         int incrementAndGet() {
             count++;
-            if (max < count + 1) {
-                max = count + 1;
-            }
             return count;
         }
 
         int incrementAndGet(int value) {
             count = count + value;
-            if (max < count + 1) {
-                max = count + 1;
-            }
             // We should return offset starting point.
             return count - value + 1;
         }
 
-        int getMax() {
+        int getCount() {
             // This represents TempOffSet Array size. Hence we need to set max + 1.
-            return max + 1;
-        }
-
-        void reset() {
-            count = -1;
+            return count + 1;
         }
     }
 }

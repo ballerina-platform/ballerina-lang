@@ -72,10 +72,7 @@ public abstract class AbstractExpression extends AbstractLinkedNode implements E
 
     @Override
     public int getTempOffset() {
-        if (isTempOffsetSet) {
-            return tempOffset;
-        }
-        throw new FlowBuilderException("Internal Error. Set Temporary value before you access it.");
+        return tempOffset;
     }
 
     @Override
@@ -86,5 +83,10 @@ public abstract class AbstractExpression extends AbstractLinkedNode implements E
         }
         isTempOffsetSet = true;
         this.tempOffset = index;
+    }
+
+    @Override
+    public boolean hasTemporaryValues() {
+        return isTempOffsetSet;
     }
 }

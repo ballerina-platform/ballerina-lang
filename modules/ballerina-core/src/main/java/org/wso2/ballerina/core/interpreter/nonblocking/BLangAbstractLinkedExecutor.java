@@ -158,7 +158,6 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
             logger.debug("Executing ActionInvocationStmt {}-{}", getNodeLocation(actionIStmt.getNodeLocation()),
                     actionIStmt.getActionInvocationExpr().getCallableUnit().getName());
         }
-        clearTempValue();
     }
 
     @Override
@@ -166,7 +165,6 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         if (logger.isDebugEnabled()) {
             logger.debug("Executing AssignStmt {}", getNodeLocation(assignStmt.getNodeLocation()));
         }
-        clearTempValue();
     }
 
     @Override
@@ -182,7 +180,6 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         if (logger.isDebugEnabled()) {
             logger.debug("Executing BreakStmt {}", getNodeLocation(breakStmt.getNodeLocation()));
         }
-        clearTempValue();
     }
 
     @Override
@@ -199,7 +196,6 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
             logger.debug("Executing FunctionInvocationStmt {}-{}", getNodeLocation(funcIStmt.getNodeLocation()),
                     funcIStmt.getFunctionInvocationExpr().getCallableUnit().getName());
         }
-        clearTempValue();
     }
 
     @Override
@@ -207,7 +203,6 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         if (logger.isDebugEnabled()) {
             logger.debug("Executing IfElseStmt {}", getNodeLocation(ifElseStmt.getNodeLocation()));
         }
-        clearTempValue();
     }
 
     @Override
@@ -215,7 +210,6 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ReplyStmt {}", getNodeLocation(replyStmt.getNodeLocation()));
         }
-        clearTempValue();
     }
 
     @Override
@@ -223,7 +217,6 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ReturnStmt {}", getNodeLocation(returnStmt.getNodeLocation()));
         }
-        clearTempValue();
     }
 
     @Override
@@ -246,7 +239,6 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         if (logger.isDebugEnabled()) {
             logger.debug("Executing VariableDefStmt {}", getNodeLocation(variableDefStmt.getNodeLocation()));
         }
-        clearTempValue();
     }
 
     @Override
@@ -254,7 +246,6 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         if (logger.isDebugEnabled()) {
             logger.debug("Executing WhileStmt {}", getNodeLocation(whileStmt.getNodeLocation()));
         }
-        clearTempValue();
     }
 
     /* Expression nodes */
@@ -294,7 +285,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
             logger.debug("Executing BasicLiteral {}-\"{}\"", basicLiteral.getTypeName(),
                     basicLiteral.getBValue().stringValue());
         }
-        setTempResult(basicLiteral.getTempOffset(), basicLiteral.getBValue());
+        setTempValue(basicLiteral.getTempOffset(), basicLiteral.getBValue());
     }
 
     @Override
@@ -324,7 +315,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         if (logger.isDebugEnabled()) {
             logger.debug("Executing InstanceCreationExpr {}", getNodeLocation(instanceCreationExpr.getNodeLocation()));
         }
-        setTempResult(instanceCreationExpr.getTempOffset(), instanceCreationExpr.getType().getDefaultValue());
+        setTempValue(instanceCreationExpr.getTempOffset(), instanceCreationExpr.getType().getDefaultValue());
     }
 
     @Override
@@ -417,8 +408,8 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
             logger.debug("Executing VariableRefExpr - {}, loc-{}", variableRefExpr.getSymbolName().getName(),
                     variableRefExpr.getMemoryLocation().getClass().getSimpleName());
         }
-        MemoryLocation memoryLocation = variableRefExpr.getVariableDef().getMemoryLocation();
-        setTempResult(variableRefExpr.getTempOffset(), memoryLocation.executeLNode(this));
+//        MemoryLocation memoryLocation = variableRefExpr.getVariableDef().getMemoryLocation();
+//        setTempValue(variableRefExpr.getTempOffset(), memoryLocation.executeLNode(this));
     }
 
     /* Memory Location */
@@ -504,7 +495,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
             logger.debug("Executing IfElseNode");
         }
         Expression expr = ifElseNode.getCondition();
-        BBoolean condition = (BBoolean) getTempResult(expr.getTempOffset());
+        BBoolean condition = (BBoolean) getTempValue(expr);
 
         if (condition.booleanValue()) {
             ifElseNode.next.executeLNode(this);
@@ -523,16 +514,16 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         }
         Expression rExpr = assignStmt.getRExpr();
         Expression[] lExprs = assignStmt.getLExprs();
-        for (int i = 0; i < lExprs.length; i++) {
-            Expression lExpr = lExprs[i];
-            BValue rVal = getTempResult(rExpr.getTempOffset() + i);
-            if (lExpr instanceof VariableRefExpr) {
-                assignValueToVarRefExpr(rVal, (VariableRefExpr) lExpr);
-            } else if (lExpr instanceof ArrayMapAccessExpr) {
-                assignValueToArrayMapAccessExpr(rVal, (ArrayMapAccessExpr) lExpr);
-            } else if (lExpr instanceof StructFieldAccessExpr) {
-                assignValueToStructFieldAccessExpr(rVal, (StructFieldAccessExpr) lExpr);
+        if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
+            for (int i = 0; i < lExprs.length; i++) {
+                Expression lExpr = lExprs[i];
+                BValue rValue = getTempValue(rExpr.getTempOffset() + i);
+                assignValue(rValue, lExpr);
             }
+        } else {
+            Expression lExpr = lExprs[0];
+            BValue rValue = getTempValue(rExpr);
+            assignValue(rValue, lExpr);
         }
     }
 
@@ -541,7 +532,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ThrowStmt - EndNode");
         }
-        BException exception = (BException) getTempResult(throwStmtEndNode.getStatement().getExpr().getTempOffset());
+        BException exception = (BException) getTempValue(throwStmtEndNode.getStatement().getExpr());
         exception.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
         this.handleBException(exception);
     }
@@ -552,7 +543,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
             logger.debug("Executing ReplyStmt - EndNode");
         }
         Expression expr = replyStmtEndNode.getStatement().getReplyExpr();
-        BMessage bMessage = (BMessage) getTempResult(expr.getTempOffset());
+        BMessage bMessage = (BMessage) getTempValue(expr);
         bContext.getBalCallback().done(bMessage.value());
     }
 
@@ -565,19 +556,18 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         Expression[] exprs = returnStmt.getExprs();
 
         // Check whether the first argument is a multi-return function
-        // Check whether the first argument is a multi-return function
         if (exprs.length == 1 && exprs[0] instanceof FunctionInvocationExpr) {
             FunctionInvocationExpr funcIExpr = (FunctionInvocationExpr) exprs[0];
             if (funcIExpr.getTypes().length > 1) {
                 for (int i = 0; i < funcIExpr.getTypes().length; i++) {
-                    controlStack.setReturnValue(i, getTempResult(funcIExpr.getTempOffset() + i));
+                    controlStack.setReturnValue(i, getTempValue(funcIExpr.getTempOffset() + i));
                 }
                 return;
             }
         }
         for (int i = 0; i < exprs.length; i++) {
             Expression expr = exprs[i];
-            BValue returnVal = getTempResult(expr.getTempOffset());
+            BValue returnVal = getTempValue(expr);
             controlStack.setReturnValue(i, returnVal);
         }
     }
@@ -601,17 +591,10 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
                 rValue = null;
             }
         } else {
-            rValue = getTempResult(rExpr.getTempOffset());
+            rValue = getTempValue(rExpr);
         }
-        if (lExpr instanceof VariableRefExpr) {
-            assignValueToVarRefExpr(rValue, (VariableRefExpr) lExpr);
-        } else if (lExpr instanceof ArrayMapAccessExpr) {
-            assignValueToArrayMapAccessExpr(rValue, (ArrayMapAccessExpr) lExpr);
-        } else if (lExpr instanceof StructFieldAccessExpr) {
-            assignValueToStructFieldAccessExpr(rValue, (StructFieldAccessExpr) lExpr);
-        }
+        assignValue(rValue, lExpr);
     }
-
 
     @Override
     public void visit(ActionInvocationExprStartNode actionInvocationExprStartNode) {
@@ -665,10 +648,10 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
 
         for (int i = 0; i < argExprs.length; i++) {
             Expression expr = argExprs[i];
-            BValue value = getTempResult(expr.getTempOffset());
+            BValue value = getTempValue(expr);
             bArray.add(i, value);
         }
-        setTempResult(arrayInitExprEndNode.getExpression().getTempOffset(), bArray);
+        setTempValue(arrayInitExprEndNode.getExpression().getTempOffset(), bArray);
     }
 
     @Override
@@ -680,14 +663,14 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         ArrayMapAccessExpr arrayMapAccessExpr = arrayMapAccessExprEndNode.getExpression();
         if (!arrayMapAccessExpr.isLHSExpr()) {
             VariableRefExpr arrayVarRefExpr = (VariableRefExpr) arrayMapAccessExpr.getRExpr();
-            BValue collectionValue = getTempResult(arrayVarRefExpr.getTempOffset());
+            BValue collectionValue = getTempValue(arrayVarRefExpr);
 
             if (collectionValue == null) {
                 throw new BallerinaException("variable '" + arrayVarRefExpr.getVarName() + "' is null");
             }
 
             Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
-            BValue indexValue = getTempResult(indexExpr.getTempOffset());
+            BValue indexValue = getTempValue(indexExpr);
 
             // Check whether this collection access expression is in the left hand of an assignment expression
             // If yes skip setting the value;
@@ -707,7 +690,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
                     throw new IllegalStateException("Index of a map should be string type");
                 }
             }
-            setTempResult(arrayMapAccessExpr.getTempOffset(), result);
+            setTempValue(arrayMapAccessExpr.getTempOffset(), result);
         }
         // Else Nothing to do. (Assignment Statement will handle rest.
     }
@@ -719,9 +702,9 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         }
         String evaluatedString = evaluteBacktickString(backtickExprEndNode.getExpression());
         if (backtickExprEndNode.getExpression().getType() == BTypes.typeJSON) {
-            setTempResult(backtickExprEndNode.getExpression().getTempOffset(), new BJSON(evaluatedString));
+            setTempValue(backtickExprEndNode.getExpression().getTempOffset(), new BJSON(evaluatedString));
         } else {
-            setTempResult(backtickExprEndNode.getExpression().getTempOffset(), new BXML(evaluatedString));
+            setTempValue(backtickExprEndNode.getExpression().getTempOffset(), new BXML(evaluatedString));
         }
     }
 
@@ -732,11 +715,11 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         }
         BinaryExpression binaryExpr = binaryExpressionEndNode.getExpression();
         Expression rExpr = binaryExpr.getRExpr();
-        BValueType rValue = (BValueType) getTempResult(rExpr.getTempOffset());
+        BValueType rValue = (BValueType) getTempValue(rExpr);
 
         Expression lExpr = binaryExpr.getLExpr();
-        BValueType lValue = (BValueType) getTempResult(lExpr.getTempOffset());
-        setTempResult(binaryExpr.getTempOffset(), binaryExpr.getEvalFunc().apply(lValue, rValue));
+        BValueType lValue = (BValueType) getTempValue(lExpr);
+        setTempValue(binaryExpr.getTempOffset(), binaryExpr.getEvalFunc().apply(lValue, rValue));
     }
 
     @Override
@@ -788,8 +771,8 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         }
         StructFieldAccessExpr structFieldAccessExpr = structFieldAccessExprEndNode.getExpression();
         Expression varRef = structFieldAccessExpr.getVarRef();
-        BValue value = getTempResult(varRef.getTempOffset());
-        setTempResult(structFieldAccessExpr.getTempOffset(), getFieldExprValue(structFieldAccessExpr, value));
+        BValue value = getTempValue(varRef);
+        setTempValue(structFieldAccessExpr.getTempOffset(), getFieldExprValue(structFieldAccessExpr, value));
     }
 
     @Override
@@ -817,9 +800,9 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
             MapStructInitKeyValueExpr expr = (MapStructInitKeyValueExpr) argExprs[i];
             VariableRefExpr varRefExpr = (VariableRefExpr) expr.getKeyExpr();
             StructVarLocation structVarLoc = (StructVarLocation) (varRefExpr).getVariableDef().getMemoryLocation();
-            structMemBlock[structVarLoc.getStructMemAddrOffset()] = getTempResult(expr.getValueExpr().getTempOffset());
+            structMemBlock[structVarLoc.getStructMemAddrOffset()] = getTempValue(expr.getValueExpr());
         }
-        setTempResult(structInitExpr.getTempOffset(), new BStruct(structDef, structMemBlock));
+        setTempValue(structInitExpr.getTempOffset(), new BStruct(structDef, structMemBlock));
     }
 
     @Override
@@ -831,8 +814,8 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         }
         // Check for native type casting
         if (typeCastExpression.getEvalFunc() != null) {
-            BValueType result = (BValueType) getTempResult(typeCastExpression.getRExpr().getTempOffset());
-            setTempResult(typeCastExpression.getTempOffset(), typeCastExpression.getEvalFunc().apply(result));
+            BValueType result = (BValueType) getTempValue(typeCastExpression.getRExpr());
+            setTempValue(typeCastExpression.getTempOffset(), typeCastExpression.getEvalFunc().apply(result));
         } else {
             TypeConvertor typeConvertor = typeCastExpression.getCallableUnit();
 
@@ -876,9 +859,9 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
             logger.debug("Executing UnaryExpressionEnd[Link]");
         }
         UnaryExpression unaryExpr = unaryExpressionEndNode.getExpression();
-        BValueType rValue = (BValueType) getTempResult(unaryExpr.getRExpr().getTempOffset());
+        BValueType rValue = (BValueType) getTempValue(unaryExpr.getRExpr());
         BValue result = unaryExpr.getEvalFunc().apply(null, rValue);
-        setTempResult(unaryExpr.getTempOffset(), result);
+        setTempValue(unaryExpr.getTempOffset(), result);
     }
 
     @Override
@@ -888,7 +871,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
             logger.debug("Executing RefTypeInitExpr - EndNode");
         }
         BType bType = refTypeInitExpr.getType();
-        setTempResult(refTypeInitExpr.getTempOffset(), bType.getDefaultValue());
+        setTempValue(refTypeInitExpr.getTempOffset(), bType.getDefaultValue());
     }
 
     @Override
@@ -901,7 +884,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         if (stackFrame.returnValues.length > 0) {
             int i = 0;
             for (BValue value : stackFrame.returnValues) {
-                setTempResult(callableUnitEndNode.getExpression().getTempOffset() + i, value);
+                setTempValue(callableUnitEndNode.getExpression().getTempOffset() + i, value);
                 i++;
             }
         }
@@ -923,7 +906,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
             Expression[] argExpressions = connectorInitExpr.getArgExprs();
             connectorMemBlock = new BValue[argExpressions.length];
             for (int j = 0; j < argExpressions.length; j++) {
-                connectorMemBlock[j] = getTempResult(argExpressions[j].getTempOffset());
+                connectorMemBlock[j] = getTempValue(argExpressions[j]);
             }
 
             nativeConnector.init(connectorMemBlock);
@@ -941,19 +924,19 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
 //
 //            nativeConnector.init(connectorMemBlock);
 //            connector = nativeConnector;
-            setTempResult(connectorInitExpr.getTempOffset(), bConnector);
+            setTempValue(connectorInitExpr.getTempOffset(), bConnector);
         } else {
             BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
 
             int offset = 0;
             connectorMemBlock = new BValue[connectorDef.getSizeOfConnectorMem()];
             for (Expression expr : connectorInitExpr.getArgExprs()) {
-                connectorMemBlock[offset] = getTempResult(expr.getTempOffset());
+                connectorMemBlock[offset] = getTempValue(expr);
                 offset++;
             }
 
             bConnector = new BConnector(connector, connectorMemBlock);
-            setTempResult(connectorInitExpr.getTempOffset(), bConnector);
+            setTempValue(connectorInitExpr.getTempOffset(), bConnector);
             // Create the Stack frame
             Function initFunction = connectorDef.getInitFunction();
             BValue[] localVals = new BValue[1];
@@ -1015,11 +998,11 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
 
         for (int i = 0; i < argExprs.length; i++) {
             MapStructInitKeyValueExpr expr = (MapStructInitKeyValueExpr) argExprs[i];
-            BValue keyVal = getTempResult(expr.getKeyExpr().getTempOffset());
-            BValue value = getTempResult(expr.getValueExpr().getTempOffset());
+            BValue keyVal = getTempValue(expr.getKeyExpr());
+            BValue value = getTempValue(expr.getValueExpr());
             bMap.put(keyVal, value);
         }
-        setTempResult(mapInitExprEndNode.getExpression().getTempOffset(), bMap);
+        setTempValue(mapInitExprEndNode.getExpression().getTempOffset(), bMap);
     }
 
     /**
@@ -1059,7 +1042,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         int i = 0;
         for (Expression arg : expressions) {
             // Evaluate the argument expression
-            BValue argValue = getTempResult(arg.getTempOffset());
+            BValue argValue = getTempValue(arg);
             BType argType = arg.getType();
 
             // Here we need to handle value types differently from reference types
@@ -1080,21 +1063,31 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
     private String evaluteBacktickString(BacktickExpr backtickExpr) {
         String varString = "";
         for (Expression expression : backtickExpr.getArgExprs()) {
-            varString = varString + getTempResult(expression.getTempOffset()).stringValue();
+            varString = varString + getTempValue(expression).stringValue();
         }
         return varString;
+    }
+
+    private void assignValue(BValue rValue, Expression lExpr) {
+        if (lExpr instanceof VariableRefExpr) {
+            assignValueToVarRefExpr(rValue, (VariableRefExpr) lExpr);
+        } else if (lExpr instanceof ArrayMapAccessExpr) {
+            assignValueToArrayMapAccessExpr(rValue, (ArrayMapAccessExpr) lExpr);
+        } else if (lExpr instanceof StructFieldAccessExpr) {
+            assignValueToStructFieldAccessExpr(rValue, (StructFieldAccessExpr) lExpr);
+        }
     }
 
     private void assignValueToArrayMapAccessExpr(BValue rValue, ArrayMapAccessExpr lExpr) {
         ArrayMapAccessExpr accessExpr = lExpr;
         if (!(accessExpr.getType() == BTypes.typeMap)) {
-            BArray arrayVal = (BArray) getTempResult(accessExpr.getRExpr().getTempOffset());
-            BInteger indexVal = (BInteger) getTempResult(accessExpr.getIndexExpr().getTempOffset());
+            BArray arrayVal = (BArray) getTempValue(accessExpr.getRExpr());
+            BInteger indexVal = (BInteger) getTempValue(accessExpr.getIndexExpr());
             arrayVal.add(indexVal.intValue(), rValue);
 
         } else {
-            BMap<BString, BValue> mapVal = (BMap<BString, BValue>) getTempResult(accessExpr.getRExpr().getTempOffset());
-            BString indexVal = (BString) getTempResult(accessExpr.getIndexExpr().getTempOffset());
+            BMap<BString, BValue> mapVal = (BMap<BString, BValue>) getTempValue(accessExpr.getRExpr());
+            BString indexVal = (BString) getTempValue(accessExpr.getIndexExpr());
             mapVal.put(indexVal, rValue);
             // set the type of this expression here
             // accessExpr.setType(rExpr.getType());
@@ -1131,7 +1124,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
      */
     private void assignValueToStructFieldAccessExpr(BValue rValue, StructFieldAccessExpr lExpr) {
         Expression lExprVarRef = lExpr.getVarRef();
-        BValue value = getTempResult(lExprVarRef.getTempOffset());
+        BValue value = getTempValue(lExprVarRef);
         setFieldValue(rValue, lExpr, value);
     }
 
@@ -1226,7 +1219,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         }
 
         // Evaluate the index expression and get the value.
-        BValue indexValue = getTempResult(indexExpr.getTempOffset());
+        BValue indexValue = getTempValue(indexExpr);
 
         // Get the array/map value from the mermory location
         BValue arrayMapValue = lExprValue.getValue(memoryLocation);
@@ -1309,7 +1302,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         }
 
         // Evaluate the index expression and get the value
-        BValue indexValue = getTempResult(indexExpr.getTempOffset());
+        BValue indexValue = getTempValue(indexExpr);
 
         BValue unitVal;
         // Get the value from array/map's index location
@@ -1327,20 +1320,36 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         return unitVal;
     }
 
-    private BValue getTempResult(int offset) {
-        return bContext.getControlStack().getCurrentFrame().tempValues[offset];
+    /**
+     * Get Temporary value from temporary location.
+     *
+     * @param expression to be evaluated.
+     * @return temporary BValue.
+     */
+    private BValue getTempValue(Expression expression) {
+        if (expression.hasTemporaryValues()) {
+            return bContext.getControlStack().getCurrentFrame().tempValues[expression.getTempOffset()];
+        } else {
+            MemoryLocation memoryLocation = ((VariableRefExpr) expression).getVariableDef().getMemoryLocation();
+            return memoryLocation.executeLNode(this);
+        }
     }
 
-    private void setTempResult(int offset, BValue result) {
+    /**
+     * Get Temporary value from providing temporary Offset.
+     *
+     * @param tempOffSet of the value.
+     * @return temporary BValue.
+     */
+    private BValue getTempValue(int tempOffSet) {
+        return bContext.getControlStack().getCurrentFrame().tempValues[tempOffSet];
+    }
+
+    private void setTempValue(int offset, BValue result) {
         bContext.getControlStack().getCurrentFrame().tempValues[offset] = result;
     }
 
-    private void clearTempValue() {
-        bContext.getControlStack().getCurrentFrame().tempValues =
-                new BValue[bContext.getControlStack().getCurrentFrame().tempValues.length];
-    }
-
     private String getNodeLocation(NodeLocation nodeLocation) {
-        return nodeLocation.getFileName() + ":" + nodeLocation.getLineNumber();
+        return nodeLocation != null ? nodeLocation.getFileName() + ":" + nodeLocation.getLineNumber() : "";
     }
 }

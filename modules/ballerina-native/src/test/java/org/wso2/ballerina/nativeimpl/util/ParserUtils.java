@@ -88,8 +88,8 @@ public class ParserUtils {
         // Analyze semantic properties of the source code
         SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, bLangPackage);
         bFile.accept(semanticAnalyzer);
-        BLangExecutionFlowBuilder linkBuilder = new BLangExecutionFlowBuilder();
-        bFile.accept(linkBuilder);
+        BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
+        bFile.accept(flowBuilder);
 
         return bFile;
     }

@@ -101,14 +101,14 @@ class BMainRunner {
                     mainFun.getName(), null, mainFun.getPackagePath(), exprs);
             funcIExpr.setOffset(1);
             funcIExpr.setCallableUnit(mainFun);
-            BLangExecutionFlowBuilder linker = new BLangExecutionFlowBuilder();
+            BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
             funcIExpr.setParent(new StartNode(StartNode.Originator.MAIN_FUNCTION));
-            linker.visit(funcIExpr);
+            flowBuilder.visit(funcIExpr);
 
             CallableUnitInfo functionInfo = new CallableUnitInfo(funcIExpr.getName(),
                     funcIExpr.getPackagePath(), mainFuncLocation);
 
-            BValue[] tempValues = new BValue[linker.getCurrentTempStackSize()];
+            BValue[] tempValues = new BValue[flowBuilder.getCurrentTempStackSize()];
 
             StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], tempValues, functionInfo);
             bContext.getControlStack().pushFrame(currentStackFrame);

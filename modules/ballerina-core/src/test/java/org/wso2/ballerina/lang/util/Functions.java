@@ -115,9 +115,9 @@ public class Functions {
         funcIExpr.setOffset(args.length);
         funcIExpr.setCallableUnit(function);
         // Linking.
-        BLangExecutionFlowBuilder linker = new BLangExecutionFlowBuilder();
+        BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
         funcIExpr.setParent(new StartNode(StartNode.Originator.TEST));
-        funcIExpr.accept(linker);
+        funcIExpr.accept(flowBuilder);
 
 
         // 4) Prepare function arguments
@@ -133,7 +133,7 @@ public class Functions {
         CallableUnitInfo functionInfo = new CallableUnitInfo(function.getName(), function.getPackagePath(),
                 function.getNodeLocation());
 
-        BValue[] tempValues = new BValue[linker.getCurrentTempStackSize()];
+        BValue[] tempValues = new BValue[flowBuilder.getCurrentTempStackSize()];
 
         StackFrame currentStackFrame = new StackFrame(functionArgs, new BValue[0], tempValues, functionInfo);
         bContext.getControlStack().pushFrame(currentStackFrame);

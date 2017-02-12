@@ -211,13 +211,13 @@ public class DebuggerTest {
             funcIExpr.setOffset(1);
             funcIExpr.setCallableUnit(mainFun);
             funcIExpr.setParent(new StartNode(StartNode.Originator.MAIN_FUNCTION));
-            BLangExecutionFlowBuilder linkBuilder = new BLangExecutionFlowBuilder();
-            funcIExpr.accept(linkBuilder);
+            BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
+            funcIExpr.accept(flowBuilder);
 
             CallableUnitInfo functionInfo = new CallableUnitInfo(funcIExpr.getName(),
                     funcIExpr.getPackagePath(), mainFuncLocation);
 
-            BValue[] tempValues = new BValue[linkBuilder.getCurrentTempStackSize()];
+            BValue[] tempValues = new BValue[flowBuilder.getCurrentTempStackSize()];
 
             StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], tempValues, functionInfo);
             bContext.getControlStack().pushFrame(currentStackFrame);
