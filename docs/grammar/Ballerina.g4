@@ -34,7 +34,7 @@ serviceBody
     ;
 
 serviceBodyDeclaration
-    :  variableDefinitionStatement* resourceDefinition+
+    :  variableDefinitionStatement* resourceDefinition*
     ;
 
 
@@ -48,7 +48,7 @@ functionDefinition
     ;
 
 nativeFunction
-    :   'native' 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? ';'
+    :   annotation* 'native' 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? ';'
     ;
 
 function
@@ -57,7 +57,7 @@ function
 
 //todo rename, this is used in resource, action and funtion
 functionBody
-    : '{' workerDeclaration* statement+ '}'
+    : '{' workerDeclaration* statement* '}'
     ;
 
 connectorDefinition
@@ -70,7 +70,7 @@ nativeConnector
     ;
 
 nativeConnectorBody
-    :   '{' nativeAction+ '}'
+    :   '{' nativeAction* '}'
     ;
 
 connector
@@ -78,11 +78,11 @@ connector
     ;
 
 connectorBody
-    :   '{' variableDefinitionStatement* action+ '}'
+    :   '{' variableDefinitionStatement* action* '}'
     ;
 
 nativeAction
-    :   'native' 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? ';'
+    :   annotation* 'native' 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? ';'
     ;
 
 action
@@ -94,7 +94,7 @@ structDefinition
     ;
 
 structDefinitionBody
-    :   '{' (typeName Identifier ';')+ '}'
+    :   '{' (typeName Identifier ';')* '}'
     ;
 
 typeConvertorDefinition
@@ -116,7 +116,7 @@ typeConvertorInput
 
 // cannot have conector declaration, need to validate at semantic analyzing
 typeConvertorBody
-    :   '{' statement+ '}'
+    :   '{' statement* '}'
     ;
 
 constantDefinition
@@ -126,7 +126,7 @@ constantDefinition
 // cannot have conector declaration, need to validate at semantic analyzing
 // typeName below is only 'message' type
 workerDeclaration
-    :   'worker' Identifier '(' namedParameter ')'  '{' statement+ '}'
+    :   'worker' Identifier '(' namedParameter ')'  '{' statement* '}'
     ;
 
 returnParameters
@@ -317,11 +317,11 @@ elseClause
     ;
 
 iterateStatement
-    :   'iterate' '(' typeName Identifier ':' expression ')' '{' statement+ '}'
+    :   'iterate' '(' typeName Identifier ':' expression ')' '{' statement* '}'
     ;
 
 whileStatement
-    :   'while' '(' expression ')' '{' statement+ '}'
+    :   'while' '(' expression ')' '{' statement* '}'
     ;
 
 breakStatement
@@ -330,12 +330,12 @@ breakStatement
 
 // typeName is only message
 forkJoinStatement
-    :   'fork' '(' typeName Identifier ')' '{' workerDeclaration+ '}' joinClause? timeoutClause?
+    :   'fork' '(' typeName Identifier ')' '{' workerDeclaration* '}' joinClause? timeoutClause?
     ;
 
 // below typeName is only 'message[]'
 joinClause
-    :   'join' '(' joinConditions ')' '(' typeName Identifier ')'  '{' statement+ '}'
+    :   'join' '(' joinConditions ')' '(' typeName Identifier ')'  '{' statement* '}'
     ;
 
 joinConditions
@@ -345,16 +345,16 @@ joinConditions
 
 // below typeName is only 'message[]'
 timeoutClause
-    :   'timeout' '(' expression ')' '(' typeName Identifier ')'  '{' statement+ '}'
+    :   'timeout' '(' expression ')' '(' typeName Identifier ')'  '{' statement* '}'
     ;
 
 tryCatchStatement
-    :   'try' '{' statement+ '}' catchClause
+    :   'try' '{' statement* '}' catchClause
     ;
 
 // below tyeName is only 'exception'
 catchClause
-    :   'catch' '(' typeName Identifier ')' '{' statement+ '}'
+    :   'catch' '(' typeName Identifier ')' '{' statement* '}'
     ;
 
 throwStatement
