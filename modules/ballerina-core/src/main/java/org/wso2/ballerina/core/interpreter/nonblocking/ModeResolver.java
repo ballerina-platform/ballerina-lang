@@ -35,7 +35,7 @@ public class ModeResolver {
         if (property != null && property.equalsIgnoreCase("true")) {
             nonblockingEnabled = true;
         }
-        String debug = System.getProperty(Constants.SYS_PROP_ENABLE_NONBLOCKING);
+        String debug = System.getProperty(Constants.SYSTEM_PROP_BAL_DEBUG);
         if (debug != null && !debug.isEmpty()) {
             debugEnabled = true;
         }
