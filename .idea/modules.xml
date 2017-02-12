@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/ballerina-idea-plugin.iml" filepath="$PROJECT_DIR$/ballerina-idea-plugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Ballerina-Intellij-plugin.iml" filepath="$PROJECT_DIR$/Ballerina-Intellij-plugin.iml" />
     </modules>
   </component>
 </project>

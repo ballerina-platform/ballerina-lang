@@ -12,6 +12,9 @@
 hs_err_pid*
 
 /out/
-/.idea/
-/ballerina-idea-plugin.iml
 *.*~
+/.idea/workspace.xml
+!/lib/antlr4-runtime-4.6.jar
+/.idea/uiDesigner.xml
+/Ballerina-Intellij-plugin.zip
+/Ballerina-Intellij-plugin/

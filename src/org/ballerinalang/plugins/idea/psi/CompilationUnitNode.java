@@ -14,17 +14,15 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea;
+package org.ballerinalang.plugins.idea.psi;
 
-import com.intellij.openapi.util.IconLoader;
+import com.intellij.lang.ASTNode;
+import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
+import org.jetbrains.annotations.NotNull;
 
-import javax.swing.Icon;
+public class CompilationUnitNode extends ANTLRPsiNode {
 
-public class BallerinaIcons {
-
-    public static final Icon FILE = IconLoader.findIcon("/icons/flag.png");
-    public static final Icon MODULE = IconLoader.findIcon("/icons/flag.png");
-    public static final Icon FUNCTION = IconLoader.findIcon("/icons/function.png");
-    public static final Icon BALLERINA = IconLoader.findIcon("/icons/ballerina.png");
-
+    public CompilationUnitNode(@NotNull ASTNode node) {
+        super(node);
+    }
 }

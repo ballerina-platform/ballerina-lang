@@ -14,17 +14,21 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea;
+package org.ballerinalang.plugins.idea.structureview;
 
-import com.intellij.openapi.util.IconLoader;
+import com.intellij.navigation.ItemPresentation;
+import com.intellij.psi.PsiFile;
+import org.jetbrains.annotations.NotNull;
 
-import javax.swing.Icon;
+public class BallerinaStructureViewRootElement extends BallerinaStructureViewElement {
 
-public class BallerinaIcons {
+    public BallerinaStructureViewRootElement(PsiFile element) {
+        super(element);
+    }
 
-    public static final Icon FILE = IconLoader.findIcon("/icons/flag.png");
-    public static final Icon MODULE = IconLoader.findIcon("/icons/flag.png");
-    public static final Icon FUNCTION = IconLoader.findIcon("/icons/function.png");
-    public static final Icon BALLERINA = IconLoader.findIcon("/icons/ballerina.png");
-
+    @NotNull
+    @Override
+    public ItemPresentation getPresentation() {
+        return new BallerinaRootPresentation((PsiFile) element);
+    }
 }

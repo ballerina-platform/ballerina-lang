@@ -37,7 +37,7 @@
         <!-- file type -->
         <fileTypeFactory implementation="org.ballerinalang.plugins.idea.BallerinaFileTypeFactory"/>
 
-        <!-- parser -->
+        <!--parser-->
         <lang.parserDefinition language="Ballerina"
                                implementationClass="org.ballerinalang.plugins.idea.BallerinaParserDefinition"/>
 
@@ -49,11 +49,36 @@
                                        implementationClass="org.ballerinalang.plugins.idea.highlighter.BallerinaSyntaxHighlighterFactory"/>
         <colorSettingsPage implementation="org.ballerinalang.plugins.idea.highlighter.BallerinaColorSettingsPage"/>
 
-        <annotator language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.highlighter.BallerinaAnnotator"/>
-
-        <!-- formatter -->
+        formatter
         <lang.formatter language="Ballerina"
                         implementationClass="org.ballerinalang.plugins.idea.formatter.BallerinaFormattingModelBuilder"/>
+        <codeStyleSettingsProvider
+                implementation="org.ballerinalang.plugins.idea.formatter.settings.BallerinaCodeStyleSettingsProvider"/>
+        <langCodeStyleSettingsProvider
+                implementation="org.ballerinalang.plugins.idea.formatter.settings.BallerinaLanguageCodeStyleSettingsProvider"/>
+
+        <!--structure view-->
+        <lang.psiStructureViewFactory language="Ballerina"
+                                      implementationClass="org.ballerinalang.plugins.idea.structureview.BallerinaStructureViewFactory"/>
+
+        <lang.ast.factory language="Ballerina"
+                          implementationClass="org.ballerinalang.plugins.idea.BallerinaASTFactory"/>
+
+        <!--completion-->
+        <completion.contributor language="Ballerina"
+                                implementationClass="org.ballerinalang.plugins.idea.completion.KeywordCompletionContributor"/>
+
+
+        <lang.braceMatcher language="Ballerina"
+                           implementationClass="org.ballerinalang.plugins.idea.completion.BallerinaPairedBraceMatcher"/>
+
+        <!--line marker-->
+        <codeInsight.lineMarkerProvider language="Ballerina"
+                                        implementationClass="org.ballerinalang.plugins.idea.marker.BallerinaRecursiveCallMarkerProvider"/>
+
+        <!--find org.ballerinalang.plugins.idea.usage-->
+        <lang.findUsagesProvider language="Ballerina"
+                                 implementationClass="org.ballerinalang.plugins.idea.usage.BallerinaFindUsageProvider"/>
 
         <!-- templates -->
         <internalFileTemplate name="Ballerina Application"/>
