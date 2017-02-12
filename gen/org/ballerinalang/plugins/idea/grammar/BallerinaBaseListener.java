@@ -76,18 +76,6 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterServiceBodyDeclaration(BallerinaParser.ServiceBodyDeclarationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitServiceBodyDeclaration(BallerinaParser.ServiceBodyDeclarationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterResourceDefinition(BallerinaParser.ResourceDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -107,6 +95,30 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNativeFunction(BallerinaParser.NativeFunctionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNativeFunction(BallerinaParser.NativeFunctionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFunction(BallerinaParser.FunctionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFunction(BallerinaParser.FunctionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -136,6 +148,42 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterNativeConnector(BallerinaParser.NativeConnectorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNativeConnector(BallerinaParser.NativeConnectorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNativeConnectorBody(BallerinaParser.NativeConnectorBodyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNativeConnectorBody(BallerinaParser.NativeConnectorBodyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterConnector(BallerinaParser.ConnectorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitConnector(BallerinaParser.ConnectorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterConnectorBody(BallerinaParser.ConnectorBodyContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -148,13 +196,25 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterActionDefinition(BallerinaParser.ActionDefinitionContext ctx) { }
+	@Override public void enterNativeAction(BallerinaParser.NativeActionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitActionDefinition(BallerinaParser.ActionDefinitionContext ctx) { }
+	@Override public void exitNativeAction(BallerinaParser.NativeActionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAction(BallerinaParser.ActionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAction(BallerinaParser.ActionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -191,6 +251,30 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNativeTypeConvertor(BallerinaParser.NativeTypeConvertorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNativeTypeConvertor(BallerinaParser.NativeTypeConvertorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterTypeConvertor(BallerinaParser.TypeConvertorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTypeConvertor(BallerinaParser.TypeConvertorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

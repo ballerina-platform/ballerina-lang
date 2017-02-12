@@ -48,6 +48,7 @@ import org.ballerinalang.plugins.idea.psi.CallableUnitNameNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
@@ -55,6 +56,7 @@ import org.ballerinalang.plugins.idea.psi.FunctionBodyNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.LiteralValueNode;
 import org.ballerinalang.plugins.idea.psi.NamedParameterNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
@@ -62,7 +64,6 @@ import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.QualifiedTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.ServiceBodyDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
@@ -180,7 +181,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new VariableDefinitionNode(node);
             case BallerinaParser.RULE_parameter:
                 return new ParameterNode(node);
-            case BallerinaParser.RULE_actionDefinition:
+            case BallerinaParser.RULE_action:
                 return new ActionDefinitionNode(node);
             case BallerinaParser.RULE_connectorBody:
                 return new ConnectorBodyNode(node);
@@ -188,8 +189,6 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new ConnectorDefinitionNode(node);
             case BallerinaParser.RULE_resourceDefinition:
                 return new ResourceDefinitionNode(node);
-            case BallerinaParser.RULE_serviceBodyDeclaration:
-                return new ServiceBodyDeclarationNode(node);
             case BallerinaParser.RULE_packageName:
                 return new PackageNameNode(node);
             case BallerinaParser.RULE_packagePath:
@@ -228,6 +227,10 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new StructDefinitionNode(node);
             case BallerinaParser.RULE_namedParameter:
                 return new NamedParameterNode(node);
+            case BallerinaParser.RULE_literalValue:
+                return new LiteralValueNode(node);
+            case BallerinaParser.RULE_connector:
+                return new ConnectorNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

@@ -13,7 +13,7 @@ compilationUnit
     |   structDefinition
     |   typeConvertorDefinition
     |   constantDefinition
-    )+
+    )*
         EOF
     ;
 
@@ -30,21 +30,24 @@ serviceDefinition
     ;
 
 serviceBody
-    :   serviceBodyDeclaration
+    :   variableDefinitionStatement* resourceDefinition*
     ;
-
-serviceBodyDeclaration
-    :  variableDefinitionStatement* resourceDefinition*
-    ;
-
 
 resourceDefinition
     :   annotation* 'resource' Identifier '(' parameterList ')' '{' functionBody '}'
     ;
 
 functionDefinition
+    :   nativeFunction
+    |   function
+    ;
+
+nativeFunction
+    :   annotation* 'native' 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? ';'
+    ;
+
+function
     :   annotation* 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? '{' functionBody '}'
-    |   annotation* 'native'? 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? ';'
     ;
 
 //todo rename, this is used in resource, action and funtion
@@ -53,16 +56,32 @@ functionBody
     ;
 
 connectorDefinition
+    :   nativeConnector
+    |   connector
+    ;
+
+nativeConnector
+    :   'native' 'connector' Identifier '(' parameterList ')' '{' nativeConnectorBody '}'
+    ;
+
+nativeConnectorBody
+    :   nativeAction*
+    ;
+
+connector
     :   annotation* 'connector' Identifier '(' parameterList ')' '{' connectorBody '}'
     ;
 
 connectorBody
-    :   variableDefinitionStatement* actionDefinition*
+    :   variableDefinitionStatement* action*
     ;
 
-actionDefinition
+nativeAction
+    :   annotation* 'native' 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? ';'
+    ;
+
+action
     :   annotation* 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? '{' functionBody '}'
-    |   annotation* 'native'? 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? ';'
     ;
 
 structDefinition
@@ -74,6 +93,15 @@ structDefinitionBody
     ;
 
 typeConvertorDefinition
+    :   nativeTypeConvertor
+    |   typeConvertor
+    ;
+
+nativeTypeConvertor
+    :   'native' 'typeconvertor' Identifier '(' typeConvertorInput ')' '('typeConvertorType')' ';'
+    ;
+
+typeConvertor
     :   'typeconvertor' Identifier '(' typeConvertorInput ')' '('typeConvertorType')' '{' typeConvertorBody '}'
     ;
 
@@ -122,7 +150,6 @@ typeConvertorType
     |   withSchemaIdType
     |   withScheamURLType
     ;
-
 
 unqualifiedTypeName
     :   simpleType
@@ -201,7 +228,6 @@ parameter
     ;
 
 packagePath
-//    :   Identifier ('.' Identifier)*
     :   (packageName '.')* packageName
     ;
 
@@ -220,8 +246,9 @@ literalValue
     |   BooleanLiteral
     |   NullLiteral
     ;
+
  //============================================================================================================
- // ANNOTATIONS
+ // ANNOTATION
 
  annotation
      :   '@' annotationName ( '(' ( elementValuePairs | elementValue )? ')' )?
@@ -285,7 +312,7 @@ ifElseStatement
     ;
 
 iterateStatement
-    :   'iterate' '(' typeName Identifier ':' expression ')' '{' statement+ '}'
+    :   'iterate' '(' typeName Identifier ':' expression ')' '{' statement* '}'
     ;
 
 whileStatement
@@ -318,7 +345,7 @@ timeoutClause
 
 // below tyeName is only 'exception'
 tryCatchStatement
-    :   'try' '{' statement+ '}' 'catch' '(' typeName Identifier ')' '{' statement* '}'
+    :   'try' '{' statement* '}' 'catch' '(' typeName Identifier ')' '{' statement* '}'
     ;
 
 throwStatement
@@ -490,6 +517,9 @@ BITOR           : '|';
 CARET           : '^';
 MOD             : '%';
 AT              : '@';
+SINGLEQUOTE     : '\'';
+DOUBLEQUOTE     : '"';
+BACKTICK        : '`';
 
 // §3.10.1 Integer Literals
 IntegerLiteral
