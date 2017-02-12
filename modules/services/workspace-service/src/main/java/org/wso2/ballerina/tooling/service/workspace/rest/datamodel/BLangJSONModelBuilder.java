@@ -738,6 +738,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject unaryExpr = new JsonObject();
         unaryExpr.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
                 BLangJSONModelConstants.UNARY_EXPRESSION);
+        unaryExpr.addProperty(BLangJSONModelConstants.EXPRESSION_OPERATOR,
+                unaryExpression.getOperator().toString());
         tempJsonArrayRef.push(new JsonArray());
         unaryExpression.getRExpr().accept(this);
         unaryExpr.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());

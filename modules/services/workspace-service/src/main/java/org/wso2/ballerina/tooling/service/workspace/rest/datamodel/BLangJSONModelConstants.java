@@ -231,4 +231,6 @@ public class BLangJSONModelConstants {
     public static final String VARIABLE_DEF_OPTIONS = "variable_def_options";
 
     public static final String REFERENCE_TYPE_INIT_EXPR = "reference_type_init_expression";
+
+    public static final String EXPRESSION_OPERATOR = "operator";
 }
