@@ -454,10 +454,14 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this._managedStatements.splice(childStatementIndex, 1);
 
         if (this._widestStatementView === childStatementView) {
-            // we have deleted the widest statement.
-            this._widestStatementView = computeWidestStatementView(this._managedStatements,
-                                                                   this.diagramRenderingContext);
-            this._updateContainerWidth(this._widestStatementView.getBoundingBox().w());
+            if(!_.isEmpty(this._managedStatements)) {
+                // we have deleted the widest statement.
+                this._widestStatementView = computeWidestStatementView(this._managedStatements,
+                    this.diagramRenderingContext);
+                this._updateContainerWidth(this._widestStatementView.getBoundingBox().w());
+            } else {
+                this._widestStatementView = undefined;
+            }
         }
     };
 
