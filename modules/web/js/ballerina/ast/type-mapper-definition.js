@@ -64,28 +64,6 @@ define(['lodash', './node'], function (_, ASTNode) {
     };
 
     /**
-     * Gets the return SourceAndTaergetObjects
-     * @return {object} - Return type.
-     */
-    TypeMapperDefinition.prototype.getSourceAndTargetObjects = function (targetExpression) {
-        var sourceTargetContainer = {};
-        var ballerinaASTFactory = this.getFactory();
-
-        _.forEach(this.getChildren(), function (child) {
-            if (ballerinaASTFactory.isTypeStructDefinition(child)) {
-                if(child.getTypeStructName() == targetExpression){
-                    sourceTargetContainer["target"] = child;
-                }else{
-                    sourceTargetContainer["source"] = child;
-                }
-            }
-        });
-        return sourceTargetContainer;
-    };
-
-
-
-    /**
      * Add variable declaration
      * @param newVariableDeclaration
      */
@@ -161,19 +139,33 @@ define(['lodash', './node'], function (_, ASTNode) {
 
     /**
      * removes the already selected child before adding a new child
-     * @param type
      */
-    TypeMapperDefinition.prototype.removeTypeStructDefinition = function (type) {
+    TypeMapperDefinition.prototype.removeResourceParameter = function () {
         var self = this;
         var ballerinaASTFactory = this.getFactory();
 
-        var selectedTypeDef = _.find(this.getChildren(), function (child) {
-            return ballerinaASTFactory.isTypeStructDefinition(child)
-                && child.getCategory() === type;
+        var previousInputType = _.find(this.getChildren(), function (child) {
+            return ballerinaASTFactory.isResourceParameter(child)
         });
 
-        if (!_.isUndefined(selectedTypeDef)) {
-            this.removeChild(selectedTypeDef);
+        if (!_.isUndefined(previousInputType)) {
+            this.removeChild(previousInputType);
+        }
+    };
+
+    /**
+     * removes the already selected child before adding a new child
+     */
+    TypeMapperDefinition.prototype.removeReturnType = function () {
+        var self = this;
+        var ballerinaASTFactory = this.getFactory();
+
+        var previousOutputType = _.find(this.getChildren(), function (child) {
+            return ballerinaASTFactory.isReturnType(child)
+        });
+
+        if (!_.isUndefined(previousOutputType)) {
+            this.removeChild(previousOutputType);
         }
     };
 
@@ -193,35 +185,6 @@ define(['lodash', './node'], function (_, ASTNode) {
         if (!_.isUndefined(assignmentStatement)) {
             this.removeChild(assignmentStatement);
         }
-    };
-
-    /**
-     * returns the index of the selected struct
-     * @param structArray
-     * @param selectedStructName
-     */
-    TypeMapperDefinition.prototype.getSelectedStructIndex = function (structArray, selectedStructName) {
-        return _.findIndex(structArray, function (child) {
-            return child._structName === selectedStructName;
-        });
-    };
-
-    /**
-     * Adds new type struct definition.
-     * @param {string} typeStructName
-     * @param {string} identifier
-     * @param {object} onConnectFunctionReference
-     * @param {object} onDisConnectFunctionReference
-     */
-    TypeMapperDefinition.prototype.addTypeStructDefinitionChild = function (typeStructName, identifier,onConnectFunctionReference,onDisConnectFunctionReference) {
-
-        // Creating new type struct definition.
-        var newTypeStructDef = this.getFactory().createTypeStructDefinition();
-        newTypeStructDef.setTypeStructName(typeStructName);
-        newTypeStructDef.setIdentifier(identifier);
-        newTypeStructDef.setOnConnectInstance(onConnectFunctionReference);
-        newTypeStructDef.setOnDisconnectInstance(onDisConnectFunctionReference);
-        this.addChild(newTypeStructDef);
     };
 
     /**
@@ -343,21 +306,6 @@ define(['lodash', './node'], function (_, ASTNode) {
     };
 
     /**
-     * Adds new statement.
-     * @param {string} identifier
-     */
-    TypeMapperDefinition.prototype.addStatement = function (identifier) {
-
-        // Creating a new Statement.
-        var newStatement = this.getFactory().createStatement();
-        //todo check setting annotations
-        var newReturnStatement =this.getFactory().createReturnStatement();
-        newReturnStatement.setReturnExpression(identifier);
-        newStatement.addChild(newReturnStatement);
-        this.addChild(newStatement);
-    };
-
-    /**
      * Constructs new assignment statement.
      * @param {string} sourceIdentifier
      * @param {string} targetIdentifier
@@ -399,23 +347,6 @@ define(['lodash', './node'], function (_, ASTNode) {
         newAssignmentStatement.addChild(rightOperandExpression);
 
         return newAssignmentStatement;
-    };
-
-    /**
-     * Adds assignmentStatement to statement
-     * @param assignmentStatement
-     */
-    TypeMapperDefinition.prototype.addAssignmentStatement = function (assignmentStatement) {
-
-        // returns child Statement.
-        var ballerinaASTFactory = this.getFactory();
-        var statement = _.find(this.getChildren(), function (child) {
-            return ballerinaASTFactory.isStatement(child);
-        });
-
-        if(!_.isUndefined(statement)){
-            statement.addChild(assignmentStatement);
-        }
     };
 
     /**

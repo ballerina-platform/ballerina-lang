@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log','./ballerina-view','./../ast/return-type', 'typeMapper'],
-    function (_, log, BallerinaView,ReturnType, TypeMapperRenderer) {
+define(['lodash', 'log','./ballerina-view','./../ast/return-type', 'typeMapper','constants'],
+    function (_, log, BallerinaView,ReturnType, TypeMapperRenderer,Constants) {
 
         var OutputStructView = function (args) {
             BallerinaView.call(this, args);
@@ -49,28 +49,17 @@ define(['lodash', 'log','./ballerina-view','./../ast/return-type', 'typeMapper']
 
             var typeStructName = this.getModel().getStructType();
             var typeStructSchema = this.getTargetInfo().targetStruct;
+            var previousSelection = this.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION];
 
             if(!mapper) {
                 mapper = new TypeMapperRenderer(self.getOnConnectInstance(), self.getOnDisconnectInstance(), this._parentView);
                 this._parentView._typeMapper = mapper;
             }
 
-            mapper.removeStruct(typeStructName);
+            if(previousSelection != undefined && previousSelection != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION){
+                mapper.removeStruct(previousSelection);
+            }
             mapper.addTargetStruct(typeStructSchema.getAttributesArray(),this.getModel());
-
-    //        var struct = this.getModel().getSchemaPropertyObj();
-    //        var category = this.getModel().getCategory();
-    //        var selectedStructName = this.getModel().getSelectedStructName();
-    //        if(!mapper) {
-    //            mapper = new TypeMapperRenderer(this.getModel().getOnConnectInstance(), this.getModel().getOnDisconnectInstance(), this._parentView);
-    //            this._parentView._typeMapper = mapper;
-    //        }
-    //        mapper.removeStruct(selectedStructName);
-    //        if (category == "SOURCE"){
-    //            mapper.addSourceStruct(struct,this.getModel());
-    //        } else{
-    //            mapper.addTargetStruct(struct,this.getModel());
-    //        }
         };
 
         /**
