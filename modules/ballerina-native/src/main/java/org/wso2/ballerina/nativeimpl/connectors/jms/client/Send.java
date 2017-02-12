@@ -102,10 +102,10 @@ public class Send extends AbstractJMSAction {
             message = JMSMessageUtils.toStorableMessage(bMessage);
             propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.OBJECT_MESSAGE_TYPE);
         } else if (messageType.equalsIgnoreCase(JMSConstants.MAP_MESSAGE_TYPE)) {
-            message = new MapCarbonMessage();
-            MapCarbonMessage mapCarbonMessage = (MapCarbonMessage) message;
             BValue bValue = properties.get(new BString(JMSConstants.MAP_DATA));
             if (bValue != null) {
+                message = new MapCarbonMessage();
+                MapCarbonMessage mapCarbonMessage = (MapCarbonMessage) message;
                 if (bValue instanceof BMap) {
                     BMap<BValue, BValue> mapData = (BMap<BValue, BValue>) bValue;
                     Iterator<BValue> iterator = mapData.keySet().iterator();
@@ -117,6 +117,11 @@ public class Send extends AbstractJMSAction {
                         }
                     }
                 }
+            } else if (!(message instanceof MapCarbonMessage)) {
+                throw new BallerinaException(
+                        "If the message type is MapMessage, either set MapData property or pass a received" +
+                        " jms map message",
+                        context);
             }
             propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.MAP_MESSAGE_TYPE);
         } else {
