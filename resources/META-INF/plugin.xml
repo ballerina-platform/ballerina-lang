@@ -89,9 +89,10 @@
         <!--live templates-->
         <defaultLiveTemplatesProvider
                 implementation="org.ballerinalang.plugins.idea.template.BallerinaLiveTemplateProvider"/>
-        <liveTemplateContext implementation="org.ballerinalang.plugins.idea.template.BallerinaFileContext"/>
-        <liveTemplateContext implementation="org.ballerinalang.plugins.idea.template.BallerinaConnectorContext"/>
-        <liveTemplateContext implementation="org.ballerinalang.plugins.idea.template.BallerinaServiceContext"/>
+        <liveTemplateContext implementation="org.ballerinalang.plugins.idea.template.BallerinaEverywhereContextType"/>
+        <liveTemplateContext implementation="org.ballerinalang.plugins.idea.template.BallerinaCodeContextType$File"/>
+        <liveTemplateContext implementation="org.ballerinalang.plugins.idea.template.BallerinaCodeContextType$Service"/>
+        <liveTemplateContext implementation="org.ballerinalang.plugins.idea.template.BallerinaCodeContextType$Connector"/>
 
         <!-- sdk -->
         <sdkType implementation="org.ballerinalang.plugins.idea.sdk.BallerinaSdkType"/>

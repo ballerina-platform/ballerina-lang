@@ -1,10 +1,11 @@
 <templateSet group="Ballerina">
 
-    <template name="fun" value="function $NAME$ ($ARGS$) {&#10;    $END$&#10;}"
+    <template name="fun" value="function $NAME$ ($ARGS$) ($RETURN$) {&#10;    $END$&#10;}"
               description="Function template" toReformat="false"
               toShortenFQNames="false">
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="RETURN" expression="" defaultValue="" alwaysStopAt="true"/>
         <context>
             <option name="BALLERINA_FILE" value="true"/>
         </context>
@@ -39,7 +40,7 @@
         </context>
     </template>
 
-    <template name="ser" value='@BasePath("/$PATH$")&#10;service $NAME$ {&#10;    $END$&#10;}'
+    <template name="ser" value='@BasePath ("/$PATH$")&#10;service $NAME$ {&#10;    $END$&#10;}'
               description="Service Template" toReformat="false"
               toShortenFQNames="false">
         <variable name="PATH" expression="" defaultValue="" alwaysStopAt="true"/>
@@ -60,7 +61,7 @@
         </context>
     </template>
 
-    <template name="res" value='@$METHOD$&#10;@Path("/$PATH$")&#10;resource $NAME$ ($ARGS$) {&#10;    $END$&#10;}'
+    <template name="res" value='@$METHOD$&#10;@Path ("/$PATH$")&#10;resource $NAME$ ($ARGS$) {&#10;    $END$&#10;}'
               description="Connector Template" toReformat="false"
               toShortenFQNames="false">
         <variable name="METHOD" expression="" defaultValue="" alwaysStopAt="true"/>
