@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Connector;
+import org.wso2.ballerina.core.model.values.BException;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
@@ -149,30 +150,22 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         return null;
     }
 
-    void executeNonBlockingAction(Context context, CarbonMessage message, BalConnectorCallback balConnectorCallback) {
+    void executeNonBlockingAction(Context context, CarbonMessage message, BalConnectorCallback balConnectorCallback)
+            throws ClientConnectorException {
+        // Handle the message built scenario
+        handleIfMessageBuilt(message);
+        ClientConnector clientConnector = BallerinaConnectorManager.getInstance().
+                getClientConnector(Constants.PROTOCOL_HTTP);
 
-        try {
-            // Handle the message built scenario
-            handleIfMessageBuilt(message);
-            ClientConnector clientConnector = BallerinaConnectorManager.getInstance().
-                    getClientConnector(Constants.PROTOCOL_HTTP);
-
-            if (clientConnector == null) {
-                throw new BallerinaException("Http client connector is not available");
-            }
-
-            clientConnector.send(message, balConnectorCallback);
-
-        } catch (ClientConnectorException e) {
-            throw new BallerinaException("Failed to send the message to an endpoint ", context);
-        } catch (Throwable e) {
-            throw new BallerinaException(e.getMessage(), context);
+        if (clientConnector == null) {
+            throw new BallerinaException("Http client connector is not available");
         }
+        clientConnector.send(message, balConnectorCallback);
     }
 
     @Override
     public void validate(BalConnectorCallback callback) {
-        handleTransportException(callback.getValueRef());
+        handleTransportException(callback.getValueRef(), callback.getContext());
     }
 
     private void handleTransportException(BValue valueRef) {
@@ -186,6 +179,26 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             }
         } else {
             throw new BallerinaException("Invalid message received for the action invocation");
+        }
+    }
+
+    private void handleTransportException(BValue valueRef, Context context) {
+        if (valueRef instanceof BMessage) {
+            BMessage bMsg = (BMessage) valueRef;
+            if (bMsg.value() == null) {
+                String msg = "Received unknown message for the action invocation";
+                BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
+                context.getExecutor().handleBException(exception);
+            }
+            if (bMsg.value().getMessagingException() != null) {
+                String msg = bMsg.value().getMessagingException().getMessage();
+                BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
+                context.getExecutor().handleBException(exception);
+            }
+        } else {
+            String msg = "Invalid message received for the action invocation";
+            BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
+            context.getExecutor().handleBException(exception);
         }
     }
 

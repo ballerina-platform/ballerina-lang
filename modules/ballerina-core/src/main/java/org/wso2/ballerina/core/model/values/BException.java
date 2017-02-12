@@ -17,57 +17,60 @@
 */
 package org.wso2.ballerina.core.model.values;
 
-import org.wso2.ballerina.core.exception.BallerinaException;
-
 /**
  * {@link BException} represents a exception value in Ballerina.
  */
-public class BException implements BRefType<BallerinaException> {
+public class BException implements BRefType {
 
-    private String category;
-    private String message;
+    private BString category;
+    private BString message;
+    private BArray<BString> stackTrace;
 
     public BException() {
+        stackTrace = new BArray<>(BString.class);
     }
 
     public BException(String message) {
-        this.message = message;
+        this.message = new BString(message);
     }
 
     public BException(String message, String category) {
-        this.message = message;
-        this.category = category;
+        this.message = new BString(message);
+        this.category = new BString(category);
     }
 
     @Override
     public String stringValue() {
-        return null;
+        String stringValue = "{" + category.stringValue() + "}" + message.stringValue();
+        return stringValue;
     }
 
     @Override
-    public BallerinaException value() {
-        if (message != null && category != null) {
-            return new BallerinaException(message, category);
-        } else if (message != null) {
-            return new BallerinaException(message);
-        } else {
-            return new BallerinaException();
-        }
+    public BException value() {
+        return this;
     }
 
-    public String getCategory() {
+    public BString getCategory() {
         return category;
     }
 
     public void setCategory(String category) {
-        this.category = category;
+        this.category = new BString(category);
     }
 
-    public String getMessage() {
+    public BString getMessage() {
         return message;
     }
 
     public void setMessage(String message) {
-        this.message = message;
+        this.message = new BString(message);
+    }
+
+    public void addStackTrace(String trace) {
+        stackTrace.add(stackTrace.size(), new BString(trace));
+    }
+
+    public BArray<BString> getStackTrace() {
+        return stackTrace;
     }
 }

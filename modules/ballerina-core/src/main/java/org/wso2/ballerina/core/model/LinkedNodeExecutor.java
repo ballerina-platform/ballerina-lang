@@ -64,6 +64,7 @@ import org.wso2.ballerina.core.model.nodes.fragments.expressions.UnaryExpression
 import org.wso2.ballerina.core.model.nodes.fragments.statements.AssignStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ReturnStmtEndNode;
+import org.wso2.ballerina.core.model.nodes.fragments.statements.ThrowStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.VariableDefStmtEndNode;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
@@ -84,7 +85,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 /**
  * LinkedNode Executor Interface.
  */
-public interface LinkedNodeExecutor {
+public interface LinkedNodeExecutor extends Executor {
 
     /* Statement Nodes */
 
@@ -169,6 +170,8 @@ public interface LinkedNodeExecutor {
     /* Node Fragments - Statements */
 
     void visit(AssignStmtEndNode assignStmtEndNode);
+
+    void visit(ThrowStmtEndNode throwStmtEndNode);
 
     void visit(ReplyStmtEndNode replyStmtEndNode);
 

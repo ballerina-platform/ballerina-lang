@@ -97,6 +97,7 @@ import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.ThrowStmt;
+import org.wso2.ballerina.core.model.statements.TryCatchStmt;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
@@ -694,6 +695,33 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(BreakStmt breakStmt) {
 
+    }
+
+    @Override
+    public void visit(TryCatchStmt tryCatchStmt) {
+        tryCatchStmt.getTryBlock().accept(this);
+        tryCatchStmt.getCatchScope().getParameterDef().setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+        tryCatchStmt.getCatchScope().getParameterDef().accept(this);
+        tryCatchStmt.getCatchBlock().accept(this);
+    }
+
+    @Override
+    public void visit(ThrowStmt throwStmt) {
+        throwStmt.getExpr().accept(this);
+        if (throwStmt.getExpr() instanceof VariableRefExpr) {
+            if (throwStmt.getExpr().getType() instanceof BExceptionType) {
+                return;
+            }
+        } else {
+            FunctionInvocationExpr funcIExpr = (FunctionInvocationExpr) throwStmt.getExpr();
+            if (!funcIExpr.isMultiReturnExpr() && funcIExpr.getTypes().length > 0
+                    && funcIExpr.getTypes()[0] instanceof BExceptionType) {
+                return;
+            }
+        }
+        throw new SemanticException(throwStmt.getNodeLocation().getFileName() + ":" +
+                throwStmt.getNodeLocation().getLineNumber() +
+                ": only a variable reference of type 'exception' is allowed in throw statement");
     }
 
     @Override

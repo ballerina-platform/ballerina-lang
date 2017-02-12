@@ -26,6 +26,7 @@ import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
+import org.wso2.ballerina.core.model.CatchScope;
 import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeLocation;
@@ -75,6 +76,8 @@ import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.model.statements.ThrowStmt;
+import org.wso2.ballerina.core.model.statements.TryCatchStmt;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
@@ -129,6 +132,7 @@ public class BLangModelBuilder {
     private Stack<Annotation.AnnotationBuilder> annotationBuilderStack = new Stack<>();
     private Stack<BlockStmt.BlockStmtBuilder> blockStmtBuilderStack = new Stack<>();
     private Stack<IfElseStmt.IfElseStmtBuilder> ifElseStmtBuilderStack = new Stack<>();
+    private Stack<TryCatchStmt.TryCatchStmtBuilder> tryCatchStmtBuilderStack = new Stack<>();
 
     private Stack<SimpleTypeName> typeNameStack = new Stack<>();
     private Stack<CallableUnitName> callableUnitNameStack = new Stack<>();
@@ -1068,6 +1072,78 @@ public class BLangModelBuilder {
         addToBlockStmt(ifElseStmt);
 
         currentScope = blockStmt.getEnclosingScope();
+    }
+
+    public void startTryCatchStmt(NodeLocation location) {
+        TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = new TryCatchStmt.TryCatchStmtBuilder();
+        tryCatchStmtBuilder.setLocation(location);
+        tryCatchStmtBuilderStack.push(tryCatchStmtBuilder);
+
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+        blockStmtBuilderStack.push(blockStmtBuilder);
+
+        currentScope = blockStmtBuilder.getCurrentScope();
+    }
+
+    public void startCatchClause(NodeLocation location) {
+        TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
+
+        // Creating Try clause.
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+        BlockStmt tryBlock = blockStmtBuilder.build();
+        tryCatchStmtBuilder.setTryBlock(tryBlock);
+        currentScope = tryBlock.getEnclosingScope();
+
+        // Staring parsing catch clause.
+        CatchScope catchScope = new CatchScope(currentScope);
+        tryCatchStmtBuilder.setCatchScope(catchScope);
+        currentScope = catchScope;
+
+        BlockStmt.BlockStmtBuilder catchBlockBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+        blockStmtBuilderStack.push(catchBlockBuilder);
+
+        currentScope = catchBlockBuilder.getCurrentScope();
+    }
+
+    public void addCatchClause(NodeLocation location, String argName) {
+        TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
+
+        SimpleTypeName exceptionType = typeNameStack.pop();
+        if (!TypeConstants.EXCEPTION_TNAME.equals(exceptionType.getName())) {
+            String errMsg = getNodeLocationStr(location) +
+                    "only a reference of type 'exception' is allowed here";
+            errorMsgs.add(errMsg);
+        }
+
+        BlockStmt.BlockStmtBuilder catchBlockBuilder = blockStmtBuilderStack.pop();
+        BlockStmt catchBlock = catchBlockBuilder.build();
+        currentScope = catchBlock.getEnclosingScope();
+
+        SymbolName symbolName = new SymbolName(argName);
+        ParameterDef paramDef = new ParameterDef(catchBlock.getNodeLocation(), argName, exceptionType, symbolName,
+                currentScope);
+        currentScope.resolve(symbolName);
+        currentScope.define(symbolName, paramDef);
+        tryCatchStmtBuilder.getCatchScope().setParameterDef(paramDef);
+        tryCatchStmtBuilder.setCatchBlock(catchBlock);
+    }
+
+    public void addTryCatchStmt() {
+        TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.pop();
+        TryCatchStmt tryCatchStmt = tryCatchStmtBuilder.build();
+        addToBlockStmt(tryCatchStmt);
+    }
+
+    public void createThrowStmt(NodeLocation location) {
+        Expression expression = exprStack.pop();
+        if (expression instanceof VariableRefExpr || expression instanceof FunctionInvocationExpr) {
+            ThrowStmt throwStmt = new ThrowStmt(location, expression);
+            addToBlockStmt(throwStmt);
+            return;
+        }
+        String errMsg = getNodeLocationStr(location) +
+                "only a variable reference of type 'exception' is allowed here";
+        errorMsgs.add(errMsg);
     }
 
     public void createFunctionInvocationStmt(NodeLocation location) {

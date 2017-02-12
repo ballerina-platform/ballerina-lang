@@ -24,6 +24,7 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BConnector;
+import org.wso2.ballerina.core.model.values.BException;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
@@ -32,6 +33,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
 /**
  * {@code Patch} is the PATCH action implementation of the HTTP Connector.
@@ -78,7 +80,13 @@ public class Patch extends AbstractHTTPAction {
         try {
             // Execute the operation
             executeNonBlockingAction(context, createCarbonMsg(context), callback);
+        } catch (ClientConnectorException | RuntimeException e) {
+            String msg = "Failed to invoke 'patch' action in " + HTTPConnector.CONNECTOR_NAME
+                    + ". " + e.getMessage();
+            BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
+            context.getExecutor().handleBException(exception);
         } catch (Throwable t) {
+            // This is should be a JavaError. Need to handle this properly.
             throw new BallerinaException("Failed to invoke 'patch' action in " + HTTPConnector.CONNECTOR_NAME
                     + ". " + t.getMessage(), context);
         }

@@ -102,6 +102,7 @@ import org.wso2.ballerina.core.model.nodes.fragments.expressions.UnaryExpression
 import org.wso2.ballerina.core.model.nodes.fragments.statements.AssignStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ReturnStmtEndNode;
+import org.wso2.ballerina.core.model.nodes.fragments.statements.ThrowStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.VariableDefStmtEndNode;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
@@ -113,6 +114,8 @@ import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.model.statements.ThrowStmt;
+import org.wso2.ballerina.core.model.statements.TryCatchStmt;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
@@ -124,7 +127,7 @@ import java.util.Arrays;
 import java.util.Stack;
 
 /**
- * {@link BLangLinkBuilder} builds a Linked list of executable blocks for non-blocking execution.
+ * {@link BLangLinkBuilder} builds a linked Node list for non-blocking execution.
  *
  * Based on execution logic, a statement or an expression can be divided into multiple executions blocks.
  * In the non-blocking implementation requires to execute these pieces in an ordered manner.
@@ -189,7 +192,7 @@ public class BLangLinkBuilder implements NodeVisitor {
     }
 
     /**
-     * Link given BallerinaFile.
+     * Parse given BallerinaFile.
      *
      * @param bFile BallerinaFile instance.
      */
@@ -206,12 +209,10 @@ public class BLangLinkBuilder implements NodeVisitor {
 
     @Override
     public void visit(ImportPackage importPkg) {
-
     }
 
     @Override
     public void visit(ConstDef constant) {
-
     }
 
     /**
@@ -229,13 +230,12 @@ public class BLangLinkBuilder implements NodeVisitor {
 
     @Override
     public void visit(BallerinaConnectorDef connector) {
-
     }
 
     /**
-     * Visit Resource and Starting Linking.
+     * Visit Resource and Starting building execution flow.
      *
-     * @param resource Resource instance to link
+     * @param resource Resource instance to parse
      */
     @Override
     public void visit(Resource resource) {
@@ -244,69 +244,49 @@ public class BLangLinkBuilder implements NodeVisitor {
         // Add offset counter for current Stack Frame.
         offSetCounterStack.push(new OffSetCounter());
         currentResource = resource;
-        // Just Calculate temp offset for resource. TODO: Fix this scope change.
-        ConnectorDcl[] connectorDcls = resource.getConnectorDcls();
-        if (connectorDcls != null) {
-            for (ConnectorDcl dcl : connectorDcls) {
-                for (Expression exp : dcl.getArgExprs()) {
-                    calculateTempOffSet(exp);
-                }
-            }
-        }
-        // This is a execution Start point. Hence link Block Statement with StartLink
+        // This is a execution Start point. Hence link Block Statement with StartNode
         BlockStmt blockStmt = resource.getResourceBody();
         blockStmt.setParent(new StartNode(StartNode.Originator.RESOURCE));
         // Visit Block Statement and ask it to handle its children.
         blockStmt.accept(this);
-
-        // Cleaning up and Preparing for Resource.
         resource.setTempStackFrameSize(offSetCounterStack.pop().getMax());
-        clearBranchingStacks();
+        // Cleaning up and Preparing for next Resource.
     }
 
     @Override
     public void visit(BallerinaFunction function) {
-
     }
 
     @Override
     public void visit(BTypeConvertor typeConvertor) {
-
     }
 
     @Override
     public void visit(BallerinaAction action) {
-
     }
 
     @Override
     public void visit(Worker worker) {
-
     }
 
     @Override
     public void visit(Annotation annotation) {
-
     }
 
     @Override
     public void visit(ParameterDef parameterDef) {
-
     }
 
     @Override
     public void visit(ConnectorDcl connectorDcl) {
-
     }
 
     @Override
     public void visit(VariableDef variableDef) {
-
     }
 
     @Override
     public void visit(StructDef structDef) {
-
     }
 
 
@@ -487,7 +467,7 @@ public class BLangLinkBuilder implements NodeVisitor {
             if (replyExpr != null) {
                 // Reply with message.
                 ReplyStmtEndNode endNode = new ReplyStmtEndNode(replyStmt);
-                replyExpr.setParent(replyExpr);
+                replyExpr.setParent(replyStmt);
                 replyExpr.setNextSibling(endNode);
                 replyStmt.setNext(replyExpr);
                 replyExpr.accept(this);
@@ -573,6 +553,30 @@ public class BLangLinkBuilder implements NodeVisitor {
     }
 
     @Override
+    public void visit(TryCatchStmt tryCatchStmt) {
+        Statement tryBlock = tryCatchStmt.getTryBlock();
+        Statement catchBlock = tryCatchStmt.getCatchBlock();
+        // Visit Try Catch block.
+        tryBlock.setParent(tryCatchStmt);
+        tryCatchStmt.setNext(tryBlock);
+        tryBlock.accept(this);
+
+        // Visit Catch Block.
+        catchBlock.setParent(tryCatchStmt);
+        catchBlock.accept(this);
+    }
+
+    @Override
+    public void visit(ThrowStmt throwStmt) {
+        throwStmt.setNext(throwStmt.getExpr());
+        throwStmt.getExpr().setParent(throwStmt);
+        ThrowStmtEndNode throwStmtEndNode = new ThrowStmtEndNode(throwStmt);
+        throwStmt.getExpr().setNextSibling(throwStmtEndNode);
+        throwStmt.getExpr().accept(this);
+        // throwStmtEndNode's next will be calculated at runtime.
+    }
+
+    @Override
     public void visit(FunctionInvocationStmt funcIStmt) {
         offSetCounterStack.peek().reset();
         // Flow : FunctionInvocationStmt -> FunctionInvocationExpr -> ... -> FunctionInvocationStmt.nextSibling -> ...
@@ -639,7 +643,6 @@ public class BLangLinkBuilder implements NodeVisitor {
                 for (ConnectorDcl dcl : connectorDcls) {
                     for (Expression exp : dcl.getArgExprs()) {
                         exp.setParent(funcInvExpr);
-//                        calculateTempOffSet(exp);
                         if (previous != null) {
                             previous.setNextSibling(exp);
                         } else {
@@ -696,11 +699,11 @@ public class BLangLinkBuilder implements NodeVisitor {
 
             BallerinaFunction bFunction = (BallerinaFunction) funcInvExpr.getCallableUnit();
             // Avoid recursive Linking.
-            if (!bFunction.isLinkerVisited()) {
+            if (!bFunction.isFlowBuilderVisited()) {
                 // Visiting Block Statement.
                 returningBlockStmtStack.push(blockStmt);
                 offSetCounterStack.push(new OffSetCounter());
-                bFunction.setLinkerVisited(true);
+                bFunction.setFlowBuilderVisited(true);
                 blockStmt.accept(this);
                 funcInvExpr.getCallableUnit().setTempStackFrameSize(offSetCounterStack.pop().getMax());
                 returningBlockStmtStack.pop();
@@ -800,10 +803,10 @@ public class BLangLinkBuilder implements NodeVisitor {
 
             // Visiting Block Statement.
             BallerinaAction bAction = (BallerinaAction) actionInvExpr.getCallableUnit();
-            if (!bAction.isLinkerVisited()) {
+            if (!bAction.isFlowBuilderVisited()) {
                 returningBlockStmtStack.push(blockStmt);
                 offSetCounterStack.push(new OffSetCounter());
-                bAction.setLinkerVisited(true);
+                bAction.setFlowBuilderVisited(true);
                 blockStmt.accept(this);
                 actionInvExpr.getCallableUnit().setTempStackFrameSize(offSetCounterStack.pop().getMax());
                 returningBlockStmtStack.pop();
@@ -956,10 +959,10 @@ public class BLangLinkBuilder implements NodeVisitor {
 
                 // Visiting Block Statement.
                 BTypeConvertor bTypeConvertor = (BTypeConvertor) castExpression.getCallableUnit();
-                if (!bTypeConvertor.isLinkerVisited()) {
+                if (!bTypeConvertor.isFlowBuilderVisited()) {
                     returningBlockStmtStack.push(blockStmt);
                     offSetCounterStack.push(new OffSetCounter());
-                    bTypeConvertor.setLinkerVisited(true);
+                    bTypeConvertor.setFlowBuilderVisited(true);
                     blockStmt.accept(this);
                     castExpression.getCallableUnit().setTempStackFrameSize(offSetCounterStack.pop().getMax());
                     returningBlockStmtStack.pop();
@@ -1221,10 +1224,10 @@ public class BLangLinkBuilder implements NodeVisitor {
             int branchID = gotoNode.addNext(callableUnitEndNode);
             endNode.setHasGotoBranchID(true);
             endNode.setGotoBranchID(branchID);
-            if (!connectorDef.getInitFunction().isLinkerVisited()) {
+            if (!connectorDef.getInitFunction().isFlowBuilderVisited()) {
                 returningBlockStmtStack.push(blockStmt);
                 offSetCounterStack.push(new OffSetCounter());
-                connectorDef.getInitFunction().setLinkerVisited(true);
+                connectorDef.getInitFunction().setFlowBuilderVisited(true);
                 blockStmt.accept(this);
                 connectorDef.getInitFunction().setTempStackFrameSize(offSetCounterStack.pop().getMax());
                 returningBlockStmtStack.pop();

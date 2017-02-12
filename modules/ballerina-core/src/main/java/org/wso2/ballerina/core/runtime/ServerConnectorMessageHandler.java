@@ -24,6 +24,7 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.core.runtime.dispatching.ResourceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
@@ -51,7 +52,7 @@ public class ServerConnectorMessageHandler {
     public static void handleInbound(CarbonMessage cMsg, CarbonCallback callback) {
         // Create the Ballerina Context
         Context balContext = new Context(cMsg);
-        
+        balContext.setServerConnectorProtocol(cMsg.getProperty("PROTOCOL"));
         try {
             String protocol = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
             if (protocol == null) {
@@ -97,7 +98,7 @@ public class ServerConnectorMessageHandler {
             BalProgramExecutor.execute(cMsg, callback, resource, service, balContext);
 
         } catch (Throwable throwable) {
-            handleError(cMsg, callback, balContext, throwable);
+            handleErrorInboundPath(cMsg, callback, balContext, throwable);
         }
     }
 
@@ -105,12 +106,13 @@ public class ServerConnectorMessageHandler {
         try {
             callback.done(cMsg);
         } catch (Throwable throwable) {
-            handleError(cMsg, callback, null, throwable);
+            BalConnectorCallback connectorCallback = (BalConnectorCallback) callback;
+            handleErrorFromOutbound(cMsg, connectorCallback.getContext(), throwable);
         }
     }
 
-    private static void handleError(CarbonMessage cMsg, CarbonCallback callback, Context balContext, 
-            Throwable throwable) {
+    public static void handleErrorInboundPath(CarbonMessage cMsg, CarbonCallback callback, Context balContext,
+                                              Throwable throwable) {
         String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
         String stacktrace = ErrorHandlerUtils.getServiceStackTrace(balContext, throwable);
         String errorWithTrace = errorMsg + "\n" + stacktrace;
@@ -125,6 +127,23 @@ public class ServerConnectorMessageHandler {
                 .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
                 .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext), cMsg, callback);
 
+    }
+
+    public static void handleErrorFromOutbound(CarbonMessage cMsg, Context balContext, Throwable throwable) {
+        String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
+        String stacktrace = ErrorHandlerUtils.getServiceStackTrace(balContext, throwable);
+        String errorWithTrace = errorMsg + "\n" + stacktrace;
+        log.error(errorWithTrace);
+        outStream.println(errorWithTrace);
+
+        Object protocol = balContext.getServerConnectorProtocol();
+        Optional<ServerConnectorErrorHandler> optionalErrorHandler =
+                BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
+
+        optionalErrorHandler
+                .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
+                .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext), cMsg,
+                        balContext.getBalCallback());
     }
 
 }

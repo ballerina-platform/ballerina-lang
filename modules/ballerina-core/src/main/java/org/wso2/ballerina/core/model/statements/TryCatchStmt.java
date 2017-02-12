@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.statements;
 
+import org.wso2.ballerina.core.model.CatchScope;
 import org.wso2.ballerina.core.model.LinkedNodeExecutor;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
@@ -29,31 +30,92 @@ import org.wso2.ballerina.core.model.NodeVisitor;
  */
 public class TryCatchStmt extends AbstractStatement {
     private Statement tryBlock;
-//    private List<ExceptionType> catchExceptions;
+    private CatchScope catchScope;
     private Statement catchBlock;
 
-    public TryCatchStmt(NodeLocation location) {
+    private TryCatchStmt(NodeLocation location, Statement tryBlock, Statement catchBlock, CatchScope catchScope) {
         super(location);
+        this.tryBlock = tryBlock;
+        this.catchBlock = catchBlock;
+        this.catchScope = catchScope;
     }
 
-//    public TryCatchStmt(Statement tryBlock, List<ExceptionType> catchExceptions, Statement catchBlock) {
-//        this.tryBlock = tryBlock;
-//        this.catchExceptions = catchExceptions;
-//        this.catchBlock = catchBlock;
-//    }
+    public Statement getTryBlock() {
+        return tryBlock;
+    }
+
+    public Statement getCatchBlock() {
+        return catchBlock;
+    }
+
+    public CatchScope getCatchScope() {
+        return catchScope;
+    }
 
     @Override
     public void accept(NodeVisitor visitor) {
-//        visitor.accept(this);
+        visitor.visit(this);
     }
 
     @Override
     public void execute(NodeExecutor executor) {
-
+        executor.visit(this);
     }
 
     @Override
     public void executeLNode(LinkedNodeExecutor executor) {
         executor.visit(this);
+    }
+
+    /**
+     * Builds a {@code {@link TryCatchStmt}} statement.
+     *
+     * @since 0.8.0
+     */
+    public static class TryCatchStmtBuilder {
+        private CatchScope catchScope;
+        private Statement tryBlock;
+        private Statement catchBlock;
+        private NodeLocation location;
+
+        public Statement getTryBlock() {
+            return tryBlock;
+        }
+
+        public void setTryBlock(Statement tryBlock) {
+            this.tryBlock = tryBlock;
+        }
+
+        public CatchScope getCatchScope() {
+            return catchScope;
+        }
+
+        public void setCatchScope(CatchScope catchScope) {
+            this.catchScope = catchScope;
+        }
+
+        public Statement getCatchBlock() {
+            return catchBlock;
+        }
+
+        public void setCatchBlock(Statement catchBlock) {
+            this.catchBlock = catchBlock;
+        }
+
+        public NodeLocation getLocation() {
+            return location;
+        }
+
+        public void setLocation(NodeLocation location) {
+            this.location = location;
+        }
+
+        public TryCatchStmt build() {
+            return new TryCatchStmt(
+                    location,
+                    tryBlock,
+                    catchBlock,
+                    catchScope);
+        }
     }
 }

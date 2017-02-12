@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.interpreter.nonblocking;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
+import org.wso2.ballerina.core.exception.LinkerException;
 import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
 import org.wso2.ballerina.core.interpreter.ConstantLocation;
@@ -31,11 +32,13 @@ import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
+import org.wso2.ballerina.core.interpreter.TryCatchStackRef;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.LinkedNodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.StructDef;
@@ -85,6 +88,7 @@ import org.wso2.ballerina.core.model.nodes.fragments.expressions.UnaryExpression
 import org.wso2.ballerina.core.model.nodes.fragments.statements.AssignStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ReturnStmtEndNode;
+import org.wso2.ballerina.core.model.nodes.fragments.statements.ThrowStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.VariableDefStmtEndNode;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
@@ -107,6 +111,7 @@ import org.wso2.ballerina.core.model.util.BValueUtils;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BConnector;
+import org.wso2.ballerina.core.model.values.BException;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BMap;
@@ -119,6 +124,7 @@ import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.ballerina.core.runtime.Constants;
+import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
 
 import java.util.Stack;
 
@@ -134,12 +140,14 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
     private RuntimeEnvironment runtimeEnv;
     private Context bContext;
     private ControlStack controlStack;
+    private Stack<TryCatchStackRef> tryCatchStackRefs;
 
     public BLangAbstractLinkedExecutor(RuntimeEnvironment runtimeEnv, Context bContext) {
         this.runtimeEnv = runtimeEnv;
         this.bContext = bContext;
         this.controlStack = bContext.getControlStack();
         this.branchIDStack = new Stack<>();
+        this.tryCatchStackRefs = new Stack<>();
     }
 
     /* Statement nodes. */
@@ -147,8 +155,8 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
     @Override
     public void visit(ActionInvocationStmt actionIStmt) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing ActionInvocationStmt :"
-                    + actionIStmt.getActionInvocationExpr().getCallableUnit().getName());
+            logger.debug("Executing ActionInvocationStmt {}-{}", getNodeLocation(actionIStmt.getNodeLocation()),
+                    actionIStmt.getActionInvocationExpr().getCallableUnit().getName());
         }
         clearTempValue();
     }
@@ -156,8 +164,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
     @Override
     public void visit(AssignStmt assignStmt) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing AssignStmt {}:{}", assignStmt.getNodeLocation().getFileName(),
-                    assignStmt.getNodeLocation().getLineNumber());
+            logger.debug("Executing AssignStmt {}", getNodeLocation(assignStmt.getNodeLocation()));
         }
         clearTempValue();
     }
@@ -165,15 +172,15 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
     @Override
     public void visit(BlockStmt blockStmt) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing BlockStmt - MultiParent={}", blockStmt.getGotoNode() != null);
+            logger.debug("Executing BlockStmt {}-MultiParent={}", getNodeLocation(blockStmt.getNodeLocation()),
+                    blockStmt.getGotoNode() != null);
         }
     }
 
     @Override
     public void visit(BreakStmt breakStmt) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing BreakStmt {}:{}", breakStmt.getNodeLocation().getFileName(),
-                    breakStmt.getNodeLocation().getLineNumber());
+            logger.debug("Executing BreakStmt {}", getNodeLocation(breakStmt.getNodeLocation()));
         }
         clearTempValue();
     }
@@ -189,8 +196,8 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
     @Override
     public void visit(FunctionInvocationStmt funcIStmt) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing FunctionInvocationStmt :" + funcIStmt.getFunctionInvocationExpr().getCallableUnit()
-                    .getName());
+            logger.debug("Executing FunctionInvocationStmt {}-{}", getNodeLocation(funcIStmt.getNodeLocation()),
+                    funcIStmt.getFunctionInvocationExpr().getCallableUnit().getName());
         }
         clearTempValue();
     }
@@ -198,8 +205,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
     @Override
     public void visit(IfElseStmt ifElseStmt) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing IfElseStmt {}:{}", ifElseStmt.getNodeLocation().getFileName(),
-                    ifElseStmt.getNodeLocation().getLineNumber());
+            logger.debug("Executing IfElseStmt {}", getNodeLocation(ifElseStmt.getNodeLocation()));
         }
         clearTempValue();
     }
@@ -207,8 +213,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
     @Override
     public void visit(ReplyStmt replyStmt) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing ReplyStmt {}:{}", replyStmt.getNodeLocation().getFileName(),
-                    replyStmt.getNodeLocation().getLineNumber());
+            logger.debug("Executing ReplyStmt {}", getNodeLocation(replyStmt.getNodeLocation()));
         }
         clearTempValue();
     }
@@ -216,25 +221,30 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
     @Override
     public void visit(ReturnStmt returnStmt) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing ReturnStmt {}:{}", returnStmt.getNodeLocation().getFileName(),
-                    returnStmt.getNodeLocation().getLineNumber());
+            logger.debug("Executing ReturnStmt {}", getNodeLocation(returnStmt.getNodeLocation()));
         }
         clearTempValue();
     }
 
     @Override
     public void visit(ThrowStmt throwStmt) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing ThrowStmt {}", getNodeLocation(throwStmt.getNodeLocation()));
+        }
     }
 
     @Override
     public void visit(TryCatchStmt tryCatchStmt) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing TryCatchStmt {}", getNodeLocation(tryCatchStmt.getNodeLocation()));
+        }
+        this.tryCatchStackRefs.push(new TryCatchStackRef(tryCatchStmt, bContext.getControlStack().getCurrentFrame()));
     }
 
     @Override
     public void visit(VariableDefStmt variableDefStmt) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing VariableDefStmt {}:{}", variableDefStmt.getNodeLocation().getFileName(),
-                    variableDefStmt.getNodeLocation().getLineNumber());
+            logger.debug("Executing VariableDefStmt {}", getNodeLocation(variableDefStmt.getNodeLocation()));
         }
         clearTempValue();
     }
@@ -242,8 +252,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
     @Override
     public void visit(WhileStmt whileStmt) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing WhileStmt {}:{}", whileStmt.getNodeLocation().getFileName(),
-                    whileStmt.getNodeLocation().getLineNumber());
+            logger.debug("Executing WhileStmt {}", getNodeLocation(whileStmt.getNodeLocation()));
         }
         clearTempValue();
     }
@@ -251,37 +260,39 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
     /* Expression nodes */
 
     @Override
-    public void visit(ActionInvocationExpr actionInvocationExpr) {
+    public void visit(ActionInvocationExpr actoinIExpr) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing ActionInvocationExpr - {}", actionInvocationExpr.getCallableUnit().getName());
+            logger.debug("Executing ActionInvocationExpr {}-{}", getNodeLocation(actoinIExpr.getNodeLocation()),
+                    actoinIExpr.getCallableUnit().getName());
         }
     }
 
     @Override
     public void visit(ArrayInitExpr arrayInitExpr) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing ArrayInitExpr");
+            logger.debug("Executing ArrayInitExpr {}", getNodeLocation(arrayInitExpr.getNodeLocation()));
         }
     }
 
     @Override
     public void visit(ArrayMapAccessExpr arrayMapAccessExpr) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing ArrayMapAccessExpr");
+            logger.debug("Executing ArrayMapAccessExpr {}", getNodeLocation(arrayMapAccessExpr.getNodeLocation()));
         }
     }
 
     @Override
     public void visit(BacktickExpr backtickExpr) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing BacktickExpr");
+            logger.debug("Executing BacktickExpr {}", getNodeLocation(backtickExpr.getNodeLocation()));
         }
     }
 
     @Override
     public void visit(BasicLiteral basicLiteral) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing BasicLiteral \"{}\"", basicLiteral.getBValue().stringValue());
+            logger.debug("Executing BasicLiteral {}-\"{}\"", basicLiteral.getTypeName(),
+                    basicLiteral.getBValue().stringValue());
         }
         setTempResult(basicLiteral.getTempOffset(), basicLiteral.getBValue());
     }
@@ -289,28 +300,29 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
     @Override
     public void visit(BinaryExpression expression) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing BinaryExpression");
+            logger.debug("Executing BinaryExpression {}", getNodeLocation(expression.getNodeLocation()));
         }
     }
 
     @Override
     public void visit(ConnectorInitExpr connectorInitExpr) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing ConnectorInitExpr");
+            logger.debug("Executing ConnectorInitExpr {}", getNodeLocation(connectorInitExpr.getNodeLocation()));
         }
     }
 
     @Override
-    public void visit(FunctionInvocationExpr functionInvocationExpr) {
+    public void visit(FunctionInvocationExpr functionIExpr) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing FunctionInvocationExpr - {}", functionInvocationExpr.getCallableUnit().getName());
+            logger.debug("Executing FunctionInvocationExpr {}-{}", getNodeLocation(functionIExpr.getNodeLocation()),
+                    functionIExpr.getCallableUnit().getName());
         }
     }
 
     @Override
     public void visit(InstanceCreationExpr instanceCreationExpr) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing InstanceCreationExpr");
+            logger.debug("Executing InstanceCreationExpr {}", getNodeLocation(instanceCreationExpr.getNodeLocation()));
         }
         setTempResult(instanceCreationExpr.getTempOffset(), instanceCreationExpr.getType().getDefaultValue());
     }
@@ -318,41 +330,51 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
     @Override
     public void visit(MapInitExpr mapInitExpr) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing MapInitExpr");
+            logger.debug("Executing MapInitExpr {}", getNodeLocation(mapInitExpr.getNodeLocation()));
         }
     }
 
     @Override
-    public void visit(MapStructInitKeyValueExpr mapStructInitKeyValueExpr) {
+    public void visit(MapStructInitKeyValueExpr expr) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing MapStructInitKeyValueExpr");
+            logger.debug("Executing MapStructInitKeyValueExpr {}", getNodeLocation(expr.getNodeLocation()));
         }
     }
 
     @Override
     public void visit(RefTypeInitExpr refTypeInitExpr) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing RefTypeInitExpr");
+            logger.debug("Executing RefTypeInitExpr {}", getNodeLocation(refTypeInitExpr.getNodeLocation()));
         }
     }
 
     @Override
-    public void visit(ResourceInvocationExpr resourceInvocationExpr) {
+    public void visit(ResourceInvocationExpr resourceIExpr) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing ResourceInvocationExpr");
+            logger.debug("Executing ResourceInvocationExpr {}", getNodeLocation(resourceIExpr.getNodeLocation()));
         }
 
-        Resource resource = resourceInvocationExpr.getResource();
-
-//        ControlStack controlStack = bContext.getControlStack();
+        Resource resource = resourceIExpr.getResource();
         BValue[] valueParams = new BValue[resource.getStackFrameSize()];
-
         BMessage messageValue = new BMessage(bContext.getCarbonMessage());
 
         valueParams[0] = messageValue;
+        int i = 0;
+        for (Expression arg : resourceIExpr.getArgExprs()) {
+            // Evaluate the argument expression
+            VariableRefExpr variableRefExpr = (VariableRefExpr) arg;
+            MemoryLocation memoryLocation = variableRefExpr.getVariableDef().getMemoryLocation();
+            BValue argValue = memoryLocation.executeLNode(this);
+            BType argType = arg.getType();
+            if (BTypes.isValueType(argType)) {
+                argValue = BValueUtils.clone(argType, argValue);
+            }
+            // Setting argument value in the stack frame
+            valueParams[i] = argValue;
 
+            i++;
+        }
         BValue[] ret = new BValue[1];
-
         CallableUnitInfo resourceInfo = new CallableUnitInfo(resource.getName(), resource.getPackagePath(),
                 resource.getNodeLocation());
 
@@ -362,30 +384,30 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
     }
 
     @Override
-    public void visit(StructFieldAccessExpr structFieldAccessExpr) {
+    public void visit(StructFieldAccessExpr accessExpr) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing StructFieldAccessExpr");
+            logger.debug("Executing StructFieldAccessExpr {}", getNodeLocation(accessExpr.getNodeLocation()));
         }
     }
 
     @Override
     public void visit(StructInitExpr structInitExpr) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing StructInitExpr");
+            logger.debug("Executing StructInitExpr {}", getNodeLocation(structInitExpr.getNodeLocation()));
         }
     }
 
     @Override
     public void visit(TypeCastExpression typeCastExpression) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing  {}->{}", typeCastExpression.getType(), typeCastExpression.getTargetType());
+            logger.debug("Executing typeCast {}->{}", typeCastExpression.getType(), typeCastExpression.getTargetType());
         }
     }
 
     @Override
     public void visit(UnaryExpression unaryExpression) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing UnaryExpression");
+            logger.debug("Executing UnaryExpression {}", getNodeLocation(unaryExpression.getNodeLocation()));
         }
     }
 
@@ -470,8 +492,8 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
 
     @Override
     public void visit(GotoNode gotoNode) {
-        Integer pop = branchIDStack.peek();
         if (logger.isDebugEnabled()) {
+            Integer pop = branchIDStack.peek();
             logger.debug("Executing GotoNode branch:{}", pop);
         }
     }
@@ -512,6 +534,15 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
                 assignValueToStructFieldAccessExpr(rVal, (StructFieldAccessExpr) lExpr);
             }
         }
+    }
+
+    @Override
+    public void visit(ThrowStmtEndNode throwStmtEndNode) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing ThrowStmt - EndNode");
+        }
+        BException exception = (BException) getTempResult(throwStmtEndNode.getStatement().getExpr().getTempOffset());
+        this.handleBException(exception);
     }
 
     @Override
@@ -990,6 +1021,37 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         setTempResult(mapInitExprEndNode.getExpression().getTempOffset(), bMap);
     }
 
+    /**
+     * Util method handle Ballerina exception. Native implementations <b>Must</b> use method to handle errors.
+     *
+     * @param bException
+     */
+    public void handleBException(BException bException) {
+        // SaveStack current StackTrace.
+        bException.addStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
+        if (tryCatchStackRefs.size() == 0) {
+            // There is no tryCatch block to handle this exception. Pass this to handle at root.
+            throw new BallerinaException(bException.stringValue());
+        }
+        TryCatchStackRef ref = tryCatchStackRefs.pop();
+        // unwind stack till we found the current frame.
+        while (controlStack.getCurrentFrame() != ref.stackFrame) {
+            if (controlStack.getStack().size() > 0) {
+                controlStack.popFrame();
+            } else {
+                // Something has gone wrong. No StackFrame to pop ? this shouldn't be executed.
+                throw new LinkerException("Not handle catch statement in execution builder phase");
+            }
+        }
+        MemoryLocation memoryLocation = ref.getTryCatchStmt().getCatchScope().getParameterDef().getMemoryLocation();
+        if (memoryLocation instanceof StackVarLocation) {
+            int stackFrameOffset = ((StackVarLocation) memoryLocation).getStackFrameOffset();
+            controlStack.setValue(stackFrameOffset, bException);
+        }
+        // Execute Catch block.
+        ref.getTryCatchStmt().getCatchBlock().executeLNode(this);
+    }
+
     // Private methods
 
     private int populateArgumentValues(Expression[] expressions, BValue[] localVals) {
@@ -1275,5 +1337,9 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
     private void clearTempValue() {
         bContext.getControlStack().getCurrentFrame().tempValues =
                 new BValue[bContext.getControlStack().getCurrentFrame().tempValues.length];
+    }
+
+    private String getNodeLocation(NodeLocation nodeLocation) {
+        return nodeLocation.getFileName() + ":" + nodeLocation.getLineNumber();
     }
 }

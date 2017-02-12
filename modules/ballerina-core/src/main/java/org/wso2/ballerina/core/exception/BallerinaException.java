@@ -29,7 +29,6 @@ public class BallerinaException extends RuntimeException {
     private static final long serialVersionUID = 1L;
     private transient Context context;
 
-    private String category;
 
 //    private String[] errorMessages = new String[0];
 
@@ -57,16 +56,6 @@ public class BallerinaException extends RuntimeException {
     }
 
 
-    /**
-     * Constructs a new {@link BallerinaException} with the specified detail message.
-     *
-     * @param message  Error Message
-     * @param category Error category.
-     */
-    public BallerinaException(String message, String category) {
-        super(message);
-        this.category = category;
-    }
 
     /**
      * Constructs a new {@link BallerinaException} with ballerina context.
@@ -79,18 +68,6 @@ public class BallerinaException extends RuntimeException {
         this.context = context;
     }
 
-    /**
-     * Constructs a new {@link BallerinaException} with ballerina context.
-     *
-     * @param message  Error message
-     * @param category Error category.
-     * @param context  Ballerina context
-     */
-    public BallerinaException(String message, String category, Context context) {
-        super(message);
-        this.context = context;
-        this.category = category;
-    }
 
     /**
      * Constructs a new {@link BallerinaException} with the specified detail message and cause.
@@ -102,17 +79,6 @@ public class BallerinaException extends RuntimeException {
         super(message, cause);
     }
 
-    /**
-     * Constructs a new {@link BallerinaException} with the specified detail message and cause.
-     *
-     * @param message  Error message
-     * @param category Error category.
-     * @param cause    Cause
-     */
-    public BallerinaException(String message, String category, Throwable cause) {
-        super(message, cause);
-        this.category = category;
-    }
 
     /**
      * Constructs a new {@link BallerinaException} with the specified detail message, cause and ballerina context.
@@ -126,19 +92,6 @@ public class BallerinaException extends RuntimeException {
         this.context = context;
     }
 
-    /**
-     * Constructs a new {@link BallerinaException} with the specified detail message, cause and ballerina context.
-     *
-     * @param message  Error message
-     * @param category Error category.
-     * @param cause    Cause
-     * @param context  Ballerina context
-     */
-    public BallerinaException(String message, String category, Throwable cause, Context context) {
-        super(message, cause);
-        this.context = context;
-        this.category = category;
-    }
 
     /**
      * Constructs a new {@link BallerinaException} with the cause.
@@ -157,7 +110,4 @@ public class BallerinaException extends RuntimeException {
         return this.context;
     }
 
-    public String getCategory() {
-        return category;
-    }
 }

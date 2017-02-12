@@ -38,9 +38,8 @@ import java.util.List;
  */
 public class BLangAntlr4Listener implements BallerinaListener {
 
-    private BLangModelBuilder modelBuilder;
     private static final String PUBLIC = "public";
-
+    private BLangModelBuilder modelBuilder;
     private String currentPkgName;
 
     // Types related attributes
@@ -963,18 +962,35 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterTryCatchStatement(BallerinaParser.TryCatchStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.startTryCatchStmt(getCurrentLocation(ctx));
     }
 
     @Override
     public void exitTryCatchStatement(BallerinaParser.TryCatchStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.addTryCatchStmt();
     }
 
     @Override
     public void enterCatchClause(BallerinaParser.CatchClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.startCatchClause(getCurrentLocation(ctx));
     }
 
     @Override
     public void exitCatchClause(BallerinaParser.CatchClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        String key = ctx.Identifier().getText();
+        modelBuilder.addCatchClause(getCurrentLocation(ctx), key);
     }
 
     @Override
@@ -983,6 +999,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitThrowStatement(BallerinaParser.ThrowStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.createThrowStmt(getCurrentLocation(ctx));
     }
 
     @Override

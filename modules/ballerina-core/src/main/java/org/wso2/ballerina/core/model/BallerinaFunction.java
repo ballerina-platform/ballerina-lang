@@ -67,7 +67,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
 
     // Linker related variables
     private int tempStackFrameSize;
-    private boolean isLinkerVisited;
+    private boolean isFlowBuilderVisited;
 
     private BallerinaFunction(SymbolScope enclosingScope) {
         this.enclosingScope = enclosingScope;
@@ -249,12 +249,12 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
         return resolve(symbolMap, name);
     }
 
-    public boolean isLinkerVisited() {
-        return isLinkerVisited;
+    public boolean isFlowBuilderVisited() {
+        return isFlowBuilderVisited;
     }
 
-    public void setLinkerVisited(boolean linkerVisited) {
-        isLinkerVisited = linkerVisited;
+    public void setFlowBuilderVisited(boolean flowBuilderVisited) {
+        isFlowBuilderVisited = flowBuilderVisited;
     }
 
     /**
