@@ -16,20 +16,20 @@
 *  under the License.
 */
 
-package org.wso2.ballerina.core.debug;
+package org.wso2.ballerina.core.debugger;
 
 
 /**
- * {@code DebugConstants} define debug related constants.
+ * {@code DebugConstants} define debugger constants.
  *
  * @since 0.8.0
  */
 public class DebugConstants {
 
-    //default debug port where websocket server will be created
+    //default debugger port where websocket server will listen
     static final String DEFAULT_DEBUG_PORT = "5006";
 
-    //debug websocket path.
+    //debugger websocket path.
     static final String DEBUG_WEBSOCKET_PATH = "/debug";
 
     // commands sent by client
@@ -41,7 +41,7 @@ public class DebugConstants {
     public static final String CMD_STEP_IN = "STEP_IN";
     public static final String CMD_STEP_OUT = "STEP_OUT";
 
-
+    // messages sent back to client
     public static final String CODE_HIT = "DEBUG_HIT";
     public static final String MSG_HIT = "Debug point hit.";
 
@@ -50,12 +50,12 @@ public class DebugConstants {
 
     public static final String CODE_ACK = "ACK";
 
-    public static final String DEBUG_MESSAGE = "Ballerina remote debugger is activated on port : ";
-
     public static final String CODE_COMPLETE = "COMPLETE";
     public static final String MSG_COMPLETE = "Debug session completed.";
 
-
     public static final String CODE_EXIT = "EXIT";
     public static final String MSG_EXIT = "Exiting from debugger.";
+
+    //startup message.
+    public static final String DEBUG_MESSAGE = "Ballerina remote debugger is activated on port : ";
 }

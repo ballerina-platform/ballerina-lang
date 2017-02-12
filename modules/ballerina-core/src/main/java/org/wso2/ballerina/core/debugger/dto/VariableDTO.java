@@ -16,12 +16,14 @@
 *  under the License.
 */
 
-package org.wso2.ballerina.core.debug.dto;
+package org.wso2.ballerina.core.debugger.dto;
 
 import org.wso2.ballerina.core.interpreter.nonblocking.debugger.VariableInfo;
 
 /**
- * DTO for Variables
+ * DTO class representing variables in the stack upon a debug hit.
+ *
+ * @since 0.8.0
  */
 public class VariableDTO {
 

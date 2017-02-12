@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.launcher;
 
-import org.wso2.ballerina.core.debug.DebugManager;
+import org.wso2.ballerina.core.debugger.DebugManager;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 import org.wso2.ballerina.core.model.Application;

@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.wso2.ballerina.core.debug;
+package org.wso2.ballerina.core.debugger;
 
 
 import com.google.gson.Gson;
@@ -31,7 +31,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import org.wso2.ballerina.core.debug.dto.MessageDTO;
+import org.wso2.ballerina.core.debugger.dto.MessageDTO;
 
 import java.io.PrintStream;
 
@@ -83,6 +83,7 @@ public class DebugServer {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
+                    //todo activate debug logs once implemented.
                     //.handler(new LoggingHandler(LogLevel.INFO))
                     .childHandler(new DebugServerInitializer());
             Channel ch = b.bind(port).sync().channel();
@@ -91,7 +92,8 @@ public class DebugServer {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         } catch (InterruptedException e) {
-            //@todo proper error handling
+            // todo need to log the error.
+            Thread.currentThread().interrupt();
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
@@ -101,8 +103,8 @@ public class DebugServer {
     /**
      * Push message to client.
      *
-     * @param debugSession the debug session
-     * @param status       the status
+     * @param debugSession
+     * @param status      
      */
     public void pushMessageToClient(DebugSession debugSession, MessageDTO status) {
         Gson gson = new Gson();

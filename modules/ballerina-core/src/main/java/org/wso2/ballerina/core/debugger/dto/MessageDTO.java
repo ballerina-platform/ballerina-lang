@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.wso2.ballerina.core.debug.dto;
+package org.wso2.ballerina.core.debugger.dto;
 
 import org.wso2.ballerina.core.interpreter.nonblocking.debugger.FrameInfo;
 import org.wso2.ballerina.core.model.NodeLocation;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@link MessageDTO} debug message sent to client.
+ * DTO class representing the messages sent to client from the debugger.
  *
  * @since 0.8.0
  */

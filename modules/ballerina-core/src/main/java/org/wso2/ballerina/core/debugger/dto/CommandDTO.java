@@ -16,10 +16,10 @@
 *  under the License.
 */
 
-package org.wso2.ballerina.core.debug.dto;
+package org.wso2.ballerina.core.debugger.dto;
 
 /**
- * {@link CommandDTO} debug command DTO.
+ * DTO class representing commands send to debugger from the client.
  *
  * @since 0.8.0
  */

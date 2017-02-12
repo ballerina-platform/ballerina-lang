@@ -18,7 +18,7 @@
 
 package org.wso2.ballerina.core.runtime;
 
-import org.wso2.ballerina.core.debug.DebugManager;
+import org.wso2.ballerina.core.debugger.DebugManager;
 import org.wso2.ballerina.core.interpreter.BLangExecutor;
 import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.Context;

@@ -17,7 +17,7 @@
 */
 
 
-package org.wso2.ballerina.core.debug;
+package org.wso2.ballerina.core.debugger;
 
 import io.netty.channel.Channel;
 import org.wso2.ballerina.core.interpreter.nonblocking.debugger.BLangExecutionDebugger;

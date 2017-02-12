@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.wso2.ballerina.core.debug;
+package org.wso2.ballerina.core.debugger;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -46,7 +46,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 /**
- * {@code DebugServerHandler} Handle client connections and messaging with debug client.
+ * {@code DebugServerHandler} Handle client connections and messaging with debug clients.
  *
  * @since 0.8.0
  */
@@ -112,18 +112,16 @@ public class DebugServerHandler extends SimpleChannelInboundHandler<Object> {
             return;
         }
         if (!(frame instanceof TextWebSocketFrame)) {
-            throw new UnsupportedOperationException(String.format("%s frame types not supported", frame.getClass()
-                    .getName()));
+            throw new DebugException(String.format("%s frame types not supported", frame.getClass()
+                            .getName()));
         }
-
 
         String request = ((TextWebSocketFrame) frame).text();
         DebugManager debugManager = DebugManager.getInstance();
         debugManager.processDebugCommand(request);
     }
 
-    private static void sendHttpResponse(
-            ChannelHandlerContext ctx, FullHttpRequest req, FullHttpResponse res) {
+    private static void sendHttpResponse(ChannelHandlerContext ctx, FullHttpRequest req, FullHttpResponse res) {
         // Generate an error page if response getStatus code is not OK (200).
         if (res.getStatus().code() != OK.code()) {
             ByteBuf buf = Unpooled.copiedBuffer(res.getStatus().toString(), CharsetUtil.UTF_8);
@@ -141,11 +139,12 @@ public class DebugServerHandler extends SimpleChannelInboundHandler<Object> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        //@todo proper error handling
         ctx.close();
+        throw new DebugException("Debug Server Error : " + cause.getMessage(), cause);
     }
 
     private static String getWebSocketLocation(FullHttpRequest req) {
+        //@todo implement ssl
         String location =  req.headers().get(HOST) + DebugConstants.DEBUG_WEBSOCKET_PATH;
         return "ws://" + location;
     }

@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.wso2.ballerina.core.debug.dto;
+package org.wso2.ballerina.core.debugger.dto;
 
 import org.wso2.ballerina.core.interpreter.nonblocking.debugger.FrameInfo;
 import org.wso2.ballerina.core.interpreter.nonblocking.debugger.VariableInfo;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  DTO for Frames
+ *  DTO class representing Call Stack Frames and their variables.
  */
 public class FrameDTO {
 

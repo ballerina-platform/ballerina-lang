@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.wso2.ballerina.core.debug;
+package org.wso2.ballerina.core.debugger;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -24,8 +24,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.netty.channel.Channel;
-import org.wso2.ballerina.core.debug.dto.CommandDTO;
-import org.wso2.ballerina.core.debug.dto.MessageDTO;
+import org.wso2.ballerina.core.debugger.dto.CommandDTO;
+import org.wso2.ballerina.core.debugger.dto.MessageDTO;
 import org.wso2.ballerina.core.interpreter.nonblocking.debugger.BLangExecutionDebugger;
 import org.wso2.ballerina.core.interpreter.nonblocking.debugger.BreakPointInfo;
 import org.wso2.ballerina.core.model.NodeLocation;
@@ -45,7 +45,7 @@ public class DebugManager {
     /**
      * The Execution sem. used to block debugger till client connects.
      */
-    public volatile Semaphore executionSem;
+    private volatile Semaphore executionSem;
 
     private DebugServer debugServer;
 
@@ -136,6 +136,8 @@ public class DebugManager {
                 sendAcknowledge(this.debugSession, "Debug points updated");
                 break;
             case DebugConstants.CMD_START:
+                // Client needs to explicitly start the execution once connected.
+                // This will allow client to set the breakpoints before starting the execution.
                 if (this.waitingForClient) {
                     executionSem.release();
                     this.waitingForClient = false;
@@ -161,6 +163,13 @@ public class DebugManager {
         sendAcknowledge(this.debugSession, "Channel registered.");
     }
 
+    /**
+     * Utility function to extract the points from set points command json
+     * @todo: need to rewrite with proper gson decoding.
+     *
+     * @param json
+     * @return ArrayList<NodeLocation>
+     */
     private ArrayList<NodeLocation> getPoints(String json) {
         ArrayList<NodeLocation> list = new ArrayList<NodeLocation>();
         JsonParser parser = new JsonParser();
@@ -175,20 +184,29 @@ public class DebugManager {
         return list;
     }
 
+    /**
+     *  Hold on to main thread while debugger finishes execution.
+     */
     public void holdON() {
         try {
             while (!debugSession.getDebugger().isDone()) {
                     sleep(100);
             }
         } catch (InterruptedException e) {
-            //@todo handle error
+            // Do nothing probably someone wants to shutdown the thread.
+            Thread.currentThread().interrupt();
         }
     }
 
+    /**
+     * Set {@link BLangExecutionDebugger} to current execution.
+     *
+     * @param debugger
+     */
     public void setDebugger(BLangExecutionDebugger debugger) {
         // if we are handling multiple connections
-        // we need to check and set to correct debug session
-        if (null == this.debugSession) {
+        // we need to check and set to correct debugger session
+        if (!isDebugSessionActive()) {
             throw new IllegalStateException("Debug session has not initialize, Unable to set debugger.");
         }
 
@@ -216,6 +234,11 @@ public class DebugManager {
     }
 
 
+    /**
+     * Notify client when debugger has finish execution.
+     *
+     * @param debugSession
+     */
     public void notifyComplete(DebugSession debugSession) {
         MessageDTO message = new MessageDTO();
         message.setCode(DebugConstants.CODE_COMPLETE);
@@ -223,6 +246,11 @@ public class DebugManager {
         debugServer.pushMessageToClient(debugSession, message);
     }
 
+    /**
+     * Notify client when the debugger is exiting
+     *
+     * @param debugSession
+     */
     public void notifyExit(DebugSession debugSession) {
         MessageDTO message = new MessageDTO();
         message.setCode(DebugConstants.CODE_EXIT);
@@ -230,6 +258,12 @@ public class DebugManager {
         debugServer.pushMessageToClient(debugSession, message);
     }
 
+    /**
+     * Send a generic acknowledge message to the client.
+     *
+     * @param debugSession
+     * @param messageText
+     */
     public void sendAcknowledge(DebugSession debugSession, String messageText) {
         MessageDTO message = new MessageDTO();
         message.setCode(DebugConstants.CODE_ACK);
