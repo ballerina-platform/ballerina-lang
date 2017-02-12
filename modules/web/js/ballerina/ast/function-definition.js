@@ -395,6 +395,7 @@ define(['lodash', 'log', './node', './callable-definition', '../utils/common-uti
         _.each(jsonNode.children, function (childNode) {
             var child = undefined;
             var childNodeTemp = undefined;
+            //TODO : generalize this logic
             if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                 child = self.BallerinaASTFactory.createConnectorDeclaration();
                 childNodeTemp = childNode;

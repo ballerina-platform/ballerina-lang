@@ -55,10 +55,27 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
             var child = self.getFactory().createFromJson(childNode);
             if (self.getFactory().isExpression(child)) {
                 child.initFromJson(childNode);
-                this.setCondition(child.getExpression(), {doSilently: true});
+                self.setCondition(child.getExpression(), {doSilently: true});
             } else {
+                var child = undefined;
+                var childNodeTemp = undefined;
+                //TODO : generalize this logic
+                if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+                    child = self.getFactory().createConnectorDeclaration();
+                    childNodeTemp = childNode;
+                } else if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'action_invocation_expression') {
+                    child = self.getFactory().createActionInvocationExpression();
+                    childNodeTemp = childNode;
+                } else if (childNode.type === "assignment_statement" && childNode.children[1].children[0].type === "action_invocation_expression") {
+                    child = self.getFactory().createActionInvocationExpression();
+                    childNodeTemp = {};
+                    childNodeTemp.children = [childNode.children[0].children[0], childNode.children[1].children[0]];
+                } else {
+                    child = self.getFactory().createFromJson(childNode);
+                    childNodeTemp = childNode;
+                }
                 self.addChild(child);
-                child.initFromJson(childNode);
+                child.initFromJson(childNodeTemp);
             }
         });
     };
