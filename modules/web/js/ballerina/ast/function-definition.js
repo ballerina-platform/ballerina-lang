@@ -406,6 +406,10 @@ define(['lodash', 'log', './node', './callable-definition', '../utils/common-uti
                 child = self.getFactory().createActionInvocationExpression();
                 childNodeTemp = {};
                 childNodeTemp.children = [childNode.children[0].children[0], childNode.children[1].children[0]];
+            } else if (childNode.type === "action_invocation_statement") {
+                child = self.getFactory().createActionInvocationExpression();
+                childNodeTemp = {};
+                childNodeTemp.children = [undefined, childNode.children[0]];
             } else {
                 child = self.BallerinaASTFactory.createFromJson(childNode);
                 childNodeTemp = childNode;
