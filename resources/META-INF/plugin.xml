@@ -49,7 +49,7 @@
                                        implementationClass="org.ballerinalang.plugins.idea.highlighter.BallerinaSyntaxHighlighterFactory"/>
         <colorSettingsPage implementation="org.ballerinalang.plugins.idea.highlighter.BallerinaColorSettingsPage"/>
 
-        formatter
+        <!--formatter-->
         <lang.formatter language="Ballerina"
                         implementationClass="org.ballerinalang.plugins.idea.formatter.BallerinaFormattingModelBuilder"/>
         <codeStyleSettingsProvider
@@ -68,7 +68,6 @@
         <completion.contributor language="Ballerina"
                                 implementationClass="org.ballerinalang.plugins.idea.completion.KeywordCompletionContributor"/>
 
-
         <lang.braceMatcher language="Ballerina"
                            implementationClass="org.ballerinalang.plugins.idea.completion.BallerinaPairedBraceMatcher"/>
 
@@ -86,6 +85,13 @@
 
         <defaultTemplatePropertiesProvider
                 implementation="org.ballerinalang.plugins.idea.actions.BallerinaTemplatePropertiesProvider"/>
+
+        <!--live templates-->
+        <defaultLiveTemplatesProvider
+                implementation="org.ballerinalang.plugins.idea.template.BallerinaLiveTemplateProvider"/>
+        <liveTemplateContext implementation="org.ballerinalang.plugins.idea.template.BallerinaFileContext"/>
+        <liveTemplateContext implementation="org.ballerinalang.plugins.idea.template.BallerinaConnectorContext"/>
+        <liveTemplateContext implementation="org.ballerinalang.plugins.idea.template.BallerinaServiceContext"/>
 
         <!-- sdk -->
         <sdkType implementation="org.ballerinalang.plugins.idea.sdk.BallerinaSdkType"/>
