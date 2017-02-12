@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model;
+package org.ballerinalang.util.repository;
 
 import java.io.IOException;
 import java.io.InputStream;

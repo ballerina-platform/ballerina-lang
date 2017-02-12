@@ -57,47 +57,6 @@ import java.util.List;
  */
 public class LauncherUtils {
 
-    static BallerinaFile buildBFile(String sourceFileName,
-                                    Path packagePath,
-                                    InputStream inputStream,
-                                    BLangPackage packageScope) {
-
-        Path sourceFilePath = packagePath.resolve(sourceFileName);
-
-        try {
-            ANTLRInputStream antlrInputStream = new ANTLRInputStream(inputStream);
-
-            // Setting the name of the source file being parsed, to the ANTLR input stream.
-            // This is required by the parser-error strategy.
-
-            antlrInputStream.name = sourceFilePath.toString();
-
-            BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
-            CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
-
-            BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
-            ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
-
-            BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(packageScope, sourceFileName);
-            BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder, sourceFilePath);
-            ballerinaParser.addParseListener(ballerinaBaseListener);
-            ballerinaParser.compilationUnit();
-            return bLangModelBuilder.build();
-
-        } catch (IOException e) {
-            // TODO Handler Error
-            e.printStackTrace();
-            throw new IllegalStateException("TODO Handle Error");
-
-        } catch (ParseCancellationException | SemanticException | LinkerException e) {
-            throw createLauncherException(makeFirstLetterUpperCase(e.getMessage()));
-
-        } catch (Throwable e) {
-            throw createLauncherException(sourceFilePath.toString() + ": " +
-                    makeFirstLetterUpperCase(e.getMessage()));
-        }
-    }
-
     static BallerinaFile buildLangModel(Path sourceFilePath) {
         ANTLRInputStream antlrInputStream = getAntlrInputStream(sourceFilePath);
 

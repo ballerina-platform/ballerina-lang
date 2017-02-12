@@ -16,18 +16,23 @@
 *  under the License.
 */
 
-package org.ballerinalang.launcher;
+package org.ballerinalang.util.program;
 
+import org.ballerinalang.util.repository.PackageRepository;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.ImportPackage;
-import org.wso2.ballerina.core.model.PackageRepository;
 import org.wso2.ballerina.core.model.SymbolName;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,25 +40,42 @@ import java.util.stream.Collectors;
 /**
  * @since 0.8.0
  */
-public class BLangPackageLoader {
+public class BLangPackages {
 
-    public static BLangPackage load(Path packagePath, PackageRepository packageRepo, BLangProgram bLangProgram) {
+    public static BLangPackage loadPackage(Path packagePath, PackageRepository packageRepo, BLangProgram bLangProgram) {
 
         // Load package details (input streams of source files) from the given package repository
         PackageRepository.PackageSource pkgSource = packageRepo.loadPackage(packagePath);
 
-        String pkgPathStr = replaceDelimiterWithDots(packagePath);
+        String pkgPathStr = getPackagePathFromPath(packagePath);
         BLangPackage bLangPackage = new BLangPackage(pkgPathStr, pkgSource.getPackageRepository(), bLangProgram);
         List<BallerinaFile> bFileList = pkgSource.getSourceFileStreamMap().entrySet()
                 .stream()
-                .map(entry -> LauncherUtils.buildBFile(entry.getKey(), packagePath, entry.getValue(), bLangPackage))
+                .map(entry -> BLangFiles.loadFile(entry.getKey(), packagePath, entry.getValue(), bLangPackage))
                 .peek(bFile -> validatePackagePathInFile(pkgPathStr, packagePath, bFile))
                 .collect(Collectors.toList());
 
+        bLangPackage.setBallerinaFiles(bFileList.toArray(new BallerinaFile[bFileList.size()]));
         bLangPackage.setImportPackages(flattenImportPackages(bFileList));
 
-        // Define package in the program scope
-        bLangProgram.define(new SymbolName(bLangPackage.getPackagePath()), bLangPackage);
+        // Resolve dependent packages of this package
+        resolveDependencies(bLangPackage, bLangProgram);
+        return bLangPackage;
+    }
+
+    public static BLangPackage loadFile(Path filePath, PackageRepository packageRepo, BLangProgram bLangProgram) {
+        InputStream inputStream;
+        try {
+            inputStream = Files.newInputStream(filePath, StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS);
+        } catch (IOException e) {
+            // TODO Handle errors
+            throw new RuntimeException(e.getMessage(), e);
+        }
+
+        BLangPackage bLangPackage = new BLangPackage(null, packageRepo, bLangProgram);
+        BallerinaFile bFile = BLangFiles.loadFile(filePath.getFileName().toString(), null, inputStream, bLangPackage);
+        bLangPackage.setBallerinaFiles(new BallerinaFile[]{bFile});
+        bLangPackage.setImportPackages(bFile.getImportPackages());
 
         // Resolve dependent packages of this package
         resolveDependencies(bLangPackage, bLangProgram);
@@ -94,21 +116,24 @@ public class BLangPackageLoader {
             //      ii) Search the personal/user repository
             // 4) None of the above applies if the package name starts with 'ballerina'
 
-            Path packagePath = convertPkgSymbolNameToPath(importPackage.getSymbolName());
-            dependentPkg = load(packagePath, parentPackage.getPackageRepository(), bLangProgram);
+            Path packagePath = getPathFromPackagePath(importPackage.getSymbolName().getName());
+            dependentPkg = loadPackage(packagePath, parentPackage.getPackageRepository(), bLangProgram);
+
+            // Define package in the program scope
+            bLangProgram.define(new SymbolName(dependentPkg.getPackagePath()), dependentPkg);
 
             // Define main package
             parentPackage.addDependentPackage(dependentPkg);
         }
     }
 
-    private static Path convertPkgSymbolNameToPath(SymbolName pkgSymbol) {
-        String[] dirs = pkgSymbol.toString().split("\\.");
+    private static Path getPathFromPackagePath(String packagePath) {
+        String[] dirs = packagePath.split("\\.");
         return (dirs.length == 1) ? Paths.get(dirs[0]) :
                 Paths.get(dirs[0], Arrays.copyOfRange(dirs, 1, dirs.length));
     }
 
-    private static String replaceDelimiterWithDots(Path path) {
+    private static String getPackagePathFromPath(Path path) {
         if (path.getNameCount() == 1) {
             return path.toString();
         }
