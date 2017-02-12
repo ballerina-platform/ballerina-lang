@@ -1,0 +1,96 @@
+<templateSet group="Ballerina">
+
+    <template name="fun" value="function $NAME$ ($ARGS$) ($RETURN$) {&#10;    $END$&#10;}"
+              description="Function template" toReformat="false"
+              toShortenFQNames="false">
+        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="RETURN" expression="" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="BALLERINA_FILE" value="true"/>
+        </context>
+    </template>
+
+    <template name="funm" value="function main (string[] args) {&#10;    $END$&#10;}"
+              description="Function Template" toReformat="false"
+              toShortenFQNames="false">
+        <context>
+            <option name="BALLERINA_FILE" value="true"/>
+        </context>
+    </template>
+
+    <template name="fune" value="function $NAME$ ($ARGS$) throws $EXCEPTION$ {&#10;    $END$&#10;}"
+              description="Function Template" toReformat="false"
+              toShortenFQNames="false">
+        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="EXCEPTION" expression="" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="BALLERINA_FILE" value="true"/>
+        </context>
+    </template>
+
+    <template name="con" value="connector $NAME$ ($ARGS$) {&#10;    $END$&#10;}"
+              description="Connector Template" toReformat="false"
+              toShortenFQNames="false">
+        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="BALLERINA_FILE" value="true"/>
+        </context>
+    </template>
+
+    <template name="ser" value='@BasePath ("/$PATH$")&#10;service $NAME$ {&#10;    $END$&#10;}'
+              description="Service Template" toReformat="false"
+              toShortenFQNames="false">
+        <variable name="PATH" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="BALLERINA_FILE" value="true"/>
+        </context>
+    </template>
+
+    <template name="act" value="action $NAME$ ($ARGS$) ($RETURN$){&#10;    $END$&#10;}"
+              description="Action Template" toReformat="false"
+              toShortenFQNames="false">
+        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="RETURN" expression="" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="BALLERINA_CONNECTOR" value="true"/>
+        </context>
+    </template>
+
+    <template name="res" value='@$METHOD$&#10;@Path ("/$PATH$")&#10;resource $NAME$ ($ARGS$) {&#10;    $END$&#10;}'
+              description="Connector Template" toReformat="false"
+              toShortenFQNames="false">
+        <variable name="METHOD" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="PATH" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="BALLERINA_SERVICE" value="true"/>
+        </context>
+    </template>
+
+    <template name="typ" value="typeconvertor $NAME$ ($INPUT$) ($TYPE$) {&#10;    $END$&#10;}"
+              description="Typeconverter Template" toReformat="false"
+              toShortenFQNames="false">
+        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="INPUT" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="TYPE" expression="" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="BALLERINA_FILE" value="true"/>
+        </context>
+    </template>
+
+    <template name="str" value="struct $NAME$ {&#10;    $END$&#10;}"
+              description="Struct Template" toReformat="false"
+              toShortenFQNames="false">
+        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="BALLERINA_FILE" value="true"/>
+        </context>
+    </template>
+
+</templateSet>

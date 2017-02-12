@@ -35,6 +35,12 @@ public class BallerinaTypes {
 
     public static TokenIElementType IDENTIFIER = tokenIElementTypes.get(BallerinaLexer.Identifier);
     public static TokenIElementType COMMENT_STATEMENT = tokenIElementTypes.get(BallerinaLexer.LINE_COMMENT);
+    public static TokenIElementType QUOTED_STRING = tokenIElementTypes.get(BallerinaLexer.QuotedStringLiteral);
+    public static TokenIElementType BACKTICKED_STRING = tokenIElementTypes.get(BallerinaLexer.BacktickStringLiteral);
+    public static TokenIElementType ERRCHAR = tokenIElementTypes.get(BallerinaLexer.ERRCHAR);
+    public static TokenIElementType SINGLE_QUOTE = tokenIElementTypes.get(BallerinaLexer.SINGLEQUOTE);
+    public static TokenIElementType DOUBLE_QUOTE = tokenIElementTypes.get(BallerinaLexer.DOUBLEQUOTE);
+    public static TokenIElementType BACK_TICK = tokenIElementTypes.get(BallerinaLexer.BACKTICK);
 
     public static RuleIElementType STATEMENT = ruleIElementTypes.get(BallerinaParser.RULE_statement);
 
