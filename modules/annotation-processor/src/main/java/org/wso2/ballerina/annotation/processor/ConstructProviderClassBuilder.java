@@ -187,7 +187,7 @@ public class ConstructProviderClassBuilder {
                 writeConnectors(pkgHolder.getConnectors());
                 writeTypeConvertors(pkgHolder.getTypeConvertors());
                 String pkgInsertionEndStr = "\t" + PACKAGE_SCOPE + ".setPackageRepository(" + PACKAGE_REPO + ");\n" +
-                        "\treturn nativePackage;\n\t})\n);\n\n";
+                        "\treturn nativePackage;\n\t}, " + GLOBAL_SCOPE + ")\n);\n\n";
                 sourceFileWriter.write(pkgInsertionEndStr);
             }
             sourceFileWriter.write("}\n}\n");
