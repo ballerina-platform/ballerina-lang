@@ -29,6 +29,8 @@ import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.core.runtime.MessageProcessor;
 import org.wso2.ballerina.core.runtime.dispatching.HTTPResourceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.HTTPServiceDispatcher;
+import org.wso2.ballerina.core.runtime.dispatching.WebSocketResourceDispatcher;
+import org.wso2.ballerina.core.runtime.dispatching.WebSocketServiceDispatcher;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
@@ -47,6 +49,9 @@ public class EnvironmentInitializer {
         // Resister HTTP Dispatchers
         DispatcherRegistry.getInstance().registerServiceDispatcher(new HTTPServiceDispatcher());
         DispatcherRegistry.getInstance().registerResourceDispatcher(new HTTPResourceDispatcher());
+        //Register WebSocket Dispatcher
+        DispatcherRegistry.getInstance().registerServiceDispatcher(new WebSocketServiceDispatcher());
+        DispatcherRegistry.getInstance().registerResourceDispatcher(new WebSocketResourceDispatcher());
 
         // Load constructors
         BuiltInNativeConstructLoader.loadConstructs();
