@@ -136,6 +136,8 @@ public class BLangJSONModelConstants {
 
     public static final String ACTION_INVOCATION_EXPRESSION = "action_invocation_expression";
 
+    public static final String ACTION_INVOCATION_STATEMENT = "action_invocation_statement";
+
     public static final String BASIC_LITERAL_EXPRESSION = "basic_literal_expression";
 
     public static final String BASIC_LITERAL_VALUE = "basic_literal_value";

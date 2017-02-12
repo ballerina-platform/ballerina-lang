@@ -130,7 +130,11 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
         this.setActionName(action_invocation_expression.action_name, {doSilently: true});
         this.setActionPackageName(action_invocation_expression.action_pkg_name, {doSilently: true});
         this.setActionConnectorName(action_invocation_expression.action_connector_name, {doSilently: true});
-        this.setVariableAccessor(jsonNode.children[0], {doSilently: true});
+        if(!_.isUndefined(jsonNode.children[0])) {
+            this.setVariableAccessor(jsonNode.children[0], {doSilently: true});
+        }else{
+            this._isActionInvocationStatement = true;
+        }
         if(!_.isUndefined(this.getConnector())) {
             //if connector is available, arguments needs to be added from second in children
             var argStartIndex = 1;
@@ -200,11 +204,22 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
         }
 
         if (!_.isNil(this.getActionPackageName()) && !_.isEmpty(this.getActionPackageName().trim())) {
-            return this.getVariableAccessor() + " = " + this.getActionPackageName() + ':' + this.getActionConnectorName() + '.' + this.getActionName() +
-                '(' + argsString +  ')';
+            if(this._isActionInvocationStatement){
+                return this.getActionPackageName() + ':' + this.getActionConnectorName() + '.' + this.getActionName() +
+                    '(' + argsString +  ')';
+            }else{
+                return this.getVariableAccessor() + " = " + this.getActionPackageName() + ':' + this.getActionConnectorName() + '.' + this.getActionName() +
+                    '(' + argsString +  ')';
+            }
+
         } else {
-            return this.getVariableAccessor() + " = " + this.getActionConnectorName() + '.' + this.getActionName() +
-                '(' + argsString +  ')';
+            if(this._isActionInvocationStatement){
+                return this.getActionConnectorName() + '.' + this.getActionName() +
+                    '(' + argsString +  ')';
+            }else{
+                return this.getVariableAccessor() + " = " + this.getActionConnectorName() + '.' + this.getActionName() +
+                    '(' + argsString +  ')';
+            }
         }
     };
 
