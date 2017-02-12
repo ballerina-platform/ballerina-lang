@@ -39,15 +39,15 @@ public class BinaryEqualityExpression extends BinaryExpression {
         super(location, lExpr, op, rExpr);
     }
 
-    public BValue execute(NodeExecutor executor) {
-        return executor.visit(this);
-    }
-
     public void setRefTypeEvalFunction(BiFunction<BValue, BValue, BValueType> evalFuncRef) {
         this.evalFuncRef = evalFuncRef;
     }
 
     public BiFunction<BValue, BValue, BValueType> getRefTypeEvalFunction() {
         return evalFuncRef;
+    }
+
+    public BValue execute(NodeExecutor executor) {
+        return executor.visit(this);
     }
 }
