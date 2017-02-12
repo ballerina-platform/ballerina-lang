@@ -26,12 +26,12 @@ import java.util.stream.Collectors;
 /**
  * Holds a {@link BallerinaAnnotation}
  */
-public class Annotation {
+public class AnnotationHolder {
     
     private BallerinaAnnotation annotation;
     private String name;
     
-    public Annotation(BallerinaAnnotation annot) {
+    public AnnotationHolder(BallerinaAnnotation annot) {
         this.annotation = annot;
         this.name = annot.annotationName();
     }

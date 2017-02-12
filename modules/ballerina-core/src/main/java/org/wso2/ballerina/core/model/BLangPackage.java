@@ -40,21 +40,26 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     private List<BLangPackage> dependentPkgs = new ArrayList<>();
 
     // Scope related variables
-    private BLangProgram programScope;
+    private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap = new HashMap<>();
 
     private boolean symbolsDefined = false;
     private PackageRepository pkgRepo;
 
     public BLangPackage(BLangProgram programScope) {
-        this.programScope = programScope;
+        this.enclosingScope = programScope;
         symbolMap = new HashMap<>();
     }
 
+    public BLangPackage(GlobalScope golbalScope) {
+        this.enclosingScope = golbalScope;
+        symbolMap = new HashMap<>();
+    }
+    
     public BLangPackage(String packagePath, PackageRepository packageRepo, BLangProgram programScope) {
         this.pkgPath = packagePath;
         this.pkgRepo = packageRepo;
-        this.programScope = programScope;
+        this.enclosingScope = programScope;
         symbolMap = new HashMap<>();
     }
 
@@ -117,7 +122,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
 
     @Override
     public SymbolScope getEnclosingScope() {
-        return programScope;
+        return enclosingScope;
     }
 
     @Override

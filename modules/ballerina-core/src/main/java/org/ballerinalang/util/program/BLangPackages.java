@@ -25,6 +25,7 @@ import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.nativeimpl.NativePackageProxy;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,7 +62,6 @@ public class BLangPackages {
         // Resolve dependent packages of this package
         resolveDependencies(bLangPackage, bLangProgram);
         return bLangPackage;
-
     }
 
     public static BLangPackage loadPackage(Path packagePath,
@@ -114,8 +114,11 @@ public class BLangPackages {
 
             // Check whether this package is already resolved.
             BLangPackage dependentPkg = (BLangPackage) bLangProgram.resolve(importPackage.getSymbolName());
-            if (dependentPkg != null) {
-
+            if (dependentPkg != null && dependentPkg instanceof NativePackageProxy) {
+                ((NativePackageProxy) dependentPkg).load();
+                Path packagePath = getPathFromPackagePath(importPackage.getSymbolName().getName());
+                PackageRepository.PackageSource pkgSource = dependentPkg.getPackageRepository().loadPackage(packagePath);
+                dependentPkg = loadPackageInternal(pkgSource, dependentPkg, bLangProgram);
             } else {
 
                 // TODO Detect cyclic dependencies

@@ -46,14 +46,23 @@
     </dependencies>
     
     <build>
-    	<resources>
-	    <resource>
-  		<directory>src/main/resources</directory>
-		<excludes>
- 		    <exclude>ballerina/**</exclude>
-		</excludes>
-	    </resource>
-	</resources>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>ballerina/**</exclude>
+                </excludes>
+            </resource>
+            
+            <!-- copy built-in ballerina sources to the jar -->
+            <resource>
+                <directory>src/main/resources/ballerina</directory>
+                <excludes>
+                    <exclude>**/native.bal</exclude>
+                </excludes>
+                <targetPath>META-INF/natives/ballerina</targetPath>
+            </resource>
+    	</resources>
         <plugins>
             <!-- For ballerina annotation processing -->
             <plugin>
@@ -66,8 +75,8 @@
                     </processors>
                     <options>
                         <packageName>${native.constructs.provider.package}</packageName>
-	                <className>${native.constructs.provider.class}</className>
-			<targetDir>${project.build.directory}</targetDir>
+                        <className>${native.constructs.provider.class}</className>
+                        <targetDir>${project.build.directory}</targetDir>
                     </options>
                 </configuration>
                 <executions>
