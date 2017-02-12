@@ -444,6 +444,11 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', '.
                 // When there are no actions added
                 this.setSVGWidth(connectorDeclarationView.getBoundingBox().getRight() + this._viewOptions.LifeLineCenterGap);
             }
+
+            connectorDeclarationView.listenTo(this.getBoundingBox(), 'height-changed', function (dh) {
+                var newHeight = this.getBoundingBox().h() + dh;
+                this.getBoundingBox().h(newHeight);
+            }, connectorDeclarationView);
         };
 
         /**
