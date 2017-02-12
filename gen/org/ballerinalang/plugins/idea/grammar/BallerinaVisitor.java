@@ -41,12 +41,6 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitServiceBody(BallerinaParser.ServiceBodyContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#serviceBodyDeclaration}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitServiceBodyDeclaration(BallerinaParser.ServiceBodyDeclarationContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#resourceDefinition}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -58,6 +52,18 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#nativeFunction}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNativeFunction(BallerinaParser.NativeFunctionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#function}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunction(BallerinaParser.FunctionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#functionBody}.
 	 * @param ctx the parse tree
@@ -71,17 +77,41 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#nativeConnector}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNativeConnector(BallerinaParser.NativeConnectorContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#nativeConnectorBody}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNativeConnectorBody(BallerinaParser.NativeConnectorBodyContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#connector}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitConnector(BallerinaParser.ConnectorContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#connectorBody}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitConnectorBody(BallerinaParser.ConnectorBodyContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#actionDefinition}.
+	 * Visit a parse tree produced by {@link BallerinaParser#nativeAction}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitActionDefinition(BallerinaParser.ActionDefinitionContext ctx);
+	T visitNativeAction(BallerinaParser.NativeActionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#action}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAction(BallerinaParser.ActionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#structDefinition}.
 	 * @param ctx the parse tree
@@ -100,6 +130,18 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#nativeTypeConvertor}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNativeTypeConvertor(BallerinaParser.NativeTypeConvertorContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#typeConvertor}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTypeConvertor(BallerinaParser.TypeConvertorContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#typeConvertorInput}.
 	 * @param ctx the parse tree

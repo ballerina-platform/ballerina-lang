@@ -64,7 +64,7 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
         switch (elType.getRuleIndex()) {
             case RULE_functionDefinition:
                 return "function";
-            case RULE_actionDefinition:
+            case RULE_action:
                 return "action";
             case RULE_serviceDefinition:
                 return "service";
