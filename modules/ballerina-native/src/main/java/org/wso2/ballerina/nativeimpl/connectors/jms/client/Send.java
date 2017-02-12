@@ -105,18 +105,20 @@ public class Send extends AbstractJMSAction {
             message = new MapCarbonMessage();
             MapCarbonMessage mapCarbonMessage = (MapCarbonMessage) message;
             BValue bValue = properties.get(new BString(JMSConstants.MAP_DATA));
-            if (bValue instanceof BMap) {
-                BMap<BValue, BValue> mapData = (BMap<BValue, BValue>) bValue;
-                Iterator<BValue> iterator = mapData.keySet().iterator();
-                while (iterator.hasNext()) {
-                    BValue key = iterator.next();
-                    BValue value = mapData.get(key);
-                    if (key instanceof BString && value instanceof BString) {
-                        mapCarbonMessage.setValue(key.stringValue(), value.stringValue());
+            if (bValue != null) {
+                if (bValue instanceof BMap) {
+                    BMap<BValue, BValue> mapData = (BMap<BValue, BValue>) bValue;
+                    Iterator<BValue> iterator = mapData.keySet().iterator();
+                    while (iterator.hasNext()) {
+                        BValue key = iterator.next();
+                        BValue value = mapData.get(key);
+                        if (key instanceof BString && value instanceof BString) {
+                            mapCarbonMessage.setValue(key.stringValue(), value.stringValue());
+                        }
                     }
                 }
-                propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.MAP_MESSAGE_TYPE);
             }
+            propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.MAP_MESSAGE_TYPE);
         } else {
             propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.GENERIC_MESSAGE_TYPE);
         }
