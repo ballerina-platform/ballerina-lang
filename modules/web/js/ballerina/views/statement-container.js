@@ -152,7 +152,6 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 newDropZoneTopCenter = new Point(this.getBoundingBox().getTopCenterX(),
                     nextStatementView.getBoundingBox().y() - this._gap);
                 _.set(dropZoneOptions, 'topCenter', newDropZoneTopCenter);
-                _.set(dropZoneOptions, 'statementId', statementView._model.id);
                 var innerDropZone = this._createNextInnerDropZone(dropZoneOptions, _.findIndex(this._managedStatements, ['id', nextStatement.id]));
                 innerDropZone.listenTo(statementView.getBoundingBox(), 'bottom-edge-moved', innerDropZone.onLastStatementBottomEdgeMoved);
 
@@ -182,7 +181,6 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                                 statementView.getBoundingBox().y() - this._gap);
 
                 _.set(dropZoneOptions, 'topCenter', newDropZoneTopCenter);
-                _.set(dropZoneOptions, 'statementId', statementView._model.id);
                 var innerDropZone = this._createNextInnerDropZone(dropZoneOptions);
                 innerDropZone.listenTo(lastStatementView.getBoundingBox(), 'bottom-edge-moved', innerDropZone.onLastStatementBottomEdgeMoved);
             }
@@ -204,7 +202,6 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             // this is the fist statement - create dropzone on top
             newDropZoneTopCenter = topCenter.clone().move(0, - this._gap);
             _.set(dropZoneOptions, 'topCenter', newDropZoneTopCenter);
-            _.set(dropZoneOptions, 'statementId', statementView._model.id);
             var innerDropZone = this._createNextInnerDropZone(dropZoneOptions);
             if(this.getBoundingBox().getBottom() < statementView.getBoundingBox().getBottom()){
                 this.getBoundingBox().h(statementView.getBoundingBox().h() +
@@ -330,7 +327,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         var innerDZone = D3Utils.rect(options.topCenter.x() - options.width/2,
             options.topCenter.y(), options.width,
             options.height, 0, 0, this._rootGroup)
-            .classed( _.get(this._viewOptions, 'cssClass.innerDropZone'), true).attr('id',options.statementId);
+            .classed( _.get(this._viewOptions, 'cssClass.innerDropZone'), true);
         var dropZoneOptions = {
             dropZone: innerDZone,
             hoverClass: _.get(this._viewOptions, 'cssClass.innerDropZoneHover')
