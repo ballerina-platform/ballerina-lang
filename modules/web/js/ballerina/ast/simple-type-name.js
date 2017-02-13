@@ -19,7 +19,7 @@ define(['lodash', './node'], function (_, ASTNode) {
 
     var SimpleTypeName = function (args) {
         ASTNode.call(this, 'SimpleTypeName');
-        this._name = _.get(args, 'name', 'newName');
+        this._name = _.get(args, 'name', 'newTypeName');
         this._pkgName = _.get(args, 'pkgName', 'newPkgName');
         this._pkgPath = _.get(args, 'pkgPath', 'newPkgPath');
         this._isArrayType = _.get(args, 'isArrayType', false);

@@ -1,0 +1,52 @@
+/**
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visitor', '../../ast/module', './simple-type-name-visitor'],
+    function(require, _, log, EventChannel, AbstractSourceGenVisitor, AST, SimpleTypeNameVisitor) {
+
+        var VariableDefinitionVisitor = function(parent){
+            AbstractSourceGenVisitor.call(this,parent);
+        };
+
+        VariableDefinitionVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
+        VariableDefinitionVisitor.prototype.constructor = VariableDefinitionVisitor;
+
+        VariableDefinitionVisitor.prototype.canVisitVariableDefinition = function (variableDefinition) {
+            return true;
+        };
+
+        VariableDefinitionVisitor.prototype.beginVisitVariableDefinition = function (variableDefinition) {
+           log.debug('Begin Visit Variable Definition');
+        };
+
+        VariableDefinitionVisitor.prototype.visitVariableDefinition = function (variableDefinition) {
+            log.debug('Visit Variable Definition');
+        };
+
+        VariableDefinitionVisitor.prototype.endVisitVariableDefinition = function (variableDefinition) {
+            this.appendSource(' ' + variableDefinition.getName());
+            this.getParent().appendSource(this.getGeneratedSource());
+            log.debug('End Visit Variable Definition');
+        };
+
+        VariableDefinitionVisitor.prototype.visitSimpleTypeName = function(simpleTypeName){
+            var simpleTypeNameVisitor = new SimpleTypeNameVisitor(this);
+            simpleTypeName.accept(simpleTypeNameVisitor);
+        };
+
+        return VariableDefinitionVisitor;
+    });

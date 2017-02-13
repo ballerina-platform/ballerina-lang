@@ -18,33 +18,30 @@
 define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visitor', '../../ast/module'],
     function(require, _, log, EventChannel, AbstractSourceGenVisitor, AST) {
 
-        var VariableDeclarationVisitor = function(parent){
+        var SimpleTypeNameVisitor = function(parent){
             AbstractSourceGenVisitor.call(this,parent);
         };
 
-        VariableDeclarationVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-        VariableDeclarationVisitor.prototype.constructor = VariableDeclarationVisitor;
+        SimpleTypeNameVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
+        SimpleTypeNameVisitor.prototype.constructor = SimpleTypeNameVisitor;
 
-        VariableDeclarationVisitor.prototype.canVisitVariableDeclaration = function (variableDeclaration) {
+        SimpleTypeNameVisitor.prototype.canVisitSimpleTypeName = function (simpleTypeName) {
             return true;
         };
 
-        VariableDeclarationVisitor.prototype.beginVisitVariableDeclaration = function (variableDeclaration) {
-            this.appendSource(variableDeclaration.getType() + " " +variableDeclaration.getIdentifier());
-            log.debug('Begin Visit Variable Declaration');
+        SimpleTypeNameVisitor.prototype.beginVisitSimpleTypeName = function (simpleTypeName) {
+           this.appendSource(simpleTypeName.getName());
+           log.debug('Begin Visit Simple Type Name');
         };
 
-        VariableDeclarationVisitor.prototype.visitVariableDeclaration = function (variableDeclaration) {
-            log.debug('Visit Variable Declaration');
+        SimpleTypeNameVisitor.prototype.visitSimpleTypeName = function (simpleTypeName) {
+            log.debug('Visit Simple Type Name');
         };
 
-        VariableDeclarationVisitor.prototype.endVisitVariableDeclaration = function (variableDeclaration) {
-            this.appendSource(";\n");
+        SimpleTypeNameVisitor.prototype.endVisitSimpleTypeName = function (simpleTypeName) {
             this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Variable Declaration');
+            log.debug('End Visit Simple Type Name');
         };
-        
-        
 
-        return VariableDeclarationVisitor;
+        return SimpleTypeNameVisitor;
     });

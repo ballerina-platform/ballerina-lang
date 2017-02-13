@@ -15,7 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/return-statement'], function(_, log, EventChannel, AbstractStatementSourceGenVisitor, ReturnStatement) {
+define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/return-statement',
+       './expression-visitor-factory'],
+    function(_, log, EventChannel, AbstractStatementSourceGenVisitor, ReturnStatement, ExpressionVisitorFactory) {
 
     var ReturnStatementVisitor = function(parent){
         AbstractStatementSourceGenVisitor.call(this, parent);
@@ -39,10 +41,17 @@ define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visit
     };
 
     ReturnStatementVisitor.prototype.endVisitReturnStatement = function(returnStatement){
-        this.appendSource(returnStatement.getReturnExpression() + ";\n");
+        this.appendSource(";\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Return Statement Definition');
     };
 
-    return ReturnStatementVisitor;
+    ReturnStatementVisitor.prototype.visitExpression = function (expression) {
+        var expressionVisitorFactory = new ExpressionVisitorFactory();
+        var expressionVisitor = expressionVisitorFactory.getExpressionView({model:expression, parent:this});
+        expression.accept(expressionVisitor);
+        log.debug('Visit Expression');
+    };
+
+     return ReturnStatementVisitor;
 });

@@ -19,7 +19,7 @@ define(['lodash', './node'], function (_, ASTNode) {
 
     var VariableDefinition = function (args) {
         ASTNode.call(this, 'VariableDefinition');
-        this._name = _.get(args, 'name', 'newName');
+        this._name = _.get(args, 'name', 'newIdentifier');
         this._pkgPath = _.get(args, 'pkgPath', 'newPkgPath');
         this._isPublic = _.get(args, 'isPublic', false);
     };
