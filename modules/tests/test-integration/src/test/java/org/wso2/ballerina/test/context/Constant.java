@@ -35,4 +35,7 @@ public class Constant {
     public static final int DEFAULT_HTTP_PORT = 9090;
     //Service samples file location
     public static final String SERVICE_SAMPLE_DIR = "samples";
+    //ActiveMq broker URL
+    public static final String ACTIVEMQ_PROVIDER_URL = "vm://localhost:6161";
+    public static final String ACTIVEMQ_ALL_JAR = "activemq-all-5.14.3.jar";
 }
