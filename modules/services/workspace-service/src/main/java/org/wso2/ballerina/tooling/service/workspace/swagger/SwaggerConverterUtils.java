@@ -28,13 +28,7 @@ import io.swagger.models.Swagger;
 import io.swagger.parser.Swagger20Parser;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.BLangPackage;
-import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.GlobalScope;
-import org.wso2.ballerina.core.model.Resource;
-import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.*;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
@@ -183,12 +177,11 @@ public class SwaggerConverterUtils {
             if (entry.httpMethod != null && entry.httpMethod.length() > 0) {
                 resourceBuilder.addAnnotation(new Annotation(null, new SymbolName(httpMethod), "", null));
             }
-            resourceBuilder.addAnnotation(new Annotation(null, new SymbolName(httpMethod), "", null));
-
-            resourceBuilder.addAnnotation(new Annotation(null, new SymbolName(httpMethod), null, null));
             //This resource initiation was required because resource do have both
             //annotation map and array. But there is no way to update array other than
             //constructor method.
+            resourceBuilder.setName(entry.nickname);
+            //resourceBuilder.setPkgPath(entry.path);
             Resource resourceToBeAdd = resourceBuilder.buildResource();
             resourceList.add(resourceToBeAdd);
         }
@@ -217,23 +210,36 @@ public class SwaggerConverterUtils {
         return resourceList.toArray(new Resource[resourceList.size()]);
     }
 
-    public static Service mergeBallerinaService(Service originalService, Service secondaryService) {
+    public static Service mergeBallerinaService(Service ballerinaService, Service swaggerService) {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
         //Secondary service annotations are coming from swagger. So we need to merge and update.
-        originalService.setAnnotations(
-                mergeAnnotations(originalService.getAnnotations(), secondaryService.getAnnotations()));
+        ballerinaService.setAnnotations(
+                mergeAnnotations(ballerinaService.getAnnotations(), swaggerService.getAnnotations()));
         List<Resource> resourceList = new ArrayList<Resource>();
-        for (Resource resource : secondaryService.getResources()) {
+        for (Resource resource : swaggerService.getResources()) {
             boolean isExistingResource = false;
-            for (Resource originalResource : originalService.getResources()) {
-                if (originalResource.getSymbolName().getName().equalsIgnoreCase(
-                        resource.getSymbolName().getName())) {
+            for (Resource originalResource : ballerinaService.getResources()) {
+                if (isResourceMatch(resource, originalResource)) {
                     isExistingResource = true;
                     //Here is a resource math. Do assignments
                     //merge annotations
-                    //TODO fixing for compilation failure
-//                    originalResource.setAnnotations(mergeAnnotationsAsMap(originalResource.getAnnotations(),
-//                            resource.getAnnotations()));
+                    Resource.ResourceBuilder resourceBuilder = new Resource.ResourceBuilder(null);
+                    resourceBuilder.setName(originalResource.getName());
+                    resourceBuilder.setPkgPath(originalResource.getPackagePath());
+                    resourceBuilder.setBody(originalResource.getResourceBody());
+                    resourceBuilder.setNodeLocation(originalResource.getNodeLocation());
+                    for (Annotation annotation :
+                            mergeAnnotations(originalResource.getAnnotations(), resource.getAnnotations())) {
+                        resourceBuilder.addAnnotation(annotation);
+                    }
+                    originalResource.getWorkers().forEach(resourceBuilder::addWorker);
+                    for (ParameterDef parameterDef : originalResource.getParameterDefs()) {
+                        resourceBuilder.addParameter(parameterDef);
+                    }
+                    for (ParameterDef parameterDef : originalResource.getReturnParameters()) {
+                        resourceBuilder.addReturnParameter(parameterDef);
+                    }
+                    resourceList.add(resourceBuilder.buildResource());
                 }
             }
             if (!isExistingResource) {
@@ -241,9 +247,9 @@ public class SwaggerConverterUtils {
                 //This is completely new resource
             }
         }
-        Collections.addAll(resourceList, originalService.getResources());
-        originalService.setResources(resourceList.toArray(new Resource[resourceList.size()]));
-        return originalService;
+        mergeResources(resourceList, ballerinaService.getResources());
+        ballerinaService.setResources(resourceList.toArray(new Resource[resourceList.size()]));
+        return ballerinaService;
     }
 
     static Annotation[] mergeAnnotationsArray(Annotation[] a, Annotation[] b) {
@@ -291,5 +297,45 @@ public class SwaggerConverterUtils {
 
     private static Annotation[] clone(Annotation[] annotations) {
         return annotations == null ? null : (Annotation[]) annotations.clone();
+    }
+
+    /**
+     * Check both resources are represent same resource path and http verb.
+     * Within a service resource should have unique resource path and HTTP verb combination.
+     * @param swaggerResource
+     * @param ballerinaResource
+     * @return
+     */
+    public static boolean isResourceMatch(Resource swaggerResource, Resource ballerinaResource) {
+        String path = "";
+        String verb = "";
+        for (Annotation annotation : ballerinaResource.getAnnotations()) {
+            if (annotation.getName().equalsIgnoreCase("Path")) {
+                path = annotation.getValue();
+                path = path.startsWith("/") ? path.substring(1) : path;
+            } else if (annotation.getName().matches(SwaggerResourceMapper.HTTP_VERB_MATCHING_PATTERN)) {
+                verb = annotation.getName();
+            }
+        }
+        String resourceKey = path + verb;
+        return swaggerResource.getSymbolName().getName().equalsIgnoreCase(resourceKey);
+    }
+
+    /**
+     * Remove duplicate resources and merge them.
+     * @param resourceList
+     * @param resources
+     * @return
+     */
+    public static Resource[] mergeResources(List<Resource> resourceList, Resource[] resources){
+        for (int i=0; i < resources.length; i++){
+            Resource resource = resources[i];
+            for(Resource resource1:resourceList){
+                if(resource1.getSymbolName().getName().equalsIgnoreCase(resource.getSymbolName().getName())){
+                    resources[i]= resource1;
+                }
+            }
+        }
+        return  resources;
     }
 }

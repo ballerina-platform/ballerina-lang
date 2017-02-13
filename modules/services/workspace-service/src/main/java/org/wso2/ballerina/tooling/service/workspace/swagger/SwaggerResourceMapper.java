@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * This class will do resource mapping from ballerina to swagger.
  */
 public class SwaggerResourceMapper {
-    private final static String HTTP_VERB_MATCHING_PATTERN = "(?i)|" + Constants.ANNOTATION_METHOD_GET + "|" +
+    public final static String HTTP_VERB_MATCHING_PATTERN = "(?i)|" + Constants.ANNOTATION_METHOD_GET + "|" +
             Constants.ANNOTATION_METHOD_PUT + "|" + Constants.ANNOTATION_METHOD_POST + "|" +
             Constants.ANNOTATION_METHOD_DELETE + "|" + Constants.ANNOTATION_METHOD_OPTIONS;
     private Resource resource;
