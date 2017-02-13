@@ -18,6 +18,7 @@
     cursor: pointer;
     padding: 5px 1px;
     background: #e4e4e4;
+    border-bottom: 1px solid #d0d0d0;
 }
 
 .tool-group-header-title{

@@ -354,7 +354,8 @@ text-anchor: start;
 }
 .default-worker-life-line text{
     cursor: pointer;
-    font-weight: 400;
+    font-weight: 300;
+    font-size: 14px;
 }
 
 .default-worker-life-line rect{
@@ -374,7 +375,8 @@ text-anchor: start;
 
 .connector-life-line text {
     cursor: pointer;
-    font-weight: 400;
+    font-weight: 300;
+    font-size: 14px;
 }
 
 .connector-life-line-top-polygon {
@@ -397,6 +399,8 @@ text-anchor: start;
 
 .worker-life-line text {
     cursor: pointer;
+    font-weight: 300;
+    font-size: 14px;
 }
 
 .worker-life-line-top-polygon {
