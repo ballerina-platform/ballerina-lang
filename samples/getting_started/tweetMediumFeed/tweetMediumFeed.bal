@@ -9,8 +9,8 @@ import ballerina.util;
 
 function main (string[] args) {
 
-    http:HTTPConnector mediumEP = create http:HTTPConnector("https://medium.com");
-    http:HTTPConnector tweeterEP = create http:HTTPConnector("https://api.twitter.com");
+    http:ClientConnector mediumEP = create http:ClientConnector("https://medium.com");
+    http:ClientConnector tweeterEP = create http:ClientConnector("https://api.twitter.com");
 
     int argumentLength = array:length(args);
 
@@ -28,7 +28,7 @@ function main (string[] args) {
 
         message request = {};
 
-        message mediumResponse = http:HTTPConnector.get(mediumEP, "/feed/@wso2", request);
+        message mediumResponse = http:ClientConnector.get(mediumEP, "/feed/@wso2", request);
 
         xml feedXML = message:getXmlPayload(mediumResponse);
         string title = xml:getString(feedXML, "/rss/channel/item[1]/title/text()");
@@ -36,7 +36,7 @@ function main (string[] args) {
         message:setHeader(request, "Authorization", oauthHeader);
         string tweetPath = "/1.1/statuses/update.json?status="+uri:encode(title);
 
-        message response = http:HTTPConnector.post(tweeterEP, tweetPath, request);
+        message response = http:ClientConnector.post(tweeterEP, tweetPath, request);
 
         system:println("Successfully tweeted: '" + title + "'");
     }
