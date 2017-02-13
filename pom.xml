@@ -141,6 +141,11 @@
                 <version>${commons.pool.version}</version>
             </dependency>
             <dependency>
+                <groupId>javax.websocket</groupId>
+                <artifactId>javax.websocket-api</artifactId>
+                <version>${javax.websocket.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-io.wso2</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commons-io.wso2.version}</version>
@@ -281,6 +286,8 @@
         <commons-io.version.range>[2.4.0, 2.5)</commons-io.version.range>
         <guava.version>18.0</guava.version>
         <guava.version.range>[18.0,19.0)</guava.version.range>
+        <javax.websocket.version>1.1</javax.websocket.version>
+        <javax.websocket.version.range>[1.1, 1.2)</javax.websocket.version.range>
 
 
 

@@ -70,6 +70,9 @@ public final class Constants {
     //Worker group size of the server bootstrap
     public static final String SERVER_BOOTSTRAP_WORKER_GROUP_SIZE = "server.bootstrap.worker.group.size";
 
+    //Event group size of server bootstrap
+    public static final String EVENT_GROUP_EXECUTOR_THREAD_SIZE = "event.group.executor.thread.size";
+
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
 
     //Server side SSL Parameters
@@ -123,6 +126,8 @@ public final class Constants {
     public static final String PROTOCOL = "PROTOCOL";
 
     public static final String PROTOCOL_NAME = "http";
+
+    public static final String HTTP_PROTOCOL = "HTTP_PROTOCOL";
 
     public static final String HTTP_VERSION = "HTTP_VERSION";
 
@@ -185,6 +190,14 @@ public final class Constants {
 
     public static final String LOCALHOST = "localhost";
 
+    public static final String CONNECTION = "Connection";
+    public static final String UPGRADE = "Upgrade";
+
+    public static final String WEBSOCKET_SESSION = "WEBSOCKET_SESSION";
+    public static final String WEBSOCKET_PROTOCOL = "ws";
+    public static final String WEBSOCKET_UPGRADE = "websocket";
+
+
     // Callback related parameters
     public static final String HTTP_CONNECTION_CLOSE = "close";
 
@@ -201,7 +214,4 @@ public final class Constants {
 
     private Constants() {
     }
-
 }
-
-
