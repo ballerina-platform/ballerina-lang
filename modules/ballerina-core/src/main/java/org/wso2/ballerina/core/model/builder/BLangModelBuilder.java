@@ -499,6 +499,12 @@ public class BLangModelBuilder {
         Expression lExpr = exprStack.pop();
         checkArgExprValidity(location, lExpr);
 
+        // if one of expression is null, only equal and not equal operators are allowed for null values
+        if ((rExpr instanceof NullLiteral || lExpr instanceof NullLiteral) &&
+                !(opStr.equals("==") || opStr.equals("!="))) {
+            errorMsgs.add(getNodeLocationStr(location) + "null not allowed with the operator '" + opStr + "'");
+        }
+
         BinaryExpression expr;
         switch (opStr) {
             case "+":

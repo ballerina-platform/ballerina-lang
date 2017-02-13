@@ -193,4 +193,11 @@ public class BNullValueTest {
     public void testStringNullRight() {
         ParserUtils.parseBalFile("lang/values/string-right-null-check.bal");
     }
+
+    @Test(description = "Test not supported operator with null",
+          expectedExceptions = SemanticException.class,
+          expectedExceptionsMessageRegExp = "grater-than-null.bal:3: null not allowed with the operator '>'")
+    public void testBinaryOperatorValidityWithNull() {
+        ParserUtils.parseBalFile("lang/values/grater-than-null.bal");
+    }
 }
