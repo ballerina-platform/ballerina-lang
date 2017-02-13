@@ -37,8 +37,8 @@ define(['lodash', 'log', './variable-declaration'], function (_, log, VariableDe
 
     ConstantDefinition.prototype.setValue = function (value, options) {
         if (_.isNil(value) || _.isEmpty(value)) {
-            log.error("A constant requires to have a type.");
-            throw "A constant requires to have a type.";
+            log.error("A constant requires to have a value.");
+            throw "A constant requires to have a value.";
         } else {
             this.setAttribute('_value', value, options);
         }
