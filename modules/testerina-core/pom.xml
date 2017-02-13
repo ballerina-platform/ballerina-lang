@@ -73,7 +73,7 @@
     </build>
 
     <properties>
-        <native.constructs.provider.package>org.ballerinalang.mockerina.nativeimpl</native.constructs.provider.package>
+        <native.constructs.provider.package>org.ballerinalang.testerina.nativeimpl</native.constructs.provider.package>
         <native.constructs.provider.class>MockerinaNativeConstructsProvider</native.constructs.provider.class>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
 
