@@ -174,7 +174,18 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
 
     @Override
     public BLangSymbol resolve(SymbolName name) {
-        return resolve(symbolMap, name);
+        if (name.getPkgPath() == null) {
+            return resolve(symbolMap, name);
+        }
+        
+        // resolve the package symbol first
+        SymbolName pkgSymbolName = new SymbolName(name.getPkgPath());
+        BLangSymbol pkgSymbol = symbolMap.get(pkgSymbolName);
+        if (pkgSymbol == null) {
+            return null;
+        }
+
+        return ((BLangPackage) pkgSymbol).resolveMembers(new SymbolName(name.getName()));
     }
 
     public BLangSymbol resolveMembers(SymbolName name) {

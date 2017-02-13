@@ -98,23 +98,7 @@ public class BLangProgram implements SymbolScope, Node {
 
     @Override
     public BLangSymbol resolve(SymbolName name) {
-        BLangSymbol symbol = resolve(symbolMap, name);
-        if (symbol != null) {
-            return symbol;
-        }
-
-        if (name.getPkgPath() == null) {
-            return null;
-        }
-
-        // resolve the package symbol first
-        SymbolName pkgSymbolName = new SymbolName(name.getPkgPath());
-        BLangSymbol pkgSymbol = symbolMap.get(pkgSymbolName);
-        if (pkgSymbol == null) {
-            return null;
-        }
-
-        return ((BLangPackage) pkgSymbol).resolveMembers(new SymbolName(name.getName()));
+        return resolve(symbolMap, name);
     }
 
 
