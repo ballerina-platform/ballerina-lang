@@ -59,23 +59,23 @@ import java.util.stream.Collectors;
 import static java.security.AccessController.doPrivileged;
 
 /**
- * Native function ballerina.lang.mock:mockField.
+ * Native function ballerina.lang.mock:setValue.
  *
  * @since 0.8.0
  */
-@BallerinaFunction(packageName = "ballerina.lang.mock", functionName = "modifyField", args = {
+@BallerinaFunction(packageName = "ballerina.lang.mock", functionName = "setValue", args = {
         @Argument(name = "mockConnectorPath", type = TypeEnum.STRING),
         @Argument(name = "value", type = TypeEnum.STRING) }, isPublic = true)
-public class ModifyField extends AbstractNativeFunction {
+public class SetValue extends AbstractNativeFunction {
 
     public static final String FIELD_NAME_VALUE = "value";
     private static final String COULD_NOT_FIND_MATCHING_CONNECTOR = "Could not find a matching connector for the name ";
 
-    private static final String MSG_PREFIX = "mock:modifyField: ";
+    private static final String MSG_PREFIX = "mock:setValue: ";
     private static final String MOCK_PATH_SYNTAX = "<ServiceName>[.]<ConnectorVariableName(s)>[.]parameterX";
     private static final String MOCK_PATH_SYNTAX_EXAMPLE = "helloWorld.httpCon.parameter1";
 
-    private static final Logger logger = LoggerFactory.getLogger(ModifyField.class);
+    private static final Logger logger = LoggerFactory.getLogger(SetValue.class);
 
     @Override
     public BValue[] execute(Context ctx) {
