@@ -32,19 +32,25 @@ public class TesterinaFunction {
     private Function bFunction;
     private TesterinaFile tFile;
 
-    public static final String PREFIX_TEST = "test";
-    public static final String PREFIX_BEFORETEST = "beforeTest";
-    public static final String PREFIX_AFTERTEST = "afterTest";
+    public static final String PREFIX_TEST = "TEST";
+    public static final String PREFIX_BEFORETEST = "BEFORETEST";
+    public static final String PREFIX_AFTERTEST = "AFTERTEST";
 
     /**
      * Prefixes for the test function names
      */
     public enum Type {
-        TEST(PREFIX_TEST), BEFORETEST(PREFIX_BEFORETEST), AFTERTEST(PREFIX_AFTERTEST);
-        private String prefix;
+        TEST(PREFIX_TEST), BEFORE_TEST(PREFIX_BEFORETEST), AFTER_TEST(PREFIX_AFTERTEST);
 
-        private Type(String prefix) {
+        String prefix;
+
+        Type(String prefix) {
             this.prefix = prefix;
+        }
+
+        @Override
+        public String toString() {
+            return prefix;
         }
     }
 
