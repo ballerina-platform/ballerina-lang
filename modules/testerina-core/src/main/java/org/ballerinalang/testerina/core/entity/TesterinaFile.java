@@ -27,58 +27,75 @@ import java.util.ArrayList;
  */
 public class TesterinaFile {
 
-    private String name;
-    private ArrayList<TesterinaFunction> testFunctions;
+    private ArrayList<TesterinaFunction> testFunctions = new ArrayList<>();
+    private ArrayList<TesterinaFunction> beforeTestFunctions = new ArrayList<>();
+    private ArrayList<TesterinaFunction> afterTestFunctions = new ArrayList<>();
     private BallerinaFile bFile;
 
-    public TesterinaFile(String name, String resourcePath, BallerinaFile bFile) {
-        this.name = name;
+    public TesterinaFile(BallerinaFile bFile) {
         this.bFile = bFile;
-        setTestFunctions(this.bFile);
+        extractTestFunctions(bFile);
     }
 
-    private void setTestFunctions(BallerinaFile bFile) {
-        /**
-         * Private method to set only the 'test' functions, parsed from the *.bal file
-         *
-         * @param bFile Path to Bal file.
-         * @return void
-         */
-        this.testFunctions = new ArrayList<TesterinaFunction>();
-        Function[] allFunctions = bFile.getFunctions();
-        for (int i = 0; i < allFunctions.length; i++) {
-            String name = allFunctions[i].getName();
-            if (name.startsWith(TesterinaFunction.PREFIX_TEST)) {
-                Function bFunc = allFunctions[i];
-                TesterinaFunction tFunction = new TesterinaFunction(bFunc.getName(),
-                        TesterinaFunction.Type.TEST, bFunc, this);
-                this.testFunctions.add(tFunction);
-            }
-        }
-    }
-
+    /**
+     * Getter method for testFunctions. Returns an ArrayList of functions starting with prefix 'test'.
+     *
+     * @return ArrayList
+     */
     public ArrayList<TesterinaFunction> getTestFunctions() {
-        /**
-         * Getter method for testFunctions. Returns an ArrayList of functions starting with prefix 'test'.
-         * @return ArrayList
-         */
         return this.testFunctions;
     }
 
-    public String getName() {
-        /**
-         * Getter method for 'name'. Returns the file name.
-         * @return String
-         */
-        return this.name;
+    /**
+     * Getter method for testFunctions. Returns an ArrayList of functions starting with prefix 'test'.
+     *
+     * @return ArrayList
+     */
+    public ArrayList<TesterinaFunction> getBeforeTestFunctions() {
+        return this.beforeTestFunctions;
     }
 
+    /**
+     * Getter method for testFunctions. Returns an ArrayList of functions starting with prefix 'test'.
+     *
+     * @return ArrayList
+     */
+    public ArrayList<TesterinaFunction> getAfterTestFunctions() {
+        return this.afterTestFunctions;
+    }
+
+    /**
+     * Getter method for 'bFile'. Returns the BallerinaFile object.
+     *
+     * @return BallerinaFile
+     */
     public BallerinaFile getBFile() {
-        /**
-         * Getter method for 'bFile'. Returns the BallerinaFile object.
-         * @return BallerinaFile
-         */
         return this.bFile;
+    }
+
+    /**
+     * Get the list of 'test/beforeTest' functions, parsed from the *.bal file
+     *
+     * @param bFile Path to Bal file.
+     */
+    private void extractTestFunctions(BallerinaFile bFile) {
+        Function[] functions = bFile.getFunctions();
+        for (Function function : functions) {
+            String name = function.getName();
+            if (name.toUpperCase().startsWith(TesterinaFunction.PREFIX_TEST)) {
+                TesterinaFunction tFunction = new TesterinaFunction(function.getName(), TesterinaFunction.Type.TEST,
+                        function, this);
+                this.testFunctions.add(tFunction);
+            } else if (name.toUpperCase().startsWith(TesterinaFunction.PREFIX_BEFORETEST)) {
+                TesterinaFunction tFunction = new TesterinaFunction(function.getName(),
+                        TesterinaFunction.Type.BEFORE_TEST, function, this);
+                this.beforeTestFunctions.add(tFunction);
+            } else if (name.toUpperCase().startsWith(TesterinaFunction.PREFIX_AFTERTEST)) {
+                TesterinaFunction tFunction = new TesterinaFunction(function.getName(),
+                        TesterinaFunction.Type.AFTER_TEST, function, this);
+                this.afterTestFunctions.add(tFunction);
+            }
+        }
     }
 
 }

@@ -59,7 +59,7 @@ import java.util.stream.Collectors;
 import static java.security.AccessController.doPrivileged;
 
 /**
- * Native function ballerina.lang.mock:mockField.
+ * Native function ballerina.lang.mock:setValue.
  *
  * @since 0.8.0
  */
@@ -71,7 +71,7 @@ public class SetValue extends AbstractNativeFunction {
     public static final String FIELD_NAME_VALUE = "value";
     private static final String COULD_NOT_FIND_MATCHING_CONNECTOR = "Could not find a matching connector for the name ";
 
-    private static final String MSG_PREFIX = "mock:modifyField: ";
+    private static final String MSG_PREFIX = "mock:setValue: ";
     private static final String MOCK_PATH_SYNTAX = "<ServiceName>[.]<ConnectorVariableName(s)>[.]parameterX";
     private static final String MOCK_PATH_SYNTAX_EXAMPLE = "helloWorld.httpCon.parameter1";
 
