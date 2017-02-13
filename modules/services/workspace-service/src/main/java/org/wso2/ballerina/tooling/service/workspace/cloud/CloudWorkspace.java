@@ -42,6 +42,11 @@ public class CloudWorkspace  implements Workspace {
     }
 
     @Override
+    public JsonObject read(String path) throws IOException {
+        return null;
+    }
+
+    @Override
     public void create(String path, String type) throws IOException {
 
     }
