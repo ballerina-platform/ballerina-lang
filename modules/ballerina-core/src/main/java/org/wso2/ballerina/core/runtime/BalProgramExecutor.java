@@ -52,6 +52,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.Map;
 
+import static org.wso2.ballerina.core.runtime.Constants.BALLERINA_LOGGER_NAME;
 import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_BAL_ARGS;
 
 /**
@@ -62,6 +63,7 @@ import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_BAL_ARGS;
 public class BalProgramExecutor {
 
     private static final Logger log = LoggerFactory.getLogger(BalProgramExecutor.class);
+    public static final Logger BALLERINA_LOGGER = LoggerFactory.getLogger(BALLERINA_LOGGER_NAME);
 
     public static void execute(CarbonMessage cMsg, CarbonCallback callback, Resource resource, Service service,
                                Context balContext) {

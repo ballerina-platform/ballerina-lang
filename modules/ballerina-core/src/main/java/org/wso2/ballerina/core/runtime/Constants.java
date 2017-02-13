@@ -51,6 +51,11 @@ public class Constants {
     // Ballerina version system property name
     public static final String BALLERINA_VERSION = "ballerina.version";
 
+    public static final String BALLERINA_LOGGER_NAME = "BALLERINA_LOGGER";
+
+    // Ballerina function node location
+    public static final String BALLERINA_CALLER_LOCATION = "BALLERINA_CALLER_LOCATION";
+
 
     /**
      * Runtime modes of Ballerina engine.

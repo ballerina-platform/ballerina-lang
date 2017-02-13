@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -20,23 +20,18 @@
         <Console name="CONSOLE" target="SYSTEM_OUT">
             <PatternLayout pattern="%m%ex%n"/>
         </Console>
-        <RollingFile name="SERVER_LOGFILE" fileName="${sys:carbon.home}/logs/ballerina-server.log"
-                     filePattern="${sys:carbon.home}/logs/ballerina-server-%d{MM-dd-yyyy}.log">
-            <PatternLayout pattern="[%d] %m%ex%n"/>
-            <Policies>
-                <TimeBasedTriggeringPolicy/>
-            </Policies>
-        </RollingFile>
-        <RollingFile name="BVM_LOGFILE" fileName="${sys:carbon.home}/logs/bvm.log"
-                     filePattern="${sys:carbon.home}/logs/bvm-%d{MM-dd-yyyy}.log">
+
+        <RollingFile name="BRE_LOG_FILE" fileName="${sys:ballerina.home}/logs/bre.log"
+                     filePattern="${sys:ballerina.home}/logs/bre-%d{MM-dd-yyyy}.log">
             <PatternLayout pattern="[%d] %5p {%c} - %m%ex%n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy/>
             </Policies>
         </RollingFile>
-        <RollingFile name="AUDIT_LOGFILE" fileName="${sys:carbon.home}/logs/audit.log"
-                     filePattern="${sys:carbon.home}/logs/audit-%d{MM-dd-yyyy}.log">
-            <PatternLayout pattern="[%d] %5p %X %m%ex%n"/>
+
+        <RollingFile name="BALLERINA_LOG_FILE" fileName="${sys:ballerina.home}/logs/ballerina.log"
+                     filePattern="${sys:ballerina.home}/logs/ballerina-%d{MM-dd-yyyy}.log">
+            <PatternLayout pattern="[%d] %m%n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy/>
             </Policies>
@@ -44,17 +39,17 @@
     </Appenders>
     <Loggers>
         <!-- Change root log level to info to enable All runtime logs. -->
-        <Root level="warn">
-            <AppenderRef ref="BVM_LOGFILE"/>
+        <Root level="ERROR">
+            <AppenderRef ref="BRE_LOG_FILE"/>
         </Root>
-        <Logger name="AUDIT_LOG" level="info" additivity="false">
-            <AppenderRef ref="AUDIT_LOGFILE"/>
-        </Logger>
         <Logger name="org.wso2.ballerina.core" level="info" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-            <AppenderRef ref="SERVER_LOGFILE"/>
             <!-- Change bellow log level to include Ballerina logs. -->
-            <AppenderRef ref="BVM_LOGFILE" level="off"/>
+            <AppenderRef ref="BRE_LOG_FILE" level="INFO"/>
+
+        </Logger>
+        <Logger name="BALLERINA_LOGGER" level="TRACE" additivity="false">
+            <AppenderRef ref="CONSOLE"/>
+            <AppenderRef ref="BALLERINA_LOG_FILE" level="TRACE"/>
         </Logger>
     </Loggers>
 </Configuration>

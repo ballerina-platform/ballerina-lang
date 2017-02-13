@@ -26,6 +26,7 @@ import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.StructDef;
@@ -82,6 +83,8 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+
+import static org.wso2.ballerina.core.runtime.Constants.BALLERINA_CALLER_LOCATION;
 
 /**
  * {@code BLangExecutor} executes a Ballerina application.
@@ -293,6 +296,10 @@ public class BLangExecutor implements NodeExecutor {
             bFunction.getCallableUnitBody().execute(this);
         } else {
             AbstractNativeFunction nativeFunction = (AbstractNativeFunction) function;
+            NodeLocation nodeLocation = funcIExpr.getNodeLocation();
+            //todo get it from nodeLocation.toString() later
+            bContext.setProperty(BALLERINA_CALLER_LOCATION,
+                    nodeLocation.getFileName() + ":" + nodeLocation.getLineNumber());
             nativeFunction.executeNative(bContext);
         }
 

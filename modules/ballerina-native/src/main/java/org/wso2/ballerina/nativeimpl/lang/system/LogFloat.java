@@ -18,8 +18,6 @@
 
 package org.wso2.ballerina.nativeimpl.lang.system;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -53,11 +51,9 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 )
 public class LogFloat extends AbstractNativeFunction {
 
-    private static final Logger logger = LoggerFactory.getLogger(LogFloat.class);
-
     public BValue[] execute(Context ctx) {
         // TODO : Improve this with trace log.
-        LogUtil.log(logger, ((BInteger) getArgument(ctx, 0)).intValue(), getArgument(ctx, 1).stringValue());
+        LogUtil.log(ctx, ((BInteger) getArgument(ctx, 0)).intValue(), getArgument(ctx, 1).stringValue());
         return VOID_RETURN;
     }
 }
