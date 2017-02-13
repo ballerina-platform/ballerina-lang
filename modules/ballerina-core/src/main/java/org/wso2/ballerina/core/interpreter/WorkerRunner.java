@@ -19,7 +19,7 @@ package org.wso2.ballerina.core.interpreter;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Worker;
-import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.model.values.BMessage;
 
 import java.util.concurrent.Callable;
 
@@ -29,7 +29,7 @@ import java.util.concurrent.Callable;
  *
  *  @since 0.8.0
  */
-public class WorkerRunner implements Callable {
+public class WorkerRunner implements Callable<BMessage> {
 
     private BLangExecutor executor;
     private Context bContext;
@@ -41,8 +41,8 @@ public class WorkerRunner implements Callable {
         this.worker = worker;
     }
     @Override
-    public BValue call() throws BallerinaException {
+    public BMessage call() throws BallerinaException {
         worker.getCallableUnitBody().execute(executor);
-        return bContext.getControlStack().getCurrentFrame().returnValues[0];
+        return (BMessage) bContext.getControlStack().getCurrentFrame().returnValues[0];
     }
 }

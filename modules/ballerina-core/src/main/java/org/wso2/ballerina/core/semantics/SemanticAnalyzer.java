@@ -92,6 +92,7 @@ import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
+import org.wso2.ballerina.core.model.statements.ForkJoinStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
@@ -783,6 +784,70 @@ public class SemanticAnalyzer implements NodeVisitor {
         variableRefExpr.accept(this);
         Worker worker = (Worker) currentScope.resolve(workerSymbol);
         workerReplyStmt.setWorker(worker);
+    }
+
+    @Override
+    public void visit(ForkJoinStmt forkJoinStmt) {
+        openScope(forkJoinStmt);
+        // Visit incoming message
+        VariableRefExpr messageReference = forkJoinStmt.getMessageReference();
+        messageReference.accept(this);
+
+        if (!messageReference.getType().equals(BTypes.typeMessage)) {
+            throw new SemanticException("Incompatible types: expected a message in " +
+                    messageReference.getNodeLocation().getFileName() + ":" +
+                    messageReference.getNodeLocation().getLineNumber());
+        }
+
+        // Visit workers
+        for (Worker worker: forkJoinStmt.getWorkers()) {
+            worker.accept(this);
+        }
+
+        closeScope();
+
+        // Visit join condition
+        ForkJoinStmt.Join join = forkJoinStmt.getJoin();
+        openScope(join);
+        ParameterDef parameter = join.getJoinResult();
+        parameter.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+        parameter.accept(this);
+        join.define(parameter.getSymbolName(), parameter);
+
+        if (!(parameter.getType() instanceof BArrayType &&
+                (((BArrayType) parameter.getType()).getElementType() == BTypes.typeMessage))) {
+            throw new SemanticException("Incompatible types: expected a message[] in " +
+                    parameter.getNodeLocation().getFileName() + ":" + parameter.getNodeLocation().getLineNumber());
+        }
+
+        // Visit join body
+        Statement joinBody = join.getJoinBlock();
+        joinBody.accept(this);
+        closeScope();
+
+        // Visit timeout condition
+        ForkJoinStmt.Timeout timeout = forkJoinStmt.getTimeout();
+        openScope(timeout);
+        Expression timeoutExpr = timeout.getTimeoutExpression();
+        timeoutExpr.accept(this);
+
+        ParameterDef timeoutParam = timeout.getTimeoutResult();
+        parameter.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+        timeoutParam.accept(this);
+        timeout.define(timeoutParam.getSymbolName(), timeoutParam);
+
+        if (!(timeoutParam.getType() instanceof BArrayType &&
+                (((BArrayType) timeoutParam.getType()).getElementType() == BTypes.typeMessage))) {
+            throw new SemanticException("Incompatible types: expected a message[] in " +
+                    timeoutParam.getNodeLocation().getFileName() + ":" +
+                    timeoutParam.getNodeLocation().getLineNumber());
+        }
+
+        // Visit timeout body
+        Statement timeoutBody = timeout.getTimeoutBlock();
+        timeoutBody.accept(this);
+        closeScope();
+
     }
 
     @Override

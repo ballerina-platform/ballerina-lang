@@ -844,13 +844,25 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterJoinConditions(BallerinaParser.JoinConditionsContext ctx) { }
+	@Override public void enterAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitJoinConditions(BallerinaParser.JoinConditionsContext ctx) { }
+	@Override public void exitAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

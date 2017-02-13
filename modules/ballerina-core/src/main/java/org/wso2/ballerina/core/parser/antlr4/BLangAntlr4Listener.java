@@ -960,34 +960,99 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterForkJoinStatement(BallerinaParser.ForkJoinStatementContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startForkJoinStmt(getCurrentLocation(ctx));
+        }
     }
 
     @Override
     public void exitForkJoinStatement(BallerinaParser.ForkJoinStatementContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.endForkJoinStmt();
+        }
     }
 
     @Override
     public void enterJoinClause(BallerinaParser.JoinClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startJoinClause(getCurrentLocation(ctx));
+        }
     }
 
     @Override
     public void exitJoinClause(BallerinaParser.JoinClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.endJoinClause(ctx.Identifier().getText(), getCurrentLocation(ctx));
+        }
     }
 
+    /**
+     * Enter a parse tree produced by the {@code anyJoinCondition}
+     * labeled alternative in {@link BallerinaParser#joinConditions}.
+     *
+     * @param ctx the parse tree
+     */
     @Override
-    public void enterJoinConditions(BallerinaParser.JoinConditionsContext ctx) {
+    public void enterAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) {
+
     }
 
+    /**
+     * Exit a parse tree produced by the {@code anyJoinCondition}
+     * labeled alternative in {@link BallerinaParser#joinConditions}.
+     *
+     * @param ctx the parse tree
+     */
     @Override
-    public void exitJoinConditions(BallerinaParser.JoinConditionsContext ctx) {
+    public void exitAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.createAnyJoinCondition("any", ctx.IntegerLiteral().getText());
+            for (TerminalNode t : ctx.Identifier()) {
+                modelBuilder.createJoinWorkers(t.getText());
+            }
+        }
     }
+
+    /**
+     * Enter a parse tree produced by the {@code allJoinCondition}
+     * labeled alternative in {@link BallerinaParser#joinConditions}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void enterAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) {
+
+    }
+
+    /**
+     * Exit a parse tree produced by the {@code allJoinCondition}
+     * labeled alternative in {@link BallerinaParser#joinConditions}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void exitAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.createAllJoinCondition("all");
+            for (TerminalNode t : ctx.Identifier()) {
+                modelBuilder.createJoinWorkers(t.getText());
+            }
+        }
+    }
+
 
     @Override
     public void enterTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startTimeoutClause(getCurrentLocation(ctx));
+        }
     }
 
     @Override
     public void exitTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.endTimeoutClause(ctx.Identifier().getText(), getCurrentLocation(ctx));
+        }
     }
 
     @Override

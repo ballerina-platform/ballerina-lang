@@ -58,6 +58,7 @@ import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
+import org.wso2.ballerina.core.model.statements.ForkJoinStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
@@ -130,6 +131,8 @@ public interface NodeVisitor {
     void visit(WorkerInvocationStmt workerInvocationStmt);
 
     void visit(WorkerReplyStmt workerReplyStmt);
+
+    void visit(ForkJoinStmt forkJoinStmt);
 
     // Expressions
 

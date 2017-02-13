@@ -43,6 +43,7 @@ import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.ForkJoinStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
@@ -81,6 +82,8 @@ public interface NodeExecutor {
     void visit(ReturnStmt returnStmt);
 
     void visit(ReplyStmt replyStmt);
+
+    void visit(ForkJoinStmt forkJoinStmt);
 
     BValue[] visit(FunctionInvocationExpr funcIExpr);
 

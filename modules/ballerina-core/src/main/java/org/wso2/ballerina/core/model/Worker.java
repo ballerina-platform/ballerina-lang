@@ -22,7 +22,7 @@ import org.wso2.ballerina.core.model.builder.CallableUnitBuilder;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.types.BType;
-import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.model.values.BMessage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +46,7 @@ import java.util.concurrent.Future;
 @SuppressWarnings("unused")
 public class Worker implements SymbolScope, CompilationUnit, CallableUnit  {
 
-    private Future<BValue> resultFuture;
+    private Future<BMessage> resultFuture;
     private NodeLocation location;
 
     // BLangSymbol related attributes
@@ -276,11 +276,11 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit  {
         this.parameterTypes = parameterTypes;
     }
 
-    public Future<BValue> getResultFuture() {
+    public Future<BMessage> getResultFuture() {
         return resultFuture;
     }
 
-    public void setResultFuture(Future<BValue> resultFuture) {
+    public void setResultFuture(Future<BMessage> resultFuture) {
         this.resultFuture = resultFuture;
     }
 

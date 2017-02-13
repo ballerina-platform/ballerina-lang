@@ -26,9 +26,11 @@ import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.StructDef;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.TypeConvertor;
 import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.Worker;
@@ -56,6 +58,7 @@ import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.ForkJoinStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
@@ -87,11 +90,16 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 import org.wso2.ballerina.core.runtime.worker.WorkerCallback;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 
 /**
@@ -280,7 +288,7 @@ public class BLangExecutor implements NodeExecutor {
 
         executor = Executors.newSingleThreadExecutor();
         WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
-        Future<BValue> future = executor.submit(workerRunner);
+        Future<BMessage> future = executor.submit(workerRunner);
         worker.setResultFuture(future);
 
 
@@ -290,7 +298,7 @@ public class BLangExecutor implements NodeExecutor {
     @Override
     public void visit(WorkerReplyStmt workerReplyStmt) {
         Worker worker = workerReplyStmt.getWorker();
-        Future<BValue> future = worker.getResultFuture();
+        Future<BMessage> future = worker.getResultFuture();
         try {
             BValue result = future.get();
             VariableRefExpr variableRefExpr = workerReplyStmt.getReceiveExpr();
@@ -342,6 +350,157 @@ public class BLangExecutor implements NodeExecutor {
         BMessage bMessage = (BMessage) expr.execute(this);
         bContext.getBalCallback().done(bMessage.value());
         returnedOrReplied = true;
+    }
+
+    @Override
+    public void visit(ForkJoinStmt forkJoinStmt) {
+        VariableRefExpr expr = forkJoinStmt.getMessageReference();
+        BMessage inMsg = (BMessage) expr.execute(this);
+        List<WorkerRunner> workerRunnerList = new ArrayList<>();
+        List<BMessage> resultMsgs = new ArrayList<>();
+        int timeout = ((BInteger) forkJoinStmt.getTimeout().getTimeoutExpression().execute(this)).intValue();
+
+        Worker[] workers = forkJoinStmt.getWorkers();
+        Map<String, WorkerRunner> triggeredWorkers = new HashMap<>();
+        for (Worker worker : workers) {
+            int sizeOfValueArray = worker.getStackFrameSize();
+            BValue[] localVals = new BValue[sizeOfValueArray];
+
+            BValue argValue = inMsg.clone();
+            // Setting argument value in the stack frame
+            localVals[0] = argValue;
+
+            // Get values for all the worker arguments
+            int valueCounter = 1;
+
+            // Create default values for all declared local variables
+            for (ParameterDef variableDcl : worker.getParameterDefs()) {
+                localVals[valueCounter] = variableDcl.getType().getDefaultValue();
+                valueCounter++;
+            }
+
+            // Create an array in the stack frame to hold return values;
+            BValue[] returnVals = new BValue[1];
+
+            // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
+            // return values and worker invocation location;
+            SymbolName functionSymbolName = worker.getSymbolName();
+            CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
+                    functionSymbolName.getPkgPath(), worker.getNodeLocation());
+
+            StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
+            Context workerContext = new Context();
+            workerContext.getControlStack().pushFrame(stackFrame);
+            WorkerCallback workerCallback = new WorkerCallback(workerContext);
+            workerContext.setBalCallback(workerCallback);
+            BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
+            WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
+            workerRunnerList.add(workerRunner);
+            triggeredWorkers.put(worker.getName(), workerRunner);
+        }
+
+        if (forkJoinStmt.getJoin().getJoinType().equalsIgnoreCase("any")) {
+            String[] joinWorkerNames = forkJoinStmt.getJoin().getJoinWorkers();
+            if (joinWorkerNames.length == 0) {
+                // If there are no workers specified, wait for any of all the workers
+                BMessage res = invokeAnyWorker(workerRunnerList, timeout, forkJoinStmt);
+                if (res != null) {
+                    resultMsgs.add(res);
+                }
+            } else {
+                List<WorkerRunner> workerRunnersSpecified = new ArrayList<>();
+                for (String workerName : joinWorkerNames) {
+                    workerRunnersSpecified.add(triggeredWorkers.get(workerName));
+                }
+                BMessage res = invokeAnyWorker(workerRunnersSpecified, timeout, forkJoinStmt);
+                if (res != null) {
+                    resultMsgs.add(res);
+                }
+            }
+        } else {
+            String[] joinWorkerNames = forkJoinStmt.getJoin().getJoinWorkers();
+            if (joinWorkerNames.length == 0) {
+                // If there are no workers specified, wait for all of all the workers
+                resultMsgs.addAll(invokeAllWorkers(workerRunnerList, forkJoinStmt.getNodeLocation(), timeout));
+            } else {
+                List<WorkerRunner> workerRunnersSpecified = new ArrayList<>();
+                for (String workerName : joinWorkerNames) {
+                    workerRunnersSpecified.add(triggeredWorkers.get(workerName));
+                }
+                resultMsgs.addAll(invokeAllWorkers(workerRunnersSpecified, forkJoinStmt.getNodeLocation(), timeout));
+            }
+        }
+
+        if (forkJoinStmt.isTimedOut()) {
+            // Execute the timeout block
+
+            // Creating a new array
+            BArray bArray = forkJoinStmt.getJoin().getJoinResult().getType().getDefaultValue();
+
+            for (int i = 0; i < resultMsgs.size(); i++) {
+                BValue value = resultMsgs.get(i);
+                bArray.add(i, value);
+            }
+
+            int offsetJoin = ((StackVarLocation) forkJoinStmt.getTimeout().getTimeoutResult().getMemoryLocation()).
+                    getStackFrameOffset();
+
+            controlStack.setValue(offsetJoin, bArray);
+            forkJoinStmt.getTimeout().getTimeoutBlock().execute(this);
+
+        } else {
+            // Assign values to join block message array
+
+            // Creating a new array
+            BArray bArray = forkJoinStmt.getJoin().getJoinResult().getType().getDefaultValue();
+            for (int i = 0; i < resultMsgs.size(); i++) {
+                BValue value = resultMsgs.get(i);
+                bArray.add(i, value);
+            }
+
+            int offsetJoin = ((StackVarLocation) forkJoinStmt.getJoin().getJoinResult().getMemoryLocation()).
+                    getStackFrameOffset();
+            controlStack.setValue(offsetJoin, bArray);
+            forkJoinStmt.getJoin().getJoinBlock().execute(this);
+        }
+
+    }
+
+    private BMessage invokeAnyWorker(List<WorkerRunner> workerRunnerList, int timeout,
+                                     ForkJoinStmt forkJoinStmt) {
+        ExecutorService anyExecutor = Executors.newWorkStealingPool();
+        BMessage result;
+        try {
+            result = anyExecutor.invokeAny(workerRunnerList, timeout, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            throw new BallerinaException("Fork-Join statement at " + forkJoinStmt.getNodeLocation()
+                    + " has been interrupted", e);
+        } catch (ExecutionException e) {
+            throw new BallerinaException("Fork-Join statement at " + forkJoinStmt.getNodeLocation()
+                    + " execution failed", e);
+        } catch (TimeoutException e) {
+            forkJoinStmt.setTimedOut(true);
+            return null;
+           // throw new BallerinaException("Fork-Join statement at " + position + " timed out", e);
+        }
+        return result;
+    }
+
+    private List<BMessage> invokeAllWorkers(List<WorkerRunner> workerRunnerList, NodeLocation position, int timeout) {
+        ExecutorService allExecutor = Executors.newWorkStealingPool();
+        List<BMessage> result = new ArrayList<>();
+        try {
+            allExecutor.invokeAll(workerRunnerList, timeout, TimeUnit.SECONDS).stream().map(bMessageFuture -> {
+                try {
+                    return bMessageFuture.get();
+                } catch (Exception e) {
+                    throw new IllegalStateException(e);
+                }
+            }).forEach((BMessage b) -> result.add(b));
+        } catch (InterruptedException e) {
+            throw new BallerinaException("Fork-Join statement at " + position + " has been interrupted", e);
+        }
+        return result;
     }
 
     @Override

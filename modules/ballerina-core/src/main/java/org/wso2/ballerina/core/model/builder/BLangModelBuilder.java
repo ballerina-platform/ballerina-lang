@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.model.builder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BTypeConvertor;
@@ -70,6 +71,7 @@ import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.ForkJoinStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
@@ -134,7 +136,8 @@ public class BLangModelBuilder {
     private Stack<Annotation.AnnotationBuilder> annotationBuilderStack = new Stack<>();
     private Stack<BlockStmt.BlockStmtBuilder> blockStmtBuilderStack = new Stack<>();
     private Stack<IfElseStmt.IfElseStmtBuilder> ifElseStmtBuilderStack = new Stack<>();
-
+    private Stack<ForkJoinStmt.ForkJoinStmtBuilder> forkJoinStmtBuilderStack = new Stack<>();
+    private Stack<List<Worker>> workerStack = new Stack<>();
     private Stack<SimpleTypeName> typeNameStack = new Stack<>();
     private Stack<CallableUnitName> callableUnitNameStack = new Stack<>();
     private Stack<Expression> exprStack = new Stack<>();
@@ -147,6 +150,9 @@ public class BLangModelBuilder {
 
     // This variable keeps the package scope so that workers (and any global things) can be added to package scope
     private SymbolScope packageScope = null;
+
+    // This variable keeps the fork-join scope when adding workers and resolve back to current scope once done
+    private SymbolScope forkJoinScope = null;
 
     // We need to keep a map of import packages.
     // This is useful when analyzing import functions, actions and types.
@@ -852,7 +858,12 @@ public class BLangModelBuilder {
         annotationList.forEach(currentCUBuilder::addAnnotation);
 
         Worker worker = currentCUBuilder.buildWorker();
-        parentCUBuilder.addWorker(worker);
+        if (forkJoinStmtBuilderStack.isEmpty()) {
+            parentCUBuilder.addWorker(worker);
+        } else {
+            workerStack.peek().add(worker);
+            currentScope = forkJoinScope;
+        }
 
         currentCUBuilder = parentCUBuilder;
         parentCUBuilder = null;
@@ -1098,6 +1109,101 @@ public class BLangModelBuilder {
         addToBlockStmt(ifElseStmt);
 
         currentScope = blockStmt.getEnclosingScope();
+    }
+
+public void startForkJoinStmt(NodeLocation nodeLocation) {
+        //blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder(nodeLocation, currentScope));
+        ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = new ForkJoinStmt.ForkJoinStmtBuilder(currentScope);
+        forkJoinStmtBuilderStack.push(forkJoinStmtBuilder);
+        currentScope = forkJoinStmtBuilder.currentScope;
+        forkJoinScope = currentScope;
+        workerStack.push(new ArrayList<>());
+    }
+
+    public void startJoinClause(NodeLocation nodeLocation) {
+        currentScope = forkJoinStmtBuilderStack.peek().getJoin();
+        blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder(nodeLocation, currentScope));
+    }
+
+    public void endJoinClause(String paramName, NodeLocation location) {
+        ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+        BlockStmt forkJoinStmt = blockStmtBuilder.build();
+        SymbolName symbolName = new SymbolName(paramName);
+
+        // Check whether this constant is already defined.
+        BLangSymbol paramSymbol = currentScope.resolve(symbolName);
+        if (paramSymbol != null && paramSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
+            String errMsg = getNodeLocationStr(location) +
+                    "redeclared symbol '" + paramName + "'";
+            errorMsgs.add(errMsg);
+        }
+
+        SimpleTypeName typeName = typeNameStack.pop();
+        ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
+        forkJoinStmtBuilder.setJoinBlock(forkJoinStmt);
+        forkJoinStmtBuilder.setJoinResult(paramDef);
+        currentScope = forkJoinStmtBuilder.getJoin().getEnclosingScope();
+    }
+
+    public void createAnyJoinCondition(String joinType, String joinCount) {
+        ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
+
+        forkJoinStmtBuilder.setJoinType(joinType);
+        if (Integer.parseInt(joinCount) != 1) {
+            throw new BallerinaException("Only count 1 is allowed in this version");
+        }
+        forkJoinStmtBuilder.setJoinCount(Integer.parseInt(joinCount));
+    }
+
+    public void createAllJoinCondition(String joinType) {
+        ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
+        forkJoinStmtBuilder.setJoinType(joinType);
+    }
+
+    public void createJoinWorkers(String workerName) {
+        ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
+        forkJoinStmtBuilder.addJoinWorker(workerName);
+    }
+
+    public void startTimeoutClause(NodeLocation nodeLocation) {
+        currentScope = forkJoinStmtBuilderStack.peek().getTimeout();
+        blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder(nodeLocation, currentScope));
+    }
+
+    public void endTimeoutClause(String paramName, NodeLocation location) {
+        ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+        BlockStmt timeoutStmt = blockStmtBuilder.build();
+        forkJoinStmtBuilder.setTimeoutBlock(timeoutStmt);
+        forkJoinStmtBuilder.setTimeoutExpression(exprStack.pop());
+        SymbolName symbolName = new SymbolName(paramName);
+
+        // Check whether this constant is already defined.
+        BLangSymbol paramSymbol = currentScope.resolve(symbolName);
+        if (paramSymbol != null && paramSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
+            String errMsg = getNodeLocationStr(location) +
+                    "redeclared symbol '" + paramName + "'";
+            errorMsgs.add(errMsg);
+        }
+
+        SimpleTypeName typeName = typeNameStack.pop();
+        ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
+        forkJoinStmtBuilder.setTimeoutResult(paramDef);
+        currentScope = forkJoinStmtBuilder.getTimeout().getEnclosingScope();
+    }
+
+    public void endForkJoinStmt() {
+        ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.pop();
+
+        List<Worker> workerList = workerStack.pop();
+        if (workerList != null) {
+            forkJoinStmtBuilder.setWorkers(workerList.toArray(new Worker[workerList.size()]));
+        }
+        forkJoinStmtBuilder.setMessageReference((VariableRefExpr) exprStack.pop());
+        ForkJoinStmt forkJoinStmt = forkJoinStmtBuilder.build();
+        addToBlockStmt(forkJoinStmt);
+        currentScope = forkJoinStmt.getEnclosingScope();
     }
 
     public void createFunctionInvocationStmt(NodeLocation location) {
