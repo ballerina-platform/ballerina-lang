@@ -19,6 +19,9 @@
 package org.wso2.siddhi.core.query.processor.stream.window;
 
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -44,19 +47,38 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//@Description("A batch (tumbling) time window based on external time, that holds events arrived " +
-//        "during windowTime periods, and gets updated for every windowTime.")
-//@Parameters({
-//        @Parameter(name = "timestamp", type = {DataType.LONG}),
-//        @Parameter(name = "windowTime", type = {DataType.INT, DataType.LONG, DataType.TIME}),
-//        @Parameter(name = "startTime", type = {DataType.INT, DataType.LONG, DataType.TIME}, optional = true),
-//        @Parameter(name = "timeout", type = {DataType.INT, DataType.LONG, DataType.TIME}, optional = true)
-//})
 @Extension(
         name = "externalTimeBatch",
         namespace = "",
-        description = "",
-        parameters = {}
+        description = "A batch (tumbling) time window based on external time, that holds events arrived " +
+                "during windowTime periods, and gets updated for every windowTime.",
+        parameters = {
+                @Parameter(name = "timestamp",
+                        description = "The time which the window determines as current time and will act upon. " +
+                                "The value of this parameter should be monotonically increasing.",
+                        type = {DataType.LONG}),
+                @Parameter(name = "windowTime",
+                        description = "The batch time period for which the window should hold events.",
+                        type = {DataType.INT, DataType.LONG, DataType.TIME}),
+                @Parameter(name = "startTime",
+                        description = "User defined start time. This could either be a constant (of type int, " +
+                                "long or time) or an attribute of the corresponding stream (of type long). " +
+                                "If an attribute is provided, initial value of attribute would be considered as " +
+                                "startTime. When startTime is not given, initial value of timestamp " +
+                                "is used as the default.",
+                        type = {DataType.INT, DataType.LONG, DataType.TIME},
+                        optional = true),
+                @Parameter(name = "timeout",
+                        description = "Time to wait for arrival of new event, before flushing " +
+                                "and giving output for events belonging to a specific batch. If timeout is " +
+                                "not provided, system waits till an event from next batch arrives to " +
+                                "flush current batch.",
+                        type = {DataType.INT, DataType.LONG, DataType.TIME},
+                        optional = true)
+        },
+        returnAttributes = @ReturnAttribute(
+                description = "Returns current and expired events.",
+                type = {})
 )
 public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
     private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>(false);

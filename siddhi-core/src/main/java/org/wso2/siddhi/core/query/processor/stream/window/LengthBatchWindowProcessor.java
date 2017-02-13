@@ -18,6 +18,9 @@
 package org.wso2.siddhi.core.query.processor.stream.window;
 
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -40,17 +43,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//@Description("A batch (tumbling) length window that holds a number of events " +
-//        "specified as the windowLength. The window is updated each time a batch " +
-//        "of events that equals the number specified as the windowLength arrives.")
-//@Parameters({
-//        @Parameter(name = "windowLength", type = {DataType.INT})
-//})
 @Extension(
         name = "lengthBatch",
         namespace = "",
-        description = "",
-        parameters = {}
+        description = "A batch (tumbling) length window that holds a number of events specified as the windowLength. " +
+                "The window is updated each time a batch of events that equals the number " +
+                "specified as the windowLength arrives.",
+        parameters = {
+                @Parameter(name = "windowLength",
+                        description = "The number of events the window should tumble.",
+                        type = {DataType.INT}),
+        },
+        returnAttributes = @ReturnAttribute(
+                description = "Returns current and expired events.",
+                type = {})
 )
 public class LengthBatchWindowProcessor extends WindowProcessor implements FindableProcessor {
 
