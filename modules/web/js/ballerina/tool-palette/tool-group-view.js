@@ -55,13 +55,13 @@ define(['require', 'log', 'jquery', 'd3', 'backbone', './tool-view'], function (
             var tools = [];
             var toolDocumentMap = {};
             if (toolOrderVertical) {
-                for (var itr = 0; itr < this.model.tools.length; itr++) {
-                    var id = "/" + this.model.tools[itr].id + "/";
+                _.forEach(this.model.tools, function (tool) {
+                    var id = "/" + tool.id + "/";
                     if (!toolDocumentMap[id]) {
                         toolDocumentMap[id] = id;
-                        tools.push(this.model.tools[itr]);
+                        tools.push(tool);
                     }
-                }
+                });
             } else {
                 tools = this.model.tools;
             }
