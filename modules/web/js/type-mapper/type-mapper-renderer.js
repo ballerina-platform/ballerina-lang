@@ -431,7 +431,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.references.push({name: func.name, refObj: reference});
         var newFunc = $('<div>').attr('id', func.name).addClass('func');
         var self = this;
-        var funcName = $('<div>').addClass('struct-name').text(func.name);
+        var funcName = $('<div>').addClass('func-name').text(func.name);
         newFunc.append(funcName);
 
         newFunc.css({
@@ -441,15 +441,36 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
         $("#" + this.placeHolderName).append(newFunc);
 
-        var funcContent = $('#' + func.name);
-
         _.forEach(func.parameters, function (parameter) {
-            self.addTargetProperty(funcContent, parameter.name, parameter.type);
+            var property = self.makeFunctionAttribute(newFunc, parameter.name, parameter.type, true);
+            self.addTarget(property, self);
         });
 
-        this.addSourceProperty(funcContent, "output", func.returnType);
-        this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
+        _.forEach(func.returnType, function (parameter) {
+            var property = self.makeFunctionAttribute(newFunc, parameter.name, parameter.type, false);
+            self.addSource(property, self);
+        });
 
+        self.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
+    };
+
+    TypeMapperRenderer.prototype.makeFunctionAttribute = function (parentId, name, type, input) {
+        var id = parentId.selector.replace("#", "") + this.idNameSeperator + name + this.nameTypeSeperator + type;
+        var property;
+        if(input){
+            property = $('<div>').attr('id', id).addClass('func-in-property');
+        }else {
+            property = $('<div>').attr('id', id).addClass('func-out-property');
+        }
+        var propertyName = $('<span>').addClass('property-name').text(name);
+        var seperator = $('<span>').addClass('property-name').text(":");
+        var propertyType = $('<span>').addClass('property-type').text(type);
+
+        property.append(propertyName);
+        property.append(seperator);
+        property.append(propertyType);
+        $(parentId).append(property);
+        return property;
     };
 
     /**
@@ -605,6 +626,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         graph.setDefaultEdgeLabel(function () {
             return {};
         });
+        
         var nodes = $("#" + viewId + "> .struct, #" + viewId + "> .func");
 
         if (nodes.length > 0) {
@@ -612,7 +634,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
 
             _.forEach(nodes, function (n) {
-                var nodeContent = $("#" + n.id);
+                var nodeContent = $("#" + n.id.replace(":",'\\:'));
                 if (maxTypeHeight < nodeContent.height()) {
                     maxTypeHeight = nodeContent.height();
                 }
@@ -621,11 +643,6 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
             var edges = jsPlumbInstance.getAllConnections();
 
-
-            _.forEach(edges, function (edge) {
-                graph.setEdge(edge.source.id.split("-")[0], edge.target.id.split("-")[0]);
-            });
-
             // calculate the layout (i.e. node positions)
             dagre.layout(graph);
 
@@ -633,12 +650,12 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
             // Applying the calculated layout
             _.forEach(graph.nodes(), function (dagreNode) {
-                var node = $("#" + dagreNode);
+                var node = $("#" +  dagreNode.replace(":",'\\:'));
 
-                if (node.attr('class') == "func") {
-                    node.css("left", graph.node(dagreNode).x + "px");
-                    node.css("top", graph.node(dagreNode).y + "px");
-                }
+                //  if (node.attr('class') == "func") {
+                node.css("left", graph.node(dagreNode).x + "px");
+                node.css("top", graph.node(dagreNode).y + "px");
+                // }
 
                 if (graph.node(dagreNode) != null && graph.node(dagreNode).y > maxYPosition) {
                     maxYPosition = graph.node(dagreNode).y;
@@ -646,6 +663,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             });
 
             $("#" + viewId).height(maxTypeHeight + maxYPosition + 55);
+            jsPlumbInstance.repaintEverything();
         }
     };
 

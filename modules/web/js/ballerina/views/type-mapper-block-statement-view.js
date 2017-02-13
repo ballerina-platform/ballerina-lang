@@ -15,8 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapper','./type-mapper-statement-view','ballerina/ast/ballerina-ast-factory'],
-    function (_, log, BallerinaView,BlockStatement, TypeMapperRenderer,TypeMapperStatement,BallerinaASTFactory) {
+define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapper','./type-mapper-statement-view',
+    'ballerina/ast/ballerina-ast-factory', './type-mapper-function-assignment-view', './../ast/module'],
+    function (_, log, BallerinaView,BlockStatement, TypeMapperRenderer,TypeMapperStatement,BallerinaASTFactory, TypeMapperFunctionAssignmentView, AST) {
 
         var TypeMapperBlockStatementView = function (args) {
             BallerinaView.call(this, args);
@@ -63,17 +64,35 @@ define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapp
          * @param {statement} statement - The statement model.
          */
         TypeMapperBlockStatementView.prototype.visitStatement = function (statement) {
-
             var self = this;
             if(BallerinaASTFactory.isAssignmentStatement(statement)){
-                var typeMapperStatementView = new TypeMapperStatement({
-                    model: statement, parentView: this, typeMapperRenderer: this._parentView.getTypeMapperRenderer(),sourceInfo: self.getSourceInfo(),
-                    targetInfo: self.getTargetInfo()
-                });
-
-                typeMapperStatementView.render(this.diagramRenderingContext);
+                if (self.isFunctionAssignmentStatement(statement)) {
+                    var typeMapperFunctionDefinitionView = new TypeMapperFunctionAssignmentView({
+                        model: statement,
+                        parentView: this,
+                        typeMapperRenderer: this._parentView.getTypeMapperRenderer()
+                    });
+                    typeMapperFunctionDefinitionView.render(this._diagramRenderingContext);
+                } else {
+                    var typeMapperStatementView = new TypeMapperStatement({
+                        model: statement,
+                        parentView: this,
+                        typeMapperRenderer: this._parentView.getTypeMapperRenderer(),
+                        sourceInfo: self.getSourceInfo(),
+                        targetInfo: self.getTargetInfo()
+                    });
+                    typeMapperStatementView.render(this._diagramRenderingContext);
+                }
             }
+        };
 
+        TypeMapperBlockStatementView.prototype.isFunctionAssignmentStatement = function (statement) {
+            if (statement instanceof AST.AssignmentStatement) { //use case for getter
+                var children = statement.getChildren();
+                var rightOperand = children[1];
+                return rightOperand.getChildren()[0] instanceof AST.FunctionInvocationExpression;
+            }
+            return false;
         };
 
 
