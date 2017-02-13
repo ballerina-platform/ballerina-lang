@@ -44,6 +44,6 @@ public class JMSClientTest {
             expectedExceptions = { BallerinaException.class },
             expectedExceptionsMessageRegExp = ".*Connector parameters not defined correctly..*")
     public void testJMSClientConnectorWithoutValidInitialContextFactory() throws BallerinaException {
-        Functions.invoke(bFile, "test");
+        Functions.invoke(bFile, "jmsClientConnectorTest");
     }
 }

@@ -28,6 +28,6 @@ ConnectionFactoryType = "topic")
 service jmsWSO2MBTopicService {
     @OnMessage
     resource onMessage (message m) {
-        system:println("Received map message" + message:getStringValue(m, "queue message count"));
+        system:println("Received map message : " + message:getStringValue(m, "queue message count"));
     }
 }

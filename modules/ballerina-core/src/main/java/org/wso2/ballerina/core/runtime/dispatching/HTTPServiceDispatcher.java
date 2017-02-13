@@ -68,7 +68,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             String uriStr = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
             //replace multiple slashes from single slash if exist in request path to enable
             // dispatching when request path contains multiple slashes
-            URI requestUri = URI.create(uriStr.replaceAll("//+", "/"));
+            URI requestUri = URI.create(uriStr.replaceAll("//+", Constants.DEFAULT_BASE_PATH));
             if (requestUri == null) {
                 throw new BallerinaException("uri not found in the message or found an invalid URI.");
             }
@@ -77,7 +77,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             String subPath = URIUtil.getSubPath(requestUri.getPath());
 
             // Most of the time we will find service from here
-            Service service = servicesOnInterface.get("/" + basePath);
+            Service service = servicesOnInterface.get(Constants.DEFAULT_BASE_PATH + basePath);
 
             // Check if there is a service with default base path ("/")
             if (service == null) {
@@ -122,12 +122,9 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
                 basePath = annotation.getValue();
             }
         }
-        if (basePath.startsWith("\"")) {
-            basePath = basePath.substring(1, basePath.length() - 1);
-        }
 
-        if (!basePath.startsWith("/")) {
-            basePath = "/".concat(basePath);
+        if (!basePath.startsWith(Constants.DEFAULT_BASE_PATH)) {
+            basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
         }
 
         Map<String, Service> servicesOnInterface = services.get(listenerInterface);
@@ -179,13 +176,10 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
                 basePath = annotation.getValue();
             }
         }
-        
-        if (basePath.startsWith("\"")) {
-            basePath = basePath.substring(1, basePath.length() - 1);
-        }
 
-        if (!basePath.startsWith("/")) {
-            basePath = "/".concat(basePath);
+
+        if (!basePath.startsWith(Constants.DEFAULT_BASE_PATH)) {
+            basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
         }
         
         Map<String, Service> servicesOnInterface = services.get(listenerInterface);
