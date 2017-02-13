@@ -16,8 +16,8 @@
  * under the License.
  */
 define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/file', 'ballerina/diagram-render/diagram-render-context',
-        'ballerina/views/backend', 'ballerina/ast/ballerina-ast-deserializer', '../debugger/debug-manager'],
-    function (require, log, $, _, Tab, Ballerina, File, DiagramRenderContext, Backend, BallerinaASTDeserializer, DebugManager) {
+        'ballerina/views/backend', 'ballerina/ast/ballerina-ast-deserializer', '../debugger/debug-manager', 'alerts'],
+    function (require, log, $, _, Tab, Ballerina, File, DiagramRenderContext, Backend, BallerinaASTDeserializer, DebugManager, alerts) {
     var FileTab;
 
     FileTab = Tab.extend({
@@ -48,10 +48,14 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
         render: function () {
             Tab.prototype.render.call(this);
             // if file already has content
-            if(!_.isNil(this._file.getContent())){
+            if(!_.isNil(this._file.getContent()) && !_.isEmpty(this._file.getContent().trim())){
                 var response = this.backend.parse(this._file.getContent());
                 if (response.error != undefined && response.error) {
                     this.renderBallerinaEditor(this._astRoot, true);
+                    return;
+                } else if (!_.isUndefined(response.errorMessage)) {
+                    this.renderBallerinaEditor(this._astRoot, true);
+                    alerts.error("Unable to parse the source: " + response.errorMessage);
                     return;
                 }
                 //if no errors display the design.
@@ -89,9 +93,11 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
             // change tab header class to match look and feel of source view
             fileEditor.on('source-view-activated swagger-view-activated', function(){
                 this.getHeader().addClass('inverse');
+                this.app.workspaceManager.updateMenuItems();
             }, this);
             fileEditor.on('design-view-activated', function(){
                 this.getHeader().removeClass('inverse');
+                this.app.workspaceManager.updateMenuItems();
             }, this);
 
             fileEditor.on('add-breakpoint', function(row){

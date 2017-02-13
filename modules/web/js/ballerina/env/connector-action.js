@@ -19,7 +19,7 @@ define(['require', 'log', 'lodash', 'event_channel'],
     function (require, log, _, EventChannel) {
 
         /**
-         * @class Package
+         * @class ConnectorAction
          * @augments EventChannel
          * @param args {Object} - args.name: name of the package
          * @constructor

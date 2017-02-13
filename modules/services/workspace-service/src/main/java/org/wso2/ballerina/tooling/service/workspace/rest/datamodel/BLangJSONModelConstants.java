@@ -76,6 +76,8 @@ public class BLangJSONModelConstants {
 
     public static final String VARIABLE_DEFINITION = "variable_definition";
 
+    public static final String VARIABLE_DEFINITION_STATEMENT = "variable_definition_statement";
+
     public static final String LEFT_EXPRESSION = "left_expression";
 
     public static final String RIGHT_EXPRESSION = "right_expression";
@@ -134,6 +136,8 @@ public class BLangJSONModelConstants {
 
     public static final String ACTION_INVOCATION_EXPRESSION = "action_invocation_expression";
 
+    public static final String ACTION_INVOCATION_STATEMENT = "action_invocation_statement";
+
     public static final String BASIC_LITERAL_EXPRESSION = "basic_literal_expression";
 
     public static final String BASIC_LITERAL_VALUE = "basic_literal_value";
@@ -167,6 +171,8 @@ public class BLangJSONModelConstants {
     public static final String LESS_THAN_EXPRESSION = "less_than_expression";
 
     public static final String VARIABLE_REFERENCE_EXPRESSION = "variable_reference_expression";
+
+    public static final String VARIABLE_REFERENCE_TYPE = "type";
 
     public static final String VARIABLE_REFERENCE_NAME = "variable_reference_name";
 
@@ -225,5 +231,10 @@ public class BLangJSONModelConstants {
     public static final String FILE_NAME = "file_name";
 
     public static final String LINE_NUMBER = "line_number";
-    
+
+    public static final String VARIABLE_DEF_OPTIONS = "variable_def_options";
+
+    public static final String REFERENCE_TYPE_INIT_EXPR = "reference_type_init_expression";
+
+    public static final String EXPRESSION_OPERATOR = "operator";
 }

@@ -38,6 +38,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
             log.warn('topCenter has not defined. Default top center will be created');
         }
         this._topCenter = _.has(args, "topCenter") ? _.get(args, 'topCenter').clone() : new Point(0,0);
+        this._bottomCenter = _.has(args, "bottomCenter") ? _.get(args, 'bottomCenter').clone() : new Point(0,0);
         this._boundingBox = new  BBox();
         var self = this;
         this._topCenter.on("moved", function(offset){
@@ -295,12 +296,14 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
                     }
                 $(deleteButtonRect.node()).click(function(event){
                     event.stopPropagation();
-                    model.remove();
+                    self._model.remove();
                     // Hiding property button pane.
                     $(propertyPaneWrapper).remove();
                     $(deleteButtonPaneGroup.node()).remove();
                     $(propertyButtonPaneGroup.node()).remove();
                     $(smallArrow.node()).remove();
+                    $(statementView._statementGroup).remove();
+                    $(statementGroup).remove();
                 });
 
                 $(addBreakpointButtonRect.node()).click(function(event){

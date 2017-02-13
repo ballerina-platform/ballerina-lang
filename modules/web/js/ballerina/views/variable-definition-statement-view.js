@@ -134,6 +134,9 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/variable-defini
 
         VariableDefinitionStatementView.prototype.updateStatementText = function (updatedText) {
             if (!_.isUndefined(updatedText) && updatedText !== '') {
+                // Updating variable definition statement model.
+                this.getModel().setVariableDefinitionStatementString(updatedText);
+
                 updatedText = ((updatedText.length) > 11 ? (updatedText.substring(0, 11) + '..') : updatedText);
                 this.getStatementGroup().expression_text.node().textContent = updatedText;
             }

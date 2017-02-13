@@ -926,7 +926,7 @@ button.variable-list {
     cursor: pointer;
 }
 
-.constants-pane {
+.constants-wrapper {
     border: 1px solid #ddd;
     background-color: #fff;
     margin: auto;
@@ -934,28 +934,26 @@ button.variable-list {
     left: 68px;
     position: relative;
     float: left;
-    border-radius: 0 5px 5px 0;
+    border-radius: 0 0 5px 0;
     min-height: 27px;
 }
 
-.constants-wrapper {
-    /*margin-right: 20px;*/
+.constants-wrapper, .constants-content-wrapper, .constants-action-wrapper {
     float: left;
-    width: 100%;
 }
 
-.constants-action-wrapper {
-    float: left;
-}
 
 .constant-add-icon-wrapper {
-    height: 20px;
+    height: 26px;
     position: static;
-    width: 19px;
+    width: 26px;
     font-size: 11px;
     float: left;
-    padding: 5px;
-    margin: 3px 3px 0 3px;
+    padding: 6px;
+    margin: -1px;
+    border: 1px solid #ddd;
+    background: #fff;
+    opacity: 1;
 }
 
 .constant-add-action-wrapper {
@@ -996,13 +994,15 @@ button.variable-list {
     font-size: 14px;
     padding: 9px;
     background-color: #efefef;
-    height: 27px;
+    height: 26px;
     width: 23px;
     margin-left: 4px;
     position: absolute;
     right: -24px;
     top: -1px;
     border-radius: 0 5px 5px 0;
+    border: 1px solid #ddd;
+    border-left: none;
 }
 
 .constant-pane-collapser-wrapper:hover {
@@ -1064,7 +1064,7 @@ button.variable-list {
     cursor: default;
 }
 
-.constant-definition-main-wrapper {
+.constants-definition-wrapper {
     padding-bottom: 47px;
 }
 

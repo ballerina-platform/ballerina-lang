@@ -35,6 +35,21 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
             this._toolGroups = _.get(args, 'toolGroups', []);
             // array which contains tool groups that are added on the fly
             this._dynamicToolGroups = _.get(args, 'dynamicToolGroups', []);
+
+            var self = this;
+            // Packages to be added to the tool palette by default in order.
+            this._defaultImportedPackages = [];
+            _.forEach(["ballerina.net.http", "ballerina.lang.*"],
+                function (defaultPackageString) {
+                    var packagesToImport = Environment.searchPackage(defaultPackageString);
+                    _.forEach(packagesToImport, function (packageToImport) {
+                        self._defaultImportedPackages.push(packageToImport);
+                    });
+                });
+
+            // views added to tool palette for each imported package keyed by package name
+            this._importedPackagesViews = {};
+
             this.init();
         };
 
@@ -45,8 +60,15 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
          * init function
          */
         ToolPaletteItemProvider.prototype.init = function () {
+            var self = this;
+
             this._initialToolGroups = _.slice(InitialTools);
             this._toolGroups = _.merge(this._initialToolGroups, this._dynamicToolGroups);
+
+            // Adding default packages
+            _.forEach(self._defaultImportedPackages, function (packageToImport) {
+                self.addImport(packageToImport);
+            });
         };
 
         /**
@@ -77,11 +99,16 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
          * function to add imports. Packages will be converted to a ToolGroup and added to relevant arrays
          * @param package - package to be imported
          */
-        ToolPaletteItemProvider.prototype.addImport = function (package) {
+        ToolPaletteItemProvider.prototype.addImport = function (package, index) {
             if (package instanceof Package) {
                 var group = this.getToolGroup(package);
-                this._dynamicToolGroups.push(group);
-                this._toolGroups.push(group);
+                if (_.isNil(index)) {
+                    this._dynamicToolGroups.push(group);
+                    this._toolGroups.push(group);
+                } else {
+                    this._dynamicToolGroups.splice(index, 0, group);
+                    this._toolGroups.splice(index, 0, group);
+                }
             }
         };
 
@@ -91,8 +118,24 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
          */
         ToolPaletteItemProvider.prototype.addImportToolGroup = function (package) {
             if (package instanceof Package) {
-                var group = this.getToolGroup(package);
-                this._toolPalette.addVerticallyFormattedToolGroup({group: group});
+                var isADefaultPackage = _.includes(this._defaultImportedPackages, package);
+                if (!isADefaultPackage) { // Removing existing package
+                    // Re-adding the package
+                    var group = this.getToolGroup(package);
+                    var groupView = this._toolPalette.addVerticallyFormattedToolGroup({group: group});
+                    this._importedPackagesViews[package.getName()] = groupView;
+                }
+            }
+        };
+
+        /**
+         * Removes a tool group view from the tool palette for a given package name
+         * @param packageName - name of the package to be removed
+         */
+        ToolPaletteItemProvider.prototype.removeImportToolGroup = function (packageName) {
+            var removingView = this._importedPackagesViews[packageName];
+            if(!_.isNil(removingView)){
+                removingView.remove();
             }
         };
 
@@ -137,13 +180,13 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                         action.classNames = "tool-connector-action tool-connector-last-action";
                     }
                     action.meta = {
-                        action: action.getAction(),
+                        action: action.getName(),
                         actionConnectorName: connector.getName(),
                         actionPackageName: packageName
                     };
                     action.icon = "images/tool-icons/action.svg";
                     action.title = action.getName();
-                    action.nodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression;
+                    action.nodeFactoryMethod = BallerinaASTFactory.createActionInvocationExpression;
                     action.id = connector.getName() + '-' + action.getAction();
                     definitions.push(action);
 
@@ -157,8 +200,14 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     var actionIcon = "images/tool-icons/action.svg";
                     var toolGroupID = package.getName() + "-tool-group";
                     action.classNames = "tool-connector-action";
-                    var actionNodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression;
+                    var actionNodeFactoryMethod = BallerinaASTFactory.createActionInvocationExpression;
                     self.addToToolGroup(toolGroupID, action, actionNodeFactoryMethod, actionIcon);
+                });
+
+                connector.on('connector-action-removed', function (action) {
+                    var toolGroupID = package.getName() + "-tool-group";
+                    var toolId = action.getActionName();
+                    self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
                 });
             });
 
@@ -170,7 +219,8 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     functionDef.nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationStatement;
                 }
                 functionDef.meta = {
-                    functionName: packageName + ":" + functionDef.getName()
+                    functionName: functionDef.getName(),
+                    packageName: packageName
                 };
                 functionDef.icon = "images/tool-icons/function.svg";
                 functionDef.title = functionDef.getName();
@@ -205,7 +255,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     var actionIcon = "images/tool-icons/action.svg";
                     action.classNames = "tool-connector-action";
                     action.setId(action.getId());
-                    var actionNodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression;
+                    var actionNodeFactoryMethod = BallerinaASTFactory.createActionInvocationExpression;
                     self.addToToolGroup(toolGroupID, action, actionNodeFactoryMethod, actionIcon);
 
                     action.on('name-modified', function (newName, oldName) {
@@ -213,6 +263,13 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     });
 
                 });
+
+                connector.on('connector-action-removed', function (action) {
+                    var toolGroupID = package.getName() + "-tool-group";
+                    var toolId = action.getActionName();
+                    self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
+                });
+
             }, this);
 
             package.on('function-defs-added', function (functionDef) {
@@ -238,6 +295,13 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
             package.on('function-def-removed', function (functionDef) {
                 var toolGroupID = package.getName() + "-tool-group";
                 var toolId = functionDef.getFunctionName();
+                self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
+            });
+
+            // registering event handler for 'connector-def-removed' event
+            package.on('connector-def-removed', function (connectorDef) {
+                var toolGroupID = package.getName() + "-tool-group";
+                var toolId = connectorDef.getConnectorName();
                 self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
             });
 

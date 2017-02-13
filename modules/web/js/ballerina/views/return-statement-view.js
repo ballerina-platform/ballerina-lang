@@ -91,6 +91,9 @@ define(['lodash', 'log', './../ast/return-statement', './simple-statement-view',
         };
 
         ReturnStatementView.prototype.updateReturnExpression = function (newReturnExpression, propertyKey) {
+            if(!newReturnExpression.startsWith("return")){
+                newReturnExpression = "return "+newReturnExpression;
+            }
             this._model.setReturnExpression(newReturnExpression);
             var displayText = this._model.getReturnExpression();
             this.renderDisplayText(displayText);

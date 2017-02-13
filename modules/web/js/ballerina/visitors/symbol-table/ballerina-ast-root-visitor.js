@@ -38,6 +38,8 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
             this._model.on('child-removed', function (child) {
                 if (BallerinaASTFactory.isFunctionDefinition(child)) {
                     this.removeFunctionDefinition(child);
+                }else if(BallerinaASTFactory.isConnectorDefinition(child)){
+                    this.removeConnectorDefinition(child);
                 }
             }, this);
         };
@@ -150,6 +152,13 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
                     });
                 }
             }, this);
+
+            connectorDefinition.on('child-removed', function (child) {
+                if (BallerinaASTFactory.isConnectorAction(child)) {
+                    self.removeConnectorActionDefinition(connectorDefinition, child);
+                }
+            }, this);
+
         };
 
         /**
@@ -158,6 +167,23 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
          */
         BallerinaASTRootVisitor.prototype.removeFunctionDefinition = function (functionDef) {
             this.getPackage().removeFunctionDefinition(functionDef);
+        };
+
+        /**
+         * remove given connector definition from the package object
+         * @param {Object} connectorDef - connector definition to be removed
+         */
+        BallerinaASTRootVisitor.prototype.removeConnectorDefinition  = function (connectorDef) {
+            this.getPackage().removeConnectorDefinition(connectorDef);
+        };
+
+        /**
+         * remove given connector action definition from the package object
+         * @param {Object} connectorDef - connector definition
+         * @param connectorActionDef - connector action definition to be removed
+         */
+        BallerinaASTRootVisitor.prototype.removeConnectorActionDefinition = function (connectorDef, connectorActionDef) {
+            this.getPackage().getConnectorByName(connectorDef.getConnectorName()).removeAction(connectorActionDef);
         };
 
         /**

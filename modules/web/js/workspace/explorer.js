@@ -142,6 +142,7 @@ define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-cli
             this._$parent_el.append(explorerContainer);
 
             activateBtn.on('click', function(e){
+                $(this).tooltip('hide');
                 e.preventDefault();
                 e.stopPropagation();
                 self.application.commandManager.dispatch(_.get(self._options, 'command.id'));

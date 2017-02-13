@@ -25,7 +25,9 @@ define(['lodash', 'jquery', 'log', './compound-statement-view', './../ast/while-
          * @param {Object} args.container - The HTML container to which the view should be added to.
          * @param {Object} args.parent - Parent View, which in this case the parent model
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+         * @class WhileStatementView
          * @constructor
+         * @extends CompoundStatementView
          */
         var WhileStatementView = function (args) {
             _.set(args, "viewOptions.title.text", "While");

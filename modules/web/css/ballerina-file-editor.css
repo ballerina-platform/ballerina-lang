@@ -13,6 +13,10 @@
     height: 100%;
 }
 
+.source-view-container {
+    height: 100%;
+}
+
 .canvas-container {
     padding-left: 20px;
     padding-top: 20px;
@@ -22,6 +26,11 @@
     min-height: 1000px;
     overflow: hidden;
     position: relative;
+}
+
+.canvas-top-controls-container{
+    float: left;
+    width: 100%;
 }
 
 .canvas-heading-new h4{
@@ -87,7 +96,7 @@
 }
 
 .btn-icon {
-    opacity: 0.5;
+    opacity: 0.8;
 }
 
 .btn-icon:hover {
@@ -192,6 +201,9 @@
     color: #fff;
 }
 
+.import-packages-pane {
+    overflow: visible;
+}
 /** Resource parameter CSS **/
 
 .resource-parameters-main-action-wrapper {
@@ -475,6 +487,32 @@
 }
 
 /** End of Return type CSS **/
+
+/** typeahead CSS **/
+.twitter-typeahead {
+    display: inline !important;
+}
+
+.tt-hint {
+    width: 276px;
+    color: #999;
+    margin-top: -1px;
+}
+
+.tt-menu {
+    width: 276px;
+    margin-top: 6px;
+    margin-left: 2px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 10px rgba(0,0,0,.2);
+}
+
+.tt-suggestion {
+    padding: 3px 7px;
+}
+/** End of typeahead CSS **/
 
 /** Struct view CSS **/
 .struct-content-wrapper {
