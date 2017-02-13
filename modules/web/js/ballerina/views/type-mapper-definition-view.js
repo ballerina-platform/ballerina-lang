@@ -17,9 +17,9 @@
  */
 define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-definition-view',
         'ballerina/ast/ballerina-ast-factory', './svg-canvas','typeMapper','./input-struct-view','./output-struct-view','./type-mapper-statement-view',
-        './type-mapper-block-statement-view'],
+        './type-mapper-block-statement-view','constants'],
     function (_, log,BallerinaView, VariablesView, TypeStructDefinition, BallerinaASTFactory, SVGCanvas,
-              TypeMapper,InputStructView,OutputStructView,TypeMapperStatement,TypeMapperBlockStatement) {
+              TypeMapper,InputStructView,OutputStructView,TypeMapperStatement,TypeMapperBlockStatement,Constants) {
         var TypeMapperDefinitionView = function (args) {
             SVGCanvas.call(this, args);
 
@@ -66,7 +66,8 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
          */
         TypeMapperDefinitionView.prototype.render = function (diagramRenderingContext) {
             this.setDiagramRenderingContext(diagramRenderingContext);
-            var selectedSourceStruct = undefined;
+            var selectedSourceStruct = TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION;
+            var selectedTargetStruct = TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION;
 
             // Draws the outlying body of the function.
             this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().type.toLowerCase(),
@@ -148,86 +149,37 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             $(currentContainer).find("#" + sourceId).change(function () {
                 var sourceDropDown = $("#" + sourceId + " option:selected");
                 var selectedArrayIndex = sourceDropDown.val();
-                var selectedStructNameForSource = sourceDropDown.text();
-                selectedSourceStruct = selectedStructNameForSource;
-                self.getModel().addResourceParameterChild(selectedStructNameForSource,"y");
+                var selectedNewStructNameForSource = sourceDropDown.text();
+                self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = selectedSourceStruct;
 
-
-
-
-//                self.getModel().removeTypeStructDefinition("SOURCE");
-//                var schema = predefinedStructs[selectedArrayIndex];
-//
-//                if (selectedStructNameForSource != self.getModel().getSelectedStructNameForTarget()) {
-//                    if (!self.getModel().getSelectedStructNameForSource()) {
-//                        self.getModel().setSelectedStructNameForSource(selectedStructNameForSource);
-//                    }
-//
-//                    var leftTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
-//                    leftTypeStructDef.setTypeStructName(schema.getStructName());
-//                    leftTypeStructDef.setSelectedStructName(self.getModel().getSelectedStructNameForSource());
-//                    leftTypeStructDef.setIdentifier("y");
-//                    leftTypeStructDef.setSchema(schema);
-//                    leftTypeStructDef.setCategory("SOURCE");
-//                    leftTypeStructDef.setOnConnectInstance(self.onAttributesConnect);
-//                    leftTypeStructDef.setOnDisconnectInstance(self.onAttributesDisConnect);
-//                    self.getModel().addChild(leftTypeStructDef);
-//                    self.getModel().setSelectedStructNameForSource(selectedStructNameForSource);
-//                } else {
-//                    //todo set the selectedvalue directly ro combobox using name without iterating
-//                    $("#" + sourceId).val(self.getModel().getSelectedStructIndex(predefinedStructs,
-//                        self.getModel().getSelectedStructNameForSource()));
-//                }
+                if(selectedNewStructNameForSource != selectedTargetStruct){
+                    selectedSourceStruct = selectedNewStructNameForSource;
+                    if(selectedNewStructNameForSource != "--Select--"){
+                        self.getModel().removeResourceParameter();
+                        self.getModel().addResourceParameterChild(selectedNewStructNameForSource,"y");
+                    }
+                }else{
+                    self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id,selectedSourceStruct);
+                }
             });
 
             $(currentContainer).find("#" + targetId).change(function () {
                 var targetDropDown = $("#" + targetId + " option:selected");
                 var selectedArrayIndex = targetDropDown.val();
                 var selectedStructNameForTarget = targetDropDown.text();
-                self.getModel().addReturnTypeChild(selectedStructNameForTarget,"x");
-                self.getModel().fillReturnStatement("x");
-                self.getModel().fillVariableDefStatement(selectedStructNameForTarget,"x");
+                self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = selectedTargetStruct;
 
-
-
-
-//                self.getModel().setReturnStatementExpression(selectedStructNameForTarget);
-//                self.getModel().addTypeStructDefinitionChild(selectedStructNameForTarget,"x",self.onAttributesConnect,self.onAttributesDisConnect);
-//                self.getModel().addVariableDeclarationChild(selectedStructNameForTarget,"x");
-//                self.getModel().addReturnStatementChild("x");
-
-
-//                self.getModel().removeTypeStructDefinition("TARGET");
-//                var schema = predefinedStructs[selectedArrayIndex];
-//
-//                if (self.getModel().getSelectedStructNameForSource() != selectedStructNameForTarget) {
-//                    if (!self.getModel().getSelectedStructNameForTarget()) {
-//                        self.getModel().setSelectedStructNameForTarget(selectedStructNameForTarget);
-//                    }
-//
-//                    var rightTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
-//                    rightTypeStructDef.setTypeStructName(schema.getStructName());
-//                    rightTypeStructDef.setSelectedStructName(self.getModel().getSelectedStructNameForTarget());
-//                    rightTypeStructDef.setIdentifier("x");
-//                    rightTypeStructDef.setSchema(schema);
-//                    rightTypeStructDef.setCategory("TARGET");
-//                    rightTypeStructDef.setOnConnectInstance(self.onAttributesConnect);
-//                    rightTypeStructDef.setOnDisconnectInstance(self.onAttributesDisConnect);
-//                    self.getModel().addChild(rightTypeStructDef);
-//                    self.getModel().setSelectedStructNameForTarget(selectedStructNameForTarget);
-//
-//                    var newVariableDeclaration = BallerinaASTFactory.createVariableDeclaration();
-//                    newVariableDeclaration.setType(schema.getStructName());
-//                    newVariableDeclaration.setIdentifier("x");
-//                    self.getModel().addChild(newVariableDeclaration);
-//
-//                    var newReturnStatement = BallerinaASTFactory.createReturnStatement();
-//                    newReturnStatement.setReturnExpression("x");
-//                    self.getModel().addChild(newReturnStatement);
-//                } else {
-//                    $("#" + targetId).val(self.getModel().getSelectedStructIndex(predefinedStructs,
-//                        self.getModel().getSelectedStructNameForTarget()));
-//                }
+                if(selectedStructNameForTarget != selectedSourceStruct){
+                    selectedTargetStruct = selectedStructNameForTarget;
+                    if(selectedStructNameForTarget != "--Select--"){
+                        self.getModel().removeReturnType();
+                        self.getModel().addReturnTypeChild(selectedStructNameForTarget,"x");
+                        self.getModel().fillReturnStatement("x");
+                        self.getModel().fillVariableDefStatement(selectedStructNameForTarget,"x");
+                    }
+                }else{
+                    self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id,selectedTargetStruct);
+                }
             });
             this.getModel().accept(this);
 
