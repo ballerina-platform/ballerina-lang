@@ -310,6 +310,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
             bLangPackage.consts = this.constList.toArray(new ConstDef[0]);
             bLangPackage.importPackages = this.importPkgMap.values().toArray(new ImportPackage[0]);
             bLangPackage.typeLattice = this.typeLattice;
+            bLangPackage.ballerinaFiles = ballerinaFileList.toArray(new BallerinaFile[0]);
             return bLangPackage;
         }
     }
