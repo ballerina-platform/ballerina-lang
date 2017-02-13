@@ -33,8 +33,9 @@ public class JMSClientTest {
     private SymScope globalScope;
 
 
-    @BeforeClass public void setup() {
-        bFile = ParserUtils.parseBalFile("samples/jmsClient.bal");
+    @BeforeClass
+    public void setup() {
+        bFile = ParserUtils.parseBalFile("samples/jmsClientConnectorTest.bal");
         globalScope = new SymScope(SymScope.Name.GLOBAL);
         BuiltInNativeConstructLoader.loadConstructs();
     }

@@ -104,7 +104,7 @@ public class Send extends AbstractJMSAction {
             }
             propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, messageType);
         } else if (messageType.equalsIgnoreCase(JMSConstants.OBJECT_MESSAGE_TYPE)) {
-            message = JMSMessageUtils.toStorableMessage(bMessage);
+            message = JMSMessageUtils.toSerializableCarbonMessage(bMessage);
             propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.OBJECT_MESSAGE_TYPE);
         } else if (messageType.equalsIgnoreCase(JMSConstants.MAP_MESSAGE_TYPE)) {
             BValue bValue = properties.get(new BString(JMSConstants.MAP_DATA));

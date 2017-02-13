@@ -49,7 +49,8 @@ public class ClientConnector extends AbstractNativeConnector {
         super(enclosingScope);
     }
 
-    @Override public boolean init(BValue[] bValueRefs) {
+    @Override
+    public boolean init(BValue[] bValueRefs) {
         if (bValueRefs != null && bValueRefs.length == 2 && !bValueRefs[0].stringValue().equals("") &&
             !bValueRefs[1].stringValue().equals("")) {
             initialContextFactory = bValueRefs[0].stringValue();
@@ -61,7 +62,8 @@ public class ClientConnector extends AbstractNativeConnector {
     }
 
 
-    @Override public AbstractNativeConnector getInstance() {
+    @Override
+    public AbstractNativeConnector getInstance() {
         return new ClientConnector(symbolScope);
     }
 
