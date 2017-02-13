@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.carbon.connector.framework.websocket.SessionManager;
+import org.wso2.carbon.connector.framework.WebSocketSessionManager;
 import org.wso2.carbon.messaging.BinaryCarbonMessage;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -68,7 +68,7 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
                     String sessionId =
                             (String) statusMessage.getProperty(org.wso2.carbon.transport.
                                                                        http.netty.common.Constants.CHANNEL_ID);
-                    SessionManager.getInstance().removeSession(uri, sessionId);
+                    WebSocketSessionManager.getInstance().removeSession(uri, sessionId);
                     return onCloseMessage;
                 } else if (statusMessage.getStatus().equals(org.wso2.carbon.messaging.Constants.STATUS_OPEN)) {
                     String connection = (String) cMsg.getProperty(
@@ -76,17 +76,17 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
                     String upgrade = (String) cMsg.getProperty(
                             org.wso2.carbon.transport.http.netty.common.Constants.UPGRADE);
 
-                /* If the connection is WebSocket upgrade, this block will be executed */
-                    if (connection != null && upgrade != null && connection.equalsIgnoreCase(
-                            org.wso2.carbon.transport.http.netty.common.Constants.UPGRADE) &&
-                            upgrade.equalsIgnoreCase(
+                    /* If the connection is WebSocket upgrade, this block will be executed */
+                    if (connection != null && upgrade != null &&
+                            connection.equalsIgnoreCase(org.wso2.carbon.transport.http.netty.common.Constants.UPGRADE)
+                            && upgrade.equalsIgnoreCase(
                                     org.wso2.carbon.transport.http.netty.common.Constants.WEBSOCKET_UPGRADE)) {
-                        SessionManager sessionManager = SessionManager.getInstance();
+                        WebSocketSessionManager webSocketSessionManager = WebSocketSessionManager.getInstance();
                         Session session = (Session) cMsg.getProperty(org.wso2.carbon.transport.http.netty.
                                                                              common.Constants.WEBSOCKET_SESSION);
                         String uri = (String) cMsg.getProperty(org.wso2.carbon.transport.
                                                                        http.netty.common.Constants.TO);
-                        sessionManager.add(uri, session);
+                        webSocketSessionManager.add(uri, session);
 
                         return onOpenMessage;
                     }

@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
-import org.wso2.carbon.connector.framework.websocket.SessionManager;
+import org.wso2.carbon.connector.framework.WebSocketSessionManager;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 
 import javax.websocket.Session;
@@ -55,13 +55,13 @@ public class SendText extends AbstractNativeFunction {
             if (context.getCarbonMessage().getProperty(Constants.CHANNEL_ID) != null) {
                 String sessionId = (String) context.getCarbonMessage().getProperty(Constants.CHANNEL_ID);
                 String uri = (String) context.getCarbonMessage().getProperty(Constants.TO);
-                SessionManager sessionManager = SessionManager.getInstance();
-                session = sessionManager.getSession(uri, sessionId);
+                WebSocketSessionManager webSocketSessionManager = WebSocketSessionManager.getInstance();
+                session = webSocketSessionManager.getSession(uri, sessionId);
                 String text = getArgument(context, 1).stringValue();
                 session.getBasicRemote().sendText(text);
             }
-        } catch (Throwable t) {
-            throw new BallerinaException("Cannot send the message");
+        } catch (Throwable e) {
+            throw new BallerinaException("Cannot send the message. Error occurred.");
         }
         return VOID_RETURN;
     }
