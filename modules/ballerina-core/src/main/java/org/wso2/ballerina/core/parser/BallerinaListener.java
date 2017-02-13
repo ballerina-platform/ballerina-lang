@@ -628,6 +628,16 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitIfElseStatement(BallerinaParser.IfElseStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#ifClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterIfClause(BallerinaParser.IfClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#ifClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitIfClause(BallerinaParser.IfClauseContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#elseIfClause}.
 	 * @param ctx the parse tree
 	 */

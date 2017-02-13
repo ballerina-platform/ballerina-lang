@@ -10,7 +10,7 @@ import ballerina.lang.system.log;
 @Service(description = "Iterates through the message")
 service IteratorService {
 
-  http:HttpConnector stockEP = new http:HttpConnector("http://localhost:8080/exchange/", {"timeOut" : 30000});
+  http:ClientConnector stockEP = new http:ClientConnector("http://localhost:8080/exchange/", {"timeOut" : 30000});
 
   @POST
   @Consumes("application/json")
