@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
  */
 @BallerinaConnector(
         packageName = "ballerina.net.jms",
-        connectorName = JMSConnector.CONNECTOR_NAME,
+        connectorName = ClientConnector.CONNECTOR_NAME,
         args = { @Argument(name = "initialContextFactory", type = TypeEnum.STRING),
                  @Argument(name = "jndiProviderUrl", type = TypeEnum.STRING) })
 @Component(
@@ -38,14 +38,14 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
         immediate = true,
         service = AbstractNativeConnector.class)
 
-public class JMSConnector extends AbstractNativeConnector {
+public class ClientConnector extends AbstractNativeConnector {
 
-    public static final String CONNECTOR_NAME = "JMSConnector";
+    public static final String CONNECTOR_NAME = "ClientConnector";
 
     private String initialContextFactory;
     private String jndiProviderUrl;
 
-    public JMSConnector(SymbolScope enclosingScope) {
+    public ClientConnector(SymbolScope enclosingScope) {
         super(enclosingScope);
     }
 
@@ -62,14 +62,14 @@ public class JMSConnector extends AbstractNativeConnector {
 
 
     @Override public AbstractNativeConnector getInstance() {
-        return new JMSConnector(symbolScope);
+        return new ClientConnector(symbolScope);
     }
 
-    public String getInitialContextFactory() {
+    String getInitialContextFactory() {
         return initialContextFactory;
     }
 
-    public String getJndiProviderUrl() {
+    String getJndiProviderUrl() {
         return jndiProviderUrl;
     }
 

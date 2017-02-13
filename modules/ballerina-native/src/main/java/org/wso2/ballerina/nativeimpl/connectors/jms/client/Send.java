@@ -41,7 +41,6 @@ import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -50,7 +49,7 @@ import java.util.Map;
 @BallerinaAction(
         packageName = "ballerina.net.jms",
         actionName = "send",
-        connectorName = JMSConnector.CONNECTOR_NAME,
+        connectorName = ClientConnector.CONNECTOR_NAME,
         args = { @Argument(name = "connector", type = TypeEnum.CONNECTOR),
                  @Argument(name = "connectionFactoryName", type = TypeEnum.STRING),
                  @Argument(name = "destinationName", type = TypeEnum.STRING),
@@ -70,7 +69,7 @@ public class Send extends AbstractJMSAction {
         BConnector bConnector = (BConnector) getArgument(context, 0);
 
         Connector connector = bConnector.value();
-        if (!(connector instanceof JMSConnector)) {
+        if (!(connector instanceof ClientConnector)) {
             throw new BallerinaException("Need to use a JMSConnector as the first argument",
                                          context);
         }
@@ -87,7 +86,7 @@ public class Send extends AbstractJMSAction {
         Map<String, String> propertyMap = new HashMap<>();
 
         //Getting the map of properties.
-        BMap<BValue, BValue> properties = (BMap) getArgument(context, 6);
+        BMap properties = (BMap) getArgument(context, 6);
 
         //Creating message content according to the message type.
         String messageType = getArgument(context, 4).stringValue();
@@ -113,10 +112,9 @@ public class Send extends AbstractJMSAction {
                 message = new MapCarbonMessage();
                 MapCarbonMessage mapCarbonMessage = (MapCarbonMessage) message;
                 if (bValue instanceof BMap) {
-                    BMap<BValue, BValue> mapData = (BMap<BValue, BValue>) bValue;
-                    Iterator<BValue> iterator = mapData.keySet().iterator();
-                    while (iterator.hasNext()) {
-                        BValue key = iterator.next();
+                    BMap mapData = (BMap) bValue;
+                    for (Object o : mapData.keySet()) {
+                        BValue key = (BValue) o;
                         BValue value = mapData.get(key);
                         if (key instanceof BString && value instanceof BString) {
                             mapCarbonMessage.setValue(key.stringValue(), value.stringValue());
@@ -136,9 +134,9 @@ public class Send extends AbstractJMSAction {
 
         //Getting necessary values from the connector instance.
         propertyMap.put(JMSConstants.NAMING_FACTORY_INITIAL_PARAM_NAME,
-                        ((JMSConnector) connector).getInitialContextFactory());
+                        ((ClientConnector) connector).getInitialContextFactory());
         propertyMap.put(JMSConstants.PROVIDER_URL_PARAM_NAME,
-                        ((JMSConnector) connector).getJndiProviderUrl());
+                        ((ClientConnector) connector).getJndiProviderUrl());
 
         //Getting necessary parameter values.
         propertyMap.put(JMSConstants.CONNECTION_FACTORY_JNDI_PARAM_NAME,
