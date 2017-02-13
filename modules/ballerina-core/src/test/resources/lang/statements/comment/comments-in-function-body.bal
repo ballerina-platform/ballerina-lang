@@ -1,6 +1,6 @@
-function testCommentStmt(){
-    int a = 10;
+function testCommentStmt() {
     //comment1
-    int b = 20;
+    int a = 10;
     //comment2
+    int b = 20;
 }

@@ -28,10 +28,10 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 /**
  * Test class to test the comment statement in ballerina.
  * function testCommentStmt() {
- *    int a = 10;
  *    //comment1
- *    int b = 20;
+ *    int a = 10;
  *    //comment2
+ *    int b = 20;
  *  }
  */
 
@@ -43,10 +43,10 @@ public class CommentStmtTest {
         Statement[] statements = bFile.getFunctions()[0].getCallableUnitBody().getStatements();
         Assert.assertNotNull(statements, "statements not found");
         Assert.assertEquals(statements.length, 4, "statement count mismatched");
-        Assert.assertTrue(statements[1] instanceof CommentStmt, "Not a comment statement");
-        Assert.assertTrue(statements[3] instanceof CommentStmt, "Not a comment statement");
-        Assert.assertEquals(((CommentStmt) statements[1]).getComment(), "//comment1", "comment text mismatched");
-        Assert.assertEquals(((CommentStmt) statements[3]).getComment(), "//comment2", "comment text mismatched");
+        Assert.assertTrue(statements[0] instanceof CommentStmt, "1st statement is not a comment statement");
+        Assert.assertTrue(statements[2] instanceof CommentStmt, "3rd statement is not a comment statement");
+        Assert.assertEquals(((CommentStmt) statements[0]).getComment(), "//comment1", "comment text mismatched");
+        Assert.assertEquals(((CommentStmt) statements[2]).getComment(), "//comment2", "comment text mismatched");
     }
 
     @Test(description = "Test the error message when a comment is not inside a function block",
