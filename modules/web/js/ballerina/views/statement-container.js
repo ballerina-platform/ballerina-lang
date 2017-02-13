@@ -61,14 +61,13 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         _.set(this._viewOptions, 'height',  _.get(this._viewOptions, 'height', 260));
         _.set(this._viewOptions, 'minHeight',  _.get(this._viewOptions, 'minHeight', 260)); // min height of the BBox
         // left, right padding between an inner statement and container's BBox edges
-        _.set(this._viewOptions, 'leftPadding',  _.get(this._viewOptions, 'leftPadding', 0));
-        _.set(this._viewOptions, 'rightPadding',  _.get(this._viewOptions, 'rightPadding', 0));
+        _.set(this._viewOptions, 'padding.left',  _.get(this._viewOptions, 'padding.left', 0));
+        _.set(this._viewOptions, 'padding.right',  _.get(this._viewOptions, 'padding.right', 0));
 
         _.set(this._viewOptions, 'offset',  _.get(this._viewOptions, 'offset', {top: 100, bottom: 100}));
         _.set(this._viewOptions, 'gap',  _.get(this._viewOptions, 'gap', 10));
 
         this._topCenter =  _.get(this._viewOptions, 'topCenter').clone();
-        this._width =  _.get(this._viewOptions, 'width');
         this._bottomCenter =  _.get(this._viewOptions, 'bottomCenter').clone();
         // this._gap =  _.get(this._viewOptions, 'gap', 30);
         this._gap = 30;
@@ -76,7 +75,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this._rootGroup = D3Utils.group(this._containerD3)
             .classed(_.get(this._viewOptions, 'cssClass.group'), true);
         this._statementViewFactory = new StatementViewFactory();
-        this.getBoundingBox().fromTopCenter(this._topCenter, this._width,
+        this.getBoundingBox().fromTopCenter(this._topCenter, _.get(this._viewOptions, 'width'),
             this._bottomCenter.absDistInYFrom(this._topCenter));
         // a flag to indicate a whole container move - so that we can avoid resizing on container move
         this.isOnWholeContainerMove = false;
@@ -266,8 +265,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
     StatementContainerView.prototype._updateContainerWidth = function (newWidth) {
         var viewOptions = this._viewOptions;
-        this.getBoundingBox().zoomWidth(viewOptions.leftPadding + Math.max(newWidth, viewOptions.minWidth) +
-                                        viewOptions.rightPadding);
+        var padding = viewOptions.padding;
+        this.getBoundingBox().zoomWidth(padding.left + Math.max(newWidth, viewOptions.minWidth) + padding.right);
     };
 
     StatementContainerView.prototype.setLastStatementView = function(lastStatementView){
@@ -299,9 +298,10 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
     StatementContainerView.prototype.render = function (diagramRenderingContext) {
         this.diagramRenderingContext = diagramRenderingContext;
         var self = this;
-        this._mainDropZone = D3Utils.rect(this._topCenter.x() - this._width/2, this._topCenter.y(), this._width,
-                this._bottomCenter.absDistInYFrom(this._topCenter), 0, 0, this._rootGroup)
-                .classed( _.get(this._viewOptions, 'cssClass.mainDropZone'), true);
+        this._mainDropZone = D3Utils.rect((this._topCenter.x() - (this._viewOptions.width / 2)), this._topCenter.y(),
+                                          this._viewOptions.width, this._bottomCenter.absDistInYFrom(this._topCenter),
+                                          0, 0, this._rootGroup)
+                                    .classed( _.get(this._viewOptions, 'cssClass.mainDropZone'), true);
 
         // adjust drop zone height on bottom edge moved
         var boundingBox = this.getBoundingBox();
