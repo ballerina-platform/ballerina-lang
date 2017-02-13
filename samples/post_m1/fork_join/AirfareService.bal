@@ -8,8 +8,8 @@ import ballerina.net.http;
 @Service(description = "Airfare service")
 service AirfareProviderService {
 
-    http:HttpConnector abcAirlineEP = new http:HttpConnector("http://localhost:8080/ABCAirline");
-    http:HttpConnector xyzAirlineEP = new http:HttpConnector("http://localhost:8080/XYZAirline");
+    http:ClientConnector abcAirlineEP = new http:ClientConnector("http://localhost:8080/ABCAirline");
+    http:ClientConnector xyzAirlineEP = new http:ClientConnector("http://localhost:8080/XYZAirline");
 
     xml airfareAggregatedResponse;
 
@@ -31,7 +31,7 @@ service AirfareProviderService {
                 to = xml:get(payload, "reservationInfo/to");
                 date = xml:get(payload, "reservationInfo/date");
                 query = "?departure_city=" + from + "&destination_city=" + to + "&date=" + date;
-                response = http:HttpConnector.sendGet (abcAirlineEP, query, m);
+                response = http:ClientConnector.sendGet (abcAirlineEP, query, m);
                 reply response;
             }
 
@@ -48,7 +48,7 @@ service AirfareProviderService {
                 to = xml:get(payload, "reservationInfo/to");
                 date = xml:get(payload, "reservationInfo/date");
                 query = "?From=" + from + "&To=" + to + "&Date=" + date;
-                response = http:HttpConnector.sendGet (xyzAirlineEP, query, m);
+                response = http:ClientConnector.sendGet (xyzAirlineEP, query, m);
                 reply response;
             }
         } join (all) (message[] airfareResponses) {

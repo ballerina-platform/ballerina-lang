@@ -863,6 +863,20 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterIfClause(BallerinaParser.IfClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startIfClause(getCurrentLocation(ctx));
+        }
+    }
+
+    @Override
+    public void exitIfClause(BallerinaParser.IfClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.addIfClause();
+        }
+    }
+
+    @Override
     public void enterElseIfClause(BallerinaParser.ElseIfClauseContext ctx) {
         if (ctx.exception == null) {
             modelBuilder.startElseIfClause(getCurrentLocation(ctx));

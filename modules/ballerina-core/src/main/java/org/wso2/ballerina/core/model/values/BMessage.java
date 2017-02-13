@@ -46,6 +46,8 @@ public final class BMessage implements BRefType<CarbonMessage> {
      */
     public BMessage() {
         this(new DefaultCarbonMessage());
+        // Set an empty string to the message
+        this.setMessageDataSource("");
         setAlreadyRead(true);
     }
 

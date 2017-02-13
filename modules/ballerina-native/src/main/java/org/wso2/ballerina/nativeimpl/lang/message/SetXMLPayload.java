@@ -27,6 +27,8 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.nativeimpl.lang.utils.Constants;
+import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.MessageUtil;
 
 /**
  * Set the payload of the Message as a XML.
@@ -48,7 +50,9 @@ public class SetXMLPayload extends AbstractNativeFunction {
         BMessage msg = (BMessage) getArgument(context, 0);
         BXML payload = (BXML) getArgument(context, 1);
 
-        // Setting the payload
+        // Clone the message without content
+        CarbonMessage cmsg = MessageUtil.cloneCarbonMessageWithOutData(msg.value());
+        msg.setValue(cmsg);
         msg.setMessageDataSource(payload);
         msg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_XML);
         return VOID_RETURN;

@@ -7,21 +7,21 @@ import ballerina.lang.json;
 @BasePath ("/ecommerceservice")
 service Ecommerce {
 
-    http:HTTPConnector productsService = create http:HTTPConnector("http://localhost:9090");
+    http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
 
 
     @GET
     @Path ("/products/{productId}")
     resource productsInfo (message m, @PathParam("productId") string prodId)  {
         string reqPath = "/productsservice/" + prodId;
-        message response = http:HTTPConnector.get(productsService, reqPath, m);
+        message response = http:ClientConnector.get(productsService, reqPath, m);
         reply response;
     }
 
     @POST
     @Path ("/products")
     resource productMgt (message m) {
-        message response = http:HTTPConnector.post(productsService, "/productsservice", m);
+        message response = http:ClientConnector.post(productsService, "/productsservice", m);
         reply response;
     }
 
@@ -29,32 +29,32 @@ service Ecommerce {
     @GET
     @Path ("/orders")
     resource ordersInfo (message m) {
-        http:HTTPConnector productsService = create http:HTTPConnector("http://localhost:9090");
-        message response = http:HTTPConnector.get(productsService, "/orderservice", m);
+        http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
+        message response = http:ClientConnector.get(productsService, "/orderservice", m);
         reply response;
     }
 
     @POST
     @Path ("/orders")
     resource ordersMgt (message m) {
-        http:HTTPConnector productsService = create http:HTTPConnector("http://localhost:9090");
-        message response = http:HTTPConnector.post(productsService, "/orderservice", m);
+        http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
+        message response = http:ClientConnector.post(productsService, "/orderservice", m);
         reply response;
     }
 
     @GET
     @Path ("/customers")
     resource customersInfo (message m) {
-        http:HTTPConnector productsService = create http:HTTPConnector("http://localhost:9090");
-        message response = http:HTTPConnector.get(productsService, "/customerservice", m);
+        http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
+        message response = http:ClientConnector.get(productsService, "/customerservice", m);
         reply response;
     }
 
     @POST
     @Path ("/customers")
     resource customerMgt (message m) {
-        http:HTTPConnector productsService = create http:HTTPConnector("http://localhost:9090");
-        message response = http:HTTPConnector.post(productsService, "/customerservice", m);
+        http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
+        message response = http:ClientConnector.post(productsService, "/customerservice", m);
         reply response;
     }
 }
