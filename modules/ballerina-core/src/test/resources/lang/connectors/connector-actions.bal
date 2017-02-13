@@ -25,6 +25,12 @@ connector TestConnector(string param1, string param2, int param3) {
     }
 }
 
+connector EmptyParamConnector() {
+    action emptyParamConnAction (EmptyParamConnector emptyParamConnector, string s) (string) {
+        return s;
+    }
+}
+
 
 function testAction1() (boolean) {
     TestConnector testConnector = create TestConnector("MyParam1", "MyParam2", 5);
@@ -65,10 +71,15 @@ function testAction4(string inputParam) (string) {
     return value;
 }
 
-//function testAction5(string functionArg1, string functionArg2, int functionArg3, string functionArg4) (string, string, int) {
-//    TestConnector testConnector = create TestConnector(functionArg1, functionArg2, functionArg3);
-//    boolean value;
-//
-//    value = TestConnector.action5(testConnector, functionArg4);
-//    return value;
-//}
+function testAction5(string functionArg1, string functionArg2, int functionArg3, string functionArg4) (string s1, string s2, int i) {
+    TestConnector testConnector = create TestConnector(functionArg1, functionArg2, functionArg3);
+
+    s1, s2, i = TestConnector.action5(testConnector, functionArg4);
+    return;
+}
+
+function testEmptyParamAction(string inputParam) (string) {
+    EmptyParamConnector emptyParamConector = create EmptyParamConnector();
+    string s = EmptyParamConnector.emptyParamConnAction(emptyParamConector, inputParam);
+    return s;
+}
