@@ -64,6 +64,12 @@ public class SystemTest {
     }
 
     @Test
+    public void testSleep() {
+        BValueType[] args = {new BInteger(10000)};
+        Functions.invoke(bFile, "testSleep", args);
+    }
+
+    @Test
     public void testStringPrintAndPrintln() throws IOException {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {

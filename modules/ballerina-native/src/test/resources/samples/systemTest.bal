@@ -80,3 +80,7 @@ function testTimeFunctions() {
 function printNewline() {
     system:print("hello\n");
 }
+
+function testSleep(int timeoutv) {
+    system:sleep(timeoutv);
+}
