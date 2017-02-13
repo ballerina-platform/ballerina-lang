@@ -10,9 +10,9 @@ import ballerina.lang.system.log;
 @Service (tags = {"Holiday_details", "Holiday_packages"}, description = "Travelpedia flight, hotel and car rental services")
 service HolidayPackageService {
 
-  http:HttpConnector airlineEP = new http:HttpConnector("http://localhost:8080/airline/", {"timeOut" : 30000});
-  http:HttpConnector carRentalEP = new http:HttpConnector("http://localhost:8080/carrental/", {"timeOut" : 30000});
-  http:HttpConnector hotelEP = new http:HttpConnector("http://localhost:8080/hotel/", {"timeOut" : 30000});
+  http:ClientConnector airlineEP = new http:ClientConnector("http://localhost:8080/airline/", {"timeOut" : 30000});
+  http:ClientConnector carRentalEP = new http:ClientConnector("http://localhost:8080/carrental/", {"timeOut" : 30000});
+  http:ClientConnector hotelEP = new http:ClientConnector("http://localhost:8080/hotel/", {"timeOut" : 30000});
 
   @GET
   @Path ("/flights?depart={dateDepart}&return={dateReturn}&from={from}&to={to}")
