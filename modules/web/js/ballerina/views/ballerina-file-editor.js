@@ -676,13 +676,14 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 // Click event for adding an import.
                 $(addImportButton).click(function () {
                     // TODO : Validate new import package name.
-                    if (!_.isEmpty(importPackageTextBox.val().trim())) {
+                    var packageNameInput = importPackageTextBox.val().trim();
+                    if (!_.isEmpty(packageNameInput)) {
                         var currentASTRoot = self.getModel();
                         log.debug("Adding new import");
 
                         // Creating new import.
                         var newImportDeclaration = BallerinaASTFactory.createImportDeclaration();
-                        newImportDeclaration.setPackageName(importPackageTextBox.val());
+                        newImportDeclaration.setPackageName(packageNameInput);
 
                         try {
                             currentASTRoot.addImport(newImportDeclaration);
@@ -692,7 +693,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
                             // add import to the tool pallet
                             var newPackage = BallerinaEnvironment.searchPackage(newImportDeclaration.getPackageName())[0];
-                            self.toolPalette.getItemProvider().addImportToolGroup(newPackage);
+                            // Only add to tool palette if the user input exactly matches an existing package.
+                            if(newPackage.getName() === packageNameInput) {
+                                self.toolPalette.getItemProvider().addImportToolGroup(newPackage);
+                            }
 
                             // Updating current imports view.
                             addImportsToView(currentASTRoot, propertyPane.find(".imports-wrapper"));
