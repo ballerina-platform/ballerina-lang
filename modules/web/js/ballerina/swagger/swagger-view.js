@@ -52,7 +52,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
                        "ballerinaDefinition": self._generatedSource
                    }, [{name: "expectedType", value: "ballerina"}]);
 
-                   if(!response.error){
+                   if(!response.error && !response.errorMessage){
                        self._generatedNodeTree = JSON.parse(response.ballerinaDefinition);
                        self._clean = false;
                    }
@@ -101,7 +101,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
                    "ballerinaDefinition": content
                }, [{name: "expectedType", value: "ballerina"}]);
 
-               if (!response.error) {
+               if (!response.error && !response.errorMessage) {
                    generatedSwagger = response.swaggerDefinition;
                }
            }
