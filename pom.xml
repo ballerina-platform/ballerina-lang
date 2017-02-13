@@ -137,11 +137,6 @@
                 <version>${commons-vfs2.wso2.version}</version>
             </dependency>
             <dependency>
-                <groupId>commons-lang.wso2</groupId>
-                <artifactId>commons-lang</artifactId>
-                <version>${commons-lang.wso2.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
@@ -265,9 +260,7 @@
         <commons-io.version.range>[2.4.0, 2.5)</commons-io.version.range>
         <guava.version>18.0</guava.version>
         <guava.version.range>[18.0,19.0)</guava.version.range>
-
         <commons-vfs2.wso2.version>2.0-wso2v15</commons-vfs2.wso2.version>
-        <commons-lang.wso2.version>2.6.0.wso2v1</commons-lang.wso2.version>
 
         <carbon.messaging.version>2.1.1-SNAPSHOT</carbon.messaging.version>
         <carbon.messaging.package.import.version.range>[2.0.0, 3.0.0)</carbon.messaging.package.import.version.range>
@@ -281,8 +274,8 @@
 
         <!-- Package exports -->
         <netty.transport.package.export.version>${project.version}</netty.transport.package.export.version>
-        <serverconnector.framework.package.export.version>${project.version}
-        </serverconnector.framework.package.export.version>
+        <connector.framework.package.export.version>${project.version}
+        </connector.framework.package.export.version>
 
         <!-- Following two properties should be removed once the versions are added the wso2 parent pom CARBON-15729 -->
         <maven.checkstyle.plugin.version>2.17</maven.checkstyle.plugin.version>
