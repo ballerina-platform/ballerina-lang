@@ -443,12 +443,12 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         $("#" + this.placeHolderName).append(newFunc);
 
         _.forEach(func.parameters, function (parameter) {
-            var property = self.makeFunctionAttribute(newFunc, parameter.name, parameter.type, true);
+            var property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, true);
             self.addTarget(property, self);
         });
 
         _.forEach(func.returnType, function (parameter) {
-            var property = self.makeFunctionAttribute(newFunc, parameter.name, parameter.type, false);
+            var property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, false);
             self.addSource(property, self);
         });
 
@@ -623,7 +623,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             alignment = 'TD';
         }
 
-        graph.setGraph({ranksep: '10', rankdir: alignment, edgesep: '10', marginx: '20'});
+        graph.setGraph({ranksep: '10', rankdir: alignment, edgesep: '10', marginx: '0'});
         graph.setDefaultEdgeLabel(function () {
             return {};
         });
@@ -644,6 +644,28 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
             var edges = jsPlumbInstance.getAllConnections();
 
+            _.forEach(edges, function (edge) {
+                //todo : refactor hardcoded values and separators
+                var source = edge.source.id.split("_-_-_-")[0];
+                var target = edge.target.id.split("_-_-_-")[0];
+                var sourceId;
+                var targetId;
+
+                //checks whether target and source is a generic type or a function
+                if (source.includes("jstree-container")) {
+                    sourceId = source.split("___")[1] + "___" + source.split("___")[2];
+                } else {
+                    sourceId = source;
+                }
+
+                if (target.includes("jstree-container")) {
+                    targetId = target.split("___")[1] + "___" + target.split("___")[2];
+                } else {
+                    targetId = target;
+                }
+
+                graph.setEdge(sourceId, targetId);
+            });
             // calculate the layout (i.e. node positions)
             dagre.layout(graph);
 
