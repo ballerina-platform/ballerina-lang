@@ -37,12 +37,14 @@ import org.antlr.jetbrains.adaptor.psi.Trees;
 import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
+import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.FunctionReference;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameReference;
+import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.jetbrains.annotations.Nullable;
 
@@ -205,7 +207,21 @@ public class BallerinaPsiImplUtil {
         List<PsiDirectory> results = new ArrayList<>();
         Project project = identifierElement.getProject();
 
-        PsiElement parent = identifierElement.getParent();
+        PsiElement parent;
+
+        if (identifierElement.getParent().getParent() instanceof AliasNode) {
+            PsiElement temp = identifierElement.getParent().getParent();
+            while (temp != null && !(temp instanceof PackagePathNode)) {
+                temp = temp.getPrevSibling();
+            }
+            if (temp != null) {
+                parent = temp.getLastChild();
+            } else {
+                return new PsiDirectory[0];
+            }
+        } else {
+            parent = identifierElement.getParent();
+        }
 
         // This is used to store all the packages which need to resolve the current package.
         List<PsiElement> packages = new ArrayList<>();
@@ -505,9 +521,31 @@ public class BallerinaPsiImplUtil {
     }
 
     public static List<PsiElement> getAllConnectorsInCurrentPackage(PsiElement element) {
-        List<PsiElement> results = new ArrayList<>();
+//        List<PsiElement> results = new ArrayList<>();
         PsiElement parent = element.getParent();
-        List<PsiElement> connectors = getAllMatchingElementsFromPackage((PsiDirectory) parent,
+//        List<PsiElement> connectors = getAllMatchingElementsFromPackage((PsiDirectory) parent,
+//                "//connectorDefinition/connector/Identifier");
+//        if (connectors != null) {
+//            for (PsiElement connector : connectors) {
+//                results.add(connector);
+//            }
+//        }
+//
+//        List<PsiElement> nativeConnectors = getAllMatchingElementsFromPackage((PsiDirectory) parent,
+//                "//connectorDefinition/nativeConnector/Identifier");
+//        if (connectors != null) {
+//            for (PsiElement connector : nativeConnectors) {
+//                results.add(connector);
+//            }
+//        }
+//        return results;
+        return getAllConnectorsInPackage((PsiDirectory)parent);
+    }
+
+    public static List<PsiElement> getAllConnectorsInPackage(PsiDirectory packageElement) {
+        List<PsiElement> results = new ArrayList<>();
+//        PsiElement parent = element.getParent();
+        List<PsiElement> connectors = getAllMatchingElementsFromPackage(packageElement,
                 "//connectorDefinition/connector/Identifier");
         if (connectors != null) {
             for (PsiElement connector : connectors) {
@@ -515,7 +553,7 @@ public class BallerinaPsiImplUtil {
             }
         }
 
-        List<PsiElement> nativeConnectors = getAllMatchingElementsFromPackage((PsiDirectory) parent,
+        List<PsiElement> nativeConnectors = getAllMatchingElementsFromPackage(packageElement,
                 "//connectorDefinition/nativeConnector/Identifier");
         if (connectors != null) {
             for (PsiElement connector : nativeConnectors) {
@@ -525,10 +563,27 @@ public class BallerinaPsiImplUtil {
         return results;
     }
 
+
+
+
     public static List<PsiElement> getAllStructsInCurrentPackage(PsiElement element) {
-        List<PsiElement> results = new ArrayList<>();
+//        List<PsiElement> results = new ArrayList<>();
         PsiElement parent = element.getParent();
-        List<PsiElement> structs = getAllMatchingElementsFromPackage((PsiDirectory) parent,
+//        List<PsiElement> structs = getAllMatchingElementsFromPackage((PsiDirectory) parent,
+//                "//structDefinition/Identifier");
+//        if (structs != null) {
+//            for (PsiElement struct : structs) {
+//                results.add(struct);
+//            }
+//        }
+//        return results;
+        return getAllStructsInPackage((PsiDirectory) parent);
+    }
+
+    public static List<PsiElement> getAllStructsInPackage(PsiDirectory packageElement) {
+        List<PsiElement> results = new ArrayList<>();
+//        PsiElement parent = element.getParent();
+        List<PsiElement> structs = getAllMatchingElementsFromPackage(packageElement,
                 "//structDefinition/Identifier");
         if (structs != null) {
             for (PsiElement struct : structs) {
@@ -715,7 +770,7 @@ public class BallerinaPsiImplUtil {
         List<PsiElement> results = new ArrayList<>();
         if (context instanceof PsiFile) {
             Collection<? extends PsiElement> constantDefinitions =
-                    XPath.findAll(BallerinaLanguage.INSTANCE, context, "//constantDefinition");
+                    XPath.findAll(BallerinaLanguage.INSTANCE, context, "//constantDefinition/Identifier");
             for (PsiElement constantDefinition : constantDefinitions) {
                 if (!constantDefinition.getText().contains("IntellijIdeaRulezzz")) {
                     results.add(constantDefinition);
@@ -723,14 +778,14 @@ public class BallerinaPsiImplUtil {
             }
         } else {
             Collection<? extends PsiElement> variableDefinitions =
-                    XPath.findAll(BallerinaLanguage.INSTANCE, context, "//variableDefinitionStatement");
+                    XPath.findAll(BallerinaLanguage.INSTANCE, context, "//variableDefinitionStatement/Identifier");
             for (PsiElement variableDefinition : variableDefinitions) {
                 if (!variableDefinition.getText().contains("IntellijIdeaRulezzz")) {
                     results.add(variableDefinition);
                 }
             }
             Collection<? extends PsiElement> parameterDefinitions =
-                    XPath.findAll(BallerinaLanguage.INSTANCE, context, "//parameter");
+                    XPath.findAll(BallerinaLanguage.INSTANCE, context, "//parameter/Identifier");
             for (PsiElement parameterDefinition : parameterDefinitions) {
                 if (!parameterDefinition.getText().contains("IntellijIdeaRulezzz")) {
                     results.add(parameterDefinition);
