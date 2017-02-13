@@ -1,4 +1,4 @@
-### Connectors & Actions
+# Connectors & Actions
 
 Connectors represent participants in the integration. A `connector` is defined as follows:
 ```
