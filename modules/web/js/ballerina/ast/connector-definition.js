@@ -86,7 +86,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
     };
 
     /**
-     * Removes an argument from a function definition.
+     * Removes an argument from a connector definition.
      * @param identifier - The identifier of the argument.
      * @return {Array} - The removed argument.
      */
