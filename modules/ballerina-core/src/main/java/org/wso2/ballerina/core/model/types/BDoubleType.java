@@ -18,21 +18,28 @@
 package org.wso2.ballerina.core.model.types;
 
 import org.wso2.ballerina.core.model.SymbolScope;
+import org.wso2.ballerina.core.model.annotations.BallerinaPrimitive;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code BDoubleType} represents a integer which is a 64-bit floating-point number according to the
+ * {@code BDoubleType} represents a 64-bit floating-point number according to the
  * standard IEEE 754 specifications.
  *
  * @since 0.8.0
  */
+@BallerinaPrimitive(type = "double",
+        description = "Represents a 64-bit floating-point number according to the " +
+                      "standard IEEE 754 specifications.",
+        defaultValue = "0.0")
 class BDoubleType extends BType {
 
     /**
-     * Create a {@code BDoubleType} which represents the boolean type.
+     * Creates an instance of {@code BDoubleType}.
      *
      * @param typeName string name of the type
+     * @param pkgPath package path
+     * @param symbolScope scope of the symbol
      */
     BDoubleType(String typeName, String pkgPath, SymbolScope symbolScope) {
         super(typeName, pkgPath, symbolScope, BDouble.class);

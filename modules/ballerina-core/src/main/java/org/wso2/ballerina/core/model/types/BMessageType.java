@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.types;
 
 import org.wso2.ballerina.core.model.SymbolScope;
+import org.wso2.ballerina.core.model.annotations.BallerinaPrimitive;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -26,12 +27,17 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
+@BallerinaPrimitive(type = "message",
+        description = "Represents a message in Ballerina.",
+        defaultValue = "")
 public class BMessageType extends BType {
 
     /**
-     * Create a {@code BMessageType} which represents the boolean type.
+     * Creates an instance of {@code BMessageType}.
      *
      * @param typeName string name of the type
+     * @param pkgPath package path
+     * @param symbolScope scope of the symbol
      */
     BMessageType(String typeName, String pkgPath, SymbolScope symbolScope) {
         super(typeName, pkgPath, symbolScope, BMessage.class);

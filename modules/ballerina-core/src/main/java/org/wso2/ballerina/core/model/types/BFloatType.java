@@ -18,21 +18,28 @@
 package org.wso2.ballerina.core.model.types;
 
 import org.wso2.ballerina.core.model.SymbolScope;
+import org.wso2.ballerina.core.model.annotations.BallerinaPrimitive;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code BFloatType} represents a integer which is a 32-bit floating-point number according to the
+ * {@code BFloatType} represents a 32-bit floating-point number according to the
  * standard IEEE 754 specifications.
  *
  * @since 0.8.0
  */
+@BallerinaPrimitive(type = "float",
+        description = "Represents a 32-bit floating-point number according to the " +
+                "standard IEEE 754 specifications.",
+        defaultValue = "0.0")
 class BFloatType extends BType {
 
     /**
-     * Create a {@code BFloatType} which represents the boolean type.
+     * Creates an instance of {@code BFloatType}.
      *
      * @param typeName string name of the type
+     * @param pkgPath package path
+     * @param symbolScope scope of the symbol
      */
     BFloatType(String typeName, String pkgPath, SymbolScope symbolScope) {
         super(typeName, pkgPath, symbolScope, BFloat.class);

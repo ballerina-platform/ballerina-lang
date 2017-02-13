@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.types;
 
 import org.wso2.ballerina.core.model.SymbolScope;
+import org.wso2.ballerina.core.model.annotations.BallerinaPrimitive;
 import org.wso2.ballerina.core.model.values.BStruct;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -26,12 +27,17 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 1.0.0
  */
+@BallerinaPrimitive(type = "struct",
+        description = "Represents a user defined struct in Ballerina.",
+        defaultValue = "")
 public class BStructType extends BType {
 
     /**
-     * Create a {@code BStructType} which represents the boolean type
+     * Creates an instance of {@code BStructType}.
      *
      * @param typeName string name of the type
+     * @param pkgPath package path
+     * @param symbolScope scope of the symbol
      */
     public BStructType(String typeName, String pkgPath, SymbolScope symbolScope) {
         super(typeName, pkgPath, symbolScope, BStruct.class);
