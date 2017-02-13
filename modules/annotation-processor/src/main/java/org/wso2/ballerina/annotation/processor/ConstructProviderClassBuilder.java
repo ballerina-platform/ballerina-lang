@@ -82,7 +82,7 @@ public class ConstructProviderClassBuilder {
     private String pkgClass = BLangPackage.class.getSimpleName();
     
     private Map<String, PackageHolder> nativePackages;
-    private String symbolNameStr = "new %s(\"%s\",\"%s\")";
+    private String symbolNameStr = "new %s(\"%s\")";
     private final String importPkg = "import " + GlobalScope.class.getCanonicalName() + ";\n" + 
                                      "import " + NativeUnitProxy.class.getCanonicalName() + ";\n" + 
                                      "import " + SymbolName.class.getCanonicalName() + ";\n" + 
@@ -377,8 +377,7 @@ public class ConstructProviderClassBuilder {
             Argument[] arguments, ReturnType[] returnTypes, String constructVarName, 
             String scopeElements, String nativeUnitClass, String nativeUnitClassVarName, String enclosingScopeName,
             String enclosingScopePkg) {
-        String createSymbolStr = String.format(symbolNameStr, symbolNameClass, constructQualifiedName, 
-            constructPkgName);
+        String createSymbolStr = String.format(symbolNameStr, symbolNameClass, constructQualifiedName);
         String retrunTypesArrayStr = getReturnTypes(returnTypes);
         String argsTypesArrayStr = getArgTypes(arguments, enclosingScopeName, enclosingScopePkg);
         String supplierInsertStr = getConstructSuplierInsertionStr(constructVarName, nativeUnitClassVarName);
