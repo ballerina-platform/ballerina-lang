@@ -15,9 +15,9 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.mockerina.nativeimpl;
+package org.ballerinalang.testerina.nativeimpl.mock;
 
-import org.ballerinalang.mockerina.MockerinaRegistry;
+import org.ballerinalang.testerina.core.MockerinaRegistry;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;

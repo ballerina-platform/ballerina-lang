@@ -19,7 +19,6 @@ package org.ballerinalang.testerina.core;
 
 //import org.ballerinalang.testerina.core.langutils.Functions;
 
-import org.ballerinalang.mockerina.MockerinaRegistry;
 import org.ballerinalang.testerina.core.entity.TesterinaFile;
 import org.ballerinalang.testerina.core.entity.TesterinaFunction;
 import org.ballerinalang.testerina.core.langutils.ParserUtils;
