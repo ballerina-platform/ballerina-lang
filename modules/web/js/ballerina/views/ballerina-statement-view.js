@@ -36,6 +36,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
             log.warn('topCenter has not defined. Default top center will be created');
         }
         this._topCenter = _.has(args, "topCenter") ? _.get(args, 'topCenter').clone() : new Point(0,0);
+        this._bottomCenter = _.has(args, "bottomCenter") ? _.get(args, 'bottomCenter').clone() : new Point(0,0);
         this._boundingBox = new  BBox();
         var self = this;
         this._topCenter.on("moved", function(offset){
