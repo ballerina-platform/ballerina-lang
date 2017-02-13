@@ -39,13 +39,12 @@ import java.util.Set;
  */
 public class FileServiceDispatcher implements ServiceDispatcher {
 
-    Map<String, Service> uriToServiceMap = new HashMap<>();
-    Map<String, ServerConnector> uriToConnectorMap = new HashMap<>();
+    Map<String, Service> servicesMap = new HashMap<>();
 
     @Override
     public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext) {
         String serviceName = (String) cMsg.getProperty(Constants.TRANSPORT_PROPERTY_SERVICE_NAME);
-        return uriToServiceMap.get(serviceName);
+        return servicesMap.get(serviceName);
     }
 
     @Override
@@ -62,12 +61,12 @@ public class FileServiceDispatcher implements ServiceDispatcher {
 
                 Object protocolObj = elementsMap.get(new SymbolName(Constants.ANNOTATION_PROTOCOL));
                 if (protocolObj == null) {
-                    throw new BallerinaException("Mandatory annotation element '" + Constants.ANNOTATION_PROTOCOL
-                            + "' is not found in Service '" + service.getSymbolName().getName() + "'");
+                    return;
                 }
                 if (!(protocolObj instanceof String)) {
-                    throw new BallerinaException("Annotation element '" + Constants.ANNOTATION_PROTOCOL
-                            + "' in Service " + service.getSymbolName().getName() + "' should be of string literal.");
+                    throw new BallerinaException("Annotation element '" +
+                            Constants.ANNOTATION_PROTOCOL + "' in Service "
+                            + service.getSymbolName().getName() + "' should be of type string literal.");
                 }
                 String protocol = ((String) protocolObj);
                 if (!(protocol.equals(Constants.PROTOCOL_FILE))) {
@@ -81,12 +80,12 @@ public class FileServiceDispatcher implements ServiceDispatcher {
 
                 try {
                     fileServerConnector.start(getServerConnectorParamMap(elementsMap));
-                    uriToServiceMap.put(serviceName, service);
-                    uriToConnectorMap.put(serviceName, fileServerConnector);
+                    servicesMap.put(serviceName, service);
                 } catch (ServerConnectorException e) {
                     throw new BallerinaException("Could not start File Server Connector for service: "
                             + serviceName + ". Reason: " + e.getMessage());
                 }
+                return;
             }
         }
     }
@@ -94,15 +93,14 @@ public class FileServiceDispatcher implements ServiceDispatcher {
     @Override
     public void serviceUnregistered(Service service) {
         String serviceName = service.getSymbolName().getName();
-        if (uriToServiceMap.get(serviceName) != null) {
-            uriToServiceMap.remove(serviceName);
+        if (servicesMap.get(serviceName) != null) {
+            servicesMap.remove(serviceName);
             try {
-                uriToConnectorMap.get(serviceName).stop();
+                BallerinaConnectorManager.getInstance().getServerConnector(serviceName).stop();
             } catch (ServerConnectorException e) {
                 throw new BallerinaException("Could not stop file server connector for " +
                         "service: " + serviceName + ". Reason: " + e.getMessage());
             }
-            uriToConnectorMap.remove(serviceName);
         }
     }
 
