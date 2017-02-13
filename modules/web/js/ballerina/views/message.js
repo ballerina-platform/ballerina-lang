@@ -37,6 +37,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this._viewOptions = args;
         this._start = this._viewOptions.start.clone();
         this._end = this._viewOptions.end.clone();
+        this._isInputArrow = _.get(args, 'isInputArrow', true);
+        this._arrowHead = undefined;
 
         _.set(this._viewOptions, 'cssClass.line',  _.get(this._viewOptions, 'cssClass.line', 'message'));
         _.set(this._viewOptions, 'cssClass.group',  _.get(this._viewOptions, 'cssClass.message', 'message-container'));
@@ -65,7 +67,12 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this._line = D3Utils.lineFromPoints(this._start, this._end, this._rootGroup)
             .classed(_.get(this._viewOptions, 'cssClass.line'), true);
         var arrowHeadWidth = 5;
-        this._arrowHead = D3Utils.inputTriangle(this._end.x() - arrowHeadWidth, this._end.y(), this._rootGroup).classed("action-arrow", true);
+
+        if (this._isInputArrow) {
+            this._arrowHead = D3Utils.inputTriangle(this._end.x() - arrowHeadWidth, this._end.y(), this._rootGroup).classed("action-arrow", true);
+        } else {
+            this._arrowHead = D3Utils.outputTriangle(this._end.x() - arrowHeadWidth, this._end.y(), this._rootGroup).classed("action-arrow", true);
+        }
 
         this._start.on('moved', function(offset){
             var x1 = self._line.attr('x1');
