@@ -148,7 +148,9 @@ public final class Constants {
 
     public static final String HTTP_CONNECTION = "Connection";
 
-    public static final String KEEP_ALIVE = "keep-alive";
+    public static final String CONNECTION_KEEP_ALIVE = "keep-alive";
+
+    public static final String CONNECTION_CLOSE = "Close";
 
     public static final String HTTP_SOAP_ACTION = "SOAPAction";
 

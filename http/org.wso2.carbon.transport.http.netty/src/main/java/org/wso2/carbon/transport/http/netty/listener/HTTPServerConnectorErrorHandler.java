@@ -57,7 +57,7 @@ public class HTTPServerConnectorErrorHandler implements ServerConnectorErrorHand
 
         // TODO: Set following according to the request
         Map<String, String> transportHeaders = new HashMap<>();
-        transportHeaders.put(Constants.HTTP_CONNECTION, Constants.KEEP_ALIVE);
+        transportHeaders.put(Constants.HTTP_CONNECTION, Constants.CONNECTION_KEEP_ALIVE);
         transportHeaders.put(Constants.HTTP_CONTENT_TYPE, Constants.TEXT_PLAIN);
         transportHeaders.put(Constants.HTTP_CONTENT_LENGTH, (String.valueOf(errorMessageBytes.length)));
 

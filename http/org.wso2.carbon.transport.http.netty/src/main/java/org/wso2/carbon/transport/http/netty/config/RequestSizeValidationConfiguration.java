@@ -42,7 +42,8 @@ public class RequestSizeValidationConfiguration {
     private String headerRejectMsgContentType = "plain/text";
 
     private RequestSizeValidationConfiguration() {
-        Set<TransportProperty> transportProperties = YAMLTransportConfigurationBuilder.build().getTransportProperties();
+        Set<TransportProperty> transportProperties =
+                ConfigurationBuilder.getInstance().getConfiguration().getTransportProperties();
 
          transportProperties.forEach(transportProperty -> {
             if (transportProperty.getName().equalsIgnoreCase("request.size.validation")) {
