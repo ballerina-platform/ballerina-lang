@@ -45,6 +45,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
 
     private boolean symbolsDefined = false;
     private PackageRepository pkgRepo;
+    private boolean isNative = false;
 
     public BLangPackage(BLangProgram programScope) {
         this.enclosingScope = programScope;
@@ -112,6 +113,9 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         this.pkgRepo = pkgRepo;
     }
 
+    public void setNative(boolean isNative) {
+        this.isNative = isNative;
+    }
 
     // Methods in the SymbolScope interface
 
@@ -160,7 +164,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
 
     @Override
     public boolean isNative() {
-        return false;
+        return isNative;
     }
 
     @Override
@@ -185,4 +189,5 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     public NodeLocation getNodeLocation() {
         return null;
     }
+
 }

@@ -16,18 +16,8 @@
  */
 package org.wso2.ballerina.core.nativeimpl;
 
-import org.ballerinalang.util.repository.PackageRepository;
-import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.BLangPackage;
-import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.CompilationUnit;
 import org.wso2.ballerina.core.model.GlobalScope;
-import org.wso2.ballerina.core.model.ImportPackage;
-import org.wso2.ballerina.core.model.NodeLocation;
-import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.SymbolScope;
-import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 
 import java.util.function.Supplier;
 
@@ -50,6 +40,7 @@ public class NativePackageProxy extends BLangPackage {
     public BLangPackage load() {
         if (nativePackage == null) {
             nativePackage = this.nativePackageSupplier.get();
+            nativePackage.setNative(true);
         }
         return nativePackage;
     }
