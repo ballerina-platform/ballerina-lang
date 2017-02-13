@@ -31,6 +31,3 @@ service jmsWSO2MBTopicService {
         system:println("Received map message" + message:getStringValue(m, "queue message count"));
     }
 }
-
-
-

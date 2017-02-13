@@ -3,8 +3,6 @@ package samples.connectors.test;
 import ballerina.net.jms;
 import ballerina.lang.message;
 
-
-
 function test() (boolean) {
     jms:ClientConnector jmsEP = create jms:ClientConnector("", "file:///tmp/jndi.properties");
     message queueMessage = {};

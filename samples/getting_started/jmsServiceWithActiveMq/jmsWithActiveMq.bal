@@ -30,6 +30,3 @@ service jmsWSO2ActiveMqTopicService {
         system:println("Received map message" + message:getStringValue(m, "queue message count"));
     }
 }
-
-
-
