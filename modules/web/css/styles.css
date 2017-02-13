@@ -906,10 +906,6 @@ button.variable-list {
 
 /** Start of Constants view **/
 
-/*.constants-btn {
-    opacity: 0.4;
-    width: 37px;
-}*/
 
 .constants-btn:hover {
     opacity: 1;
