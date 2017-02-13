@@ -28,8 +28,15 @@ import io.swagger.models.Swagger;
 import io.swagger.parser.Swagger20Parser;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.wso2.ballerina.core.model.*;
+import org.wso2.ballerina.core.model.GlobalScope;
+import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.model.BLangPackage;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
+import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
@@ -302,6 +309,7 @@ public class SwaggerConverterUtils {
     /**
      * Check both resources are represent same resource path and http verb.
      * Within a service resource should have unique resource path and HTTP verb combination.
+     *
      * @param swaggerResource
      * @param ballerinaResource
      * @return
@@ -323,19 +331,20 @@ public class SwaggerConverterUtils {
 
     /**
      * Remove duplicate resources and merge them.
+     *
      * @param resourceList
      * @param resources
      * @return
      */
-    public static Resource[] mergeResources(List<Resource> resourceList, Resource[] resources){
-        for (int i=0; i < resources.length; i++){
+    public static Resource[] mergeResources(List<Resource> resourceList, Resource[] resources) {
+        for (int i = 0; i < resources.length; i++) {
             Resource resource = resources[i];
-            for(Resource resource1:resourceList){
-                if(resource1.getSymbolName().getName().equalsIgnoreCase(resource.getSymbolName().getName())){
-                    resources[i]= resource1;
+            for (Resource resource1 : resourceList) {
+                if (resource1.getSymbolName().getName().equalsIgnoreCase(resource.getSymbolName().getName())) {
+                    resources[i] = resource1;
                 }
             }
         }
-        return  resources;
+        return resources;
     }
 }
