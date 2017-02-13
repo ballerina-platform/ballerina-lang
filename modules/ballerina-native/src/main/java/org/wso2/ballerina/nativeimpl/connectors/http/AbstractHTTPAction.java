@@ -29,7 +29,6 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Headers;
 import org.wso2.carbon.messaging.MessageDataSource;
@@ -67,7 +66,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         String uri = null;
         try {
-            uri = ((HTTPConnector) connector).getServiceUri() + path;
+            uri = ((ClientConnector) connector).getServiceUri() + path;
 
             URL url = new URL(uri);
             String host = url.getHost();
@@ -134,7 +133,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                     logger.debug("Sending an empty message");
                 }
             }
-            ClientConnector clientConnector = BallerinaConnectorManager.getInstance().
+            org.wso2.carbon.messaging.ClientConnector clientConnector = BallerinaConnectorManager.getInstance().
                     getClientConnector(Constants.PROTOCOL_HTTP);
 
             if (clientConnector == null) {

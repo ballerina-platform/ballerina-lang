@@ -45,7 +45,7 @@ public final class BXML extends BallerinaMessageDataSource implements BRefType<O
             try {
                 value = AXIOMUtil.stringToOM(xmlValue);
             } catch (Throwable t) {
-                handleJsonException("failed to create xml: ", t);
+                handleXmlException("failed to create xml: ", t);
             }
         }
     }
@@ -69,7 +69,7 @@ public final class BXML extends BallerinaMessageDataSource implements BRefType<O
             try {
                 value = new StAXOMBuilder(inputStream).getDocumentElement();
             } catch (Throwable t) {
-                handleJsonException("failed to create xml: ", t);
+                handleXmlException("failed to create xml: ", t);
             }
         }
     }
@@ -91,7 +91,7 @@ public final class BXML extends BallerinaMessageDataSource implements BRefType<O
         try {
             this.value.serialize(this.outputStream);
         } catch (Throwable t) {
-            handleJsonException("error occurred during writing the message to the output stream", t);
+            handleXmlException("error occurred during writing the message to the output stream: ", t);
         }
     }
 
@@ -106,7 +106,7 @@ public final class BXML extends BallerinaMessageDataSource implements BRefType<O
             try {
                 return this.value.toString();
             } catch (Throwable t) {
-                handleJsonException("failed to get xml as string: ", t);
+                handleXmlException("failed to get xml as string: ", t);
             }
         }
 
@@ -119,13 +119,13 @@ public final class BXML extends BallerinaMessageDataSource implements BRefType<O
             try {
                 return this.value.toString();
             } catch (Throwable t) {
-                handleJsonException("failed to get xml as string: ", t);
+                handleXmlException("failed to get xml as string: ", t);
             }
         }
         return "";
     }
     
-    private static void handleJsonException(String message, Throwable t) {
+    private static void handleXmlException(String message, Throwable t) {
         // Here local message of the cause is logged whenever possible, to avoid java class being logged
         // along with the error message.
         if (t.getCause() != null) {
