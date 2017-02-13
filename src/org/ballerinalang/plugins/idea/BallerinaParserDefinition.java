@@ -40,6 +40,7 @@ import org.ballerinalang.plugins.idea.grammar.BallerinaLexer;
 import org.ballerinalang.plugins.idea.grammar.BallerinaParser;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
+import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationNameNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationNode;
 import org.ballerinalang.plugins.idea.psi.ArgumentListNode;
@@ -231,6 +232,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new LiteralValueNode(node);
             case BallerinaParser.RULE_connector:
                 return new ConnectorNode(node);
+            case BallerinaParser.RULE_alias:
+                return new AliasNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }
