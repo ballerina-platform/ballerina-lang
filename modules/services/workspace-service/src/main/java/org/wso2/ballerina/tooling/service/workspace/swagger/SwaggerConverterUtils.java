@@ -159,7 +159,7 @@ public class SwaggerConverterUtils {
         for (CodegenOperation entry : pathMap) {
             String httpMethod = entry.httpMethod;
             String operationId = entry.operationId;
-            resourceBuilder.setSymbolName(new SymbolName(operationId));
+            resourceBuilder.setName(operationId);
             if (entry.hasConsumes) {
                 resourceBuilder.addAnnotation(
                         new Annotation(null, new SymbolName("Consumes"), entry.consumes.toString(), null));
@@ -183,9 +183,7 @@ public class SwaggerConverterUtils {
             if (entry.httpMethod != null && entry.httpMethod.length() > 0) {
                 resourceBuilder.addAnnotation(new Annotation(null, new SymbolName(httpMethod), "", null));
             }
-            resourceBuilder.addAnnotation(new Annotation(null, new SymbolName(httpMethod), "", null));
 
-            resourceBuilder.addAnnotation(new Annotation(null, new SymbolName(httpMethod), null, null));
             //This resource initiation was required because resource do have both
             //annotation map and array. But there is no way to update array other than
             //constructor method.
