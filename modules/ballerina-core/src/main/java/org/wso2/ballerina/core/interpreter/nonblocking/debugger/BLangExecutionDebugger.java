@@ -98,7 +98,7 @@ import java.util.AbstractMap;
 import java.util.HashMap;
 
 /**
- * {@link BLangExecutionDebugger} is the debug enabled BLangExecutor.
+ * {@link  BLangExecutionDebugger} is the debug enabled BLangExecutor.
  *
  * @since 0.8.0
  */
@@ -626,11 +626,13 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
     @Override
     public void visit(ActionInvocationExprStartNode startNode) {
         super.visit(startNode);
-        int i = 0;
-        for (ParameterDef parameter : startNode.getExpression().getCallableUnit().getParameterDefs()) {
-            bContext.getControlStack().getCurrentFrame().variables.put(
-                    parameter.getSymbolName(), new AbstractMap.SimpleEntry<>(i, "Arg"));
-            i++;
+        if (startNode.getExpression().getCallableUnit() != null) {
+            int i = 0;
+            for (ParameterDef parameter : startNode.getExpression().getCallableUnit().getParameterDefs()) {
+                bContext.getControlStack().getCurrentFrame().variables.put(
+                        parameter.getSymbolName(), new AbstractMap.SimpleEntry<>(i, "Arg"));
+                i++;
+            }
         }
         startNode.next.accept(this);
     }
@@ -663,10 +665,12 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
     public void visit(FunctionInvocationExprStartNode startNode) {
         super.visit(startNode);
         int i = 0;
-        for (ParameterDef parameter : startNode.getExpression().getCallableUnit().getParameterDefs()) {
-            bContext.getControlStack().getCurrentFrame().variables.put(
-                    parameter.getSymbolName(), new AbstractMap.SimpleEntry<>(i, "Arg"));
-            i++;
+        if (startNode.getExpression().getCallableUnit() != null) {
+            for (ParameterDef parameter : startNode.getExpression().getCallableUnit().getParameterDefs()) {
+                bContext.getControlStack().getCurrentFrame().variables.put(
+                        parameter.getSymbolName(), new AbstractMap.SimpleEntry<>(i, "Arg"));
+                i++;
+            }
         }
         startNode.next.accept(this);
     }
@@ -686,11 +690,13 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
     @Override
     public void visit(TypeCastExpressionEndNode endNode) {
         super.visit(endNode);
-        int i = 0;
-        for (ParameterDef parameter : endNode.getExpression().getCallableUnit().getParameterDefs()) {
-            bContext.getControlStack().getCurrentFrame().variables.put(
-                    parameter.getSymbolName(), new AbstractMap.SimpleEntry<>(i, "Arg"));
-            i++;
+        if (endNode.getExpression().getCallableUnit() != null) {
+            int i = 0;
+            for (ParameterDef parameter : endNode.getExpression().getCallableUnit().getParameterDefs()) {
+                bContext.getControlStack().getCurrentFrame().variables.put(
+                        parameter.getSymbolName(), new AbstractMap.SimpleEntry<>(i, "Arg"));
+                i++;
+            }
         }
         endNode.next.accept(this);
     }
