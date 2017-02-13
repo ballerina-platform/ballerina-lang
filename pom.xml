@@ -172,11 +172,6 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>findbugs</artifactId>
-                <version>${findbugs-annotations.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>javax.jms</groupId>
                 <artifactId>javax.jms-api</artifactId>
                 <version>${javax.jms.version}</version>
@@ -317,7 +312,6 @@
         <activemq.broker.vesion>5.14.3</activemq.broker.vesion>
 
         <javax.jms.version>2.0.1</javax.jms.version>
-        <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
     </properties>
 
 </project>
