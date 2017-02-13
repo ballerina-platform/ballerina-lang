@@ -21,6 +21,7 @@ import org.ballerinalang.testerina.core.MockerinaRegistry;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
+import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Package;
@@ -33,10 +34,17 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
+import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
+import org.wso2.ballerina.core.runtime.dispatching.Constants;
 import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
 import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
+import org.wso2.carbon.messaging.ServerConnector;
+import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.carbon.transport.http.netty.listener.HTTPServerConnector;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Optional;
@@ -52,6 +60,8 @@ import java.util.Optional;
         @Argument(name = "serviceName", type = TypeEnum.STRING) }, returnType = {
         @ReturnType(type = TypeEnum.STRING) }, isPublic = true)
 public class StartService extends AbstractNativeFunction {
+
+    private static final String MSG_PREFIX = "mock:startService: ";
 
     static String getFileName(Path sourceFilePath) {
         Path fileNamePath = sourceFilePath.getFileName();
@@ -78,34 +88,30 @@ public class StartService extends AbstractNativeFunction {
 
             // 1) First, we get the Service for the given serviceName from the original BallerinaFile
             matchingService = Arrays.stream(services).filter(s -> s.getName().equals(serviceName)).findAny();
-            if (!matchingService.isPresent()) {
-                continue;
-            } else {
-                // 2) Then, we append that to the list of services in the derivativeBFile.
+            if (matchingService.isPresent()) {
+                // 2) if matching service is found, we append that to the list of services in the derivativeBFile.
                 BallerinaFile derivativeBallerinaFile = MockerinaRegistry.getInstance()
                         .getDerivativeBallerinaFile(aBallerinaFile); //the actual bfile registered in AppRegistry
-                addService(app, matchingService.get(), derivativeBallerinaFile);
+                startService(app, matchingService.get(), derivativeBallerinaFile);
             }
-
         }
 
         // 5) fail if no matching service for the given 'serviceName' argument is found.
         if (!matchingService.isPresent()) {
             StringBuilder listOfServices = new StringBuilder();
-            Arrays.stream(MockerinaRegistry.getInstance().getOriginalBallerinaFiles())
-                    .map(BallerinaFile::getServices)
+            Arrays.stream(MockerinaRegistry.getInstance().getOriginalBallerinaFiles()).map(BallerinaFile::getServices)
                     .flatMap(Arrays::stream)
                     .forEachOrdered(service -> listOfServices.append(service.getSymbolName().getName()).append(", "));
-            throw new BallerinaException("No service with the name " + serviceName + " found. "
+            throw new BallerinaException(MSG_PREFIX + "No service with the name " + serviceName + " found. "
                     + "Did you mean to start one of these services? " + listOfServices);
         }
 
         // 6) return the service url
-        BString str = (BString) getArgument(ctx, 0); //todo return the service url
+        BString str = new BString(getServiceURL(matchingService.get()));
         return getBValues(str);
     }
 
-    private void addService(Application app, Service matchingService, BallerinaFile derivativeBallerinaFile) {
+    private void startService(Application app, Service matchingService, BallerinaFile derivativeBallerinaFile) {
 
         Service[] registeredServices = derivativeBallerinaFile.getServices();
         registeredServices = Arrays.copyOf(registeredServices, registeredServices.length + 1);
@@ -129,5 +135,41 @@ public class StartService extends AbstractNativeFunction {
             serviceDispatcher.serviceRegistered(matchingService);
         }
     }
+
+    private String getServiceURL(Service service) {
+        try {
+            String listenerInterface = Constants.DEFAULT_INTERFACE;
+            String serviceURL;
+            String basePath = service.getSymbolName().getName();
+            for (Annotation annotation : service.getAnnotations()) {
+                if (annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH)) {
+                    basePath = annotation.getValue();
+                    break;
+                }
+            }
+            if (basePath.startsWith("\"")) {
+                basePath = basePath.substring(1, basePath.length() - 1);
+            }
+
+            if (!basePath.startsWith("/")) {
+                basePath = "/".concat(basePath);
+            }
+
+            ServerConnector serverConnector = BallerinaConnectorManager.getInstance().getServerConnector(listenerInterface);
+            if (serverConnector instanceof HTTPServerConnector) {
+                ListenerConfiguration config = ((HTTPServerConnector) serverConnector).getListenerConfiguration();
+                String host = config.getHost();
+                int port = config.getPort();
+                String scheme = config.getScheme();
+                return new URL(scheme, host, port, basePath).toExternalForm();
+            } else {
+                throw new BallerinaException(MSG_PREFIX + "Cannot handle non-http protocols.");
+            }
+        } catch (MalformedURLException e) {
+            throw new BallerinaException(MSG_PREFIX + "Error while constructing service url for " + service.getName());
+        }
+
+    }
+
 
 }
