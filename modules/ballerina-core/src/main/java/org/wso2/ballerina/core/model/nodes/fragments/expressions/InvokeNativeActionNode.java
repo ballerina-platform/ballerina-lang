@@ -3,7 +3,7 @@
 */
 package org.wso2.ballerina.core.model.nodes.fragments.expressions;
 
-import org.wso2.ballerina.core.model.LinkedNodeExecutor;
+import org.wso2.ballerina.core.model.LinkedNodeVisitor;
 import org.wso2.ballerina.core.model.nodes.AbstractLinkedNode;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 
@@ -18,14 +18,9 @@ public class InvokeNativeActionNode extends AbstractLinkedNode {
         this.callableUnit = callableUnit;
     }
 
-    /**
-     * Executes the statement
-     *
-     * @param executor instance of a {@code NodeExecutor}
-     */
     @Override
-    public void executeLNode(LinkedNodeExecutor executor) {
-        executor.visit(this);
+    public void accept(LinkedNodeVisitor nodeVisitor) {
+        nodeVisitor.visit(this);
     }
 
     public AbstractNativeAction getCallableUnit() {

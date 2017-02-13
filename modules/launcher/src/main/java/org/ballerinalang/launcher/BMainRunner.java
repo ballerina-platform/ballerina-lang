@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
-import org.wso2.ballerina.core.interpreter.nonblocking.BLangNonBlockingExecutor;
+import org.wso2.ballerina.core.interpreter.nonblocking.BLangNonBlockingVisitorImpl;
 import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
@@ -115,9 +115,9 @@ class BMainRunner {
 
             RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(balFile);
             if (ModeResolver.getInstance().isNonblockingEnabled()) {
-                BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
+                BLangNonBlockingVisitorImpl executor = new BLangNonBlockingVisitorImpl(runtimeEnv, bContext);
                 bContext.setExecutor(executor);
-                funcIExpr.executeLNode(executor);
+                funcIExpr.accept(executor);
             } else {
                 BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
                 funcIExpr.executeMultiReturn(executor);

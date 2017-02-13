@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.model.nodes.fragments.expressions;
 
-import org.wso2.ballerina.core.model.LinkedNodeExecutor;
+import org.wso2.ballerina.core.model.LinkedNodeVisitor;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.nodes.AbstractLinkedNode;
 
@@ -38,7 +38,7 @@ public class MapInitExprEndNode extends AbstractLinkedNode {
     }
 
     @Override
-    public void executeLNode(LinkedNodeExecutor executor) {
-        executor.visit(this);
+    public void accept(LinkedNodeVisitor nodeVisitor) {
+        nodeVisitor.visit(this);
     }
 }

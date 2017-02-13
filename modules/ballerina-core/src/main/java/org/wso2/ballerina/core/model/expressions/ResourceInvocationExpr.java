@@ -19,7 +19,6 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.ExecutableMultiReturnExpr;
-import org.wso2.ballerina.core.model.LinkedNodeExecutor;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Resource;
@@ -58,8 +57,4 @@ public class ResourceInvocationExpr extends AbstractExpression implements Execut
         return executor.visit(this);
     }
 
-    @Override
-    public void executeLNode(LinkedNodeExecutor executor) {
-        executor.visit(this);
-    }
 }

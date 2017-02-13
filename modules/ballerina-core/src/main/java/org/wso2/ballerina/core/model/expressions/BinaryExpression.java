@@ -17,11 +17,9 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
-import org.wso2.ballerina.core.model.LinkedNodeExecutor;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.Operator;
-import org.wso2.ballerina.core.model.values.BException;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 
@@ -60,15 +58,6 @@ public class BinaryExpression extends UnaryExpression {
 
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this);
-    }
-
-    @Override
-    public void executeLNode(LinkedNodeExecutor executor) {
-        try {
-            executor.visit(this);
-        } catch (RuntimeException e) {
-            executor.handleBException(new BException(e.getMessage()));
-        }
     }
 
     public void setRExpr(Expression rExpr) {

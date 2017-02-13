@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.model.statements;
 
-import org.wso2.ballerina.core.model.LinkedNodeExecutor;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
@@ -33,7 +32,7 @@ public class FunctionInvocationStmt extends AbstractStatement {
 
     private FunctionInvocationExpr functionInvocationExpr;
 
-    public  FunctionInvocationStmt(NodeLocation location, FunctionInvocationExpr functionInvocationExpr) {
+    public FunctionInvocationStmt(NodeLocation location, FunctionInvocationExpr functionInvocationExpr) {
         super(location);
         this.functionInvocationExpr = functionInvocationExpr;
     }
@@ -49,11 +48,6 @@ public class FunctionInvocationStmt extends AbstractStatement {
 
     @Override
     public void execute(NodeExecutor executor) {
-        executor.visit(this);
-    }
-
-    @Override
-    public void executeLNode(LinkedNodeExecutor executor) {
         executor.visit(this);
     }
 }

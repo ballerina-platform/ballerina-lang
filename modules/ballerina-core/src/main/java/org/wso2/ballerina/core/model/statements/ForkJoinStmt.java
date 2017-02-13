@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerina.core.model.statements;
 
-import org.wso2.ballerina.core.model.LinkedNodeExecutor;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
@@ -51,10 +50,5 @@ public class ForkJoinStmt extends AbstractStatement {
     @Override
     public void execute(NodeExecutor executor) {
 
-    }
-
-    @Override
-    public void executeLNode(LinkedNodeExecutor executor) {
-        executor.visit(this);
     }
 }

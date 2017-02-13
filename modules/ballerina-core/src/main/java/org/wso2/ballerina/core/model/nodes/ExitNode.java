@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.model.nodes;
 
-import org.wso2.ballerina.core.model.LinkedNodeExecutor;
+import org.wso2.ballerina.core.model.LinkedNodeVisitor;
 
 /**
  * Represents the end node of a main function linked execution.
@@ -25,7 +25,7 @@ import org.wso2.ballerina.core.model.LinkedNodeExecutor;
 public class ExitNode extends AbstractLinkedNode {
 
     @Override
-    public void executeLNode(LinkedNodeExecutor executor) {
-        executor.visit(this);
+    public void accept(LinkedNodeVisitor nodeVisitor) {
+        nodeVisitor.visit(this);
     }
 }

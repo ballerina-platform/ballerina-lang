@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerina.core.model.statements;
 
-import org.wso2.ballerina.core.model.LinkedNodeExecutor;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
@@ -30,7 +29,7 @@ import org.wso2.ballerina.core.model.expressions.Expression;
  */
 public class ForeachStmt extends AbstractStatement {
     private Expression condition;
-//    private IteratorType itr;
+    //    private IteratorType itr;
     private Statement forEachBlock;
 
     public ForeachStmt(NodeLocation location) {
@@ -51,10 +50,5 @@ public class ForeachStmt extends AbstractStatement {
     @Override
     public void execute(NodeExecutor executor) {
 
-    }
-
-    @Override
-    public void executeLNode(LinkedNodeExecutor executor) {
-        executor.visit(this);
     }
 }

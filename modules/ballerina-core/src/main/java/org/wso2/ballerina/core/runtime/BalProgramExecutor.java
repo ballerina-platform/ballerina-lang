@@ -24,7 +24,7 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
-import org.wso2.ballerina.core.interpreter.nonblocking.BLangNonBlockingExecutor;
+import org.wso2.ballerina.core.interpreter.nonblocking.BLangNonBlockingVisitorImpl;
 import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.NodeLocation;
@@ -110,9 +110,9 @@ public class BalProgramExecutor {
         StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], resourceInfo);
         balContext.getControlStack().pushFrame(currentStackFrame);
         if (ModeResolver.getInstance().isNonblockingEnabled()) {
-            BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
+            BLangNonBlockingVisitorImpl executor = new BLangNonBlockingVisitorImpl(runtimeEnv, balContext);
             balContext.setExecutor(executor);
-            new ResourceInvocationExpr(resource, exprs).executeLNode(executor);
+            new ResourceInvocationExpr(resource, exprs).accept(executor);
         } else {
             BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
             new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);

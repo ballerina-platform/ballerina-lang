@@ -132,7 +132,7 @@ import java.util.Stack;
  * Based on execution logic, a statement or an expression can be divided into multiple executions blocks.
  * In the non-blocking implementation requires to execute these pieces in an ordered manner.
  *
- * This implementation uses helper LinkedNodes which are used to model these intermediate execution steps.
+ * This implementation uses helper Nodes which are used to model these intermediate execution steps.
  *
  * Eg 1 : Assessment Statement :  a =   5 + 10;
  * <i>Execution order:</i>
@@ -140,7 +140,7 @@ import java.util.Stack;
  * BasicLiteralExpr(5) -> storeTemp(0)
  * BasicLiteralExpr(10) -> storeTemp(1)
  * AddExpr ( getTemp(0) + getTemp(1)) -> storeTemp(2)
- * AssignStmtEnd -> setVarValue( getTemp(2) -> a)      This is a helper linkedNode.
+ * AssignStmtEnd -> setVarValue( getTemp(2) -> a)      This is a helper Node.
  *
  * Eg 2 : Assessment Statement with function invocation expression :  a =  5 + getValueFromDB()
  * <i>Execution order:</i>
@@ -149,16 +149,16 @@ import java.util.Stack;
  * FunInvocationExpr(getValueFromDB)
  * ...
  * ...
- * FuncInvocationExprEnd -> storeTemp(1)                This is a helper linkedNode.
+ * FuncInvocationExprEnd -> storeTemp(1)                This is a helper Node.
  * AddExpr ( getTemp(0) + getTemp(1)) -> storeTemp(2)
- * AssignStmtEnd - setVarValue( getTemp(2) -> a)      This is a helper linkedNode.
+ * AssignStmtEnd - setVarValue( getTemp(2) -> a)      This is a helper Node.
  *
  * TempOffset
  * - Each expression has a tempOffset, which maps to a location in a current stack frame, to store its value.
  * - TempOffset is calculated per Statements. The size of the tempOffset array in the stack frame will be
  * max(current stack frame's statements temp values.)
  *
- * LinkedNodes
+ * Nodes
  * - This phase will calculate 3 unique references: parent, next sibling and next, for each executable node
  * (expressions, statements, etc.). The parent and next sibling are used to calculate next reference.
  * Only next reference will be used at runtime.  ({@link GotoNode} and {@link IfElseNode}, have multiple next
@@ -1382,7 +1382,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     }
 
     /**
-     * Find next execution Unit for given LinkedNode recursively.
+     * Find next execution Unit for given Node recursively.
      *
      * @param linkedNode that currently processing.
      * @return next Statement.

@@ -18,9 +18,9 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.exception.FlowBuilderException;
+import org.wso2.ballerina.core.model.LinkedNode;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
-import org.wso2.ballerina.core.model.nodes.AbstractLinkedNode;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -31,9 +31,12 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
-public abstract class AbstractExpression extends AbstractLinkedNode implements Expression {
+public abstract class AbstractExpression implements Expression {
     protected NodeLocation location;
     protected BType type;
+
+    public LinkedNode next;
+    private LinkedNode sibling, parent;
     protected boolean multipleReturnsAvailable;
     protected int offset;
 
@@ -68,6 +71,40 @@ public abstract class AbstractExpression extends AbstractLinkedNode implements E
     @Override
     public NodeLocation getNodeLocation() {
         return location;
+    }
+
+    @Override
+    public LinkedNode next() {
+        return next;
+    }
+
+    @Override
+    public void setNext(LinkedNode linkedNode) {
+        // Validation for incorrect Linking.
+        if (next != null && next != linkedNode && !next.getClass().equals(linkedNode.getClass())) {
+            throw new IllegalStateException(this.getClass() + " got different next." + next + " " + linkedNode);
+        }
+        this.next = linkedNode;
+    }
+
+    @Override
+    public LinkedNode getNextSibling() {
+        return sibling;
+    }
+
+    @Override
+    public void setNextSibling(LinkedNode linkedNode) {
+        this.sibling = linkedNode;
+    }
+
+    @Override
+    public LinkedNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(LinkedNode linkedNode) {
+        this.parent = linkedNode;
     }
 
     @Override

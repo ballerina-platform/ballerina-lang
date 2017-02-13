@@ -227,7 +227,7 @@ public class DebuggerTest {
         }
 
         public void startDebug() {
-            funcIExpr.executeLNode(debugger);
+            funcIExpr.accept(debugger);
         }
     }
 

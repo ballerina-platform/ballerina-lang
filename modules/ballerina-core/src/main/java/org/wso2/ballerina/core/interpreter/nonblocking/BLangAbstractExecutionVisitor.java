@@ -37,7 +37,6 @@ import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.Function;
-import org.wso2.ballerina.core.model.LinkedNodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
@@ -129,11 +128,11 @@ import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
 import java.util.Stack;
 
 /**
- * {@link BLangAbstractLinkedExecutor} defines execution steps of a Ballerina program in Linked Node based execution.
+ * {@link BLangAbstractExecutionVisitor} defines execution steps of a Ballerina program in Linked Node based execution.
  *
  * @since 0.8.0
  */
-public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor {
+public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisitor {
 
     private static final Logger logger = LoggerFactory.getLogger(Constants.BAL_LINKED_INTERPRETER_LOGGER);
     protected Stack<Integer> branchIDStack;
@@ -142,7 +141,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
     private ControlStack controlStack;
     private Stack<TryCatchStackRef> tryCatchStackRefs;
 
-    public BLangAbstractLinkedExecutor(RuntimeEnvironment runtimeEnv, Context bContext) {
+    public BLangAbstractExecutionVisitor(RuntimeEnvironment runtimeEnv, Context bContext) {
         this.runtimeEnv = runtimeEnv;
         this.bContext = bContext;
         this.controlStack = bContext.getControlStack();
@@ -355,7 +354,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
             // Evaluate the argument expression
             VariableRefExpr variableRefExpr = (VariableRefExpr) arg;
             MemoryLocation memoryLocation = variableRefExpr.getVariableDef().getMemoryLocation();
-            BValue argValue = memoryLocation.executeLNode(this);
+            BValue argValue = memoryLocation.access(this);
             BType argType = arg.getType();
             if (BTypes.isValueType(argType)) {
                 argValue = BValueUtils.clone(argType, argValue);
@@ -415,7 +414,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
     /* Memory Location */
 
     @Override
-    public BValue visit(StackVarLocation stackVarLocation) {
+    public BValue access(StackVarLocation stackVarLocation) {
         if (logger.isDebugEnabled()) {
             logger.debug("Executing StackVarLocation");
         }
@@ -424,7 +423,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
     }
 
     @Override
-    public BValue visit(ConstantLocation constantLocation) {
+    public BValue access(ConstantLocation constantLocation) {
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ConstantLocation");
         }
@@ -434,7 +433,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
     }
 
     @Override
-    public BValue visit(ServiceVarLocation serviceVarLocation) {
+    public BValue access(ServiceVarLocation serviceVarLocation) {
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ServiceVarLocation");
         }
@@ -444,12 +443,12 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
     }
 
     @Override
-    public BValue visit(StructVarLocation structLocation) {
+    public BValue access(StructVarLocation structLocation) {
         throw new IllegalArgumentException("struct value is required to get the value of a field");
     }
 
     @Override
-    public BValue visit(ConnectorVarLocation connectorVarLocation) {
+    public BValue access(ConnectorVarLocation connectorVarLocation) {
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ConnectorVarLocation");
         }
@@ -498,9 +497,9 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
         BBoolean condition = (BBoolean) getTempValue(expr);
 
         if (condition.booleanValue()) {
-            ifElseNode.next.executeLNode(this);
+            ifElseNode.next.accept(this);
         } else {
-            ifElseNode.nextAfterBreak().executeLNode(this);
+            ifElseNode.nextAfterBreak().accept(this);
         }
     }
 
@@ -1033,7 +1032,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
             controlStack.setValue(stackFrameOffset, bException);
         }
         // Execute Catch block.
-        ref.getTryCatchStmt().getCatchBlock().executeLNode(this);
+        ref.getTryCatchStmt().getCatchBlock().accept(this);
     }
 
     // Private methods
@@ -1331,7 +1330,7 @@ public abstract class BLangAbstractLinkedExecutor implements LinkedNodeExecutor 
             return bContext.getControlStack().getCurrentFrame().tempValues[expression.getTempOffset()];
         } else {
             MemoryLocation memoryLocation = ((VariableRefExpr) expression).getVariableDef().getMemoryLocation();
-            return memoryLocation.executeLNode(this);
+            return memoryLocation.access(this);
         }
     }
 

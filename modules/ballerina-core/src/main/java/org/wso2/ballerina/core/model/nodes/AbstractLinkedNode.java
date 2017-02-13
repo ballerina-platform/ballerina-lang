@@ -17,16 +17,17 @@
 */
 package org.wso2.ballerina.core.model.nodes;
 
-import org.wso2.ballerina.core.exception.FlowBuilderException;
 import org.wso2.ballerina.core.model.LinkedNode;
-import org.wso2.ballerina.core.model.LinkedNodeExecutor;
+import org.wso2.ballerina.core.model.LinkedNodeVisitor;
+import org.wso2.ballerina.core.model.NodeLocation;
+import org.wso2.ballerina.core.model.NodeVisitor;
 
 /**
  * Abstract implementation of the Linked node.
  *
  * @since 0.8.0
  */
-public class AbstractLinkedNode implements LinkedNode {
+public abstract class AbstractLinkedNode implements LinkedNode {
 
     public LinkedNode next;
     protected LinkedNode sibling, parent;
@@ -65,14 +66,15 @@ public class AbstractLinkedNode implements LinkedNode {
         this.parent = linkedNode;
     }
 
-    /**
-     * Execute LinkedNode.
-     *
-     * @param executor
-     */
     @Override
-    public void executeLNode(LinkedNodeExecutor executor) {
-        throw new FlowBuilderException("Unhandled LinkedNode execution. " + this.getClass().getName());
+    public NodeLocation getNodeLocation() {
+        return null;
     }
 
+    @Override
+    public void accept(NodeVisitor visitor) {
+        this.accept((LinkedNodeVisitor) visitor);
+    }
+
+    public abstract void accept(LinkedNodeVisitor visitor);
 }

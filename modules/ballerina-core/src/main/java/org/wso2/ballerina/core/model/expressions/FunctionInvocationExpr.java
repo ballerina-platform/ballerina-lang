@@ -18,7 +18,6 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.Function;
-import org.wso2.ballerina.core.model.LinkedNodeExecutor;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
@@ -116,11 +115,6 @@ public class FunctionInvocationExpr extends AbstractExpression implements Callab
         }
 
         return values[0];
-    }
-
-    @Override
-    public void executeLNode(LinkedNodeExecutor executor) {
-        executor.visit(this);
     }
 
     @Override

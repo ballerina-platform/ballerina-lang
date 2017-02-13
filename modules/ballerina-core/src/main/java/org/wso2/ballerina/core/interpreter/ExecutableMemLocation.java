@@ -17,11 +17,12 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
-import org.wso2.ballerina.core.model.LinkedNodeExecutor;
+import org.wso2.ballerina.core.interpreter.nonblocking.BLangExecutionVisitor;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code ExecutableLNode} interface makes an {@link org.wso2.ballerina.core.interpreter.MemoryLocation} executable.
+ * {@code ExecutableMemLocation} interface makes an {@link org.wso2.ballerina.core.interpreter.MemoryLocation}
+ * accessible in BLangExecutionVisitor.
  *
  * @since 0.8.0
  */
@@ -30,8 +31,8 @@ public interface ExecutableMemLocation {
     /**
      * Executes and Returns the result of this expression.
      *
-     * @param executor instance of a {@code {@link LinkedNodeExecutor }}
+     * @param executor instance of a {@code {@link BLangExecutionVisitor }}
      * @return result of the expression
      */
-    BValue executeLNode(LinkedNodeExecutor executor);
+    BValue access(BLangExecutionVisitor executor);
 }

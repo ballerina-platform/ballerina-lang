@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
-import org.wso2.ballerina.core.model.LinkedNodeExecutor;
+import org.wso2.ballerina.core.interpreter.nonblocking.BLangExecutionVisitor;
 import org.wso2.ballerina.core.model.Node;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
@@ -51,7 +51,7 @@ public class ConnectorVarLocation extends MemoryLocation implements Node {
     }
 
     @Override
-    public BValue executeLNode(LinkedNodeExecutor executor) {
-        return executor.visit(this);
+    public BValue access(BLangExecutionVisitor executor) {
+        return executor.access(this);
     }
 }

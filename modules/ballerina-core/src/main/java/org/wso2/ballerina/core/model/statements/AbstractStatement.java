@@ -18,8 +18,8 @@
 
 package org.wso2.ballerina.core.model.statements;
 
+import org.wso2.ballerina.core.model.LinkedNode;
 import org.wso2.ballerina.core.model.NodeLocation;
-import org.wso2.ballerina.core.model.nodes.AbstractLinkedNode;
 
 /**
  * Represents an abstract statement. All statements nodes extends this abstract class.
@@ -29,8 +29,10 @@ import org.wso2.ballerina.core.model.nodes.AbstractLinkedNode;
  *
  * @since 0.8.0
  */
-public abstract class AbstractStatement extends AbstractLinkedNode implements Statement {
+public abstract class AbstractStatement implements Statement {
     protected NodeLocation location;
+    public LinkedNode next;
+    protected LinkedNode sibling, parent;
 
     public AbstractStatement(NodeLocation location) {
         this.location = location;
@@ -38,5 +40,39 @@ public abstract class AbstractStatement extends AbstractLinkedNode implements St
 
     public NodeLocation getNodeLocation() {
         return location;
+    }
+
+    @Override
+    public LinkedNode next() {
+        return next;
+    }
+
+    @Override
+    public void setNext(LinkedNode linkedNode) {
+        // Validation for incorrect Linking.
+        if (next != null && next != linkedNode && !next.getClass().equals(linkedNode.getClass())) {
+            throw new IllegalStateException(this.getClass() + " got different next." + next + " " + linkedNode);
+        }
+        this.next = linkedNode;
+    }
+
+    @Override
+    public LinkedNode getNextSibling() {
+        return sibling;
+    }
+
+    @Override
+    public void setNextSibling(LinkedNode linkedNode) {
+        this.sibling = linkedNode;
+    }
+
+    @Override
+    public LinkedNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(LinkedNode linkedNode) {
+        this.parent = linkedNode;
     }
 }

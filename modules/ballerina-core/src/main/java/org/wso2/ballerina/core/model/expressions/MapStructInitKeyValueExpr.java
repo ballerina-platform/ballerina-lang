@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerina.core.model.expressions;
 
-import org.wso2.ballerina.core.model.LinkedNodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 
@@ -46,11 +45,6 @@ public class MapStructInitKeyValueExpr extends AbstractExpression {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public void executeLNode(LinkedNodeExecutor executor) {
-        executor.visit(this);
     }
 
     public String getKey() {

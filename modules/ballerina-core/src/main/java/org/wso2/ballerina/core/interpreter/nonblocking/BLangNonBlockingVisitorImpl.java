@@ -85,231 +85,231 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@link BLangNonBlockingExecutor} is a non-blocking and self driven Ballerina Executor.
+ * {@link BLangNonBlockingVisitorImpl} is a non-blocking and self driven Ballerina Executor.
  *
  * @since 0.8.0
  */
-public class BLangNonBlockingExecutor extends BLangAbstractLinkedExecutor {
+public class BLangNonBlockingVisitorImpl extends BLangAbstractExecutionVisitor {
 
-    public BLangNonBlockingExecutor(RuntimeEnvironment runtimeEnv, Context bContext) {
+    public BLangNonBlockingVisitorImpl(RuntimeEnvironment runtimeEnv, Context bContext) {
         super(runtimeEnv, bContext);
     }
 
     @Override
     public void visit(ActionInvocationStmt actionIStmt) {
         super.visit(actionIStmt);
-        actionIStmt.next.executeLNode(this);
+        actionIStmt.next.accept(this);
     }
 
     @Override
     public void visit(AssignStmt assignStmt) {
         super.visit(assignStmt);
-        assignStmt.next.executeLNode(this);
+        assignStmt.next.accept(this);
     }
 
     @Override
     public void visit(BlockStmt blockStmt) {
         super.visit(blockStmt);
-        blockStmt.next.executeLNode(this);
+        blockStmt.next.accept(this);
     }
 
     @Override
     public void visit(BreakStmt breakStmt) {
         super.visit(breakStmt);
-        breakStmt.next.executeLNode(this);
+        breakStmt.next.accept(this);
     }
 
     @Override
     public void visit(ForeachStmt foreachStmt) {
         super.visit(foreachStmt);
-        foreachStmt.next.executeLNode(this);
+        foreachStmt.next.accept(this);
     }
 
     @Override
     public void visit(ForkJoinStmt forkJoinStmt) {
         super.visit(forkJoinStmt);
-        forkJoinStmt.next.executeLNode(this);
+        forkJoinStmt.next.accept(this);
     }
 
     @Override
     public void visit(FunctionInvocationStmt funcIStmt) {
         super.visit(funcIStmt);
-        funcIStmt.next.executeLNode(this);
+        funcIStmt.next.accept(this);
     }
 
     @Override
     public void visit(IfElseStmt ifElseStmt) {
         super.visit(ifElseStmt);
-        ifElseStmt.next.executeLNode(this);
+        ifElseStmt.next.accept(this);
     }
 
     @Override
     public void visit(ReplyStmt replyStmt) {
         super.visit(replyStmt);
-        replyStmt.next.executeLNode(this);
+        replyStmt.next.accept(this);
     }
 
     @Override
     public void visit(ReturnStmt returnStmt) {
         super.visit(returnStmt);
-        returnStmt.next.executeLNode(this);
+        returnStmt.next.accept(this);
     }
 
     @Override
     public void visit(ThrowStmt throwStmt) {
         super.visit(throwStmt);
-        throwStmt.next.executeLNode(this);
+        throwStmt.next.accept(this);
     }
 
     @Override
     public void visit(TryCatchStmt tryCatchStmt) {
         super.visit(tryCatchStmt);
-        tryCatchStmt.next.executeLNode(this);
+        tryCatchStmt.next.accept(this);
     }
 
     @Override
     public void visit(VariableDefStmt variableDefStmt) {
         super.visit(variableDefStmt);
-        variableDefStmt.next.executeLNode(this);
+        variableDefStmt.next.accept(this);
     }
 
     @Override
     public void visit(WhileStmt whileStmt) {
         super.visit(whileStmt);
-        whileStmt.next.executeLNode(this);
+        whileStmt.next.accept(this);
     }
 
     @Override
     public void visit(ActionInvocationExpr actoinIExpr) {
         super.visit(actoinIExpr);
-        actoinIExpr.next.executeLNode(this);
+        actoinIExpr.next.accept(this);
     }
 
     @Override
     public void visit(ArrayInitExpr arrayInitExpr) {
         super.visit(arrayInitExpr);
-        arrayInitExpr.next.executeLNode(this);
+        arrayInitExpr.next.accept(this);
     }
 
     @Override
     public void visit(ArrayMapAccessExpr arrayMapAccessExpr) {
         super.visit(arrayMapAccessExpr);
-        arrayMapAccessExpr.next.executeLNode(this);
+        arrayMapAccessExpr.next.accept(this);
     }
 
     @Override
     public void visit(BacktickExpr backtickExpr) {
         super.visit(backtickExpr);
-        backtickExpr.next.executeLNode(this);
+        backtickExpr.next.accept(this);
     }
 
     @Override
     public void visit(BasicLiteral basicLiteral) {
         super.visit(basicLiteral);
-        basicLiteral.next.executeLNode(this);
+        basicLiteral.next.accept(this);
     }
 
     @Override
     public void visit(BinaryExpression expression) {
         super.visit(expression);
-        expression.next.executeLNode(this);
+        expression.next.accept(this);
     }
 
     @Override
     public void visit(ConnectorInitExpr connectorInitExpr) {
         super.visit(connectorInitExpr);
-        connectorInitExpr.next.executeLNode(this);
+        connectorInitExpr.next.accept(this);
     }
 
     @Override
     public void visit(FunctionInvocationExpr functionIExpr) {
         super.visit(functionIExpr);
-        functionIExpr.next.executeLNode(this);
+        functionIExpr.next.accept(this);
     }
 
     @Override
     public void visit(InstanceCreationExpr instanceCreationExpr) {
         super.visit(instanceCreationExpr);
-        instanceCreationExpr.next.executeLNode(this);
+        instanceCreationExpr.next.accept(this);
     }
 
     @Override
     public void visit(MapInitExpr mapInitExpr) {
         super.visit(mapInitExpr);
-        mapInitExpr.next.executeLNode(this);
+        mapInitExpr.next.accept(this);
     }
 
     @Override
     public void visit(MapStructInitKeyValueExpr expr) {
         super.visit(expr);
-        expr.next.executeLNode(this);
+        expr.next.accept(this);
     }
 
     @Override
     public void visit(RefTypeInitExpr refTypeInitExpr) {
         super.visit(refTypeInitExpr);
-        refTypeInitExpr.next.executeLNode(this);
+        refTypeInitExpr.next.accept(this);
     }
 
     @Override
     public void visit(ResourceInvocationExpr resourceIExpr) {
         super.visit(resourceIExpr);
-        resourceIExpr.getResource().getResourceBody().executeLNode(this);
+        resourceIExpr.getResource().getResourceBody().accept(this);
     }
 
     @Override
     public void visit(StructFieldAccessExpr accessExpr) {
         super.visit(accessExpr);
-        accessExpr.next.executeLNode(this);
+        accessExpr.next.accept(this);
     }
 
     @Override
     public void visit(StructInitExpr structInitExpr) {
         super.visit(structInitExpr);
-        structInitExpr.next.executeLNode(this);
+        structInitExpr.next.accept(this);
     }
 
     @Override
     public void visit(TypeCastExpression typeCastExpression) {
         super.visit(typeCastExpression);
-        typeCastExpression.next.executeLNode(this);
+        typeCastExpression.next.accept(this);
     }
 
     @Override
     public void visit(UnaryExpression unaryExpression) {
         super.visit(unaryExpression);
-        unaryExpression.next.executeLNode(this);
+        unaryExpression.next.accept(this);
     }
 
     @Override
     public void visit(VariableRefExpr variableRefExpr) {
         super.visit(variableRefExpr);
-        variableRefExpr.next.executeLNode(this);
+        variableRefExpr.next.accept(this);
     }
 
     @Override
-    public BValue visit(StackVarLocation stackVarLocation) {
-        return super.visit(stackVarLocation);
+    public BValue access(StackVarLocation stackVarLocation) {
+        return super.access(stackVarLocation);
     }
 
     @Override
-    public BValue visit(ConstantLocation constantLocation) {
-        return super.visit(constantLocation);
+    public BValue access(ConstantLocation constantLocation) {
+        return super.access(constantLocation);
     }
 
     @Override
-    public BValue visit(ServiceVarLocation serviceVarLocation) {
-        return super.visit(serviceVarLocation);
+    public BValue access(ServiceVarLocation serviceVarLocation) {
+        return super.access(serviceVarLocation);
     }
 
     @Override
-    public BValue visit(StructVarLocation structLocation) {
-        return super.visit(structLocation);
+    public BValue access(StructVarLocation structLocation) {
+        return super.access(structLocation);
     }
 
     @Override
-    public BValue visit(ConnectorVarLocation connectorVarLocation) {
-        return super.visit(connectorVarLocation);
+    public BValue access(ConnectorVarLocation connectorVarLocation) {
+        return super.access(connectorVarLocation);
     }
 
     @Override
@@ -326,7 +326,7 @@ public class BLangNonBlockingExecutor extends BLangAbstractLinkedExecutor {
     public void visit(GotoNode gotoNode) {
         super.visit(gotoNode);
         Integer pop = branchIDStack.pop();
-        gotoNode.next(pop).executeLNode(this);
+        gotoNode.next(pop).accept(this);
     }
 
     @Override
@@ -337,7 +337,7 @@ public class BLangNonBlockingExecutor extends BLangAbstractLinkedExecutor {
     @Override
     public void visit(AssignStmtEndNode assignStmtEndNode) {
         super.visit(assignStmtEndNode);
-        assignStmtEndNode.next.executeLNode(this);
+        assignStmtEndNode.next.accept(this);
     }
 
     @Override
@@ -349,97 +349,97 @@ public class BLangNonBlockingExecutor extends BLangAbstractLinkedExecutor {
     @Override
     public void visit(ReplyStmtEndNode replyStmtEndNode) {
         super.visit(replyStmtEndNode);
-        replyStmtEndNode.next.executeLNode(this);
+        replyStmtEndNode.next.accept(this);
     }
 
     @Override
     public void visit(ReturnStmtEndNode returnStmtEndNode) {
         super.visit(returnStmtEndNode);
-        returnStmtEndNode.next.executeLNode(this);
+        returnStmtEndNode.next.accept(this);
     }
 
     @Override
     public void visit(VariableDefStmtEndNode variableDefStmtEndNode) {
         super.visit(variableDefStmtEndNode);
-        variableDefStmtEndNode.next.executeLNode(this);
+        variableDefStmtEndNode.next.accept(this);
     }
 
     @Override
     public void visit(ActionInvocationExprStartNode actionInvocationExprStartNode) {
         super.visit(actionInvocationExprStartNode);
-        actionInvocationExprStartNode.next.executeLNode(this);
+        actionInvocationExprStartNode.next.accept(this);
     }
 
     @Override
     public void visit(ArrayInitExprEndNode arrayInitExprEndNode) {
         super.visit(arrayInitExprEndNode);
-        arrayInitExprEndNode.next.executeLNode(this);
+        arrayInitExprEndNode.next.accept(this);
     }
 
     @Override
     public void visit(ArrayMapAccessExprEndNode arrayMapAccessExprEndNode) {
         super.visit(arrayMapAccessExprEndNode);
-        arrayMapAccessExprEndNode.next.executeLNode(this);
+        arrayMapAccessExprEndNode.next.accept(this);
     }
 
     @Override
     public void visit(BacktickExprEndNode backtickExprEndNode) {
         super.visit(backtickExprEndNode);
-        backtickExprEndNode.next.executeLNode(this);
+        backtickExprEndNode.next.accept(this);
     }
 
     @Override
     public void visit(BinaryExpressionEndNode binaryExpressionEndNode) {
         super.visit(binaryExpressionEndNode);
-        binaryExpressionEndNode.next.executeLNode(this);
+        binaryExpressionEndNode.next.accept(this);
     }
 
     @Override
     public void visit(FunctionInvocationExprStartNode functionInvocationExprStartNode) {
         super.visit(functionInvocationExprStartNode);
-        functionInvocationExprStartNode.next.executeLNode(this);
+        functionInvocationExprStartNode.next.accept(this);
     }
 
     @Override
     public void visit(StructFieldAccessExprEndNode structFieldAccessExprEndNode) {
         super.visit(structFieldAccessExprEndNode);
-        structFieldAccessExprEndNode.next.executeLNode(this);
+        structFieldAccessExprEndNode.next.accept(this);
     }
 
     @Override
     public void visit(StructInitExprEndNode structInitExprEndNode) {
         super.visit(structInitExprEndNode);
-        structInitExprEndNode.next.executeLNode(this);
+        structInitExprEndNode.next.accept(this);
     }
 
     @Override
     public void visit(TypeCastExpressionEndNode typeCastExpressionEndNode) {
         super.visit(typeCastExpressionEndNode);
-        typeCastExpressionEndNode.next.executeLNode(this);
+        typeCastExpressionEndNode.next.accept(this);
     }
 
     @Override
     public void visit(UnaryExpressionEndNode unaryExpressionEndNode) {
         super.visit(unaryExpressionEndNode);
-        unaryExpressionEndNode.next.executeLNode(this);
+        unaryExpressionEndNode.next.accept(this);
     }
 
     @Override
     public void visit(RefTypeInitExprEndNode refTypeInitExprEndNode) {
         super.visit(refTypeInitExprEndNode);
-        refTypeInitExprEndNode.next.executeLNode(this);
+        refTypeInitExprEndNode.next.accept(this);
     }
 
     @Override
     public void visit(CallableUnitEndNode callableUnitEndNode) {
         super.visit(callableUnitEndNode);
-        callableUnitEndNode.next.executeLNode(this);
+        callableUnitEndNode.next.accept(this);
     }
 
     @Override
     public void visit(ConnectorInitExprEndNode connectorInitExprEndNode) {
         super.visit(connectorInitExprEndNode);
-        connectorInitExprEndNode.next.executeLNode(this);
+        connectorInitExprEndNode.next.accept(this);
     }
 
     @Override
@@ -450,19 +450,19 @@ public class BLangNonBlockingExecutor extends BLangAbstractLinkedExecutor {
     @Override
     public void visit(InvokeNativeFunctionNode invokeNativeFunctionNode) {
         super.visit(invokeNativeFunctionNode);
-        invokeNativeFunctionNode.next.executeLNode(this);
+        invokeNativeFunctionNode.next.accept(this);
     }
 
     @Override
     public void visit(InvokeNativeTypeMapperNode invokeNativeTypeMapperNode) {
         super.visit(invokeNativeTypeMapperNode);
-        invokeNativeTypeMapperNode.next.executeLNode(this);
+        invokeNativeTypeMapperNode.next.accept(this);
     }
 
     @Override
     public void visit(MapInitExprEndNode mapInitExprEndNode) {
         super.visit(mapInitExprEndNode);
-        mapInitExprEndNode.next.executeLNode(this);
+        mapInitExprEndNode.next.accept(this);
     }
 
 }

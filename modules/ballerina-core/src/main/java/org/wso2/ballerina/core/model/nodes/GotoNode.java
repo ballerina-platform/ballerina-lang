@@ -19,7 +19,8 @@ package org.wso2.ballerina.core.model.nodes;
 
 import org.wso2.ballerina.core.exception.FlowBuilderException;
 import org.wso2.ballerina.core.model.LinkedNode;
-import org.wso2.ballerina.core.model.LinkedNodeExecutor;
+import org.wso2.ballerina.core.model.LinkedNodeVisitor;
+import org.wso2.ballerina.core.model.Node;
 
 import java.util.ArrayList;
 
@@ -30,7 +31,7 @@ import java.util.ArrayList;
 public class GotoNode extends AbstractLinkedNode {
 
     // TODO : Think a way to remove ArrayList.
-    private ArrayList<LinkedNode> linkedNodes;
+    private ArrayList<Node> linkedNodes;
 
     public GotoNode() {
         linkedNodes = new ArrayList<>();
@@ -42,7 +43,7 @@ public class GotoNode extends AbstractLinkedNode {
      * @param branchID of the next linked node.
      * @return next Linked node.
      */
-    public LinkedNode next(int branchID) {
+    public Node next(int branchID) {
         return linkedNodes.get(branchID);
     }
 
@@ -52,7 +53,7 @@ public class GotoNode extends AbstractLinkedNode {
      * @param node next Linked node.
      * @return id for next Linked node.
      */
-    public int addNext(LinkedNode node) {
+    public int addNext(Node node) {
         linkedNodes.add(node);
         // Return the branch LinkID.
         return linkedNodes.size() - 1;
@@ -69,7 +70,7 @@ public class GotoNode extends AbstractLinkedNode {
     }
 
     @Override
-    public void executeLNode(LinkedNodeExecutor executor) {
-        executor.visit(this);
+    public void accept(LinkedNodeVisitor nodeVisitor) {
+        nodeVisitor.visit(this);
     }
 }

@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.core.model.nodes;
 
+import org.wso2.ballerina.core.model.LinkedNodeVisitor;
+
 /**
  * Represents the start node of a linked execution.
  */
@@ -38,6 +40,11 @@ public class StartNode extends AbstractLinkedNode {
         MAIN_FUNCTION,
         RESOURCE,
         TEST
+    }
+
+    @Override
+    public void accept(LinkedNodeVisitor nodeVisitor) {
+        // Nothing to do.
     }
 
 }

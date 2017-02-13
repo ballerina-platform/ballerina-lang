@@ -22,7 +22,7 @@ package org.wso2.ballerina.core.model;
  *
  * @since 0.8.0
  */
-public interface LinkedNode {
+public interface LinkedNode extends Node {
 
     /**
      * Get next LinkedNode to current LinkedNode.
@@ -65,12 +65,4 @@ public interface LinkedNode {
      * @param linkedNode parent LinkedNode.
      */
     void setParent(LinkedNode linkedNode);
-
-
-    /**
-     * Execute LinkedNode.
-     *
-     * @param executor
-     */
-    void executeLNode(LinkedNodeExecutor executor);
 }

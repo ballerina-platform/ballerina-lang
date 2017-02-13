@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.model.nodes.fragments.statements;
 
-import org.wso2.ballerina.core.model.LinkedNodeExecutor;
+import org.wso2.ballerina.core.model.LinkedNodeVisitor;
 import org.wso2.ballerina.core.model.nodes.AbstractLinkedNode;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 
@@ -38,7 +38,7 @@ public class ReplyStmtEndNode extends AbstractLinkedNode {
     }
 
     @Override
-    public void executeLNode(LinkedNodeExecutor executor) {
-        executor.visit(this);
+    public void accept(LinkedNodeVisitor nodeVisitor) {
+        nodeVisitor.visit(this);
     }
 }

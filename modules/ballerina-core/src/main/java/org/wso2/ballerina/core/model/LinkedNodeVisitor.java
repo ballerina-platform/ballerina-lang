@@ -17,11 +17,6 @@
 */
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
-import org.wso2.ballerina.core.interpreter.ConstantLocation;
-import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
-import org.wso2.ballerina.core.interpreter.StackVarLocation;
-import org.wso2.ballerina.core.interpreter.StructVarLocation;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
@@ -80,12 +75,11 @@ import org.wso2.ballerina.core.model.statements.ThrowStmt;
 import org.wso2.ballerina.core.model.statements.TryCatchStmt;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
-import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * LinkedNode Executor Interface.
+ * LinkedNode Visitor Interface.
  */
-public interface LinkedNodeExecutor extends Executor {
+public interface LinkedNodeVisitor extends NodeVisitor {
 
     /* Statement Nodes */
 
@@ -155,8 +149,6 @@ public interface LinkedNodeExecutor extends Executor {
 
     void visit(VariableRefExpr variableRefExpr);
 
-    /* Memory Nodes */
-
     /* Other Nodes */
 
     void visit(EndNode endNode);
@@ -178,18 +170,6 @@ public interface LinkedNodeExecutor extends Executor {
     void visit(ReturnStmtEndNode returnStmtEndNode);
 
     void visit(VariableDefStmtEndNode variableDefStmtEndNode);
-
-    /* Memory Locations */
-
-    BValue visit(ConnectorVarLocation connectorVarLocation);
-
-    BValue visit(ConstantLocation constantLocation);
-
-    BValue visit(ServiceVarLocation serviceVarLocation);
-
-    BValue visit(StackVarLocation stackVarLocation);
-
-    BValue visit(StructVarLocation structVarLocation);
 
     /* Node Fragments - Expressions */
 
