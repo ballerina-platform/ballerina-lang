@@ -170,8 +170,6 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
 
             if(!_.isUndefined(this.connector)) {
                 var parent = this.getStatementGroup();
-                var thisNodeGroup = this.getStatementGroup().node();
-                var thisNodeGroupParent = this.getParent()._contentGroup.node();
 
                 this._arrowGroup = D3Utils.group(parent).attr("transform", "translate(0,0)");
                 var width = this.getBoundingBox().w();
@@ -242,7 +240,12 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
 
                 this.processorConnectPoint.style("display", "none");
 
-                thisNodeGroupParent.appendChild(thisNodeGroup);
+                if(!_.isUndefined(this.getParent()._contentGroup)) {
+                    var thisNodeGroup = parent.node();
+                    var thisNodeGroupParent = this.getParent()._contentGroup.node();
+
+                    thisNodeGroupParent.appendChild(thisNodeGroup);
+                }
 
                 var self = this;
 
