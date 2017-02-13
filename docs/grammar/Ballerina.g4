@@ -66,7 +66,7 @@ connectorDefinition
     ;
 
 nativeConnector
-    :   annotation* 'native' 'connector' Identifier '(' parameterList ')' nativeConnectorBody
+    :   annotation* 'native' 'connector' Identifier '(' parameterList? ')' nativeConnectorBody
     ;
 
 nativeConnectorBody
@@ -74,7 +74,7 @@ nativeConnectorBody
     ;
 
 connector
-    :   annotation* 'connector' Identifier '(' parameterList ')' connectorBody
+    :   annotation* 'connector' Identifier '(' parameterList? ')' connectorBody
     ;
 
 connectorBody
@@ -251,7 +251,7 @@ literalValue
      :   '@' annotationName ( '(' ( elementValuePairs | elementValue )? ')' )?
      ;
 
- annotationName : Identifier ;
+ annotationName : Identifier (':' Identifier)?  ;
 
  elementValuePairs
      :   elementValuePair (',' elementValuePair)*
