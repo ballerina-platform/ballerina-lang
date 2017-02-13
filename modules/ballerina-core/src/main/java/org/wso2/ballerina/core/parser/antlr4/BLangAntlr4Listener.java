@@ -895,6 +895,20 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterIfClause(BallerinaParser.IfClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startIfClause(getCurrentLocation(ctx));
+        }
+    }
+
+    @Override
+    public void exitIfClause(BallerinaParser.IfClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.addIfClause();
+        }
+    }
+
+    @Override
     public void enterElseIfClause(BallerinaParser.ElseIfClauseContext ctx) {
         if (ctx.exception == null) {
             modelBuilder.startElseIfClause(getCurrentLocation(ctx));
@@ -1013,23 +1027,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
     }
 
-    /**
-     * Enter a parse tree produced by the {@code allJoinCondition}
-     * labeled alternative in {@link BallerinaParser#joinConditions}.
-     *
-     * @param ctx the parse tree
-     */
     @Override
     public void enterAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) {
-
     }
 
-    /**
-     * Exit a parse tree produced by the {@code allJoinCondition}
-     * labeled alternative in {@link BallerinaParser#joinConditions}.
-     *
-     * @param ctx the parse tree
-     */
     @Override
     public void exitAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) {
         if (ctx.exception == null) {
@@ -1039,7 +1040,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
             }
         }
     }
-
 
     @Override
     public void enterTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) {
@@ -1141,6 +1141,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitCommentStatement(BallerinaParser.CommentStatementContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.addCommentStmt(getCurrentLocation(ctx), ctx.getText());
+        }
     }
 
     @Override

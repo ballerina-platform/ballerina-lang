@@ -1,6 +1,6 @@
 import ballerina.lang.system;
 import ballerina.lang.message;
-// Global constants are visible to worker
+
 const int index = 12;
 
 function testWorker()(message) {
