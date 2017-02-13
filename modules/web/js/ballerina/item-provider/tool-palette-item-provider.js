@@ -187,7 +187,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     action.icon = "images/tool-icons/action.svg";
                     action.title = action.getName();
                     action.nodeFactoryMethod = BallerinaASTFactory.createActionInvocationExpression;
-                    action.id = connector.getName() + '-' + action.getAction();
+                    action.id = connector.getName() + '-' + action.getName();
                     definitions.push(action);
 
                     var toolGroupID = package.getName() + "-tool-group";
@@ -200,6 +200,10 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     var actionIcon = "images/tool-icons/action.svg";
                     var toolGroupID = package.getName() + "-tool-group";
                     action.classNames = "tool-connector-action";
+                    action.meta = {
+                        action: action.getName(),
+                        actionConnectorName: connector.getName(),
+                    };
                     var actionNodeFactoryMethod = BallerinaASTFactory.createActionInvocationExpression;
                     self.addToToolGroup(toolGroupID, action, actionNodeFactoryMethod, actionIcon);
                 });
