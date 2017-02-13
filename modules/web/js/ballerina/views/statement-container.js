@@ -454,13 +454,16 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this._managedStatements.splice(childStatementIndex, 1);
 
         if (this._widestStatementView === childStatementView) {
-            if(!_.isEmpty(this._managedStatements)) {
-                // we have deleted the widest statement.
-                this._widestStatementView = computeWidestStatementView(this._managedStatements,
-                    this.diagramRenderingContext);
-                this._updateContainerWidth(this._widestStatementView.getBoundingBox().w());
-            } else {
+            // we have deleted the widest statement.
+            if (_.isEmpty(this._managedStatements)) {
+                // and that was the only child statement we had.
                 this._widestStatementView = undefined;
+                this._updateContainerWidth(0);
+            } else {
+                // we have more child statements.
+                this._widestStatementView = computeWidestStatementView(this._managedStatements,
+                                                                       this.diagramRenderingContext);
+                this._updateContainerWidth(this._widestStatementView.getBoundingBox().w());
             }
         }
     };
