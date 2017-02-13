@@ -334,17 +334,17 @@ breakStatement
 
 // typeName is only message
 forkJoinStatement
-    :   'fork' '(' typeName Identifier ')' '{' workerDeclaration* '}' joinClause? timeoutClause?
+    : 'fork' '(' variableReference ')' '{' workerDeclaration* '}' joinClause? timeoutClause?
     ;
 
 // below typeName is only 'message[]'
 joinClause
-    :   'join' '(' joinConditions ')' '(' typeName Identifier ')'  '{' statement* '}'
+    :   'join' '(' joinConditions ')' '(' typeName Identifier ')' '{' statement* '}'
     ;
 
 joinConditions
-    :   'any' IntegerLiteral (Identifier (',' Identifier)*)?
-    |   'all' (Identifier (',' Identifier)*)?
+    : 'any' IntegerLiteral (Identifier (',' Identifier)*)? 	    # anyJoinCondition
+    | 'all' (Identifier (',' Identifier)*)? 		            # allJoinCondition
     ;
 
 // below typeName is only 'message[]'
