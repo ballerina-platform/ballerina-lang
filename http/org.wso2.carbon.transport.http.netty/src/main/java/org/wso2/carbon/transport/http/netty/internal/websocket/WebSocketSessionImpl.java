@@ -36,7 +36,7 @@ import javax.websocket.RemoteEndpoint;
  * This is spec implementation of {@link javax.websocket.Session} which uses {@link WebSocketSessionAdapter}.
  */
 public class WebSocketSessionImpl extends WebSocketSessionAdapter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketSessionImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketSessionImpl.class);
 
     private final ChannelHandlerContext ctx;
     private final boolean isSecure;
@@ -76,7 +76,7 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
         try {
             return new URI(requestedUri);
         } catch (URISyntaxException e) {
-            LOGGER.error(e.toString());
+            logger.error(e.toString());
             return null;
         }
     }

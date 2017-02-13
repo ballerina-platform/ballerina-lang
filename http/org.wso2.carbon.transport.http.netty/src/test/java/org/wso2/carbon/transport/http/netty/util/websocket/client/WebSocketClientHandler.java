@@ -31,12 +31,12 @@ import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
  */
 public class WebSocketClientHandler extends ChannelInboundHandlerAdapter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketSourceHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketSourceHandler.class);
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof WebSocketFrame) {
-            LOGGER.info("WebSocket Frame receive from the server");
+            logger.info("WebSocket Frame receive from the server");
         }
     }
 }

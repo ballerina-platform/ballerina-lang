@@ -51,7 +51,7 @@ import javax.websocket.Session;
  */
 public class WebSocketSourceHandler extends SourceHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketSourceHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketSourceHandler.class);
     private final String uri;
     private CarbonMessage cMsg;
     private final String channelId;
@@ -82,7 +82,7 @@ public class WebSocketSourceHandler extends SourceHandler {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws UnknownWebSocketFrameTypeException {
         cMsg = null;
         if (!(msg instanceof WebSocketFrame)) {
-            LOGGER.error("Expecting WebSocketFrame. Unknown type.");
+            logger.error("Expecting WebSocketFrame. Unknown type.");
             throw new UnknownWebSocketFrameTypeException("Expecting WebSocketFrame. Unknown type.");
         }
         if (msg instanceof TextWebSocketFrame) {
@@ -135,11 +135,11 @@ public class WebSocketSourceHandler extends SourceHandler {
             try {
                 carbonMessageProcessor.receive(cMsg, new ResponseCallback(this.ctx));
             } catch (Exception e) {
-                LOGGER.error("Error while submitting CarbonMessage to CarbonMessageProcessor.", e);
+                logger.error("Error while submitting CarbonMessage to CarbonMessageProcessor.", e);
                 ctx.channel().close();
             }
         } else {
-            LOGGER.error("Cannot find registered MessageProcessor to forward the message.");
+            logger.error("Cannot find registered MessageProcessor to forward the message.");
             ctx.channel().close();
         }
     }
