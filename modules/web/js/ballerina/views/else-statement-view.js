@@ -25,7 +25,9 @@ define(['require', 'lodash', 'jquery', 'log', './compound-statement-view'],
          * @param {Object} args.container - The HTML container to which the view should be added to.
          * @param {Object} args.parent - Parent Statement View, which in this case the if-else statement
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+         * @class ElseStatementView
          * @constructor
+         * @extends CompoundStatementView
          */
         var ElseStatementView = function (args) {
             _.set(args, "viewOptions.title.text", "Else");

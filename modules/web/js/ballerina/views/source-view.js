@@ -152,6 +152,7 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
         this._fomatter.beautify(this._editor.getSession());
         if(doSilently){
             this._inSilentMode = false;
+            this.markClean();
         }
     };
     

@@ -361,10 +361,13 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
          * @param connectorDefinition - connector definition to be removed
          */
         Package.prototype.removeConnectorDefinition  = function (connectorDefinition) {
-            _.remove(this._connectorDefinitions, function (connectorDefinitionItem) {
+            var connector  = _.filter(this._connectorDefinitions, function (connectorDefinitionItem) {
                 //TODO Need to check param types along with function name to support overloaded functions
-                return _.isEqual(connectorDefinitionItem.getName(), connectorDefinition.getConnectorName())
+                return _.isEqual(connectorDefinitionItem.getName(), connectorDefinition.getConnectorName());
             });
+            // removing child connector actions
+            connector[0].removeAllActions(connectorDefinition);
+            _.remove(this._connectorDefinitions, connector[0]);
             this.trigger("connector-def-removed", connectorDefinition);
         };
 

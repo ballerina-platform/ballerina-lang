@@ -24,7 +24,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      */
     var ReturnStatement = function (args) {
         Statement.call(this);
-        this._expression = _.get(args, 'expression') || 'expression';
+        this._expression = _.get(args, 'return') || 'return';
         this.type = "ReturnStatement";
     };
 
@@ -66,6 +66,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
                 expression += " , ";
             }
         }
+        expression = 'return ' + expression;
         this.setReturnExpression(expression, {doSilently: true});
     };
 

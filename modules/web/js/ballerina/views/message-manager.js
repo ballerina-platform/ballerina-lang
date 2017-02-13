@@ -58,7 +58,12 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
 
     MessageManager.prototype.updateActivatedTarget = function (target, actionInvocationModel) {
         if(actionInvocationModel) {
-            actionInvocationModel = this.getMessageSource().getModel().getChildren()[1].getChildren()[0];
+            // TODO : Putting this if/else to fix a bug in arrow drawing. Need to revamp this completely.
+            if(_.size(this.getMessageSource().getModel().getChildren()) > 0){
+                actionInvocationModel = this.getMessageSource().getModel().getChildren()[1].getChildren()[0];
+            }else{
+                actionInvocationModel = this.getMessageSource().getModel();
+            }
         }
         else {
             actionInvocationModel = this.getMessageSource();

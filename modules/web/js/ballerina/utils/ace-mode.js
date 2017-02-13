@@ -31,7 +31,7 @@ define('ace/mode/ballerina',
                 "ballerina-keyword-primitive-type": "boolean|int|long|float|double|string",
                 "ballerina-keyword-non-primitive-type": "message|map|exception|json|xml|xmlDocument",
                 "ballerina-keyword-definition": "package|type|typeconvertor|connector|function|resource|service|worker|struct",
-                "ballerina-keyword-language": "const|true|false|new|reply"
+                "ballerina-keyword-language": "const|true|false|reply|create"
             }, "ballerina-identifier");
 
             this.$rules = {

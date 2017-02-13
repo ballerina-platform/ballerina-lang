@@ -150,7 +150,7 @@ define(['lodash', './expression'], function (_, Expression) {
             }
         }
 
-        var functionName = (_.isUndefined(this.getPackageName()))? this.getFunctionName()
+        var functionName = (_.isNil(this.getPackageName()))? this.getFunctionName()
             : this.getPackageName() + ":" + this.getFunctionName();
 
         return functionName + '(' + this._params +  ')';

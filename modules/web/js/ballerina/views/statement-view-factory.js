@@ -51,7 +51,7 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                 return new FunctionInvocationStatementView(args);
             } else if (statement instanceof AST.WhileStatement) {
                 return new WhileStatementView(args);
-            } else if (statement instanceof AST.ActionInvocationStatement) {
+            } else if (statement instanceof AST.ActionInvocationExpression) {
                 return new ActionInvocationStatementView(args);
             } else if (statement instanceof AST.ReplyStatement) {
                 return new ReplyStatementView(args);
