@@ -69,6 +69,14 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-codec-http</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-resolver</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -83,7 +91,6 @@
             <groupId>commons-pool.wso2</groupId>
             <artifactId>commons-pool</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.wso2.carbon.messaging</groupId>
             <artifactId>org.wso2.carbon.messaging</artifactId>
@@ -96,6 +103,12 @@
             <groupId>org.wso2.orbit.org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>javax.websocket</groupId>
+            <artifactId>javax.websocket-api</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
@@ -182,6 +195,7 @@
             javax.xml.transform.*;version="${javax.xml.transform.import.version.range}",
             javax.xml.validation.*;version="${javax.xml.validation.import.version.range}",
             javax.net.ssl.*;version="${javax.net.ssl.import.version.range}",javax.management,
+            javax.websocket.*;version="${javax.websocket.version.range}",
             org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}",
             org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
             org.apache.commons.pool.*;version="${commons.pool.package.import.version.range}",

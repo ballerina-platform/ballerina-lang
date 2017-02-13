@@ -20,14 +20,14 @@ package org.wso2.carbon.transport.http.netty.internal;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.wso2.carbon.kernel.transports.CarbonTransport;
+import org.wso2.carbon.messaging.TransportListener;
 import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.messaging.handler.HandlerExecutor;
+import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
 import org.wso2.carbon.transport.http.netty.sender.HTTPSender;
 
@@ -54,7 +54,7 @@ public class HTTPTransportActivator implements BundleActivator {
      * @return Netty transport instances
      */
     private void registerTransport(BundleContext bundleContext) {
-        TransportsConfiguration trpConfig = YAMLTransportConfigurationBuilder.build();
+        TransportsConfiguration trpConfig = ConfigurationBuilder.getInstance().getConfiguration();
         Set<ListenerConfiguration> listenerConfigurations = trpConfig.getListenerConfigurations();
         Set<TransportProperty> transportProperties = trpConfig.getTransportProperties();
         listenerConfigurations.forEach(listenerConfiguration -> {
@@ -62,7 +62,7 @@ public class HTTPTransportActivator implements BundleActivator {
                                       .setListenerConfiguration(listenerConfiguration.getId(), listenerConfiguration);
             HTTPTransportListener httpTransportListener =
                     new HTTPTransportListener(transportProperties, Collections.singleton(listenerConfiguration));
-            bundleContext.registerService(CarbonTransport.class, httpTransportListener, null);
+            bundleContext.registerService(TransportListener.class, httpTransportListener, null);
         });
     }
 
@@ -72,7 +72,7 @@ public class HTTPTransportActivator implements BundleActivator {
      * @return Netty transport instances
      */
     private HTTPSender createClientBootstrapper() {
-        TransportsConfiguration trpConfig = YAMLTransportConfigurationBuilder.build();
+        TransportsConfiguration trpConfig = ConfigurationBuilder.getInstance().getConfiguration();
         Set<SenderConfiguration> senderConfigurations = trpConfig.getSenderConfigurations();
         Set<TransportProperty> transportProperties = trpConfig.getTransportProperties();
         HTTPSender sender = new HTTPSender(senderConfigurations, transportProperties);

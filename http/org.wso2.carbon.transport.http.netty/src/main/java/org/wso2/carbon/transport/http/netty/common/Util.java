@@ -81,8 +81,12 @@ public class Util {
         return value;
     }
 
-    @SuppressWarnings("unchecked")
     public static HttpResponse createHttpResponse(CarbonMessage msg) {
+        return createHttpResponse(msg, false);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static HttpResponse createHttpResponse(CarbonMessage msg, boolean connectionCloseAfterResponse) {
         HttpVersion httpVersion = new HttpVersion(Util.getStringValue(msg, Constants.HTTP_VERSION, HTTP_1_1.text()),
                 true);
 
@@ -96,6 +100,9 @@ public class Util {
         DefaultHttpResponse outgoingResponse = new DefaultHttpResponse(httpVersion, httpResponseStatus, false);
 
         Headers headers = msg.getHeaders();
+        if (connectionCloseAfterResponse) {
+            headers.set(Constants.HTTP_CONNECTION, Constants.CONNECTION_CLOSE);
+        }
 
         Util.setHeaders(outgoingResponse, headers);
 
