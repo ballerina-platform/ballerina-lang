@@ -135,7 +135,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
                                 String subName = param.getName();
                                 for (Annotation annotation : getAnnotations(dataHolder)) {
                                     if (annotationName.equalsIgnoreCase(annotation.getName())
-                                            && annotation.getValue().startsWith(subName)) {
+                                            && annotation.getValue().startsWith(subName + ":")) {
                                         return annotation.getValue().split(subName + ":")[1].trim();
                                     }
                                 }
