@@ -18,8 +18,6 @@
 
 package org.wso2.ballerina.nativeimpl.connectors.data.sql.client;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
@@ -48,8 +46,6 @@ import java.util.HashMap;
  */
 public abstract class AbstractSQLAction extends AbstractNativeAction {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractSQLAction.class);
-
     protected void executeQuery(Context context, SQLConnector connector, String query) {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -57,8 +53,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         try {
             conn = connector.getSQLConnection();
             if (conn == null) {
-                logger.error("Error in Connecting to the DB");
-                return;
+                throw new BallerinaException("error in connecting to the DB:connection pool is not initialized");
             }
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
@@ -79,8 +74,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         try {
             conn = connector.getSQLConnection();
             if (conn == null) {
-                logger.error("Error in Connecting to the DB");
-                return;
+                throw new BallerinaException("error in connecting to the DB:connection pool is not initialized");
             }
 
             stmt = conn.prepareStatement(query);
@@ -103,8 +97,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         try {
             conn = connector.getSQLConnection();
             if (conn == null) {
-                logger.error("Error in Connecting to the DB");
-                return;
+                throw new BallerinaException("error in connecting to the DB:connection pool is not initialized");
             }
 
             int keyColumnCount = 0;
@@ -145,8 +138,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         try {
             conn = connector.getSQLConnection();
             if (conn == null) {
-                logger.error("Error in Connecting to the DB");
-                return;
+                throw new BallerinaException("error in connecting to the DB:connection pool is not initialized");
             }
 
             stmt = conn.prepareCall(query);
