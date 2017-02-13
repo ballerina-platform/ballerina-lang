@@ -34,6 +34,10 @@ import javax.websocket.WebSocketContainer;
 
 /**
  * This is the adapter for {@link Session} implementation.
+ * This is the implementation class of {@link Session} interface.
+ * In here all overridden methods are unsupported. Then user needs to extend this adapter class
+ * and override the methods of this as needed. So only the needed methods from this
+ * class are implemented and other methods are automatically unsupported.
  */
 public class WebSocketSessionAdapter implements Session {
 

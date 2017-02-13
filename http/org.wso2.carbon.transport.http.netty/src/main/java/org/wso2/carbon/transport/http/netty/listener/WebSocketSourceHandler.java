@@ -136,9 +136,11 @@ public class WebSocketSourceHandler extends SourceHandler {
                 carbonMessageProcessor.receive(cMsg, new ResponseCallback(this.ctx));
             } catch (Exception e) {
                 LOGGER.error("Error while submitting CarbonMessage to CarbonMessageProcessor.", e);
+                ctx.channel().close();
             }
         } else {
             LOGGER.error("Cannot find registered MessageProcessor to forward the message.");
+            ctx.channel().close();
         }
     }
 
