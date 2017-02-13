@@ -753,6 +753,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
         BallerinaFileEditor.prototype.reDraw = function (args) {
             var self = this;
+            var viewOptions = this._viewOptions;
             if (!_.has(this._viewOptions, 'design_view.container')) {
                 var errMsg = 'unable to find configuration for container';
                 log.error(errMsg);
@@ -766,7 +767,13 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             this._$designViewContainer = container;
             var canvasContainer = $('<div></div>');
-            canvasContainer.addClass(_.get(this._viewOptions, 'cssClass.canvas_container'));
+            canvasContainer.addClass(_.get(viewOptions, 'cssClass.canvas_container'));
+            var canvasTopControlsContainer = $('<div></div>')
+                .addClass(_.get(viewOptions, 'cssClass.canvas_top_controls_container'))
+                .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_package_define')))
+                .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_packages_import')))
+                .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_constants_define')));
+            canvasContainer.append(canvasTopControlsContainer);
             this._$designViewContainer.append(canvasContainer);
             this._$canvasContainer = canvasContainer;
             // check whether container element exists in dom
@@ -775,6 +782,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 log.error(errMsg);
                 throw errMsg;
             }
+            this._createImportDeclarationPane(this._$canvasContainer);
             // Creating the constants view.
             this._createConstantDefinitionsView(this._$canvasContainer);
 
