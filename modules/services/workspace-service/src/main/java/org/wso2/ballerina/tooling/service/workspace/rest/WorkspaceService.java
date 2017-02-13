@@ -195,33 +195,14 @@ public class WorkspaceService {
 	@Path("/read")
 	@Produces("application/json")
 	public Response read(String path) {
-		StringBuilder fileContentBuilder = new StringBuilder();
-		InputStream fileContent = null;
-		BufferedReader br = null;
-		try {
-			fileContent = new FileInputStream(path);
-			br = new BufferedReader(new InputStreamReader(fileContent));
-			String line = null;
-			while ((line = br.readLine()) != null) {
-				fileContentBuilder.append(line);
-			}
-			JsonObject content = new JsonObject();
-			content.addProperty(CONTENT, fileContentBuilder.toString());
-			br.close();
-			return Response.status(Response.Status.OK).entity(content).header("Access-Control-Allow-Origin", '*')
-					.type(MediaType.APPLICATION_JSON).build();
-
-		} catch (Throwable throwable) {
+        try {
+            return Response.status(Response.Status.OK)
+                    .entity(workspace.read(new String(path)))
+                    .header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
+        } catch (Throwable throwable) {
             logger.error("/read service error", throwable.getMessage());
             return getErrorResponse(throwable);
-        } finally {
-			try {
-				fileContent.close();
-				br.close();
-			} catch (Throwable throwable) {
-                logger.error("/read service error", throwable.getMessage());
-            }
-		}
+        }
 	}
 
     @POST
