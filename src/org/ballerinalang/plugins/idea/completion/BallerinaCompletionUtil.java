@@ -13,6 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.ballerinalang.plugins.idea.completion;
 
 public class BallerinaCompletionUtil {
@@ -25,6 +26,7 @@ public class BallerinaCompletionUtil {
     public static final int CONNECTOR_PRIORITY = 35;
     public static final int FUNCTION_PRIORITY = 35;
     public static final int STRUCT_PRIORITY = 35;
+    public static final int VARIABLE_PRIORITY = 35;
 
     private BallerinaCompletionUtil() {
 

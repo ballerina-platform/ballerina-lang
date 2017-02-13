@@ -47,6 +47,7 @@ import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
+import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -154,145 +155,69 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             // Todo - Add all annotations
             resultSet.addElement(LookupElementBuilder.create("GET"));
             resultSet.addElement(LookupElementBuilder.create("POST"));
-        } else {
-            if (parent instanceof PackageNameNode) {
-                //Todo- check alias node
-                if (parent.getParent().getParent() instanceof PackageDeclarationNode) {
-                    PsiDirectory[] psiDirectories = BallerinaPsiImplUtil.suggestCurrentPackagePath(element);
-                    for (PsiDirectory directory : psiDirectories) {
-                        InsertHandler<LookupElement> insertHandler;
-                        if (BallerinaPsiImplUtil.hasSubdirectories(directory)) {
-                            insertHandler = ImportCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP;
-                        } else {
-                            insertHandler = StatementCompletionInsertHandler.INSTANCE;
-                        }
-                        resultSet.addElement(LookupElementBuilder.createWithIcon(directory)
-                                .withInsertHandler(insertHandler));
-                    }
-                } else if (!(parent.getParent() instanceof AliasNode)
-                        && parent.getParent().getParent() instanceof ImportDeclarationNode) {
-
-                    PsiDirectory[] psiDirectories = BallerinaPsiImplUtil.suggestImportPackages(element);
-                    List<String> allImportedPackages =
-                            BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(element).stream()
-                                    .map(PsiElement::getText)
-                                    .collect(Collectors.toList());
-
-                    for (PsiDirectory directory : psiDirectories) {
-                        InsertHandler<LookupElement> insertHandler;
-                        if (BallerinaPsiImplUtil.hasSubdirectories(directory)) {
-                            insertHandler = ImportCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP;
-                        } else {
-                            if (allImportedPackages.contains(directory.getName())) {
-                                insertHandler = AliasCompletionInsertHandler.INSTANCE;
-                            } else {
-                                insertHandler = StatementCompletionInsertHandler.INSTANCE;
-                            }
-                        }
-                        resultSet.addElement(LookupElementBuilder.createWithIcon(directory)
-                                .withInsertHandler(insertHandler));
-                    }
-                } else {
-                    // Todo - Handle scenario
-                }
-            } else if (parent instanceof ImportDeclarationNode) {
-                PsiDirectory[] psiDirectories = BallerinaPsiImplUtil.suggestImportPackages(element);
+        } else if (parent instanceof PackageNameNode) {
+            //Todo- check alias node
+            if (parent.getParent().getParent() instanceof PackageDeclarationNode) {
+                PsiDirectory[] psiDirectories = BallerinaPsiImplUtil.suggestCurrentPackagePath(element);
                 for (PsiDirectory directory : psiDirectories) {
                     InsertHandler<LookupElement> insertHandler;
                     if (BallerinaPsiImplUtil.hasSubdirectories(directory)) {
                         insertHandler = ImportCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP;
                     } else {
-                        //Todo-check for duplicate package names and suggest 'as'
                         insertHandler = StatementCompletionInsertHandler.INSTANCE;
                     }
-                    resultSet.addElement(LookupElementBuilder.create(directory).withInsertHandler(insertHandler));
+                    resultSet.addElement(LookupElementBuilder.createWithIcon(directory)
+                            .withInsertHandler(insertHandler));
                 }
-            } else if (parent instanceof PsiErrorElement) {
+            } else if (!(parent.getParent() instanceof AliasNode)
+                    && parent.getParent().getParent() instanceof ImportDeclarationNode) {
 
-                PsiElement superParent = parent.getParent();
-                //Todo - add throws keyword
-                if (superParent instanceof StatementNode) {
-                    addValueTypes(resultSet, VALUE_TYPE_PRIORITY);
-                    addReferenceTypes(resultSet, REFERENCE_TYPE_PRIORITY);
+                PsiDirectory[] psiDirectories = BallerinaPsiImplUtil.suggestImportPackages(element);
+                List<String> allImportedPackages =
+                        BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(element).stream()
+                                .map(PsiElement::getText)
+                                .collect(Collectors.toList());
 
-                    // Todo- remove duplication
-                    List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsInCurrentPackage(originalFile);
-                    for (PsiElement connector : connectors) {
-                        LookupElementBuilder builder = LookupElementBuilder.create(connector.getText())
-                                .withTypeText("Connector").withIcon(AllIcons.Nodes.Class);
-                        resultSet.addElement(PrioritizedLookupElement.withPriority(builder, CONNECTOR_PRIORITY));
-                    }
-
-                    List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsInCurrentPackage(originalFile);
-                    for (PsiElement function : functions) {
-                        LookupElementBuilder builder = LookupElementBuilder.create(function.getText())
-                                .withTypeText("Function").withTailText("()", true).withIcon(AllIcons.Nodes.Field)
-                                .withInsertHandler(FunctionCompletionInsertHandler.INSTANCE);
-                        resultSet.addElement(PrioritizedLookupElement.withPriority(builder, FUNCTION_PRIORITY));
-                    }
-
-                    List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsInCurrentPackage(originalFile);
-                    for (PsiElement struct : structs) {
-                        LookupElementBuilder builder = LookupElementBuilder.create(struct.getText())
-                                .withTypeText("Struct").withIcon(AllIcons.Nodes.Static);
-                        resultSet.addElement(PrioritizedLookupElement.withPriority(builder, STRUCT_PRIORITY));
-                    }
-
-                    List<PsiElement> packages = BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(originalFile);
-                    for (PsiElement pack : packages) {
-                        LookupElementBuilder builder = LookupElementBuilder.create(pack.getText())
-                                .withTypeText("Package").withIcon(AllIcons.Nodes.Package)
-                                .withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-                        resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
-                    }
-                } else if (superParent instanceof CompilationUnitNode) {
-                    if (parentPrevSibling == null) {
-                        addFileLevelKeywords(resultSet, CONTEXT_KEYWORD_PRIORITY, true, true);
+                for (PsiDirectory directory : psiDirectories) {
+                    InsertHandler<LookupElement> insertHandler;
+                    if (BallerinaPsiImplUtil.hasSubdirectories(directory)) {
+                        insertHandler = ImportCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP;
                     } else {
-                        //Todo - move to util
-                        PsiElement nonWhitespaceElement = parent.getPrevSibling();
-                        while (nonWhitespaceElement != null && nonWhitespaceElement instanceof PsiWhiteSpace) {
-                            nonWhitespaceElement = nonWhitespaceElement.getPrevSibling();
-                        }
-                        if (nonWhitespaceElement != null) {
-                            if (nonWhitespaceElement instanceof ImportDeclarationNode ||
-                                    nonWhitespaceElement instanceof PackageDeclarationNode) {
-                                addFileLevelKeywords(resultSet, CONTEXT_KEYWORD_PRIORITY, false, true);
-                            } else {
-                                addFileLevelKeywords(resultSet, CONTEXT_KEYWORD_PRIORITY, false, false);
-                            }
+                        if (allImportedPackages.contains(directory.getName())) {
+                            insertHandler = AliasCompletionInsertHandler.INSTANCE;
                         } else {
-                            addFileLevelKeywords(resultSet, CONTEXT_KEYWORD_PRIORITY, false, true);
+                            insertHandler = StatementCompletionInsertHandler.INSTANCE;
                         }
                     }
-                } else {
-                    if (parentPrevSibling == null) {
-                        addFileLevelKeywords(resultSet, CONTEXT_KEYWORD_PRIORITY, true, true);
-                    } else {
-                        addFileLevelKeywords(resultSet, CONTEXT_KEYWORD_PRIORITY, false, true);
-                    }
+                    resultSet.addElement(LookupElementBuilder.createWithIcon(directory)
+                            .withInsertHandler(insertHandler));
                 }
-            } else if (parent instanceof FunctionDefinitionNode || parent instanceof ParameterNode) {
-
-                if (prevSibling != null) {
-                    if ("(".equals(prevSibling.getText())) {
-                        resultSet.addElement(LookupElementBuilder.create("YYY error 3.1"));
-                    } else {
-                        //Todo - check type
-                        //                        if(){
-                        //
-                        //                        }else{
-                        //
-                        //                        }
-                        resultSet.addElement(LookupElementBuilder.create("YYY error 3.2"));
-                    }
+            } else {
+                // Todo - Handle scenario
+            }
+        } else if (parent instanceof ImportDeclarationNode) {
+            PsiDirectory[] psiDirectories = BallerinaPsiImplUtil.suggestImportPackages(element);
+            for (PsiDirectory directory : psiDirectories) {
+                InsertHandler<LookupElement> insertHandler;
+                if (BallerinaPsiImplUtil.hasSubdirectories(directory)) {
+                    insertHandler = ImportCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP;
                 } else {
-                    resultSet.addElement(LookupElementBuilder.create("YYY error 3.3"));
+                    //Todo-check for duplicate package names and suggest 'as'
+                    insertHandler = StatementCompletionInsertHandler.INSTANCE;
                 }
-            } else if (parent instanceof SimpleTypeNode) {
-                addValueTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
-                addReferenceTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
+                resultSet.addElement(LookupElementBuilder.create(directory).withInsertHandler(insertHandler));
+            }
+        } else if (parent instanceof PsiErrorElement) {
 
+            PsiElement superParent = parent.getParent();
+            //Todo - add throws keyword
+            //Todo - add return keyword
+            //Todo - add variables
+            if (superParent instanceof StatementNode) {
+                addValueTypes(resultSet, VALUE_TYPE_PRIORITY);
+                addReferenceTypes(resultSet, REFERENCE_TYPE_PRIORITY);
+
+                // Todo- remove duplication
                 List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsInCurrentPackage(originalFile);
                 for (PsiElement connector : connectors) {
                     LookupElementBuilder builder = LookupElementBuilder.create(connector.getText())
@@ -300,10 +225,18 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     resultSet.addElement(PrioritizedLookupElement.withPriority(builder, CONNECTOR_PRIORITY));
                 }
 
+                List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsInCurrentPackage(originalFile);
+                for (PsiElement function : functions) {
+                    LookupElementBuilder builder = LookupElementBuilder.create(function.getText())
+                            .withTypeText("Function").withTailText("()", true).withIcon(AllIcons.Nodes.Field)
+                            .withInsertHandler(FunctionCompletionInsertHandler.INSTANCE);
+                    resultSet.addElement(PrioritizedLookupElement.withPriority(builder, FUNCTION_PRIORITY));
+                }
+
                 List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsInCurrentPackage(originalFile);
                 for (PsiElement struct : structs) {
-                    LookupElementBuilder builder = LookupElementBuilder.create(struct.getText()).withTypeText("Struct")
-                            .withIcon(AllIcons.Nodes.Static);
+                    LookupElementBuilder builder = LookupElementBuilder.create(struct.getText())
+                            .withTypeText("Struct").withIcon(AllIcons.Nodes.Static);
                     resultSet.addElement(PrioritizedLookupElement.withPriority(builder, STRUCT_PRIORITY));
                 }
 
@@ -314,49 +247,172 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                             .withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
                     resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
                 }
-            } else if (parent instanceof StatementNode) {
-                PsiElement temp = parentPrevSibling;
-                while (temp != null && temp.getText().isEmpty()) {
-                    temp = temp.getPrevSibling();
+
+                PsiElement context = element.getContext();
+                if (context == null) {
+                    context = element.getParent().getContext();
                 }
-
-                if (temp != null) {
-                    List<PsiElement> packages = BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(originalFile);
-
-                    for (PsiElement pack : packages) {
-                        if (temp.getText().equals(pack.getText() + ":")) {
-
-                            PsiDirectory[] psiDirectories =
-                                    BallerinaPsiImplUtil.resolveDirectory(((PackageNameNode) pack).getNameIdentifier());
-
-                            if (psiDirectories.length == 1) {
-                                List<PsiElement> functions = BallerinaPsiImplUtil
-                                        .getAllFunctionsInPackage(psiDirectories[0]);
-
-                                for (PsiElement function : functions) {
-                                    LookupElementBuilder builder = LookupElementBuilder.create(function.getText())
-                                            .withTypeText("Function").withTailText("()", true)
-                                            .withIcon(AllIcons.Nodes.Field)
-                                            .withInsertHandler(FunctionCompletionInsertHandler.INSTANCE);
-                                    resultSet.addElement(PrioritizedLookupElement.withPriority(builder,
-                                            FUNCTION_PRIORITY));
-                                }
-                            } else {
-                                // This situation cannot/should not happen since all the imported packages are unique.
-                                // This should be highlighted using an annotator.
-                            }
+                List<PsiElement> variables = BallerinaPsiImplUtil.getAllVariablesInResolvableScope(context);
+                for (PsiElement variable : variables) {
+                    LookupElementBuilder builder = LookupElementBuilder.create(variable.getText())
+                            .withTypeText("Variable").withIcon(AllIcons.Nodes.Variable);
+                    resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
+                }
+            } else if (superParent instanceof CompilationUnitNode) {
+                if (parentPrevSibling == null) {
+                    addFileLevelKeywords(resultSet, CONTEXT_KEYWORD_PRIORITY, true, true);
+                } else {
+                    //Todo - move to util
+                    PsiElement nonWhitespaceElement = parent.getPrevSibling();
+                    while (nonWhitespaceElement != null && nonWhitespaceElement instanceof PsiWhiteSpace) {
+                        nonWhitespaceElement = nonWhitespaceElement.getPrevSibling();
+                    }
+                    if (nonWhitespaceElement != null) {
+                        if (nonWhitespaceElement instanceof ImportDeclarationNode ||
+                                nonWhitespaceElement instanceof PackageDeclarationNode) {
+                            addFileLevelKeywords(resultSet, CONTEXT_KEYWORD_PRIORITY, false, true);
+                        } else {
+                            addFileLevelKeywords(resultSet, CONTEXT_KEYWORD_PRIORITY, false, false);
                         }
+                    } else {
+                        addFileLevelKeywords(resultSet, CONTEXT_KEYWORD_PRIORITY, false, true);
                     }
                 }
             } else {
-                if (element instanceof IdentifierPSINode) {
-                    return;
-                }
                 if (parentPrevSibling == null) {
                     addFileLevelKeywords(resultSet, CONTEXT_KEYWORD_PRIORITY, true, true);
                 } else {
                     addFileLevelKeywords(resultSet, CONTEXT_KEYWORD_PRIORITY, false, true);
                 }
+            }
+        } else if (parent instanceof FunctionDefinitionNode || parent instanceof ParameterNode) {
+
+            if (prevSibling != null) {
+                if ("(".equals(prevSibling.getText())) {
+                    resultSet.addElement(LookupElementBuilder.create("YYY error 3.1"));
+                } else {
+                    //Todo - check type
+                    //                        if(){
+                    //
+                    //                        }else{
+                    //
+                    //                        }
+                    resultSet.addElement(LookupElementBuilder.create("YYY error 3.2"));
+                }
+            } else {
+                resultSet.addElement(LookupElementBuilder.create("YYY error 3.3"));
+            }
+        } else if (parent instanceof SimpleTypeNode) {
+            addValueTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
+            addReferenceTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
+
+            List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsInCurrentPackage(originalFile);
+            for (PsiElement connector : connectors) {
+                LookupElementBuilder builder = LookupElementBuilder.create(connector.getText())
+                        .withTypeText("Connector").withIcon(AllIcons.Nodes.Class);
+                resultSet.addElement(PrioritizedLookupElement.withPriority(builder, CONNECTOR_PRIORITY));
+            }
+
+            List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsInCurrentPackage(originalFile);
+            for (PsiElement struct : structs) {
+                LookupElementBuilder builder = LookupElementBuilder.create(struct.getText()).withTypeText("Struct")
+                        .withIcon(AllIcons.Nodes.Static);
+                resultSet.addElement(PrioritizedLookupElement.withPriority(builder, STRUCT_PRIORITY));
+            }
+
+            List<PsiElement> packages = BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(originalFile);
+            for (PsiElement pack : packages) {
+                LookupElementBuilder builder = LookupElementBuilder.create(pack.getText())
+                        .withTypeText("Package").withIcon(AllIcons.Nodes.Package)
+                        .withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+                resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
+            }
+
+            // Todo - move to utils
+            PsiElement temp = parent.getParent().getParent().getParent().getParent();
+            while (temp != null && !(temp instanceof PsiFile)) {
+                if (temp instanceof StatementNode) {
+                    PsiElement context = element.getContext();
+                    if (context == null) {
+                        context = element.getParent().getContext();
+                    }
+                    List<PsiElement> variables = BallerinaPsiImplUtil.getAllVariablesInResolvableScope(context);
+                    for (PsiElement variable : variables) {
+                        LookupElementBuilder builder = LookupElementBuilder.create(variable.getText())
+                                .withTypeText("Variable").withIcon(AllIcons.Nodes.Variable);
+                        resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
+                    }
+                    break;
+                }
+                temp = temp.getParent();
+            }
+        } else if (parent instanceof StatementNode) {
+            PsiElement temp = parentPrevSibling;
+            while (temp != null && temp.getText().isEmpty()) {
+                temp = temp.getPrevSibling();
+            }
+
+            if (temp != null) {
+                List<PsiElement> packages = BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(originalFile);
+
+                for (PsiElement pack : packages) {
+                    if (temp.getText().equals(pack.getText() + ":")) {
+
+                        PsiDirectory[] psiDirectories =
+                                BallerinaPsiImplUtil.resolveDirectory(((PackageNameNode) pack).getNameIdentifier());
+
+                        if (psiDirectories.length == 1) {
+                            List<PsiElement> functions = BallerinaPsiImplUtil
+                                    .getAllFunctionsInPackage(psiDirectories[0]);
+
+                            for (PsiElement function : functions) {
+                                LookupElementBuilder builder = LookupElementBuilder.create(function.getText())
+                                        .withTypeText("Function").withTailText("()", true)
+                                        .withIcon(AllIcons.Nodes.Field)
+                                        .withInsertHandler(FunctionCompletionInsertHandler.INSTANCE);
+                                resultSet.addElement(PrioritizedLookupElement.withPriority(builder,
+                                        FUNCTION_PRIORITY));
+                            }
+                        } else {
+                            // This situation cannot/should not happen since all the imported packages are unique.
+                            // This should be highlighted using an annotator.
+                        }
+                    }
+                }
+            }
+
+            PsiElement context = element.getContext();
+            if (context == null) {
+                context = element.getParent().getContext();
+            }
+            List<PsiElement> variables = BallerinaPsiImplUtil.getAllVariablesInResolvableScope(context);
+            for (PsiElement variable : variables) {
+                LookupElementBuilder builder = LookupElementBuilder.create(variable.getText())
+                        .withTypeText("Variable").withIcon(AllIcons.Nodes.Variable);
+                resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
+            }
+        } else if (parent instanceof VariableReferenceNode) {
+            // Todo - get all variables in the scope
+            // Todo - get all constant variables
+
+            PsiElement context = element.getContext();
+            if (context == null) {
+                context = element.getParent().getContext();
+            }
+            List<PsiElement> variables = BallerinaPsiImplUtil.getAllVariablesInResolvableScope(context);
+            for (PsiElement variable : variables) {
+                LookupElementBuilder builder = LookupElementBuilder.create(variable.getText())
+                        .withTypeText("Variable").withIcon(AllIcons.Nodes.Variable);
+                resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
+            }
+        } else {
+            if (element instanceof IdentifierPSINode) {
+                return;
+            }
+            if (parentPrevSibling == null) {
+                addFileLevelKeywords(resultSet, CONTEXT_KEYWORD_PRIORITY, true, true);
+            } else {
+                addFileLevelKeywords(resultSet, CONTEXT_KEYWORD_PRIORITY, false, true);
             }
         }
     }
