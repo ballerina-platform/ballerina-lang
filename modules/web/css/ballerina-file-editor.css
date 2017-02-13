@@ -493,23 +493,22 @@
     display: inline !important;
 }
 
-.tt-hint {
-    width: 276px;
+.action-import-wrapper-heading .tt-hint {
+    width: 100%;
     color: #999;
-    margin-top: -1px;
+    top:13px !important;
+    background: none !important;
 }
 
-.tt-menu {
-    width: 276px;
-    margin-top: 6px;
-    margin-left: 2px;
+.action-import-wrapper-heading .tt-menu {
+    margin-top: 18px;
     background-color: #fff;
     border: 1px solid #ccc;
     border: 1px solid rgba(0, 0, 0, 0.2);
-    box-shadow: 0 5px 10px rgba(0,0,0,.2);
+    width: 100%;
 }
 
-.tt-suggestion {
+.action-import-wrapper-heading  .tt-suggestion {
     padding: 3px 7px;
 }
 /** End of typeahead CSS **/
@@ -669,9 +668,9 @@
 /** End of Struct view CSS **/
 
 span.package-pane {
-    padding: 5px;
+    padding: 2px;
     margin-left: 0px;
-    background-color: #fff;
+    background-color: #ddd;
     border: 1px solid #bfbfbf;
     display: none;
     color: #333;
@@ -688,14 +687,16 @@ input#package-name-input {
     padding-left: 7px;
     margin-left: 2px;
     border: 1px solid #ccc;
+    line-height: 18px;
 }
 
 .package-name-btn span {
     cursor: pointer;
 }
 
-.package-definition-main-wrapper {
+.package-definition-wrapper, .package-imports-wrapper {
     height: 50px;
+    clear: both;
 }
 
 .tooltip-inner {
