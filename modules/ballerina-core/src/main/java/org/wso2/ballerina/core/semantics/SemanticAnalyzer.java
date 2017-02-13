@@ -686,9 +686,9 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(TryCatchStmt tryCatchStmt) {
         tryCatchStmt.getTryBlock().accept(this);
-        tryCatchStmt.getCatchScope().getParameterDef().setMemoryLocation(new StackVarLocation(++stackFrameOffset));
-        tryCatchStmt.getCatchScope().getParameterDef().accept(this);
-        tryCatchStmt.getCatchBlock().accept(this);
+        tryCatchStmt.getCatchBlock().getParameterDef().setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+        tryCatchStmt.getCatchBlock().getParameterDef().accept(this);
+        tryCatchStmt.getCatchBlock().getCatchBlockStmt().accept(this);
     }
 
     @Override

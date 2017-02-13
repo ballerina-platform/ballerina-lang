@@ -26,7 +26,6 @@ import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.CatchScope;
 import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeLocation;
@@ -1044,7 +1043,7 @@ public class BLangModelBuilder {
 
         currentScope = blockStmt.getEnclosingScope();
     }
-    
+
     public void addElseIfClause() {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.peek();
 
@@ -1101,9 +1100,9 @@ public class BLangModelBuilder {
         currentScope = tryBlock.getEnclosingScope();
 
         // Staring parsing catch clause.
-        CatchScope catchScope = new CatchScope(currentScope);
-        tryCatchStmtBuilder.setCatchScope(catchScope);
-        currentScope = catchScope;
+        TryCatchStmt.CatchBlock catchBlock = new TryCatchStmt.CatchBlock(currentScope);
+        tryCatchStmtBuilder.setCatchBlock(catchBlock);
+        currentScope = catchBlock;
 
         BlockStmt.BlockStmtBuilder catchBlockBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
         blockStmtBuilderStack.push(catchBlockBuilder);
@@ -1130,8 +1129,8 @@ public class BLangModelBuilder {
                 currentScope);
         currentScope.resolve(symbolName);
         currentScope.define(symbolName, paramDef);
-        tryCatchStmtBuilder.getCatchScope().setParameterDef(paramDef);
-        tryCatchStmtBuilder.setCatchBlock(catchBlock);
+        tryCatchStmtBuilder.getCatchBlock().setParameterDef(paramDef);
+        tryCatchStmtBuilder.setCatchBlockStmt(catchBlock);
     }
 
     public void addTryCatchStmt() {

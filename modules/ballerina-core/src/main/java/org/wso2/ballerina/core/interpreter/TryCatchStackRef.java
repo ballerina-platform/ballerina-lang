@@ -20,24 +20,24 @@ package org.wso2.ballerina.core.interpreter;
 import org.wso2.ballerina.core.model.statements.TryCatchStmt;
 
 /**
- * Stack Reference to Try Statements and their stack.
+ * Stack Reference to CatchBlocks and their stack.
  */
 public class TryCatchStackRef {
 
-    public TryCatchStmt tryCatchStmt;
+    public TryCatchStmt.CatchBlock catchBlock;
     public StackFrame stackFrame;
 
-    public TryCatchStackRef(TryCatchStmt tryCatchStmt, StackFrame stackFrame) {
-        this.tryCatchStmt = tryCatchStmt;
+    public TryCatchStackRef(TryCatchStmt.CatchBlock catchBlock, StackFrame stackFrame) {
+        this.catchBlock = catchBlock;
         this.stackFrame = stackFrame;
     }
 
-    public TryCatchStmt getTryCatchStmt() {
-        return tryCatchStmt;
+    public TryCatchStmt.CatchBlock getCatchBlock() {
+        return catchBlock;
     }
 
-    public void setTryCatchStmt(TryCatchStmt tryCatchStmt) {
-        this.tryCatchStmt = tryCatchStmt;
+    public void setCatchBlock(TryCatchStmt.CatchBlock catchBlock) {
+        this.catchBlock = catchBlock;
     }
 
     public StackFrame getStackFrame() {

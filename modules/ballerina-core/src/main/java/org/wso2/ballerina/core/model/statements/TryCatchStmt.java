@@ -17,10 +17,16 @@
 */
 package org.wso2.ballerina.core.model.statements;
 
-import org.wso2.ballerina.core.model.CatchScope;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.ParameterDef;
+import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.SymbolScope;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * {@code TryCatchStmt} represents a try/catch statement.
@@ -29,26 +35,20 @@ import org.wso2.ballerina.core.model.NodeVisitor;
  */
 public class TryCatchStmt extends AbstractStatement {
     private Statement tryBlock;
-    private CatchScope catchScope;
-    private Statement catchBlock;
+    private CatchBlock catchBlock;
 
-    private TryCatchStmt(NodeLocation location, Statement tryBlock, Statement catchBlock, CatchScope catchScope) {
+    private TryCatchStmt(NodeLocation location, Statement tryBlock, CatchBlock catchBlock) {
         super(location);
         this.tryBlock = tryBlock;
         this.catchBlock = catchBlock;
-        this.catchScope = catchScope;
     }
 
     public Statement getTryBlock() {
         return tryBlock;
     }
 
-    public Statement getCatchBlock() {
+    public CatchBlock getCatchBlock() {
         return catchBlock;
-    }
-
-    public CatchScope getCatchScope() {
-        return catchScope;
     }
 
     @Override
@@ -61,15 +61,67 @@ public class TryCatchStmt extends AbstractStatement {
         executor.visit(this);
     }
 
+
+    /**
+     * Represents CatchBlock of a Try-Catch statement.
+     */
+    public static class CatchBlock implements SymbolScope {
+
+        private final SymbolScope enclosingScope;
+        private ParameterDef parameterDef;
+        private Map<SymbolName, BLangSymbol> symbolMap;
+        private BlockStmt catchBlock;
+
+        public CatchBlock(SymbolScope enclosingScope) {
+            this.enclosingScope = enclosingScope;
+            this.symbolMap = new HashMap<>();
+        }
+
+        public ParameterDef getParameterDef() {
+            return parameterDef;
+        }
+
+        public void setParameterDef(ParameterDef parameterDef) {
+            this.parameterDef = parameterDef;
+        }
+
+        @Override
+        public ScopeName getScopeName() {
+            return ScopeName.LOCAL;
+        }
+
+        @Override
+        public SymbolScope getEnclosingScope() {
+            return this.enclosingScope;
+        }
+
+        @Override
+        public void define(SymbolName name, BLangSymbol symbol) {
+            symbolMap.put(name, symbol);
+        }
+
+        @Override
+        public BLangSymbol resolve(SymbolName name) {
+            return resolve(symbolMap, name);
+        }
+
+        public BlockStmt getCatchBlockStmt() {
+            return catchBlock;
+        }
+
+        void setCatchBlockStmt(BlockStmt catchBlock) {
+            this.catchBlock = catchBlock;
+        }
+    }
+
     /**
      * Builds a {@code {@link TryCatchStmt}} statement.
      *
      * @since 0.8.0
      */
     public static class TryCatchStmtBuilder {
-        private CatchScope catchScope;
         private Statement tryBlock;
-        private Statement catchBlock;
+        private CatchBlock catchBlock;
         private NodeLocation location;
 
         public Statement getTryBlock() {
@@ -80,19 +132,15 @@ public class TryCatchStmt extends AbstractStatement {
             this.tryBlock = tryBlock;
         }
 
-        public CatchScope getCatchScope() {
-            return catchScope;
-        }
-
-        public void setCatchScope(CatchScope catchScope) {
-            this.catchScope = catchScope;
-        }
-
-        public Statement getCatchBlock() {
+        public CatchBlock getCatchBlock() {
             return catchBlock;
         }
 
-        public void setCatchBlock(Statement catchBlock) {
+        public void setCatchBlockStmt(Statement statement) {
+            this.catchBlock.setCatchBlockStmt((BlockStmt) statement);
+        }
+
+        public void setCatchBlock(CatchBlock catchBlock) {
             this.catchBlock = catchBlock;
         }
 
@@ -108,8 +156,7 @@ public class TryCatchStmt extends AbstractStatement {
             return new TryCatchStmt(
                     location,
                     tryBlock,
-                    catchBlock,
-                    catchScope);
+                    catchBlock);
         }
     }
 }

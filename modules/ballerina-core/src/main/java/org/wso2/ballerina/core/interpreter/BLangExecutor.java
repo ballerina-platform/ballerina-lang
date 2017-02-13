@@ -241,12 +241,12 @@ public class BLangExecutor implements NodeExecutor {
                     throw new BallerinaException(be);
                 }
             }
-            MemoryLocation memoryLocation = tryCatchStmt.getCatchScope().getParameterDef().getMemoryLocation();
+            MemoryLocation memoryLocation = tryCatchStmt.getCatchBlock().getParameterDef().getMemoryLocation();
             if (memoryLocation instanceof StackVarLocation) {
                 int stackFrameOffset = ((StackVarLocation) memoryLocation).getStackFrameOffset();
                 controlStack.setValue(stackFrameOffset, exception);
             }
-            tryCatchStmt.getCatchBlock().execute(this);
+            tryCatchStmt.getCatchBlock().getCatchBlockStmt().execute(this);
         }
     }
 

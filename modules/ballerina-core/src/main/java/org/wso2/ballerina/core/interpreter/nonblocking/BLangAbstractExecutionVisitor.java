@@ -230,7 +230,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing TryCatchStmt {}", getNodeLocation(tryCatchStmt.getNodeLocation()));
         }
-        this.tryCatchStackRefs.push(new TryCatchStackRef(tryCatchStmt, bContext.getControlStack().getCurrentFrame()));
+        this.tryCatchStackRefs.push(new TryCatchStackRef(tryCatchStmt.getCatchBlock(),
+                bContext.getControlStack().getCurrentFrame()));
     }
 
     @Override
@@ -1026,13 +1027,13 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                 throw new FlowBuilderException("Not handle catch statement in execution builder phase");
             }
         }
-        MemoryLocation memoryLocation = ref.getTryCatchStmt().getCatchScope().getParameterDef().getMemoryLocation();
+        MemoryLocation memoryLocation = ref.getCatchBlock().getParameterDef().getMemoryLocation();
         if (memoryLocation instanceof StackVarLocation) {
             int stackFrameOffset = ((StackVarLocation) memoryLocation).getStackFrameOffset();
             controlStack.setValue(stackFrameOffset, bException);
         }
         // Execute Catch block.
-        ref.getTryCatchStmt().getCatchBlock().accept(this);
+        ref.getCatchBlock().getCatchBlockStmt().accept(this);
     }
 
     // Private methods

@@ -547,7 +547,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     @Override
     public void visit(TryCatchStmt tryCatchStmt) {
         Statement tryBlock = tryCatchStmt.getTryBlock();
-        Statement catchBlock = tryCatchStmt.getCatchBlock();
+        Statement catchBlock = tryCatchStmt.getCatchBlock().getCatchBlockStmt();
         // Visit Try Catch block.
         tryBlock.setParent(tryCatchStmt);
         tryCatchStmt.setNext(tryBlock);
