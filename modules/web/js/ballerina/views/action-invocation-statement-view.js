@@ -130,6 +130,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 statementGroup: this.getStatementGroup(),
                 editableProperties: editableProperty
             });
+
             this.listenTo(model, 'update-property-text', this.updateStatementText);
 
             // mouse events for 'processorConnectPoint'
@@ -264,10 +265,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                     self.messageManager.startDrawMessage(self, actionInvocationModel, sourcePoint, connectorPoint);
                     self.messageManager.setTypeBeingDragged(true);
 
-                    self._forwardArrowHead.remove();
-                    self._processorConnector.remove();
-                    self._processorConnector2.remove();
-                    self._backArrowHead.remove();
+                    self.removeArrows();
                     self.processorConnectEndPoint.remove();
                 });
 
@@ -310,7 +308,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
         };
 
         /**
-         * Remove the forward and the backward arrow heads
+         * Remove related arrow group
          */
         ActionInvocationStatementView.prototype.removeArrows = function () {
             if (!_.isNil(this._arrowGroup) && !_.isNil(this._arrowGroup.node())) {
@@ -339,13 +337,29 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             this.removeArrows();
             // resize the bounding box in order to the other objects to resize
             this.getBoundingBox().h(0).w(0);
-
         };
 
         ActionInvocationStatementView.prototype.updateStatementText = function (newStatementText, propertyKey) {
-            this._model.setExpression(newStatementText);
             var displayText = this._model.getExpression();
-            this.renderDisplayText(displayText);
+            var siblingConnectors = this._parent._model.children;
+            var connectorName = newStatementText.match(/\((.*)\)/)[1];
+            var self = this;
+
+            connectorName = connectorName.split(",")[0].trim();
+
+            this._model.setExpression(newStatementText);
+            this.renderDisplayText(newStatementText);
+
+            self.removeArrows();
+            self.processorConnectPoint.style("display", "block");
+            self.processorConnectEndPoint.remove();
+
+            _.some(siblingConnectors, function (key, i) {
+                if ( (BallerinaASTFactory.isConnectorDeclaration(siblingConnectors[i])) && (siblingConnectors[i]._connectorVariable == connectorName) ) {
+                    self.getModel().setConnector(siblingConnectors[i]);
+                    self.renderArrows(self.getDiagramRenderingContext());
+               }
+            });
         };
 
         return ActionInvocationStatementView;
