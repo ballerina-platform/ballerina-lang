@@ -18,6 +18,9 @@
 package org.wso2.siddhi.core.query.extension.util;
 
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -29,7 +32,15 @@ import java.util.Map;
 @Extension(
         name = "plus",
         namespace = "custom",
-        description = ""
+        description = "Return the sum of the given input values.",
+        parameters = {
+                @Parameter(name = "arg",
+                        description = "The value that need to be sum.",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+        },
+        returnAttributes = @ReturnAttribute(
+                description = "Returns the calculated sum value as a double or float.",
+                type = {DataType.DOUBLE, DataType.FLOAT})
 )
 public class CustomFunctionExtension extends FunctionExecutor {
 
