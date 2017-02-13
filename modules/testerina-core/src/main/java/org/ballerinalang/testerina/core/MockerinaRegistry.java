@@ -30,7 +30,6 @@ import java.util.Map;
  */
 public class MockerinaRegistry {
     private static Map<BallerinaFile, BallerinaFile> bFiles = new HashMap<>();
-    private static Map<String, Service> services = new HashMap<>(); //todo remove?
     private static final MockerinaRegistry instance = new MockerinaRegistry();
 
     public static MockerinaRegistry getInstance() {
@@ -55,11 +54,4 @@ public class MockerinaRegistry {
                 .findAny().orElse(null);
     }
 
-    public void addService(Service service) {
-        services.put(service.getName(), service);
-    }
-
-    public Service getService(String serviceName) {
-        return services.get(serviceName);
-    }
-}
+ }
