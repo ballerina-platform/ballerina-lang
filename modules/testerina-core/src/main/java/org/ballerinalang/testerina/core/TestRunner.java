@@ -45,8 +45,6 @@ import java.util.ArrayList;
  */
 public class TestRunner {
 
-    private BallerinaFile bFile;
-
     //    private static final Logger logger = java.util.logging.Logger.getLogger("TestRunner");
     private static PrintStream outStream = System.err;
 

@@ -21,6 +21,7 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Function;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * TesterinaFile entity class
@@ -81,16 +82,16 @@ public class TesterinaFile {
     private void extractTestFunctions(BallerinaFile bFile) {
         Function[] functions = bFile.getFunctions();
         for (Function function : functions) {
-            String name = function.getName();
-            if (name.toUpperCase().startsWith(TesterinaFunction.PREFIX_TEST)) {
+            String nameUpperCase = function.getName().toUpperCase(Locale.ENGLISH);
+            if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_TEST)) {
                 TesterinaFunction tFunction = new TesterinaFunction(function.getName(), TesterinaFunction.Type.TEST,
                         function, this);
                 this.testFunctions.add(tFunction);
-            } else if (name.toUpperCase().startsWith(TesterinaFunction.PREFIX_BEFORETEST)) {
+            } else if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_BEFORETEST)) {
                 TesterinaFunction tFunction = new TesterinaFunction(function.getName(),
                         TesterinaFunction.Type.BEFORE_TEST, function, this);
                 this.beforeTestFunctions.add(tFunction);
-            } else if (name.toUpperCase().startsWith(TesterinaFunction.PREFIX_AFTERTEST)) {
+            } else if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_AFTERTEST)) {
                 TesterinaFunction tFunction = new TesterinaFunction(function.getName(),
                         TesterinaFunction.Type.AFTER_TEST, function, this);
                 this.afterTestFunctions.add(tFunction);
