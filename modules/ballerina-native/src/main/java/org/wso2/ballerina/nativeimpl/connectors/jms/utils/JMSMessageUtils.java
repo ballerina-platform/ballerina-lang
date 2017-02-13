@@ -26,15 +26,12 @@ import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.nativeimpl.lang.utils.Constants;
 import org.wso2.ballerina.nativeimpl.lang.utils.ErrorHandler;
-import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.messaging.SerializableCarbonMessage;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * {@code JMSMessageUtils}.
@@ -70,7 +67,7 @@ public class JMSMessageUtils {
         return serializableCarbonMessage;
     }
 
-    private static String getJsonPayload(BMessage message){
+    private static String getJsonPayload(BMessage message) {
         BJSON result;
         try {
             if (message.isAlreadyRead()) {
@@ -97,7 +94,7 @@ public class JMSMessageUtils {
         return null;
     }
 
-    private static String getXmlPayload(BMessage message){
+    private static String getXmlPayload(BMessage message) {
         BXML result;
         try {
             if (message.isAlreadyRead()) {
@@ -121,23 +118,20 @@ public class JMSMessageUtils {
         return null;
     }
 
-    private static String getStringPayload(BMessage message){
+    private static String getStringPayload(BMessage message) {
         BString result;
         try {
             if (message.isAlreadyRead()) {
                 result = new BString(message.getMessageDataSource().getMessageAsString());
             } else {
-                String payload = MessageUtils
-                        .getStringFromInputStream(message.value().getInputStream());
+                String payload = MessageUtils.getStringFromInputStream(message.value().getInputStream());
                 result = new BString(payload);
                 message.setMessageDataSource(result.stringValue());
                 message.setAlreadyRead(true);
             }
             return result.stringValue();
         } catch (Throwable e) {
-            throw new BallerinaException(
-                    "Error while retrieving string payload from message: " +
-                    e.getMessage());
+            throw new BallerinaException("Error while retrieving string payload from message: " + e.getMessage());
         }
     }
 
@@ -150,7 +144,7 @@ public class JMSMessageUtils {
     public static BMessage toBallerinaMessage(SerializableCarbonMessage serializableCarbonMessage) {
         BMessage bMessage = new BMessage();
         HashMap<String, String> headerMap = serializableCarbonMessage.getHeadersMap();
-        headerMap.forEach((key, value)->{
+        headerMap.forEach((key, value) -> {
             bMessage.getHeaders().add(new Header(key, value));
         });
 

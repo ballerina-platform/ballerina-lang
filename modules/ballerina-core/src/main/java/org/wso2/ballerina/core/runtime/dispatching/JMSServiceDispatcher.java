@@ -103,9 +103,9 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
         String serviceId = service.getSymbolName().toString();
         try {
             if (serviceMap.get(serviceId) != null) {
-                ServerConnector listener = BallerinaConnectorManager.getInstance().getServerConnector(serviceId);
-                if (null != listener) {
-                    listener.stop();
+                ServerConnector serverConnector = BallerinaConnectorManager.getInstance().getServerConnector(serviceId);
+                if (null != serverConnector) {
+                    serverConnector.stop();
                 }
             }
         } catch (ServerConnectorException e) {
