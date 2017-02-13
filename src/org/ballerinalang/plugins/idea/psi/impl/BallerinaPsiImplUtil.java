@@ -198,14 +198,14 @@ public class BallerinaPsiImplUtil {
     /**
      * Used to resolve a package name to the directory.
      *
-     * @param element the element which we need to resolve the reference
+     * @param identifierElement the element which we need to resolve the reference
      * @return resolved element
      */
-    public static PsiDirectory[] resolveDirectory(PsiElement element) {
+    public static PsiDirectory[] resolveDirectory(PsiElement identifierElement) {
         List<PsiDirectory> results = new ArrayList<>();
-        Project project = element.getProject();
+        Project project = identifierElement.getProject();
 
-        PsiElement parent = element.getParent();
+        PsiElement parent = identifierElement.getParent();
 
         // This is used to store all the packages which need to resolve the current package.
         List<PsiElement> packages = new ArrayList<>();
@@ -416,7 +416,6 @@ public class BallerinaPsiImplUtil {
         return results;
     }
 
-
     public static List<PsiElement> resolveConnector(PsiElement element) {
         List<PsiElement> results = new ArrayList<>();
 
@@ -471,7 +470,7 @@ public class BallerinaPsiImplUtil {
         return results;
     }
 
-    public static List<PsiElement> getAllConnectorsFromCurrentPackage(PsiElement element) {
+    public static List<PsiElement> getAllConnectorsInCurrentPackage(PsiElement element) {
         List<PsiElement> results = new ArrayList<>();
         PsiElement parent = element.getParent();
         List<PsiElement> connectors = getAllMatchingElementsFromPackage((PsiDirectory) parent,
@@ -481,10 +480,18 @@ public class BallerinaPsiImplUtil {
                 results.add(connector);
             }
         }
+
+        List<PsiElement> nativeConnectors = getAllMatchingElementsFromPackage((PsiDirectory) parent,
+                "//connectorDefinition/nativeConnector/Identifier");
+        if (connectors != null) {
+            for (PsiElement connector : nativeConnectors) {
+                results.add(connector);
+            }
+        }
         return results;
     }
 
-    public static List<PsiElement> getAllStructsFromCurrentPackage(PsiElement element) {
+    public static List<PsiElement> getAllStructsInCurrentPackage(PsiElement element) {
         List<PsiElement> results = new ArrayList<>();
         PsiElement parent = element.getParent();
         List<PsiElement> structs = getAllMatchingElementsFromPackage((PsiDirectory) parent,
@@ -497,17 +504,65 @@ public class BallerinaPsiImplUtil {
         return results;
     }
 
-    public static List<PsiElement> getAllFunctionsFromCurrentPackage(PsiElement element) {
-        List<PsiElement> results = new ArrayList<>();
+    public static List<PsiElement> getAllFunctionsInCurrentPackage(PsiElement element) {
+        //        List<PsiElement> results = new ArrayList<>();
         PsiElement parent = element.getParent();
-        List<PsiElement> structs = getAllMatchingElementsFromPackage((PsiDirectory) parent,
+        //        List<PsiElement> structs = getAllMatchingElementsFromPackage((PsiDirectory) parent,
+        //                "//functionDefinition/function/Identifier");
+        //        if (structs != null) {
+        //            for (PsiElement struct : structs) {
+        //                results.add(struct);
+        //            }
+        //        }
+        return getAllFunctionsInPackage((PsiDirectory) parent);
+    }
+
+    public static List<PsiElement> getAllFunctionsInPackage(PsiDirectory packageElement) {
+        List<PsiElement> results = new ArrayList<>();
+        List<PsiElement> functions = getAllMatchingElementsFromPackage(packageElement,
                 "//functionDefinition/function/Identifier");
-        if (structs != null) {
-            for (PsiElement struct : structs) {
-                results.add(struct);
+        if (functions != null) {
+            for (PsiElement function : functions) {
+                results.add(function);
+            }
+        }
+
+        List<PsiElement> nativeFunctions = getAllMatchingElementsFromPackage(packageElement,
+                "//functionDefinition/nativeFunction/Identifier");
+        if (nativeFunctions != null) {
+            for (PsiElement function : nativeFunctions) {
+                results.add(function);
             }
         }
         return results;
+    }
+
+    public static ArrayList<PsiElement> getAllImportedPackagesInCurrentFile(PsiElement element) {
+        PsiFile file = element.getContainingFile();
+
+        Collection<ImportDeclarationNode> allImports = PsiTreeUtil.findChildrenOfType(file,
+                ImportDeclarationNode.class);
+        ArrayList<PsiElement> filteredPackages = new ArrayList<>();
+
+        for (ImportDeclarationNode importDeclaration : allImports) {
+
+            Collection<? extends PsiElement> aliasNodes = XPath.findAll(BallerinaLanguage.INSTANCE, importDeclaration,
+                    "//alias");
+
+            if (aliasNodes.isEmpty()) {
+                Collection<? extends PsiElement> packagePathNodes =
+                        XPath.findAll(BallerinaLanguage.INSTANCE, importDeclaration, "//packagePath");
+
+                PsiElement packagePathNode = packagePathNodes.iterator().next();
+                PsiElement lastChild = packagePathNode.getLastChild();
+                filteredPackages.add(lastChild);
+            } else {
+                PsiElement aliasNode = aliasNodes.iterator().next();
+                PsiElement firstChild = aliasNode.getFirstChild();
+                filteredPackages.add(firstChild);
+            }
+        }
+        return filteredPackages;
     }
 
     /**

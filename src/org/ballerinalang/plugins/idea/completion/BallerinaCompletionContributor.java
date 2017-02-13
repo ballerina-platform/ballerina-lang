@@ -32,8 +32,10 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.util.ProcessingContext;
+import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.ballerinalang.plugins.idea.psi.AnnotationNameNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
@@ -181,12 +183,14 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
 
             if (parent instanceof PackageNameNode) {
                 //Todo - Suggest current file path
+                //Todo- check alias node
                 PsiDirectory[] psiDirectories = BallerinaPsiImplUtil.suggestPackages(element);
                 for (PsiDirectory directory : psiDirectories) {
                     InsertHandler<LookupElement> insertHandler;
                     if (BallerinaPsiImplUtil.hasSubdirectories(directory)) {
                         insertHandler = ImportCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP;
                     } else {
+                        //Todo-check for duplicate package names and suggest 'as'
                         insertHandler = StatementCompletionInsertHandler.INSTANCE;
                     }
                     resultSet.addElement(LookupElementBuilder.createWithIcon(directory)
@@ -199,6 +203,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     if (BallerinaPsiImplUtil.hasSubdirectories(directory)) {
                         insertHandler = ImportCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP;
                     } else {
+                        //Todo-check for duplicate package names and suggest 'as'
                         insertHandler = StatementCompletionInsertHandler.INSTANCE;
                     }
                     resultSet.addElement(LookupElementBuilder.create(directory).withInsertHandler(insertHandler));
@@ -219,27 +224,34 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     addReferenceTypes(resultSet, REFERENCE_TYPE_PRIORITY);
 
                     // Todo- remove duplication
-                    List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsFromCurrentPackage(originalFile);
+                    List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsInCurrentPackage(originalFile);
                     for (PsiElement connector : connectors) {
                         LookupElementBuilder builder = LookupElementBuilder.create(connector.getText())
                                 .withTypeText("Connector");
                         resultSet.addElement(PrioritizedLookupElement.withPriority(builder, CONNECTOR_PRIORITY));
                     }
 
-                    List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromCurrentPackage(originalFile);
-                    for (PsiElement struct : functions) {
-                        LookupElementBuilder builder = LookupElementBuilder.create(struct.getText())
-                                .withTypeText("Functions").withTailText("()", true);
+                    List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsInCurrentPackage(originalFile);
+                    for (PsiElement function : functions) {
+                        LookupElementBuilder builder = LookupElementBuilder.create(function.getText())
+                                .withTypeText("Function").withTailText("()", true);
                         resultSet.addElement(PrioritizedLookupElement.withPriority(builder, FUNCTION_PRIORITY));
                     }
 
-                    List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromCurrentPackage(originalFile);
+                    List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsInCurrentPackage(originalFile);
                     for (PsiElement struct : structs) {
-                        LookupElementBuilder builder = LookupElementBuilder.create(struct.getText()).withTypeText
-                                ("Struct");
+                        LookupElementBuilder builder = LookupElementBuilder.create(struct.getText())
+                                .withTypeText("Struct");
                         resultSet.addElement(PrioritizedLookupElement.withPriority(builder, STRUCT_PRIORITY));
                     }
 
+                    List<PsiElement> packages = BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(originalFile);
+                    for (PsiElement pack : packages) {
+                        LookupElementBuilder builder = LookupElementBuilder.create(pack.getText())
+                                .withTypeText("Package")
+                                .withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+                        resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
+                    }
 
                 } else if (superParent instanceof CompilationUnitNode) {
                     if (parentPrevSibling == null) {
@@ -316,19 +328,50 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addReferenceTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
                 //Todo - add Connector,package name, struct
 
-                List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsFromCurrentPackage(originalFile);
+                List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsInCurrentPackage(originalFile);
                 for (PsiElement connector : connectors) {
                     LookupElementBuilder builder = LookupElementBuilder.create(connector.getText())
                             .withTypeText("Connector");
                     resultSet.addElement(PrioritizedLookupElement.withPriority(builder, CONNECTOR_PRIORITY));
                 }
 
-                List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromCurrentPackage(originalFile);
+                List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsInCurrentPackage(originalFile);
                 for (PsiElement struct : structs) {
                     LookupElementBuilder builder = LookupElementBuilder.create(struct.getText()).withTypeText("Struct");
                     resultSet.addElement(PrioritizedLookupElement.withPriority(builder, STRUCT_PRIORITY));
                 }
 
+            } else if (parent instanceof StatementNode) {
+                PsiElement temp = parentPrevSibling;
+                while (temp != null && temp.getText().isEmpty()) {
+                    temp = temp.getPrevSibling();
+                }
+
+                if (temp != null) {
+                    List<PsiElement> packages = BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(originalFile);
+
+                    for (PsiElement pack : packages) {
+                        if (temp.getText().equals(pack.getText() + ":")) {
+
+                            PsiDirectory[] psiDirectories =
+                                    BallerinaPsiImplUtil.resolveDirectory(((PackageNameNode) pack).getNameIdentifier());
+
+                            if (psiDirectories.length == 1) {
+                                List<PsiElement> functions = BallerinaPsiImplUtil
+                                        .getAllFunctionsInPackage(psiDirectories[0]);
+
+                                for (PsiElement function : functions) {
+                                    LookupElementBuilder builder = LookupElementBuilder.create(function.getText())
+                                            .withTypeText("Function").withTailText("()", true);
+                                    resultSet.addElement(PrioritizedLookupElement.withPriority(builder,
+                                            FUNCTION_PRIORITY));
+                                }
+                            } else {
+                                // Todo - handle situation (edge case)
+                            }
+                        }
+                    }
+                }
             } else {
 
                 if (element instanceof IdentifierPSINode) {
