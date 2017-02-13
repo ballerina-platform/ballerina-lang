@@ -19,6 +19,8 @@ package org.wso2.ballerina.core.model;
 
 import org.ballerinalang.util.repository.PackageRepository;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+import org.wso2.ballerina.core.model.types.TypeLattice;
+import org.wso2.ballerina.core.model.types.TypeVertex;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,13 +33,21 @@ import java.util.Map;
  * @since 0.8.0
  */
 public class BLangPackage implements SymbolScope, BLangSymbol, Node {
-    private String pkgPath;
-    private SymbolName symbolName;
+    protected String pkgPath;
+    protected SymbolName symbolName;
 
-    private List<CompilationUnit> compilationUnitList = new ArrayList<>();
-    private BallerinaFile[] ballerinaFiles;
-    private ImportPackage[] importPackages;
-    private List<BLangPackage> dependentPkgs = new ArrayList<>();
+    protected CompilationUnit[] compilationUnits;
+    protected BallerinaFile[] ballerinaFiles;
+    protected ImportPackage[] importPackages;
+    protected Service[] services;
+    protected BallerinaConnectorDef[] connectors;
+    protected Function[] functions;
+    protected TypeLattice typeLattice;
+    protected ConstDef[] consts;
+    protected StructDef[] structDefs;
+    protected Function mainFunction;
+
+    protected List<BLangPackage> dependentPkgs = new ArrayList<>();
 
     // Scope related variables
     private SymbolScope enclosingScope;
@@ -55,7 +65,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         this.enclosingScope = golbalScope;
         symbolMap = new HashMap<>();
     }
-    
+
     public BLangPackage(String packagePath, PackageRepository packageRepo, BLangProgram programScope) {
         this.pkgPath = packagePath;
         this.pkgRepo = packageRepo;
@@ -84,16 +94,44 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         this.importPackages = importPackages;
     }
 
-    public CompilationUnit[] getCompilationUntis() {
-        return compilationUnitList.toArray(new CompilationUnit[compilationUnitList.size()]);
-    }
-
     public void addDependentPackage(BLangPackage bLangPackage) {
         this.dependentPkgs.add(bLangPackage);
     }
 
     public BLangPackage[] getDependentPackages() {
         return dependentPkgs.toArray(new BLangPackage[dependentPkgs.size()]);
+    }
+
+    public CompilationUnit[] getCompilationUntis() {
+        return compilationUnits;
+    }
+
+    public CompilationUnit[] getCompilationUnits() {
+        return compilationUnits;
+    }
+
+    public Service[] getServices() {
+        return services;
+    }
+
+    public BallerinaConnectorDef[] getConnectors() {
+        return connectors;
+    }
+
+    public Function[] getFunctions() {
+        return functions;
+    }
+
+    public TypeLattice getTypeLattice() {
+        return typeLattice;
+    }
+
+    public ConstDef[] getConsts() {
+        return consts;
+    }
+
+    public StructDef[] getStructDefs() {
+        return structDefs;
     }
 
     public boolean isSymbolsDefined() {
@@ -128,7 +166,6 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     @Override
     public void define(SymbolName name, BLangSymbol symbol) {
         symbolMap.put(name, symbol);
-        compilationUnitList.add((CompilationUnit) symbol);
     }
 
     @Override
@@ -184,5 +221,92 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     @Override
     public NodeLocation getNodeLocation() {
         return null;
+    }
+
+    /**
+     * @since 0.8.0
+     */
+    public static class PackageBuilder {
+        private BLangPackage bLangPackage;
+
+        private Map<String, ImportPackage> importPkgMap = new HashMap<>();
+        private List<CompilationUnit> compilationUnitList = new ArrayList<>();
+        private List<Service> serviceList = new ArrayList<>();
+        private List<BallerinaConnectorDef> connectorList = new ArrayList<>();
+        private List<Function> functionList = new ArrayList<>();
+        private List<ConstDef> constList = new ArrayList<>();
+        private List<StructDef> structDefList = new ArrayList<>();
+        private TypeLattice typeLattice = new TypeLattice();
+
+        private List<BallerinaFile> ballerinaFileList = new ArrayList<>();
+
+        public PackageBuilder(BLangPackage bLangPackage) {
+            this.bLangPackage = bLangPackage;
+        }
+
+        public PackageBuilder(String packagePath, PackageRepository packageRepo, BLangProgram programScope) {
+            this.bLangPackage = new BLangPackage(packagePath, packageRepo, programScope);
+        }
+
+        public SymbolScope getCurrentScope() {
+            return bLangPackage;
+        }
+
+        public void addFunction(BallerinaFunction function) {
+            this.compilationUnitList.add(function);
+            this.functionList.add(function);
+        }
+
+        public void addService(Service service) {
+            this.compilationUnitList.add(service);
+            this.serviceList.add(service);
+        }
+
+        public void addConnector(BallerinaConnectorDef connector) {
+            this.compilationUnitList.add(connector);
+            this.connectorList.add(connector);
+        }
+
+        public void addImportPackage(ImportPackage importPkg) {
+            this.importPkgMap.put(importPkg.getPath(), importPkg);
+        }
+
+        public void addConst(ConstDef constant) {
+            this.compilationUnitList.add((constant));
+            this.constList.add(constant);
+        }
+
+        public void addTypeConvertor(TypeVertex source, TypeVertex target,
+                                     TypeConvertor typeConvertor, String packageName) {
+            this.compilationUnitList.add((BTypeConvertor) typeConvertor);
+            typeLattice.addVertex(source, true);
+            typeLattice.addVertex(target, true);
+            typeLattice.addEdge(source, target, typeConvertor, packageName);
+        }
+
+        public void addStruct(StructDef structDef) {
+            this.compilationUnitList.add(structDef);
+            this.structDefList.add(structDef);
+        }
+
+        public void addBallerinaFile(BallerinaFile bFile) {
+            this.ballerinaFileList.add(bFile);
+        }
+
+        public void setBallerinaFileList(List<BallerinaFile> ballerinaFileList) {
+            this.ballerinaFileList = ballerinaFileList;
+        }
+
+        public BLangPackage build() {
+            bLangPackage.compilationUnits = this.compilationUnitList.toArray(new CompilationUnit[0]);
+            bLangPackage.functions = this.functionList.toArray(new Function[0]);
+            bLangPackage.services = this.serviceList.toArray(new Service[0]);
+            bLangPackage.connectors = this.connectorList.toArray(new BallerinaConnectorDef[0]);
+            bLangPackage.structDefs = this.structDefList.toArray(new StructDef[0]);
+            bLangPackage.consts = this.constList.toArray(new ConstDef[0]);
+            bLangPackage.importPackages = this.importPkgMap.values().toArray(new ImportPackage[0]);
+            bLangPackage.typeLattice = this.typeLattice;
+            return bLangPackage;
+        }
     }
 }

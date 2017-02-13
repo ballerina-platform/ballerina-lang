@@ -146,10 +146,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private SymbolScope currentScope;
 
-    public SemanticAnalyzer(BallerinaFile bFile, SymbolScope packageScope) {
-        currentScope = packageScope;
-    }
-
     public SemanticAnalyzer(BLangProgram programScope) {
         currentScope = programScope;
     }
@@ -160,12 +156,16 @@ public class SemanticAnalyzer implements NodeVisitor {
         mainPkg.accept(this);
 
         // TODO Support services
+
+        int setSizeOfStaticMem = staticMemAddrOffset + 1;
+        bLangProgram.setSizeOfStaticMem(setSizeOfStaticMem);
+        staticMemAddrOffset = -1;
     }
 
     @Override
     public void visit(BLangPackage bLangPackage) {
-        for(BLangPackage dependentPkg: bLangPackage.getDependentPackages()) {
-            if(dependentPkg.isSymbolsDefined()) {
+        for (BLangPackage dependentPkg : bLangPackage.getDependentPackages()) {
+            if (dependentPkg.isSymbolsDefined()) {
                 continue;
             }
 
@@ -173,8 +173,19 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         currentScope = bLangPackage;
-        for(BallerinaFile bFile: bLangPackage.getBallerinaFiles()) {
-            bFile.accept(this);
+        currentPkg = bLangPackage.getPackagePath();
+        packageTypeLattice = bLangPackage.getTypeLattice();
+
+        defineConstants(bLangPackage.getConsts());
+        defineStructs(bLangPackage.getStructDefs());
+        defineConnectors(bLangPackage.getConnectors());
+        resolveStructFieldTypes(bLangPackage.getStructDefs());
+        defineFunctions(bLangPackage.getFunctions());
+        defineTypeConvertors(packageTypeLattice);
+        defineServices(bLangPackage.getServices());
+
+        for (CompilationUnit compilationUnit : bLangPackage.getCompilationUnits()) {
+            compilationUnit.accept(this);
         }
 
         bLangPackage.setSymbolsDefined(true);
@@ -182,27 +193,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BallerinaFile bFile) {
-        currentPkg = bFile.getPackagePath();
-        packageTypeLattice = bFile.getTypeLattice();
-
-        // TODO Define constants
-        // TODO Define Structs
-        defineConnectors(bFile.getConnectors());
-        resolveStructFieldTypes(bFile.getStructDefs());
-        defineFunctions(bFile.getFunctions());
-        defineTypeConvertors(packageTypeLattice);
-        defineServices(bFile.getServices());
-
-
-        for (CompilationUnit compilationUnit : bFile.getCompilationUnits()) {
-            compilationUnit.accept(this);
-        }
-
-        int setSizeOfStaticMem = staticMemAddrOffset + 1;
-        bFile.setSizeOfStaticMem(setSizeOfStaticMem);
-        staticMemAddrOffset = -1;
-
-        // TODO We can perform additional checks here
     }
 
     @Override
@@ -1182,6 +1172,11 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
+    public void visit(StructFieldAccessExpr structFieldAccessExpr) {
+        visitStructField(structFieldAccessExpr, currentScope);
+    }
+
+    @Override
     public void visit(RefTypeInitExpr refTypeInitExpr) {
         BType inheritedType = refTypeInitExpr.getInheritedType();
         if (BTypes.isValueType(inheritedType) || inheritedType instanceof BArrayType ||
@@ -1817,18 +1812,6 @@ public class SemanticAnalyzer implements NodeVisitor {
                 " not defined on '" + rExprType + "'");
     }
 
-    /*
-     * Struct related methods
-     */
-
-    /**
-     * visit and analyze ballerina struct-field-access-expressions.
-     */
-    @Override
-    public void visit(StructFieldAccessExpr structFieldAccessExpr) {
-        visitStructField(structFieldAccessExpr, currentScope);
-    }
-
     private void visitStructField(StructFieldAccessExpr structFieldAccessExpr, SymbolScope currentScope) {
         ReferenceExpr varRefExpr = structFieldAccessExpr.getVarRef();
         SymbolName symbolName = varRefExpr.getSymbolName();
@@ -1979,6 +1962,20 @@ public class SemanticAnalyzer implements NodeVisitor {
             variableDef.setMemoryLocation(new ServiceVarLocation(++staticMemAddrOffset));
         } else if (currentScope.getScopeName() == SymbolScope.ScopeName.CONNECTOR) {
             variableDef.setMemoryLocation(new ConnectorVarLocation(++connectorMemAddrOffset));
+        }
+    }
+
+    private void defineConstants(ConstDef[] constDefs) {
+        for (ConstDef constDef : constDefs) {
+            SymbolName symbolName = new SymbolName(constDef.getName());
+            // Check whether this constant is already defined.
+            if (currentScope.resolve(symbolName) != null) {
+                throw new SemanticException(getNodeLocationStr(constDef.getNodeLocation()) +
+                        "redeclared symbol '" + constDef.getName() + "'");
+            }
+
+            // Define the variableRef symbol in the current scope
+            currentScope.define(symbolName, constDef);
         }
     }
 
@@ -2186,6 +2183,20 @@ public class SemanticAnalyzer implements NodeVisitor {
                     "redeclared symbol '" + resource.getName() + "'");
         }
         currentScope.define(symbolName, resource);
+    }
+
+    private void defineStructs(StructDef[] structDefs) {
+        for (StructDef structDef : structDefs) {
+            SymbolName symbolName = new SymbolName(structDef.getName());
+
+            // Check whether this constant is already defined.
+            if (currentScope.resolve(symbolName) != null) {
+                throw new SemanticException(getNodeLocationStr(structDef.getNodeLocation()) +
+                        "redeclared symbol '" + structDef.getName() + "'");
+            }
+
+            currentScope.define(symbolName, structDef);
+        }
     }
 
     private void resolveStructFieldTypes(StructDef[] structDefs) {

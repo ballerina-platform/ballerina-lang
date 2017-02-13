@@ -35,7 +35,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -44,29 +43,26 @@ import java.util.stream.Collectors;
 public class BLangPackages {
 
     private static BLangPackage loadPackageInternal(PackageRepository.PackageSource pkgSource,
-                                                    BLangPackage bLangPackage,
+                                                    BLangPackage.PackageBuilder packageBuilder,
                                                     BLangProgram bLangProgram) {
 
         Path packagePath = pkgSource.getPackagePath();
         String pkgPathStr = getPackagePathFromPath(packagePath);
-        System.out.println(pkgPathStr);
-        List<BallerinaFile> bFileList = pkgSource.getSourceFileStreamMap().entrySet()
+        packageBuilder.setBallerinaFileList(pkgSource.getSourceFileStreamMap().entrySet()
                 .stream()
-                .map(entry -> BLangFiles.loadFile(entry.getKey(), packagePath, entry.getValue(), bLangPackage))
+                .map(entry -> BLangFiles.loadFile(entry.getKey(), packagePath, entry.getValue(), packageBuilder))
                 .peek(bFile -> validatePackagePathInFile(pkgPathStr, packagePath, bFile))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
 
-        bLangPackage.setBallerinaFiles(bFileList.toArray(new BallerinaFile[bFileList.size()]));
-        bLangPackage.setImportPackages(flattenImportPackages(bFileList));
+        BLangPackage bLangPackage = packageBuilder.build();
 
         // Resolve dependent packages of this package
-        resolveDependencies(bLangPackage, bLangProgram);
-        return bLangPackage;
+        return resolveDependencies(bLangPackage, bLangProgram);
     }
 
     public static BLangPackage loadPackage(Path packagePath,
-                                                   PackageRepository packageRepo,
-                                                   BLangProgram bLangProgram) {
+                                           PackageRepository packageRepo,
+                                           BLangProgram bLangProgram) {
 
         // Load package details (input streams of source files) from the given package repository
         PackageRepository.PackageSource pkgSource = packageRepo.loadPackage(packagePath);
@@ -75,10 +71,10 @@ public class BLangPackages {
         }
 
         String pkgPathStr = getPackagePathFromPath(packagePath);
-        BLangPackage bLangPackage = new BLangPackage(pkgPathStr, pkgSource.getPackageRepository(), bLangProgram);
+        BLangPackage.PackageBuilder packageBuilder =
+                new BLangPackage.PackageBuilder(pkgPathStr, pkgSource.getPackageRepository(), bLangProgram);
 
-        loadPackageInternal(pkgSource, bLangPackage, bLangProgram);
-        return bLangPackage;
+        return loadPackageInternal(pkgSource, packageBuilder, bLangProgram);
     }
 
     public static BLangPackage loadFile(Path filePath, PackageRepository packageRepo, BLangProgram bLangProgram) {
@@ -90,14 +86,14 @@ public class BLangPackages {
             throw new RuntimeException(e.getMessage(), e);
         }
 
-        BLangPackage bLangPackage = new BLangPackage(null, packageRepo, bLangProgram);
-        BallerinaFile bFile = BLangFiles.loadFile(filePath.getFileName().toString(), null, inputStream, bLangPackage);
-        bLangPackage.setBallerinaFiles(new BallerinaFile[]{bFile});
-        bLangPackage.setImportPackages(bFile.getImportPackages());
+        BLangPackage.PackageBuilder packageBuilder =
+                new BLangPackage.PackageBuilder(null, packageRepo, bLangProgram);
+        BallerinaFile bFile = BLangFiles.loadFile(filePath.getFileName().toString(), null, inputStream, packageBuilder);
+        packageBuilder.addBallerinaFile(bFile);
+        BLangPackage bLangPackage = packageBuilder.build();
 
         // Resolve dependent packages of this package
-        resolveDependencies(bLangPackage, bLangProgram);
-        return bLangPackage;
+        return resolveDependencies(bLangPackage, bLangProgram);
     }
 
     private static void validatePackagePathInFile(String pkgPathStr, Path packagePath, BallerinaFile bFile) {
@@ -109,17 +105,22 @@ public class BLangPackages {
         }
     }
 
-    private static void resolveDependencies(BLangPackage parentPackage, BLangProgram bLangProgram) {
+    private static BLangPackage resolveDependencies(BLangPackage parentPackage, BLangProgram bLangProgram) {
         for (ImportPackage importPackage : parentPackage.getImportPackages()) {
 
             // Check whether this package is already resolved.
             BLangPackage dependentPkg = (BLangPackage) bLangProgram.resolve(importPackage.getSymbolName());
+            Path packagePath = getPathFromPackagePath(importPackage.getSymbolName().getName());
+
             if (dependentPkg != null && dependentPkg instanceof NativePackageProxy) {
-                ((NativePackageProxy) dependentPkg).load();
-                Path packagePath = getPathFromPackagePath(importPackage.getSymbolName().getName());
-                PackageRepository.PackageSource pkgSource = dependentPkg.getPackageRepository().loadPackage(packagePath);
-                dependentPkg = loadPackageInternal(pkgSource, dependentPkg, bLangProgram);
-            } else {
+                dependentPkg = ((NativePackageProxy) dependentPkg).load();
+                PackageRepository.PackageSource pkgSource =
+                        dependentPkg.getPackageRepository().loadPackage(packagePath);
+
+                BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(dependentPkg);
+                dependentPkg = loadPackageInternal(pkgSource, packageBuilder, bLangProgram);
+
+            } else if (dependentPkg == null) {
 
                 // TODO Detect cyclic dependencies
                 // Remove redundant stuff using the Paths and Files API
@@ -135,25 +136,29 @@ public class BLangPackages {
                 //      i) Search the system repository
                 //      ii) Search the personal/user repository
                 // 4) None of the above applies if the package name starts with 'ballerina'
-                Path packagePath = getPathFromPackagePath(importPackage.getSymbolName().getName());
                 dependentPkg = loadPackage(packagePath, parentPackage.getPackageRepository(), bLangProgram);
 
-                // Define package in the program scope
-                bLangProgram.define(new SymbolName(dependentPkg.getPackagePath()), dependentPkg);
             }
 
-            // Define main package
+            // Define package in the program scope
+            bLangProgram.define(new SymbolName(dependentPkg.getPackagePath()), dependentPkg);
             parentPackage.addDependentPackage(dependentPkg);
         }
+
+        return parentPackage;
     }
 
-    private static Path getPathFromPackagePath(String packagePath) {
+    public static Path getPathFromPackagePath(String packagePath) {
+        if (packagePath.equals(".")) {
+            return Paths.get(packagePath);
+        }
+
         String[] dirs = packagePath.split("\\.");
         return (dirs.length == 1) ? Paths.get(dirs[0]) :
                 Paths.get(dirs[0], Arrays.copyOfRange(dirs, 1, dirs.length));
     }
 
-    private static String getPackagePathFromPath(Path path) {
+    public static String getPackagePathFromPath(Path path) {
         if (path.getNameCount() == 1) {
             return path.toString();
         }
@@ -165,13 +170,5 @@ public class BLangPackages {
 
         strBuilder.append(path.getName(path.getNameCount() - 1));
         return strBuilder.toString();
-    }
-
-    private static ImportPackage[] flattenImportPackages(List<BallerinaFile> bFileList) {
-        return bFileList.stream()
-                .map(BallerinaFile::getImportPackages)
-                .flatMap(Arrays::stream)
-                .distinct()
-                .toArray(ImportPackage[]::new);
     }
 }

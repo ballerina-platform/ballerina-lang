@@ -23,6 +23,7 @@ import org.ballerinalang.util.repository.RepositoryUtils;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.GlobalScope;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
@@ -34,13 +35,14 @@ import java.nio.file.LinkOption;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
 
 /**
  * @since 0.8.0
  */
 public class BLangProgramLoader {
 
-    private boolean diableSemanticAnalyzer = false;
+    private boolean disableSemanticAnalyzer = false;
 
     public BLangProgram load(Path programDirPath, Path sourcePath) {
         if (programDirPath == null) {
@@ -55,7 +57,6 @@ public class BLangProgramLoader {
         try {
             programDirPath = programDirPath.toRealPath();
             sourcePath = programDirPath.resolve(sourcePath).toRealPath();
-            System.out.println(sourcePath);
 
             if (!sourcePath.startsWith(programDirPath)) {
                 // TODO Throw error  given source package or file should be inside the program directory
@@ -91,15 +92,16 @@ public class BLangProgramLoader {
                 throw new RuntimeException("given source file is not a .bal file");
             }
 
-            mainPackage = BLangPackages.loadFile(sourcePath, packageRepository, bLangProgram);
+            mainPackage = BLangPackages.loadPackage(Paths.get("."), packageRepository, bLangProgram);
         }
 
+        bLangProgram.define(new SymbolName(mainPackage.getPackagePath()), mainPackage);
 
         // TODO Find cyclic dependencies
         bLangProgram.setMainPackage(mainPackage);
 
         // Analyze the semantic properties of the Ballerina program
-        if (!diableSemanticAnalyzer) {
+        if (!disableSemanticAnalyzer) {
             SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bLangProgram);
             bLangProgram.accept(semanticAnalyzer);
         }
@@ -108,7 +110,7 @@ public class BLangProgramLoader {
     }
 
     public BLangProgramLoader disableSemanticAnalyzer() {
-        this.diableSemanticAnalyzer = true;
+        this.disableSemanticAnalyzer = true;
         return this;
     }
 

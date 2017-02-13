@@ -120,7 +120,7 @@ public class InvalidSyntaxParserTest {
         BallerinaParser ballerinaParser = ParserUtils.getBallerinaParser(path);
 
         // Create Ballerina model builder class
-        BLangModelBuilder modelBuilder = new BLangModelBuilder();
+        BLangModelBuilder modelBuilder = new BLangModelBuilder(null, "");
         BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
 
         ballerinaParser.addParseListener(langModelBuilder);

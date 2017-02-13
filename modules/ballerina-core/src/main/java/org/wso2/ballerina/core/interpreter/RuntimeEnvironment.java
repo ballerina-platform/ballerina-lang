@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
+import org.wso2.ballerina.core.model.BLangPackage;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.Function;
@@ -37,6 +39,19 @@ public class RuntimeEnvironment {
 
     public StaticMemory getStaticMemory() {
         return staticMemory;
+    }
+
+    public static RuntimeEnvironment get(BLangProgram bLangProgram) {
+        StaticMemory staticMemory = new StaticMemory(bLangProgram.getSizeOfStaticMem());
+
+        int staticMemOffset = 0;
+        for (BLangPackage bLangPackage : bLangProgram.getPackages()) {
+            for (ConstDef constant : bLangPackage.getConsts()) {
+                staticMemory.setValue(staticMemOffset, constant.getValue());
+                staticMemOffset++;
+            }
+        }
+        return new RuntimeEnvironment(staticMemory);
     }
 
     public static RuntimeEnvironment get(BallerinaFile bFile) {

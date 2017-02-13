@@ -27,12 +27,16 @@ import java.util.Map;
  * @since 0.8.0
  */
 public class BLangProgram implements SymbolScope, Node {
+    private static final SymbolName mainFuncSymboleName = new SymbolName("main.string[]");
+
     private Path programFilePath;
     private BLangPackage mainPackage;
 
     // Scope related variables
     private GlobalScope globalScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
+
+    private int sizeOfStaticMem;
 
     public BLangProgram(GlobalScope globalScope, Path programFilePath) {
         this.globalScope = globalScope;
@@ -58,6 +62,23 @@ public class BLangProgram implements SymbolScope, Node {
         this.mainPackage = mainPackage;
     }
 
+    public BallerinaFunction getMainFunction() {
+        return (BallerinaFunction) mainPackage.resolveMembers(mainFuncSymboleName);
+    }
+
+    public BLangPackage[] getPackages() {
+        return symbolMap.values().stream().map(symbol -> (BLangPackage) symbol).toArray(BLangPackage[]::new);
+    }
+
+    public int getSizeOfStaticMem() {
+        return sizeOfStaticMem;
+    }
+
+    public void setSizeOfStaticMem(int sizeOfStaticMem) {
+        this.sizeOfStaticMem = sizeOfStaticMem;
+    }
+
+
     // Methods in the SymbolScope interface
 
     @Override
@@ -78,18 +99,18 @@ public class BLangProgram implements SymbolScope, Node {
     @Override
     public BLangSymbol resolve(SymbolName name) {
         BLangSymbol symbol = resolve(symbolMap, name);
-        if(symbol != null) {
+        if (symbol != null) {
             return symbol;
         }
 
-        if(name.getPkgPath() == null) {
+        if (name.getPkgPath() == null) {
             return null;
         }
 
         // resolve the package symbol first
         SymbolName pkgSymbolName = new SymbolName(name.getPkgPath());
         BLangSymbol pkgSymbol = symbolMap.get(pkgSymbolName);
-        if(pkgSymbol == null) {
+        if (pkgSymbol == null) {
             return null;
         }
 

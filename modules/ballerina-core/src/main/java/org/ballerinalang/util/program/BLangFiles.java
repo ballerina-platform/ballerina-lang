@@ -37,7 +37,7 @@ public class BLangFiles {
     public static BallerinaFile loadFile(String sourceFileName,
                                          Path packagePath,
                                          InputStream inputStream,
-                                         BLangPackage packageScope) {
+                                         BLangPackage.PackageBuilder packageBuilder) {
 
         Path sourceFilePath;
         if (packagePath == null) {
@@ -60,7 +60,7 @@ public class BLangFiles {
             BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
             ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
 
-            BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(packageScope, sourceFileName);
+            BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(packageBuilder, sourceFileName);
             BLangAntlr4Listener antlr4Listener = new BLangAntlr4Listener(bLangModelBuilder, sourceFilePath);
             ballerinaParser.addParseListener(antlr4Listener);
             ballerinaParser.compilationUnit();

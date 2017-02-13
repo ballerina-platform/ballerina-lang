@@ -31,7 +31,6 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.runtime.BalProgramExecutor;
 import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.MessageProcessor;
-import org.wso2.ballerina.core.runtime.deployer.BalDeployer;
 import org.wso2.ballerina.core.runtime.listner.HTTPListenerManager;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
@@ -89,7 +88,6 @@ public class BallerinaServiceComponent {
                 ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
                 return;
             }
-            BalDeployer.deployBalFile(runningFile);
         } else if (runtimeMode.equalsIgnoreCase(Constants.SYSTEM_PROP_RUN_MODE_SERVER)) {
             ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.SERVER);
             String[] filesToRun = runningFileName.split(";");
@@ -101,7 +99,6 @@ public class BallerinaServiceComponent {
                         log.error("Error: File " + runningFile.getName() + " not found in the given location.");
                         continue;
                     }
-                    serviceDeployed += BalDeployer.deployBalFile(runningFile);
                 }
             }
             if (serviceDeployed <= 0) {

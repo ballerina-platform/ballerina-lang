@@ -76,7 +76,8 @@ public class LauncherUtils {
             BLangProgram bLangProgram = new BLangProgram(globalScope);
             BLangPackage bLangPackage = new BLangPackage(bLangProgram);
 
-            BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(bLangPackage);
+            BLangModelBuilder bLangModelBuilder = null;
+//            new BLangModelBuilder(bLangPackage, getFileName(sourceFilePath));
             BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
             ballerinaParser.addParseListener(ballerinaBaseListener);
             ballerinaParser.compilationUnit();
@@ -84,8 +85,8 @@ public class LauncherUtils {
 
             BuiltInNativeConstructLoader.loadConstructs(globalScope);
 
-            SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(balFile, bLangPackage);
-            balFile.accept(semanticAnalyzer);
+//            SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(balFile, bLangPackage);
+//            balFile.accept(semanticAnalyzer);
 
             return balFile;
         } catch (ParseCancellationException | SemanticException | LinkerException e) {

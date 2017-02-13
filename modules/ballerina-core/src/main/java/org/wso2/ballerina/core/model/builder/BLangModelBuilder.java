@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.model.builder;
 
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BTypeConvertor;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
@@ -108,7 +109,7 @@ import static org.wso2.ballerina.core.model.util.LangModelUtils.getNodeLocationS
  */
 public class BLangModelBuilder {
     private String currentPackagePath;
-    private BallerinaFile.BFileBuilder bFileBuilder = new BallerinaFile.BFileBuilder(null);
+    private BallerinaFile.BFileBuilder bFileBuilder;
 
     private SymbolScope currentScope;
 
@@ -141,19 +142,9 @@ public class BLangModelBuilder {
 
     private List<String> errorMsgs = new ArrayList<>();
 
-    public BLangModelBuilder() {
-    }
-
-    public BLangModelBuilder(SymbolScope packageScope) {
-        this.currentScope = packageScope;
-
-        // TODO Add a description why.
-        startRefTypeInitExpr();
-    }
-
-    public BLangModelBuilder(SymbolScope packageScope, String bFileName) {
-        this.currentScope = packageScope;
-        bFileBuilder = new BallerinaFile.BFileBuilder(bFileName);
+    public BLangModelBuilder(BLangPackage.PackageBuilder packageBuilder, String bFileName) {
+        this.currentScope = packageBuilder.getCurrentScope();
+        bFileBuilder = new BallerinaFile.BFileBuilder(bFileName, packageBuilder);
 
         // TODO Add a description why.
         startRefTypeInitExpr();
@@ -177,7 +168,6 @@ public class BLangModelBuilder {
             throw new SemanticException(errorMsgs.get(0));
         }
 
-        bFileBuilder.setImportPackageMap(importPkgMap);
         return bFileBuilder.build();
     }
 
@@ -235,20 +225,9 @@ public class BLangModelBuilder {
 
     public void addConstantDef(NodeLocation location, String name, boolean isPublic) {
         SymbolName symbolName = new SymbolName(name);
-
-        // Check whether this constant is already defined.
-        if (currentScope.resolve(symbolName) != null) {
-            String errMsg = getNodeLocationStr(location) +
-                    "redeclared symbol '" + name + "'";
-            errorMsgs.add(errMsg);
-        }
-
         SimpleTypeName typeName = typeNameStack.pop();
         ConstDef constantDef = new ConstDef(location, name, typeName, currentPackagePath,
                 isPublic, symbolName, currentScope, exprStack.pop());
-
-        // Define the variableRef symbol in the current scope
-        currentScope.define(symbolName, constantDef);
 
         // Add constant definition to current file;
         bFileBuilder.addConst(constantDef);
@@ -314,16 +293,16 @@ public class BLangModelBuilder {
 
         // Define StructDef Symbol in the package scope..
         // TODO: add currentPackagePath when creating the SymbolName
-        SymbolName symbolName = new SymbolName(name);
+//        SymbolName symbolName = new SymbolName(name);
 
         // Check whether this constant is already defined.
-        if (currentScope.resolve(symbolName) != null) {
-            String errMsg = getNodeLocationStr(location) +
-                    "redeclared symbol '" + name + "'";
-            errorMsgs.add(errMsg);
-        }
+//        if (currentScope.resolve(symbolName) != null) {
+//            String errMsg = getNodeLocationStr(location) +
+//                    "redeclared symbol '" + name + "'";
+//            errorMsgs.add(errMsg);
+//        }
 
-        currentScope.define(symbolName, structDef);
+//        currentScope.define(symbolName, structDef);
         bFileBuilder.addStruct(structDef);
     }
 

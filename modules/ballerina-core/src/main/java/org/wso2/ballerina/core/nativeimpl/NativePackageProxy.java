@@ -47,10 +47,12 @@ public class NativePackageProxy extends BLangPackage {
         this.nativePackageSupplier = nativePackageSupplier;
     }
     
-    public void load() {
+    public BLangPackage load() {
         if (nativePackage == null) {
             nativePackage = this.nativePackageSupplier.get();
         }
+
+        return nativePackage;
     }
     
     // Overridden methods form BLangPackage

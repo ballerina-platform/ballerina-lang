@@ -17,12 +17,15 @@
 */
 package org.ballerinalang.launcher;
 
+import org.ballerinalang.BLangProgramLoader;
 import org.wso2.ballerina.core.interpreter.BLangExecutor;
 import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
+import org.wso2.ballerina.core.model.BLangPackage;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.NodeLocation;
@@ -40,6 +43,7 @@ import org.wso2.ballerina.core.runtime.MessageProcessor;
 import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -50,29 +54,33 @@ import java.util.List;
 class BMainRunner {
 
     static void runMain(Path sourceFilePath, List<String> args) {
-        BallerinaFile bFile = LauncherUtils.buildLangModel(sourceFilePath);
-    
+        Path programDirPath = Paths.get(System.getProperty("user.dir"));
+
+        BLangProgram bLangProgram = new BLangProgramLoader()
+                .load(programDirPath, sourceFilePath);
+
         // Load Client Connectors
         BallerinaConnectorManager.getInstance().initializeClientConnectors(new MessageProcessor());
 
         // Check whether there is a main function
-        BallerinaFunction function = (BallerinaFunction) bFile.getMainFunction();
+        BallerinaFunction function = bLangProgram.getMainFunction();
         if (function == null) {
-            String pkgString = (bFile.getPackagePath() != null) ? "in package " + bFile.getPackagePath() : "";
+            String pkgString = (bLangProgram.getMainPackage().getPackagePath() != null) ? "in package " +
+                    bLangProgram.getMainPackage().getPackagePath() : "";
             pkgString = (pkgString.equals("")) ? "in file '" + LauncherUtils.getFileName(sourceFilePath) + "'" : "";
             String errorMsg = "ballerina: main method not found " + pkgString + "";
             throw LauncherUtils.createLauncherException(errorMsg);
         }
 
-        execute(bFile, args);
+        execute(bLangProgram, args);
         Runtime.getRuntime().exit(0);
     }
 
-    private static void execute(BallerinaFile balFile, List<String> args) {
+    private static void execute(BLangProgram bLangProgram, List<String> args) {
         Context bContext = new Context();
         try {
             SymbolName argsName;
-            BallerinaFunction mainFun = (BallerinaFunction) balFile.getMainFunction();
+            BallerinaFunction mainFun = bLangProgram.getMainFunction();
             NodeLocation mainFuncLocation = mainFun.getNodeLocation();
             ParameterDef[] parameterDefs = mainFun.getParameterDefs();
             argsName = parameterDefs[0].getSymbolName();
@@ -104,7 +112,7 @@ class BMainRunner {
             StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], functionInfo);
             bContext.getControlStack().pushFrame(currentStackFrame);
 
-            RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(balFile);
+            RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
             BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
             funcIExpr.executeMultiReturn(executor);
 

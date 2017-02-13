@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Paths;
 
 /**
  * Utility methods for Ballerina Parser.
@@ -73,7 +74,10 @@ public class ParserUtils {
         BTypes.loadBuiltInTypes(globalScope);
         BLangProgram bLangProgram = new BLangProgram(globalScope);
         BLangPackage bLangPackage = new BLangPackage(bLangProgram);
-        BLangModelBuilder modelBuilder = new BLangModelBuilder(bLangPackage);
+        BLangModelBuilder modelBuilder = null;
+
+//        new BLangModelBuilder(bLangPackage,
+//                Paths.get(sourceFilePath).getFileName().toString());
 
 
         BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
@@ -86,8 +90,8 @@ public class ParserUtils {
         BallerinaFile bFile = modelBuilder.build();
 
         // Analyze semantic properties of the source code
-        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, bLangPackage);
-        bFile.accept(semanticAnalyzer);
+//        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, bLangPackage);
+//        bFile.accept(semanticAnalyzer);
 
         return bFile;
     }
