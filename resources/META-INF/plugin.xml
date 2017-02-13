@@ -49,6 +49,9 @@
                                        implementationClass="org.ballerinalang.plugins.idea.highlighter.BallerinaSyntaxHighlighterFactory"/>
         <colorSettingsPage implementation="org.ballerinalang.plugins.idea.highlighter.BallerinaColorSettingsPage"/>
 
+        <annotator language="Ballerina"
+                   implementationClass="org.ballerinalang.plugins.idea.codeinsight.daemon.impl.BallerinaAnnotator"/>
+
         <!--formatter-->
         <lang.formatter language="Ballerina"
                         implementationClass="org.ballerinalang.plugins.idea.formatter.BallerinaFormattingModelBuilder"/>

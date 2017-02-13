@@ -38,6 +38,8 @@ public class BallerinaSyntaxHighlightingColors {
             DefaultLanguageHighlighterColors.IDENTIFIER);
     public static final TextAttributesKey BAD_CHARACTER = createTextAttributesKey("BALLERINA_BAD_TOKEN",
             HighlighterColors.BAD_CHARACTER);
+    public static final TextAttributesKey ANNOTATION = createTextAttributesKey("BALLERINA_ANNOTATION",
+            DefaultLanguageHighlighterColors.METADATA);
 
     private BallerinaSyntaxHighlightingColors() {
     }
