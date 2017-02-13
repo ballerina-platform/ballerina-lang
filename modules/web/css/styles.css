@@ -935,8 +935,6 @@ button.variable-list {
     left: 68px;
     position: relative;
     float: left;
-    border-radius: 0 0 5px 0;
-    min-height: 27px;
 }
 
 .constants-wrapper, .constants-content-wrapper, .constants-action-wrapper {
@@ -961,8 +959,8 @@ button.variable-list {
     display: none;
     width: 500px;
     background-color: #ddd;
-    height: 32px;
-    padding: 4px 7px;
+    height: 24px;
+    padding: 1px 7px;
 }
 
 .constant-add-action-wrapper input {
@@ -1023,10 +1021,11 @@ button.variable-list {
     top: 8px;
     right: 7px;
     opacity: 0.5;
+    margin-top: -1px;
 }
 
 .constant-declaration-wrapper i {
-    padding: 7px 6px 8px;
+    padding: 6px 6px 5px;
     font-size: 8px;
     background-color: #fff;
     color: #8e44ad;
@@ -1039,13 +1038,14 @@ button.variable-list {
     background-color: #8e44ad;
     float: left;
     color: white;
-    padding: 2px 8px;
+    padding: 1px 8px;
 }
 
 .constant-declaration-wrapper {
     float: left;
-    margin: 3px 5px 4px;
+    margin: 1px 5px;
     border: 1px solid #8e44ad;
+    font-size: 12px;
 }
 
 .constant-declaration-wrapper i:hover {
@@ -1056,7 +1056,7 @@ button.variable-list {
 .constant-declaration-field {
     background-color: #FFF;
     float: left;
-    padding: 2px 8px;
+    padding: 1px 8px;
 }
 
 .constant-declaration-equals {
