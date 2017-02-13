@@ -79,7 +79,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         return listenerConfiguration;
     }
 
-    public SourceHandler(ConnectionManager connectionManager, ListenerConfiguration listenerConfiguration) {
+    public SourceHandler(ConnectionManager connectionManager, ListenerConfiguration listenerConfiguration)
+            throws Exception {
         this.listenerConfiguration = listenerConfiguration;
         this.connectionManager = connectionManager;
     }

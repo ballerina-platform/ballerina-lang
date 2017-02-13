@@ -70,7 +70,7 @@ public class WebSocketSourceHandler extends SourceHandler {
                                   ListenerConfiguration listenerConfiguration,
                                   String uri,
                                   boolean isSecured,
-                                  ChannelHandlerContext ctx) {
+                                  ChannelHandlerContext ctx) throws Exception {
         super(connectionManager, listenerConfiguration);
         this.uri = uri;
         this.channelId = channelId;
