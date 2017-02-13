@@ -103,7 +103,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
 
         var mainToolDefArray = [createServiceDefTool, createResourceDefTool, createFunctionDefTool,
             createMainFunctionDefTool, createConnectorDefTool, createConnectorActionTool, createStructsDefTool,
-            createTypeMapperDefTool];
+            createTypeMapperDefTool, createWorkerDecTool];
 
         var elements = new ToolGroup({
             toolGroupName: "Elements",
@@ -177,9 +177,17 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             nodeFactoryMethod: BallerinaASTFactory.createWorkerInvokeStatement
         };
 
+        var createWorkerReceiverStatementTool = {
+            id: "WorkerReceive",
+            name: "Worker Receive",
+            icon: "images/tool-icons/return.svg",
+            title: "Worker Receive",
+            nodeFactoryMethod: BallerinaASTFactory.createWorkerReceiveStatement
+        };
+
         var statementToolDefArray = [createIfStatementTool, createAssignmentExpressionTool,
             createVariableDefinitionStatementTool,  createFunctionInvocationTool, createReturnStatementTool,
-            createReplyStatementTool, createWhileStatementTool];
+            createReplyStatementTool, createWhileStatementTool, createWorkerInvocationStatementTool, createWorkerReceiverStatementTool];
 
         // Create statements tool group
         var statements = new ToolGroup({

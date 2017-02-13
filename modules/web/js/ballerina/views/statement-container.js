@@ -368,8 +368,9 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
            return newNodeIndex;
         };
         var mouseOverHandler = function() {
-            //if someone is dragging a tool from tool-palette
-            if(self.toolPalette.dragDropManager.isOnDrag()){
+
+            var ownerView = self.diagramRenderingContext.getViewOfModel(self.getModel());
+            if(self.toolPalette.dragDropManager.isOnDrag() || (!_.isNil(ownerView.messageManager) && ownerView.messageManager.isOnDrag())){
                 self._selectedInnerDropZoneIndex = _.findIndex(self._managedInnerDropzones, ['d3el', d3.select(this)]);
 
                 if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self)){
@@ -378,36 +379,66 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
                 // register this as a drop target and validate possible types of nodes to drop - second arg is a call back to validate
                 // tool view will use this to provide feedback on impossible drop zones
-                self.toolPalette.dragDropManager.setActivatedDropTarget(self._model, function(nodeBeingDragged){
-                    var nodeFactory = self._model.getFactory();
-                    // IMPORTANT: override resource definition node's default validation logic
-                    // This drop zone is for statements only.
-                    // Statements should only be allowed here.
-                    return nodeFactory.isStatement(nodeBeingDragged);
-                }, getDroppedNodeIndex);
+                if (self.toolPalette.dragDropManager.isOnDrag()) {
+                    self.toolPalette.dragDropManager.setActivatedDropTarget(self._model, function (nodeBeingDragged) {
+                        var nodeFactory = self._model.getFactory();
+                        // IMPORTANT: override resource definition node's default validation logic
+                        // This drop zone is for statements only.
+                        // Statements should only be allowed here.
+                        return nodeFactory.isStatement(nodeBeingDragged);
+                    }, getDroppedNodeIndex);
 
-                // indicate drop area
-                dropZone.classed(hoverClass, true);
+                    // indicate drop area
+                    dropZone.classed(hoverClass, true);
 
-                // reset ui feed back on drop target change
-                self.toolPalette.dragDropManager.once("drop-target-changed", function(){
-                    dropZone.classed(hoverClass, false);
-                });
+                    // reset ui feed back on drop target change
+                    self.toolPalette.dragDropManager.once("drop-target-changed", function(){
+                        dropZone.classed(hoverClass, false);
+                    });
+                } else if (!_.isNil(ownerView.messageManager) && ownerView.messageManager.isOnDrag()) {
+                    ownerView.messageManager.setActivatedDropTarget(self._model, function(nodeBeingDragged){
+                        return true;
+                    });
+                    // indicate drop area
+                    dropZone.classed(hoverClass, true);
+
+                    // reset ui feed back on drop target change
+                    ownerView.messageManager.once("drop-target-changed", function(){
+                        dropZone.classed(hoverClass, false);
+                    });
+                }
             }
             d3.event.stopPropagation();
         };
 
         var mouseOutHandler = function() {
+            var ownerView = self.diagramRenderingContext.getViewOfModel(self.getModel());
             // reset ui feed back on hover out
             if(self.toolPalette.dragDropManager.isOnDrag()){
                 if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self._model)){
                     dropZone.classed(hoverClass, false);
                 }
+            } else if ((!_.isNil(ownerView.messageManager) && ownerView.messageManager.isOnDrag())) {
+                if(_.isEqual(ownerView.messageManager.getActivatedDropTarget(), self._model)){
+                    dropZone.classed(hoverClass, false);
+                }
             }
             d3.event.stopPropagation();
         };
+        var mouseUpHandler = function() {
+            var ownerView = self.diagramRenderingContext.getViewOfModel(self.getModel());
+            if ((!_.isNil(ownerView.messageManager) && ownerView.messageManager.isOnDrag())) {
+                // Execute the logic only if message manager is dragging (drawing the worker invoke)
+                var messageSource = ownerView.messageManager.getMessageSource();
+                var newY = messageSource.getBoundingBox().getBottom() + 30;
+                self.diagramRenderingContext.getViewOfModel(self._managedStatements[0]).getBoundingBox().y(newY);
+                // Move the first inner drop zone down
+                self._managedInnerDropzones[0].d3el.attr('y', newY - 30);
+            }
+        };
         dropZone.on("mouseover", mouseOverHandler);
         dropZone.on("mouseout", mouseOutHandler);
+        // dropZone.on("mouseup", mouseUpHandler);
     };
 
     /**
