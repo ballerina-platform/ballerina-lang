@@ -82,6 +82,6 @@ var getFileContentBackend = "http://localhost:8289/service/workspace";
 
     //Running test for provide source list
     sourceList.forEach(function(testFile) {
-        ballerinaTestRunner(getTestResourceLocation() + "BalSource/" +testFile);
+        ballerinaTestRunner(getTestResourceLocation() +testFile);
     });
 });
