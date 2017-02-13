@@ -86,6 +86,18 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
     };
 
     /**
+     * Removes an argument from a connector definition.
+     * @param identifier - The identifier of the argument.
+     * @return {Array} - The removed argument.
+     */
+    ConnectorDefinition.prototype.removeArgument = function(identifier) {
+        var self = this;
+        _.remove(this.getChildren(), function (child) {
+            return self.BallerinaASTFactory.isArgument(child) && child.getIdentifier() === identifier;
+        });
+    };
+
+    /**
      * Set the Connector name
      * @param {string} name - Connector Name
      */

@@ -24,14 +24,14 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      */
     var ReturnStatement = function (args) {
         Statement.call(this);
-        this._expression = _.get(args, 'return') || 'return';
+        this._expression = _.get(args, 'expression', '');
         this.type = "ReturnStatement";
     };
 
     ReturnStatement.prototype = Object.create(Statement.prototype);
     ReturnStatement.prototype.constructor = ReturnStatement;
 
-    ReturnStatement.prototype.setReturnExpression = function (expression, options) {
+    ReturnStatement.prototype.setExpression = function (expression, options) {
         if (!_.isNil(expression)) {
             this.setAttribute('_expression', expression, options);
         } else {
@@ -45,6 +45,10 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
     };
 
     ReturnStatement.prototype.getReturnExpression = function () {
+        return "return " + this.getExpression();
+    };
+
+    ReturnStatement.prototype.getExpression = function () {
         return this._expression;
     };
 
@@ -66,8 +70,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
                 expression += " , ";
             }
         }
-        expression = 'return ' + expression;
-        this.setReturnExpression(expression, {doSilently: true});
+        this.setExpression(expression, {doSilently: true});
     };
 
     return ReturnStatement;

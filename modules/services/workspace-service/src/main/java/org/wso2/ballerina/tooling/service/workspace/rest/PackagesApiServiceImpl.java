@@ -61,8 +61,7 @@ public class PackagesApiServiceImpl extends PackagesApiService {
 
     public PackagesApiServiceImpl() {
         this.apiScope = new APIScope();
-        BuiltInNativeConstructLoader constructLoader = new BuiltInNativeConstructLoader();
-        constructLoader.loadConstructs(this.apiScope);
+        BuiltInNativeConstructLoader.loadConstructs(this.apiScope);
     }
 
     @Override
@@ -176,19 +175,19 @@ public class PackagesApiServiceImpl extends PackagesApiService {
     }
 
     private void addActions(List<Action> actions, AbstractNativeConnector connector) {
-        SymbolName execute = new SymbolName("HTTPConnector.execute.ballerina.net.http:HTTPConnector.string.string.message",
+        SymbolName execute = new SymbolName("ClientConnector.execute.ballerina.net.http:ClientConnector.string.string.message",
                 "ballerina.net.http");
-        SymbolName head = new SymbolName("HTTPConnector.head.ballerina.net.http:HTTPConnector.string.message",
+        SymbolName head = new SymbolName("ClientConnector.head.ballerina.net.http:ClientConnector.string.message",
                 "ballerina.net.http");
-        SymbolName delete = new SymbolName("HTTPConnector.delete.ballerina.net.http:HTTPConnector.string.message",
+        SymbolName delete = new SymbolName("ClientConnector.delete.ballerina.net.http:ClientConnector.string.message",
                 "ballerina.net.http");
-        SymbolName put = new SymbolName("HTTPConnector.put.ballerina.net.http:HTTPConnector.string.message",
+        SymbolName put = new SymbolName("ClientConnector.put.ballerina.net.http:ClientConnector.string.message",
                 "ballerina.net.http");
-        SymbolName post = new SymbolName("HTTPConnector.post.ballerina.net.http:HTTPConnector.string.message",
+        SymbolName post = new SymbolName("ClientConnector.post.ballerina.net.http:ClientConnector.string.message",
                 "ballerina.net.http");
-        SymbolName patch = new SymbolName("HTTPConnector.patch.ballerina.net.http:HTTPConnector.string.message",
+        SymbolName patch = new SymbolName("ClientConnector.patch.ballerina.net.http:ClientConnector.string.message",
                 "ballerina.net.http");
-        SymbolName get = new SymbolName("HTTPConnector.get.ballerina.net.http:HTTPConnector.string.message",
+        SymbolName get = new SymbolName("ClientConnector.get.ballerina.net.http:ClientConnector.string.message",
                 "ballerina.net.http");
 
         AbstractNativeAction executeAction = getAction(execute, connector);
