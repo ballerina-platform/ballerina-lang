@@ -305,7 +305,11 @@ variableReferenceList
     ;
 
 ifElseStatement
-    :   'if' '(' expression ')' '{' statement* '}' elseIfClause* elseClause?
+    :  ifClause elseIfClause* elseClause?
+    ;
+
+ifClause
+    :   'if' '(' expression ')' '{' statement* '}'
     ;
 
 elseIfClause
