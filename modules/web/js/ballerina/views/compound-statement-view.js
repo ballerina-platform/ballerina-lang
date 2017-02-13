@@ -23,6 +23,7 @@ define(
         /**
          * Compound statement.
          * @param args {*} arguments for the creating view
+         * @class CompoundStatementView
          * @constructor
          */
         var CompoundStatementView = function (args) {
@@ -35,13 +36,15 @@ define(
             _.set(viewOptions, "title.text", _.get(args, "viewOptions.title.text", "Statement"));
             _.set(viewOptions, "title.width", _.get(args, "viewOptions.title.width", 40));
             _.set(viewOptions, "title.height", _.get(args, "viewOptions.title.height", 25));
-            _.set(viewOptions, "padding.left", _.get(args, "viewOptions.padding.left", 5));
-            _.set(viewOptions, "padding.right", _.get(args, "viewOptions.padding.right", 5));
+            _.set(viewOptions, "padding.left", _.get(args, "viewOptions.padding.left", 7));
+            _.set(viewOptions, "padding.right", _.get(args, "viewOptions.padding.right", 7));
             _.set(viewOptions, "padding.top", _.get(args, "viewOptions.padding.top", viewOptions.title.height));
-            _.set(viewOptions, "padding.bottom", _.get(args, "viewOptions.padding.bottom", 0));
+            _.set(viewOptions, "padding.bottom", _.get(args, "viewOptions.padding.bottom", 10));
             _.set(viewOptions, 'contentOffset', _.get(viewOptions, 'contentOffset', {top: 10, bottom: 10}));
 
-            this.getBoundingBox().fromTopCenter(this.getTopCenter(), viewOptions.width, viewOptions.height);
+            this.getBoundingBox().fromTopCenter(
+                this.getTopCenter(), (viewOptions.padding.left + viewOptions.width + viewOptions.padding.right),
+                viewOptions.height);
         };
 
         CompoundStatementView.prototype = Object.create(BallerinaStatementView.prototype);
@@ -104,20 +107,20 @@ define(
             var viewOptions = this.getViewOptions();
             var model = this.getModel();
             var boundingBox = this.getBoundingBox();
+            var topCenter = this.getTopCenter();
 
             // Creating view options for the new statement container.
             var statementContainerOpts = {};
             _.set(statementContainerOpts, 'model', model);
-            _.set(statementContainerOpts, 'topCenter',
-                  this.getTopCenter().clone().move(0, _.get(viewOptions, 'contentOffset.top')));
-            var height = _.get(viewOptions, 'height') -
-                         (_.get(viewOptions, 'contentOffset.top') + _.get(viewOptions, 'contentOffset.bottom'));
-            _.set(statementContainerOpts, 'bottomCenter',
-                  this.getTopCenter().clone().move(0, _.get(viewOptions, 'height')));
-            _.set(statementContainerOpts, 'width', _.get(viewOptions, 'width'));
-            _.set(statementContainerOpts, 'leftPadding', 5);
-            _.set(statementContainerOpts, 'rightPadding', 5);
-            _.set(statementContainerOpts, 'offset', {top: 40, bottom: 40});
+            _.set(statementContainerOpts, 'topCenter', topCenter.clone().move(0, viewOptions.padding.top));
+            _.set(statementContainerOpts, 'bottomCenter', topCenter.clone().move(0, viewOptions.height));
+            _.set(statementContainerOpts, 'width', boundingBox.w());
+            _.set(statementContainerOpts, 'minWidth', statementContainerOpts.width);
+            _.set(statementContainerOpts, 'height', (boundingBox.h() - viewOptions.padding.top));
+            _.set(statementContainerOpts, 'minHeight', statementContainerOpts.height);
+            _.set(statementContainerOpts, 'padding.left', viewOptions.padding.left);
+            _.set(statementContainerOpts, 'padding.right', viewOptions.padding.right);
+            _.set(statementContainerOpts, 'offset', {top: viewOptions.title.height, bottom: 30});
             _.set(statementContainerOpts, 'parent', this);
             _.set(statementContainerOpts, 'container', this.getStatementGroup().node());
             _.set(statementContainerOpts, 'toolPalette', this.getToolPalette());
@@ -136,7 +139,7 @@ define(
                 statementContainer.getBoundingBox().y(statementContainer.getBoundingBox().y() + dy);
             }, this);
             this.listenTo(statementContainer.getBoundingBox(), 'width-changed', function (dw) {
-                boundingBox.zoomWidth(statementContainer.getBoundingBox().w());
+                boundingBox.zoomWidth(Math.max((boundingBox.w() + dw), viewOptions.minWidth));
             });
 
             statementContainer.render(this.getDiagramRenderingContext());
@@ -151,6 +154,7 @@ define(
             model.accept(this);
         };
 
+        //TODO : rename as visitStatement to avoid conflicts with generic visit
         CompoundStatementView.prototype.visit = function (statement) {
             var args = {
                 model: statement,

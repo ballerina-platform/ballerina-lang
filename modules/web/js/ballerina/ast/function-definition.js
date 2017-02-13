@@ -393,9 +393,29 @@ define(['lodash', 'log', './node', './callable-definition', '../utils/common-uti
         var self = this;
 
         _.each(jsonNode.children, function (childNode) {
-            var child = self.BallerinaASTFactory.createFromJson(childNode);
+            var child = undefined;
+            var childNodeTemp = undefined;
+            //TODO : generalize this logic
+            if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+                child = self.BallerinaASTFactory.createConnectorDeclaration();
+                childNodeTemp = childNode;
+            } else if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'action_invocation_expression') {
+                child = self.BallerinaASTFactory.createActionInvocationExpression();
+                childNodeTemp = childNode;
+            } else if (childNode.type === "assignment_statement" && childNode.children[1].children[0].type === "action_invocation_expression") {
+                child = self.getFactory().createActionInvocationExpression();
+                childNodeTemp = {};
+                childNodeTemp.children = [childNode.children[0].children[0], childNode.children[1].children[0]];
+            } else if (childNode.type === "action_invocation_statement") {
+                child = self.getFactory().createActionInvocationExpression();
+                childNodeTemp = {};
+                childNodeTemp.children = [undefined, childNode.children[0]];
+            } else {
+                child = self.BallerinaASTFactory.createFromJson(childNode);
+                childNodeTemp = childNode;
+            }
             self.addChild(child);
-            child.initFromJson(childNode);
+            child.initFromJson(childNodeTemp);
         });
     };
 
@@ -418,6 +438,20 @@ define(['lodash', 'log', './node', './callable-definition', '../utils/common-uti
                 }]
             }]
         });
+    };
+
+    /**
+     * Get the connector by name
+     * @param {string} connectorName
+     * @return {ConnectorDeclaration}
+     */
+    FunctionDefinition.prototype.getConnectorByName = function (connectorName) {
+        var factory = this.getFactory();
+        var connectorReference = _.find(this.getChildren(), function (child) {
+            return (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
+        });
+
+        return connectorReference;
     };
 
     return FunctionDefinition;

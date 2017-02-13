@@ -254,6 +254,11 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             this.setSVGHeight(this._totalHeight);
             this.renderStatementContainer();
 
+            // TODO: Refactor after Worker is enabled
+            this.getHorizontalMargin().listenTo(this.getStatementContainer().getBoundingBox(), 'bottom-edge-moved', function (dy) {
+               self.getHorizontalMargin().setPosition(self.getHorizontalMargin().getPosition() + dy);
+            });
+
             // TODO: change this accordingly, after the worker declaration introduced
             this.getWorkerLifeLineMargin().listenTo(this.getStatementContainer().getBoundingBox(), 'right-edge-moved', function (dx) {
                 self.getWorkerLifeLineMargin().setPosition(self.getWorkerLifeLineMargin().getPosition() + dx);

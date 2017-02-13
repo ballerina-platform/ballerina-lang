@@ -146,18 +146,6 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 //        }
 
 
-        if (bFile.getConnectors() != null) {
-            for (BallerinaConnectorDef connector : bFile.getConnectors()) {
-                connector.accept(this);
-            }
-        }
-    
-        if (bFile.getStructDefs() != null) {
-            for (StructDef struct : bFile.getStructDefs()) {
-                struct.accept(this);
-            }
-        }
-
 //        Collections.sort(rootElements, new Comparator<PositionAwareNode>() {
 //            @Override
 //            public int compare(PositionAwareNode o1, PositionAwareNode o2) {
@@ -190,6 +178,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         serviceObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.SERVICE_DEFINITION);
         serviceObj.addProperty(BLangJSONModelConstants.SERVICE_NAME, service.getSymbolName().getName());
         tempJsonArrayRef.push(new JsonArray());
+        if (service.getVariableDefStmts() != null) {
+            for (VariableDefStmt variableDefStmt : service.getVariableDefStmts()) {
+                variableDefStmt.accept(this);
+            }
+        }
         if (service.getResources() != null) {
             for (Resource resource : service.getResources()) {
                 resource.accept(this);
@@ -243,11 +236,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 //                connectDcl.accept(this);
 //            }
 //        }
-//        if (connector.getVariableDefs() != null) {
-//            for (VariableDef variableDef : connector.getVariableDefs()) {
-//                variableDef.accept(this);
-//            }
-//        }
+        if (connector.getVariableDefStmts() != null) {
+            for (VariableDefStmt variableDefStmt : connector.getVariableDefStmts()) {
+                variableDefStmt.accept(this);
+            }
+        }
         if (connector.getActions() != null) {
             for (BallerinaAction action : connector.getActions()) {
                 action.accept(this);
@@ -340,7 +333,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             for (ParameterDef parameterDef : function.getReturnParameters()) {
                 JsonObject typeObj = new JsonObject();
                 typeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_ARGUMENT);
-                typeObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameterDef.getType().toString());
+                typeObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameterDef.getTypeName().toString());
                 if (parameterDef.getName() != null) {
                     typeObj.addProperty(BLangJSONModelConstants.PARAMETER_NAME, parameterDef.getName().toString());
                 }
@@ -397,7 +390,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             for (ParameterDef parameterDef : action.getReturnParameters()) {
                 JsonObject typeObj = new JsonObject();
                 typeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_ARGUMENT);
-                typeObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameterDef.getType().toString());
+                typeObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameterDef.getTypeName().toString());
                 if (parameterDef.getName() != null) {
                     typeObj.addProperty(BLangJSONModelConstants.PARAMETER_NAME, parameterDef.getName().toString());
                 }
@@ -509,9 +502,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(VariableDef variableDef) {
         JsonObject variableDclObj = new JsonObject();
         variableDclObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
-                BLangJSONModelConstants.VARIABLE_DECLARATION);
+                BLangJSONModelConstants.VARIABLE_DEFINITION);
         variableDclObj.addProperty(BLangJSONModelConstants.VARIABLE_NAME, variableDef.getName());
-        variableDclObj.addProperty(BLangJSONModelConstants.VARIABLE_TYPE, variableDef.getType().toString());
+        variableDclObj.addProperty(BLangJSONModelConstants.VARIABLE_TYPE, variableDef.getTypeName().toString());
         tempJsonArrayRef.peek().add(variableDclObj);
     }
 
@@ -632,7 +625,14 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(ActionInvocationStmt actionInvocationStmt) {
-
+        JsonObject actionInvocationStmtObj = new JsonObject();
+        actionInvocationStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
+                BLangJSONModelConstants.ACTION_INVOCATION_STATEMENT);
+        tempJsonArrayRef.push(new JsonArray());
+        actionInvocationStmt.getActionInvocationExpr().accept(this);
+        actionInvocationStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(actionInvocationStmtObj);
     }
 
     @Override
@@ -738,6 +738,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject unaryExpr = new JsonObject();
         unaryExpr.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
                 BLangJSONModelConstants.UNARY_EXPRESSION);
+        unaryExpr.addProperty(BLangJSONModelConstants.EXPRESSION_OPERATOR,
+                unaryExpression.getOperator().toString());
         tempJsonArrayRef.push(new JsonArray());
         unaryExpression.getRExpr().accept(this);
         unaryExpr.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
@@ -891,10 +893,18 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     @Override
     public void visit(VariableRefExpr variableRefExpr) {
         JsonObject variableRefObj = new JsonObject();
-        variableRefObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
-                BLangJSONModelConstants.VARIABLE_REFERENCE_EXPRESSION);
+        variableRefObj.addProperty(BLangJSONModelConstants.VARIABLE_REFERENCE_TYPE,
+                BLangJSONModelConstants.VARIABLE_REFERENCE_NAME);
         variableRefObj.addProperty(BLangJSONModelConstants.VARIABLE_REFERENCE_NAME,
                 variableRefExpr.getSymbolName().getName());
+        if (variableRefExpr.getVariableDef() != null) {
+            JsonObject variableDef= new JsonObject();
+            variableDef.addProperty(BLangJSONModelConstants.TYPE_NAME,
+                    variableRefExpr.getVariableDef().getTypeName().getSymbolName().getName());
+            variableDef.addProperty(BLangJSONModelConstants.PACKAGE_NAME,
+                    variableRefExpr.getVariableDef().getTypeName().getPackageName());
+            variableRefObj.add(BLangJSONModelConstants.VARIABLE_DEF_OPTIONS, variableDef);
+        }
         tempJsonArrayRef.peek().add(variableRefObj);
     }
 
@@ -935,7 +945,10 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(RefTypeInitExpr refTypeInitExpr) {
-
+        JsonObject refTypeInitExprObj = new JsonObject();
+        refTypeInitExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.REFERENCE_TYPE_INIT_EXPR);
+        tempJsonArrayRef.peek().add(refTypeInitExprObj);
     }
 
     @Override
@@ -1100,7 +1113,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     @Override
     public void visit(VariableDefStmt varDefStmt) {
         JsonObject variableDefObj = new JsonObject();
-        variableDefObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.VARIABLE_DEFINITION);
+        variableDefObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.VARIABLE_DEFINITION_STATEMENT);
         tempJsonArrayRef.push(new JsonArray());
         JsonObject childrenObj = new JsonObject();
 
