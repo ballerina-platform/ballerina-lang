@@ -56,5 +56,9 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
         this.setReplyMessage(jsonNode.expression, {doSilently: true});
     };
 
+    ReplyStatement.prototype.getReplyExpression = function () {
+        return "reply " + this.getReplyMessage();
+    };
+
     return ReplyStatement;
 });
