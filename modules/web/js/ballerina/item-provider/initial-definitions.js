@@ -66,7 +66,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             name: "Connector Definition",
             icon: "images/tool-icons/connector.svg",
             title: "Connector Definition",
-            nodeFactoryMethod:  BallerinaASTFactory.createConnectorDefinition
+            nodeFactoryMethod:  DefaultsAddedBallerinaASTFactory.createConnectorDefinition
         };
 
         var createConnectorActionTool = {
@@ -74,7 +74,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             name: "Connector Action",
             icon: "images/tool-icons/action.svg",
             title: "Connector Action",
-            nodeFactoryMethod:  BallerinaASTFactory.createConnectorAction
+            nodeFactoryMethod:  DefaultsAddedBallerinaASTFactory.createConnectorAction
         };
 
         var createStructsDefTool = {

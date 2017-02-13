@@ -23,7 +23,7 @@ define(([], function () {
         items: [
             {
                 id: "format",
-                label: "Reformat code",
+                label: "Reformat Code",
                 command: {
                     id: "format",
                     shortcuts: {

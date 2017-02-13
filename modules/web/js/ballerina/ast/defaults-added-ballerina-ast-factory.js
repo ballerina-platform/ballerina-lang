@@ -49,6 +49,32 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
     };
 
     /**
+     * creates ConnectorDefinition
+     * @param args
+     */
+    DefaultsAddedBallerinaASTFactory.createConnectorDefinition = function (args) {
+        var connectorDef = BallerinaASTFactory.createConnectorDefinition(args);
+        var connectorArg = BallerinaASTFactory.createResourceParameter();
+        connectorArg.setType("message");
+        connectorArg.setIdentifier("m");
+        connectorDef.addChild(connectorArg);
+        return connectorDef;
+    };
+
+    /**
+     * creates ConnectorAction
+     * @param args
+     */
+    DefaultsAddedBallerinaASTFactory.createConnectorAction = function (args) {
+        var actionDef = BallerinaASTFactory.createConnectorAction(args);
+        var actionArg = BallerinaASTFactory.createResourceParameter();
+        actionArg.setType("message");
+        actionArg.setIdentifier("m");
+        actionDef.addChild(actionArg);
+        return actionDef;
+    };
+
+    /**
      * Creates a variable definition statement with default values.
      * @param {Object} [args] - Args for creating a variable definition statement.
      * @return {VariableDefinitionStatement} - New variable definition statement.

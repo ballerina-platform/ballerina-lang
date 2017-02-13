@@ -162,13 +162,12 @@
             <!-- Start: TopRight Controls Container -->
             <div class="top-right-controls-container">
                 <!--Property Pane for editing package name and imports-->
-                <div class="top-right-controls-container-editor-pane main-action-wrapper">
+                <div class="top-right-controls-container-editor-pane main-action-wrapper import-packages-pane">
                     <div class="action-content-wrapper">
                         <div class="action-content-wrapper-heading import-wrapper-heading">
                             <span>Import :</span>
-                            <input type="text">
+                            <input id="import-package-text" type="text">
                             <div class="action-icon-wrapper">
-                                <span class="fw fw-add"></span>
                                 <span class="fw-stack fw-lg">
                                     <i class="fw fw-square fw-stack-2x"></i>
                                     <i class="fw fw-add fw-stack-1x fw-inverse"></i>
@@ -233,7 +232,7 @@
                 <div class="view-source-btn btn-icon">
                     <i class="fw fw-code-view fw-inverse"></i>
                     <span class="bottom-view-label">Source View</span>
-                </div>               
+                </div>
             </div>
             <!-- End: BottomRight Controls Container  -->
         </div>
@@ -495,7 +494,7 @@
                 <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
                     <span aria-hidden='true'>&times;</span>
                 </button>
-                <h4 class='modal-title file-dialog-title'>open folder</h4>
+                <h4 class='modal-title file-dialog-title'>Open Folder</h4>
                 <hr class='style1'>
             </div>
             <div class='modal-body'>
@@ -538,6 +537,7 @@
 <script src="lib/requirejs-2.3.2/require.js"></script>
 <script type="text/javascript">
     requirejs.config({
+        package_listing: "http://localhost:8289/service/packages",
         baseUrl: window.location.protocol + "//" + window.location.host + window.location.pathname.split("/").slice(0, -1).join("/"),
         paths: {
             lib: "lib",
@@ -566,6 +566,7 @@
             respond: "lib/respond_1.4.2/respond.min",
             jsPlumb: "lib/jsPlumb-2.2.8/jsPlumb-2.2.8-min",
             yaml: "lib/js-yaml-v3.7.0/dist/js-yaml.min",
+            typeahead: "lib/typeahead_v0.11.1/typeahead.bundle.min",
             ///////////////////////
             // custom modules ////
             //////////////////////
@@ -597,7 +598,13 @@
                 deps: ['jquery','jquery_ui'],
                 exports: 'jsPlumb'
             },
-            "mcustom_scroller":{"deps": ['jquery', "jquery_mousewheel"]}
+            "mcustom_scroller":{"deps": ['jquery', "jquery_mousewheel"]},
+            "typeahead": {
+                deps: ['jquery'],
+                init: function ($) {
+                    return require.s.contexts._.registry['typeahead.js'].factory( $ );
+                }
+            }
         },
         map: {
             "*": {
@@ -816,6 +823,10 @@
                                 canvas: 'panel-body collapse in',
                                 design_view_drop: 'design-view-hover',
                                 canvas_container: 'canvas-container',
+                                canvas_top_controls_container: 'canvas-top-controls-container',
+                                canvas_top_control_package_define: 'package-definition-wrapper',
+                                canvas_top_control_packages_import: 'package-imports-wrapper',
+                                canvas_top_control_constants_define: 'constants-definition-wrapper',
                                 panel_delete_icon: 'fw fw-delete pull-right right-icon-clickable delete-icon hoverable',
                                 panel_annotation_icon: 'fw fw-annotation pull-right right-icon-clickable hoverable',
                                 panel_args_icon: 'fw fw-import pull-right right-icon-clickable hoverable',

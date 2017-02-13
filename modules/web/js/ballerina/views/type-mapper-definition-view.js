@@ -17,9 +17,9 @@
  */
 define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-definition-view',
         'ballerina/ast/ballerina-ast-factory', './svg-canvas','typeMapper','./input-struct-view','./output-struct-view','./type-mapper-statement-view',
-        './type-mapper-block-statement-view','constants'],
+        './type-mapper-block-statement-view','constants', './../ast/module'],
     function (_, log,BallerinaView, VariablesView, TypeStructDefinition, BallerinaASTFactory, SVGCanvas,
-              TypeMapper,InputStructView,OutputStructView,TypeMapperStatement,TypeMapperBlockStatement,Constants) {
+              TypeMapper,InputStructView,OutputStructView,TypeMapperStatement,TypeMapperBlockStatement,Constants, AST) {
         var TypeMapperDefinitionView = function (args) {
             SVGCanvas.call(this, args);
 
@@ -186,6 +186,37 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             this.getModel().on('child-added', function (child) {
                 self.visit(child);
                 //self.getModel().trigger("child-visited", child);
+            });
+
+            var dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop');
+            
+            this._container.mouseover(function(event){
+                if(self.toolPalette.dragDropManager.isOnDrag()){
+                    if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self)){
+                        return;
+                    }
+                    // register this as a drop target and validate possible types of nodes to drop - second arg is a call back to validate
+                    // tool view will use this to provide feedback on impossible drop zones
+                    self.toolPalette.dragDropManager.setActivatedDropTarget(self.getModel().getBlockStatement(), function(nodeBeingDragged){
+                        return nodeBeingDragged instanceof AST.AssignmentStatement;
+                    });
+                    // indicate drop area
+                    self._container.addClass(dropActiveClass);
+
+                    // reset ui feed back on drop target change
+                    self.toolPalette.dragDropManager.once("drop-target-changed", function(){
+                        self._container.removeClass(dropActiveClass);
+                    });
+                }
+                event.stopPropagation();
+            }).mouseout(function(event){
+                // reset ui feed back on hover out
+                if(self.toolPalette.dragDropManager.isOnDrag()){
+                    if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self.getModel().getBlockStatement())){
+                        self.toolPalette.dragDropManager.clearActivatedDropTarget();
+                    }
+                }
+                event.stopPropagation();
             });
         };
 

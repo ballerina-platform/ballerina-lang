@@ -23,7 +23,7 @@ define(['require', 'jquery', 'lodash'], function (require, $, _) {
         var data = {};
         $.ajax({
             type: "GET",
-            url: "http://localhost:8289/service/packages",
+            url: requirejs.s.contexts._.config.package_listing,
             contentType: "application/json; charset=utf-8",
             async: false,
             dataType: "json",

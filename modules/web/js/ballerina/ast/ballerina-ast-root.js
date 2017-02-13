@@ -196,6 +196,16 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
      * @param {ImportDeclaration} importDeclaration - New import declaration.
      */
     BallerinaASTRoot.prototype.addImport = function (importDeclaration) {
+        var existingImport = _.find(this.getImportDeclarations(), function(child){
+            return _.isEqual(child.getPackageName(), importDeclaration.getPackageName());
+         });
+
+        if (!_.isNil(existingImport)) {
+            var errorString = "Package \"" + existingImport.getPackageName() + "\" is already imported.";
+            log.error(errorString);
+            throw errorString;
+        }
+
         var ballerinaASTFactory = this.getFactory();
         var index = _.findLastIndex(this.getChildren(), function(child){
             return ballerinaASTFactory.isImportDeclaration(child);

@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'require', 'event_channel'],
-    function (log, _, require, EventChannel) {
+define(['log', 'lodash', 'require', 'event_channel', './../ast/ballerina-ast-factory'],
+    function (log, _, require, EventChannel, BallerinaASTFactory) {
 
         /**
          * @class Connector
@@ -64,6 +64,30 @@ define(['log', 'lodash', 'require', 'event_channel'],
         Connector.prototype.addAction = function (action) {
             this._actions.push(action);
             this.trigger("connector-action-added", action);
+        };
+
+        /**
+         * remove the provided action item from the actions array
+         * @param {ConnectorActionDefinition} actionDef - ConnectorActionDefinition to be removed
+         */
+        Connector.prototype.removeAction = function (actionDef) {
+            _.remove(this._actions, function (action) {
+                return _.isEqual(action.getName(), actionDef.getActionName());
+            });
+            this.trigger("connector-action-removed", actionDef);
+        };
+
+        /**
+         * remove all the action items of the provided connector definition
+         * @param {ConnectorDefinition} connectorDef - ConnectorDefinition whose children need to be removed
+         */
+        Connector.prototype.removeAllActions = function (connectorDef) {
+            var self = this;
+            _.each(connectorDef.getChildren(), function (child) {
+                if(BallerinaASTFactory.isConnectorAction(child)){
+                    self.removeAction(child);
+                }
+            });
         };
 
         Connector.prototype.getActions = function (action) {

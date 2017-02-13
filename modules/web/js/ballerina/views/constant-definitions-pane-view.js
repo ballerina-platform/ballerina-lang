@@ -46,10 +46,11 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
             var self = this;
 
             // Creating constants button.
-            this._constantDefinitionsButton = $("<div class='constants-btn'></div>")
+            this._constantDefinitionsButton = $("<div class='constants-btn' data-toggle='tooltip' title='Constants' " +
+                "data-placement='bottom'></div>")
                 .appendTo(this._paneAppendElement);
 
-            $("<span class='btn-icon' data-toggle='tooltip' title='Constants' data-placement='bottom'>" +
+            $("<span class='btn-icon'>" +
                 " Const. </span>")
                 .appendTo(this._constantDefinitionsButton).tooltip();
 
@@ -57,15 +58,17 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
 
             var constantsWrapper = $("<div class='constants-wrapper'/>").appendTo(this._constantsDefinitionsMainWrapper);
 
-            var collapserWrapper = $("<div class='constant-pane-collapser-wrapper'/>")
+            var collapserWrapper = $("<div class='constant-pane-collapser-wrapper' data-placement='bottom' " +
+                " title='Close Constant Pane' data-toggle='tooltip'/>")
                 .data("collapsed", "false")
-                .appendTo(this._constantsDefinitionsMainWrapper);
+                .appendTo(constantsWrapper);
             $("<i class='fw fw-left'></i>").appendTo(collapserWrapper);
 
             var constantsActionWrapper = $("<div class='constants-action-wrapper'/>").appendTo(constantsWrapper);
 
             // Creating add constant editor button.
-            var addConstantButton = $("<div class='action-icon-wrapper constant-add-icon-wrapper'/>")
+            var addConstantButton = $("<div class='action-icon-wrapper constant-add-icon-wrapper' title='Add Constant'" +
+                "data-toggle='tooltip' data-placement='bottom'/>")
                 .appendTo(constantsActionWrapper);
             $("<i class='fw fw-add'></i>").appendTo(addConstantButton);
 
@@ -116,13 +119,15 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
             });
 
             // Creating cancelling add new constant button.
-            var constantAddCancelButtonPane = $("<div class='action-icon-wrapper constant-add-cancel-action-wrapper'/>")
+            var constantAddCancelButtonPane = $("<div class='action-icon-wrapper constant-add-cancel-action-wrapper' " +
+                "data-placement='bottom' title='Cancel' data-toggle='tooltip'/>")
                 .appendTo(constantsAddPane);
             $("<span class='fw-stack fw-lg'><i class='fw fw-square fw-stack-2x'></i>" +
                 "<i class='fw fw-cancel fw-stack-1x fw-inverse'></i></span>").appendTo(constantAddCancelButtonPane);
             // Creating add new constant button.
             var constantAddCompleteButtonPane = $("<div class='action-icon-wrapper " +
-                "constant-add-complete-action-wrapper'/>").appendTo(constantsAddPane);
+                "constant-add-complete-action-wrapper' title='Add' data-placement='bottom' data-toggle='tooltip'/>")
+                .appendTo(constantsAddPane);
             $("<span class='fw-stack fw-lg'><i class='fw fw-square fw-stack-2x'></i>" +
                 "<i class='fw fw-check fw-stack-1x fw-inverse'></i></span>").appendTo(constantAddCompleteButtonPane);
 
@@ -178,17 +183,15 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
             collapserWrapper.click(function () {
                 $(this).empty();
                 if ($(this).data("collapsed") === "false") {
-                    $(this).data("collapsed", "true");
+                    $(this).data("collapsed", "true").attr('data-original-title', "Open Constant Pane").tooltip('hide');
                     $("<i class='fw fw-right'></i>").appendTo(this);
-                    constantsWrapper.hide();
+                    constantsWrapper.find('.constants-content-wrapper').hide();
                     self._constantsDefinitionsMainWrapper.css("width", "0%");
-                    addConstantButton.show();
                 } else {
-                    $(this).data("collapsed", "false");
+                    $(this).data("collapsed", "false").attr('data-original-title', "Close Constant Pane").tooltip('hide');
                     $("<i class='fw fw-left'></i>").appendTo(this);
-                    constantsWrapper.show();
+                    constantsWrapper.find('.constants-content-wrapper').show();
                     self._constantsDefinitionsMainWrapper.css("width", "92%");
-                    addConstantButton.hide();
                 }
             });
 
@@ -219,10 +222,8 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
 
             if (this._model.getConstantDefinitions().length == 0) {
                 collapserWrapper.hide();
-                self._constantsDefinitionsMainWrapper.css("width", "");
             } else {
                 collapserWrapper.show();
-                self._constantsDefinitionsMainWrapper.css("width", "92%");
             }
 
             _.forEach(this._model.getConstantDefinitions(), function(constantDefinition) {

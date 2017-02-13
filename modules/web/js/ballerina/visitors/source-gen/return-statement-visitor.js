@@ -36,7 +36,7 @@ define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visit
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        this.appendSource('return ');
+        this.appendSource(returnStatement.getReturnExpression());
         log.debug('Begin Visit Return Statement Definition');
     };
 

@@ -33,8 +33,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
      * @param args.cssClass.group {string} - css class for the group
      *
      * @class StatementContainerView
-     * @augments BallerinaView
      * @constructor
+     * @extends BallerinaView
      */
     var StatementContainerView = function (args) {
         BallerinaView.call(this, args);
@@ -61,14 +61,13 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         _.set(this._viewOptions, 'height',  _.get(this._viewOptions, 'height', 260));
         _.set(this._viewOptions, 'minHeight',  _.get(this._viewOptions, 'minHeight', 260)); // min height of the BBox
         // left, right padding between an inner statement and container's BBox edges
-        _.set(this._viewOptions, 'leftPadding',  _.get(this._viewOptions, 'leftPadding', 0));
-        _.set(this._viewOptions, 'rightPadding',  _.get(this._viewOptions, 'rightPadding', 0));
+        _.set(this._viewOptions, 'padding.left',  _.get(this._viewOptions, 'padding.left', 0));
+        _.set(this._viewOptions, 'padding.right',  _.get(this._viewOptions, 'padding.right', 0));
 
         _.set(this._viewOptions, 'offset',  _.get(this._viewOptions, 'offset', {top: 100, bottom: 100}));
         _.set(this._viewOptions, 'gap',  _.get(this._viewOptions, 'gap', 10));
 
         this._topCenter =  _.get(this._viewOptions, 'topCenter').clone();
-        this._width =  _.get(this._viewOptions, 'width');
         this._bottomCenter =  _.get(this._viewOptions, 'bottomCenter').clone();
         // this._gap =  _.get(this._viewOptions, 'gap', 30);
         this._gap = 30;
@@ -76,7 +75,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this._rootGroup = D3Utils.group(this._containerD3)
             .classed(_.get(this._viewOptions, 'cssClass.group'), true);
         this._statementViewFactory = new StatementViewFactory();
-        this.getBoundingBox().fromTopCenter(this._topCenter, this._width,
+        this.getBoundingBox().fromTopCenter(this._topCenter, _.get(this._viewOptions, 'width'),
             this._bottomCenter.absDistInYFrom(this._topCenter));
         // a flag to indicate a whole container move - so that we can avoid resizing on container move
         this.isOnWholeContainerMove = false;
@@ -233,10 +232,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 if (statementView === this._widestStatementView) {
                     /* 'statementView' was the widest one. Since its width has been decreased, we need to compute the
                      new widest statement view.*/
-                    var widestStatement = _.maxBy(this._managedStatements, function (statement) {
-                        return this.diagramRenderingContext.getViewOfModel(statement).getBoundingBox().w();
-                    }.bind(this));
-                    this._widestStatementView = this.diagramRenderingContext.getViewOfModel(widestStatement);
+                    this._widestStatementView = computeWidestStatementView(this._managedStatements, this.diagramRenderingContext);
                     this._updateContainerWidth(this._widestStatementView.getBoundingBox().w());
                 } else {
                     // 'statementView' wasn't the widest one. As its width has been decreased, it isn't the widest now.
@@ -269,8 +265,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
     StatementContainerView.prototype._updateContainerWidth = function (newWidth) {
         var viewOptions = this._viewOptions;
-        this.getBoundingBox().zoomWidth(viewOptions.leftPadding + Math.max(newWidth, viewOptions.minWidth) +
-                                        viewOptions.rightPadding);
+        var padding = viewOptions.padding;
+        this.getBoundingBox().zoomWidth(padding.left + Math.max(newWidth, viewOptions.minWidth) + padding.right);
     };
 
     StatementContainerView.prototype.setLastStatementView = function(lastStatementView){
@@ -302,9 +298,10 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
     StatementContainerView.prototype.render = function (diagramRenderingContext) {
         this.diagramRenderingContext = diagramRenderingContext;
         var self = this;
-        this._mainDropZone = D3Utils.rect(this._topCenter.x() - this._width/2, this._topCenter.y(), this._width,
-                this._bottomCenter.absDistInYFrom(this._topCenter), 0, 0, this._rootGroup)
-                .classed( _.get(this._viewOptions, 'cssClass.mainDropZone'), true);
+        this._mainDropZone = D3Utils.rect((this._topCenter.x() - (this._viewOptions.width / 2)), this._topCenter.y(),
+                                          this._viewOptions.width, this._bottomCenter.absDistInYFrom(this._topCenter),
+                                          0, 0, this._rootGroup)
+                                    .classed( _.get(this._viewOptions, 'cssClass.mainDropZone'), true);
 
         // adjust drop zone height on bottom edge moved
         var boundingBox = this.getBoundingBox();
@@ -319,7 +316,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         boundingBox.on('moved', function(offset){
             self._mainDropZone.attr('x', boundingBox.x());
             self._mainDropZone.attr('y', boundingBox.y());
-            self._topCenter.move(boundingBox.x(), boundingBox.y());
+            self._topCenter.move(offset.dx, offset.dy);
         }, this);
         var dropZoneOptions = {
             dropZone: this._mainDropZone,
@@ -455,6 +452,20 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         }
 
         this._managedStatements.splice(childStatementIndex, 1);
+
+        if (this._widestStatementView === childStatementView) {
+            // we have deleted the widest statement.
+            if (_.isEmpty(this._managedStatements)) {
+                // and that was the only child statement we had.
+                this._widestStatementView = undefined;
+                this._updateContainerWidth(0);
+            } else {
+                // we have more child statements.
+                this._widestStatementView = computeWidestStatementView(this._managedStatements,
+                                                                       this.diagramRenderingContext);
+                this._updateContainerWidth(this._widestStatementView.getBoundingBox().w());
+            }
+        }
     };
 
     /**
@@ -505,6 +516,19 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this.getBoundingBox().h(h, true);
         this._mainDropZone.attr('height', h);
     };
+
+    /**
+     * Returns the widest statement view of the given statements.
+     * @param statements {Statement[]} statements
+     * @param diagramRenderingContext {DiagramRenderContext} diagram rendering context
+     * @return {BallerinaStatementView} widest statement view
+     */
+    function computeWidestStatementView(statements, diagramRenderingContext) {
+        var widestStatement = _.maxBy(statements, function (statement) {
+            return diagramRenderingContext.getViewOfModel(statement).getBoundingBox().w();
+        });
+        return diagramRenderingContext.getViewOfModel(widestStatement);
+    }
 
     return StatementContainerView;
 });

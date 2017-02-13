@@ -54,20 +54,20 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
         // TODO : Please revisit this method. Needs a refactor
         ActionInvocationStatementView.prototype.drawActionConnections = function(startPoint){
             // Action invocation model is the child of the right operand
-            var actionInvocationModel = this._model.getChildren()[1].getChildren()[0];
+            var actionInvocationModel = this.getModel();
             log.debug("Drawing connections for http connector actions");
 
             // TODO : Please alter this logic
-            if(!_.isNil(this.getModel().getChildren()[1].getChildren()[0].getConnector())) {
+            if(!_.isNil(this.getModel().getConnector())) {
                 var connector = this.getDiagramRenderingContext().getViewModelMap()[this.messageManager.getActivatedDropTarget().id];
                 actionInvocationModel.setConnector(this.messageManager.getActivatedDropTarget());
                 this.renderArrows(this.getDiagramRenderingContext());
-                this.renderDisplayText(this.getModel().getStatementString());
+                this.renderDisplayText(this.getModel().getExpression());
             }
         };
 
         ActionInvocationStatementView.prototype.setModel = function (model) {
-            var actionInvocationModel = this._model.getChildren()[1].getChildren()[0];
+            var actionInvocationModel = this.getModel();
             if (!_.isNil(model) && model instanceof ActionInvocationExpression) {
                 actionInvocationModel = model;
             } else {
@@ -93,12 +93,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             var model = this.getModel();
             // Calling super class's render function.
             (this.__proto__.__proto__).render.call(this, renderingContext);
-
-            /* Action invocation statement is generally an assignment statement, where the action invocation model is
-             the child of the right operand. */
-            var actionInvocationModel = model.getChildren()[1].getChildren()[0];
-            var connectorModel = actionInvocationModel.getConnector();
-            actionInvocationModel.accept(this);
+            var connectorModel = model.getConnector();
+            model.accept(this);
             if (!_.isUndefined(connectorModel)) {
                 this.connector = this.getDiagramRenderingContext().getViewOfModel(connectorModel);
             }
@@ -107,8 +103,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 _.some(siblingConnectors, function (key, i) {
                     if (BallerinaASTFactory.isConnectorDeclaration(siblingConnectors[i])) {
                         var connectorReference = siblingConnectors[i];
-                        actionInvocationModel._connector = connectorReference;
-                        self.messageManager.setMessageSource(actionInvocationModel);
+                        model._connector = connectorReference;
+                        self.messageManager.setMessageSource(model);
                         self.messageManager.updateActivatedTarget(connectorReference);
                         return true;
                     }
@@ -116,7 +112,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             }
 
             // Setting display text.
-            this.renderDisplayText(model.getStatementString());
+            this.renderDisplayText(model.getExpression());
             this.renderProcessorConnectPoint(renderingContext);
             this.renderArrows(renderingContext);
 
@@ -125,8 +121,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                     propertyType: "text",
                     key: "Action Invocation",
                     model: model,
-                    getterMethod: model.getStatementString,
-                    setterMethod: model.setStatementString
+                    getterMethod: model.getExpression,
+                    setterMethod: model.setExpression
             };
 
             this._createPropertyPane({
@@ -144,7 +140,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 var y =  parseFloat(self.processorConnectPoint.attr('cy'));
                 var sourcePoint = self.toGlobalCoordinates(new Point(x, y));
 
-                self.messageManager.startDrawMessage(self, actionInvocationModel, sourcePoint);
+                self.messageManager.startDrawMessage(self, model, sourcePoint);
                 self.messageManager.setTypeBeingDragged(true);
             });
             this.processorConnectPoint.on("mouseover", function () {
@@ -164,7 +160,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
 
         ActionInvocationStatementView.prototype.renderArrows = function (renderingContext) {
             this.setDiagramRenderingContext(renderingContext);
-            var actionInvocationModel = this._model.getChildren()[1].getChildren()[0];
+            var actionInvocationModel = this.getModel();
             var connectorModel = actionInvocationModel.getConnector();
 
             if(!_.isUndefined(connectorModel)) {
@@ -345,8 +341,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
         };
 
         ActionInvocationStatementView.prototype.updateStatementText = function (newStatementText, propertyKey) {
-            this._model.setStatementString(newStatementText);
-            var displayText = this._model.getStatementString();
+            this._model.setExpression(newStatementText);
+            var displayText = this._model.getExpression();
             this.renderDisplayText(displayText);
         };
 

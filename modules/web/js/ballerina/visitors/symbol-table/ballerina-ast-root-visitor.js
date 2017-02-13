@@ -152,6 +152,13 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
                     });
                 }
             }, this);
+
+            connectorDefinition.on('child-removed', function (child) {
+                if (BallerinaASTFactory.isConnectorAction(child)) {
+                    self.removeConnectorActionDefinition(connectorDefinition, child);
+                }
+            }, this);
+
         };
 
         /**
@@ -168,6 +175,15 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
          */
         BallerinaASTRootVisitor.prototype.removeConnectorDefinition  = function (connectorDef) {
             this.getPackage().removeConnectorDefinition(connectorDef);
+        };
+
+        /**
+         * remove given connector action definition from the package object
+         * @param {Object} connectorDef - connector definition
+         * @param connectorActionDef - connector action definition to be removed
+         */
+        BallerinaASTRootVisitor.prototype.removeConnectorActionDefinition = function (connectorDef, connectorActionDef) {
+            this.getPackage().getConnectorByName(connectorDef.getConnectorName()).removeAction(connectorActionDef);
         };
 
         /**
