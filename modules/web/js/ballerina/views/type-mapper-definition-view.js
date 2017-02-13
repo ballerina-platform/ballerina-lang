@@ -134,14 +134,24 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
 
             this.loadSchemasToComboBox(currentContainer, "#" + sourceId,"#"+targetId, predefinedStructs);
 
-            $("#"+sourceId +",#"+targetId).on({
+            $("#"+targetId).on({
                 mousedown: function() {
                     var predefinedStructs = self._package.getStructDefinitions();
                     if (predefinedStructs.length > 0) {
-                        $("#"+sourceId +",#"+targetId).empty().append('<option value="-1">--Select--</option>');
-                        self.getSourceInfo()["predefinedStructs"] = predefinedStructs;
+                        $("#"+targetId).empty().append('<option value="-1">--Select--</option>');
                         self.getTargetInfo()["predefinedStructs"] = predefinedStructs;
-                        self.loadSchemasToComboBox(currentContainer, "#" + sourceId,"#"+targetId, predefinedStructs);
+                        self.loadSchemaToComboBox(currentContainer,"#"+targetId, predefinedStructs);
+                    }
+                }
+            });
+
+            $("#"+sourceId).on({
+                mousedown: function() {
+                    var predefinedStructs = self._package.getStructDefinitions();
+                    if (predefinedStructs.length > 0) {
+                        $("#"+sourceId).empty().append('<option value="-1">--Select--</option>');
+                        self.getSourceInfo()["predefinedStructs"] = predefinedStructs;
+                        self.loadSchemaToComboBox(currentContainer, "#" + sourceId, predefinedStructs);
                     }
                 }
             });
@@ -193,6 +203,12 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             for (var i = 0; i < schemaArray.length; i++) {
                 $(parentId).find(sourceComboboxId).append('<option value="' + i + '">' + schemaArray[i].getStructName() + '</option>');
                 $(parentId).find(targetComboboxId).append('<option value="' + i + '">' + schemaArray[i].getStructName() + '</option>');
+            }
+        };
+
+        TypeMapperDefinitionView.prototype.loadSchemaToComboBox = function (parentId, comboBoxId,schemaArray) {
+            for (var i = 0; i < schemaArray.length; i++) {
+                $(parentId).find(comboBoxId).append('<option value="' + i + '">' + schemaArray[i].getStructName() + '</option>');
             }
         };
 
