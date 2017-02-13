@@ -1,9 +1,8 @@
 @Source (
-protocol = "jms", Destination = "queue", ConnectionFactoryJNDIName = "QueueConnectionFactory",
-FactoryInitial = "org.apache.activemq.jndi.ActiveMQInitialContextFactory", ProviderUrl = "vm://localhost?broker.persistent=false",
-ConnectionFactoryType = "queue")
+protocol = "jms", destination = "queue", connectionFactoryJNDIName = "QueueConnectionFactory",
+factoryInitial = "org.apache.activemq.jndi.ActiveMQInitialContextFactory", providerUrl = "vm://localhost?broker.persistent=false",
+connectionFactoryType = "queue")
 service jmsService {
-
     @OnMessage
     resource onTextMessage (message m) {
         message mes;

@@ -3,9 +3,9 @@ import ballerina.lang.message;
 import ballerina.lang.system;
 
 @Source (
-protocol = "jms", Destination = "ballerinaqueue", ConnectionFactoryJNDIName = "QueueConnectionFactory",
-FactoryInitial = "org.apache.activemq.jndi.ActiveMQInitialContextFactory", ProviderUrl = "tcp://localhost:61616",
-ConnectionFactoryType = "queue")
+protocol = "jms", destination = "ballerinaqueue", connectionFactoryJNDIName = "QueueConnectionFactory",
+factoryInitial = "org.apache.activemq.jndi.ActiveMQInitialContextFactory", providerUrl = "tcp://localhost:61616",
+connectionFactoryType = "queue")
 service jmsWSO2ActiveMqQueueService {
     @OnMessage
     resource onMessage (message m) {
@@ -21,12 +21,12 @@ service jmsWSO2ActiveMqQueueService {
 
 
 @Source (
-protocol = "jms", Destination = "ballerinatopic", ConnectionFactoryJNDIName = "TopicConnectionFactory",
-FactoryInitial = "org.apache.activemq.jndi.ActiveMQInitialContextFactory", ProviderUrl = "tcp://localhost:61616",
-ConnectionFactoryType = "topic")
+protocol = "jms", destination = "ballerinatopic", connectionFactoryJNDIName = "TopicConnectionFactory",
+factoryInitial = "org.apache.activemq.jndi.ActiveMQInitialContextFactory", providerUrl = "tcp://localhost:61616",
+connectionFactoryType = "topic")
 service jmsWSO2ActiveMqTopicService {
     @OnMessage
     resource onMessage (message m) {
-        system:println("Received map message" + message:getStringValue(m, "queue message count"));
+        system:println("Received map message : " + message:getStringValue(m, "queue message count"));
     }
 }

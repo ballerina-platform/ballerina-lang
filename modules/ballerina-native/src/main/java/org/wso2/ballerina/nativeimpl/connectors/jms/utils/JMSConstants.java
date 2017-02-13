@@ -24,15 +24,15 @@ package org.wso2.ballerina.nativeimpl.connectors.jms.utils;
 
 public class JMSConstants {
 
-    public static final String CONNECTION_FACTORY_JNDI_PARAM_NAME = "ConnectionFactoryJNDIName";
-    public static final String CONNECTION_FACTORY_TYPE_PARAM_NAME = "ConnectionFactoryType";
-    public static final String DESTINATION_PARAM_NAME = "Destination";
-    public static final String NAMING_FACTORY_INITIAL_PARAM_NAME = "FactoryInitial";
-    public static final String PROVIDER_URL_PARAM_NAME = "ProviderUrl";
+    public static final String CONNECTION_FACTORY_JNDI_PARAM_NAME = "connectionFactoryJNDIName";
+    public static final String CONNECTION_FACTORY_TYPE_PARAM_NAME = "connectionFactoryType";
+    public static final String DESTINATION_PARAM_NAME = "destination";
+    public static final String NAMING_FACTORY_INITIAL_PARAM_NAME = "factoryInitial";
+    public static final String PROVIDER_URL_PARAM_NAME = "providerUrl";
     public static final String CACHE_LEVEL = "CacheLevel";
 
-    public static final String CONNECTION_USERNAME = "ConnectionUsername";
-    public static final String CONNECTION_PASSWORD = "ConnectionPassword";
+    public static final String CONNECTION_USERNAME = "connectionUsername";
+    public static final String CONNECTION_PASSWORD = "connectionPassword";
     public static final String MAP_DATA = "MapData";
 
     public static final String JMS_MESSAGE_TYPE = "JMS_MESSAGE_TYPE";
