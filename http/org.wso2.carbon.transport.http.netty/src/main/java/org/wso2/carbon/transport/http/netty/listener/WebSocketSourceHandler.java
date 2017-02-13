@@ -133,7 +133,7 @@ public class WebSocketSourceHandler extends SourceHandler {
                 .getMessageProcessor();
         if (carbonMessageProcessor != null) {
             try {
-                carbonMessageProcessor.receive(cMsg, new ResponseCallback(this.ctx));
+                carbonMessageProcessor.receive(cMsg, null);
             } catch (Exception e) {
                 logger.error("Error while submitting CarbonMessage to CarbonMessageProcessor.", e);
                 ctx.channel().close();
