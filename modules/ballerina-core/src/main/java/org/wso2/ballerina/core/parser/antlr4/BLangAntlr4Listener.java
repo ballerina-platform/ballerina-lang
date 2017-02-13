@@ -1050,6 +1050,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitCommentStatement(BallerinaParser.CommentStatementContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.addCommentStmt(getCurrentLocation(ctx), ctx.getText());
+        }
     }
 
     @Override
