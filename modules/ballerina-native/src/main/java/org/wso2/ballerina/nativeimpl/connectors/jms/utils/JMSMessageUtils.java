@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * {@code JMSMessageUtils}.
+ * {@code JMSMessageUtils}. Utils class for jms connector.
  */
 public class JMSMessageUtils {
     private static final String OPERATION = "get json payload";
