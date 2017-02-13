@@ -26,7 +26,7 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.exception.NoSuchAttributeException;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
-import org.wso2.siddhi.core.util.transport.InMemoryOutputTransport;
+import org.wso2.siddhi.core.stream.output.sink.InMemoryOutputTransport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,13 +81,14 @@ public class XMLOutputMapperWithSiddhiQLTestCase {
 
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
-                "define stream FooStream (symbol string, price float, volume long); ";
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(type='inMemory', topic='{{symbol}}', @map(type='xml')) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
 
         String query = "" +
                 "from FooStream " +
-                "select symbol,price,volume " +
-                "publish inMemory options (topic '{{symbol}}') " +
-                "map xml; ";
+                "select * " +
+                "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
@@ -151,13 +152,15 @@ public class XMLOutputMapperWithSiddhiQLTestCase {
 
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
-                "define stream FooStream (symbol string, price float, volume long); ";
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(type='inMemory', topic='{{symbol}}', @map(type='xml', @payload(" +
+                "\"<StockData><Symbol>{{symbol}}</Symbol><Price>{{price}}</Price></StockData>\"))) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
 
         String query = "" +
                 "from FooStream " +
-                "select symbol,price " +
-                "publish inMemory options (topic '{{symbol}}') " +
-                "map xml \"<StockData><Symbol>{{symbol}}</Symbol><Price>{{price}}</Price></StockData>\"; ";
+                "select * " +
+                "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
@@ -185,77 +188,6 @@ public class XMLOutputMapperWithSiddhiQLTestCase {
     }
 
     //    from FooStream
-    //    select symbol,price,volume
-    //    publish inMemory options ("topic", "{{symbol}}")
-    //    map xml multiple mapping
-    @Test
-    public void testXMLOutputMultipleMappingWithSiddhiQL() throws InterruptedException {
-        log.info("Test multiple xml mapping with SiddhiQL");
-        List<Object> onMessageList = new ArrayList<Object>();
-
-        InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
-            @Override
-            public void onMessage(Object msg) {
-                wso2Count.incrementAndGet();
-                onMessageList.add(msg);
-            }
-
-            @Override
-            public String getTopic() {
-                return "WSO2";
-            }
-        };
-
-        InMemoryBroker.Subscriber subscriberIBM = new InMemoryBroker.Subscriber() {
-            @Override
-            public void onMessage(Object msg) {
-                ibmCount.incrementAndGet();
-                onMessageList.add(msg);
-            }
-
-            @Override
-            public String getTopic() {
-                return "IBM";
-            }
-        };
-
-        //subscribe to "inMemory" broker per topic
-        InMemoryBroker.subscribe(subscriberWSO2);
-        InMemoryBroker.subscribe(subscriberIBM);
-
-        String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
-                "define stream FooStream (symbol string, price float, volume long); ";
-
-        String query = "" +
-                "from FooStream " +
-                "select symbol,price,volume " +
-                "publish inMemory options (topic '{{symbol}}') " +
-                "map xml \"<StockData><Symbol>{{symbol}}</Symbol><Price>{{price}}</Price></StockData>\"," +
-                "\"<StockData><Symbol>{{symbol}}</Symbol><Volume>{{volume}}</Volume></StockData>\"; ";
-
-        SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
-
-        executionPlanRuntime.start();
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
-        Thread.sleep(100);
-
-        //assert event count
-        Assert.assertEquals("Incorrect number of events consumed!", 1, wso2Count.get());
-        //assert custom xml
-        Assert.assertEquals("Incorrect mapping!","<StockData><Symbol>WSO2</Symbol><Price>55.6</Price></StockData>,\n" +
-                "<StockData><Symbol>WSO2</Symbol><Volume>100</Volume></StockData>", onMessageList.get(0).toString());
-        executionPlanRuntime.shutdown();
-
-        //unsubscribe from "inMemory" broker per topic
-        InMemoryBroker.unsubscribe(subscriberWSO2);
-        InMemoryBroker.unsubscribe(subscriberIBM);
-    }
-
-    //    from FooStream
     //    select symbol,price
     //    publish inMemory options ("topic", "{{symbol}}")
     //    map xml custom
@@ -265,13 +197,15 @@ public class XMLOutputMapperWithSiddhiQLTestCase {
 
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
-                "define stream FooStream (symbol string, price float, volume long); ";
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(type='inMemory', topic='{{symbol}}', @map(type='xml', @payload(" +
+                "\"<StockData><Symbol>{{non-exist}}</Symbol><Price>{{price}}</Price></StockData>\"))) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
 
         String query = "" +
                 "from FooStream " +
-                "select symbol,price " +
-                "publish inMemory options (topic '{{symbol}}') " +
-                "map xml \"<StockData><Symbol>{{non-exist}}</Symbol><Price>{{price}}</Price></StockData>\"; ";
+                "select * " +
+                "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);

@@ -54,7 +54,6 @@ import org.wso2.siddhi.extension.eventtable.hazelcast.internal.ds.HazelcastEvent
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
-import org.wso2.siddhi.query.api.definition.io.Store;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
@@ -121,46 +120,23 @@ public class HazelcastEventTable implements EventTable {
         String collectionName;
         boolean serverMode;
 
-        Store store = tableDefinition.getStore();
-        Map<String, String> getStoreOptions = null;
-        if (store != null) {
-            getStoreOptions = store.getOptions();
-        }
-
         Annotation fromAnnotation = AnnotationHelper.getAnnotation(
                 SiddhiConstants.ANNOTATION_FROM, tableDefinition.getAnnotations());
         //// TODO: 12/6/16 This must be deprecated
 
-        if (getStoreOptions != null) {
-            clusterName = getStoreOptions.get(
-                    HazelcastEventTableConstants.ANNOTATION_ELEMENT_HAZELCAST_CLUSTER_NAME);
-            clusterPassword = getStoreOptions.get(
-                    HazelcastEventTableConstants.ANNOTATION_ELEMENT_HAZELCAST_CLUSTER_PASSWORD);
-            hosts = getStoreOptions.get(
-                    HazelcastEventTableConstants.ANNOTATION_ELEMENT_HAZELCAST_CLUSTER_ADDRESSES);
-            collectionName = getStoreOptions.get(
-                    HazelcastEventTableConstants.ANNOTATION_ELEMENT_HAZELCAST_CLUSTER_COLLECTION);
+        clusterName = fromAnnotation.getElement(
+                HazelcastEventTableConstants.ANNOTATION_ELEMENT_HAZELCAST_CLUSTER_NAME);
+        clusterPassword = fromAnnotation.getElement(
+                HazelcastEventTableConstants.ANNOTATION_ELEMENT_HAZELCAST_CLUSTER_PASSWORD);
+        hosts = fromAnnotation.getElement(
+                HazelcastEventTableConstants.ANNOTATION_ELEMENT_HAZELCAST_CLUSTER_ADDRESSES);
+        collectionName = fromAnnotation.getElement(
+                HazelcastEventTableConstants.ANNOTATION_ELEMENT_HAZELCAST_CLUSTER_COLLECTION);
 
-            serverMode = (hosts == null || hosts.isEmpty());
-            if (serverMode) {
-                hosts = getStoreOptions.get(
-                        HazelcastEventTableConstants.ANNOTATION_ELEMENT_HAZELCAST_WELL_KNOWN_ADDRESSES);
-            }
-        } else {
-            clusterName = fromAnnotation.getElement(
-                    HazelcastEventTableConstants.ANNOTATION_ELEMENT_HAZELCAST_CLUSTER_NAME);
-            clusterPassword = fromAnnotation.getElement(
-                    HazelcastEventTableConstants.ANNOTATION_ELEMENT_HAZELCAST_CLUSTER_PASSWORD);
+        serverMode = (hosts == null || hosts.isEmpty());
+        if (serverMode) {
             hosts = fromAnnotation.getElement(
-                    HazelcastEventTableConstants.ANNOTATION_ELEMENT_HAZELCAST_CLUSTER_ADDRESSES);
-            collectionName = fromAnnotation.getElement(
-                    HazelcastEventTableConstants.ANNOTATION_ELEMENT_HAZELCAST_CLUSTER_COLLECTION);
-
-            serverMode = (hosts == null || hosts.isEmpty());
-            if (serverMode) {
-                hosts = fromAnnotation.getElement(
-                        HazelcastEventTableConstants.ANNOTATION_ELEMENT_HAZELCAST_WELL_KNOWN_ADDRESSES);
-            }
+                    HazelcastEventTableConstants.ANNOTATION_ELEMENT_HAZELCAST_WELL_KNOWN_ADDRESSES);
         }
 
         Annotation annotation = AnnotationHelper.getAnnotation(

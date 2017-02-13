@@ -41,17 +41,11 @@ import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.extension.eventtable.cache.CachingTable;
-import org.wso2.siddhi.extension.eventtable.rdbms.DBHandler;
-import org.wso2.siddhi.extension.eventtable.rdbms.DBQueryHelper;
-import org.wso2.siddhi.extension.eventtable.rdbms.PooledDataSource;
-import org.wso2.siddhi.extension.eventtable.rdbms.RDBMSEventTableConstants;
-import org.wso2.siddhi.extension.eventtable.rdbms.RDBMSOperator;
-import org.wso2.siddhi.extension.eventtable.rdbms.RDBMSOperatorParser;
+import org.wso2.siddhi.extension.eventtable.rdbms.*;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
-import org.wso2.siddhi.query.api.definition.io.Store;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
@@ -136,9 +130,7 @@ public class RDBMSEventTable implements EventTable {
      * @param tableStreamEventCloner
      * @param executionPlanContext   ExecutionPlan related meta information
      */
-    public void init(TableDefinition tableDefinition, MetaStreamEvent tableMetaStreamEvent,
-                     StreamEventPool tableStreamEventPool, StreamEventCloner tableStreamEventCloner,
-                     ExecutionPlanContext executionPlanContext) {
+    public void init(TableDefinition tableDefinition, MetaStreamEvent tableMetaStreamEvent, StreamEventPool tableStreamEventPool, StreamEventCloner tableStreamEventCloner, ExecutionPlanContext executionPlanContext) {
         this.tableDefinition = tableDefinition;
         Connection con = null;
         int bloomFilterSize = RDBMSEventTableConstants.BLOOM_FILTER_SIZE;
@@ -152,22 +144,11 @@ public class RDBMSEventTable implements EventTable {
         String bloomFilterValidityInterval;
 
 
-        Store store = tableDefinition.getStore();
-        Map<String, String> getStoreOptions = null;
-        if (store != null) {
-            getStoreOptions = store.getOptions();
-        }
-
         Annotation fromAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM,
-                tableDefinition.getAnnotations()); //// TODO: 12/6/16 This must be deprecated
+                tableDefinition.getAnnotations());
+        dataSourceName = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_DATASOURCE_NAME);
+        tableName = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_TABLE_NAME);
 
-        if (getStoreOptions != null) {
-            dataSourceName = getStoreOptions.get(RDBMSEventTableConstants.ANNOTATION_ELEMENT_DATASOURCE_NAME);
-            tableName = getStoreOptions.get(RDBMSEventTableConstants.ANNOTATION_ELEMENT_TABLE_NAME);
-        } else {
-            dataSourceName = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_DATASOURCE_NAME);
-            tableName = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_TABLE_NAME);
-        }
         DataSource dataSource = executionPlanContext.getSiddhiContext().getSiddhiDataSource(dataSourceName);
         List<Attribute> attributeList = tableDefinition.getAttributeList();
 
@@ -177,57 +158,32 @@ public class RDBMSEventTable implements EventTable {
             String password;
             String driverName;
 
-            if (getStoreOptions != null) {
-                jdbcConnectionUrl = getStoreOptions.get(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_TABLE_JDBC_URL);
-                username = getStoreOptions.get(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_TABLE_USERNAME);
-                password = getStoreOptions.get(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_TABLE_PASSWORD);
-                driverName = getStoreOptions.get(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_TABLE_DRIVER_NAME);
-            } else {
-                jdbcConnectionUrl = fromAnnotation.getElement(
-                        RDBMSEventTableConstants.EVENT_TABLE_RDBMS_TABLE_JDBC_URL);
-                username = fromAnnotation.getElement(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_TABLE_USERNAME);
-                password = fromAnnotation.getElement(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_TABLE_PASSWORD);
-                driverName = fromAnnotation.getElement(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_TABLE_DRIVER_NAME);
-            }
+            jdbcConnectionUrl = fromAnnotation.getElement(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_TABLE_JDBC_URL);
+            username = fromAnnotation.getElement(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_TABLE_USERNAME);
+            password = fromAnnotation.getElement(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_TABLE_PASSWORD);
+            driverName = fromAnnotation.getElement(RDBMSEventTableConstants.EVENT_TABLE_RDBMS_TABLE_DRIVER_NAME);
             List<Element> connectionPropertyElements = null;
 
-            Annotation connectionAnnotation = AnnotationHelper.getAnnotation(
-                    RDBMSEventTableConstants.ANNOTATION_CONNECTION, tableDefinition.getAnnotations());
+            Annotation connectionAnnotation = AnnotationHelper.getAnnotation(RDBMSEventTableConstants.ANNOTATION_CONNECTION, tableDefinition.getAnnotations());
             if (connectionAnnotation != null) {
                 connectionPropertyElements = connectionAnnotation.getElements();
             }
-            dataSource = PooledDataSource.getPoolDataSource(driverName, jdbcConnectionUrl, username, password,
-                    connectionPropertyElements);
+            dataSource = PooledDataSource.getPoolDataSource(driverName, jdbcConnectionUrl, username, password, connectionPropertyElements);
         }
 
         if (dataSource == null) {
             throw new ExecutionPlanCreationException("Datasource specified for the event table is invalid/null");
         }
         if (tableName == null) {
-            throw new ExecutionPlanCreationException("Invalid query specified. " +
-                    "Required properties (tableName) not found ");
+            throw new ExecutionPlanCreationException("Invalid query specified. Required properties (tableName) not found ");
         }
 
-        if (getStoreOptions != null) {
-            cacheType = getStoreOptions.get(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE);
-            cacheSizeInString = getStoreOptions.get(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE_SIZE);
-            cacheLoadingType = getStoreOptions.get(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE_LOADING);
-            cacheValidityInterval = getStoreOptions.get(
-                    RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE_VALIDITY_PERIOD);
-            bloomsEnabled = getStoreOptions.get(RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS);
-            bloomFilterValidityInterval = getStoreOptions.get(
-                    RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_VALIDITY_PERIOD);
-
-        } else {
-            cacheType = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE);
-            cacheSizeInString = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE_SIZE);
-            cacheLoadingType = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE_LOADING);
-            cacheValidityInterval = fromAnnotation.getElement(
-                    RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE_VALIDITY_PERIOD);
-            bloomsEnabled = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS);
-            bloomFilterValidityInterval = fromAnnotation.getElement(
-                    RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_VALIDITY_PERIOD);
-        }
+        cacheType = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE);
+        cacheSizeInString = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE_SIZE);
+        cacheLoadingType = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE_LOADING);
+        cacheValidityInterval = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_CACHE_VALIDITY_PERIOD);
+        bloomsEnabled = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS);
+        bloomFilterValidityInterval = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_VALIDITY_PERIOD);
 
         try {
             this.dbHandler = new DBHandler(dataSource, tableName, attributeList, tableDefinition);
@@ -240,8 +196,7 @@ public class RDBMSEventTable implements EventTable {
                 cachedTable = new CachingTable(cacheType, cacheSizeInString, executionPlanContext, tableDefinition);
                 isCachingEnabled = true;
 
-                if (cacheLoadingType != null && cacheLoadingType.equalsIgnoreCase(
-                        RDBMSEventTableConstants.EAGER_CACHE_LOADING_ELEMENT)) {
+                if (cacheLoadingType != null && cacheLoadingType.equalsIgnoreCase(RDBMSEventTableConstants.EAGER_CACHE_LOADING_ELEMENT)) {
                     dbHandler.loadDBCache(cachedTable, cacheSizeInString);
                 }
 
@@ -255,17 +210,8 @@ public class RDBMSEventTable implements EventTable {
             } else if (bloomsEnabled != null && bloomsEnabled.equalsIgnoreCase("enable")) {
                 String bloomsFilterSize;
                 String bloomsFilterHash;
-                if (getStoreOptions != null) {
-                    bloomsFilterSize = getStoreOptions.get(
-                            RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS_SIZE);
-                    bloomsFilterHash = getStoreOptions.get(
-                            RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS_HASH);
-                } else {
-                    bloomsFilterSize = fromAnnotation.getElement(
-                            RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS_SIZE);
-                    bloomsFilterHash = fromAnnotation.getElement(
-                            RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS_HASH);
-                }
+                bloomsFilterSize = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS_SIZE);
+                bloomsFilterHash = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_BLOOM_FILTERS_HASH);
                 if (bloomsFilterSize != null) {
                     bloomFilterSize = Integer.parseInt(bloomsFilterSize);
                 }
@@ -312,23 +258,18 @@ public class RDBMSEventTable implements EventTable {
     }
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Operator operator,
-                       UpdateAttributeMapper[] updateAttributeMappers) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Operator operator, UpdateAttributeMapper[] updateAttributeMappers) {
         operator.update(updatingEventChunk, null, null);
         if (isCachingEnabled) {
-            ((RDBMSOperator) operator).getInMemoryEventTableOperator().update(updatingEventChunk,
-                    cachedTable.getCacheList(), updateAttributeMappers);
+            ((RDBMSOperator) operator).getInMemoryEventTableOperator().update(updatingEventChunk, cachedTable.getCacheList(), updateAttributeMappers);
         }
     }
 
     @Override
-    public void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Operator operator,
-                               UpdateAttributeMapper[] updateAttributeMappers,
-                               OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
+    public void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Operator operator, UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
         operator.overwrite(overwritingOrAddingEventChunk, null, null, overwritingStreamEventExtractor);
         if (isCachingEnabled) {
-            ((RDBMSOperator) operator).getInMemoryEventTableOperator().overwrite(overwritingOrAddingEventChunk,
-                    cachedTable.getCacheList(), updateAttributeMappers, overwritingStreamEventExtractor);
+            ((RDBMSOperator) operator).getInMemoryEventTableOperator().overwrite(overwritingOrAddingEventChunk, cachedTable.getCacheList(), updateAttributeMappers, overwritingStreamEventExtractor);
         }
     }
 
@@ -341,8 +282,7 @@ public class RDBMSEventTable implements EventTable {
     @Override
     public synchronized boolean contains(StateEvent matchingEvent, Finder finder) {
         if (isCachingEnabled) {
-            return ((RDBMSOperator) finder).getInMemoryEventTableOperator().contains(matchingEvent,
-                    cachedTable.getCacheList()) || finder.contains(matchingEvent, null);
+            return ((RDBMSOperator) finder).getInMemoryEventTableOperator().contains(matchingEvent, cachedTable.getCacheList()) || finder.contains(matchingEvent, null);
         } else {
             return finder.contains(matchingEvent, null);
         }
@@ -358,8 +298,7 @@ public class RDBMSEventTable implements EventTable {
     public synchronized void delete(ComplexEventChunk deletingEventChunk, Operator operator) {
         operator.delete(deletingEventChunk, null);
         if (isCachingEnabled) {
-            ((RDBMSOperator) operator).getInMemoryEventTableOperator().delete(deletingEventChunk,
-                    cachedTable.getCacheList());
+            ((RDBMSOperator) operator).getInMemoryEventTableOperator().delete(deletingEventChunk, cachedTable.getCacheList());
         }
     }
 
@@ -367,12 +306,8 @@ public class RDBMSEventTable implements EventTable {
      * Called to construct a operator to perform delete and update operations
      */
     @Override
-    public Operator constructOperator(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder,
-                                      ExecutionPlanContext executionPlanContext,
-                                      List<VariableExpressionExecutor> variableExpressionExecutors,
-                                      Map<String, EventTable> eventTableMap) {
-        return RDBMSOperatorParser.parse(dbHandler, expression, matchingMetaStateHolder, executionPlanContext,
-                variableExpressionExecutors, eventTableMap, tableDefinition, cachedTable, tableDefinition.getId());
+    public Operator constructOperator(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
+        return RDBMSOperatorParser.parse(dbHandler, expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, tableDefinition, cachedTable, tableDefinition.getId());
     }
 
     /**
@@ -387,12 +322,8 @@ public class RDBMSEventTable implements EventTable {
      * Called to construct a operator to perform search operations
      */
     @Override
-    public Finder constructFinder(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder,
-                                  ExecutionPlanContext executionPlanContext,
-                                  List<VariableExpressionExecutor> variableExpressionExecutors,
-                                  Map<String, EventTable> eventTableMap) {
-        return RDBMSOperatorParser.parse(dbHandler, expression, matchingMetaStateHolder, executionPlanContext,
-                variableExpressionExecutors, eventTableMap, tableDefinition, cachedTable, tableDefinition.getId());
+    public Finder constructFinder(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
+        return RDBMSOperatorParser.parse(dbHandler, expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, tableDefinition, cachedTable, tableDefinition.getId());
     }
 
     class CacheUpdateTask extends TimerTask {

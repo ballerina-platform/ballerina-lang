@@ -22,8 +22,9 @@ import kafka.consumer.ConsumerConfig;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.subscription.InputCallback;
-import org.wso2.siddhi.core.subscription.InputTransport;
+import org.wso2.siddhi.core.stream.input.source.SourceCallback;
+import org.wso2.siddhi.core.stream.input.source.InputTransport;
+import org.wso2.siddhi.core.util.transport.OptionHolder;
 
 import java.util.Map;
 import java.util.Properties;
@@ -36,7 +37,7 @@ import java.util.concurrent.*;
 )
 public class KafkaInputTransport extends InputTransport {
 
-    private InputCallback inputCallback;
+    private SourceCallback sourceCallback;
     private ScheduledExecutorService executorService;
     private static ThreadPoolExecutor threadPoolExecutor;
     private Map<String, String> transportOptions;
@@ -57,9 +58,9 @@ public class KafkaInputTransport extends InputTransport {
     private static final Logger log = Logger.getLogger(KafkaInputTransport.class);
 
     @Override
-    public void init(Map<String, String> transportOptions, InputCallback inputCallback) {
-        this.inputCallback = inputCallback;
-        this.transportOptions = transportOptions;
+    public void init(SourceCallback sourceCallback, OptionHolder transportOptionHolder) {
+        this.sourceCallback = sourceCallback;
+        this.transportOptions = transportOptionHolder;
     }
 
     @Override
@@ -106,7 +107,7 @@ public class KafkaInputTransport extends InputTransport {
 //        consumerKafkaAdaptor = new ConsumerKafkaAdaptor(topic,
 //                KafkaInputTransport.createConsumerConfig(zkConnect, groupID, optionalConfiguration));
         consumerKafkaAdaptor = new ConsumerKafkaAdaptor(topic, KafkaInputTransport.createConsumerConfig(zkConnect, groupID));
-        consumerKafkaAdaptor.run(threads, inputCallback);
+        consumerKafkaAdaptor.run(threads, sourceCallback);
     }
 
     private static ConsumerConfig createConsumerConfig(String a_zookeeper, String a_groupId) {

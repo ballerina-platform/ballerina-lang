@@ -109,7 +109,7 @@ public class DBQueryHelper {
         }
     }
 
-    public static Map<String, Map<String, String>> getDbTypeMappings() {
+    static Map<String, Map<String, String>> getDbTypeMappings() {
         return dbTypeMappings;
     }
 }

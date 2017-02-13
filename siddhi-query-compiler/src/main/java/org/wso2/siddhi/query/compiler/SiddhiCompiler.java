@@ -40,7 +40,6 @@ import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
-import org.wso2.siddhi.query.api.execution.Subscription;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
@@ -152,22 +151,6 @@ public class SiddhiCompiler {
         return (FunctionDefinition) eval.visit(tree);
     }
 
-    public static Subscription parseSubscription(String source) throws SiddhiParserException {
-
-        ANTLRInputStream input = new ANTLRInputStream(source);
-        SiddhiQLLexer lexer = new SiddhiQLLexer(input);
-        lexer.removeErrorListeners();
-        lexer.addErrorListener(SiddhiErrorListener.INSTANCE);
-
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        SiddhiQLParser parser = new SiddhiQLParser(tokens);
-        parser.removeErrorListeners();
-        parser.addErrorListener(SiddhiErrorListener.INSTANCE);
-        ParseTree tree = parser.subscription_final();
-
-        SiddhiQLVisitor eval = new SiddhiQLBaseVisitorImpl();
-        return (Subscription) eval.visit(tree);
-    }
     public static TimeConstant parseTimeConstantDefinition(String source) throws SiddhiParserException {
         ANTLRInputStream input = new ANTLRInputStream(source);
         SiddhiQLLexer lexer = new SiddhiQLLexer(input);

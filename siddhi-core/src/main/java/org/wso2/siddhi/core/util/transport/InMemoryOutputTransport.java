@@ -19,17 +19,11 @@
 package org.wso2.siddhi.core.util.transport;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
-import org.wso2.siddhi.core.exception.OutputTransportException;
-import org.wso2.siddhi.core.exception.TestConnectionNotSupportedException;
-import org.wso2.siddhi.core.publisher.MessageType;
-import org.wso2.siddhi.core.publisher.OutputTransport;
-import org.wso2.siddhi.query.api.execution.io.Transport;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 /**
  * InMemoryOutputTransport will be used to publish events internally.
@@ -41,31 +35,16 @@ public class InMemoryOutputTransport extends OutputTransport {
     private static final String TOPIC_KEY = "topic";
 
     @Override
-    public void init(Transport transportOptions, Map<String, String> unmappedDynamicOptions)
-            throws OutputTransportException {
-        List<String> availableConfigs = new ArrayList<>();
-        availableConfigs.addAll(transportOptions.getOptions().keySet());
-        availableConfigs.addAll(unmappedDynamicOptions.keySet());
-        if (!availableConfigs.contains(TOPIC_KEY)) {
+    protected void init(StreamDefinition streamDefinition, OptionHolder optionHolder) {
+        if (!optionHolder.containsOption(TOPIC_KEY)) {
             throw new ExecutionPlanCreationException(String.format("{{%s}} configuration " +
                     "could not be found in provided configs.", TOPIC_KEY));
         }
     }
 
     @Override
-    public void testConnect() throws TestConnectionNotSupportedException, ConnectionUnavailableException {
-        // do nothing
-    }
-
-    @Override
     public void connect() throws ConnectionUnavailableException {
         // do nothing
-    }
-
-    @Override
-    public void publish(Object event, Map<String, String> dynamicTransportOptions)
-            throws ConnectionUnavailableException {
-        InMemoryBroker.publish(dynamicTransportOptions.get(TOPIC_KEY), event);
     }
 
     @Override
@@ -79,18 +58,7 @@ public class InMemoryOutputTransport extends OutputTransport {
     }
 
     @Override
-    public boolean isPolled() {
-        return false;
-    }
-
-    @Override
-    public List<String> getSupportedMessageFormats() {
-        return new ArrayList<String>() {{
-            add(MessageType.TEXT);
-            add(MessageType.JSON);
-            add(MessageType.MAP);
-            add(MessageType.XML);
-            add(MessageType.WSO2EVENT);
-        }};
+    protected void publish(Object payload, Event event, OptionHolder optionHolder) throws ConnectionUnavailableException {
+        InMemoryBroker.publish(optionHolder.getStaticOption(TOPIC_KEY), event);
     }
 }

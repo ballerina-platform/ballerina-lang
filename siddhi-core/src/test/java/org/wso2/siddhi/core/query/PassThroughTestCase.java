@@ -58,7 +58,7 @@ public class PassThroughTestCase {
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream"));
-        query.annotation(Annotation.create("info").element("name", "query1"));
+        query.annotation(Annotation.annotation("info").element("name", "query1"));
         query.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
@@ -103,7 +103,7 @@ public class PassThroughTestCase {
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream"));
-        query.annotation(Annotation.create("info").element("name", "query1"));
+        query.annotation(Annotation.annotation("info").element("name", "query1"));
         query.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
@@ -148,7 +148,7 @@ public class PassThroughTestCase {
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream"));
-        query.annotation(Annotation.create("info").element("name", "query1"));
+        query.annotation(Annotation.annotation("info").element("name", "query1"));
         query.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).

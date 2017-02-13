@@ -20,7 +20,9 @@ package org.wso2.siddhi.extension.output.mapper.text;
 
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.publisher.OutputMapper;
+import org.wso2.siddhi.core.stream.output.sink.OutputMapper;
+import org.wso2.siddhi.core.util.transport.TemplateBuilder;
+import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.Map;
@@ -28,7 +30,7 @@ import java.util.Map;
 @Extension(
         name = "text",
         namespace = "outputmapper",
-        description = ""
+        description = "Event to Text output mapper."
 )
 public class TextOutputMapper extends OutputMapper {
     private StreamDefinition streamDefinition;
@@ -37,25 +39,38 @@ public class TextOutputMapper extends OutputMapper {
 
     /**
      * Initialize the mapper and the mapping configurations
-     *
-     * @param streamDefinition       The stream definition
-     * @param options                Additional mapping options
-     * @param unmappedDynamicOptions Unmapped dynamic options
+     *  @param streamDefinition The stream definition
+     * @param optionHolder     Unmapped dynamic options
+     * @param payloadTemplateBuilder
      */
     @Override
-    public void init(StreamDefinition streamDefinition, Map<String, String> options, Map<String, String> unmappedDynamicOptions) {
+    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) {
         this.streamDefinition = streamDefinition;
     }
 
     /**
-     * Convert the given {@link Event} to TEXT string
+     * Convert the given Event mapping to TEXT string
      *
-     * @param event          Event object
-     * @param dynamicOptions Dynamic options per event
-     * @return the constructed text string in the {attributeName}:{attributeValue} format
+     * @param event         Event object
+     * @param mappedPayload mapped payload if any
+     * @return the mapped TEXT string
      */
     @Override
-    public Object convertToTypedInputEvent(Event event, Map<String, String> dynamicOptions) {
+    public Object mapEvent(Event event, String mappedPayload) {
+        if (mappedPayload != null) {
+            return mappedPayload;
+        } else {
+            return constructDefaultMapping(event);
+        }
+    }
+
+    /**
+     * Convert the given {@link Event} to Text string
+     *
+     * @param event Event object
+     * @return the constructed TEXT string
+     */
+    private Object constructDefaultMapping(Event event) {
         StringBuilder eventText = new StringBuilder();
         Object[] data = event.getData();
         for (int i = 0; i < data.length; i++) {
@@ -69,7 +84,7 @@ public class TextOutputMapper extends OutputMapper {
         // Get arbitrary data from event
         Map<String, Object> arbitraryDataMap = event.getArbitraryDataMap();
         if (arbitraryDataMap != null && !arbitraryDataMap.isEmpty()) {
-            // Add arbitrary data map to the default template
+            // Add arbitrary data key-value to the default template
             eventText.append(EVENT_ATTRIBUTE_SEPARATOR);
             for (Map.Entry<String, Object> entry : arbitraryDataMap.entrySet()) {
                 eventText.append("\n" + entry.getKey() + EVENT_ATTRIBUTE_SEPARATOR + entry.getValue() + EVENT_ATTRIBUTE_SEPARATOR);
@@ -81,24 +96,4 @@ public class TextOutputMapper extends OutputMapper {
         return eventText.toString();
     }
 
-    /**
-     * Convert the given Event mapping to TEXT string
-     *
-     * @param event            Event object
-     * @param mappedAttributes Event mapping string array
-     * @param dynamicOptions   Dynamic options per event
-     * @return the mapped TEXT string
-     */
-    @Override
-    public Object convertToMappedInputEvent(Event event, String[] mappedAttributes, Map<String, String> dynamicOptions) {
-        StringBuilder eventText = new StringBuilder();
-        for (int i = 0; i < mappedAttributes.length; i++) {
-            String mappedAttribute = mappedAttributes[i];
-            eventText.append(mappedAttribute).append(EVENT_ATTRIBUTE_SEPARATOR).append("\n");
-        }
-        eventText.deleteCharAt(eventText.lastIndexOf(EVENT_ATTRIBUTE_SEPARATOR));
-        eventText.deleteCharAt(eventText.lastIndexOf("\n"));
-
-        return eventText.toString();
-    }
 }
