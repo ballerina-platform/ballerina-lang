@@ -28,8 +28,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.messaging.handler.MessagingHandler;
 import org.wso2.carbon.metrics.core.MetricManagementService;
 import org.wso2.carbon.metrics.core.MetricService;
+import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
-import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.statistics.StatisticsHandler;
 import org.wso2.carbon.transport.http.netty.statistics.TimerHolder;
 
@@ -109,7 +109,8 @@ public class StatisticsServiceComponent {
     private boolean getMetricsStatus() {
         boolean statStatus = false;
 
-        Set<TransportProperty> transportProperties = YAMLTransportConfigurationBuilder.build().getTransportProperties();
+        Set<TransportProperty> transportProperties =
+                ConfigurationBuilder.getInstance().getConfiguration().getTransportProperties();
         for (TransportProperty property : transportProperties) {
             if (property.getName().equalsIgnoreCase("latency.metrics.enabled")) {
                 statStatus = (Boolean) property.getValue();

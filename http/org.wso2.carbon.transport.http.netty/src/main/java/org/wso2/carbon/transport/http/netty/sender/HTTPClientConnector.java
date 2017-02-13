@@ -30,10 +30,10 @@ import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
@@ -49,6 +49,8 @@ import java.util.stream.Collectors;
 
 /**
  * HTTP client connector class which is used for sending message to a backend endpoint.
+ *
+ * @since 4.0.0
  */
 public class HTTPClientConnector implements ClientConnector {
 
@@ -57,7 +59,7 @@ public class HTTPClientConnector implements ClientConnector {
     private Map<String, SenderConfiguration> senderConfigurationMap;
 
     public HTTPClientConnector() {
-        TransportsConfiguration transportsConfiguration = YAMLTransportConfigurationBuilder.build();
+        TransportsConfiguration transportsConfiguration = ConfigurationBuilder.getInstance().getConfiguration();
         init(transportsConfiguration.getSenderConfigurations(), transportsConfiguration.getTransportProperties());
     }
 
@@ -158,7 +160,6 @@ public class HTTPClientConnector implements ClientConnector {
         return "http";
     }
 
-    @Override
     public void setMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
         HTTPTransportContextHolder.getInstance().setMessageProcessor(carbonMessageProcessor);
     }

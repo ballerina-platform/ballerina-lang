@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 
 /**
  * A class that starts the HTTP Server Bootstrap in given port and capable of binding interfaces to Server Bootstrap.
+ * @deprecated use {@link HTTPServerConnector} instead.
  */
 @Deprecated
 public class HTTPTransportListener extends TransportListener {

@@ -229,7 +229,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     .getMessageProcessor();
             if (carbonMessageProcessor != null) {
                 try {
-                    carbonMessageProcessor.receive(cMsg, new ResponseCallback(this.ctx));
+                    carbonMessageProcessor.receive(cMsg, new ResponseCallback(this.ctx, cMsg));
                 } catch (Exception e) {
                     log.error("Error while submitting CarbonMessage to CarbonMessageProcessor", e);
                 }
