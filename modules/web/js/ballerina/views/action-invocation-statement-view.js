@@ -265,10 +265,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                     self.messageManager.startDrawMessage(self, actionInvocationModel, sourcePoint, connectorPoint);
                     self.messageManager.setTypeBeingDragged(true);
 
-                    self._forwardArrowHead.remove();
-                    self._processorConnector.remove();
-                    self._processorConnector2.remove();
-                    self._backArrowHead.remove();
+                    self.removeArrows();
                     self.processorConnectEndPoint.remove();
                 });
 
@@ -357,6 +354,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             this.renderDisplayText(newStatementText);
 
             self.removeArrows();
+            self.processorConnectPoint.style("display", "block");
+            self.processorConnectEndPoint.remove();
 
             _.some(siblingConnectors, function (key, i) {
                 if ( (BallerinaASTFactory.isConnectorDeclaration(siblingConnectors[i])) && (siblingConnectors[i]._connectorVariable == connectorName) ) {
