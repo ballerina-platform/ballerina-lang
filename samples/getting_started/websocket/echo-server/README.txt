@@ -3,8 +3,9 @@ Description
 This is a simple sample of WebSocket Server Connector of Ballerina.
 This will send you back "You said : " + text that you sent.
 
-You can use the simple web app client to check the capability.
-
 How to run the sample
 =====================
 bin$ ./ballerina run ../samples/getting_started/websocket/echo-server/server/echoServer.bal
+
+You can use the simple web app client ../samples/getting_started/websocket/echo-server/client/index.html
+to check the capability.
