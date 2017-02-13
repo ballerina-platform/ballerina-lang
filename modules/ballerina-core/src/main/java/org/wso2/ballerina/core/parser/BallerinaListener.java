@@ -628,6 +628,16 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitIfElseStatement(BallerinaParser.IfElseStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#ifClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterIfClause(BallerinaParser.IfClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#ifClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitIfClause(BallerinaParser.IfClauseContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#elseIfClause}.
 	 * @param ctx the parse tree
 	 */
@@ -698,15 +708,29 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitJoinClause(BallerinaParser.JoinClauseContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#joinConditions}.
+	 * Enter a parse tree produced by the {@code anyJoinCondition}
+	 * labeled alternative in {@link BallerinaParser#joinConditions}.
 	 * @param ctx the parse tree
 	 */
-	void enterJoinConditions(BallerinaParser.JoinConditionsContext ctx);
+	void enterAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#joinConditions}.
+	 * Exit a parse tree produced by the {@code anyJoinCondition}
+	 * labeled alternative in {@link BallerinaParser#joinConditions}.
 	 * @param ctx the parse tree
 	 */
-	void exitJoinConditions(BallerinaParser.JoinConditionsContext ctx);
+	void exitAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code allJoinCondition}
+	 * labeled alternative in {@link BallerinaParser#joinConditions}.
+	 * @param ctx the parse tree
+	 */
+	void enterAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code allJoinCondition}
+	 * labeled alternative in {@link BallerinaParser#joinConditions}.
+	 * @param ctx the parse tree
+	 */
+	void exitAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#timeoutClause}.
 	 * @param ctx the parse tree
