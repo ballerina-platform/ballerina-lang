@@ -51,7 +51,7 @@ import java.util.Base64;
 
 public class Base64ToBase16Encode extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(GetHmacBase16.class);
+    private static final Logger log = LoggerFactory.getLogger(Base64ToBase16Encode.class);
 
     @Override public BValue[] execute(Context context) {
         String stringValue = getArgument(context, 0).stringValue();
