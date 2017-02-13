@@ -43,7 +43,6 @@ public class PackagesApi {
     private final PackagesApiService delegate = PackagesApiServiceFactory.getPackagesApi();
 
     @GET
-    @OPTIONS
     @Consumes({"application/json"})
     @Produces({"application/json"})
     @io.swagger.annotations.ApiOperation(value = "Get a list of packages existing in the environment. ",
@@ -81,7 +80,6 @@ public class PackagesApi {
     }
 
     @GET
-    @OPTIONS
     @Path("/{packageName}")
     @Consumes({"application/json"})
     @Produces({"application/json"})
@@ -124,7 +122,6 @@ public class PackagesApi {
     }
 
     @POST
-    @OPTIONS
     @Consumes({"application/zip", "application/octet-stream"})
     @Produces({"application/json"})
     @io.swagger.annotations.ApiOperation(value = "Import a package in to the Ballerina environment ",
@@ -155,5 +152,16 @@ public class PackagesApi {
     )
             throws NotFoundException {
         return delegate.packagesPost(contentType);
+    }
+
+    @OPTIONS
+    public Response packagesSendCORS(){
+        return delegate.packagesSendCORS();
+    }
+
+    @OPTIONS
+    @Path("/{packageName}")
+    public Response packagesPackageNameSendCORS(){
+        return delegate.packagesSendCORS();
     }
 }

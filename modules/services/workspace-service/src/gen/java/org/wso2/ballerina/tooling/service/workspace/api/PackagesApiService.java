@@ -36,4 +36,6 @@ public abstract class PackagesApiService {
 
     public abstract Response packagesPost(String contentType
     ) throws NotFoundException;
+
+    public abstract Response packagesSendCORS();
 }
