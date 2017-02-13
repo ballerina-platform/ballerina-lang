@@ -262,13 +262,47 @@ public class BallerinaPsiImplUtil {
         return match;
     }
 
+
+    public static PsiDirectory[] suggestCurrentPackagePath(PsiElement element) {
+
+        List<PsiDirectory> results = new ArrayList<>();
+        Project project = element.getProject();
+
+        PsiElement parent = element.getParent();
+
+        // This is used to store all the packages which need to resolve the current package.
+        List<PsiElement> packages = new ArrayList<>();
+        packages.add(parent);
+
+        // Find all previous PackageNameNode elements.
+        PsiElement sibling = parent.getPrevSibling();
+        while (sibling != null) {
+            if (sibling instanceof PackageNameNode) {
+                // Add the sibling to the index 0 because we are traversing backward.
+                packages.add(0, sibling);
+            }
+            sibling = sibling.getPrevSibling();
+        }
+
+        // Get any matching directory in the project root
+        List<VirtualFile> matches = suggestDirectory(project.getBaseDir(), packages);
+        // If there is matches, add it to the results.
+        if (matches != null) {
+            for (VirtualFile file : matches) {
+                results.add(PsiManager.getInstance(project).findDirectory(file));
+            }
+        }
+
+        return results.toArray(new PsiDirectory[results.size()]);
+    }
+
     /**
      * Suggests packages for auto completing packages.
      *
      * @param element package name element
      * @return suggestions for auto completion
      */
-    public static PsiDirectory[] suggestPackages(PsiElement element) {
+    public static PsiDirectory[] suggestImportPackages(PsiElement element) {
         List<PsiDirectory> results = new ArrayList<>();
         Project project = element.getProject();
 

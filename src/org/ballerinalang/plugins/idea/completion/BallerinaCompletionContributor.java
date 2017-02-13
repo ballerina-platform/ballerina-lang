@@ -32,10 +32,8 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.util.ProcessingContext;
-import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.ballerinalang.plugins.idea.psi.AnnotationNameNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
@@ -55,7 +53,6 @@ import java.util.List;
 import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtil.*;
 
 public class BallerinaCompletionContributor extends CompletionContributor implements DumbAware {
-
 
     private static final LookupElementBuilder PACKAGE;
     private static final LookupElementBuilder IMPORT;
@@ -79,7 +76,6 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     private static final LookupElementBuilder EXCEPTION;
     private static final LookupElementBuilder MAP;
     private static final LookupElementBuilder DATATABLE;
-
 
     static {
         PACKAGE = createKeywordLookupElement("package", true, AddSpaceInsertHandler.INSTANCE_WITH_AUTO_POPUP);
@@ -132,18 +128,11 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                                                ProcessingContext context,
                                                @NotNull CompletionResultSet resultSet) {
 
-                        //                        PsiElement originalPosition = parameters.getOriginalPosition();
-                        //
-                        //                        if (originalPosition == null) {
                         addSuggestions(parameters.getPosition(), resultSet, parameters.getOriginalFile());
-                        //                        } else {
-                        //                            addSuggestions(originalPosition, resultSet);
-                        //                        }
                     }
                 }
         );
     }
-
 
     private void addSuggestions(PsiElement element, CompletionResultSet resultSet, PsiFile originalFile) {
 
@@ -184,20 +173,38 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             if (parent instanceof PackageNameNode) {
                 //Todo - Suggest current file path
                 //Todo- check alias node
-                PsiDirectory[] psiDirectories = BallerinaPsiImplUtil.suggestPackages(element);
-                for (PsiDirectory directory : psiDirectories) {
-                    InsertHandler<LookupElement> insertHandler;
-                    if (BallerinaPsiImplUtil.hasSubdirectories(directory)) {
-                        insertHandler = ImportCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP;
-                    } else {
-                        //Todo-check for duplicate package names and suggest 'as'
-                        insertHandler = StatementCompletionInsertHandler.INSTANCE;
+
+                if (parent.getParent().getParent() instanceof PackageDeclarationNode) {
+                    PsiDirectory[] psiDirectories = BallerinaPsiImplUtil.suggestCurrentPackagePath(element);
+                    for (PsiDirectory directory : psiDirectories) {
+                        InsertHandler<LookupElement> insertHandler;
+                        if (BallerinaPsiImplUtil.hasSubdirectories(directory)) {
+                            insertHandler = ImportCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP;
+                        } else {
+                            insertHandler = StatementCompletionInsertHandler.INSTANCE;
+                        }
+                        resultSet.addElement(LookupElementBuilder.createWithIcon(directory)
+                                .withInsertHandler(insertHandler));
                     }
-                    resultSet.addElement(LookupElementBuilder.createWithIcon(directory)
-                            .withInsertHandler(insertHandler));
+                } else if (parent.getParent().getParent() instanceof ImportDeclarationNode) {
+                    PsiDirectory[] psiDirectories = BallerinaPsiImplUtil.suggestImportPackages(element);
+                    for (PsiDirectory directory : psiDirectories) {
+                        InsertHandler<LookupElement> insertHandler;
+                        if (BallerinaPsiImplUtil.hasSubdirectories(directory)) {
+                            insertHandler = ImportCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP;
+                        } else {
+                            //Todo-check for duplicate package names and suggest 'as'
+                            insertHandler = StatementCompletionInsertHandler.INSTANCE;
+                        }
+                        resultSet.addElement(LookupElementBuilder.createWithIcon(directory)
+                                .withInsertHandler(insertHandler));
+                    }
+                } else {
+                    // Todo - Handle scenario
+                    System.out.println("OK");
                 }
             } else if (parent instanceof ImportDeclarationNode) {
-                PsiDirectory[] psiDirectories = BallerinaPsiImplUtil.suggestPackages(element);
+                PsiDirectory[] psiDirectories = BallerinaPsiImplUtil.suggestImportPackages(element);
                 for (PsiDirectory directory : psiDirectories) {
                     InsertHandler<LookupElement> insertHandler;
                     if (BallerinaPsiImplUtil.hasSubdirectories(directory)) {
@@ -234,7 +241,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsInCurrentPackage(originalFile);
                     for (PsiElement function : functions) {
                         LookupElementBuilder builder = LookupElementBuilder.create(function.getText())
-                                .withTypeText("Function").withTailText("()", true);
+                                .withTypeText("Function").withTailText("()", true)
+                                .withInsertHandler(FunctionCompletionInsertHandler.INSTANCE);
                         resultSet.addElement(PrioritizedLookupElement.withPriority(builder, FUNCTION_PRIORITY));
                     }
 
@@ -362,7 +370,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
 
                                 for (PsiElement function : functions) {
                                     LookupElementBuilder builder = LookupElementBuilder.create(function.getText())
-                                            .withTypeText("Function").withTailText("()", true);
+                                            .withTypeText("Function").withTailText("()", true)
+                                            .withInsertHandler(FunctionCompletionInsertHandler.INSTANCE);
                                     resultSet.addElement(PrioritizedLookupElement.withPriority(builder,
                                             FUNCTION_PRIORITY));
                                 }
