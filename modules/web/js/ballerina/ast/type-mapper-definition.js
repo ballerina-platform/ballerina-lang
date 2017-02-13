@@ -311,6 +311,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
     TypeMapperDefinition.prototype.returnConstructedAssignmentStatement = function (sourceIdentifier,targetIdentifier,sourceValue,targetValue) {
 
         // Creating a new Assignment Statement.
+        var self = this;
         var newAssignmentStatement = this.getFactory().createAssignmentStatement();
         var leftOperandExpression = this.getFactory().createLeftOperandExpression();
         var rightOperandExpression = this.getFactory().createRightOperandExpression();
@@ -319,9 +320,22 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         var sourceVariableReferenceExpressionForIdentifier = this.getFactory().createVariableReferenceExpression();
         sourceVariableReferenceExpressionForIdentifier.setVariableReferenceName(sourceIdentifier);
         var sourceFieldExpression = this.getFactory().createFieldExpression();
-        var sourceVariableReferenceExpressionForValue = this.getFactory().createVariableReferenceExpression();
-        sourceVariableReferenceExpressionForValue.setVariableReferenceName(sourceValue);
-        sourceFieldExpression.addChild(sourceVariableReferenceExpressionForValue);
+        var tempRefOfFieldExpression;
+
+        _.forEach(sourceValue, function (sourceVal) {
+            var tempFieldExpression;
+            var tempVariableReferenceExpression = self.getFactory().createVariableReferenceExpression();
+            tempVariableReferenceExpression.setVariableReferenceName(sourceVal);
+            if(_.head(sourceValue) == sourceVal){
+                sourceFieldExpression.addChild(tempVariableReferenceExpression);
+                tempRefOfFieldExpression = sourceFieldExpression
+            }else{
+                tempFieldExpression = self.getFactory().createFieldExpression();
+                tempFieldExpression.addChild(tempVariableReferenceExpression);
+                tempRefOfFieldExpression.addChild(tempFieldExpression);
+                tempRefOfFieldExpression = tempFieldExpression;
+            }
+        });
         sourceStructFieldAccessExpression.addChild(sourceVariableReferenceExpressionForIdentifier);
         sourceStructFieldAccessExpression.addChild(sourceFieldExpression);
 
@@ -330,15 +344,29 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         var targetVariableReferenceExpressionForIdentifier = this.getFactory().createVariableReferenceExpression();
         targetVariableReferenceExpressionForIdentifier.setVariableReferenceName(targetIdentifier);
         var targetFieldExpression = this.getFactory().createFieldExpression();
-        var targetVariableReferenceExpressionForTarget = this.getFactory().createVariableReferenceExpression();
-        targetVariableReferenceExpressionForTarget.setVariableReferenceName(targetValue);
-        targetFieldExpression.addChild(targetVariableReferenceExpressionForTarget);
+        var tempRefOfFieldExpression;
+
+        _.forEach(targetValue, function (targetVal) {
+            var tempFieldExpression;
+            var tempVariableReferenceExpression = self.getFactory().createVariableReferenceExpression();
+            tempVariableReferenceExpression.setVariableReferenceName(targetVal);
+            if(_.head(targetValue) == targetVal){
+                targetFieldExpression.addChild(tempVariableReferenceExpression);
+                tempRefOfFieldExpression = targetFieldExpression
+            }else{
+                tempFieldExpression = self.getFactory().createFieldExpression();
+                tempFieldExpression.addChild(tempVariableReferenceExpression);
+                tempRefOfFieldExpression.addChild(tempFieldExpression);
+                tempRefOfFieldExpression = tempFieldExpression;
+            }
+        });
+
         targetStructFieldAccessExpression.addChild(targetVariableReferenceExpressionForIdentifier);
         targetStructFieldAccessExpression.addChild(targetFieldExpression);
 
-        leftOperandExpression.addChild(sourceStructFieldAccessExpression);
+        leftOperandExpression.addChild(targetStructFieldAccessExpression);
         newAssignmentStatement.addChild(leftOperandExpression);
-        rightOperandExpression.addChild(targetStructFieldAccessExpression);
+        rightOperandExpression.addChild(sourceStructFieldAccessExpression);
         newAssignmentStatement.addChild(rightOperandExpression);
 
         return newAssignmentStatement;
