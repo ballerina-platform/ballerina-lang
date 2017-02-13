@@ -15,14 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+define(['lodash', './expression'], function (_, Expression) {
 
     var StructFieldAccessExpression = function (args) {
-        ASTNode.call(this, 'StructFieldAccessExpression');
+        Expression.call(this, 'StructFieldAccessExpression');
         this._isLHSExpr = _.get(args, 'isLHSExpr', false);
     };
 
-    StructFieldAccessExpression.prototype = Object.create(ASTNode.prototype);
+    StructFieldAccessExpression.prototype = Object.create(Expression.prototype);
     StructFieldAccessExpression.prototype.constructor = StructFieldAccessExpression;
 
     /**
@@ -32,8 +32,6 @@ define(['lodash', './node'], function (_, ASTNode) {
     StructFieldAccessExpression.prototype.isLHSExpression = function () {
        return this._isLHSExpr;
     };
-    
-    
     
     return StructFieldAccessExpression;
 });

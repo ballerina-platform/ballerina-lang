@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+define(['lodash', './expression'], function (_, Expression) {
 
     /**
      * Constructor for RefTypeInitExpression
@@ -23,11 +23,11 @@ define(['lodash', './node'], function (_, ASTNode) {
      * @constructor
      */
     var RefTypeInitExpression = function (args) {
-        ASTNode.call(this, 'RefTypeInitExpression');
         this._inheritedType = _.get(args, 'inheritedType');
+        Expression.call(this, 'RefTypeInitExpression');
     };
 
-    RefTypeInitExpression.prototype = Object.create(ASTNode.prototype);
+    RefTypeInitExpression.prototype = Object.create(Expression.prototype);
     RefTypeInitExpression.prototype.constructor = RefTypeInitExpression;
 
     /**

@@ -16,9 +16,8 @@
  * under the License.
  */
 define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './statement-visitor-factory',
-    './variable-declaration-visitor','./return-statement-visitor','./block-statement-visitor'],
-    function(_, log, EventChannel, AbstractSourceGenVisitor, StatementVisitorFactory, VariableDeclarationVisitor,
-             ReturnStatementVisitor, BlockStatementVisitor) {
+        './block-statement-visitor'],
+    function(_, log, EventChannel, AbstractSourceGenVisitor, StatementVisitorFactory, BlockStatementVisitor) {
 
         /**
          * @param parent
@@ -46,8 +45,9 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
              * that particular source generation has to be constructed here
              */
 
-            var constructedSourceSegment = 'typeconvertor ' + typeMapperDefinition.getTypeMapperName() + '(' +
-                typeMapperDefinition.getInputParamAndIdentifier() + ')(' + typeMapperDefinition.getReturnType() + '){';
+            var constructedSourceSegment = 'typeconvertor ' + typeMapperDefinition.getTypeMapperName() +
+                ' (' + typeMapperDefinition.getInputParamAndIdentifier() + ' )( ' + typeMapperDefinition.getReturnType() +
+                ' ) {';
             this.appendSource(constructedSourceSegment);
             log.debug('Begin Visit TypeMapperDefinition');
         };
@@ -66,16 +66,6 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
            var blockStatementVisitor = new BlockStatementVisitor(this);
            blockStatement.accept(blockStatementVisitor);
        };
-
-        TypeMapperDefinitionVisitor.prototype.visitVariableDeclaration = function(variableDeclaration){
-            var variableDeclarationVisitor = new VariableDeclarationVisitor(this);
-            variableDeclaration.accept(variableDeclarationVisitor);
-        };
-
-        TypeMapperDefinitionVisitor.prototype.visitReturnStatement = function(returnStatement){
-            var returnStatementVisitor = new ReturnStatementVisitor(this);
-            returnStatement.accept(returnStatementVisitor);
-        };
 
         return TypeMapperDefinitionVisitor;
     });

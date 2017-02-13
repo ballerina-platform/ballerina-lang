@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, CommonUtils) {
 
     var TypeMapperDefinition = function (args) {
-        this._typeMapperName = _.get(args, 'typeMapperName', 'newTypeMapper');
+        this._typeMapperName = _.get(args, 'typeMapperName');
         ASTNode.call(this, 'TypeMapperDefinition');
     };
 
@@ -105,8 +105,8 @@ define(['lodash', './node'], function (_, ASTNode) {
         _.forEach(this.getChildren(), function (child) {
             if (ballerinaASTFactory.isReturnType(child)) {
                 _.forEach(child.getChildren(), function (resourceChild) {
-                    if(ballerinaASTFactory.isStructType(resourceChild)){
-                        returnType = resourceChild.getTypeName();
+                    if(ballerinaASTFactory.isSimpleTypeName(resourceChild)){
+                        returnType = resourceChild.getName();
                     }
                 });
             }
@@ -125,11 +125,10 @@ define(['lodash', './node'], function (_, ASTNode) {
 
         _.forEach(this.getChildren(), function (child) {
             if (ballerinaASTFactory.isResourceParameter(child)) {
+                identifier = child.getIdentifier();
                 _.forEach(child.getChildren(), function (resourceChild) {
-                    if(ballerinaASTFactory.isStructType(resourceChild)){
-                        inputParam = resourceChild.getTypeName();
-                    } else if(ballerinaASTFactory.isSymbolName(resourceChild)){
-                        identifier = resourceChild.getName();
+                    if(ballerinaASTFactory.isSimpleTypeName(resourceChild)){
+                        inputParam = resourceChild.getName();
                     }
                 });
             }
@@ -360,6 +359,26 @@ define(['lodash', './node'], function (_, ASTNode) {
             }
         });
         return blockStatement;
+    };
+
+    /**
+     * @inheritDoc
+     * @override
+     */
+    TypeMapperDefinition.prototype.generateUniqueIdentifiers = function () {
+        CommonUtils.generateUniqueIdentifier({
+            node: this,
+            attributes: [{
+                defaultValue: "newTypeMapper",
+                setter: this.setTypeMapperName,
+                getter: this.getTypeMapperName,
+                parents: [{
+                    node: this.parent,
+                    getChildrenFunc: this.parent.getTypeMapperDefinitions,
+                    getter: this.getTypeMapperName
+                }]
+            }]
+        });
     };
 
     return TypeMapperDefinition;

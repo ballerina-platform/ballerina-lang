@@ -66,8 +66,16 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.canVisitTypeMapperDefinition(node);
         } else if(node instanceof AST.TypeStructDefinition){
             return this.canVisitTypeStructDefinition(node);
+        } else if(node instanceof AST.ResourceParameter){
+            return this.canVisitResourceParameter(node);
+        } else if(node instanceof AST.ReturnType){
+            return this.canVisitReturnType(node);
         } else if(node instanceof AST.BlockStatement){
             return this.canVisitBlockStatement(node);
+        } else if(node instanceof AST.VariableDefinition){
+            return this.canVisitVariableDefinition(node);
+        } else if(node instanceof AST.SimpleTypeName){
+            return this.canVisitSimpleTypeName(node);
         }
     };
 
@@ -113,8 +121,16 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.beginVisitTypeMapperDefinition(node);
         } else if(node instanceof AST.TypeStructDefinition){
             return this.beginVisitTypeStructDefinition(node);
-        } else if(node instanceof AST.BlockStatement){
-            return this.beginVisitBlockStatement(node);
+        } else if(node instanceof AST.TypeStructDefinition){
+            return this.beginVisitTypeStructDefinition(node);
+        } else if(node instanceof AST.ResourceParameter){
+            return this.beginVisitResourceParameter(node);
+        } else if(node instanceof AST.ReturnType){
+            return this.beginVisitReturnType(node);
+        } else if(node instanceof AST.VariableDefinition){
+            return this.beginVisitVariableDefinition(node);
+        } else if(node instanceof AST.SimpleTypeName){
+            return this.beginVisitSimpleTypeName(node);
         }
     };
 
@@ -166,6 +182,10 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.visitReturnType(node);
         } else if(node instanceof AST.BlockStatement){
             return this.visitBlockStatement(node);
+        } else if(node instanceof AST.VariableDefinition){
+            return this.visitVariableDefinition(node);
+        } else if(node instanceof AST.SimpleTypeName){
+            return this.visitSimpleTypeName(node);
         }
 
     };
@@ -212,8 +232,16 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.endVisitTypeMapperDefinition(node);
         } else if(node instanceof AST.TypeStructDefinition){
             return this.endVisitTypeStructDefinition(node);
+        } else if(node instanceof AST.ResourceParameter){
+            return this.endVisitResourceParameter(node);
+        } else if(node instanceof AST.ReturnType){
+            return this.endVisitReturnType(node);
         } else if(node instanceof AST.BlockStatement){
             return this.endVisitBlockStatement(node);
+        } else if(node instanceof AST.VariableDefinition){
+            return this.endVisitVariableDefinition(node);
+        } else if(node instanceof AST.SimpleTypeName){
+            return this.endVisitSimpleTypeName(node);
         }
 
     };
@@ -463,6 +491,26 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
     ASTVisitor.prototype.visitVariableDeclaration = function(variableDeclaration){
     };
     ASTVisitor.prototype.endVisitVariableDeclaration = function(variableDeclaration){
+    };
+
+    ASTVisitor.prototype.canVisitVariableDefinition = function(variableDefinition){
+        return false;
+    };
+    ASTVisitor.prototype.beginVisitVariableDefinition = function(variableDefinition){
+    };
+    ASTVisitor.prototype.visitVariableDefinition = function(variableDefinition){
+    };
+    ASTVisitor.prototype.endVisitVariableDefinition = function(variableDefinition){
+    };
+
+    ASTVisitor.prototype.canVisitSimpleTypeName = function(simpleTypeName){
+        return false;
+    };
+    ASTVisitor.prototype.beginVisitSimpleTypeName = function(simpleTypeName){
+    };
+    ASTVisitor.prototype.visitSimpleTypeName = function(simpleTypeName){
+    };
+    ASTVisitor.prototype.endVisitSimpleTypeName = function(simpleTypeName){
     };
 
     return ASTVisitor;
