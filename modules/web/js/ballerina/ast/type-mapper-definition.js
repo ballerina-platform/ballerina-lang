@@ -238,11 +238,7 @@ define(['lodash', './node'], function (_, ASTNode) {
             return ballerinaASTFactory.isReturnStatement(child);
         });
 
-        var expression = _.find(returnStatement.getChildren(), function (child) {
-            return ballerinaASTFactory.isExpression(child);
-        });
-
-        var variableReferenceExpression = _.find(expression.getChildren(), function (child) {
+        var variableReferenceExpression = _.find(returnStatement.getChildren(), function (child) {
             return ballerinaASTFactory.isVariableReferenceExpression(child);
         });
 
