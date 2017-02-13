@@ -296,8 +296,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         var jsTreeContainerPrefix = 'jstree-container';
         var anchorEnd = '_anchor';
         var sourceId =  jsTreeContainerPrefix + this.viewIdSeperator +  connection.sourceStruct
-                        + this.viewIdSeperator + this.viewId + this.idNameSeperator
-                        + connection.sourceProperty + this.nameTypeSeperator + connection.sourceType+ anchorEnd;
+            + this.viewIdSeperator + this.viewId + this.idNameSeperator
+            + connection.sourceProperty + this.nameTypeSeperator + connection.sourceType+ anchorEnd;
         var targetId =  jsTreeContainerPrefix + this.viewIdSeperator +  connection.targetStruct
             + this.viewIdSeperator + this.viewId + this.idNameSeperator
             + connection.targetProperty + this.nameTypeSeperator + connection.targetType + anchorEnd;
@@ -428,8 +428,9 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @param {object} reference AST model reference
      */
     TypeMapperRenderer.prototype.addFunction = function (func, reference) {
-        this.references.push({name: func.name, refObj: reference});
-        var newFunc = $('<div>').attr('id', func.name).addClass('func');
+        var id = func.name + this.viewIdSeperator + this.viewId;
+        this.references.push({name: id, refObj: reference});
+        var newFunc = $('<div>').attr('id', id).addClass('func');
         var self = this;
         var funcName = $('<div>').addClass('func-name').text(func.name);
         newFunc.append(funcName);
@@ -626,7 +627,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         graph.setDefaultEdgeLabel(function () {
             return {};
         });
-        
+
         var nodes = $("#" + viewId + "> .struct, #" + viewId + "> .func");
 
         if (nodes.length > 0) {
