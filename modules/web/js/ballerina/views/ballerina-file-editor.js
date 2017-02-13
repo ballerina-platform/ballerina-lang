@@ -20,11 +20,11 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         './../visitors/source-gen/ballerina-ast-root-visitor','./../visitors/symbol-table/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
         './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer', './connector-definition-view', './struct-definition-view',
         './../env/package', './../env/package-scoped-environment', './../env/environment', './constant-definitions-pane-view', './../item-provider/tool-palette-item-provider',
-        './package-definition-pane-view','./type-mapper-definition-view', 'alerts', 'typeahead'],
+        './package-definition-pane-view','./import-declaration-view', './type-mapper-definition-view', 'alerts', 'typeahead'],
     function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory,
               PackageDefinition, SourceView, SwaggerView, SourceGenVisitor, SymbolTableGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer,
               ConnectorDefinitionView, StructDefinitionView, Package, PackageScopedEnvironment, BallerinaEnvironment,
-              ConstantsDefinitionsPaneView, ToolPaletteItemProvider, PackageDefinitionView,TypeMapperDefinitionView, alerts, typeahead) {
+              ConstantsDefinitionsPaneView, ToolPaletteItemProvider, PackageDefinitionView, ImportDeclarationView, TypeMapperDefinitionView, alerts, typeahead) {
 
         /**
          * The view to represent a ballerina file editor which is an AST visitor.
@@ -195,6 +195,17 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             packageDefinitionView.render(this.diagramRenderingContext);
         };
 
+        BallerinaFileEditor.prototype.visitImportDeclaration = function (importDeclaration) {
+            var importDeclarationView = new ImportDeclarationView({
+                viewOptions: this._viewOptions,
+                container: this._$canvasContainer,
+                model: importDeclaration,
+                parentView: this,
+            });
+            this.diagramRenderingContext.getViewModelMap()[importDeclaration.id] = importDeclarationView;
+            importDeclarationView.render(this.diagramRenderingContext);
+        };
+
         /**
          * Creates a service definition view for a service definition model and calls it's render.
          * @param serviceDefinition
@@ -315,7 +326,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             toolPaletteOpts.ballerinaFileEditor = this;
             this.toolPalette = new ToolPalette(toolPaletteOpts);
 
-            this._createPackagePropertyPane(canvasContainer);
+            this._createImportDeclarationPane(canvasContainer);
 
             // init undo manager
             this._undoManager = new UndoManager();
@@ -618,39 +629,98 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
          * @param canvasContainer - The canvas container.
          * @private
          */
-        BallerinaFileEditor.prototype._createPackagePropertyPane = function (canvasContainer) {
+        BallerinaFileEditor.prototype._createImportDeclarationPane = function (canvasContainer) {
             var self = this;
-            var topRightControlsContainer = $(canvasContainer).siblings(".top-right-controls-container");
-            var propertyPane = topRightControlsContainer.children(".top-right-controls-container-editor-pane");
 
-            var packageButton = $(propertyPane).parent().find(".package-btn");
+            var _paneAppendElement = $(canvasContainer).find('.package-imports-wrapper');
+            // Creating import button.
+            this._importDeclarationButton = $("<div class='imports-btn' data-toggle='tooltip' title='Imports' " +
+                "data-placement='bottom'></div>")
+                .appendTo(_paneAppendElement);
+
+            $("<span class='btn-icon'> Imports </span>").appendTo(this._importDeclarationButton).tooltip();
+
+            this._importDeclarationMainWrapper = $("<div class='imports-pane'/>").appendTo(_paneAppendElement);
+
+            var importDeclarationWrapper = $("<div class='imports-wrapper'/>").appendTo(this._importDeclarationMainWrapper);
+
+            var collapserWrapper = $("<div class='imports-pane-collapser-wrapper' data-placement='bottom' " +
+                " title='Close Import Pane' data-toggle='tooltip'/>")
+                .data("collapsed", "false")
+                .appendTo(importDeclarationWrapper).hide();
+
+            $("<i class='fw fw-left'></i>").appendTo(collapserWrapper);
+
+            var importDeclarationActionWrapper = $("<div class='imports-action-wrapper'/>").appendTo(importDeclarationWrapper);
+
+            // Creating add imports editor button.
+            var addImportButton = $("<div class='action-icon-wrapper import-add-icon-wrapper' title='Add Import'" +
+                "data-toggle='tooltip' data-placement='bottom'/>")
+                .appendTo(importDeclarationActionWrapper);
+            $("<i class='fw fw-add'></i>").appendTo(addImportButton);
+
+            var importsAddPane = $("<div class='action-import-wrapper-heading import-add-action-wrapper'/>")
+                .appendTo(importDeclarationActionWrapper);
+
+            var importValueText = $("<input id='import-package-text' placeholder='Enter Package Name'/>").appendTo(importsAddPane);
+
+            // Creating cancelling add new import button.
+            var importAddCancelButtonPane = $("<div class='action-icon-wrapper import-add-cancel-action-wrapper' " +
+                "data-placement='bottom' title='Cancel' data-toggle='tooltip'/>")
+                .appendTo(importsAddPane);
+            $("<span class='fw-stack fw-lg'><i class='fw fw-square fw-stack-2x'></i>" +
+                "<i class='fw fw-cancel fw-stack-1x fw-inverse'></i></span>").appendTo(importAddCancelButtonPane);
+            // Creating add new import button.
+            var importAddCompleteButtonPane = $("<div class='action-icon-wrapper " +
+                "import-add-complete-action-wrapper' title='Import' data-placement='bottom' data-toggle='tooltip'/>")
+                .appendTo(importsAddPane);
+            $("<span class='fw-stack fw-lg'><i class='fw fw-square fw-stack-2x'></i>" +
+                "<i class='fw fw-add fw-stack-1x fw-inverse'></i></span>").appendTo(importAddCompleteButtonPane);
+
+
+            // Add new constant activate button.
+            $(addImportButton).click(function () {
+                $(importsAddPane).show();
+                $(this).hide();
+                $(importValueText).focus();
+            });
+
+            // Cancel adding a new constant.
+            $(importAddCancelButtonPane).click(function () {
+                $(importsAddPane).hide();
+                $(addImportButton).show();
+            });
+
+            var importsDeclarationContentWrapper = $("<div class='imports-content-wrapper'/>")
+                .appendTo(importDeclarationWrapper);
 
             var substringMatcher = function(strs) {
-              return function findMatches(q, cb) {
-                var matches, substringRegex;
+                return function findMatches(q, cb) {
+                    var matches, substringRegex;
 
-                // an array that will be populated with substring matches
-                matches = [];
+                    // an array that will be populated with substring matches
+                    matches = [];
 
-                // regex used to determine if a string contains the substring `q`
-                substrRegex = new RegExp(q, 'i');
+                    // regex used to determine if a string contains the substring `q`
+                    substrRegex = new RegExp(q, 'i');
 
-                // iterate through the pool of strings and for any string that
-                // contains the substring `q`, add it to the `matches` array
-                $.each(strs, function(i, str) {
-                  if (substrRegex.test(str)) {
-                    matches.push(str);
-                  }
-                });
+                    // iterate through the pool of strings and for any string that
+                    // contains the substring `q`, add it to the `matches` array
+                    $.each(strs, function(i, str) {
+                        if (substrRegex.test(str)) {
+                            matches.push(str);
+                        }
+                    });
 
-                cb(matches);
-              };
+                    cb(matches);
+                };
             };
 
+            //add import suggestions
             var packages = BallerinaEnvironment.getPackages();
             var packageNames = _.map(packages, function(p){return p._name});
 
-            propertyPane.find("#import-package-text").typeahead({
+            importValueText.typeahead({
                     hint: true,
                     highlight: true,
                     minLength: 1
@@ -661,125 +731,35 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 }
             );
 
-            // Package button click event.
-            $(packageButton).click(function (event) {
-                // If property pane is already shown, cancel this event.
-                if (!(propertyPane.css("display") == "none")) {
-                    return;
+            // Click event for adding an import.
+            importAddCompleteButtonPane.click(function () {
+                // TODO : Validate new import package name.
+                if (!_.isEmpty(importValueText.val().trim())) {
+                    var currentASTRoot = self.getModel();
+                    log.debug("Adding new import");
+
+                    // Creating new import.
+                    var newImportDeclaration = BallerinaASTFactory.createImportDeclaration();
+                    newImportDeclaration.setPackageName(importValueText.val());
+
+                    try {
+                        newImportDeclaration.setParent(currentASTRoot);
+                        currentASTRoot.addImport(newImportDeclaration);
+
+                        //Clear the import value box
+                        importValueText.val("");
+                        self.visit(newImportDeclaration);
+
+                    } catch (error) {
+                        alerts.error(error);
+                    }
                 }
+            });
 
-                // Stopping propagation for the package button.
-                event.stopPropagation();
-
-                // Darkening the package button.
-                packageButton.css("opacity", 1);
-
-                // Showing the property pane.
-                propertyPane.show();
-
-                // Cancelling all event propagation when clicked on the property pane.
-                $(propertyPane).click(function (event) {
-                    log.debug("Property pane clicked");
-                    event.stopPropagation();
-                });
-
-                var importPackageTextBox = propertyPane.find("#import-package-text");
-                var addImportButton = $(propertyPane).find(".action-icon-wrapper");
-
-                // Click event for adding an import.
-                $(addImportButton).click(function () {
-                    // TODO : Validate new import package name.
-                    var packageNameInput = importPackageTextBox.val().trim();
-                    if (!_.isEmpty(packageNameInput)) {
-                        var currentASTRoot = self.getModel();
-                        log.debug("Adding new import");
-
-                        // Creating new import.
-                        var newImportDeclaration = BallerinaASTFactory.createImportDeclaration();
-                        newImportDeclaration.setPackageName(packageNameInput);
-
-                        try {
-                            currentASTRoot.addImport(newImportDeclaration);
-
-                            //Clear the import value box
-                            importPackageTextBox.val("");
-
-                            // add import to the tool pallet
-                            var newPackage = BallerinaEnvironment.searchPackage(newImportDeclaration.getPackageName())[0];
-                            // Only add to tool palette if the user input exactly matches an existing package.
-                            if(newPackage.getName() === packageNameInput) {
-                                self.toolPalette.getItemProvider().addImportToolGroup(newPackage);
-                            }
-
-                            // Updating current imports view.
-                            addImportsToView(currentASTRoot, propertyPane.find(".imports-wrapper"));
-                        } catch (error) {
-                            alerts.error(error);
-                        }
-                    }
-                });
-
-                // Add new import upon enter key.
-                $(importPackageTextBox).on("change paste keydown", function (e) {
-                    if (e.which == 13) {
-                        addImportButton.click();
-                    }
-                });
-
-                $(importPackageTextBox).focus();
-
-                var importsWrapper = propertyPane.find(".imports-wrapper");
-
-                // Adding current imports to view.
-                addImportsToView(self.getModel(), importsWrapper);
-
-                // When clicked outside of the property pane.
-                $(window).click(function () {
-                    log.debug("Window Click");
-                    propertyPane.hide();
-
-                    // Unbinding all events.
-                    $(this).unbind("click");
-                    $(addImportButton).unbind("click");
-                    $(propertyPane).unbind("click");
-
-                    // Resetting import text box.
-                    $(importPackageTextBox).val("");
-
-                    // Resetting the opacity of the package button.
-                    packageButton.removeAttr("style");
-                });
-
-                /**
-                 * Removes the existing imports in the "Current imports" section and recreating them.
-                 * @param {BallerinaASTRoot} model - The ballerina ast root model.
-                 * @param importsWrapper - The html <div> tag to which an import view to be appended to.
-                 */
-                function addImportsToView(model, importsWrapper) {
-                    // Removing existing imports.
-                    $(importsWrapper).children("div").each(function () {
-                        $(this).remove();
-                    });
-
-                    // Creating the imports according to the model.
-                    _.forEach(model.getImportDeclarations(), function (importDeclaration) {
-                        // Adding the imports.
-                        var importWrapper = $("<div/>").appendTo(importsWrapper);
-                        var importPackageNameSpan = $("<span>" + importDeclaration.getPackageName() + "</span>").appendTo(importWrapper);
-                        var importDelete = $("<i class='fw fw-cancel'></i>").appendTo(importWrapper);
-
-                        // Creating import delete event.
-                        $(importDelete).click({
-                            model: model,
-                            wrapper: importWrapper,
-                            packageName: importDeclaration.getPackageName()
-                        }, function (event) {
-                            log.debug("Delete import clicked :" + event.data.packageName);
-                            $(event.data.wrapper).remove();
-                            event.data.model.deleteImport(event.data.packageName);
-                            self.toolPalette.getItemProvider().removeImportToolGroup(event.data.packageName);
-                        });
-                    });
+            // Add new import upon enter key.
+            $(importValueText).on("change paste keydown", function (e) {
+                if (e.which == 13) {
+                    importAddCompleteButtonPane.click();
                 }
             });
         };
