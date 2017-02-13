@@ -94,8 +94,14 @@ public class Send extends AbstractJMSAction {
         if (messageType.equalsIgnoreCase(JMSConstants.TEXT_MESSAGE_TYPE) ||
             messageType.equalsIgnoreCase(JMSConstants.BYTES_MESSAGE_TYPE)) {
             BallerinaMessageDataSource ballerinaMessageDataSource = bMessage.getMessageDataSource();
-            if (ballerinaMessageDataSource instanceof StringDataSource) {
-                message = new TextCarbonMessage(((StringDataSource) ballerinaMessageDataSource).getValue());
+            if (ballerinaMessageDataSource != null) {
+                if (ballerinaMessageDataSource instanceof StringDataSource) {
+                    message = new TextCarbonMessage(((StringDataSource) ballerinaMessageDataSource).getValue());
+                }
+            } else if (message instanceof TextCarbonMessage) {
+                throw new BallerinaException(
+                        "If the message type is " + messageType + ", either string payload should be set or " +
+                        "pass a received jms text or bytes message", context);
             }
             propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, messageType);
         } else if (messageType.equalsIgnoreCase(JMSConstants.OBJECT_MESSAGE_TYPE)) {
