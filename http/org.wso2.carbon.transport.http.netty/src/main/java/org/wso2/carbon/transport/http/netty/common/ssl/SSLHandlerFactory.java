@@ -18,8 +18,16 @@
  */
 package org.wso2.carbon.transport.http.netty.common.ssl;
 
+import io.netty.handler.codec.http2.Http2SecurityUtil;
+import io.netty.handler.ssl.ApplicationProtocolConfig;
+import io.netty.handler.ssl.ApplicationProtocolNames;
+import io.netty.handler.ssl.ClientAuth;
+import io.netty.handler.ssl.OpenSsl;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslHandler;
-
+import io.netty.handler.ssl.SslProvider;
+import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,11 +42,13 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
@@ -52,6 +62,8 @@ public class SSLHandlerFactory {
     private final SSLContext serverContext;
     private SSLConfig sslConfig;
     private boolean needClientAuth;
+    private KeyManagerFactory kmf;
+    private TrustManagerFactory tmf;
 
 
     public SSLHandlerFactory(SSLConfig sslConfig) {
@@ -63,7 +75,7 @@ public class SSLHandlerFactory {
         try {
             KeyStore ks = getKeyStore(sslConfig.getKeyStore(), sslConfig.getKeyStorePass());
             // Set up key manager factory to use our key store
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
+            kmf = KeyManagerFactory.getInstance(algorithm);
             KeyManager[] keyManagers = null;
             if (ks != null) {
                 kmf.init(ks, sslConfig.getCertPass() != null ?
@@ -75,7 +87,7 @@ public class SSLHandlerFactory {
             if (sslConfig.getTrustStore() != null) {
                 this.needClientAuth = true;
                 KeyStore tks = getKeyStore(sslConfig.getTrustStore(), sslConfig.getTrustStorePass());
-                TrustManagerFactory tmf = TrustManagerFactory.getInstance(algorithm);
+                tmf = TrustManagerFactory.getInstance(algorithm);
                 tmf.init(tks);
                 trustManagers = tmf.getTrustManagers();
             }
@@ -128,5 +140,43 @@ public class SSLHandlerFactory {
             sslParameters.setServerNames(new ArrayList(Arrays.asList(sslConfig.getSniMatchers())));
         }
         return new SslHandler(engine);
+    }
+
+    /**
+     * This method will provide netty ssl context which supports HTTP2 over TLS using
+     * Application Layer Protocol Negotiation (ALPN)
+     *
+     * @return instance of {@link SslContext}
+     * @throws SSLException
+     */
+    public SslContext createHttp2TLSContext() throws SSLException {
+
+        // If listener configuration does not include cipher suites , default ciphers required by the HTTP/2
+        // specification will be added.
+        List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ? Arrays
+                .asList(sslConfig.getCipherSuites()) : Http2SecurityUtil.CIPHERS;
+        SslProvider provider = OpenSsl.isAlpnSupported() ? SslProvider.OPENSSL : SslProvider.JDK;
+        return SslContextBuilder.forServer(this.getKeyManagerFactory())
+                .trustManager(this.getTrustStoreFactory())
+                .sslProvider(provider)
+                .ciphers(ciphers,
+                        SupportedCipherSuiteFilter.INSTANCE)
+                .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE)
+                .applicationProtocolConfig(new ApplicationProtocolConfig(
+                        ApplicationProtocolConfig.Protocol.ALPN,
+                        // NO_ADVERTISE is currently the only mode supported by both OpenSsl and JDK providers.
+                        ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
+                        // ACCEPT is currently the only mode supported by both OpenSsl and JDK providers.
+                        ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
+                        ApplicationProtocolNames.HTTP_2,
+                        ApplicationProtocolNames.HTTP_1_1)).build();
+    }
+
+    public KeyManagerFactory getKeyManagerFactory() {
+        return kmf;
+    }
+
+    public TrustManagerFactory getTrustStoreFactory() {
+        return tmf;
     }
 }
