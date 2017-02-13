@@ -86,7 +86,6 @@ public class GetHmacFromBase64 extends AbstractNativeFunction {
         try {
             byte[] keyBytes =
                     Base64.getDecoder().decode(keyString.getBytes(Charset.defaultCharset()));
-            //byte[] keyBytes = keyString.getBytes(Charset.defaultCharset());
             SecretKey secretKey = new SecretKeySpec(keyBytes, hmacAlgorithm);
             Mac mac = Mac.getInstance(hmacAlgorithm);
             mac.init(secretKey);
