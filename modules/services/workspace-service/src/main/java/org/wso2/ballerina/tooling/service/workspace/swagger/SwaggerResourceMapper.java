@@ -146,13 +146,6 @@ public class SwaggerResourceMapper {
             //Default path should be /
             String path = "/";
             op.setPath(path);
-            //TODO need fixing for complication failure
-//            Map<String, Annotation> annotationMap = resource.getAnnotationMap();
-//            if (annotationMap != null) {
-//                annotationMap.entrySet().stream().filter
-//                        (operationEntry -> operationEntry.getKey().matches(HTTP_VERB_MATCHING_PATTERN)).
-//                        forEach(operationEntry -> op.setHttpOperation(operationEntry.getKey()));
-//            }
             Annotation[] annotations = resource.getAnnotations();
             for (Annotation annotation : annotations) {
                 if (annotation.getName().matches(HTTP_VERB_MATCHING_PATTERN)) {

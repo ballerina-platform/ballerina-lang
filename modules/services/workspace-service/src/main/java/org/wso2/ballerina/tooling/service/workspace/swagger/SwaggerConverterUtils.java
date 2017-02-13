@@ -48,12 +48,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -188,7 +184,6 @@ public class SwaggerConverterUtils {
             //annotation map and array. But there is no way to update array other than
             //constructor method.
             resourceBuilder.setName(entry.nickname);
-            //resourceBuilder.setPkgPath(entry.path);
             Resource resourceToBeAdd = resourceBuilder.buildResource();
             resourceList.add(resourceToBeAdd);
         }
@@ -254,16 +249,10 @@ public class SwaggerConverterUtils {
                 //This is completely new resource
             }
         }
-        mergeResources(resourceList, ballerinaService.getResources());
-        ballerinaService.setResources(resourceList.toArray(new Resource[resourceList.size()]));
+        ballerinaService.setResources(mergeResources(resourceList, ballerinaService.getResources()));
         return ballerinaService;
     }
 
-    static Annotation[] mergeAnnotationsArray(Annotation[] a, Annotation[] b) {
-        Set<Annotation> set = new HashSet<>(Arrays.asList(a));
-        set.addAll(Arrays.asList(b));
-        return set.toArray(new Annotation[0]);
-    }
 
     public static Annotation[] mergeAnnotations(Annotation[] annotations, Annotation[] annotationsToMerge) {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
@@ -286,21 +275,6 @@ public class SwaggerConverterUtils {
         }
     }
 
-    public static Map<String, Annotation> mergeAnnotationsAsMap(Annotation[] annotations,
-                                                                Annotation[] annotationsToMerge) {
-        //update annotations
-        //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
-        Map<String, Annotation> annotationMap = new ConcurrentHashMap<>();
-        for (Annotation originalAnnotation : annotations) {
-            //Add original annotations
-            annotationMap.put(originalAnnotation.getName(), originalAnnotation);
-        }
-        for (Annotation annotationToMerge : annotationsToMerge) {
-            //merge annotations
-            annotationMap.put(annotationToMerge.getName(), annotationToMerge);
-        }
-        return annotationMap;
-    }
 
     private static Annotation[] clone(Annotation[] annotations) {
         return annotations == null ? null : (Annotation[]) annotations.clone();
