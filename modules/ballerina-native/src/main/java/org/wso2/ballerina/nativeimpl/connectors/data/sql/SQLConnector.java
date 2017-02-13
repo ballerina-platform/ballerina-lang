@@ -52,7 +52,7 @@ import java.util.Set;
 public class SQLConnector extends AbstractNativeConnector {
 
     public static final String CONNECTOR_PACKAGE = "ballerina.data.sql";
-    public static final String CONNECTOR_NAME = "Connector";
+    public static final String CONNECTOR_NAME = "ClientConnector";
 
     private HikariDataSource hikariDataSource;
 
