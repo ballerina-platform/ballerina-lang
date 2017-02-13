@@ -81,7 +81,7 @@ You can click the symbol again to confirm that GET was in fact changed to POST. 
 
 ### Add a function
 
-Now we are ready to add a function that will take the incoming message and convert it to a response that gets sent back to the client. The ballerina.net.http package includes a native function called `convertToResponse` that does exactly this, so let's import that package and add the function to our flow.
+Now we are ready to add a function that will take the incoming message and convert it to a response that gets sent back to the client. The ballerina.net.http package includes a native function called `convertToResponse` that removes the incoming HTTP headers when replying to the client. (If you just use Reply, it will return the message as it is with all the headers.) So let's import that package and add the function to our flow.
 
 1. In the upper right corner of the canvas, click the package icon, type `ballerina.net.http`, and press Enter. 
 ...You have now imported the package containing the native function we want to use. 
