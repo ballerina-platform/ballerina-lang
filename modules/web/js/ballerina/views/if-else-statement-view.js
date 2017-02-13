@@ -161,6 +161,12 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
                     this._pendingContainerMove = false;
                 }
             });
+            this.listenTo(statementView.getBoundingBox(), 'width-changed', function (dw) {
+                var widestChildStatementView = _.maxBy(this.getChildrenViewsList(), function (statementView) {
+                    return statementView.getBoundingBox().w();
+                }.bind(this));
+                this.getBoundingBox().zoomWidth(widestChildStatementView.getBoundingBox().w());
+            });
         };
 
         IfElseStatementView.prototype.resizeOnChildRendered = function (childBBox) {
