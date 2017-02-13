@@ -9,8 +9,8 @@ import ballerina.util;
 
 function main (string[] args) {
 
-    http:HTTPConnector gitHubEP = create http:HTTPConnector("https://api.github.com");
-    http:HTTPConnector tweeterEP = create http:HTTPConnector("https://api.twitter.com");
+    http:ClientConnector gitHubEP = create http:ClientConnector("https://api.github.com");
+    http:ClientConnector tweeterEP = create http:ClientConnector("https://api.twitter.com");
 
     int argumentLength = array:length(args);
 
@@ -37,7 +37,7 @@ function main (string[] args) {
 
         message request = {};
 
-        message gitHubResponse = http:HTTPConnector.get(gitHubEP, repoPRpath, request);
+        message gitHubResponse = http:ClientConnector.get(gitHubEP, repoPRpath, request);
 
         json gitHubJsonResponse = message:getJsonPayload(gitHubResponse);
         int noOfPRs = json:getInt(gitHubJsonResponse, "$.length()");
@@ -48,7 +48,7 @@ function main (string[] args) {
         message:setHeader(request, "Authorization", oauthHeader);
         string tweetPath = "/1.1/statuses/update.json?status="+uri:encode(textMsg);
 
-        message response = http:HTTPConnector.post(tweeterEP, tweetPath, request);
+        message response = http:ClientConnector.post(tweeterEP, tweetPath, request);
 
         system:println("Successfully tweeted: '" + textMsg + "'");
     }
