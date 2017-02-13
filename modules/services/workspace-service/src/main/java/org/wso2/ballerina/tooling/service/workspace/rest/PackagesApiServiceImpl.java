@@ -86,6 +86,11 @@ public class PackagesApiServiceImpl extends PackagesApiService {
         return null;
     }
 
+    @Override
+    public Response packagesSendCORS() {
+        return setCORSHeaders(Response.ok()).build();
+    }
+
     private Map<String, ModelPackage> getAllPackages() {
         Map<String, ModelPackage> packages = new HashMap<>();
 
@@ -310,7 +315,7 @@ public class PackagesApiServiceImpl extends PackagesApiService {
         return connector;
     }
 
-    private Response.ResponseBuilder setCORSHeaders(Response.ResponseBuilder responseBuilder) {
+    private static Response.ResponseBuilder setCORSHeaders(Response.ResponseBuilder responseBuilder) {
         return responseBuilder
                 .header(ACCESS_CONTROL_ALLOW_ORIGIN_NAME, ACCESS_CONTROL_ALLOW_ORIGIN_VALUE)
                 .header(ACCESS_CONTROL_ALLOW_HEADERS_NAME, ACCESS_CONTROL_ALLOW_HEADERS_VALUE)
