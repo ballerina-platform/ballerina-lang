@@ -26,7 +26,9 @@ import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.Package;
+import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.ConnectorInitExpr;
@@ -50,6 +52,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.security.AccessController.doPrivileged;
@@ -114,41 +118,27 @@ public class ModifyField extends AbstractNativeFunction {
 
         //We are updating an argument in the last connector expression
         Expression[] argExprs = ((ConnectorInitExpr) variableDefStmt.getRExpr()).getArgExprs();
-        validateArgsExprsArray(argExprs, variableDefStmt);
 
-        //if (variableDefStmt.getVariableDef().getType() instanceof BallerinaConnectorDef || variableDefStmt
-        //        .getVariableDef().getType() instanceof AbstractNativeConnector) {
-        //    if (!isMockValueSet && variableDefStmt.getVariableDef().getType() instanceof BallerinaConnectorDef) {
-        //        //try finding a variableDef with the said name in the final variable def stmt
-        //        for (VariableDefStmt variableDefStmt1 : ((BallerinaConnectorDef) variableDefStmt.getVariableDef()
-        //                .getType()).getVariableDefStmts()) {
-        //            if (variableDefStmt1.getVariableDef().getName().equals(mockCnctrPath.terminalVarName)) {
-        //                setProperty(variableDefStmt1.getRExpr(), mockCnctrPath.terminalVarName,
-        //                        mockCnctrPath.mockValue);
-        //                isMockValueSet = true;
-        //                break;
-        //            }
-        //        }
-        //    }
+        boolean isMockValueSet = false;
+        if (variableDefStmt.getVariableDef().getType() instanceof BallerinaConnectorDef) {
+            Connector balConDef = (Connector) variableDefStmt.getVariableDef().getType();
+            for (int i = 0; i < balConDef.getParameterDefs().length; i++) { //find in connector parameters
+                ParameterDef[] paraDef = balConDef.getParameterDefs();
+                //the # of parameters and # of arguments must match, and is ordered by the array index.
+                if (paraDef[i].getName().equals(mockCnctrPath.terminalVarName)) {
+                    setProperty(argExprs[i], mockCnctrPath.terminalVarName, mockCnctrPath.mockValue);
+                    isMockValueSet = true;
+                    break;
+                }
+            }
+        }
+        //fall back to index based argument update
+        if (!isMockValueSet) {
+            validateArgsExprsArray(mockCnctrPath.indexOfMockField, argExprs, variableDefStmt);
 
-        //            if (!isMockValueSet) { //for native connectors
-        //    RuntimeEnvironment.StaticMemory staticMemory =
-        //                      serviceMetadata.application.getRuntimeEnv().getStaticMemory();
-        //    try {
-        //        BValue[] staticValues = getField(staticMemory, "memSlots", BValue[].class);
-        //        for (BValue bValue : staticValues) {
-        //            bValue.stringValue();
-        //            isMockValueSet = true;
-        //        }
-        //    } catch (NoSuchFieldException e) {
-        //        //ignore
-        //    }
-        // }
-        // if (!isMockValueSet || variableDefStmt.getVariableDef().getType() instanceof AbstractNativeConnector) {
-        //improve this to support multi-argument connectors
-        assert argExprs.length > 0;
-        setProperty(argExprs[0], mockCnctrPath.terminalVarName, mockCnctrPath.mockValue);
-        // }
+            setProperty(argExprs[mockCnctrPath.indexOfMockField], mockCnctrPath.terminalVarName,
+                    mockCnctrPath.mockValue);
+        }
 
         if (variableDefStmt.getVariableDef().getType() instanceof AbstractNativeConnector) {
             BallerinaFile ballerinaFile = MockerinaRegistry.getInstance().resolve(serviceMetadata.service);
@@ -208,14 +198,17 @@ public class ModifyField extends AbstractNativeFunction {
         }
     }
 
-    private void validateArgsExprsArray(Expression[] argExprs, VariableDefStmt finalVarDefStmt)
+    private void validateArgsExprsArray(int indexOfMockField, Expression[] argExprs, VariableDefStmt finalVarDefStmt)
             throws BallerinaException {
-        if (argExprs.length == 0) {
-            throw new BallerinaException(
-                    MSG_PREFIX + "The arguments list in the connector " + finalVarDefStmt.getVariableDef().getName()
-                            + "is empty. Cannot update " + finalVarDefStmt.getVariableDef().getTypeName().getName()
-                            + " connector's arguments");
+        if (argExprs.length > indexOfMockField) {
+            return;
         }
+
+        throw new BallerinaException(
+                MSG_PREFIX + "Index value should be less than the no. of arguments accepted by the connector '"
+                        + finalVarDefStmt.getVariableDef().getName() + "': " + argExprs.length + " but is: " + (
+                        indexOfMockField + 1) + ". Cannot update " + finalVarDefStmt.getVariableDef().getTypeName()
+                        .getName() + " connector's arguments.");
     }
 
     private MockConnectorPath parseMockConnectorPath(Context ctx) {
@@ -228,10 +221,27 @@ public class ModifyField extends AbstractNativeFunction {
                             + MOCK_PATH_SYNTAX_EXAMPLE);
         }
 
+        String paramName = mockCntrPathArr[mockCntrPathArr.length - 1];
+
+        //in case of multi-argument connector, we need a way to find the exact argument to update
+        //for ballerina connectors, it can be derived via ParameterDefStmts of the connector
+        //but for native connectors, it is not possible. Hence, user need to specify the index.
+        //ex. helloService.myConnector.parameter2 ==> update the 2nd parameter of the connector
+        int indexOfMockField = 0;
+        Pattern pattern = Pattern.compile("^([0-9]*).+");
+        Matcher matcher = pattern.matcher(new StringBuilder(paramName).reverse());
+        if (matcher.matches()) {
+            String group = new StringBuilder(matcher.group(1)).reverse().toString();
+            if (!group.isEmpty()) {
+                indexOfMockField = Integer.parseInt(group);
+                indexOfMockField--; //user inputs for the parameter indexes begin from 1, but for us it's 0
+            }
+        }
+
         LinkedList<String> connectorNamesList = new LinkedList<>(
                 Arrays.asList(Arrays.copyOfRange(mockCntrPathArr, 1, mockCntrPathArr.length - 1)));
-        return new MockConnectorPath(mockCntrPathString, mockCntrPathArr[0], connectorNamesList,
-                mockCntrPathArr[mockCntrPathArr.length - 1], mockValue);
+        return new MockConnectorPath(mockCntrPathString, mockCntrPathArr[0], connectorNamesList, paramName, mockValue,
+                indexOfMockField);
     }
 
     private VariableDefStmt getLastConnector(VariableDefStmt variableDefStmt, Queue<String> connectorNames) {
@@ -348,14 +358,16 @@ public class ModifyField extends AbstractNativeFunction {
         LinkedList<String> connectorNames;
         String terminalVarName;
         String mockValue;
+        int indexOfMockField = 0;
 
         MockConnectorPath(String mockCntrPathString, String serviceName, LinkedList<String> connectorNames,
-                String terminalVarName, String mockValue) {
+                String terminalVarName, String mockValue, int indexOfMockField) {
             this.originalString = mockCntrPathString;
             this.serviceName = serviceName;
             this.connectorNames = connectorNames;
             this.terminalVarName = terminalVarName;
             this.mockValue = mockValue;
+            this.indexOfMockField = indexOfMockField;
         }
     }
 
