@@ -114,5 +114,5 @@ You have now completed your first Ballerina program! If you run into problems, y
 Now that you're familiar with running Ballerina in standalone and server mode, using the editor to build an integration program, and creating a service and resource, you are ready to learn more. 
 
 * Read the [Key Concepts](../key-concepts.md) page to familiarize yourself with the rest of the main features you need to know about.
-* Browse through the [Samples](samples.md) and use them as templates for your own programs.
+* Browse through the [Samples](../samples.md) and use them as templates for your own programs.
 * See the [Language Reference](../lang-ref/index.md) for complete information on using the Ballerina language. 
