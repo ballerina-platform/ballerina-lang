@@ -32,7 +32,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './if-condition', './array-map-access-expression', './map-init-expression', './key-value-expression',
         './binary-expression', './unary-expression','./connector-action', './struct-definition', './constant-definition',
         './variable-definition-statement','./type-struct-definition', './type-casting-expression', './worker-invoke',
-        './reference-type-init-expression', './array-init-expression'],
+        './reference-type-init-expression', './array-init-expression', './worker-receive'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -43,7 +43,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
               thenBody, ifCondition, arrayMapAccessExpression, mapInitExpression, keyValueExpression, binaryExpression,
               unaryExpression, connectorAction, structDefinition, constantDefinition, variableDefinitionStatement,
-              typeStructDefinition, typeCastingExpression, workerInvoke, referenceTypeInitExpression, arrayInitExpression) {
+              typeStructDefinition, typeCastingExpression, workerInvoke, referenceTypeInitExpression, arrayInitExpression, workerReceive) {
 
 
         /**
@@ -438,6 +438,14 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * creates WorkerReceiveStatement
+         * @param args
+         */
+        BallerinaASTFactory.createWorkerReceiveStatement = function (args) {
+            return new workerReceive(args);
+        };
+
+        /**
         * creates WhileStatement
         * @param args
         */
@@ -653,6 +661,24 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.isWorkerDeclaration = function (child) {
             return child instanceof workerDeclaration;
+        };
+
+        /**
+         * instanceof check for WorkerInvoke
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isWorkerInvokeStatement = function (child) {
+            return child instanceof workerInvoke;
+        };
+
+        /**
+         * instanceof check for WorkerReceive
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isWorkerReceiveStatement = function (child) {
+            return child instanceof workerReceive;
         };
 
         /**
@@ -1174,6 +1200,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'division_expression':
                         node = BallerinaASTFactory.createBinaryExpression({"operator" : "/"});
+                        break;
+                    case 'mod_expression' :
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "%"});
                         break;
                     case 'and_expression':
                         node = BallerinaASTFactory.createBinaryExpression({"operator" : "&&"});

@@ -1132,6 +1132,13 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(ModExpression modExpression) {
-        
+        JsonObject modExprObj = new JsonObject();
+        modExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.MOD_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        modExpression.getLExpr().accept(this);
+        modExpression.getRExpr().accept(this);
+        modExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(modExprObj);
     }
 }

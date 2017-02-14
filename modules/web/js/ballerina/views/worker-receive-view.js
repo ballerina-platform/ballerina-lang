@@ -18,7 +18,7 @@
 define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invocation-expression', './point', 'd3utils', './../ast/ballerina-ast-factory', './message'],
     function (_, d3, log, SimpleStatementView, ActionInvocationExpression, Point, D3Utils, BallerinaASTFactory, MessageView) {
 
-        var WorkerInvoke = function (args) {
+        var WorkerReceive = function (args) {
             SimpleStatementView.call(this, args);
             this._connectorView = {};
 
@@ -37,29 +37,29 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
 
         };
 
-        WorkerInvoke.prototype = Object.create(SimpleStatementView.prototype);
-        WorkerInvoke.prototype.constructor = WorkerInvoke;
+        WorkerReceive.prototype = Object.create(SimpleStatementView.prototype);
+        WorkerReceive.prototype.constructor = WorkerReceive;
 
 
-        WorkerInvoke.prototype.init = function(){
+        WorkerReceive.prototype.init = function(){
             // TODO: Event name should modify in order to tally for both connector action and other dynamic arrow draws
             this.getModel().on("drawConnectionForAction",this.renderWorkerStart, this);
             Object.getPrototypeOf(this.constructor.prototype).init.call(this);
         };
-        WorkerInvoke.prototype.setDiagramRenderingContext = function(context){
+        WorkerReceive.prototype.setDiagramRenderingContext = function(context){
             this._diagramRenderingContext = context;
         };
-        WorkerInvoke.prototype.getDiagramRenderingContext = function(){
+        WorkerReceive.prototype.getDiagramRenderingContext = function(){
             return this._diagramRenderingContext;
         };
 
         // TODO : Please revisit this method. Needs a refactor
-        WorkerInvoke.prototype.draw = function(startPoint){
+        WorkerReceive.prototype.draw = function(startPoint){
             var source = this.getModel().getSource();
             var destination = this.getModel().getDestination();
         };
 
-        WorkerInvoke.prototype.setModel = function (model) {
+        WorkerReceive.prototype.setModel = function (model) {
             var actionInvocationModel = this._model.getChildren()[1].getChildren()[0];
             if (!_.isNil(model) && model instanceof ActionInvocationExpression) {
                 actionInvocationModel = model;
@@ -73,7 +73,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
          * Rendering the view for get-Action statement.
          * @returns {group} The svg group which contains the elements of the action statement view.
          */
-        WorkerInvoke.prototype.render = function (renderingContext) {
+        WorkerReceive.prototype.render = function (renderingContext) {
             var self = this;
             var model = this.getModel();
             // Calling super class's render function.
@@ -128,7 +128,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             });
         };
 
-        WorkerInvoke.prototype.renderArrows = function (context) {
+        WorkerReceive.prototype.renderArrows = function (context) {
             this.setDiagramRenderingContext(context);
 
             var destination = this.getModel().getDestination();
@@ -201,7 +201,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             }
         };
 
-        WorkerInvoke.prototype.renderProcessorConnectPoint = function (renderingContext) {
+        WorkerReceive.prototype.renderProcessorConnectPoint = function (renderingContext) {
             var boundingBox = this.getBoundingBox();
             var width = boundingBox.w();
             var height = boundingBox.h();
@@ -216,7 +216,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
         /**
          * Remove the forward and the backward arrow heads
          */
-        WorkerInvoke.prototype.removeArrows = function () {
+        WorkerReceive.prototype.removeArrows = function () {
             if (!_.isNil(this._arrowGroup) && !_.isNil(this._arrowGroup.node())) {
                 d3.select(this._arrowGroup).node().remove();
             }
@@ -226,7 +226,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
          * Covert a point in user space Coordinates to client viewport Coordinates.
          * @param {Point} point a point in current user coordinate system
          */
-        WorkerInvoke.prototype.toGlobalCoordinates = function (point) {
+        WorkerReceive.prototype.toGlobalCoordinates = function (point) {
             var pt = this.processorConnectPoint.node().ownerSVGElement.createSVGPoint();
             pt.x = point.x();
             pt.y = point.y();
@@ -237,22 +237,25 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
         /**
          * Remove statement view callback
          */
-        WorkerInvoke.prototype.onBeforeModelRemove = function () {
+        WorkerReceive.prototype.onBeforeModelRemove = function () {
             this.stopListening(this.getBoundingBox());
             d3.select("#_" +this._model.id).remove();
+            this.getDiagramRenderingContext().getViewOfModel(this._model.getParent()).getStatementContainer()
+                .removeInnerDropZone(this._model);
             this.removeArrows();
             // resize the bounding box in order to the other objects to resize
-            this.getBoundingBox().h(0).w(0);
+            var moveOffset = -this.getBoundingBox().h() - 30;
+            this.getBoundingBox().move(0, moveOffset);
 
         };
 
-        WorkerInvoke.prototype.updateStatementText = function (newStatementText, propertyKey) {
+        WorkerReceive.prototype.updateStatementText = function (newStatementText, propertyKey) {
             this._model.setStatementString(newStatementText);
             var displayText = this._model.getStatementString();
             this.renderDisplayText(displayText);
         };
 
-        WorkerInvoke.prototype.renderWorkerStart = function (startPoint, container) {
+        WorkerReceive.prototype.renderWorkerStart = function (startPoint, container) {
             log.debug("Render the worker start");
             var activatedWorkerTarget = this.messageManager.getActivatedDropTarget();
             if (BallerinaASTFactory.isWorkerDeclaration(activatedWorkerTarget)) {
@@ -261,36 +264,48 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             }
         };
 
-        WorkerInvoke.prototype.renderStartAction = function () {
+        WorkerReceive.prototype.renderStartAction = function () {
             var group = D3Utils.group(d3.select(this._container));
             var destinationView = this.getDiagramRenderingContext().getViewOfModel(this.messageManager.getActivatedDropTarget());
-            var startX = this.getBoundingBox().getRight();
-            var startY = this.getBoundingBox().getTop() + this.getBoundingBox().h()/2;
-            var endX = destinationView.getBoundingBox().getCenterX();
-            var endY = startY;
-            var startRectHeight = 30;
-            var startRectWidth = 120;
-            var messageStart = new Point(startX, startY);
-            var messageEnd = new Point(endX - startRectWidth/2, endY);
-            var messageView = new MessageView({container: group.node(), start: messageStart, end: messageEnd});
-
-            var newY = this.getBoundingBox().getBottom() + 30;
             var destinationStatementContainer = destinationView.getStatementContainer();
-            // TODO: Use the getter method
-            this.getDiagramRenderingContext().getViewOfModel(destinationStatementContainer._managedStatements[0]).getBoundingBox().y(newY);
-            // Move the first inner drop zone down
-            // TODO: use the getter method
-            destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y', newY - 30);
-            messageView.render();
+            var startX = destinationView.getBoundingBox().getLeft();
+            var endX = this.getBoundingBox().getRight();
+            var endY = 0;
+            var startY = 0;
 
-            // Draw the start rect on the worker
-            this._startRect = D3Utils.centeredRect(new Point(endX, endY), startRectWidth, startRectHeight, 0, 0, group)
-                .classed('statement-rect', true);
-            var text = D3Utils.centeredText(new Point(endX, endY), 'Start', group).classed('statement-text', true);;
+            // Get the reply statement of the destination worker
+            var destinationReplyStatement = _.find(destinationStatementContainer._managedStatements, function (node) {
+                return BallerinaASTFactory.isReplyStatement(node);
+            });
+            var workerInvokeStatement = _.find(this.getParent().getModel().getChildren(), function (child) {
+                return BallerinaASTFactory.isWorkerInvokeStatement(child);
+            });
+            var destinationReplyStatementView = !_.isNil(destinationReplyStatement) ?
+                this.getDiagramRenderingContext().getViewOfModel(destinationReplyStatement) : undefined;
 
-            this._startActionGroup = group;
+            // We have added a reply statement to the worker and the invoker can receive a valid response from the worker
+            // We do not allow to add the receive unless we have added a reply to the particular worker
+            if (!_.isNil(destinationReplyStatementView) && !_.isNil(workerInvokeStatement)) {
+                if (this.getBoundingBox().getBottom() > destinationReplyStatementView.getBoundingBox().getBottom()) {
+                    // Worker receive statement is located bellow the reply statement.
+                    // We need to move the reply statement down
+                    startY = this.getBoundingBox().getTop() + this.getBoundingBox().h()/2;
+                    destinationReplyStatementView.getBoundingBox().y(this.getBoundingBox().getTop());
+                } else {
+                    // Worker receive statement is located above the reply statement.
+                    // We need to move the worker receive statement down
+                    startY =  destinationReplyStatementView.getBoundingBox().getTop() + this.getBoundingBox().h()/2;
+                    this.getBoundingBox().y(destinationReplyStatementView.getBoundingBox().getTop())
+                }
+                endY = startY;
+                var messageStart = new Point(startX, startY);
+                var messageEnd = new Point(endX, endY);
+                var messageView = new MessageView({container: group.node(), start: messageStart, end: messageEnd, isInputArrow: false});
+
+                messageView.render();
+            }
         };
 
-        return WorkerInvoke;
+        return WorkerReceive;
 
     });

@@ -51,7 +51,22 @@ define(['require', 'log', 'jquery', 'd3', 'backbone', './tool-view'], function (
             groupBodyDiv.attr('class', "tool-group-body");
             this._$toolGroupBody = groupBodyDiv;
 
-            this.model.tools.forEach(function (tool) {
+            // Iterate and stop adding duplicates of each function
+            var tools = [];
+            var toolDocumentMap = {};
+            if (toolOrderVertical) {
+                _.forEach(this.model.tools, function (tool) {
+                    var id = "/" + tool.id + "/";
+                    if (!toolDocumentMap[id]) {
+                        toolDocumentMap[id] = id;
+                        tools.push(tool);
+                    }
+                });
+            } else {
+                tools = this.model.tools;
+            }
+
+            tools.forEach(function (tool) {
                 var toolOptions = _.clone(_.get(self._options, 'tool'));
                 _.set(toolOptions, 'toolPalette', self.toolPalette);
                 _.set(toolOptions, 'model', tool);

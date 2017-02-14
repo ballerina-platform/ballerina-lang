@@ -87,7 +87,7 @@ define(['lodash', './expression'], function (_, Expression) {
 
     FunctionInvocationExpression.prototype.getFunctionalExpression = function(){
         var text = "";
-        if (!_.isNil(this._packageName) && this._packageName !== "") {
+        if (!_.isNil(this._packageName) && !_.isEmpty(this._packageName) && !_.isEqual(this._packageName, 'Current Package')) {
             text += this._packageName + ":";
         }
         text += this._functionName + '('+ (this._params? this._params:'') +')';

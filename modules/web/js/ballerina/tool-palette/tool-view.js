@@ -27,9 +27,7 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
             "<%=classNames%>\"> <div class=\"tool-container-vertical-icon\" data-placement=\"bottom\" " +
             "data-toggle=\"tooltip\" title='<%=title%>'><img src=\"<%=icon%>\" class=\"tool-image\"  />" +
             "</div><div class=\"tool-container-vertical-title\" data-placement=\"bottom\" data-toggle=\"tooltip\" " +
-            "title='<%=title%><%if(typeof(_parameters) !== 'undefined'){var count = 0;%>(<%_.forEach(_parameters,function(param)" +
-            "{%><%=param.name%><% count +=1; if(_parameters.length != 1 &&count!=_parameters.length){%>,<%}})%>)<%}%>'>" +
-            "<%=title%></div><p class=\"tool-title\"><%=title%></p></div>"),
+            "title='<%=title%>'><%=title%></div><p class=\"tool-title\"><%=title%></p></div>"),
 
         initialize: function (options) {
             _.extend(this, _.pick(options, ["toolPalette"]));
@@ -95,7 +93,11 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
                 this.$el.html(this.toolTemplate(this.model.attributes));
             }
 
-            parent.append(this.$el);
+            if(!_.isNil(this.model.parent)){
+                parent.find('#'+this.model.parent).after(this.$el);
+            } else {
+                parent.append(this.$el);
+            }
 
             this.$el.find('.tool-block').tooltip();
 
