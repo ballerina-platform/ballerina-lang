@@ -6,7 +6,7 @@ Now that you know [a little bit about Ballerina](intro.md), let's take it for a 
 
 Download Ballerina from http://www.ballerinalang.org and unzip it on your computer. 
 
-##Run HelloWorld
+## Run HelloWorld
 
 This sample will show you how easy it is to run Ballerina, send it a request, and get a response. The HelloWorld sample doesn't take any specific input, so simply running it will cause it to print "Hello, World!" at the command line.
 
@@ -31,6 +31,8 @@ function main (string[] args) {
 ```
 
 Pretty simple and straightforward, right? Now, let's look at something a little more interesting: the editor.
+
+## Run the editor
 
 1. In the `bin` directory, type `sh editor` at the command prompt (omit `sh` if you are running on Windows).
 
