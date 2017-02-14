@@ -29,5 +29,6 @@
         <module>connector-framework</module>
         <module>http</module>
         <module>jms</module>
+        <module>file</module>
     </modules>
 </project>
