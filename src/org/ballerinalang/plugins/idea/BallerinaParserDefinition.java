@@ -58,6 +58,8 @@ import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.LiteralValueNode;
+import org.ballerinalang.plugins.idea.psi.MapStructInitKeyValueListNode;
+import org.ballerinalang.plugins.idea.psi.MapStructInitKeyValueNode;
 import org.ballerinalang.plugins.idea.psi.NamedParameterNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
@@ -100,6 +102,9 @@ public class BallerinaParserDefinition implements ParserDefinition {
 
     public static final TokenSet STRING = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             QuotedStringLiteral, BacktickStringLiteral);
+
+    public static final TokenSet NUMBER = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
+            IntegerLiteral, FloatingPointLiteral, BooleanLiteral, NullLiteral);
 
     public static final TokenSet KEYWORDS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             ACTION, ALL, ANY, AS, BREAK, CATCH, CONNECTOR, CONST, CREATE, ELSE, FORK, FUNCTION, IF, IMPORT, ITERATE,
@@ -234,6 +239,10 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new ConnectorNode(node);
             case BallerinaParser.RULE_alias:
                 return new AliasNode(node);
+            case BallerinaParser.RULE_mapStructInitKeyValueList:
+                return new MapStructInitKeyValueListNode(node);
+            case BallerinaParser.RULE_mapStructInitKeyValue:
+                return new MapStructInitKeyValueNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }
