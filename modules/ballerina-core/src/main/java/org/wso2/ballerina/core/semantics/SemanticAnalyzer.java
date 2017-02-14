@@ -1081,7 +1081,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             equalExpr.setEvalFunc(EqualExpression.EQUAL_STRING_FUNC);
 
         } else if (compareExprType == BTypes.typeReference) {
-            equalExpr.setRefTypeEvalFunction(EqualExpression.EQUAL_NULL_FUNC);
+            equalExpr.setRefTypeEvalFunction(EqualExpression.EQUAL_REFERENCE_FUNC);
 
         } else {
             throwInvalidBinaryOpError(equalExpr);
@@ -1105,7 +1105,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_STRING_FUNC);
 
         } else if (compareExprType == BTypes.typeReference) {
-            notEqualExpr.setRefTypeEvalFunction(NotEqualExpression.NOT_EQUAL_NULL_FUNC);
+            notEqualExpr.setRefTypeEvalFunction(NotEqualExpression.NOT_EQUAL_REFERENCE_FUNC);
 
         } else {
             throwInvalidBinaryOpError(notEqualExpr);

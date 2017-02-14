@@ -52,7 +52,7 @@ public class EqualExpression extends BinaryEqualityExpression {
     public static final BiFunction<BValueType, BValueType, BValueType> EQUAL_STRING_FUNC =
             (lVal, rVal) -> new BBoolean(lVal.stringValue().equals(rVal.stringValue()));
 
-    public static final BiFunction<BValue, BValue, BValueType> EQUAL_NULL_FUNC =
+    public static final BiFunction<BValue, BValue, BValueType> EQUAL_REFERENCE_FUNC =
             (lVal, rVal) -> new BBoolean(lVal ==  rVal);
 
     public EqualExpression(NodeLocation location, Expression lExpr, Expression rExpr) {
