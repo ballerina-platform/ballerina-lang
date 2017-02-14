@@ -111,7 +111,6 @@ public class WebSocketSourceHandler extends SourceHandler {
             ByteBuf byteBuf = pongWebSocketFrame.content();
             ByteBuffer byteBuffer = byteBuf.nioBuffer();
             cMsg = new ControlCarbonMessage(byteBuffer, finalFragment);
-            byteBuf.release();
 
         }
         setupCarbonMessage(ctx);
