@@ -1,30 +1,39 @@
 package org.wso2.ballerina.swagger.code.generator;
 
-import io.swagger.codegen.*;
+import io.swagger.codegen.CliOption;
+import io.swagger.codegen.CodegenConfig;
+import io.swagger.codegen.CodegenConstants;
+import io.swagger.codegen.CodegenOperation;
+import io.swagger.codegen.CodegenType;
+import io.swagger.codegen.DefaultCodegen;
+import io.swagger.codegen.SupportingFile;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.*;
-
-import org.apache.commons.lang3.StringUtils;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This the ballerina connector generator class. Here we can add/update templates to generate
  * different connectors, types services etc.
  */
-public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements CodegenConfig {
+public class BallerinaSkeletonCodeGenerator extends DefaultCodegen implements CodegenConfig {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaConnectorCodeGenerator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaSkeletonCodeGenerator.class);
 
     protected String apiVersion = "1.0.0";
     protected String apiPath = "";
 
-    public BallerinaConnectorCodeGenerator() {
+    public BallerinaSkeletonCodeGenerator() {
         super();
 
         // set the output folder here
-        outputFolder = "generated-code/ballerina-connector";
+        outputFolder = "generated-code/ballerina-skeleton";
 
         /*
          * Models.  You can write model files using the modelTemplateFiles map.
@@ -40,14 +49,14 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
          * class
          */
         apiTemplateFiles.put(
-                "controller.mustache",   // the template to use
+                "api.mustache",   // the template to use
                 ".bal");       // the extension for each file to write
 
         /*
          * Template Location.  This is the location which templates will be read from.  The generator
          * will use the resource stream to attempt to read the templates.
          */
-        embeddedTemplateDir = templateDir = "ballerina-connector";
+        embeddedTemplateDir = templateDir = "ballerina-skeleton";
 
         /*
          * Reserved words.  Override this with reserved words specific to your language
@@ -57,7 +66,7 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
                         "break", "default", "func", "interface", "select",
                         "case", "defer", "go", "map", "struct",
                         "chan", "else", "goto", "package", "switch",
-                        "const", "fallthrough", "if", "range", "type",
+                        "const", "fallthrough", "if", "range",
                         "continue", "for", "import", "return", "var")
                 // Added "error" as it's used so frequently that it may as well be a keyword
         );
@@ -125,7 +134,7 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
      * Configures the type of generator.
      *
      * @return the CodegenType for this generator
-     * @see io.swagger.codegen.CodegenType
+     * @see CodegenType
      */
     @Override
     public CodegenType getTag() {
@@ -140,7 +149,7 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
      */
     @Override
     public String getName() {
-        return "ballerina-connector";
+        return "ballerina-skeleton";
     }
 
     /**

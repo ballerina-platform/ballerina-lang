@@ -1,0 +1,30 @@
+package {{apiPackage}};
+
+import ballerina.lang.json;
+import ballerina.lang.message;
+import ballerina.net.http;
+
+//{{basePath}}
+@BasePath("{{contextPath}}")
+service {{classname}} {
+
+{{#operations}}
+    {{#operation}}
+    @{{httpMethod}}
+    @Path("{{path}}")
+    resource {{nickname}} (message m) {
+        //stub code - fill as necessary
+        message request;
+        message response;
+        json payload;
+
+        message:setHeader(response, "Server", "Powered by Ballerina");
+        payload = `{{#examples}}{{#-first}} {{{example}}} {{/-first}}{{/examples}}`;
+        message:setJsonPayload(response, payload);
+        reply response;
+    }
+    {{/operation}}
+
+{{/operations}}
+
+}
