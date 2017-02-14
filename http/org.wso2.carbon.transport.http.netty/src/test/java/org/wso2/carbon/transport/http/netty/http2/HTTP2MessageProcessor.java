@@ -42,13 +42,13 @@ public class HTTP2MessageProcessor implements CarbonMessageProcessor {
 
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
-        String content = "Test Message";
+
         DefaultCarbonMessage defaultCarbonMessage = new DefaultCarbonMessage();
         carbonMessage.getProperties().forEach(defaultCarbonMessage::setProperty);
         defaultCarbonMessage.setHeader("content-type", "text/plain");
-        defaultCarbonMessage.setStringMessageBody(content);
+        defaultCarbonMessage.setStringMessageBody(TEST_VALUE);
         defaultCarbonMessage.setEndOfMsgAdded(true);
-        int length = content.getBytes().length;
+        int length = TEST_VALUE.getBytes().length;
         defaultCarbonMessage.setHeader("content-length", String.valueOf(length));
         carbonCallback.done(defaultCarbonMessage);
         return true;
