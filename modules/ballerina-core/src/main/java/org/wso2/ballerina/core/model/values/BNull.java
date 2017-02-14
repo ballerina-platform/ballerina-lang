@@ -33,7 +33,7 @@ public final class BNull implements BValue {
         return "null";
     }
 
-    public static BNull getInstance() {
+    public static BNull instance() {
         return bNull;
     }
 }

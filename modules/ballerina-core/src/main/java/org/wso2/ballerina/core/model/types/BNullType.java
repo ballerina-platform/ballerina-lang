@@ -39,6 +39,6 @@ public class BNullType extends BType {
 
     @SuppressWarnings("unchecked")
     public <V extends BValue> V getDefaultValue() {
-        return (V) BNull.getInstance();
+        return (V) BNull.instance();
     }
 }

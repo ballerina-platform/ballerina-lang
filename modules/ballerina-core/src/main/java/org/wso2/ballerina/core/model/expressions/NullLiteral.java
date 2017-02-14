@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.model.values.BValue;
  * @since 0.8.0
  */
 public class NullLiteral extends AbstractExpression {
-    private static final BValue bValue = BNull.getInstance();
+    private static final BValue bValue = BNull.instance();
 
     public NullLiteral(NodeLocation location) {
         super(location);

@@ -946,7 +946,7 @@ public class BLangExecutor implements NodeExecutor {
             throw new BallerinaException("field '" + currentVarRefExpr.getVarName() + "' is null");
         }
 
-        if (currentVal == BNull.getInstance()) {
+        if (currentVal == BNull.instance()) {
             throw new BallerinaException(
                     LangModelUtils.getNodeLocationStr(fieldExpr.getNodeLocation()) + "variable " + currentVarRefExpr
                             .getVarName() + " is null");
