@@ -61,7 +61,7 @@ connectorDefinition
     ;
 
 nativeConnector
-    :   'native' 'connector' Identifier '(' parameterList ')' '{' nativeConnectorBody '}'
+    :   annotation* 'native' 'connector' Identifier '(' parameterList ')' '{' nativeConnectorBody '}'
     ;
 
 nativeConnectorBody
@@ -85,7 +85,7 @@ action
     ;
 
 structDefinition
-    :   'struct' Identifier '{' structDefinitionBody '}'
+    :   annotation* 'struct' Identifier '{' structDefinitionBody '}'
     ;
 
 structDefinitionBody
@@ -334,8 +334,8 @@ joinClause
     ;
 
 joinConditions
-    :   'any' IntegerLiteral (Identifier (',' Identifier)*)?
-    |   'all' (Identifier (',' Identifier)*)?
+    :   'any' IntegerLiteral (Identifier (',' Identifier)*)?        # anyJoinCondition
+    |   'all' (Identifier (',' Identifier)*)?                       # allJoinCondition
     ;
 
 // below typeName is only 'message[]'
@@ -434,7 +434,7 @@ expression
     |   expression ('==' | '!=') expression             # binaryEqualExpression
     |   expression '&&' expression                      # binaryAndExpression
     |   expression '||' expression                      # binaryOrExpression
-    |   '['']'                                            # arrayInitExpression
+    |   '['']'                                          # arrayInitExpression
     |   '[' expressionList ']'                          # arrayInitExpression // couldn't match empty array with:  '[' expressionList? ']' hence writing in two branches
     |   '{' mapStructInitKeyValueList? '}'              # refTypeInitExpression
     |   'create' typeName argumentList                  # connectorInitExpression
