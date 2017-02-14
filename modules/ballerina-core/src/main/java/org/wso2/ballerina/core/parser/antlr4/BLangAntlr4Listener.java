@@ -1000,23 +1000,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
     }
 
-    /**
-     * Enter a parse tree produced by the {@code anyJoinCondition}
-     * labeled alternative in {@link BallerinaParser#joinConditions}.
-     *
-     * @param ctx the parse tree
-     */
-    @Override
     public void enterAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) {
 
     }
 
-    /**
-     * Exit a parse tree produced by the {@code anyJoinCondition}
-     * labeled alternative in {@link BallerinaParser#joinConditions}.
-     *
-     * @param ctx the parse tree
-     */
     @Override
     public void exitAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) {
         if (ctx.exception == null) {
@@ -1025,10 +1012,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 modelBuilder.createJoinWorkers(t.getText());
             }
         }
-    }
+   }
 
     @Override
     public void enterAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) {
+
     }
 
     @Override
@@ -1039,6 +1027,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 modelBuilder.createJoinWorkers(t.getText());
             }
         }
+
     }
 
     @Override
