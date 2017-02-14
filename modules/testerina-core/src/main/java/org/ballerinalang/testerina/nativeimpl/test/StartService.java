@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.testerina.nativeimpl.mock;
+package org.ballerinalang.testerina.nativeimpl.test;
 
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.wso2.ballerina.core.exception.BallerinaException;
@@ -50,18 +50,18 @@ import java.util.Arrays;
 import java.util.Optional;
 
 /**
- * Native function ballerina.lang.mock:startServer.
+ * Native function ballerina.lang.test:startServer.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.mock",
+        packageName = "ballerina.lang.test",
         functionName = "startService", args = {
         @Argument(name = "serviceName", type = TypeEnum.STRING) }, returnType = {
         @ReturnType(type = TypeEnum.STRING) }, isPublic = true)
 public class StartService extends AbstractNativeFunction {
 
-    private static final String MSG_PREFIX = "mock:startService: ";
+    private static final String MSG_PREFIX = "test:startService: ";
 
     static String getFileName(Path sourceFilePath) {
         Path fileNamePath = sourceFilePath.getFileName();
