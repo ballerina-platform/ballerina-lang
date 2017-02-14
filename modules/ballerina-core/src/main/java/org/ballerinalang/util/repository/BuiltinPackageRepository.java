@@ -136,10 +136,10 @@ public class BuiltinPackageRepository extends PackageRepository {
         try {
             jarInputStream = new ZipInputStream(repoUrl.openStream());
             while((fileNameEntry = jarInputStream.getNextEntry()) != null) {
-                String fileName = fileNameEntry.getName();
-                if (fileName.startsWith(pkgRelPath) && fileName.endsWith(BAL_FILE_EXT)) {
+                String filePath = fileNameEntry.getName();
+                if (filePath.startsWith(pkgRelPath) && filePath.endsWith(BAL_FILE_EXT)) {
                     // get only the file name 
-                    fileName = Paths.get(pkgRelPath).relativize(Paths.get(fileName)).toString();
+                    String fileName = Paths.get(pkgRelPath).relativize(Paths.get(filePath)).toString();
                     fileNames.add(fileName);
                 }
             }
