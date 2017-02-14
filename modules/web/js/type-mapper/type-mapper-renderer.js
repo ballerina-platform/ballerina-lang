@@ -296,11 +296,21 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         var jsTreeContainerPrefix = 'jstree-container';
         var anchorEnd = '_anchor';
         var sourceId =  jsTreeContainerPrefix + this.viewIdSeperator +  connection.sourceStruct
-            + this.viewIdSeperator + this.viewId + this.idNameSeperator
-            + connection.sourceProperty + this.nameTypeSeperator + connection.sourceType+ anchorEnd;
+            + this.viewIdSeperator + this.viewId;
         var targetId =  jsTreeContainerPrefix + this.viewIdSeperator +  connection.targetStruct
-            + this.viewIdSeperator + this.viewId + this.idNameSeperator
-            + connection.targetProperty + this.nameTypeSeperator + connection.targetType + anchorEnd;
+            + this.viewIdSeperator + this.viewId;
+
+        for (var i = 0; i < connection.sourceProperty.length; i++ ) {
+                sourceId += this.idNameSeperator
+                    + connection.sourceProperty[i] + this.nameTypeSeperator + connection.sourceType[i];
+        }
+        sourceId += anchorEnd;
+
+        for (var i = 0; i < connection.targetProperty.length; i++ ) {
+            targetId += this.idNameSeperator
+                + connection.targetProperty[i] + this.nameTypeSeperator + connection.targetType[i];
+        }
+        targetId += anchorEnd;
 
         this.jsPlumbInstance.detach({source: sourceId, target: targetId});
         this.jsPlumbInstance.connect({source: sourceId, target: targetId});
@@ -635,7 +645,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
 
             _.forEach(nodes, function (n) {
-                var nodeContent = $("#" + n.id.replace(":",'\\:'));
+                var nodeContent = $("#" + n.id);
                 if (maxTypeHeight < nodeContent.height()) {
                     maxTypeHeight = nodeContent.height();
                 }
@@ -673,12 +683,9 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
             // Applying the calculated layout
             _.forEach(graph.nodes(), function (dagreNode) {
-                var node = $("#" +  dagreNode.replace(":",'\\:'));
-
-                //  if (node.attr('class') == "func") {
+                var node = $("#" +  dagreNode);
                 node.css("left", graph.node(dagreNode).x + "px");
                 node.css("top", graph.node(dagreNode).y + "px");
-                // }
 
                 if (graph.node(dagreNode) != null && graph.node(dagreNode).y > maxYPosition) {
                     maxYPosition = graph.node(dagreNode).y;
