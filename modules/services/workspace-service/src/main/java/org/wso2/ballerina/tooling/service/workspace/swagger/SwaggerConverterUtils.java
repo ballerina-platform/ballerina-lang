@@ -26,6 +26,7 @@ import io.swagger.models.Operation;
 import io.swagger.models.Path;
 import io.swagger.models.Swagger;
 import io.swagger.parser.Swagger20Parser;
+import io.swagger.util.Json;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.wso2.ballerina.core.model.GlobalScope;
@@ -37,8 +38,10 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.ParameterDef;
+import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
+import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
 import org.wso2.ballerina.tooling.service.workspace.swagger.generators.BallerinaCodeGenerator;
 
@@ -77,17 +80,22 @@ public class SwaggerConverterUtils {
     }
 
     public static BallerinaFile getBFileFromBallerinaDefinition(String ballerinaDefinition) throws IOException {
-        InputStream stream = new ByteArrayInputStream(ballerinaDefinition.
-                getBytes(StandardCharsets.UTF_8));
-        ANTLRInputStream antlrInputStream = new ANTLRInputStream(stream);
+        ANTLRInputStream antlrInputStream = new ANTLRInputStream(ballerinaDefinition);
         BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
         CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
+
         BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
-        BLangModelBuilder modelBuilder = new BLangModelBuilder();
-        BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
-        ballerinaParser.addParseListener(langModelBuilder);
+        ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
+
+        GlobalScope globalScope = GlobalScope.getInstance();
+        BTypes.loadBuiltInTypes(globalScope);
+        BLangPackage bLangPackage = new BLangPackage(globalScope);
+
+        BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(bLangPackage);
+        BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
+        ballerinaParser.addParseListener(ballerinaBaseListener);
         ballerinaParser.compilationUnit();
-        BallerinaFile bFile = modelBuilder.build();
+        BallerinaFile bFile = bLangModelBuilder.build();
         return bFile;
     }
 
@@ -114,6 +122,7 @@ public class SwaggerConverterUtils {
         List<Annotation> serviceAnnotationArrayList = new ArrayList<Annotation>();
         serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("BasePath"), swagger.getBasePath(), null));
         serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("Host"), swagger.getHost(), null));
+        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("Info"), Json.pretty(swagger.getInfo()).toString(), null));
         service.setAnnotations(serviceAnnotationArrayList.toArray(new Annotation[serviceAnnotationArrayList.size()]));
         //Iterate through paths and add them as resources
         service.setResources(resources1);

@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery', 'log', './compound-statement-view'],
-    function (require, _, $, log, CompoundStatementView) {
+define(['require', 'lodash', 'jquery', 'log', './block-statement-view'],
+    function (require, _, $, log, BlockStatementView) {
 
         /**
          * The view to represent a If statement which is an AST visitor.
@@ -27,14 +27,14 @@ define(['require', 'lodash', 'jquery', 'log', './compound-statement-view'],
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
          * @class IfStatementView
          * @constructor
-         * @extends CompoundStatementView
+         * @extends BlockStatementView
          */
         var IfStatementView = function (args) {
             _.set(args, "viewOptions.title.text", "If");
-            CompoundStatementView.call(this, args);
+            BlockStatementView.call(this, args);
         };
 
-        IfStatementView.prototype = Object.create(CompoundStatementView.prototype);
+        IfStatementView.prototype = Object.create(BlockStatementView.prototype);
         IfStatementView.prototype.constructor = IfStatementView;
 
         IfStatementView.prototype.canVisitIfStatement = function(){
