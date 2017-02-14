@@ -41,7 +41,7 @@ public class PackageNameReference extends BallerinaElementReference {
     @NotNull
     @Override
     public Object[] getVariants() {
-        return BallerinaPsiImplUtil.suggestPackages(getElement());
+        return new Object[0];
     }
 
     @NotNull
