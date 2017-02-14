@@ -63,11 +63,11 @@ public class TestRunner {
 
     private static void buildApplicationModel(BallerinaFile originalBFile, Path sourceFilePath, String appName) {
         try {
-            MockerinaRegistry mockerinaRegistry = MockerinaRegistry.getInstance();
+            TesterinaRegistry testerinaRegistry = TesterinaRegistry.getInstance();
 
             //populate applications without services
             BallerinaFile bFile = getBFileWithoutServices(originalBFile, sourceFilePath);
-            mockerinaRegistry.addBallerinaFile(originalBFile, bFile);
+            testerinaRegistry.addBallerinaFile(originalBFile, bFile);
 
             // Create a runtime environment for this Ballerina application
             RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bFile);
