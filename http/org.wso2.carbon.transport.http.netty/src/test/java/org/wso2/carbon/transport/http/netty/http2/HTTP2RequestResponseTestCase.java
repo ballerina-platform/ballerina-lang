@@ -65,13 +65,13 @@ public class HTTP2RequestResponseTestCase {
     @Test
     public void http2GetRequestResponseTest() throws Exception {
         try {
-            // Send Get http2 request and get responsee
+            // Send Get http2 request and get response
             DefaultFullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, GET, "/");
             int send = http2Client.send(request);
             String response = http2Client.getResponse(send);
             assertEquals(HTTP2MessageProcessor.TEST_VALUE, response);
         } catch (Exception ex) {
-            log.error("Error while sending http2 request ", ex);
+            TestUtil.handleException("Error while sending http2 request ", ex);
         }
     }
 
@@ -80,7 +80,7 @@ public class HTTP2RequestResponseTestCase {
         try {
             // Send Post http2 request and get response
             DefaultFullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, POST, "/");
-            String json = "Test";
+            String json = HTTP2MessageProcessor.TEST_VALUE;
             request.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain");
             request.headers().set(HttpHeaderNames.ACCEPT, "text/plain");
             ByteBuf buffer = request.content().clear();
@@ -93,7 +93,7 @@ public class HTTP2RequestResponseTestCase {
             String response = http2Client.getResponse(send);
             assertEquals(HTTP2MessageProcessor.TEST_VALUE, response);
         } catch (Exception ex) {
-            log.error("Error while sending http2 request ", ex);
+            TestUtil.handleException("Error while sending http2 request ", ex);
         }
     }
 
