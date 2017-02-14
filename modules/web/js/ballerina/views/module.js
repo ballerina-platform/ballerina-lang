@@ -24,7 +24,7 @@ define(['./ballerina-file-editor', './ballerina-view', './message-manager', './c
               ConnectorDeclarationView, FunctionDefinitionView, ReplyStatementView,
               ResourceDefinitionView, ReturnStatementView, ServiceDefinitionView, ThrowStatementView,
               WhileStatementView, WorkerDeclarationView, SourceView, ActionInvocationStatementView,
-              ServicePreviewView, SimpleStatementView, CompoundStatementView, Backend) {
+              ServicePreviewView, SimpleStatementView, BlockStatementView, Backend) {
         return  {
             BallerinaView: BallerinaView,
             BallerinaFileEditor: BallerinaFileEditor,
@@ -43,7 +43,7 @@ define(['./ballerina-file-editor', './ballerina-view', './message-manager', './c
             ActionInvocationStatementView: ActionInvocationStatementView,
             ServicePreviewView: ServicePreviewView,
             SimpleStatementView: SimpleStatementView,
-            CompoundStatementView: CompoundStatementView,
+            BlockStatementView: BlockStatementView,
             Backend : Backend
         }
     });
