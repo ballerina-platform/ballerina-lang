@@ -436,6 +436,10 @@ public class BLangExecutor implements NodeExecutor {
             throw new BallerinaException("variable '" + arrayVarRefExpr.getVarName() + "' is null");
         }
 
+        if (collectionValue == BNull.instance()) {
+            throw new BallerinaException("variable '" + arrayVarRefExpr.getVarName() + "' is null");
+        }
+
         Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
         BValue indexValue = indexExpr.execute(this);
 
