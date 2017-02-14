@@ -12,4 +12,4 @@ if [ "$load_samples" == "true" ]; then
 fi
 
 # Run ballerinaServer with the argument string
-/maven/ballerina-$project_version/bin/ballerinaserver $arg_str
+/maven/ballerina-$project_version/bin/ballerina service $arg_str

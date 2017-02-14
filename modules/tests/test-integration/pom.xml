@@ -154,7 +154,7 @@
                                             <port>ballerina.port:9090</port>
                                         </ports>
                                         <wait>
-                                            <log>Ballerina Server Started with </log>
+                                            <log>ballerina: deployed service </log>
                                             <time>20000</time>
                                         </wait>
                                     </run>
