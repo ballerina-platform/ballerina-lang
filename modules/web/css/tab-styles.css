@@ -32,7 +32,7 @@ button.close {
     background: #333;
     color: #fff;
     padding: 0;
-    border-radius: 2px 2px 0 0;
+    border-radius: 2px 0 0 0;
     line-height: 30px
 }
 
