@@ -44,22 +44,6 @@
             <fileMode>644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>ballerina-home/bin</directory>
-            <outputDirectory>bin</outputDirectory>
-            <includes>
-                <include>**/editor</include>
-            </includes>
-            <fileMode>755</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>ballerina-home/bin</directory>
-            <outputDirectory>bin</outputDirectory>
-            <includes>
-                <include>**/editor.bat</include>
-            </includes>
-            <fileMode>644</fileMode>
-        </fileSet>
-        <fileSet>
             <directory>../../samples/getting_started</directory>
             <outputDirectory>samples</outputDirectory>
             <excludes>
@@ -83,34 +67,6 @@
                 <exclude>ballerina/lang/types/**</exclude>
             </excludes>
             <fileMode>444</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>../editor/web</directory>
-            <outputDirectory>resources/editor/web</outputDirectory>
-            <excludes>
-                <exclude>target/**</exclude>
-                <exclude>**/*.ipr</exclude>
-                <exclude>**/*.iwr</exclude>
-                <exclude>**/*.eclipse</exclude>
-                <exclude>**/*.iml</exclude>
-            </excludes>
-            <fileMode>644</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>../editor/services/workspace-service/target/</directory>
-            <outputDirectory>resources/editor/services</outputDirectory>
-            <includes>
-                <include>workspace-service*.jar</include>
-            </includes>
-            <fileMode>644</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>../editor/services/workspace-service/src/main/resources/</directory>
-            <outputDirectory>resources/editor/services</outputDirectory>
-            <includes>
-                <include>netty-transports.yml</include>
-            </includes>
-            <fileMode>644</fileMode>
         </fileSet>
     </fileSets>
 
@@ -168,12 +124,13 @@
                 <include>io.netty:netty-handler</include>
                 <include>io.netty:netty-codec</include>
                 <include>io.netty:netty-codec-http</include>
+                <include>io.netty:netty-codec-http2</include>
+                <include>io.netty:netty-resolver</include>
                 <include>commons-pool.wso2:commons-pool</include>
                 <include>org.wso2.orbit.org.yaml:snakeyaml</include>
                 <include>commons-logging:commons-logging</include>
                 <include>org.wso2.staxon:staxon-core</include>
                 <include>org.apache.commons:commons-lang3</include>
-                <include>org.wso2.carbon:org.wso2.carbon.core:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

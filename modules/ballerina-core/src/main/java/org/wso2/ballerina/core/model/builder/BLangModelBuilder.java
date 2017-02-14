@@ -69,6 +69,7 @@ import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.CommentStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
@@ -934,6 +935,11 @@ public class BLangModelBuilder {
         }
     }
 
+    public void addCommentStmt(NodeLocation location, String comment) {
+        CommentStmt commentStmt = new CommentStmt(location, comment);
+        addToBlockStmt(commentStmt);
+    }
+
     public void createAssignmentStmt(NodeLocation location) {
         Expression rExpr = exprStack.pop();
         List<Expression> lExprList = exprListStack.pop();
@@ -1003,7 +1009,9 @@ public class BLangModelBuilder {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = new IfElseStmt.IfElseStmtBuilder();
         ifElseStmtBuilder.setNodeLocation(location);
         ifElseStmtBuilderStack.push(ifElseStmtBuilder);
+    }
 
+    public void startIfClause(NodeLocation location) {
         BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
 
@@ -1017,6 +1025,20 @@ public class BLangModelBuilder {
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
+    public void addIfClause() {
+        IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.peek();
+
+        Expression condition = exprStack.pop();
+        checkArgExprValidity(ifElseStmtBuilder.getLocation(), condition);
+        ifElseStmtBuilder.setIfCondition(condition);
+
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+        BlockStmt blockStmt = blockStmtBuilder.build();
+        ifElseStmtBuilder.setThenBody(blockStmt);
+
+        currentScope = blockStmt.getEnclosingScope();
+    }
+    
     public void addElseIfClause() {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.peek();
 
@@ -1048,19 +1070,8 @@ public class BLangModelBuilder {
 
     public void addIfElseStmt() {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.pop();
-
-        Expression condition = exprStack.pop();
-        checkArgExprValidity(ifElseStmtBuilder.getLocation(), condition);
-        ifElseStmtBuilder.setIfCondition(condition);
-
-        BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
-        BlockStmt blockStmt = blockStmtBuilder.build();
-        ifElseStmtBuilder.setThenBody(blockStmt);
-
         IfElseStmt ifElseStmt = ifElseStmtBuilder.build();
         addToBlockStmt(ifElseStmt);
-
-        currentScope = blockStmt.getEnclosingScope();
     }
 
     public void createFunctionInvocationStmt(NodeLocation location) {
