@@ -16,9 +16,9 @@
  * under the License.
  */
 define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ballerina-ast-factory', './canvas',
-        '../utils/dropdown', './../ast/node', './struct-variable-defintion-view'],
+        '../utils/dropdown', './../ast/node', './struct-variable-defintion-view','select2'],
     function (_, log, d3, Alerts, BallerinaView, BallerinaASTFactory,
-              Canvas, Dropdown, ASTNode, StructVariableDefinitionView) {
+              Canvas, Dropdown, ASTNode, StructVariableDefinitionView, select2) {
         var StructDefinitionView = function (args) {
             Canvas.call(this, args);
 
@@ -96,35 +96,20 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                 class: "struct-content-operations-wrapper"
             }).appendTo(structContentWrapper);
 
-            var typeDropdown = new Dropdown({
-                class: {mainWrapper: "struct-type-dropdown-wrapper"},
-                emptyValue: "Type",
-                onDropdownOpen: function() {
-                    self.getBodyWrapper().css("height", $(self.getBodyWrapper()).height());
-                    self.getBodyWrapper().css("overflow-x", "visible");
-                    $(self.getBodyWrapper()).closest(".canvas-container").css("overflow", "visible");
-
-                    this.removeAllItems();
-
-                    // Adding items to the type dropdown.
-                    var bTypes = self.getDiagramRenderingContext().getEnvironment().getTypes();
-                    _.forEach(bTypes, function (bType) {
-                        typeDropdown.addItem({key: bType, value: bType});
-                    });
-
-                    var structTypes = self.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
-                    _.forEach(structTypes, function (sType) {
-                        typeDropdown.addItem({key: sType.getStructName(), value: sType.getStructName()});
-                    });
-                },
-                onDropdownClosed: function() {
-                    self.getBodyWrapper().css("height", "");
-                    self.getBodyWrapper().css("overflow-x", "");
-                    $(self.getBodyWrapper()).closest(".canvas-container").css("overflow", "");
-                }
+            /// Creating the type dropdown
+            var bTypes = self.getDiagramRenderingContext().getEnvironment().getTypes();
+            var typeDropdown = $("<select></select>");
+            _.forEach(bTypes, function (sType) {
+                typeDropdown.append($('<option>'+ sType +'</option>').attr('value', sType));
+            });
+            var typeDropdownWrapper = $('<div class="type-drop-wrapper"></div>');
+            typeDropdown.appendTo(typeDropdownWrapper);
+            typeDropdownWrapper.appendTo(structOperationsWrapper);
+            typeDropdown.select2({
+                tags: true
             });
 
-            typeDropdown.getElement().appendTo(structOperationsWrapper);
+
 
             // Creating the identifier text box.
             var identifierTextBox = $("<input/>", {
@@ -166,7 +151,7 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
 
             $(addStructVariableButton).click(function () {
                 try {
-                    var bType = typeDropdown.getSelectedValue();
+                    var bType = typeDropdown.select2('data')[0].text;
                     var identifier = $(identifierTextBox).val().trim();
 
                     self.getModel().addVariableDeclaration(bType, identifier);

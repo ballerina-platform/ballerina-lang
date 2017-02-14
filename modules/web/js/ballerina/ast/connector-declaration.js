@@ -212,7 +212,7 @@ define(['lodash', './node', '../utils/common-utils'], function(_, ASTNode, Commo
      * */
     var generateExpression = function (self) {
         var expression = "";
-        if (!_.isUndefined(self._connectorPkgName) && !_.isNil(self._connectorPkgName)) {
+        if (!_.isUndefined(self._connectorPkgName) && !_.isNil(self._connectorPkgName) && !_.isEqual(self._connectorPkgName, 'Current Package')) {
             expression += self._connectorPkgName + ":";
         }
 
@@ -224,9 +224,9 @@ define(['lodash', './node', '../utils/common-utils'], function(_, ASTNode, Commo
             expression += self._connectorVariable + " = ";
         }
 
-        expression += "new ";
+        expression += "create ";
 
-        if (!_.isUndefined(self._connectorPkgName) && !_.isNil(self._connectorPkgName)) {
+        if (!_.isUndefined(self._connectorPkgName) && !_.isNil(self._connectorPkgName) && !_.isEqual(self._connectorPkgName, 'Current Package')) {
             expression += self._connectorPkgName + ":";
         }
 

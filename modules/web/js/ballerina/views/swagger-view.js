@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
-   function(log, _, $, EventChannel, SwaggerHolder) {
+define(['log', 'lodash', 'jquery', 'event_channel', 'yaml'],
+   function(log, _, $, EventChannel, YAML) {
 
        /**
         * @class SwaggerView
@@ -38,41 +38,20 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
            this._container = _.get(args, 'container');
            this._content = _.get(args, 'content');
            this._backend = _.get(args, 'backend');
-           this._generatedNodeTree = "";
-           this._clean = true;
        };
 
        var initSwaggerEditor = function(self, content){
-           self._swaggerHolder = new SwaggerHolder(function (content) {
-               if(content && content!="null" && self._generatedSource){
-                   var response = self._backend.call("convert-swagger", "POST", {
-                       "name": "CalculatorService",
-                       "description": "null",
-                       "swaggerDefinition": content,
-                       "ballerinaDefinition": self._generatedSource
-                   }, [{name: "expectedType", value: "ballerina"}]);
-
-                   if(!response.error && !response.errorMessage){
-                       self._generatedNodeTree = JSON.parse(response.ballerinaDefinition);
-                       self._clean = false;
-                   }
-               }
-           });
-
-           self._swaggerHolder.setSwaggerAsText(content);
            var swaggerEditor = $(self._container).find('div.swaggerEditor');
            swaggerEditor.html('<iframe class="se-iframe" width=100% height="100%"></iframe>');
            swaggerEditor.find('iframe.se-iframe').attr("src", swaggerEditor.data("editor-url"));
            var swaggerEditorWindow = $(self._container).find('div.swaggerEditor').find('iframe.se-iframe')[0].contentWindow;
            self._swaggerEditorWindow = swaggerEditorWindow;
            swaggerEditor.ready(function () {
-               if (swaggerEditorWindow.setSwaggerHolder) {
-                   swaggerEditorWindow.setSwaggerHolder(self._swaggerHolder);
-                   swaggerEditorWindow.updateSwaggerEditor();
+               if (swaggerEditorWindow.setSwaggerEditorValue) {
+                   swaggerEditorWindow.setSwaggerEditorValue(YAML.safeDump(YAML.safeLoad(content)));
                } else {
                    swaggerEditorWindow.onEditorLoad = function () {
-                       swaggerEditorWindow.setSwaggerHolder(self._swaggerHolder);
-                       swaggerEditorWindow.updateSwaggerEditor();
+                       swaggerEditorWindow.setSwaggerEditorValue(YAML.safeDump(YAML.safeLoad(content)));
                    };
                }
            });
@@ -106,11 +85,37 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
                }
            }
 
-           this._swaggerHolder.setSwaggerAsText(generatedSwagger);
-           this._swaggerEditorWindow.updateSwaggerEditor();
+           this._swaggerEditorWindow.setSwaggerEditorValue(YAML.safeDump(YAML.safeLoad(generatedSwagger)));
        };
 
-       SwaggerView.prototype.getContent = function(){
+       /**
+        * Set the default node tree.
+        * @param {Object} root root node.
+        *
+        */
+       SwaggerView.prototype.setNodeTree = function(root){
+           this._generatedNodeTree = root;
+       };
+
+       SwaggerView.prototype.getContent = function () {
+           var content = this._swaggerEditorWindow.getSwaggerEditorValue();
+           if (content && content != "null" && this._generatedSource) {
+               var response = this._backend.call("convert-swagger", "POST", {
+                   "name": "CalculatorService",
+                   "description": "null",
+                   "swaggerDefinition": content,
+                   "ballerinaDefinition": this._generatedSource
+               }, [{name: "expectedType", value: "ballerina"}]);
+
+               if (!response.error && !response.errorMessage) {
+                   try {
+                       this._generatedNodeTree = JSON.parse(response.ballerinaDefinition);
+                   } catch (err) {
+                       log.error("Invalid response received for swagger-to-ballerina conversion : '"
+                                 + response.ballerinaDefinition + "'");
+                   }
+               }
+           }
            return this._generatedNodeTree;
        };
 
@@ -124,14 +129,6 @@ define(['log', 'lodash', 'jquery', 'event_channel', './swagger-holder'],
 
        SwaggerView.prototype.isVisible = function(){
            return  $(this._container).is(':visible')
-       };
-
-       SwaggerView.prototype.isClean = function(){
-           return this._clean;
-       };
-
-       SwaggerView.prototype.markClean = function(){
-           this._clean = true;
        };
 
        return SwaggerView;

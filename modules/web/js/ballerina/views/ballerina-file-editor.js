@@ -16,7 +16,7 @@
  * under the License.
  */
 define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view',  './function-definition-view', './../ast/ballerina-ast-root',
-        './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view', '../swagger/swagger-view',
+        './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view', './swagger-view',
         './../visitors/source-gen/ballerina-ast-root-visitor','./../visitors/symbol-table/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
         './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer', './connector-definition-view', './struct-definition-view',
         './../env/package', './../env/package-scoped-environment', './../env/environment', './constant-definitions-pane-view', './../item-provider/tool-palette-item-provider',
@@ -418,7 +418,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             var swaggerViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_swagger_btn'));
             swaggerViewBtn.click(function () {
-                if(self._parseFailed){
+                var isSourceChanged = !self._sourceView.isClean(),
+                    savedWhileInSourceView = lastRenderedTimestamp < self._file.getLastPersisted();
+                if (isSourceChanged || savedWhileInSourceView || self._parseFailed) {
                     var source = self._sourceView.getContent();
                     var response = self.backend.parse(source);
                     //if there are errors display the error.
@@ -435,6 +437,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     //@todo
                     var root = self.deserializer.getASTModel(response);
                     self.setModel(root);
+                    self._sourceView.markClean();
                     self._createConstantDefinitionsView(self._$canvasContainer);
                     self.addCurrentPackageToToolPalette();
                 }
@@ -444,6 +447,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self.toolPalette.hide();
                 // Get the generated swagger and append it to the swagger view container's content
                 self._swaggerView.setContent(generatedSource);
+                self._swaggerView.setNodeTree(self.generateNodeTree());//setting fallback node tree
 
                 swaggerViewContainer.show();
                 sourceViewContainer.hide();
@@ -459,34 +463,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 // re-parse if there are modifications to source
                 var isSourceChanged = !self._sourceView.isClean(),
                     savedWhileInSourceView = lastRenderedTimestamp < self._file.getLastPersisted();
-                var isSwaggerChanged = !self._swaggerView.isClean();
+                var isSwaggerChanged = self.isInSwaggerView();
                 if (isSourceChanged || savedWhileInSourceView || self._parseFailed) {
                     var source = self._sourceView.getContent();
-                    var root;
-                    if (!_.isEmpty(source.trim())) {
-                        var response = self.backend.parse(source);
-                        //if there are errors display the error.
-                        //@todo: proper error handling need to get the service specs
-                        if (response.error != undefined && response.error) {
-                            alerts.error('cannot switch to design view due to parse errors');
-                            return;
-                        } else if (!_.isUndefined(response.errorMessage)) {
-                            alerts.error("Unable to parse the source: " + response.errorMessage);
-                            return;
-                        }
-                        self._parseFailed = false;
-                        //if no errors display the design.
-                        //@todo
-                        root = self.deserializer.getASTModel(response);
-                    } else {
-                        root = BallerinaASTFactory.createBallerinaAstRoot();
-
-                        //package definition
-                        var packageDefinition = BallerinaASTFactory.createPackageDefinition();
-                        packageDefinition.setPackageName("");
-                        root.addChild(packageDefinition);
-                        root.setPackageDefinition(packageDefinition);
-                    }
+                    var root = self.generateNodeTree();
                     self.setModel(root);
                     // reset source editor delta stack
                     self._sourceView.markClean();
@@ -496,7 +476,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     var astModal = self._swaggerView.getContent();
                     self.setModel(self.deserializer.getASTModel(astModal));
                     // reset source editor delta stack
-                    self._swaggerView.markClean();
                 }
                 //canvas should be visible before you can call reDraw. drawing dependednt on attr:offsetWidth
                 self.toolPalette.show();
@@ -600,6 +579,40 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             return sourceGenVisitor.getGeneratedSource();
         };
 
+        /**
+         * Generates Ballerina node tree for design view
+         * @returns {BallerinaASTRoot} generated node tree
+         */
+        BallerinaFileEditor.prototype.generateNodeTree = function () {
+            var root;
+            var source = this._sourceView.getContent();
+            if (!_.isEmpty(source.trim())) {
+               var response = this.backend.parse(source);
+               //if there are errors display the error.
+               //@todo: proper error handling need to get the service specs
+               if (response.error != undefined && response.error) {
+                   alerts.error('cannot switch to design view due to parse errors');
+                   return;
+               } else if (!_.isUndefined(response.errorMessage)) {
+                   alerts.error("Unable to parse the source: " + response.errorMessage);
+                   return;
+               }
+               this._parseFailed = false;
+               //if no errors display the design.
+               //@todo
+               root = this.deserializer.getASTModel(response);
+           } else {
+               root = BallerinaASTFactory.createBallerinaAstRoot();
+        
+               //package definition
+               var packageDefinition = BallerinaASTFactory.createPackageDefinition();
+               packageDefinition.setPackageName("");
+               root.addChild(packageDefinition);
+               root.setPackageDefinition(packageDefinition);
+           }
+           return root;
+        };
+       
         /**
          * Creating the package view of a ballerina-file-editor.
          * @param canvasContainer - The canvas container.

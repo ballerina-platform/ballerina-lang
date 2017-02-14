@@ -169,8 +169,10 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
 
                     var callback = function(isSaved) {
                         self.trigger('save-completed', isSaved);
-                        saveConfigModal.modal('hide');
-                    }
+                        if (isSaved) {
+                            saveConfigModal.modal('hide');
+                        }
+                    };
                     saveConfiguration({location: location, configName:configName}, callback);
                 });
 

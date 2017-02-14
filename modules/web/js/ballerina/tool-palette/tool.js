@@ -25,6 +25,10 @@ define(['lodash','require', 'backbone'], function (_, require, Backbone) {
             this.nodeFactoryMethod = _.get(args, 'nodeFactoryMethod', null);
             this.dragCursorOffset = _.get(args, 'dragCursorOffset', undefined);
             this.classNames = _.get(args, 'classNames', undefined);
+
+            if(!_.isNil(args.meta)){
+                this.parent = args.meta.actionConnectorName;
+            }
         },
 
         modelName: "Tool",
