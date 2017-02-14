@@ -130,9 +130,13 @@ public class ServerConnectorMessageHandler {
         Optional<ServerConnectorErrorHandler> optionalErrorHandler =
                 BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
 
-        optionalErrorHandler
-                .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
-                .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext), cMsg, callback);
+        try {
+            optionalErrorHandler
+                    .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
+                    .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext), cMsg, callback);
+        } catch (Exception e) {
+            throw new BallerinaException("Cannot handle error using the error handler for : " + protocol, e);
+        }
 
     }
 
