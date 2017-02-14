@@ -24,12 +24,14 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.ssl.SslContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.BufferFactory;
 import org.wso2.carbon.messaging.handler.HandlerExecutor;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
+import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
@@ -41,6 +43,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.net.ssl.SSLException;
 
 /**
  * {@code ServerConnectorController} is the heart of the HTTP Server Connector.
@@ -173,8 +176,14 @@ public class ServerConnectorController {
 
         try {
             ListenerConfiguration listenerConfiguration = serverConnector.getListenerConfiguration();
+            SslContext http2sslContext = null;
+            // Create HTTP/2 ssl context during interface binding.
+            if (listenerConfiguration.isHttp2() && listenerConfiguration.getSslConfig() != null) {
+                http2sslContext = new SSLHandlerFactory(listenerConfiguration.getSslConfig())
+                        .createHttp2TLSContext();
+            }
 
-            handler.registerListenerConfig(listenerConfiguration);
+            handler.registerListenerConfig(listenerConfiguration, http2sslContext);
 
             ChannelFuture future = bootstrap.bind(new InetSocketAddress(listenerConfiguration.getHost(),
                                                                         listenerConfiguration.getPort())).sync();
@@ -203,6 +212,10 @@ public class ServerConnectorController {
 
         } catch (InterruptedException e) {
             log.error(e.getMessage(), e);
+        } catch (SSLException e) {
+            log.error("Error occurred while configuring HTTP/2 SSL context for host "
+                    + serverConnector.getListenerConfiguration().getHost() + " port "
+                    + serverConnector.getListenerConfiguration().getPort());
         }
         return false;
     }

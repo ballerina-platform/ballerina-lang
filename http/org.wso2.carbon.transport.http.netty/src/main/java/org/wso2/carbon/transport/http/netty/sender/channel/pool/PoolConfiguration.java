@@ -52,6 +52,8 @@ public class PoolConfiguration {
 
     private int executorServiceThreads = 20;
 
+    private int eventGroupExecutorThreads = 15;
+
     private PoolConfiguration(Map<String, Object> transportProperties) {
 
         numberOfPools = Util.getIntProperty(transportProperties, Constants.NUMBER_OF_POOLS, 0);
@@ -71,6 +73,9 @@ public class PoolConfiguration {
         executorServiceThreads = Util.getIntProperty(
                 transportProperties, Constants.NO_THREADS_IN_EXECUTOR_SERVICE, 20);
 
+        eventGroupExecutorThreads = Util.getIntProperty(
+                transportProperties, Constants.EVENT_GROUP_EXECUTOR_THREAD_SIZE, 15);
+
         logger.debug(Constants.NUMBER_OF_POOLS + ": " + numberOfPools);
         logger.debug(Constants.MAX_ACTIVE_CONNECTIONS_PER_POOL + ":" + maxActivePerPool);
         logger.debug(Constants.MIN_IDLE_CONNECTIONS_PER_POOL + ":" + maxIdlePerPool);
@@ -79,6 +84,7 @@ public class PoolConfiguration {
         logger.debug(Constants.NO_THREADS_IN_EXECUTOR_SERVICE + ":" + executorServiceThreads);
         logger.debug("Time between Evictions Runs" + ":" + timeBetweenEvictionRuns);
         logger.debug("Pool exhausted action" + ":" + exhaustedAction);
+        logger.debug("Event group executor threads : " + eventGroupExecutorThreads);
     }
 
     public static PoolConfiguration getInstance() {
@@ -128,5 +134,9 @@ public class PoolConfiguration {
 
     public int getExecutorServiceThreads() {
         return executorServiceThreads;
+    }
+
+    public int getEventGroupExecutorThreads() {
+        return eventGroupExecutorThreads;
     }
 }

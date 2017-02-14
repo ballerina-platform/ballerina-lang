@@ -25,12 +25,14 @@
     <packaging>pom</packaging>
     <groupId>org.wso2.carbon.transport</groupId>
     <artifactId>org.wso2.carbon.transport.parent</artifactId>
-    <version>4.1.1-SNAPSHOT</version>
+    <version>4.2.0-SNAPSHOT</version>
     <name>WSO2 Carbon Transport Parent</name>
 
     <modules>
         <module>connector-framework</module>
         <module>http</module>
+        <module>jms</module>
+        <module>file</module>
         <module>features</module>
     </modules>
 
@@ -85,6 +87,16 @@
                 <version>${netty.version}</version>
             </dependency>
             <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-http2</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-resolver</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.core</artifactId>
                 <version>${org.wso2.carbon.core.version}</version>
@@ -110,6 +122,16 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.wso2.carbon.transport</groupId>
+                <artifactId>org.wso2.carbon.transport.jms</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.transport</groupId>
+                <artifactId>org.wso2.carbon.transport.file</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.wso2.carbon.messaging</groupId>
                 <artifactId>org.wso2.carbon.messaging</artifactId>
                 <version>${carbon.messaging.version}</version>
@@ -125,10 +147,20 @@
                 <version>${commons.pool.version}</version>
             </dependency>
             <dependency>
+                <groupId>javax.websocket</groupId>
+                <artifactId>javax.websocket-api</artifactId>
+                <version>${javax.websocket.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-io.wso2</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commons-io.wso2.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons.wso2</groupId>
+                <artifactId>commons-vfs2</artifactId>
+                <version>${commons-vfs2.wso2.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -153,6 +185,17 @@
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
                 <version>${testng.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.jms</groupId>
+                <artifactId>javax.jms-api</artifactId>
+                <version>${javax.jms.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-broker</artifactId>
+                <version>${activemq.broker.vesion}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
@@ -234,7 +277,7 @@
         <org.wso2.carbon.core.version>5.1.0</org.wso2.carbon.core.version>
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
 
-        <netty.version>4.0.30.Final</netty.version>
+        <netty.version>4.1.7.Final</netty.version>
         <netty.package.import.version.range>[4.0.30, 5.0.0)</netty.package.import.version.range>
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
@@ -254,10 +297,14 @@
         <commons-io.version.range>[2.4.0, 2.5)</commons-io.version.range>
         <guava.version>18.0</guava.version>
         <guava.version.range>[18.0,19.0)</guava.version.range>
+        <javax.websocket.version>1.1</javax.websocket.version>
+        <javax.websocket.version.range>[1.1, 1.2)</javax.websocket.version.range>
+        <commons-vfs2.wso2.version>2.0-wso2v15</commons-vfs2.wso2.version>
+        <commons-vfs2.wso2.version.range>[2.0.0, 3.0.0)</commons-vfs2.wso2.version.range>
 
 
 
-        <carbon.messaging.version>2.1.0</carbon.messaging.version>
+        <carbon.messaging.version>2.2.0</carbon.messaging.version>
         <carbon.messaging.package.import.version.range>[2.0.0, 3.0.0)</carbon.messaging.package.import.version.range>
         <slf4j.version>1.7.5</slf4j.version>
         <!--Logging API version range-->
@@ -266,11 +313,14 @@
         <carbon.p2.plugin.version>2.0.1</carbon.p2.plugin.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <org.snakeyaml.package.import.version.range>[1.16.0, 2.0.0)</org.snakeyaml.package.import.version.range>
+        <javax.jms.import.version.range>[2.0.1, 3.0.0)</javax.jms.import.version.range>
+        <file.transport.package.export.version>${project.version}</file.transport.package.export.version>
 
         <!-- Package exports -->
         <netty.transport.package.export.version>${project.version}</netty.transport.package.export.version>
         <connector.framework.package.export.version>${project.version}
         </connector.framework.package.export.version>
+        <jms.transport.package.export.version>${project.version}</jms.transport.package.export.version>
 
         <!-- Following two properties should be removed once the versions are added the wso2 parent pom CARBON-15729 -->
         <maven.checkstyle.plugin.version>2.17</maven.checkstyle.plugin.version>
@@ -280,6 +330,9 @@
         <metrics.version>3.1.2</metrics.version>
 
         <testng.version>6.9.10</testng.version>
+        <activemq.broker.vesion>5.14.3</activemq.broker.vesion>
+
+        <javax.jms.version>2.0.1</javax.jms.version>
     </properties>
 
 </project>
