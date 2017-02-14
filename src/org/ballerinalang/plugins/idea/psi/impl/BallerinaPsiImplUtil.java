@@ -477,11 +477,7 @@ public class BallerinaPsiImplUtil {
             return results;
         }
         PsiElement packagePathNode = packagePaths.iterator().next();
-
         PsiElement packageNameNode = packagePathNode.getLastChild();
-
-        //        PsiReference reference = packageName.getReference();
-
         PsiElement identifier = ((IdentifierDefSubtree) packageNameNode).getNameIdentifier();
 
         // Get the reference.
@@ -496,9 +492,7 @@ public class BallerinaPsiImplUtil {
 
         PsiElement packageIdentifier =
                 ((IdentifierDefSubtree) resolvedImportPackageName.getParent()).getNameIdentifier();
-
         PsiReference packageReference = packageIdentifier.getReference();
-        //        PsiElement resolvedPackage = packageReference.resolve();
 
         ResolveResult[] resolveResults = ((PackageNameReference) packageReference).multiResolve(false);
         // Todo - Resolve result cannot be more than one because all package imports are unique
@@ -516,35 +510,16 @@ public class BallerinaPsiImplUtil {
                 }
             }
         }
-
         return results;
     }
 
     public static List<PsiElement> getAllConnectorsInCurrentPackage(PsiElement element) {
-//        List<PsiElement> results = new ArrayList<>();
         PsiElement parent = element.getParent();
-//        List<PsiElement> connectors = getAllMatchingElementsFromPackage((PsiDirectory) parent,
-//                "//connectorDefinition/connector/Identifier");
-//        if (connectors != null) {
-//            for (PsiElement connector : connectors) {
-//                results.add(connector);
-//            }
-//        }
-//
-//        List<PsiElement> nativeConnectors = getAllMatchingElementsFromPackage((PsiDirectory) parent,
-//                "//connectorDefinition/nativeConnector/Identifier");
-//        if (connectors != null) {
-//            for (PsiElement connector : nativeConnectors) {
-//                results.add(connector);
-//            }
-//        }
-//        return results;
-        return getAllConnectorsInPackage((PsiDirectory)parent);
+        return getAllConnectorsInPackage((PsiDirectory) parent);
     }
 
     public static List<PsiElement> getAllConnectorsInPackage(PsiDirectory packageElement) {
         List<PsiElement> results = new ArrayList<>();
-//        PsiElement parent = element.getParent();
         List<PsiElement> connectors = getAllMatchingElementsFromPackage(packageElement,
                 "//connectorDefinition/connector/Identifier");
         if (connectors != null) {
@@ -564,25 +539,13 @@ public class BallerinaPsiImplUtil {
     }
 
 
-
-
     public static List<PsiElement> getAllStructsInCurrentPackage(PsiElement element) {
-//        List<PsiElement> results = new ArrayList<>();
         PsiElement parent = element.getParent();
-//        List<PsiElement> structs = getAllMatchingElementsFromPackage((PsiDirectory) parent,
-//                "//structDefinition/Identifier");
-//        if (structs != null) {
-//            for (PsiElement struct : structs) {
-//                results.add(struct);
-//            }
-//        }
-//        return results;
         return getAllStructsInPackage((PsiDirectory) parent);
     }
 
     public static List<PsiElement> getAllStructsInPackage(PsiDirectory packageElement) {
         List<PsiElement> results = new ArrayList<>();
-//        PsiElement parent = element.getParent();
         List<PsiElement> structs = getAllMatchingElementsFromPackage(packageElement,
                 "//structDefinition/Identifier");
         if (structs != null) {
@@ -594,15 +557,7 @@ public class BallerinaPsiImplUtil {
     }
 
     public static List<PsiElement> getAllFunctionsInCurrentPackage(PsiElement element) {
-        //        List<PsiElement> results = new ArrayList<>();
         PsiElement parent = element.getParent();
-        //        List<PsiElement> structs = getAllMatchingElementsFromPackage((PsiDirectory) parent,
-        //                "//functionDefinition/function/Identifier");
-        //        if (structs != null) {
-        //            for (PsiElement struct : structs) {
-        //                results.add(struct);
-        //            }
-        //        }
         return getAllFunctionsInPackage((PsiDirectory) parent);
     }
 
