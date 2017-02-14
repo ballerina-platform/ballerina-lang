@@ -155,7 +155,8 @@ public class StartService extends AbstractNativeFunction {
                 basePath = "/".concat(basePath);
             }
 
-            ServerConnector serverConnector = BallerinaConnectorManager.getInstance().getServerConnector(listenerInterface);
+            ServerConnector serverConnector =
+                    BallerinaConnectorManager.getInstance().getServerConnector(listenerInterface);
             if (serverConnector instanceof HTTPServerConnector) {
                 ListenerConfiguration config = ((HTTPServerConnector) serverConnector).getListenerConfiguration();
                 String host = config.getHost();
