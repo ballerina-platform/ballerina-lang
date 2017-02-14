@@ -146,9 +146,21 @@ define(['lodash', 'log','./ballerina-view','ballerina/ast/ballerina-ast-factory'
                 return BallerinaASTFactory.isRightOperandExpression(child);
             });
 
-            var sourceStructFieldAccessExpression = _.find(rightOperandExpression.getChildren(), function (child) {
-                return BallerinaASTFactory.isStructFieldAccessExpression(child);
+            var typeCastExpression = _.find(rightOperandExpression.getChildren(), function (child) {
+                return BallerinaASTFactory.isTypeCastExpression(child);
             });
+
+            var sourceStructFieldAccessExpression = undefined;
+
+            if(!_.isUndefined(typeCastExpression)){
+                sourceStructFieldAccessExpression = _.find(typeCastExpression.getChildren(), function (child) {
+                    return BallerinaASTFactory.isStructFieldAccessExpression(child);
+                });
+            }else{
+                sourceStructFieldAccessExpression = _.find(rightOperandExpression.getChildren(), function (child) {
+                    return BallerinaASTFactory.isStructFieldAccessExpression(child);
+                });
+            }
 
             var sourceFieldExpression = _.find(sourceStructFieldAccessExpression.getChildren(), function (child) {
                 return BallerinaASTFactory.isFieldExpression(child);

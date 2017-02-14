@@ -245,7 +245,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         var typeConverters = typeConverterObj.getPackage().getTypeMapperDefinitions();
         _.forEach(typeConverters, function (typeConverter) {
             if (typeConverterObj.getModel().getTypeMapperName() !== typeConverter.getTypeMapperName()) {
-                if (sourceType == typeConverter.getSourceAndIdentifier().split(" ")[0] &&
+                if (sourceType == typeConverter.getInputParamAndIdentifier().split(" ")[0] &&
                     targetType == typeConverter.getReturnType()) {
                     compatibleTypeConverters.push(typeConverter.getTypeMapperName());
                 }
