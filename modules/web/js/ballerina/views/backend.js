@@ -59,12 +59,13 @@ define(['log', 'lodash', 'jquery', 'event_channel'],
 
        /**
         * Does a backend call
+        * @param uri resource path
         * @param method http method
         * @param content payload
         * @param queryParams query parameters in [{name: "foo", value: "bar"}, ...]
         */
        Backend.prototype.call = function (uri, method, content, queryParams) {
-           var data = {};
+           var response = {};
            var queryParamsStr = "";
            if (queryParams) {
                try {
@@ -88,18 +89,18 @@ define(['log', 'lodash', 'jquery', 'event_channel'],
                       contentType: "application/json; charset=utf-8",
                       async: false,
                       dataType: "json",
-                      success: function (response) {
+                      success: function (data) {
                           if(data.errorMessage){
-                              data = {"error": true, "message": "Unable to parse source:" + data.errorMessage + "."};
+                              response = {"error": true, "message": "Unable to parse source:" + data.errorMessage + "."};
                           } else {
-                              data = response;
+                              response = data;
                           }
                       },
                       error: function (xhr, textStatus, errorThrown) {
-                          data = {"error": true, "message": "Unable to render design view due to parser errors."};
+                          response = {"error": true, "message": "Unable to render design view due to parser errors."};
                       }
                   });
-           return data;
+           return response;
        };
 
        return Backend;

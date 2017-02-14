@@ -23,10 +23,10 @@ define(
         /**
          * Compound statement.
          * @param args {*} arguments for the creating view
-         * @class CompoundStatementView
+         * @class BlockStatementView
          * @constructor
          */
-        var CompoundStatementView = function (args) {
+        var BlockStatementView = function (args) {
             BallerinaStatementView.call(this, args);
 
             var viewOptions = this.getViewOptions();
@@ -47,11 +47,11 @@ define(
                 viewOptions.height);
         };
 
-        CompoundStatementView.prototype = Object.create(BallerinaStatementView.prototype);
+        BlockStatementView.prototype = Object.create(BallerinaStatementView.prototype);
 
-        CompoundStatementView.prototype.constructor = CompoundStatementView;
+        BlockStatementView.prototype.constructor = BlockStatementView;
 
-        CompoundStatementView.prototype.render = function (renderingContext) {
+        BlockStatementView.prototype.render = function (renderingContext) {
             this.setDiagramRenderingContext(renderingContext);
             var bBox = this.getBoundingBox();
             var model = this.getModel();
@@ -103,7 +103,7 @@ define(
             this.renderStatementContainer();
         };
 
-        CompoundStatementView.prototype.renderStatementContainer = function () {
+        BlockStatementView.prototype.renderStatementContainer = function () {
             var viewOptions = this.getViewOptions();
             var model = this.getModel();
             var boundingBox = this.getBoundingBox();
@@ -155,7 +155,7 @@ define(
         };
 
         //TODO : rename as visitStatement to avoid conflicts with generic visit
-        CompoundStatementView.prototype.visit = function (statement) {
+        BlockStatementView.prototype.visit = function (statement) {
             var args = {
                 model: statement,
                 container: this.getStatementGroup().node(),
@@ -167,7 +167,7 @@ define(
             this.getStatementContainer().renderStatement(statement, args);
         };
 
-        CompoundStatementView.prototype.setModel = function (model) {
+        BlockStatementView.prototype.setModel = function (model) {
             if (_.isNil(model)) {
                 var message = "Model of a compound statement cannot be null.";
                 log.error(message);
@@ -177,11 +177,11 @@ define(
             }
         };
 
-        CompoundStatementView.prototype.getModel = function () {
+        BlockStatementView.prototype.getModel = function () {
             return this._model;
         };
 
-        CompoundStatementView.prototype.setContainer = function (container) {
+        BlockStatementView.prototype.setContainer = function (container) {
             if (_.isNil(container)) {
                 var message = "Container of a compound statement cannot be null.";
                 log.error(message);
@@ -191,27 +191,27 @@ define(
             }
         };
 
-        CompoundStatementView.prototype.getContainer = function () {
+        BlockStatementView.prototype.getContainer = function () {
             return this._container;
         };
 
-        CompoundStatementView.prototype.setViewOptions = function (viewOptions) {
+        BlockStatementView.prototype.setViewOptions = function (viewOptions) {
             this._viewOptions = viewOptions;
         };
 
-        CompoundStatementView.prototype.getViewOptions = function () {
+        BlockStatementView.prototype.getViewOptions = function () {
             return this._viewOptions;
         };
 
-        CompoundStatementView.prototype.setStatementContainer = function (statementContainer) {
+        BlockStatementView.prototype.setStatementContainer = function (statementContainer) {
             this._statementContainer = statementContainer;
         };
 
-        CompoundStatementView.prototype.getStatementContainer = function () {
+        BlockStatementView.prototype.getStatementContainer = function () {
             return this._statementContainer;
         };
 
-        CompoundStatementView.prototype.getToolPalette = function () {
+        BlockStatementView.prototype.getToolPalette = function () {
             return this.toolPalette;
         };
 
@@ -219,7 +219,7 @@ define(
          * Overrides the child remove callback from BallerinaStatementView.
          * @param child {ASTNode} removed child
          */
-        CompoundStatementView.prototype.childRemovedCallback = function (child) {
+        BlockStatementView.prototype.childRemovedCallback = function (child) {
             if (BallerinaASTFactory.isStatement(child)) {
                 this.getStatementContainer().childStatementRemovedCallback(child);
             }
@@ -240,5 +240,5 @@ define(
                    (x + titleWidth + offset) + "," + y;
         }
 
-        return CompoundStatementView;
+        return BlockStatementView;
     });

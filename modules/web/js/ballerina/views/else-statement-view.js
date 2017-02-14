@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery', 'log', './compound-statement-view'],
-    function (require, _, $, log, CompoundStatementView) {
+define(['require', 'lodash', 'jquery', 'log', './block-statement-view'],
+    function (require, _, $, log, BlockStatementView) {
 
         /**
          * The view to represent a Else statement which is an AST visitor.
@@ -27,18 +27,25 @@ define(['require', 'lodash', 'jquery', 'log', './compound-statement-view'],
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
          * @class ElseStatementView
          * @constructor
-         * @extends CompoundStatementView
+         * @extends BlockStatementView
          */
         var ElseStatementView = function (args) {
             _.set(args, "viewOptions.title.text", "Else");
-            CompoundStatementView.call(this, args);
+            BlockStatementView.call(this, args);
         };
 
-        ElseStatementView.prototype = Object.create(CompoundStatementView.prototype);
+        ElseStatementView.prototype = Object.create(BlockStatementView.prototype);
         ElseStatementView.prototype.constructor = ElseStatementView;
 
         ElseStatementView.prototype.canVisitElseStatement = function(){
             return true;
+        };
+
+        ElseStatementView.prototype.render = function (diagramRenderingContext) {
+            BlockStatementView.prototype.render.call(this, diagramRenderingContext);
+            this.listenTo(this._model, 'update-property-text', function(value, key){
+                this._model.setCondition(value);
+            });
         };
 
         return ElseStatementView;
