@@ -115,7 +115,8 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'yaml'],
                    try {
                        this._generatedNodeTree = JSON.parse(response.ballerinaDefinition);
                    } catch (err) {
-                       //do nothing
+                       log.error("Invalid response received for swagger-to-ballerina conversion : '"
+                                 + response.ballerinaDefinition + "'");
                    }
                }
            }
