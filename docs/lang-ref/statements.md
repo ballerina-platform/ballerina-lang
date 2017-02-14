@@ -100,3 +100,47 @@ where `WorkerNameList` is a list of comma-separated names of workers.
 When the `JoinCondition` has been satisfied, the corresponding slots of the message array will be filled with the returned messages from the workers in the workers' lexical order. If the condition asks for up to some number of results to be available to satisfy the condition, it may be the case that more than that number are available by the time the statements within the join condition are executed. If a particular worker has completed but not sent a response message, or not yet completed, the corresponding message slot will be null.
 
 The `timeout` clause allows one to specify a maximum time (in milliseconds) within which the join condition must be satisfied.
+
+## Exception handling
+
+Ballerina supports exception handling as a way to address unexpected scenarios in a Ballerina program. This is provided by the built-in `exception` type, the `try/catch` statement, and the `throw` statement. Furthermore, any function can indicate that it may throw an exception by saying `throws exception`.
+
+The built-in `exception` type has three properties: its category (a string), its message (a string), and its properties (a map). These properties are manipulated using the functions defined in the `ballerina.lang.exception` package.
+
+Note that there is only one built-in exception type, and all exceptions use this type with different values for the category property. All standard exception "types" are defined by category string constants in the `ballerina.lang.exception` package.
+
+The syntax of a `try/catch` is as follows:
+```
+try {
+    Statement;+
+} catch (exception e) {
+    Statement;+
+}
+```
+
+The syntax of a `throw` statement is as follows:
+```
+throw Expression;
+```
+
+## Return statement
+
+The syntax of a `return` statement is as follows:
+```
+return Expression*;
+```
+
+#### Reply statement
+
+The syntax of a `reply` statement is as follows:
+```
+reply Message?;
+```
+
+## Comment statement
+
+Comments are quite different in Ballerina in comparison to other languages. Comments are only allowed as a statement - i.e., only inside a resource, action, or function.
+
+Ballerina has designed structured mechanisms via annotations to document all Ballerina outer level constructs (services, resources, etc.), and comments only play the role of providing a comment about the logic of a resource, action, or function.
+
+Any statement that starts with the characters `//` is a comment.
