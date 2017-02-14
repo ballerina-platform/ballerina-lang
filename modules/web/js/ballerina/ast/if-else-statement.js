@@ -24,10 +24,15 @@ define(['lodash', 'log','./statement', './else-statement', './else-if-statement'
 
     var IfElseStatement = function (args) {
         Statement.call(this);
+
         var ifStatement = new IfStatement(args);
         this.addChild(ifStatement);
         this._ifStatement = ifStatement;
-        this._elseStatement = undefined;
+
+        var elseStatement = new ElseStatement(args);
+        this._elseStatement = elseStatement;
+        this.addChild(elseStatement);
+
         this._elseIfStatements = [];
         this.type = "IfElseStatement";
     };
