@@ -105,6 +105,9 @@ public class HTTPClientConnector implements ClientConnector {
         SenderConfiguration defaultSenderConfiguration = senderConfigurationMap
                 .get(protocol.toLowerCase(Locale.getDefault()));
 
+        Util.prepareBuiltMessageForTransfer(msg);
+        Util.setupTransferEncodingForRequest(msg);
+
         final HttpRequest httpRequest = Util.createHttpRequest(msg);
 
         if (msg.getProperty(Constants.HOST) == null) {
