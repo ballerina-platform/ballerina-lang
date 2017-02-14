@@ -43,16 +43,12 @@ import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
+import org.wso2.ballerina.core.runtime.dispatching.Constants;
 import org.wso2.ballerina.tooling.service.workspace.swagger.generators.BallerinaCodeGenerator;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -77,22 +73,25 @@ public class SwaggerConverterUtils {
      */
     public static Service[] getServicesFromBallerinaDefinition(String ballerinaDefinition) throws IOException {
         BallerinaFile bFile = getBFileFromBallerinaDefinition(ballerinaDefinition);
-
         return bFile.getServices();
     }
 
+    /**
+     * Generate ballerina fine from the String definition
+     * @param ballerinaDefinition
+     * @return
+     * @throws IOException
+     */
     public static BallerinaFile getBFileFromBallerinaDefinition(String ballerinaDefinition) throws IOException {
+        //TODO this method need to replaced with the utility provided by ballerina core.
         ANTLRInputStream antlrInputStream = new ANTLRInputStream(ballerinaDefinition);
         BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
         CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
-
         BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
         ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
-
         GlobalScope globalScope = GlobalScope.getInstance();
         BTypes.loadBuiltInTypes(globalScope);
         BLangPackage bLangPackage = new BLangPackage(globalScope);
-
         BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(bLangPackage);
         BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
         ballerinaParser.addParseListener(ballerinaBaseListener);
@@ -101,12 +100,20 @@ public class SwaggerConverterUtils {
         return bFile;
     }
 
+    /**
+     * This method will generate Ballerina service from Swagger definition.
+     *
+     * @param swaggerDefinition @String swagger definition
+     * @return @Service
+     * @throws IOException
+     */
     public static Service getServiceFromSwaggerDefinition(String swaggerDefinition) throws IOException {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
         Swagger20Parser swagger20Parser = new Swagger20Parser();
         Swagger swagger = swagger20Parser.parse(swaggerDefinition);
         //Iterate through service annotations and add them to service
-        Service.ServiceBuilder serviceBuilder = new Service.ServiceBuilder(new BLangPackage(GlobalScope.getInstance()));
+        Service.ServiceBuilder serviceBuilder = new Service.ServiceBuilder(
+                new BLangPackage(GlobalScope.getInstance()));
         serviceBuilder.setName(swagger.getBasePath());
         Service service = serviceBuilder.buildService();
         CodegenConfig codegenConfig = new BallerinaCodeGenerator();
@@ -122,10 +129,14 @@ public class SwaggerConverterUtils {
             resources1 = mapSwaggerPathsToResources(ops);
         }
         List<Annotation> serviceAnnotationArrayList = new ArrayList<Annotation>();
-        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("BasePath"), swagger.getBasePath(), null));
-        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("Host"), swagger.getHost(), null));
-        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("Info"), Json.pretty(swagger.getInfo()).toString(), null));
-        service.setAnnotations(serviceAnnotationArrayList.toArray(new Annotation[serviceAnnotationArrayList.size()]));
+        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName(Constants.BASE_PATH),
+                swagger.getBasePath(), null));
+        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName(Constants.HOST),
+                swagger.getHost(), null));
+        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("Info"),
+                Json.pretty(swagger.getInfo()).toString(), null));
+        service.setAnnotations(serviceAnnotationArrayList.toArray(
+                new Annotation[serviceAnnotationArrayList.size()]));
         //Iterate through paths and add them as resources
         service.setResources(resources1);
         return service;
@@ -138,7 +149,7 @@ public class SwaggerConverterUtils {
      * @return the newly-created directory
      * @throws IllegalStateException if the directory could not be created
      */
-    public static File createTempDir() {
+    private static File createTempDir() {
         File baseDir = new File(System.getProperty("java.io.tmpdir"));
         String baseName = System.currentTimeMillis() + "-";
 
@@ -159,14 +170,22 @@ public class SwaggerConverterUtils {
                         + ')');
     }
 
+
+    /**
+     * This method will convert swagger path List into ballerina @Resource array
+     *
+     * @param pathMap Swagger @CodegenOperation list to be processed
+     * @return @Resource array generated from pathMap
+     */
     public static Resource[] mapSwaggerPathsToResources(List<CodegenOperation> pathMap) {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
-        Resource.ResourceBuilder resourceBuilder = new Resource.ResourceBuilder(
-                new BLangPackage(GlobalScope.getInstance()));
+
         List<Resource> resourceList = new ArrayList<Resource>();
         for (CodegenOperation entry : pathMap) {
             String httpMethod = entry.httpMethod;
             String operationId = entry.operationId;
+            Resource.ResourceBuilder resourceBuilder = new Resource.ResourceBuilder(
+                    new BLangPackage(GlobalScope.getInstance()));
             resourceBuilder.setName(operationId);
             if (entry.hasConsumes) {
                 resourceBuilder.addAnnotation(
@@ -201,6 +220,11 @@ public class SwaggerConverterUtils {
         return resourceList.toArray(new Resource[resourceList.size()]);
     }
 
+    /**
+     *
+     * @param pathMap
+     * @return
+     */
     public static Resource[] mapPathsToResources(Map<String, Path> pathMap) {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
         List<Resource> resourceList = new ArrayList<Resource>();
@@ -223,6 +247,13 @@ public class SwaggerConverterUtils {
         return resourceList.toArray(new Resource[resourceList.size()]);
     }
 
+    /**
+     * This method will merge swagger definition based to ballerina service.
+     *
+     * @param ballerinaService
+     * @param swaggerService
+     * @return
+     */
     public static Service mergeBallerinaService(Service ballerinaService, Service swaggerService) {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
         //Secondary service annotations are coming from swagger. So we need to merge and update.
@@ -236,7 +267,8 @@ public class SwaggerConverterUtils {
                     isExistingResource = true;
                     //Here is a resource math. Do assignments
                     //merge annotations
-                    Resource.ResourceBuilder resourceBuilder = new Resource.ResourceBuilder(null);
+                    Resource.ResourceBuilder resourceBuilder =
+                            new Resource.ResourceBuilder(originalResource.getEnclosingScope());
                     resourceBuilder.setName(originalResource.getName());
                     resourceBuilder.setPkgPath(originalResource.getPackagePath());
                     resourceBuilder.setBody(originalResource.getResourceBody());
@@ -260,12 +292,16 @@ public class SwaggerConverterUtils {
                 //This is completely new resource
             }
         }
-        //ballerinaService.setResources((Resource[]) resourceList.toArray());
         ballerinaService.setResources(mergeResources(resourceList, ballerinaService.getResources()));
         return ballerinaService;
     }
 
-
+    /**
+     * This method will merge annotations from two different services or resources.
+     * @param annotations
+     * @param annotationsToMerge
+     * @return
+     */
     public static Annotation[] mergeAnnotations(Annotation[] annotations, Annotation[] annotationsToMerge) {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
         if (annotations == null) {
@@ -287,7 +323,11 @@ public class SwaggerConverterUtils {
         }
     }
 
-
+    /**
+     * Clone annotations array
+     * @param annotations
+     * @return
+     */
     private static Annotation[] clone(Annotation[] annotations) {
         return annotations == null ? null : (Annotation[]) annotations.clone();
     }
@@ -301,12 +341,11 @@ public class SwaggerConverterUtils {
      * @return
      */
     public static boolean isResourceMatch(Resource swaggerResource, Resource ballerinaResource) {
-        String path = "";
+        String path = "Root";
         String verb = "";
         for (Annotation annotation : ballerinaResource.getAnnotations()) {
             if (annotation.getName().equalsIgnoreCase("Path")) {
-                path = annotation.getValue();
-                path = path.startsWith("/") ? path.substring(1) : path;
+                path = path.startsWith("/") && path.length() > 1 ? path.substring(1) : path;
             } else if (annotation.getName().matches(SwaggerResourceMapper.HTTP_VERB_MATCHING_PATTERN)) {
                 verb = annotation.getName();
             }
@@ -326,8 +365,9 @@ public class SwaggerConverterUtils {
         for (int i = 0; i < resources.length; i++) {
             Resource resource = resources[i];
             boolean isMatched = false;
-            for (Resource resource1 : resourceList) {
-                if (isResourceMatch(resource1, resource)) {
+            for (Resource resourceFromList : resourceList) {
+                if (resourceFromList.getSymbolName().getName().equalsIgnoreCase(
+                        resource.getSymbolName().getName())) {
                     isMatched = true;
                     //match means its there in list
                 }
