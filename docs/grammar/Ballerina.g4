@@ -66,7 +66,7 @@ connectorDefinition
     ;
 
 nativeConnector
-    :   'native' 'connector' Identifier '(' parameterList ')' nativeConnectorBody
+    :   annotation* 'native' 'connector' Identifier '(' parameterList? ')' nativeConnectorBody
     ;
 
 nativeConnectorBody
@@ -74,7 +74,7 @@ nativeConnectorBody
     ;
 
 connector
-    :   annotation* 'connector' Identifier '(' parameterList ')' connectorBody
+    :   annotation* 'connector' Identifier '(' parameterList? ')' connectorBody
     ;
 
 connectorBody
@@ -251,7 +251,7 @@ literalValue
      :   '@' annotationName ( '(' ( elementValuePairs | elementValue )? ')' )?
      ;
 
- annotationName : Identifier ;
+ annotationName : Identifier (':' Identifier)?  ;
 
  elementValuePairs
      :   elementValuePair (',' elementValuePair)*
@@ -305,7 +305,11 @@ variableReferenceList
     ;
 
 ifElseStatement
-    :   'if' '(' expression ')' '{' statement* '}' elseIfClause* elseClause?
+    :  ifClause elseIfClause* elseClause?
+    ;
+
+ifClause
+    :   'if' '(' expression ')' '{' statement* '}'
     ;
 
 elseIfClause
@@ -330,17 +334,17 @@ breakStatement
 
 // typeName is only message
 forkJoinStatement
-    :   'fork' '(' typeName Identifier ')' '{' workerDeclaration* '}' joinClause? timeoutClause?
+    : 'fork' '(' variableReference ')' '{' workerDeclaration* '}' joinClause? timeoutClause?
     ;
 
 // below typeName is only 'message[]'
 joinClause
-    :   'join' '(' joinConditions ')' '(' typeName Identifier ')'  '{' statement* '}'
+    :   'join' '(' joinConditions ')' '(' typeName Identifier ')' '{' statement* '}'
     ;
 
 joinConditions
-    :   'any' IntegerLiteral (Identifier (',' Identifier)*)?
-    |   'all' (Identifier (',' Identifier)*)?
+    : 'any' IntegerLiteral (Identifier (',' Identifier)*)? 	    # anyJoinCondition
+    | 'all' (Identifier (',' Identifier)*)? 		            # allJoinCondition
     ;
 
 // below typeName is only 'message[]'
@@ -458,38 +462,6 @@ mapStructInitKeyValue
     ;
 
 // LEXER
-
-// §3.9 Ballerina keywords
-ACTION          : 'action';
-ALL             : 'all';
-ANY             : 'any';
-AS              : 'as';
-BREAK           : 'break';
-CATCH           : 'catch';
-CONNECTOR       : 'connector';
-CONST           : 'const';
-CREATE          : 'create';
-ELSE            : 'else';
-FORK            : 'fork';
-FUNCTION        : 'function';
-IF              : 'if';
-IMPORT          : 'import';
-ITERATE         : 'iterate';
-JOIN            : 'join';
-NULL            : 'null';
-PACKAGE         : 'package';
-REPLY           : 'reply';
-RESOURCE        : 'resource';
-RETURN          : 'return';
-SERVICE         : 'service';
-STRUCT          : 'struct';
-THROW           : 'throw';
-THROWS          : 'throws';
-TIMEOUT         : 'timeout';
-TRY             : 'try';
-TYPECONVERTOR   : 'typeconvertor';
-WHILE           : 'while';
-WORKER          : 'worker';
 
 // §3.10.1 Integer Literals
 IntegerLiteral
@@ -783,5 +755,5 @@ WS  :  [ \t\r\n\u000C]+ -> skip
     ;
 
 LINE_COMMENT
-    :   '//' ~[\r\n]* -> skip
+    :   '//' ~[\r\n]*
     ;

@@ -38,9 +38,12 @@ function addValueToFloatArray() (float[]) {
     return arr;
 }
 
+
+function commnetFunction() {
 // TODO
 // 1) Array add value test
 // 2) Array get value test
 // 3) Array grow test
 // 4) Array maximum size test
 // 5) Array grow and size change test
+}
