@@ -77,8 +77,6 @@ public class DebugServer {
         int port = getDebugPort();
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
-        PrintStream out = System.out;
-        out.println(DebugConstants.DEBUG_MESSAGE + port);
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
@@ -87,6 +85,9 @@ public class DebugServer {
                     //.handler(new LoggingHandler(LogLevel.INFO))
                     .childHandler(new DebugServerInitializer());
             Channel ch = b.bind(port).sync().channel();
+
+            PrintStream out = System.out;
+            out.println(DebugConstants.DEBUG_MESSAGE + port);
 
             ch.closeFuture().sync();
             bossGroup.shutdownGracefully();
