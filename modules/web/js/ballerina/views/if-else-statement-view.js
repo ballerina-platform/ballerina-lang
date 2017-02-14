@@ -60,7 +60,7 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './compound-statement
          * @param {IfStatement} statement
          */
         IfElseStatementView.prototype.visitIfStatement = function(statement){
-            this._ifBlockView = this.visitChildStatement(statement);
+            this._ifBlockView = this.renderChildStatement(statement);
         };
 
         /**
@@ -68,7 +68,7 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './compound-statement
          * @param {ElseIfStatement} statement
          */
         IfElseStatementView.prototype.visitElseIfStatement = function(statement){
-            var childStatementView = this.visitChildStatement(statement);
+            var childStatementView = this.renderChildStatement(statement);
             this._elseIfViews.push(childStatementView);
         };
 
@@ -77,7 +77,7 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './compound-statement
          * @param {ElseStatement} statement
          */
         IfElseStatementView.prototype.visitElseStatement = function(statement){
-            this._elseBlockView = this.visitChildStatement(statement);
+            this._elseBlockView = this.renderChildStatement(statement);
         };
 
         /**
