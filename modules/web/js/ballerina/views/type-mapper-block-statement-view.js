@@ -102,8 +102,14 @@ define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapp
          */
         TypeMapperBlockStatementView.prototype.onAttributesConnect = function (connection) {
 
+            var isComplexMapping = connection.isComplexMapping;
+            var targetCastValue = "";
+            if(isComplexMapping){
+                targetCastValue = connection.targetType;
+            }
+
             var assignmentStatementNode = connection.targetReference.getParent().
-                returnConstructedAssignmentStatement("y","x",connection.sourceProperty,connection.targetProperty);
+                returnConstructedAssignmentStatement("y","x",connection.sourceProperty,connection.targetProperty,isComplexMapping,targetCastValue);
             var blockStatement = connection.targetReference.getParent().getBlockStatement();
 
             var lastIndex = _.findLastIndex(blockStatement.getChildren());
@@ -138,8 +144,10 @@ define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapp
          */
         TypeMapperBlockStatementView.prototype.onAttributesDisConnect = function (connection) {
 
-            connection.targetReference.getParent().removeAssignmentDefinition(connection.sourceProperty,
-                connection.targetProperty);
+            var blockStatement = connection.targetReference.getParent().getBlockStatement();
+
+//            connection.targetReference.getParent().removeAssignmentDefinition(connection.sourceProperty,
+//                connection.targetProperty);
         };
 
         /**

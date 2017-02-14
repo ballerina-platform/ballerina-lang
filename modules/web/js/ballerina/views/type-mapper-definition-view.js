@@ -134,14 +134,24 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
 
             this.loadSchemasToComboBox(currentContainer, "#" + sourceId,"#"+targetId, predefinedStructs);
 
-            $("#"+sourceId +",#"+targetId).on({
+            $("#"+targetId).on({
                 mousedown: function() {
                     var predefinedStructs = self._package.getStructDefinitions();
                     if (predefinedStructs.length > 0) {
-                        $("#"+sourceId +",#"+targetId).empty().append('<option value="-1">--Select--</option>');
-                        self.getSourceInfo()["predefinedStructs"] = predefinedStructs;
+                        $("#"+targetId).empty().append('<option value="-1">--Select--</option>');
                         self.getTargetInfo()["predefinedStructs"] = predefinedStructs;
-                        self.loadSchemasToComboBox(currentContainer, "#" + sourceId,"#"+targetId, predefinedStructs);
+                        self.loadSchemaToComboBox(currentContainer,"#"+targetId, predefinedStructs);
+                    }
+                }
+            });
+
+            $("#"+sourceId).on({
+                mousedown: function() {
+                    var predefinedStructs = self._package.getStructDefinitions();
+                    if (predefinedStructs.length > 0) {
+                        $("#"+sourceId).empty().append('<option value="-1">--Select--</option>');
+                        self.getSourceInfo()["predefinedStructs"] = predefinedStructs;
+                        self.loadSchemaToComboBox(currentContainer, "#" + sourceId, predefinedStructs);
                     }
                 }
             });
@@ -227,6 +237,12 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             }
         };
 
+        TypeMapperDefinitionView.prototype.loadSchemaToComboBox = function (parentId, comboBoxId,schemaArray) {
+            for (var i = 0; i < schemaArray.length; i++) {
+                $(parentId).find(comboBoxId).append('<option value="' + i + '">' + schemaArray[i].getStructName() + '</option>');
+            }
+        };
+
         TypeMapperDefinitionView.prototype.setSourceSchemaNameToComboBox = function (sourceComboboxId,sourceName) {
             $(sourceComboboxId+" option:contains(" + sourceName + ")").attr('selected', 'selected');
         };
@@ -242,18 +258,7 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
         TypeMapperDefinitionView.prototype.visitResourceParameter = function (resourceParameter) {
             log.debug("Visiting resource parameter");
             var self = this;
-            var sourceStructName = undefined;
-
-            var resourceParameter = _.find(this.getModel().getChildren(), function (child) {
-                return BallerinaASTFactory.isResourceParameter(child);
-            });
-
-            _.find(resourceParameter.getChildren(), function (child) {
-                if(BallerinaASTFactory.isSimpleTypeName(child)){
-                    sourceStructName = child.getName();
-                    return false;
-                }
-            });
+            var sourceStructName = resourceParameter.getType();
 
             self.getSourceInfo()["sourceStructName"] = sourceStructName;
             var predefinedStructs = self.getSourceInfo().predefinedStructs;
@@ -281,18 +286,7 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
         TypeMapperDefinitionView.prototype.visitReturnType = function (returnType) {
             log.debug("Visiting return type");
             var self = this;
-            var targetStructName = undefined;
-
-            var returnType = _.find(this.getModel().getChildren(), function (child) {
-                return BallerinaASTFactory.isReturnType(child);
-            });
-
-            _.find(returnType.getChildren(), function (child) {
-                if(BallerinaASTFactory.isSimpleTypeName(child)){
-                    targetStructName = child.getName();
-                    return false;
-                }
-            });
+            var targetStructName = returnType.getType();
 
             self.getTargetInfo()["targetStructName"] = targetStructName;
             var predefinedStructs = self.getTargetInfo().predefinedStructs;

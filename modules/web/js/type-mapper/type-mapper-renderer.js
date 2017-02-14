@@ -245,7 +245,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         var typeConverters = typeConverterObj.getPackage().getTypeMapperDefinitions();
         _.forEach(typeConverters, function (typeConverter) {
             if (typeConverterObj.getModel().getTypeMapperName() !== typeConverter.getTypeMapperName()) {
-                if (sourceType == typeConverter.getSourceAndIdentifier().split(" ")[0] &&
+                if (sourceType == typeConverter.getInputParamAndIdentifier().split(" ")[0] &&
                     targetType == typeConverter.getReturnType()) {
                     compatibleTypeConverters.push(typeConverter.getTypeMapperName());
                 }
@@ -296,11 +296,21 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         var jsTreeContainerPrefix = 'jstree-container';
         var anchorEnd = '_anchor';
         var sourceId =  jsTreeContainerPrefix + this.viewIdSeperator +  connection.sourceStruct
-            + this.viewIdSeperator + this.viewId + this.idNameSeperator
-            + connection.sourceProperty + this.nameTypeSeperator + connection.sourceType+ anchorEnd;
+            + this.viewIdSeperator + this.viewId;
         var targetId =  jsTreeContainerPrefix + this.viewIdSeperator +  connection.targetStruct
-            + this.viewIdSeperator + this.viewId + this.idNameSeperator
-            + connection.targetProperty + this.nameTypeSeperator + connection.targetType + anchorEnd;
+            + this.viewIdSeperator + this.viewId;
+
+        for (var i = 0; i < connection.sourceProperty.length; i++ ) {
+                sourceId += this.idNameSeperator
+                    + connection.sourceProperty[i] + this.nameTypeSeperator + connection.sourceType[i];
+        }
+        sourceId += anchorEnd;
+
+        for (var i = 0; i < connection.targetProperty.length; i++ ) {
+            targetId += this.idNameSeperator
+                + connection.targetProperty[i] + this.nameTypeSeperator + connection.targetType[i];
+        }
+        targetId += anchorEnd;
 
         this.jsPlumbInstance.detach({source: sourceId, target: targetId});
         this.jsPlumbInstance.connect({source: sourceId, target: targetId});
@@ -410,8 +420,11 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     TypeMapperRenderer.prototype.makeStruct = function (struct, posX, posY, reference) {
         this.references.push({name: struct.id, refObj: reference});
         var newStruct = $('<div>').attr('id', struct.id).addClass('struct');
+        var structIcon = $('<i>').addClass('type-mapper-icon fw fw-struct fw-inverse');
+        var structName = $('<div>');
 
-        var structName = $('<div>').addClass('struct-name').text(struct.name);
+        structName.append(structIcon);
+        structName.append($('<span>').text(struct.name));
         newStruct.append(structName);
         newStruct.css({
             'top': posX,
@@ -432,7 +445,18 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.references.push({name: id, refObj: reference});
         var newFunc = $('<div>').attr('id', id).addClass('func');
         var self = this;
-        var funcName = $('<div>').addClass('func-name').text(func.name);
+        var funcName = $('<div>');
+        var funcIcon = $('<i>').addClass('type-mapper-icon fw fw-function fw-inverse');
+        var closeButton = $('<span>').attr('id', id+"-button").addClass('fw-stack fw-lg btn btn-remove');
+
+        var square =  $('<i>').addClass('fw fw-square fw-stack-1x');
+        var del =  $('<i>').addClass('fw fw-delete fw-stack-1x fw-inverse');
+
+        funcName.append(funcIcon);
+        funcName.append($('<span>').text(func.name));
+        closeButton.append(square);
+        closeButton.append(del);
+        funcName.append(closeButton);
         newFunc.append(funcName);
 
         newFunc.css({
@@ -442,13 +466,17 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
         $("#" + this.placeHolderName).append(newFunc);
 
+        $("#" + id + "-button").on("click", function (event) {
+                self.removeStruct(func.name);
+        });
+
         _.forEach(func.parameters, function (parameter) {
-            var property = self.makeFunctionAttribute(newFunc, parameter.name, parameter.type, true);
+            var property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, true);
             self.addTarget(property, self);
         });
 
         _.forEach(func.returnType, function (parameter) {
-            var property = self.makeFunctionAttribute(newFunc, parameter.name, parameter.type, false);
+            var property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, false);
             self.addSource(property, self);
         });
 
@@ -623,7 +651,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             alignment = 'TD';
         }
 
-        graph.setGraph({ranksep: '10', rankdir: alignment, edgesep: '10', marginx: '20'});
+        graph.setGraph({ranksep: '100', rankdir: alignment, edgesep: '100', marginx: '0'});
         graph.setDefaultEdgeLabel(function () {
             return {};
         });
@@ -635,7 +663,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
 
             _.forEach(nodes, function (n) {
-                var nodeContent = $("#" + n.id.replace(":",'\\:'));
+                var nodeContent = $("#" + n.id);
                 if (maxTypeHeight < nodeContent.height()) {
                     maxTypeHeight = nodeContent.height();
                 }
@@ -644,6 +672,28 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
             var edges = jsPlumbInstance.getAllConnections();
 
+            _.forEach(edges, function (edge) {
+                //todo : refactor hardcoded values and separators
+                var source = edge.source.id.split("_-_-_-")[0];
+                var target = edge.target.id.split("_-_-_-")[0];
+                var sourceId;
+                var targetId;
+
+                //checks whether target and source is a generic type or a function
+                if (source.includes("jstree-container")) {
+                    sourceId = source.split("___")[1] + "___" + source.split("___")[2];
+                } else {
+                    sourceId = source;
+                }
+
+                if (target.includes("jstree-container")) {
+                    targetId = target.split("___")[1] + "___" + target.split("___")[2];
+                } else {
+                    targetId = target;
+                }
+
+                graph.setEdge(sourceId, targetId);
+            });
             // calculate the layout (i.e. node positions)
             dagre.layout(graph);
 
@@ -651,12 +701,9 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
             // Applying the calculated layout
             _.forEach(graph.nodes(), function (dagreNode) {
-                var node = $("#" +  dagreNode.replace(":",'\\:'));
-
-                //  if (node.attr('class') == "func") {
+                var node = $("#" +  dagreNode);
                 node.css("left", graph.node(dagreNode).x + "px");
                 node.css("top", graph.node(dagreNode).y + "px");
-                // }
 
                 if (graph.node(dagreNode) != null && graph.node(dagreNode).y > maxYPosition) {
                     maxYPosition = graph.node(dagreNode).y;

@@ -32,7 +32,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './if-condition', './array-map-access-expression', './map-init-expression', './key-value-expression', './binary-expression', './connector-action', './struct-definition',
         './constant-definition', './variable-definition-statement','./type-struct-definition','./struct-type','./symbol-name','./struct-field-access-expression'
         ,'./field-expression','./type-casting-expression', './worker-invoke','./block-statement','./struct-field-access-expression','./simple-type-name','./ref-type-init-expression',
-        './variable-definition'],
+        './variable-definition','./type-cast-expression'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -43,7 +43,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
               thenBody, ifCondition, arrayMapAccessExpression, mapInitExpression, keyValueExpression, binaryExpression, connectorAction, structDefinition,
               constantDefinition, variableDefinitionStatement,typeStructDefinition,structType,symbolName,structFieldAccessExpression,fieldExpression,typeCastingExpression, workerInvoke,
-              blockStatement,structFieldAccessExpression,simpleTypeName,referenceTypeInitExpression,variableDefinition) {
+              blockStatement,structFieldAccessExpression,simpleTypeName,referenceTypeInitExpression,variableDefinition,typeCastExpression) {
 
 
         /**
@@ -461,6 +461,14 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * creates TypeCastExpression
+         * @param args
+         */
+        BallerinaASTFactory.createTypeCastExpression = function (args) {
+            return new typeCastExpression(args);
+        };
+
+        /**
          * creates WorkerInvokeStatement
          * @param args
          */
@@ -855,6 +863,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.isRightOperandExpression = function (child) {
             return child instanceof rightOperandExpression;
+        };
+
+        /**
+         * instanceof check for TypeCastExpression
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isTypeCastExpression = function (child) {
+            return child instanceof typeCastExpression;
         };
 
         /**

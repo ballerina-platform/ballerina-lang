@@ -46,7 +46,6 @@ define(['lodash', 'log','./ballerina-view','./../ast/resource-parameter', 'typeM
         InputStructView.prototype.render = function (diagramRenderingContext, mapper) {
             var self = this;
             this._diagramRenderingContext = diagramRenderingContext;
-            var typeStructName = this.getModel().getStructType();
             var typeStructSchema = this.getSourceInfo().sourceStruct;
             var previousSelection = this.getSourceInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION];
 

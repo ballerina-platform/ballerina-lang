@@ -196,9 +196,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         // Creating a new ResourceParameter.
         var newResourceParameter = this.getFactory().createResourceParameter();
         newResourceParameter.setIdentifier(identifier);
-        var newSimpleTypeName = this.getFactory().createSimpleTypeName();
-        newSimpleTypeName.setName(typeStructName);
-        newResourceParameter.addChild(newSimpleTypeName);
+        newResourceParameter.setType(typeStructName);
 
         var lastIndex = _.findLastIndex(this.getChildren());
         this.addChild(newResourceParameter, lastIndex - 1);
@@ -213,9 +211,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
 
         // Creating a new ResourceParameter.
         var newReturnType = this.getFactory().createReturnType();
-        var newSimpleTypeName = this.getFactory().createSimpleTypeName();
-        newSimpleTypeName.setName(typeStructName);
-        newReturnType.addChild(newSimpleTypeName);
+        newReturnType.setType(typeStructName);
 
         var lastIndex = _.findLastIndex(this.getChildren());
         this.addChild(newReturnType, lastIndex - 1);
@@ -302,26 +298,44 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
 
     /**
      * Constructs new assignment statement.
-     * @param {string} sourceIdentifier
-     * @param {string} targetIdentifier
-     * @param {string} sourceValue
-     * @param {string} targetValue
+     * @param sourceIdentifier
+     * @param targetIdentifier
+     * @param sourceValue
+     * @param targetValue
+     * @param isComplexMapping
+     * @param targetCastValue
      * @returns {AssignmentStatement}
      */
-    TypeMapperDefinition.prototype.returnConstructedAssignmentStatement = function (sourceIdentifier,targetIdentifier,sourceValue,targetValue) {
+    TypeMapperDefinition.prototype.returnConstructedAssignmentStatement = function (sourceIdentifier,targetIdentifier,sourceValue,targetValue,
+                                                                                    isComplexMapping,targetCastValue) {
 
         // Creating a new Assignment Statement.
+        var self = this;
         var newAssignmentStatement = this.getFactory().createAssignmentStatement();
         var leftOperandExpression = this.getFactory().createLeftOperandExpression();
         var rightOperandExpression = this.getFactory().createRightOperandExpression();
+        var typeCastExpression = undefined;
 
         var sourceStructFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
         var sourceVariableReferenceExpressionForIdentifier = this.getFactory().createVariableReferenceExpression();
         sourceVariableReferenceExpressionForIdentifier.setVariableReferenceName(sourceIdentifier);
         var sourceFieldExpression = this.getFactory().createFieldExpression();
-        var sourceVariableReferenceExpressionForValue = this.getFactory().createVariableReferenceExpression();
-        sourceVariableReferenceExpressionForValue.setVariableReferenceName(sourceValue);
-        sourceFieldExpression.addChild(sourceVariableReferenceExpressionForValue);
+        var tempRefOfFieldExpression;
+
+        _.forEach(sourceValue, function (sourceVal) {
+            var tempFieldExpression;
+            var tempVariableReferenceExpression = self.getFactory().createVariableReferenceExpression();
+            tempVariableReferenceExpression.setVariableReferenceName(sourceVal);
+            if(_.head(sourceValue) == sourceVal){
+                sourceFieldExpression.addChild(tempVariableReferenceExpression);
+                tempRefOfFieldExpression = sourceFieldExpression
+            }else{
+                tempFieldExpression = self.getFactory().createFieldExpression();
+                tempFieldExpression.addChild(tempVariableReferenceExpression);
+                tempRefOfFieldExpression.addChild(tempFieldExpression);
+                tempRefOfFieldExpression = tempFieldExpression;
+            }
+        });
         sourceStructFieldAccessExpression.addChild(sourceVariableReferenceExpressionForIdentifier);
         sourceStructFieldAccessExpression.addChild(sourceFieldExpression);
 
@@ -330,15 +344,37 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         var targetVariableReferenceExpressionForIdentifier = this.getFactory().createVariableReferenceExpression();
         targetVariableReferenceExpressionForIdentifier.setVariableReferenceName(targetIdentifier);
         var targetFieldExpression = this.getFactory().createFieldExpression();
-        var targetVariableReferenceExpressionForTarget = this.getFactory().createVariableReferenceExpression();
-        targetVariableReferenceExpressionForTarget.setVariableReferenceName(targetValue);
-        targetFieldExpression.addChild(targetVariableReferenceExpressionForTarget);
+        var tempRefOfFieldExpression;
+
+        _.forEach(targetValue, function (targetVal) {
+            var tempFieldExpression;
+            var tempVariableReferenceExpression = self.getFactory().createVariableReferenceExpression();
+            tempVariableReferenceExpression.setVariableReferenceName(targetVal);
+            if(_.head(targetValue) == targetVal){
+                targetFieldExpression.addChild(tempVariableReferenceExpression);
+                tempRefOfFieldExpression = targetFieldExpression
+            }else{
+                tempFieldExpression = self.getFactory().createFieldExpression();
+                tempFieldExpression.addChild(tempVariableReferenceExpression);
+                tempRefOfFieldExpression.addChild(tempFieldExpression);
+                tempRefOfFieldExpression = tempFieldExpression;
+            }
+        });
+
         targetStructFieldAccessExpression.addChild(targetVariableReferenceExpressionForIdentifier);
         targetStructFieldAccessExpression.addChild(targetFieldExpression);
 
-        leftOperandExpression.addChild(sourceStructFieldAccessExpression);
+        leftOperandExpression.addChild(targetStructFieldAccessExpression);
         newAssignmentStatement.addChild(leftOperandExpression);
-        rightOperandExpression.addChild(targetStructFieldAccessExpression);
+
+        if(isComplexMapping){
+            typeCastExpression = this.getFactory().createTypeCastExpression();
+            typeCastExpression.setName(targetCastValue);
+            rightOperandExpression.addChild(typeCastExpression);
+            typeCastExpression.addChild(sourceStructFieldAccessExpression);
+        }else{
+            rightOperandExpression.addChild(sourceStructFieldAccessExpression);
+        }
         newAssignmentStatement.addChild(rightOperandExpression);
 
         return newAssignmentStatement;

@@ -47,7 +47,6 @@ define(['lodash', 'log','./ballerina-view','./../ast/return-type', 'typeMapper',
             var self = this;
             this._diagramRenderingContext = diagramRenderingContext;
 
-            var typeStructName = this.getModel().getStructType();
             var typeStructSchema = this.getTargetInfo().targetStruct;
             var previousSelection = this.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION];
 
