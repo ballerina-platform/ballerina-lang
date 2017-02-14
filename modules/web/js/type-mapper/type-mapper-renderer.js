@@ -443,6 +443,17 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         var newFunc = $('<div>').attr('id', id).addClass('func');
         var self = this;
         var funcName = $('<div>').addClass('func-name').text(func.name);
+        var closeButton = $('<span>').attr('id', id+"-button").addClass('fw-stack fw-lg btn btn-remove');
+
+
+        var square =  $('<i>').addClass('fw fw-square fw-stack-1x');
+        var del =  $('<i>').addClass('fw fw-delete fw-stack-1x fw-inverse');
+
+        closeButton.append(square);
+        closeButton.append(del);
+
+
+        funcName.append(closeButton);
         newFunc.append(funcName);
 
         newFunc.css({
@@ -451,6 +462,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         });
 
         $("#" + this.placeHolderName).append(newFunc);
+
+        $("#" + id + "-button").on("click", function (event) {
+                self.removeStruct(func.name);
+        });
 
         _.forEach(func.parameters, function (parameter) {
             var property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, true);
