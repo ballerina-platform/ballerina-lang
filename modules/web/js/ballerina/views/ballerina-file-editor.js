@@ -474,7 +474,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 // re-parse if there are modifications to source
                 var isSourceChanged = !self._sourceView.isClean(),
                     savedWhileInSourceView = lastRenderedTimestamp < self._file.getLastPersisted();
-                var isSwaggerChanged = !self._swaggerView.isClean();
+                var isSwaggerChanged = !self.isInSwaggerView();
                 if (isSourceChanged || savedWhileInSourceView || self._parseFailed) {
                     var source = self._sourceView.getContent();
                     var root = self.generateNodeTree();
@@ -487,7 +487,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     var astModal = self._swaggerView.getContent();
                     self.setModel(self.deserializer.getASTModel(astModal));
                     // reset source editor delta stack
-                    self._swaggerView.markClean();
                 }
                 //canvas should be visible before you can call reDraw. drawing dependednt on attr:offsetWidth
                 self.toolPalette.show();
