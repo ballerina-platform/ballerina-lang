@@ -6,8 +6,8 @@ import ballerina.lang.json;
 
 @http:BasePath ("/ecommerceservice")
 service Ecommerce {
-
-    http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
+    string uri = callaFunction();
+    http:ClientConnector productsService = create http:ClientConnector(uri);
 
 
     @http:GET
