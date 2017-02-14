@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.test.util;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Constants used in test cases.
  */
@@ -24,4 +26,8 @@ public class TestConstant {
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
     public static final String CONTENT_TYPE_JSON = "application/json";
     public static final String CONTENT_TYPE_TEXT_PLAIN = "text/plain";
+
+    //HTTP2 related Constants
+    public static final long HTTP2_RESPONSE_TIME_OUT = 10;
+    public static final TimeUnit HTTP2_RESPONSE_TIME_UNIT = TimeUnit.SECONDS;
 }
