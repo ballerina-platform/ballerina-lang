@@ -26,6 +26,8 @@ import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
+import org.wso2.ballerina.core.nativeimpl.connectors.file.server.FileResourceDispatcher;
+import org.wso2.ballerina.core.nativeimpl.connectors.file.server.FileServiceDispatcher;
 import org.wso2.ballerina.core.runtime.MessageProcessor;
 import org.wso2.ballerina.core.runtime.dispatching.HTTPResourceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.HTTPServiceDispatcher;
@@ -44,9 +46,12 @@ public class EnvironmentInitializer {
         // Initialize server connectors before starting the test cases
         BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
         BallerinaConnectorManager.getInstance().registerServerConnectorErrorHandler(new TestErrorHandler());
-        // Resister HTTP Dispatchers
+        // Register HTTP Dispatchers
         DispatcherRegistry.getInstance().registerServiceDispatcher(new HTTPServiceDispatcher());
         DispatcherRegistry.getInstance().registerResourceDispatcher(new HTTPResourceDispatcher());
+        // Register File Dispatchers
+        DispatcherRegistry.getInstance().registerServiceDispatcher(new FileServiceDispatcher());
+        DispatcherRegistry.getInstance().registerResourceDispatcher(new FileResourceDispatcher());
 
         // Load constructors
         BuiltInNativeConstructLoader.loadConstructs();

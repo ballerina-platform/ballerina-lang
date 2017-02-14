@@ -68,6 +68,7 @@ under the License.
     <test name="ballrina-service-test">
         <classes>
             <class name="org.wso2.ballerina.lang.service.ServiceVariableTest"/>
+            <class name="org.wso2.ballerina.lang.service.FileServiceTest" />
         </classes>
     </test>
 </suite>
