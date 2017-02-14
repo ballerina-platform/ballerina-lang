@@ -54,9 +54,6 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'yaml'],
                        swaggerEditorWindow.setSwaggerEditorValue(YAML.safeDump(YAML.safeLoad(content)));
                    };
                }
-               swaggerEditorWindow.onSwaggerEditorChange = function(content){
-                   self.markDirty();
-               };
            });
        };
 
@@ -89,7 +86,6 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'yaml'],
            }
 
            this._swaggerEditorWindow.setSwaggerEditorValue(YAML.safeDump(YAML.safeLoad(generatedSwagger)));
-           this.markClean();
        };
 
        /**
@@ -103,7 +99,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'yaml'],
 
        SwaggerView.prototype.getContent = function () {
            var content = this._swaggerEditorWindow.getSwaggerEditorValue();
-           if (!this.isClean() && content && content != "null" && this._generatedSource) {
+           if (content && content != "null" && this._generatedSource) {
                var response = this._backend.call("convert-swagger", "POST", {
                    "name": "CalculatorService",
                    "description": "null",
@@ -133,18 +129,6 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'yaml'],
 
        SwaggerView.prototype.isVisible = function(){
            return  $(this._container).is(':visible')
-       };
-
-       SwaggerView.prototype.isClean = function(){
-           return this._clean;
-       };
-
-       SwaggerView.prototype.markClean = function(){
-           this._clean = true;
-       };
-
-       SwaggerView.prototype.markDirty = function(){
-           this._clean = false;
        };
 
        return SwaggerView;
