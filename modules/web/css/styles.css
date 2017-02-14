@@ -840,7 +840,7 @@ button.variable-list {
 
 .variable-add-action-wrapper {
     display: none;
-    width: 500px;
+    width: 520px;
     background-color: #efefef;
     height: 30px;
     padding: 3px 8px;
@@ -944,7 +944,7 @@ button.variable-list {
 
 .constant-add-action-wrapper, .import-add-action-wrapper {
     display: none;
-    width: 500px;
+    width: 520px;
     background-color: #ddd;
     height: 26px;
     padding: 2px 4px;

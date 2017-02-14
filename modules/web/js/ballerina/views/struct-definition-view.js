@@ -102,7 +102,7 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
             _.forEach(bTypes, function (sType) {
                 typeDropdown.append($('<option>'+ sType +'</option>').attr('value', sType));
             });
-            var typeDropdownWrapper = $('<div class="type-drop-wrapper"></div>');
+            var typeDropdownWrapper = $('<div class="type-drop-wrapper struct-view"></div>');
             typeDropdown.appendTo(typeDropdownWrapper);
             typeDropdownWrapper.appendTo(structOperationsWrapper);
             typeDropdown.select2({
