@@ -30,31 +30,30 @@ import java.util.List;
  */
 public class PackageFinder extends SimpleFileVisitor<Path>  {
 
+    private Path basePath;
+    private List<String> builtInPackages;
 
-        private Path basePath;
-        private List<String> builtInPackages;
+    /**
+     * Create a package finder.
+     * 
+     * @param basePath Root directory to start traversing
+     * @param builtInPackages List to populate the native packages
+     */
+    public PackageFinder(Path basePath, List<String> builtInPackages) {
+        this.basePath = basePath;
+        this.builtInPackages = builtInPackages;
+    }
 
-        /**
-         * Create a package finder.
-         * 
-         * @param basePath Root directory to start traversing
-         * @param builtInPackages List to populate the native packages
-         */
-        public PackageFinder(Path basePath, List<String> builtInPackages) {
-            this.basePath = basePath;
-            this.builtInPackages = builtInPackages;
-        }
+    @Override
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+        return FileVisitResult.CONTINUE;
+    }
 
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            String pkg =
-                    Constants.BAL_FILES_DIR + "." + basePath.relativize(file.getParent()).toString().replace(File.separator, ".");
-            builtInPackages.add(pkg);
-            return FileVisitResult.CONTINUE;
-        }
+    @Override
+    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+        String pkg = Constants.BAL_FILES_DIR + "." +
+            basePath.relativize(file.getParent()).toString().replace(File.separator, ".");
+        builtInPackages.add(pkg);
+        return FileVisitResult.CONTINUE;
+    }
 }

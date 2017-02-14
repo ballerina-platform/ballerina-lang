@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.annotation.processor;
+package org.wso2.ballerina.annotation.processor.holders;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +33,7 @@ public class PackageHolder {
     private List<TypeConvertorHolder> nativeTypeConverters;
     private Map<String, ConnectorHolder> connectors;
     
-    PackageHolder(String packageName) {
+    public PackageHolder(String packageName) {
         this.packageName = packageName;
         this.connectors = new HashMap<String, ConnectorHolder>();
         this.nativeFunctions = new ArrayList<FunctionHolder>();

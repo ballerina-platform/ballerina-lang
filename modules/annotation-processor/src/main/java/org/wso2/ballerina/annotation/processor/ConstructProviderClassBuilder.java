@@ -18,6 +18,11 @@
 package org.wso2.ballerina.annotation.processor;
 
 import org.ballerinalang.util.repository.BuiltinPackageRepository;
+import org.wso2.ballerina.annotation.processor.holders.ActionHolder;
+import org.wso2.ballerina.annotation.processor.holders.ConnectorHolder;
+import org.wso2.ballerina.annotation.processor.holders.FunctionHolder;
+import org.wso2.ballerina.annotation.processor.holders.PackageHolder;
+import org.wso2.ballerina.annotation.processor.holders.TypeConvertorHolder;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.GlobalScope;
@@ -40,12 +45,9 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

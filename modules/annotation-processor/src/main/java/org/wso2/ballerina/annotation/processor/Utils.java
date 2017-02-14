@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerina.annotation.processor;
 
+import org.wso2.ballerina.annotation.processor.holders.AnnotationHolder;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.Attribute;

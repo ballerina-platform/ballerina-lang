@@ -14,8 +14,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.annotation.processor;
+package org.wso2.ballerina.annotation.processor.holders;
 
+import org.wso2.ballerina.annotation.processor.Utils;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
@@ -36,7 +37,7 @@ public class ConnectorHolder {
     private List<AnnotationHolder> annotations;
     
     
-    ConnectorHolder(BallerinaConnector balConnector, String className) {
+    public ConnectorHolder(BallerinaConnector balConnector, String className) {
         this.balConnector = balConnector;
         this.connectorClassName = className;
         this.actions = new ArrayList<>();

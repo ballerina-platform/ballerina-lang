@@ -14,8 +14,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.annotation.processor;
+package org.wso2.ballerina.annotation.processor.holders;
 
+import org.wso2.ballerina.annotation.processor.Utils;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
 

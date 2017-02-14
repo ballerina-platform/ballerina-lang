@@ -63,10 +63,11 @@ public class NativeValidator {
         // process each package separately
         for (String builtInPkg : builtInPackages) {
             BLangSymbol pkgSymbol = globalScope.resolve(new SymbolName(builtInPkg));
-            BLangPackage nativePackage = (BLangPackage)((NativePackageProxy) pkgSymbol).load();
+            BLangPackage nativePackage = (BLangPackage) ((NativePackageProxy) pkgSymbol).load();
             Path packagePath = Paths.get(builtInPkg.replace(".", File.separator));
             
-            BLangPackage mainPackage = BLangPackages.loadPackage(packagePath, nativePackage.getPackageRepository(), bLangProgram);
+            BLangPackage mainPackage = BLangPackages.loadPackage(packagePath, nativePackage.getPackageRepository(),
+                    bLangProgram);
             bLangProgram.define(new SymbolName(mainPackage.getPackagePath()), mainPackage);
             bLangProgram.setMainPackage(mainPackage);
 
