@@ -72,13 +72,13 @@ transportProperties:
   name: "server.bootstrap.recievebuffersize"
   value: 1048576
  -
-  name: "server.bootstrap.connect.HTTP2_RESPONSE_TIME_OUT"
+  name: "server.bootstrap.connect.timeout"
   value: 15000
  -
   name: "server.bootstrap.socket.reuse"
   value: false
  -
-  name: "server.bootstrap.socket.HTTP2_RESPONSE_TIME_OUT"
+  name: "server.bootstrap.socket.timeout"
   value: 15
  -
   name: "server.bootstrap.socket.backlog"
@@ -111,13 +111,13 @@ senderConfigurations:
      name: "client.bootstrap.recievebuffersize"
      value: 1048576
     -
-     name: "client.bootstrap.connect.HTTP2_RESPONSE_TIME_OUT"
+     name: "client.bootstrap.connect.timeout"
      value: 15000
     -
      name: "client.bootstrap.socket.reuse"
      value: false
     -
-     name: "client.bootstrap.socket.HTTP2_RESPONSE_TIME_OUT"
+     name: "client.bootstrap.socket.timeout"
      value: 15
  -
   id: "https-sender"
@@ -141,11 +141,11 @@ senderConfigurations:
      name: "client.bootstrap.recievebuffersize"
      value: 1048576
     -
-     name: "client.bootstrap.connect.HTTP2_RESPONSE_TIME_OUT"
+     name: "client.bootstrap.connect.timeout"
      value: 15000
     -
      name: "client.bootstrap.socket.reuse"
      value: false
     -
-     name: "client.bootstrap.socket.HTTP2_RESPONSE_TIME_OUT"
+     name: "client.bootstrap.socket.timeout"
      value: 15
