@@ -27,6 +27,7 @@ import org.antlr.jetbrains.adaptor.lexer.PSIElementTypeFactory;
 import org.antlr.jetbrains.adaptor.lexer.TokenIElementType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.grammar.BallerinaLexer;
 import org.ballerinalang.plugins.idea.grammar.BallerinaParser;
 
@@ -58,6 +59,8 @@ public class BallerinaSyntaxHighlighter extends SyntaxHighlighterBase {
         fillMap(ATTRIBUTES, BallerinaParserDefinition.COMMENTS, BallerinaSyntaxHighlightingColors.LINE_COMMENT);
         fillMap(ATTRIBUTES, BallerinaParserDefinition.KEYWORDS, BallerinaSyntaxHighlightingColors.KEYWORD);
         fillMap(ATTRIBUTES, BallerinaParserDefinition.STRING, BallerinaSyntaxHighlightingColors.STRING);
+        fillMap(ATTRIBUTES, BallerinaParserDefinition.NUMBER, BallerinaSyntaxHighlightingColors.NUMBER);
+        fillMap(ATTRIBUTES, BallerinaSyntaxHighlightingColors.ANNOTATION, BallerinaTypes.ANNOTATION_NAME);
     }
 
     @NotNull
