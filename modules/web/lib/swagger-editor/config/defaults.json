@@ -12,6 +12,7 @@
     "theme": "ace/theme/atom_dark"
   },
   "exampleFiles": [
+      "default.yaml"
   ],
   "autocompleteExtension": {},
   "useBackendForStorage": false,
