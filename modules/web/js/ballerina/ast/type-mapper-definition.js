@@ -99,16 +99,12 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
      * @return {string} - Return type.
      */
     TypeMapperDefinition.prototype.getReturnType = function () {
-        var returnType = "";
+        var returnType = '';
         var ballerinaASTFactory = this.getFactory();
 
         _.forEach(this.getChildren(), function (child) {
             if (ballerinaASTFactory.isReturnType(child)) {
-                _.forEach(child.getChildren(), function (resourceChild) {
-                    if(ballerinaASTFactory.isSimpleTypeName(resourceChild)){
-                        returnType = resourceChild.getName();
-                    }
-                });
+               returnType = child.getType();
             }
         });
         return returnType;
@@ -119,21 +115,15 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
      * @returns {String} argument
      */
     TypeMapperDefinition.prototype.getInputParamAndIdentifier = function () {
-        var inputParam = "";
-        var identifier = "";
+        var inputParamAndIdentifier = '';
         var ballerinaASTFactory = this.getFactory();
 
         _.forEach(this.getChildren(), function (child) {
             if (ballerinaASTFactory.isResourceParameter(child)) {
-                identifier = child.getIdentifier();
-                _.forEach(child.getChildren(), function (resourceChild) {
-                    if(ballerinaASTFactory.isSimpleTypeName(resourceChild)){
-                        inputParam = resourceChild.getName();
-                    }
-                });
+                inputParamAndIdentifier =  child.getArgumentAsString();
             }
         });
-        return inputParam + " " + identifier;
+        return inputParamAndIdentifier;
     };
 
     /**
