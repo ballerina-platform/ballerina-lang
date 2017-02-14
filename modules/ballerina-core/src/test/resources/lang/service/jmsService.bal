@@ -10,3 +10,10 @@ service jmsService {
     }
 }
 
+@Source (
+protocol = "jms", destination = "queue", connectionFactoryJNDIName = "QueueConnectionFactory",
+factoryInitial = "org.apache.activemq.jndi.ActiveMQInitialContextFactory", providerUrl = "vm://localhost?broker.persistent=false",
+connectionFactoryType = "queue")
+service jmsServiceWithoutResource {
+}
+
