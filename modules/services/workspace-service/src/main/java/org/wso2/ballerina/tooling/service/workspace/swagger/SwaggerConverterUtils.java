@@ -165,7 +165,7 @@ public class SwaggerConverterUtils {
         for (CodegenOperation entry : pathMap) {
             String httpMethod = entry.httpMethod;
             String operationId = entry.operationId;
-            resourceBuilder.setSymbolName(new SymbolName(operationId));
+            resourceBuilder.setName(operationId);
             if (entry.hasConsumes) {
                 resourceBuilder.addAnnotation(
                         new Annotation(null, new SymbolName("Consumes"), entry.consumes.toString(), null));

@@ -60,7 +60,7 @@ define(['lodash', 'log', './simple-statement-view', './../ast/reply-statement', 
             // Calling super class's render function.
             (this.__proto__.__proto__).render.call(this, diagramRenderingContext);
             // Setting display text.
-            this.renderDisplayText("Reply");
+            this.renderDisplayText(this.getModel().getReplyExpression());
 
             // Drawing arrow.
             var statementGroup = this.getStatementGroup();
@@ -107,6 +107,8 @@ define(['lodash', 'log', './simple-statement-view', './../ast/reply-statement', 
 
         ReplyStatementView.prototype.updateResponseMessage = function (newMessageText, propertyKey) {
             this._model.setReplyMessage(newMessageText);
+            var displayText = this._model.getReplyExpression();
+            this.renderDisplayText(displayText);
         };
 
         return ReplyStatementView;

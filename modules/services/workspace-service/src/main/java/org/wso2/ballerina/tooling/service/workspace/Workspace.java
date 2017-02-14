@@ -39,5 +39,7 @@ public interface Workspace {
 
       void write(String path, String content) throws IOException;
 
+      JsonObject read(String path) throws IOException;
+
       void log(String logger, String timestamp, String level, String URL, String message, String layout) throws IOException;
 }
