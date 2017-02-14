@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './simple-statement-view', './../ast/reply-statement', 'd3utils', 'd3', './point'],
-    function (_, log, SimpleStatementView, ReplyStatement, D3Utils, d3, Point) {
+define(['lodash', 'log', './simple-statement-view', './../ast/reply-statement', 'd3utils', 'd3', './point', './../ast/ballerina-ast-factory'],
+    function (_, log, SimpleStatementView, ReplyStatement, D3Utils, d3, Point, BallerinaASTFactory) {
 
         /**
          * The view to represent a reply statement which is an AST visitor.
@@ -67,15 +67,31 @@ define(['lodash', 'log', './simple-statement-view', './../ast/reply-statement', 
             var bBox = this.getBoundingBox();
             var x = bBox.x(), y = bBox.y(), w = bBox.w(), h = bBox.h();
             var distanceToClient = this.getViewOptions().distanceToClient - (w / 2);
-            var replyArrow = D3Utils.group(statementGroup);
-            var replyLineStartPoint = new Point(x, (y + (h / 2)));
-            var replyLineEndPoint = new Point((x - distanceToClient), (y + (h / 2)));
-            var replyLine = D3Utils.lineFromPoints(replyLineStartPoint, replyLineEndPoint, replyArrow)
-                                   .classed('message', true);
-            var replyArrowHead = D3Utils.outputTriangle(replyLineEndPoint.x(), replyLineEndPoint.y(), replyArrow)
-                                        .classed("action-arrow", true);
-            replyArrow.arrowLineElement = replyLine;
-            replyArrow.arrowHeadElement = replyArrowHead;
+            var replyArrow = undefined;
+            var replyLine = undefined;
+            var replyArrowHead = undefined;
+
+            if (BallerinaASTFactory.isResourceDefinition(this.getModel().getParent())) {
+                replyArrow = D3Utils.group(statementGroup);
+                var replyLineStartPoint = new Point(x, (y + (h / 2)));
+                var replyLineEndPoint = new Point((x - distanceToClient), (y + (h / 2)));
+                replyLine = D3Utils.lineFromPoints(replyLineStartPoint, replyLineEndPoint, replyArrow)
+                    .classed('message', true);
+                replyArrowHead = D3Utils.outputTriangle(replyLineEndPoint.x(), replyLineEndPoint.y(), replyArrow)
+                    .classed("action-arrow", true);
+                replyArrow.arrowLineElement = replyLine;
+                replyArrow.arrowHeadElement = replyArrowHead;
+
+                bBox.on('top-edge-moved', function (dy) {
+                    replyLine.attr('y1', parseFloat(replyLine.attr('y1')) + dy);
+                    replyLine.attr('y2', parseFloat(replyLine.attr('y2')) + dy);
+
+                    replyArrowHead.remove();
+                    var replyLineEndPoint = new Point((bBox.x() - distanceToClient), (bBox.y() + (bBox.h() / 2)));
+                    replyArrowHead = D3Utils.outputTriangle(replyLineEndPoint.x(), replyLineEndPoint.y(), replyArrow)
+                        .classed("action-arrow", true);
+                });
+            }
 
             // Creating property pane.
             var model = this.getModel();
@@ -92,16 +108,6 @@ define(['lodash', 'log', './simple-statement-view', './../ast/reply-statement', 
                                          editableProperties: editableProperty
                                      });
             this.listenTo(model, 'update-property-text', this.updateResponseMessage);
-
-            bBox.on('top-edge-moved', function (dy) {
-                replyLine.attr('y1', parseFloat(replyLine.attr('y1')) + dy);
-                replyLine.attr('y2', parseFloat(replyLine.attr('y2')) + dy);
-
-                replyArrowHead.remove();
-                var replyLineEndPoint = new Point((bBox.x() - distanceToClient), (bBox.y() + (bBox.h() / 2)));
-                replyArrowHead = D3Utils.outputTriangle(replyLineEndPoint.x(), replyLineEndPoint.y(), replyArrow)
-                                        .classed("action-arrow", true);
-            });
             return statementGroup;
         };
 

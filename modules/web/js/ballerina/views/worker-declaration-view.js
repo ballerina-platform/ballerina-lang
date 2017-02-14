@@ -33,6 +33,7 @@ define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', '
             this._parent = _.get(args, "parent");
             this._LifeLineCenterGap = 180;
             this._statementContainer = undefined;
+            this._middleRectangle = undefined;
 
             if (_.isNil(_.get(args, 'toolPalette'))) {
                 log.error("Tool Palette is undefined");

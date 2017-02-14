@@ -126,10 +126,6 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                     prevStatementView.getBoundingBox().on("bottom-edge-moved", function(offsetY){
                         statementView.getBoundingBox().move(0, offsetY);
                     });
-
-                    // Re bind the broken event for the current drop zone
-                    this._managedInnerDropzones[this._selectedInnerDropZoneIndex].listenTo(statementView.getBoundingBox(),
-                        'bottom-edge-moved', this._managedInnerDropzones[this._selectedInnerDropZoneIndex].onLastStatementBottomEdgeMoved);
                 } else{
                     statementView.listenTo(this.getBoundingBox(), 'top-edge-moved', function(dy){
                         statementView.getBoundingBox().y(statementView.getBoundingBox().y() + dy);
@@ -147,12 +143,10 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 // insert at specific position
                 this._managedStatements.splice(this._selectedInnerDropZoneIndex, 0, statement);
 
-
                 // render a new innerDropZone on top of next statement block's top
                 newDropZoneTopCenter = new Point(this.getBoundingBox().getTopCenterX(),
                     nextStatementView.getBoundingBox().y() - this._gap);
                 _.set(dropZoneOptions, 'topCenter', newDropZoneTopCenter);
-                _.set(dropZoneOptions, 'statementId', statementView._model.id);
                 var innerDropZone = this._createNextInnerDropZone(dropZoneOptions, _.findIndex(this._managedStatements, ['id', nextStatement.id]));
                 innerDropZone.listenTo(statementView.getBoundingBox(), 'bottom-edge-moved', innerDropZone.onLastStatementBottomEdgeMoved);
 
@@ -182,7 +176,6 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                                 statementView.getBoundingBox().y() - this._gap);
 
                 _.set(dropZoneOptions, 'topCenter', newDropZoneTopCenter);
-                _.set(dropZoneOptions, 'statementId', statementView._model.id);
                 var innerDropZone = this._createNextInnerDropZone(dropZoneOptions);
                 innerDropZone.listenTo(lastStatementView.getBoundingBox(), 'bottom-edge-moved', innerDropZone.onLastStatementBottomEdgeMoved);
             }
@@ -204,7 +197,6 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             // this is the fist statement - create dropzone on top
             newDropZoneTopCenter = topCenter.clone().move(0, - this._gap);
             _.set(dropZoneOptions, 'topCenter', newDropZoneTopCenter);
-            _.set(dropZoneOptions, 'statementId', statementView._model.id);
             var innerDropZone = this._createNextInnerDropZone(dropZoneOptions);
             if(this.getBoundingBox().getBottom() < statementView.getBoundingBox().getBottom()){
                 this.getBoundingBox().h(statementView.getBoundingBox().h() +
@@ -330,7 +322,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         var innerDZone = D3Utils.rect(options.topCenter.x() - options.width/2,
             options.topCenter.y(), options.width,
             options.height, 0, 0, this._rootGroup)
-            .classed( _.get(this._viewOptions, 'cssClass.innerDropZone'), true).attr('id',options.statementId);
+            .classed( _.get(this._viewOptions, 'cssClass.innerDropZone'), true);
         var dropZoneOptions = {
             dropZone: innerDZone,
             hoverClass: _.get(this._viewOptions, 'cssClass.innerDropZoneHover')
@@ -368,8 +360,9 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
            return newNodeIndex;
         };
         var mouseOverHandler = function() {
-            //if someone is dragging a tool from tool-palette
-            if(self.toolPalette.dragDropManager.isOnDrag()){
+
+            var ownerView = self.diagramRenderingContext.getViewOfModel(self.getModel());
+            if(self.toolPalette.dragDropManager.isOnDrag() || (!_.isNil(ownerView.messageManager) && ownerView.messageManager.isOnDrag())){
                 self._selectedInnerDropZoneIndex = _.findIndex(self._managedInnerDropzones, ['d3el', d3.select(this)]);
 
                 if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self)){
@@ -378,36 +371,66 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
                 // register this as a drop target and validate possible types of nodes to drop - second arg is a call back to validate
                 // tool view will use this to provide feedback on impossible drop zones
-                self.toolPalette.dragDropManager.setActivatedDropTarget(self._model, function(nodeBeingDragged){
-                    var nodeFactory = self._model.getFactory();
-                    // IMPORTANT: override resource definition node's default validation logic
-                    // This drop zone is for statements only.
-                    // Statements should only be allowed here.
-                    return nodeFactory.isStatement(nodeBeingDragged);
-                }, getDroppedNodeIndex);
+                if (self.toolPalette.dragDropManager.isOnDrag()) {
+                    self.toolPalette.dragDropManager.setActivatedDropTarget(self._model, function (nodeBeingDragged) {
+                        var nodeFactory = self._model.getFactory();
+                        // IMPORTANT: override resource definition node's default validation logic
+                        // This drop zone is for statements only.
+                        // Statements should only be allowed here.
+                        return nodeFactory.isStatement(nodeBeingDragged);
+                    }, getDroppedNodeIndex);
 
-                // indicate drop area
-                dropZone.classed(hoverClass, true);
+                    // indicate drop area
+                    dropZone.classed(hoverClass, true);
 
-                // reset ui feed back on drop target change
-                self.toolPalette.dragDropManager.once("drop-target-changed", function(){
-                    dropZone.classed(hoverClass, false);
-                });
+                    // reset ui feed back on drop target change
+                    self.toolPalette.dragDropManager.once("drop-target-changed", function(){
+                        dropZone.classed(hoverClass, false);
+                    });
+                } else if (!_.isNil(ownerView.messageManager) && ownerView.messageManager.isOnDrag()) {
+                    ownerView.messageManager.setActivatedDropTarget(self._model, function(nodeBeingDragged){
+                        return true;
+                    });
+                    // indicate drop area
+                    dropZone.classed(hoverClass, true);
+
+                    // reset ui feed back on drop target change
+                    ownerView.messageManager.once("drop-target-changed", function(){
+                        dropZone.classed(hoverClass, false);
+                    });
+                }
             }
             d3.event.stopPropagation();
         };
 
         var mouseOutHandler = function() {
+            var ownerView = self.diagramRenderingContext.getViewOfModel(self.getModel());
             // reset ui feed back on hover out
             if(self.toolPalette.dragDropManager.isOnDrag()){
                 if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self._model)){
                     dropZone.classed(hoverClass, false);
                 }
+            } else if ((!_.isNil(ownerView.messageManager) && ownerView.messageManager.isOnDrag())) {
+                if(_.isEqual(ownerView.messageManager.getActivatedDropTarget(), self._model)){
+                    dropZone.classed(hoverClass, false);
+                }
             }
             d3.event.stopPropagation();
         };
+        var mouseUpHandler = function() {
+            var ownerView = self.diagramRenderingContext.getViewOfModel(self.getModel());
+            if ((!_.isNil(ownerView.messageManager) && ownerView.messageManager.isOnDrag())) {
+                // Execute the logic only if message manager is dragging (drawing the worker invoke)
+                var messageSource = ownerView.messageManager.getMessageSource();
+                var newY = messageSource.getBoundingBox().getBottom() + 30;
+                self.diagramRenderingContext.getViewOfModel(self._managedStatements[0]).getBoundingBox().y(newY);
+                // Move the first inner drop zone down
+                self._managedInnerDropzones[0].d3el.attr('y', newY - 30);
+            }
+        };
         dropZone.on("mouseover", mouseOverHandler);
         dropZone.on("mouseout", mouseOutHandler);
+        // dropZone.on("mouseup", mouseUpHandler);
     };
 
     /**
@@ -423,16 +446,19 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             undefined : this.diagramRenderingContext.getViewOfModel(this._managedStatements[childStatementIndex - 1]);
         var nextStatementView = childStatementIndex === this._managedStatements.length - 1 ?
             undefined : this.diagramRenderingContext.getViewOfModel(_.nth(this._managedStatements, childStatementIndex + 1));
+        // switch off all events
+        childStatementView.getBoundingBox().off();
 
-        childStatementView.getBoundingBox().off('bottom-edge-moved');
         if (!_.isNil(nextStatementView)) {
             if (!_.isNil(previousStatementView)) {
-                var nextDropZone = this._managedInnerDropzones[childStatementIndex].d3el;
-                var nextDropZoneOffset = -(this.getDiagramRenderingContext().getViewOfModel(childStatement).getBoundingBox().h()) - 30;
+                var nextDropZone = this._managedInnerDropzones[childStatementIndex + 1];
                 previousStatementView.getBoundingBox().on('bottom-edge-moved', function (offsetY) {
                     nextStatementView.getBoundingBox().move(0, offsetY);
                 });
-                nextDropZone.attr('y', parseFloat(nextDropZone.attr('y')) + nextDropZoneOffset);
+                nextDropZone.listenTo(previousStatementView.getBoundingBox(), 'bottom-edge-moved',
+                    nextDropZone.onLastStatementBottomEdgeMoved);
+                nextDropZone.d3el.attr('y', previousStatementView.getBoundingBox().getBottom());
+                nextStatementView.getBoundingBox().y(previousStatementView.getBoundingBox().getBottom() + this._gap);
             } else {
                 // If the previous element is null then we have deleted the first element
                 // then the next element becomes the top/ first element
@@ -451,6 +477,9 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             this.setLastStatementView(previousStatementView)
         }
 
+        var innerDropZone = this._managedInnerDropzones[childStatementIndex];
+        innerDropZone.d3el.node().remove();
+        this._managedInnerDropzones.splice(childStatementIndex, 1);
         this._managedStatements.splice(childStatementIndex, 1);
 
         if (this._widestStatementView === childStatementView) {
@@ -465,38 +494,6 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                                                                        this.diagramRenderingContext);
                 this._updateContainerWidth(this._widestStatementView.getBoundingBox().w());
             }
-        }
-    };
-
-    /**
-     * Remove the inner drop zone
-     * @param {ASTNode} child - child node
-     */
-    StatementContainerView.prototype.removeInnerDropZone = function (child) {
-        var childStatementIndex = _.findIndex(this._managedStatements, function(childStatement) {
-            return childStatement.id === child.id;
-        });
-        var innerDropZone = undefined;
-        var removeIndex = -1;
-        // If this is the only element
-        if (this._managedStatements.length === 1 && this._managedInnerDropzones.length === 1) {
-            removeIndex = 0;
-        } else if ((this._managedStatements.length - 1 === childStatementIndex) || childStatementIndex === 0) {
-            // If this is the first or the last element
-            removeIndex = childStatementIndex;
-        } else {
-            removeIndex = childStatementIndex;
-            var previousView = this.diagramRenderingContext.getViewOfModel(this._managedStatements[removeIndex - 1]);
-            var viewToDelete = this.diagramRenderingContext.getViewOfModel(this._managedStatements[removeIndex]);
-            this._managedInnerDropzones[removeIndex + 1].stopListening(viewToDelete.getBoundingBox());
-            this._managedInnerDropzones[removeIndex + 1].listenTo(previousView.getBoundingBox(), 'bottom-edge-moved',
-                this._managedInnerDropzones[removeIndex + 1].onLastStatementBottomEdgeMoved);
-        }
-
-        if (removeIndex > -1) {
-            innerDropZone = this._managedInnerDropzones[removeIndex];
-            innerDropZone.d3el.node().remove();
-            this._managedInnerDropzones.splice(removeIndex, 1);
         }
     };
 
