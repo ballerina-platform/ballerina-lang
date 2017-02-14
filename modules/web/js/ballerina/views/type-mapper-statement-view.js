@@ -132,7 +132,7 @@ define(['lodash', 'log','./ballerina-view','ballerina/ast/ballerina-ast-factory'
             });
 
             var targetFieldExpression = _.find(targetStructFieldAccessExpression.getChildren(), function (child) {
-                return BallerinaASTFactory.isFieldExpression(child);
+                return BallerinaASTFactory.isStructFieldAccessExpression(child);
             });
 
             var complexTargetProperties = this.getExpressionProperties(targetFieldExpression,targetStructSchema,[]);
@@ -163,7 +163,7 @@ define(['lodash', 'log','./ballerina-view','ballerina/ast/ballerina-ast-factory'
             }
 
             var sourceFieldExpression = _.find(sourceStructFieldAccessExpression.getChildren(), function (child) {
-                return BallerinaASTFactory.isFieldExpression(child);
+                return BallerinaASTFactory.isStructFieldAccessExpression(child);
             });
 
             var complexSourceProperties = this.getExpressionProperties(sourceFieldExpression,sourceStructSchema,[]);
@@ -252,7 +252,7 @@ define(['lodash', 'log','./ballerina-view','ballerina/ast/ballerina-ast-factory'
             propertyArray.push(tempAttr);
 
             var innerFieldExpression = _.find(fieldExpression.getChildren(), function (child) {
-                return BallerinaASTFactory.isFieldExpression(child);
+                return BallerinaASTFactory.isStructFieldAccessExpression(child);
             });
 
             if(!_.isUndefined(innerFieldExpression)) {
