@@ -113,5 +113,12 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             return this._viewOptions;
         };
 
+        ElseIfStatementView.prototype.render = function (diagramRenderingContext) {
+            BlockStatementView.prototype.render.call(this, diagramRenderingContext);
+            this.listenTo(this._model, 'update-property-text', function(value, key){
+                this._model.setCondition(value);
+            });
+        };
+
         return ElseIfStatementView;
     });

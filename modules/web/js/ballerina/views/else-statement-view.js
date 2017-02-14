@@ -41,5 +41,12 @@ define(['require', 'lodash', 'jquery', 'log', './block-statement-view'],
             return true;
         };
 
+        ElseStatementView.prototype.render = function (diagramRenderingContext) {
+            BlockStatementView.prototype.render.call(this, diagramRenderingContext);
+            this.listenTo(this._model, 'update-property-text', function(value, key){
+                this._model.setCondition(value);
+            });
+        };
+
         return ElseStatementView;
     });
