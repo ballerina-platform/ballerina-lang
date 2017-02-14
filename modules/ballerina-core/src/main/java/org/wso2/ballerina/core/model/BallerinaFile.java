@@ -67,6 +67,8 @@ public class BallerinaFile implements Node {
 
     private SymScope packageScope;
 
+    private List<String> errorMsgs = new ArrayList<>();
+
     private BallerinaFile(
             String pkgName,
             Map<String, ImportPackage> importPkgMap,
@@ -78,7 +80,8 @@ public class BallerinaFile implements Node {
             Function mainFunction,
             ConstDef[] consts,
             StructDef[] structDefs,
-            TypeLattice typeLattice) {
+            TypeLattice typeLattice,
+            List<String> errorMsgs) {
 
         this.pkgName = pkgName;
         this.importPkgMap = importPkgMap;
@@ -91,6 +94,7 @@ public class BallerinaFile implements Node {
         this.consts = consts;
         this.structDefs = structDefs;
         this.typeLattice = typeLattice;
+        this.errorMsgs = errorMsgs;
 
         packageScope = new SymScope(SymScope.Name.PACKAGE);
     }
@@ -180,6 +184,10 @@ public class BallerinaFile implements Node {
         this.sizeOfStaticMem = sizeOfStaticMem;
     }
 
+    public List<String> getErrorMsgs() {
+        return errorMsgs;
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -213,6 +221,8 @@ public class BallerinaFile implements Node {
         private List<ConstDef> constList = new ArrayList<>();
 
         private List<StructDef> structDefList = new ArrayList<>();
+
+        private List<String> errorMsgs = new ArrayList<>();
 
         public BFileBuilder() {
         }
@@ -274,6 +284,14 @@ public class BallerinaFile implements Node {
             this.structDefList.add(structDef);
         }
 
+        public void addErrorMsg(String errorMsg) {
+            this.errorMsgs.add(errorMsg);
+        }
+
+        public void setErrorMsgs(List<String> errorMsgs) {
+            this.errorMsgs = errorMsgs;
+        }
+
         public BallerinaFile build() {
             return new BallerinaFile(
                     pkgName,
@@ -286,7 +304,8 @@ public class BallerinaFile implements Node {
                     mainFunction,
                     constList.toArray(new ConstDef[constList.size()]),
                     structDefList.toArray(new StructDef[structDefList.size()]),
-                    typeLattice
+                    typeLattice,
+                    errorMsgs
             );
         }
     }
