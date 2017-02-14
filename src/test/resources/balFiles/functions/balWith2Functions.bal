@@ -1,8 +1,8 @@
 package a.b;
 
-@Description("test method")
-@Param("args: a string argument")
-@Return("response: an integer")
+@doc:Description("test method")
+@doc:Param("args: a string argument")
+@doc:Return("response: an integer")
 function abc (string[] args) (int response) {
     //system:println("Hello, World! "+args[0]);
     return 5;
