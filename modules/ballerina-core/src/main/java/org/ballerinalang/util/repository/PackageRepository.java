@@ -22,25 +22,22 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- *
- *
  * @since 0.8.0
  */
 public abstract class PackageRepository {
 
     public abstract PackageSource loadPackage(Path packageDirPath);
 
-    protected PackageSource loadPackageFromDirectory(Path baseDirPath, Path packageDirPath) {
+    public abstract PackageSource loadFile(Path filePath);
 
-        // TODO construct the package-path from the give Path object
-        // E.g. org/sameera/calc -> org.sameera.calc
-        String pkgPathStr = replaceDelimiterWithDots(packageDirPath);
-
+    protected PackageSource loadPackageFromDirectory(Path packageDirPath, Path baseDirPath) {
         Map<String, InputStream> fileStreamMap;
         try {
             fileStreamMap = Files.list(baseDirPath.resolve(packageDirPath))
@@ -52,6 +49,13 @@ public abstract class PackageRepository {
         }
 
         return new PackageSource(packageDirPath, fileStreamMap, this);
+    }
+
+    protected PackageSource loadFileFromDirectory(Path filePath, Path baseDirPath) {
+        InputStream inputStream = getInputStream(baseDirPath.resolve(filePath));
+        Map<String, InputStream> fileStreamMap = new HashMap<>(1);
+        fileStreamMap.put(filePath.getFileName().toString(), inputStream);
+        return new PackageSource(Paths.get("."), fileStreamMap, this);
     }
 
     private InputStream getInputStream(Path filePath) {

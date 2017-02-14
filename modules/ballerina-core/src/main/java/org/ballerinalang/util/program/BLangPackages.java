@@ -27,13 +27,8 @@ import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.nativeimpl.NativePackageProxy;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -78,30 +73,21 @@ public class BLangPackages {
     }
 
     public static BLangPackage loadFile(Path filePath, PackageRepository packageRepo, BLangProgram bLangProgram) {
-        InputStream inputStream;
-        try {
-            inputStream = Files.newInputStream(filePath, StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS);
-        } catch (IOException e) {
-            // TODO Handle errors
-            throw new RuntimeException(e.getMessage(), e);
-        }
-
+        PackageRepository.PackageSource pkgSource = packageRepo.loadFile(filePath);
         BLangPackage.PackageBuilder packageBuilder =
-                new BLangPackage.PackageBuilder(null, packageRepo, bLangProgram);
-        BallerinaFile bFile = BLangFiles.loadFile(filePath.getFileName().toString(), null, inputStream, packageBuilder);
-        packageBuilder.addBallerinaFile(bFile);
-        BLangPackage bLangPackage = packageBuilder.build();
+                new BLangPackage.PackageBuilder(".", pkgSource.getPackageRepository(), bLangProgram);
 
         // Resolve dependent packages of this package
-        return resolveDependencies(bLangPackage, bLangProgram);
+        return loadPackageInternal(pkgSource, packageBuilder, bLangProgram);
     }
 
     private static void validatePackagePathInFile(String pkgPathStr, Path packagePath, BallerinaFile bFile) {
         if (!pkgPathStr.equals(bFile.getPackagePath())) {
             String actualPkgPath = (bFile.getPackagePath() != null) ? bFile.getPackagePath() : "";
+            String expectedPkg = (!pkgPathStr.equals(".")) ? pkgPathStr : "";
             String filePath = packagePath.resolve(bFile.getFileName()).toString();
             throw new BallerinaException(filePath + ": incorrect package" +
-                    ": expected '" + pkgPathStr + "', found '" + actualPkgPath + "'");
+                    ": expected '" + expectedPkg + "', found '" + actualPkgPath + "'");
         }
     }
 

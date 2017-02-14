@@ -17,48 +17,7 @@
 */
 package org.ballerinalang.util.repository;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 public class RepositoryUtils {
 
-    public static ProgramPackageRepository initializeProgramRepository(Path programDirPath) {
-        // TODO Refactor this method
-        // 1) Create System repository
-        String ballerinaHome = System.getProperty("ballerina.home");
-        if (ballerinaHome == null || ballerinaHome.isEmpty()) {
-            throw new IllegalStateException("ballerina.home is not set");
-        }
-
-        Path systemRepoPath = Paths.get(ballerinaHome);
-        if (Files.notExists(systemRepoPath)) {
-            throw new IllegalStateException("ballerina installation directory does not exists");
-        }
-
-        SystemPackageRepository systemPkgRepo = new SystemPackageRepository(systemRepoPath);
-
-        // 2) Create user repository
-        Path userPkgRepoPath;
-        String ballerinaRepoProp = System.getenv("BALLERINA_REPOSITORY");
-        if (ballerinaRepoProp == null || ballerinaRepoProp.isEmpty()) {
-            String userHome = System.getProperty("user.home");
-            userPkgRepoPath = Paths.get(userHome, ".ballerina");
-            if (Files.notExists(userPkgRepoPath)) {
-                try {
-                    Files.createDirectory(userPkgRepoPath);
-                } catch (IOException e) {
-                    throw new IllegalStateException("failed to create user repository at '" +
-                            userPkgRepoPath.toString() + "'");
-                }
-            }
-        } else {
-            userPkgRepoPath = Paths.get(ballerinaRepoProp);
-        }
-
-        UserPackageRepository userPkgRepo = new UserPackageRepository(userPkgRepoPath, systemPkgRepo);
-        return new ProgramPackageRepository(programDirPath, systemPkgRepo, userPkgRepo);
-    }
 
 }

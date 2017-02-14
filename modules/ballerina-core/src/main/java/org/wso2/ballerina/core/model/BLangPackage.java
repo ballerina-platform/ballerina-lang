@@ -180,7 +180,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         
         // resolve the package symbol first
         SymbolName pkgSymbolName = new SymbolName(name.getPkgPath());
-        BLangSymbol pkgSymbol = symbolMap.get(pkgSymbolName);
+        BLangSymbol pkgSymbol = getEnclosingScope().resolve(pkgSymbolName);
         if (pkgSymbol == null) {
             return null;
         }

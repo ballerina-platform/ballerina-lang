@@ -29,6 +29,7 @@ import java.util.Map;
 public class BLangProgram implements SymbolScope, Node {
     private static final SymbolName mainFuncSymboleName = new SymbolName("main.string[]");
 
+    private String entryPoint;
     private Path programFilePath;
     private BLangPackage mainPackage;
 
@@ -64,6 +65,14 @@ public class BLangProgram implements SymbolScope, Node {
 
     public BallerinaFunction getMainFunction() {
         return (BallerinaFunction) mainPackage.resolveMembers(mainFuncSymboleName);
+    }
+
+    public String getEntryPoint() {
+        return entryPoint;
+    }
+
+    public void setEntryPoint(String entryPoint) {
+        this.entryPoint = entryPoint;
     }
 
     public BLangPackage[] getPackages() {

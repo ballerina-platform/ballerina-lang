@@ -62,7 +62,12 @@ public class BuiltinPackageRepository extends PackageRepository {
         PackageSource builtInBalSource = new PackageSource(packageDirPath, sourceFileStreamMap, this);
         return builtInBalSource;
     }
-    
+
+    @Override
+    public PackageSource loadFile(Path filePath) {
+        return null;
+    }
+
     /**
      * Get all the file names listed under the package.
      * 

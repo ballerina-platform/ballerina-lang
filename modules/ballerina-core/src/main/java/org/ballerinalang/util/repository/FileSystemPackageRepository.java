@@ -20,12 +20,23 @@ package org.ballerinalang.util.repository;
 import java.nio.file.Path;
 
 /**
- *
  * @since 0.8.0
  */
-public class ProgramArchivePackageRepository extends PackageRepository {
+public class FileSystemPackageRepository extends PackageRepository {
+    private Path programDirPath;
+
+
+    public FileSystemPackageRepository(Path programDirPath) {
+        this.programDirPath = programDirPath;
+    }
+
     @Override
     public PackageSource loadPackage(Path packageDirPath) {
-        return null;
+        return loadPackageFromDirectory(packageDirPath, programDirPath);
+    }
+
+    @Override
+    public PackageSource loadFile(Path filePath) {
+        return loadFileFromDirectory(filePath, programDirPath);
     }
 }

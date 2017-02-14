@@ -6,6 +6,10 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterDescription;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
+import org.ballerinalang.BLangProgramArchiveBuilder;
+import org.ballerinalang.BLangProgramLoader;
+import org.ballerinalang.util.repository.BLangProgramArchive;
+import org.wso2.ballerina.core.model.BLangProgram;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -39,6 +43,7 @@ public class Main {
             Runtime.getRuntime().exit(1);
         } catch (Throwable e) {
             String msg = e.getMessage();
+            e.printStackTrace();
             if (msg == null) {
                 outStream.println("ballerina: unexpected error occurred");
             } else {
@@ -304,13 +309,33 @@ public class Main {
     private static class BuildCmd implements BLauncherCmd {
 
         @Parameter(arity = 1, description = "builds the given package with all the dependencies")
-        private List<String> sourceFileList;
+        private List<String> argList;
 
         @Parameter(names = "--debug", hidden = true)
         private String debugPort;
 
         public void execute() {
-            outStream.println("ballerina: 'build' command is still being developed");
+            if (argList == null || argList.size() == 0) {
+                throw LauncherUtils.createUsageException("no ballerina program given");
+            }
+
+            List<String> programArgs;
+            if (argList.size() > 1) {
+                programArgs = argList.subList(1, argList.size());
+            } else {
+                programArgs = new ArrayList<>(0);
+            }
+
+            Path p = Paths.get(argList.get(0));
+            p = p.toAbsolutePath();
+
+            Path programDirPath = Paths.get(System.getProperty("user.dir"));
+            BLangProgram bLangProgram = new BLangProgramLoader()
+                    .load(programDirPath, p);
+
+            // TODO Delete existing file  or WARNING
+
+            new BLangProgramArchiveBuilder().build(bLangProgram);
         }
 
         @Override

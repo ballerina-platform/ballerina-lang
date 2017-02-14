@@ -18,8 +18,9 @@
 package org.ballerinalang;
 
 import org.ballerinalang.util.program.BLangPackages;
+import org.ballerinalang.util.repository.BLangProgramArchive;
+import org.ballerinalang.util.repository.FileSystemPackageRepository;
 import org.ballerinalang.util.repository.PackageRepository;
-import org.ballerinalang.util.repository.RepositoryUtils;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.GlobalScope;
@@ -44,6 +45,66 @@ public class BLangProgramLoader {
 
     private boolean disableSemanticAnalyzer = false;
 
+    public BLangProgram loadArchive(Path archivePath) {
+        if (archivePath == null) {
+            throw new IllegalStateException("program archive cannot be null");
+        }
+
+        if (!archivePath.getFileName().toString().endsWith(".bpz")) {
+            throw new IllegalStateException("invalid ballerina program archive");
+        }
+
+        try {
+            archivePath = archivePath.toRealPath(LinkOption.NOFOLLOW_LINKS);
+        } catch (NoSuchFileException x) {
+            System.out.println("No such file");
+            throw new RuntimeException(x.getMessage(), x);
+        } catch (IOException e) {
+            // TODO
+            throw new RuntimeException(e.getMessage(), e);
+        }
+
+        // Get the global scope
+        GlobalScope globalScope = GlobalScope.getInstance();
+        BTypes.loadBuiltInTypes(globalScope);
+        BuiltInNativeConstructLoader.loadConstructs(globalScope);
+
+        // Creates program scope for this Ballerina program
+        BLangProgram bLangProgram = new BLangProgram(globalScope, archivePath);
+
+        BLangPackage mainPackage;
+        try (BLangProgramArchive programArchive = new BLangProgramArchive(archivePath)) {
+            programArchive.loadArchive();
+            String entryPoint = programArchive.getEntryPoint();
+            if (entryPoint.endsWith(".bal")) {
+                Path filePath = Paths.get(entryPoint);
+                mainPackage = BLangPackages.loadFile(filePath, programArchive, bLangProgram);
+                bLangProgram.setEntryPoint(filePath.getFileName().toString());
+            } else {
+                Path packagePath = Paths.get(entryPoint);
+                mainPackage = BLangPackages.loadPackage(packagePath, programArchive, bLangProgram);
+                bLangProgram.setEntryPoint(packagePath.toString());
+            }
+
+        } catch (Exception e) {
+            // TODO Handle
+            throw new RuntimeException(e.getMessage(), e);
+        }
+
+        bLangProgram.define(new SymbolName(mainPackage.getPackagePath()), mainPackage);
+
+        // TODO Find cyclic dependencies
+        bLangProgram.setMainPackage(mainPackage);
+
+        // Analyze the semantic properties of the Ballerina program
+        if (!disableSemanticAnalyzer) {
+            SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bLangProgram);
+            bLangProgram.accept(semanticAnalyzer);
+        }
+
+        return bLangProgram;
+    }
+
     public BLangProgram load(Path programDirPath, Path sourcePath) {
         if (programDirPath == null) {
             throw new IllegalStateException("program directory cannot be null");
@@ -55,7 +116,7 @@ public class BLangProgramLoader {
 
 
         try {
-            programDirPath = programDirPath.toRealPath();
+            programDirPath = programDirPath.toRealPath(LinkOption.NOFOLLOW_LINKS);
             sourcePath = programDirPath.resolve(sourcePath).toRealPath();
 
             if (!sourcePath.startsWith(programDirPath)) {
@@ -76,7 +137,7 @@ public class BLangProgramLoader {
         BTypes.loadBuiltInTypes(globalScope);
         BuiltInNativeConstructLoader.loadConstructs(globalScope);
 
-        PackageRepository packageRepository = RepositoryUtils.initializeProgramRepository(programDirPath);
+        PackageRepository packageRepository = new FileSystemPackageRepository(programDirPath);
 
         // Creates program scope for this Ballerina program
         BLangProgram bLangProgram = new BLangProgram(globalScope, programDirPath);
@@ -85,6 +146,7 @@ public class BLangProgramLoader {
         if (Files.isDirectory(sourcePath, LinkOption.NOFOLLOW_LINKS)) {
             Path packagePath = programDirPath.relativize(sourcePath);
             mainPackage = BLangPackages.loadPackage(packagePath, packageRepository, bLangProgram);
+            bLangProgram.setEntryPoint(packagePath.toString());
 
         } else {
             PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:*.bal");
@@ -92,7 +154,8 @@ public class BLangProgramLoader {
                 throw new RuntimeException("given source file is not a .bal file");
             }
 
-            mainPackage = BLangPackages.loadPackage(Paths.get("."), packageRepository, bLangProgram);
+            mainPackage = BLangPackages.loadFile(sourcePath, packageRepository, bLangProgram);
+            bLangProgram.setEntryPoint(sourcePath.getFileName().toString());
         }
 
         bLangProgram.define(new SymbolName(mainPackage.getPackagePath()), mainPackage);
