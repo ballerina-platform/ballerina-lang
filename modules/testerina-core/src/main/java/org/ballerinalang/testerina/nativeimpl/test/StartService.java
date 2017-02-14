@@ -15,9 +15,9 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.testerina.nativeimpl.mock;
+package org.ballerinalang.testerina.nativeimpl.test;
 
-import org.ballerinalang.testerina.core.MockerinaRegistry;
+import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
@@ -50,18 +50,18 @@ import java.util.Arrays;
 import java.util.Optional;
 
 /**
- * Native function ballerina.lang.mock:startServer.
+ * Native function ballerina.lang.test:startServer.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.mock",
+        packageName = "ballerina.lang.test",
         functionName = "startService", args = {
         @Argument(name = "serviceName", type = TypeEnum.STRING) }, returnType = {
         @ReturnType(type = TypeEnum.STRING) }, isPublic = true)
 public class StartService extends AbstractNativeFunction {
 
-    private static final String MSG_PREFIX = "mock:startService: ";
+    private static final String MSG_PREFIX = "test:startService: ";
 
     static String getFileName(Path sourceFilePath) {
         Path fileNamePath = sourceFilePath.getFileName();
@@ -72,7 +72,7 @@ public class StartService extends AbstractNativeFunction {
      *
      * Starts the service specified in the 'serviceName' argument.
      *
-     * The MockerinaRegistry has the original BallerinaFile with all the services.
+     * The TesterinaRegistry has the original BallerinaFile with all the services.
      * It also contain the corresponding actual BallerinaFile object without any services. (the derivativeBFile)
      * An Application named 'default' is registered for the derivativeBFile.
      *
@@ -83,14 +83,14 @@ public class StartService extends AbstractNativeFunction {
 
         Application app = ApplicationRegistry.getInstance().getApplication("default");
         Optional<Service> matchingService = Optional.empty();
-        for (BallerinaFile aBallerinaFile : MockerinaRegistry.getInstance().getOriginalBallerinaFiles()) {
+        for (BallerinaFile aBallerinaFile : TesterinaRegistry.getInstance().getOriginalBallerinaFiles()) {
             Service[] services = aBallerinaFile.getServices();
 
             // 1) First, we get the Service for the given serviceName from the original BallerinaFile
             matchingService = Arrays.stream(services).filter(s -> s.getName().equals(serviceName)).findAny();
             if (matchingService.isPresent()) {
                 // 2) if matching service is found, we append that to the list of services in the derivativeBFile.
-                BallerinaFile derivativeBallerinaFile = MockerinaRegistry.getInstance()
+                BallerinaFile derivativeBallerinaFile = TesterinaRegistry.getInstance()
                         .getDerivativeBallerinaFile(aBallerinaFile); //the actual bfile registered in AppRegistry
                 startService(app, matchingService.get(), derivativeBallerinaFile);
             }
@@ -99,7 +99,7 @@ public class StartService extends AbstractNativeFunction {
         // 5) fail if no matching service for the given 'serviceName' argument is found.
         if (!matchingService.isPresent()) {
             StringBuilder listOfServices = new StringBuilder();
-            Arrays.stream(MockerinaRegistry.getInstance().getOriginalBallerinaFiles()).map(BallerinaFile::getServices)
+            Arrays.stream(TesterinaRegistry.getInstance().getOriginalBallerinaFiles()).map(BallerinaFile::getServices)
                     .flatMap(Arrays::stream)
                     .forEachOrdered(service -> listOfServices.append(service.getSymbolName().getName()).append(", "));
             throw new BallerinaException(MSG_PREFIX + "No service with the name " + serviceName + " found. "

@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.testerina.nativeimpl.mock;
 
-import org.ballerinalang.testerina.core.MockerinaRegistry;
+import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
@@ -141,7 +141,7 @@ public class SetValue extends AbstractNativeFunction {
         }
 
         if (variableDefStmt.getVariableDef().getType() instanceof AbstractNativeConnector) {
-            BallerinaFile ballerinaFile = MockerinaRegistry.getInstance().resolve(serviceMetadata.service);
+            BallerinaFile ballerinaFile = TesterinaRegistry.getInstance().resolve(serviceMetadata.service);
             RuntimeEnvironment reinitRuntimeEnvironment = RuntimeEnvironment.get(ballerinaFile);
             serviceMetadata.application.setRuntimeEnv(reinitRuntimeEnvironment);
         }

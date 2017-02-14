@@ -28,11 +28,11 @@ import java.util.Map;
  * Keep a registry of {@code {@link BallerinaFile}} instances.
  * This is required to modify the runtime behavior.
  */
-public class MockerinaRegistry {
+public class TesterinaRegistry {
     private static Map<BallerinaFile, BallerinaFile> bFiles = new HashMap<>();
-    private static final MockerinaRegistry instance = new MockerinaRegistry();
+    private static final TesterinaRegistry instance = new TesterinaRegistry();
 
-    public static MockerinaRegistry getInstance() {
+    public static TesterinaRegistry getInstance() {
         return instance;
     }
 
