@@ -420,8 +420,11 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     TypeMapperRenderer.prototype.makeStruct = function (struct, posX, posY, reference) {
         this.references.push({name: struct.id, refObj: reference});
         var newStruct = $('<div>').attr('id', struct.id).addClass('struct');
+        var structIcon = $('<i>').addClass('type-mapper-icon fw fw-struct fw-inverse');
+        var structName = $('<div>');
 
-        var structName = $('<div>').addClass('struct-name').text(struct.name);
+        structName.append(structIcon);
+        structName.append($('<span>').text(struct.name));
         newStruct.append(structName);
         newStruct.css({
             'top': posX,
@@ -442,7 +445,18 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.references.push({name: id, refObj: reference});
         var newFunc = $('<div>').attr('id', id).addClass('func');
         var self = this;
-        var funcName = $('<div>').addClass('func-name').text(func.name);
+        var funcName = $('<div>');
+        var funcIcon = $('<i>').addClass('type-mapper-icon fw fw-function fw-inverse');
+        var closeButton = $('<span>').attr('id', id+"-button").addClass('fw-stack fw-lg btn btn-remove');
+
+        var square =  $('<i>').addClass('fw fw-square fw-stack-1x');
+        var del =  $('<i>').addClass('fw fw-delete fw-stack-1x fw-inverse');
+
+        funcName.append(funcIcon);
+        funcName.append($('<span>').text(func.name));
+        closeButton.append(square);
+        closeButton.append(del);
+        funcName.append(closeButton);
         newFunc.append(funcName);
 
         newFunc.css({
@@ -451,6 +465,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         });
 
         $("#" + this.placeHolderName).append(newFunc);
+
+        $("#" + id + "-button").on("click", function (event) {
+                self.removeStruct(func.name);
+        });
 
         _.forEach(func.parameters, function (parameter) {
             var property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, true);
@@ -633,7 +651,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             alignment = 'TD';
         }
 
-        graph.setGraph({ranksep: '10', rankdir: alignment, edgesep: '10', marginx: '0'});
+        graph.setGraph({ranksep: '100', rankdir: alignment, edgesep: '100', marginx: '0'});
         graph.setDefaultEdgeLabel(function () {
             return {};
         });

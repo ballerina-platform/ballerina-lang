@@ -2,7 +2,8 @@
     color:#446191;
 }
 .btn-remove {
-    color:#738ebc;
+    color:#3d3d3d;
+    float:right;
 }
 .selector {
     margin: auto;
@@ -32,13 +33,14 @@
     color: #3d3d3d;
 }
 
-.struct-name {
+.type-mapper-icon {
     padding: 10px;
 }
+
 .struct {
     cursor: move;
     border: 1px solid gray;
-    width: 500px;
+    width: 400px;
     height: auto;
     background: #3d3d3d;
     color: #ffffff;
@@ -77,13 +79,10 @@ svg.plumbConnect path {
     color: #000000;
 }
 
-.func-name {
-    padding: 10px;
-}
 .func {
     cursor: move;
     border: 1px solid gray;
-    width: 500px;
+    width: 400px;
     height: auto;
     background: #3d3d3d;
     color: #ffffff;
@@ -115,4 +114,8 @@ svg.plumbConnect path {
     border: 2px;
     cursor: pointer;
     color: black;
+}
+
+.jstree-themeicon {
+    display:none !important;
 }
