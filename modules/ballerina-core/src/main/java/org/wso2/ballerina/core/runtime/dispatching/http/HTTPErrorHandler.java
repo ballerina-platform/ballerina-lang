@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.core.runtime.dispatching;
+package org.wso2.ballerina.core.runtime.dispatching.http;
 
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;

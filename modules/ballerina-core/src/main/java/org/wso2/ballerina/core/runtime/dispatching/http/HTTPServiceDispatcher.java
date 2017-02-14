@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.runtime.dispatching;
+package org.wso2.ballerina.core.runtime.dispatching.http;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +26,7 @@ import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
+import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.uri.URIUtil;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -118,7 +119,8 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
                 if (sourceInterfaceVal != null) {   //TODO: Filter non-http protocols
                     listenerInterface = sourceInterfaceVal;
                 }
-            } else if (annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH)) {
+            } else if (annotation.getName().equals(
+                    Constants.PROTOCOL_HTTP + ":" + Constants.ANNOTATION_NAME_BASE_PATH)) {
                 basePath = annotation.getValue();
             }
         }
