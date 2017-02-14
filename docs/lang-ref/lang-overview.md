@@ -60,6 +60,13 @@ In traditional programming languages, developers use commenting as a technique t
 
 Ballerina instead allows the developer (either visually or textually) to mark any statement or function, action, connector, resource, or service to be disabled by prefixing it with the `!` character. Disabling a construct does not prevent the language parser, type checker, and other validations; it simply stops that construct from being executed at runtime.
 
+## Expressions
+Similar to languages such as Java, Go, etc, Ballerina supports the following expressions: 
+* mathamtical expressions `(x + y, x/y, etc.)`
+* function calls `(foo(a,b))`
+* action calls `(tweet(twitterActor, "hello"))`
+* complex expressions `(foo(a,bar(c,d)))`
+
 ## Testing your code
 
 TODO
