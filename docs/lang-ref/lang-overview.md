@@ -20,7 +20,7 @@ A Ballerina file is structured as follows::
 
 Note: Terminals of the language (keywords) are lowercase, whereas non-terminals are uppercase.
 
-Each of the Ballerina elements such as services and connectors are described in detail in their own pages in this guide. For information on packages, see the next section below.  
+Each of the Ballerina elements such as services and connectors are described in detail in their own pages in this guide.
 
 ## Packaging
 
