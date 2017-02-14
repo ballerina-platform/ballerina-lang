@@ -203,14 +203,14 @@ public class BNullValueTest {
 
     @Test(description = "Test accessing element of null array",
           expectedExceptions = BallerinaException.class,
-          expectedExceptionsMessageRegExp = "variable 'nullArray' is null")
+          expectedExceptionsMessageRegExp = "null-value.bal:102: variable 'nullArray' is null")
     public void testAccessingElementInNullArray() {
         BValue[] returns = Functions.invoke(bFile, "accessElementInNullArray");
     }
 
     @Test(description = "Test accessing element of null map",
           expectedExceptions = BallerinaException.class,
-          expectedExceptionsMessageRegExp = "variable 'nullMap' is null")
+          expectedExceptionsMessageRegExp = "null-value.bal:107: variable 'nullMap' is null")
     public void testAccessingElementInNullMap() {
         BValue[] returns = Functions.invoke(bFile, "accessElementInNullMap");
     }
