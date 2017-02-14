@@ -474,12 +474,8 @@ public class BLangExecutor implements NodeExecutor {
         BMessage result;
         try {
             result = anyExecutor.invokeAny(workerRunnerList, timeout, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            throw new BallerinaException("Fork-Join statement at " + forkJoinStmt.getNodeLocation()
-                    + " has been interrupted", e);
-        } catch (ExecutionException e) {
-            throw new BallerinaException("Fork-Join statement at " + forkJoinStmt.getNodeLocation()
-                    + " execution failed", e);
+        } catch (InterruptedException | ExecutionException e) {
+            return null;
         } catch (TimeoutException e) {
             forkJoinStmt.setTimedOut(true);
             return null;
@@ -501,13 +497,12 @@ public class BLangExecutor implements NodeExecutor {
                     forkJoinStmt.setTimedOut(true);
                     return null;
                 } catch (Exception e) {
-                    throw new IllegalStateException(e);
+                    return null;
                 }
 
             }).forEach((BMessage b) -> result.add(b));
         } catch (InterruptedException e) {
-            throw new BallerinaException("Fork-Join statement at " +
-                    forkJoinStmt.getNodeLocation() + " has been interrupted", e);
+            return result;
         }
         return result;
     }
