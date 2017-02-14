@@ -34,8 +34,8 @@
         <module>connector-framework</module>
         <module>http</module>
         <module>jms</module>
-        <module>features</module>
         <module>file</module>
+        <module>features</module>
     </modules>
 
     <scm>
@@ -127,6 +127,11 @@
             <dependency>
                 <groupId>org.wso2.carbon.transport</groupId>
                 <artifactId>org.wso2.carbon.transport.jms</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.transport</groupId>
+                <artifactId>org.wso2.carbon.transport.file</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -304,6 +309,7 @@
         <javax.websocket.version>1.1</javax.websocket.version>
         <javax.websocket.version.range>[1.1, 1.2)</javax.websocket.version.range>
         <commons-vfs2.wso2.version>2.0-wso2v15</commons-vfs2.wso2.version>
+        <commons-vfs2.wso2.version.range>[2.0.0, 3.0.0)</commons-vfs2.wso2.version.range>
 
 
         <carbon.messaging.version>2.2.0-SNAPSHOT</carbon.messaging.version>
@@ -327,6 +333,7 @@
         </connector.framework.package.export.version>
         <jms.transport.package.export.version>${project.version}
         </jms.transport.package.export.version>
+        <file.transport.package.export.version>${project.version}</file.transport.package.export.version>
 
         <!-- Following two properties should be removed once the versions are added the wso2 parent pom CARBON-15729 -->
         <maven.checkstyle.plugin.version>2.17</maven.checkstyle.plugin.version>
