@@ -201,6 +201,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 container: this._$canvasContainer,
                 model: importDeclaration,
                 parentView: this,
+                toolPalette: this.toolPalette
             });
             this.diagramRenderingContext.getViewModelMap()[importDeclaration.id] = importDeclarationView;
             importDeclarationView.render(this.diagramRenderingContext);
@@ -734,7 +735,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             // Click event for adding an import.
             importAddCompleteButtonPane.click(function () {
                 // TODO : Validate new import package name.
-                if (!_.isEmpty(importValueText.val().trim())) {
+                var importTestValue = importValueText.val().trim();
+                if (!_.isEmpty(importTestValue)) {
                     var currentASTRoot = self.getModel();
                     log.debug("Adding new import");
 
@@ -745,6 +747,13 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     try {
                         newImportDeclaration.setParent(currentASTRoot);
                         currentASTRoot.addImport(newImportDeclaration);
+
+                        // add import to the tool pallet
+                        var newPackage = BallerinaEnvironment.searchPackage(newImportDeclaration.getPackageName())[0];
+                        // Only add to tool palette if the user input exactly matches an existing package.
+                        if(!_.isUndefined(newPackage) && (newPackage.getName() === importTestValue)) {
+                            self.toolPalette.getItemProvider().addImportToolGroup(newPackage);
+                        }
 
                         //Clear the import value box
                         importValueText.val("");
