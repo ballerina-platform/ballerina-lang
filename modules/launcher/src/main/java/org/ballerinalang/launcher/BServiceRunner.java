@@ -17,8 +17,10 @@
 */
 package org.ballerinalang.launcher;
 
+import org.ballerinalang.BLangProgramLoader;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.model.Application;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.model.Resource;
@@ -29,6 +31,7 @@ import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Starts Ballerina services
@@ -42,14 +45,21 @@ class BServiceRunner {
     static void start(Path[] serviceFilePaths) {
         BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
 
-        for (Path serviceFilePath : serviceFilePaths) {
-            try {
-                start(serviceFilePath);
-            } catch (BLauncherException e) {
-                outStream.println("error: fail to deploy service(s) in " + LauncherUtils.getFileName(serviceFilePath));
-                LauncherUtils.printLauncherException(e, outStream);
-                // Continuing service deployment
-            }
+//        for (Path serviceFilePath : serviceFilePaths) {
+//            try {
+//                start(serviceFilePath);
+//            } catch (BLauncherException e) {
+//                outStream.println("error: fail to deploy service(s) in " + LauncherUtils.getFileName(serviceFilePath));
+//                LauncherUtils.printLauncherException(e, outStream);
+//                // Continuing service deployment
+//            }
+//        }
+
+        Path programDirPath = Paths.get(System.getProperty("user.dir"));
+        BLangProgram[] bLangPrograms = new BLangProgramLoader().loadServices(programDirPath, serviceFilePaths);
+        for(int i = 0; i < bLangPrograms.length; i++) {
+            BLangProgram bLangProgram = bLangPrograms[i];
+//            start(bLangProgram, serviceFilePaths[i]);
         }
 
         // TODO

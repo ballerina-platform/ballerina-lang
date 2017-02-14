@@ -54,16 +54,8 @@ import java.util.List;
 class BMainRunner {
 
     static void runMain(Path sourceFilePath, List<String> args) {
-        BLangProgram bLangProgram;
-
-        if (sourceFilePath.getFileName().toString().endsWith(".bpz")) {
-            bLangProgram = new BLangProgramLoader()
-                    .loadArchive(sourceFilePath);
-        } else {
-            Path programDirPath = Paths.get(System.getProperty("user.dir"));
-            bLangProgram = new BLangProgramLoader()
-                    .load(programDirPath, sourceFilePath);
-        }
+        Path programDirPath = Paths.get(System.getProperty("user.dir"));
+        BLangProgram bLangProgram = new BLangProgramLoader().loadMain(programDirPath, sourceFilePath);
 
         // Load Client Connectors
         BallerinaConnectorManager.getInstance().initializeClientConnectors(new MessageProcessor());

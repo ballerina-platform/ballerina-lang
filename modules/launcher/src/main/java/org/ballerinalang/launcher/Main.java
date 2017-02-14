@@ -47,8 +47,7 @@ public class Main {
             if (msg == null) {
                 outStream.println("ballerina: unexpected error occurred");
             } else {
-                outStream.println("ballerina: unexpected error occurred: " +
-                                    LauncherUtils.makeFirstLetterUpperCase(msg));
+                outStream.println("ballerina: " + LauncherUtils.makeFirstLetterUpperCase(msg));
             }
             Runtime.getRuntime().exit(1);
         }
@@ -331,7 +330,7 @@ public class Main {
 
             Path programDirPath = Paths.get(System.getProperty("user.dir"));
             BLangProgram bLangProgram = new BLangProgramLoader()
-                    .load(programDirPath, p);
+                    .loadMain(programDirPath, p);
 
             // TODO Delete existing file  or WARNING
 

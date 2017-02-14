@@ -18,6 +18,7 @@
 package org.ballerinalang;
 
 import org.ballerinalang.util.program.BLangPackages;
+import org.ballerinalang.util.repository.BLangProgramArchive;
 import org.ballerinalang.util.repository.PackageRepository;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BLangProgram;
@@ -41,14 +42,9 @@ import java.util.Map;
  */
 public class BLangProgramArchiveBuilder {
 
-    private static final String BAL_INF_DIR_NAME = "BAL_INF";
-    private static final String BALLERINA_CONF = "ballerina.conf";
-    private static final String balVersionText = "ballerina-version: 0.8.0";
-    private static final String mainPackageLinePrefix = "main-function: ";
-
     public void build(BLangProgram bLangProgram) {
         String outFileName;
-        String entryPoint = bLangProgram.getEntryPoint();
+        String entryPoint = bLangProgram.getEntryPoint()[0];
         if (entryPoint.endsWith(".bal")) {
             outFileName = entryPoint.substring(0, entryPoint.length() - 4) + ".bpz";
         } else {
@@ -59,9 +55,12 @@ public class BLangProgramArchiveBuilder {
         createArchive(bLangProgram, outFileName);
     }
 
+//    throw new RuntimeException("error reading from file: " + archivePath +
+//            " reason: " + e.getMessage(), e);
+
     public void build(BLangProgram bLangProgram, String outFileName) {
         if (outFileName == null || outFileName.isEmpty()) {
-            throw new IllegalStateException("output name cannot be empty");
+            throw new IllegalArgumentException("output file name cannot be empty");
         }
 
         if (!outFileName.endsWith(".bpz")) {
@@ -90,8 +89,9 @@ public class BLangProgramArchiveBuilder {
                                      FileSystem zipFS) throws IOException {
         BLangPackage mainPkg = bLangProgram.getMainPackage();
         if (mainPkg.getPackagePath().equals(".")) {
-            String fileName = bLangProgram.getEntryPoint();
-            PackageRepository.PackageSource packageSource = mainPkg.getPackageRepository().loadFile(Paths.get(fileName));
+            String[] entryPoints = bLangProgram.getEntryPoint();
+            PackageRepository.PackageSource packageSource = mainPkg.getPackageRepository().loadFile(
+                    Paths.get(entryPoints[0]));
             addPackageSourceToArchive(packageSource, Paths.get("."), zipFS);
         }
 
@@ -132,12 +132,27 @@ public class BLangProgramArchiveBuilder {
         Files.copy(srcInputStream, destPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
-    private void addBallerinaConfFile(FileSystem zipFS, String entryPoint) throws IOException {
-        final Path root = zipFS.getPath("/");
-        final Path dest = zipFS.getPath(root.toString(), BAL_INF_DIR_NAME, BALLERINA_CONF);
+    private void addBallerinaConfFile(FileSystem zipFS, String[] entryPoints) throws IOException {
+        final Path rootPath = zipFS.getPath("/");
+        final Path destPath = zipFS.getPath(rootPath.toString(), BLangProgramArchive.BAL_INF_DIR_NAME,
+                BLangProgramArchive.BALLERINA_CONF);
 
-        String balConfContent = balVersionText + "\n" + mainPackageLinePrefix + zipFS.getPath(entryPoint).toString() + "\n";
+        String entryPointStr;
+        if (entryPoints.length == 1) {
+            entryPointStr = zipFS.getPath(entryPoints[0]).toString();
+        } else {
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = 0; i < entryPoints.length - 1; i++) {
+                stringBuilder.append(zipFS.getPath(entryPoints[i]).toString()).append(",");
+            }
+
+            stringBuilder.append(zipFS.getPath(entryPoints[entryPoints.length - 1]).toString());
+            entryPointStr = stringBuilder.toString();
+        }
+
+        String balConfContent = BLangProgramArchive.balVersionText + "\n" +
+                BLangProgramArchive.mainPackageLinePrefix + ": " + entryPointStr + "\n";
         InputStream stream = new ByteArrayInputStream(balConfContent.getBytes(StandardCharsets.UTF_8));
-        copyFileToZip(stream, dest);
+        copyFileToZip(stream, destPath);
     }
 }
