@@ -38,6 +38,10 @@ define(['lodash', 'log', './simple-statement-view', './../ast/reply-statement', 
                 log.error("Container for return statement is undefined." + this._container);
                 throw "Container for return statement is undefined." + this._container;
             }
+            this._replyArrow = undefined;
+            this._replyLine = undefined;
+            this._replyArrowHead = undefined;
+            this._distanceToClient = undefined;
         };
 
         ReplyStatementView.prototype = Object.create(SimpleStatementView.prototype);
@@ -66,31 +70,18 @@ define(['lodash', 'log', './simple-statement-view', './../ast/reply-statement', 
             var statementGroup = this.getStatementGroup();
             var bBox = this.getBoundingBox();
             var x = bBox.x(), y = bBox.y(), w = bBox.w(), h = bBox.h();
-            var distanceToClient = this.getViewOptions().distanceToClient - (w / 2);
-            var replyArrow = undefined;
-            var replyLine = undefined;
-            var replyArrowHead = undefined;
+            this._distanceToClient = this.getViewOptions().distanceToClient - (w / 2);
 
             if (BallerinaASTFactory.isResourceDefinition(this.getModel().getParent())) {
-                replyArrow = D3Utils.group(statementGroup);
+                this._replyArrow = D3Utils.group(statementGroup);
                 var replyLineStartPoint = new Point(x, (y + (h / 2)));
-                var replyLineEndPoint = new Point((x - distanceToClient), (y + (h / 2)));
-                replyLine = D3Utils.lineFromPoints(replyLineStartPoint, replyLineEndPoint, replyArrow)
+                var replyLineEndPoint = new Point((x - this._distanceToClient), (y + (h / 2)));
+                this._replyLine = D3Utils.lineFromPoints(replyLineStartPoint, replyLineEndPoint, this._replyArrow)
                     .classed('message', true);
-                replyArrowHead = D3Utils.outputTriangle(replyLineEndPoint.x(), replyLineEndPoint.y(), replyArrow)
+                this._replyArrowHead = D3Utils.outputTriangle(replyLineEndPoint.x(), replyLineEndPoint.y(), this._replyArrow)
                     .classed("action-arrow", true);
-                replyArrow.arrowLineElement = replyLine;
-                replyArrow.arrowHeadElement = replyArrowHead;
-
-                bBox.on('top-edge-moved', function (dy) {
-                    replyLine.attr('y1', parseFloat(replyLine.attr('y1')) + dy);
-                    replyLine.attr('y2', parseFloat(replyLine.attr('y2')) + dy);
-
-                    replyArrowHead.remove();
-                    var replyLineEndPoint = new Point((bBox.x() - distanceToClient), (bBox.y() + (bBox.h() / 2)));
-                    replyArrowHead = D3Utils.outputTriangle(replyLineEndPoint.x(), replyLineEndPoint.y(), replyArrow)
-                        .classed("action-arrow", true);
-                });
+                this._replyArrow.arrowLineElement = this._replyLine;
+                this._replyArrow.arrowHeadElement = this._replyArrowHead;
             }
             // Creating property pane.
             var model = this.getModel();
@@ -121,33 +112,47 @@ define(['lodash', 'log', './simple-statement-view', './../ast/reply-statement', 
          * @override
          */
         ReplyStatementView.prototype.onTopEdgeMovedTrigger = function (dy) {
-            var self = this;
-            var replyReceiver = this.getModel().getParent().getReplyReceiver();
 
-            if (dy > 0) {
-                // Moving the statement down
-                self.getSvgRect().attr('y', parseFloat(self.getSvgRect().attr('y')) + dy);
-                self.getSvgText().attr('y', parseFloat(self.getSvgText().attr('y')) + dy);
-                if (!_.isNil(replyReceiver)) {
-                    this.getDiagramRenderingContext().getViewOfModel(replyReceiver).onMoveInitiatedByReply(dy);
-                }
-            } else if (dy < 0) {
-                // Moving the statement up
-                if (!_.isNil(replyReceiver)) {
-                    self.stopListening(self.getBoundingBox(), 'top-edge-moved');
-                    if (this.getDiagramRenderingContext().getViewOfModel(replyReceiver).canMoveUp(dy)) {
-                        self.getSvgRect().attr('y', parseFloat(self.getSvgRect().attr('y')) + dy);
-                        self.getSvgText().attr('y', parseFloat(self.getSvgText().attr('y')) + dy);
-                        this.getDiagramRenderingContext().getViewOfModel(replyReceiver).onMoveInitiatedByReply(dy);
-                    } else {
-                        self.getBoundingBox().move(0, -dy);
-                    }
-                    self.listenTo(self.getBoundingBox(), 'top-edge-moved', function (dy) {
-                        self.onTopEdgeMovedTrigger(dy);
-                    });
-                } else {
+            if (BallerinaASTFactory.isResourceDefinition(this.getModel().getParent())) {
+                this._replyLine.attr('y1', parseFloat(this._replyLine.attr('y1')) + dy);
+                this._replyLine.attr('y2', parseFloat(this._replyLine.attr('y2')) + dy);
+
+                this._replyArrowHead.remove();
+                var replyLineEndPoint = new Point((this.getBoundingBox().x() - this._distanceToClient),
+                    (this.getBoundingBox().y() + (this.getBoundingBox().h() / 2)));
+                this._replyArrowHead = D3Utils.outputTriangle(replyLineEndPoint.x(), replyLineEndPoint.y(), this._replyArrow)
+                    .classed("action-arrow", true);
+                this.getSvgRect().attr('y', parseFloat(this.getSvgRect().attr('y')) + dy);
+                this.getSvgText().attr('y', parseFloat(this.getSvgText().attr('y')) + dy);
+            } else {
+                var self = this;
+                var replyReceiver = this.getModel().getParent().getReplyReceiver();
+
+                if (dy > 0) {
+                    // Moving the statement down
                     self.getSvgRect().attr('y', parseFloat(self.getSvgRect().attr('y')) + dy);
                     self.getSvgText().attr('y', parseFloat(self.getSvgText().attr('y')) + dy);
+                    if (!_.isNil(replyReceiver)) {
+                        this.getDiagramRenderingContext().getViewOfModel(replyReceiver).onMoveInitiatedByReply(dy);
+                    }
+                } else if (dy < 0) {
+                    // Moving the statement up
+                    if (!_.isNil(replyReceiver)) {
+                        self.stopListening(self.getBoundingBox(), 'top-edge-moved');
+                        if (this.getDiagramRenderingContext().getViewOfModel(replyReceiver).canMoveUp(dy)) {
+                            self.getSvgRect().attr('y', parseFloat(self.getSvgRect().attr('y')) + dy);
+                            self.getSvgText().attr('y', parseFloat(self.getSvgText().attr('y')) + dy);
+                            this.getDiagramRenderingContext().getViewOfModel(replyReceiver).onMoveInitiatedByReply(dy);
+                        } else {
+                            self.getBoundingBox().move(0, -dy);
+                        }
+                        self.listenTo(self.getBoundingBox(), 'top-edge-moved', function (dy) {
+                            self.onTopEdgeMovedTrigger(dy);
+                        });
+                    } else {
+                        self.getSvgRect().attr('y', parseFloat(self.getSvgRect().attr('y')) + dy);
+                        self.getSvgText().attr('y', parseFloat(self.getSvgText().attr('y')) + dy);
+                    }
                 }
             }
         };
