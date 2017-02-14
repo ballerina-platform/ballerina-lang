@@ -88,5 +88,17 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
         return variableDefinitionStatement;
     };
 
+    /**
+     * Create the action invocation statement for action invocation
+     * @param args
+     * @returns {ActionInvocationStatement}
+     */
+    DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationStatement = function(args) {
+        var actionInStmt = BallerinaASTFactory.createActionInvocationStatement(args);
+        var actionInExp = BallerinaASTFactory.createActionInvocationExpression(args);
+        actionInStmt.addChild(actionInExp);
+        return actionInStmt;
+    };
+
     return DefaultsAddedBallerinaASTFactory;
 });

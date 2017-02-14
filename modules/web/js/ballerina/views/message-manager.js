@@ -60,7 +60,7 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
         if(actionInvocationModel) {
             // TODO : Putting this if/else to fix a bug in arrow drawing. Need to revamp this completely.
             if(_.size(this.getMessageSource().getModel().getChildren()) > 0){
-                actionInvocationModel = this.getMessageSource().getModel().getChildren()[1].getChildren()[0];
+                actionInvocationModel = this.getMessageSource().getModel().getChildren()[0];
             }else{
                 actionInvocationModel = this.getMessageSource().getModel();
             }
@@ -73,13 +73,12 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
             actionInvocationModel.setConnector(target);
             actionInvocationModel.setActionPackageName(target.getConnectorPkgName());
             actionInvocationModel.setActionConnectorName(target.getConnectorName());
-            actionInvocationModel.setConnectorVariableReference(target.getConnectorVariable());
         }
         else {
             actionInvocationModel.setConnector(undefined);
             actionInvocationModel.setActionPackageName(undefined);
             actionInvocationModel.setActionConnectorName(undefined);
-            actionInvocationModel.setConnectorVariableReference(undefined);
+            // actionInvocationModel.setConnectorVariableReference(undefined);
         }
         //set the right hand expression to set the statement string of the assignment-statement containing the
         //action invocation expression. This is to keep action invocation statement UI and source-gen in sync

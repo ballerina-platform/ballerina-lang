@@ -254,7 +254,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @param args
          * @returns {AssignmentStatement}
          */
-        BallerinaASTFactory.createAggregatedActionInvocationExpression = function(args) {
+        BallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement = function(args) {
             var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
             var leftOp = BallerinaASTFactory.createLeftOperandExpression(args);
             var rightOp = BallerinaASTFactory.createRightOperandExpression(args);
@@ -394,7 +394,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createFunctionInvocationExpression = function (args) {
             return new functionInvocationExpression(args);
-        }
+        };
 
         /**
          * creates VariableReferenceExpression
@@ -403,7 +403,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createVariableReferenceExpression = function (args) {
             return new variableReferenceExpression(args);
-        }
+        };
 
         /**
          * creates ArithmeticExpression
@@ -892,10 +892,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @param child - Object for instanceof check
          * @returns {boolean} - true if same type, else false
          */
-        BallerinaASTFactory.isActionInvocationStatement = function(statement){
-            if (statement instanceof actionInvocationStatement){
-                return true;
-            }
+        BallerinaASTFactory.isActionInvocationStatement = function(child){
+            return child instanceof actionInvocationStatement;
         };
 
         /**
@@ -903,10 +901,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @param child - Object for instanceof check
          * @returns {boolean} - true if same type, else false
          */
-        BallerinaASTFactory.isActionInvocationExpression = function(statement){
-            if (statement instanceof actionInvocationExpression){
-                return true;
-            }
+        BallerinaASTFactory.isActionInvocationExpression = function(child){
+            return child instanceof actionInvocationExpression;
         };
 
         /**
@@ -1257,6 +1253,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'array_init_expression':
                         node = BallerinaASTFactory.createArrayInitExpression();
+                        break;
+                    case 'action_invocation_statement':
+                        node = BallerinaASTFactory.createActionInvocationStatement();
                         break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;

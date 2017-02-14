@@ -24,7 +24,6 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
      */
     var ConnectorAction = function(args) {
         ASTNode.call(this, "ConnectorAction");
-        this.BallerinaASTFactory = this.getFactory();
         this.action_name = _.get(args, 'action_name');
         this.annotations = _.get(args, 'annotations', []);
         this.arguments = _.get(args, 'arguments', []);
@@ -58,7 +57,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
         var self = this;
 
         _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isArgument(child)) {
+            if (self.getFactory().isArgument(child)) {
                 actionArgs.push(child);
             }
         });
@@ -94,7 +93,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
         var self = this;
 
         _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isVariableDefinitionStatement(child)) {
+            if (self.getFactory().isVariableDefinitionStatement(child)) {
                 variableDefinitionStatements.push(child);
             }
         });
@@ -108,7 +107,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
         var self = this;
         // Removing the variable from the children.
         var variableDeclarationChild = _.find(this.getChildren(), function (child) {
-            return self.BallerinaASTFactory.isVariableDeclaration(child)
+            return self.getFactory().isVariableDeclaration(child)
                 && child.getIdentifier() === variableDeclarationIdentifier;
         });
         this.removeChild(variableDeclarationChild);
@@ -121,14 +120,14 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
         var self = this;
         // Get the index of the last variable declaration.
         var index = _.findLastIndex(this.getChildren(), function (child) {
-            return self.BallerinaASTFactory.isVariableDeclaration(child);
+            return self.getFactory().isVariableDeclaration(child);
         });
 
         // index = -1 when there are not any variable declarations, hence get the index for connector
         // declarations.
         if (index == -1) {
             index = _.findLastIndex(this.getChildren(), function (child) {
-                return self.BallerinaASTFactory.isConnectorDeclaration(child);
+                return self.getFactory().isConnectorDeclaration(child);
             });
         }
 
@@ -169,7 +168,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
 
         // Adding return type mode if it doesn't exists.
         if (_.isUndefined(this.getReturnTypeModel())) {
-            this.addChild(this.BallerinaASTFactory.createReturnType());
+            this.addChild(this.getFactory().createReturnType());
         }
 
         // Check if there is already a return type with the same identifier.
@@ -200,7 +199,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
             }
         }
 
-        var argument = this.BallerinaASTFactory.createArgument({type: type, identifier: identifier});
+        var argument = this.getFactory().createArgument({type: type, identifier: identifier});
 
         var existingReturnType = self.getReturnTypeModel();
 
@@ -208,7 +207,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
         if (!_.isNil(existingReturnType)) {
             existingReturnType.addChild(argument, existingReturnType.getChildren().length + 1);
         } else {
-            var returnType = this.BallerinaASTFactory.createReturnType();
+            var returnType = this.getFactory().createReturnType();
             returnType.addChild(argument, 0);
             this.addChild(returnType);
         }
@@ -278,7 +277,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
         var self = this;
         var returnTypeModel = undefined;
         _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isReturnType(child)) {
+            if (self.getFactory().isReturnType(child)) {
                 returnTypeModel = child;
                 // break
                 return false;
@@ -315,7 +314,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
      */
     ConnectorAction.prototype.addArgument = function(type, identifier) {
         //creating argument
-        var newArgument = this.BallerinaASTFactory.createArgument();
+        var newArgument = this.getFactory().createArgument();
         newArgument.setType(type);
         newArgument.setIdentifier(identifier);
 
@@ -323,7 +322,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
 
         // Get the index of the last argument declaration.
         var index = _.findLastIndex(this.getChildren(), function (child) {
-            return self.BallerinaASTFactory.isArgument(child);
+            return self.getFactory().isArgument(child);
         });
 
         this.addChild(newArgument, index + 1);
@@ -337,7 +336,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
     ConnectorAction.prototype.removeArgument = function(identifier) {
         var self = this;
         _.remove(this.getChildren(), function (child) {
-            return self.BallerinaASTFactory.isArgument(child) && child.getIdentifier() === identifier;
+            return self.getFactory().isArgument(child) && child.getIdentifier() === identifier;
         });
     };
 
@@ -370,10 +369,10 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
             var child = undefined;
             var childNodeTemp = undefined;
             if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
-                child = self.BallerinaASTFactory.createConnectorDeclaration();
+                child = self.getFactory().createConnectorDeclaration();
                 childNodeTemp = childNode;
             } else if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'action_invocation_expression') {
-                child = self.BallerinaASTFactory.createActionInvocationExpression();
+                child = self.getFactory().createActionInvocationExpression();
                 childNodeTemp = childNode;
             } else if (childNode.type === "assignment_statement" && childNode.children[1].children[0].type === "action_invocation_expression") {
                 child = self.getFactory().createActionInvocationExpression();
@@ -384,7 +383,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
                 childNodeTemp = {};
                 childNodeTemp.children = [undefined, childNode.children[0]];
             } else {
-                child = self.BallerinaASTFactory.createFromJson(childNode);
+                child = self.getFactory().createFromJson(childNode);
                 childNodeTemp = childNode;
             }
             self.addChild(child);
@@ -399,10 +398,10 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
      * @return {boolean}
      */
     ConnectorAction.prototype.canBeParentOf = function (node) {
-        return this.BallerinaASTFactory.isConnectorDeclaration(node)
-            || this.BallerinaASTFactory.isVariableDeclaration(node)
-            || this.BallerinaASTFactory.isWorkerDeclaration(node)
-            || this.BallerinaASTFactory.isStatement(node);
+        return this.getFactory().isConnectorDeclaration(node)
+            || this.getFactory().isVariableDeclaration(node)
+            || this.getFactory().isWorkerDeclaration(node)
+            || this.getFactory().isStatement(node);
     };
 
     /**
@@ -432,9 +431,8 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
      * @return {ConnectorDeclaration}
      */
     ConnectorAction.prototype.getConnectorByName = function (connectorName) {
-        var factory = this.getFactory();
         var connectorReference = _.find(this.getChildren(), function (child) {
-            return (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
+            return (this.getFactory().isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
         });
 
         return !_.isNil(connectorReference) ? connectorReference : this.getParent(). getConnectorByName(connectorName);
