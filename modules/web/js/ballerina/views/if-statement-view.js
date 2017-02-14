@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery', 'log', './compound-statement-view'],
+define(['require', 'lodash', 'jquery', 'log', './block-statement-view'],
     function (require, _, $, log, BlockStatementView) {
 
         /**
