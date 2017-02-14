@@ -474,7 +474,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 // re-parse if there are modifications to source
                 var isSourceChanged = !self._sourceView.isClean(),
                     savedWhileInSourceView = lastRenderedTimestamp < self._file.getLastPersisted();
-                var isSwaggerChanged = !self.isInSwaggerView();
+                var isSwaggerChanged = self.isInSwaggerView();
                 if (isSourceChanged || savedWhileInSourceView || self._parseFailed) {
                     var source = self._sourceView.getContent();
                     var root = self.generateNodeTree();
