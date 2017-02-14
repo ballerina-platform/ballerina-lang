@@ -419,11 +419,19 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitJoinClause(BallerinaParser.JoinClauseContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#joinConditions}.
+	 * Visit a parse tree produced by the {@code anyJoinCondition}
+	 * labeled alternative in {@link BallerinaParser#joinConditions}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitJoinConditions(BallerinaParser.JoinConditionsContext ctx);
+	T visitAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code allJoinCondition}
+	 * labeled alternative in {@link BallerinaParser#joinConditions}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#timeoutClause}.
 	 * @param ctx the parse tree
