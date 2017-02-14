@@ -1011,9 +1011,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(MapStructInitKeyValueExpr keyValueExpr) {
         JsonObject keyValueEprObj = new JsonObject();
         keyValueEprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.KEY_VALUE_EXPRESSION);
+        //adding key expression
         tempJsonArrayRef.push(new JsonArray());
         keyValueExpr.getKeyExpr().accept(this);
         JsonArray keyObject = tempJsonArrayRef.pop();
+        //adding value expression
         tempJsonArrayRef.push(new JsonArray());
         keyValueExpr.getValueExpr().accept(this);
         tempJsonArrayRef.peek().add(keyObject);
