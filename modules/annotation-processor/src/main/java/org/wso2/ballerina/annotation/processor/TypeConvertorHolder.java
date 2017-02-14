@@ -50,7 +50,7 @@ public class TypeConvertorHolder {
         Utils.appendAnnotationStrings(sb, annotations);
         sb.append("native typeconvertor ").append(typeConvertor.typeConverterName());
         Utils.getInputParams(typeConvertor.args(), sb);
-        Utils.getReturnParams(typeConvertor.returnType(), sb);
+        Utils.appendReturnParams(typeConvertor.returnType(), sb);
         sb.append(";");
         return sb.toString();
     }

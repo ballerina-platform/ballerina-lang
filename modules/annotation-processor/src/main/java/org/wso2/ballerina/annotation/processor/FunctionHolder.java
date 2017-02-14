@@ -50,7 +50,7 @@ public class FunctionHolder {
         sb.append(annotations.size() > 0 ? "\n" : "");
         sb.append("native function ").append(function.functionName());
         Utils.getInputParams(function.args(), sb);
-        Utils.getReturnParams(function.returnType(), sb);
+        Utils.appendReturnParams(function.returnType(), sb);
         sb.append(";");
         return sb.toString();
     }

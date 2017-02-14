@@ -43,7 +43,7 @@ import java.util.Locale;
         actionName = "execute",
         connectorName = ClientConnector.CONNECTOR_NAME,
         args = {
-                @Argument(name = "connector",
+                @Argument(name = "con",
                         type = TypeEnum.CONNECTOR),
                 @Argument(name = "httpVerb", type = TypeEnum.STRING),
                 @Argument(name = "path", type = TypeEnum.STRING),

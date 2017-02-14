@@ -49,6 +49,7 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     protected String pkgPath;
     protected boolean isPublic;
     protected SymbolName symbolName;
+    protected boolean isNative;
 
     private Annotation[] annotations;
     private ParameterDef[] parameterDefs;
@@ -170,7 +171,7 @@ public class BallerinaAction implements Action, SymbolScope, Node {
 
     @Override
     public boolean isNative() {
-        return false;
+        return isNative;
     }
 
     @Override
@@ -230,6 +231,7 @@ public class BallerinaAction implements Action, SymbolScope, Node {
             bAction.returnParams = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);
             bAction.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
             bAction.actionBody = this.body;
+            bAction.isNative = this.isNative;
             return bAction;
         }
     }

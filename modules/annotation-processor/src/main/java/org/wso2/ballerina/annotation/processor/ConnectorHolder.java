@@ -67,7 +67,7 @@ public class ConnectorHolder {
         StringBuilder sb = new StringBuilder();
         Utils.appendAnnotationStrings(sb, annotations);
         sb.append(annotations.size() > 0 ? "\n" : "");
-        sb.append("connector ").append(balConnector.connectorName());
+        sb.append("native connector ").append(balConnector.connectorName());
         Utils.getInputParams(balConnector.args(), sb);
         sb.append(" {\n");
         for (ActionHolder action : actions) {
@@ -78,7 +78,7 @@ public class ConnectorHolder {
             for (int i = 1; i <= ballerinaAction.args().length; i++) {
                 Argument arg = ballerinaAction.args()[i - 1];
                 sb.append(
-                        TypeEnum.CONNECTOR.toString().equals(Utils.getArgumentType(arg.type(), arg.elementType()))
+                        TypeEnum.CONNECTOR.getName().equals(Utils.getArgumentType(arg.type(), arg.elementType()))
                                 ? balConnector.connectorName() : Utils.getArgumentType(arg.type(), arg.elementType()))
                         .append(" ").append(arg.name());
                 if (i != ballerinaAction.args().length) {
@@ -86,7 +86,7 @@ public class ConnectorHolder {
                 }
             }
             sb.append(")");
-            Utils.getReturnParams(ballerinaAction.returnType(), sb);
+            Utils.appendReturnParams(ballerinaAction.returnType(), sb);
             sb.append(";\n");
         }
 

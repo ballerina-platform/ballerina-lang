@@ -379,7 +379,6 @@ public class BLangModelBuilder {
             errorMsgs.add(errMsg);
         }
 
-
         SimpleTypeName typeName = typeNameStack.pop();
         ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
 
@@ -737,11 +736,12 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void addFunction(NodeLocation location, String name, boolean isPublic) {
+    public void addFunction(NodeLocation location, String name, boolean isPublic,  boolean isNative) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
         currentCUBuilder.setPublic(isPublic);
-
+        currentCUBuilder.setNative(isNative);
+        
         List<Annotation> annotationList = annotationListStack.pop();
         annotationList.forEach(currentCUBuilder::addAnnotation);
 
@@ -760,11 +760,12 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void addTypeConverter(String source, String target, String name, NodeLocation location, boolean isPublic) {
+    public void addTypeConverter(String source, String target, String name, NodeLocation location, boolean isPublic, boolean isNative) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
         //currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setPublic(isPublic);
+        currentCUBuilder.setNative(isNative);
 
         BTypeConvertor typeConvertor = currentCUBuilder.buildTypeConverter();
         TypeVertex sourceV = new TypeVertex(BTypes.resolveType(new SimpleTypeName(source),
@@ -818,10 +819,11 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void addAction(NodeLocation location, String name) {
+    public void addAction(NodeLocation location, String name, boolean isNative) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
-
+        currentCUBuilder.setNative(isNative);
+        
         List<Annotation> annotationList = annotationListStack.pop();
         annotationList.forEach(currentCUBuilder::addAnnotation);
 
@@ -866,10 +868,11 @@ public class BLangModelBuilder {
         currentCUGroupBuilder = null;
     }
 
-    public void createConnector(NodeLocation location, String name) {
+    public void createConnector(NodeLocation location, String name, boolean isNative) {
         currentCUGroupBuilder.setNodeLocation(location);
         currentCUGroupBuilder.setName(name);
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
+        currentCUGroupBuilder.setNative(isNative);
 
         List<Annotation> annotationList = annotationListStack.pop();
         annotationList.forEach(currentCUGroupBuilder::addAnnotation);
