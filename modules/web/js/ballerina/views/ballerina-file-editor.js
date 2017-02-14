@@ -593,7 +593,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
         /**
          * Generates Ballerina node tree for design view
-          * @returns {*}
+         * @returns {BallerinaASTRoot} generated node tree
          */
         BallerinaFileEditor.prototype.generateNodeTree = function () {
             var root;
