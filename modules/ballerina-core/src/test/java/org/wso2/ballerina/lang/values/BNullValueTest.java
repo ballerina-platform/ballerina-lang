@@ -200,4 +200,18 @@ public class BNullValueTest {
     public void testBinaryOperatorValidityWithNull() {
         ParserUtils.parseBalFile("lang/values/grater-than-null.bal");
     }
+
+    @Test(description = "Test accessing element of null array",
+          expectedExceptions = BallerinaException.class,
+          expectedExceptionsMessageRegExp = "variable 'nullArray' is null")
+    public void testAccessingElementInNullArray() {
+        BValue[] returns = Functions.invoke(bFile, "accessElementInNullArray");
+    }
+
+    @Test(description = "Test accessing element of null map",
+          expectedExceptions = BallerinaException.class,
+          expectedExceptionsMessageRegExp = "variable 'nullMap' is null")
+    public void testAccessingElementInNullMap() {
+        BValue[] returns = Functions.invoke(bFile, "accessElementInNullMap");
+    }
 }

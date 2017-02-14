@@ -97,6 +97,16 @@ function settingStructElementOfNullStruct () {
     p.family.spouse = "test";
 }
 
+function accessElementInNullArray() {
+    string[] nullArray = null;
+    string name = nullArray[2];
+}
+
+function accessElementInNullMap() {
+    map  nullMap = null;
+    string name = nullMap["name"];
+}
+
 function callFunctionWithNULLValue1()(xml){
     xml x = null;
     xml y = testSignature(x);
