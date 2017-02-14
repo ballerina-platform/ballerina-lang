@@ -189,7 +189,7 @@ function testMessageArrayCopyRange(message[] arg, int from, int to)(message[]){
 }
 
 function testStringArraySort(string[] arg)(string[]){
-                                           string[] defined;
+    string[] defined;
     defined = array:sort(arg);
     return defined;
 }
