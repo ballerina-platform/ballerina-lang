@@ -19,7 +19,7 @@ package org.wso2.ballerina.annotation.processor;
 
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeMapper;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -113,10 +113,10 @@ public class NativeBallerinaFileBuilder {
             NativeBallerinaFunction func = new NativeBallerinaFunction((BallerinaFunction) construct);
             func.setAnnotations(annotations);
             nativeBallerinaPackage.addNativeFunction(func);
-        } else if (construct instanceof BallerinaTypeConvertor) {
-            NativeBallerinaTypeConverter converter =
-                    new NativeBallerinaTypeConverter((BallerinaTypeConvertor) construct);
-            nativeBallerinaPackage.addNativeTypeConverter(converter);
+        } else if (construct instanceof BallerinaTypeMapper) {
+            NativeBallerinaTypeMapper converter =
+                    new NativeBallerinaTypeMapper((BallerinaTypeMapper) construct);
+            nativeBallerinaPackage.addNativeTypeMapper(converter);
         }
     }
 
@@ -127,21 +127,21 @@ public class NativeBallerinaFileBuilder {
         private String packageName;
         private List<NativeBallerinaFunction> nativeFunctions;
         private List<Connector> nativeConnectors;
-        private List<NativeBallerinaTypeConverter> nativeBallerinaTypeConverters;
+        private List<NativeBallerinaTypeMapper> nativeBallerinaTypeMappers;
 
         public NativeBallerinaPackage(String pkgName) {
             this.setPackageName(pkgName);
             nativeFunctions = new ArrayList<NativeBallerinaFunction>();
             nativeConnectors = new ArrayList<Connector>();
-            nativeBallerinaTypeConverters = new ArrayList<NativeBallerinaTypeConverter>();
+            nativeBallerinaTypeMappers = new ArrayList<NativeBallerinaTypeMapper>();
         }
 
         public void addNativeFunction(NativeBallerinaFunction func) {
             nativeFunctions.add(func);
         }
 
-        public void addNativeTypeConverter(NativeBallerinaTypeConverter converter) {
-            nativeBallerinaTypeConverters.add(converter);
+        public void addNativeTypeMapper(NativeBallerinaTypeMapper converter) {
+            nativeBallerinaTypeMappers.add(converter);
         }
 
         public String getPackageName() {
@@ -161,8 +161,8 @@ public class NativeBallerinaFileBuilder {
             return "package " + packageName + ";\n\n"
                     + nativeFunctions.stream().map(k -> k.toString()).collect(Collectors.joining("\n\n"))
                     + (nativeFunctions.size() > 0 ? "\n\n" : "")
-                    + nativeBallerinaTypeConverters.stream().map(k -> k.toString()).collect(Collectors.joining("\n\n"))
-                    + (nativeBallerinaTypeConverters.size() > 0 ? "\n\n" : "")
+                    + nativeBallerinaTypeMappers.stream().map(k -> k.toString()).collect(Collectors.joining("\n\n"))
+                    + (nativeBallerinaTypeMappers.size() > 0 ? "\n\n" : "")
                     + nativeConnectors.stream().map(k -> k.toString()).collect(Collectors.joining("\n\n"));
         }
 
@@ -199,12 +199,12 @@ public class NativeBallerinaFileBuilder {
     /**
      * Holds a native ballerina type converter.
      */
-    static class NativeBallerinaTypeConverter {
-        private BallerinaTypeConvertor balTypeConverter;
+    static class NativeBallerinaTypeMapper {
+        private BallerinaTypeMapper balTypeMapper;
         private List<Annotation> annotations;
 
-        public NativeBallerinaTypeConverter(BallerinaTypeConvertor converter) {
-            this.balTypeConverter = converter;
+        public NativeBallerinaTypeMapper(BallerinaTypeMapper converter) {
+            this.balTypeMapper = converter;
             this.annotations = new ArrayList<>();
         }
 
@@ -215,9 +215,9 @@ public class NativeBallerinaFileBuilder {
         public String toString() {
             StringBuilder sb = new StringBuilder();
             Utils.appendAnnotationStrings(sb, annotations);
-            sb.append("native typeconvertor ").append(balTypeConverter.typeConverterName());
-            Utils.getInputParams(balTypeConverter.args(), sb);
-            Utils.getReturnParams(balTypeConverter.returnType(), sb);
+            sb.append("native typemapper ").append(balTypeMapper.typeMapperName());
+            Utils.getInputParams(balTypeMapper.args(), sb);
+            Utils.getReturnParams(balTypeMapper.returnType(), sb);
             sb.append(";");
             return sb.toString();
         }
