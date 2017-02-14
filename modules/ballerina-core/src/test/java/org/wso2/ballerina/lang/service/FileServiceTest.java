@@ -40,7 +40,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class FileServiceTest {
     private Application application;
-    private InputStream fileContent = new ByteArrayInputStream("test".getBytes(StandardCharsets.UTF_8));
+    private final InputStream fileContent = new ByteArrayInputStream("test".getBytes(StandardCharsets.UTF_8));
 
     @BeforeClass public void setup() {
         application = EnvironmentInitializer.setup("lang/service/fileService.bal");
@@ -53,7 +53,8 @@ public class FileServiceTest {
             CarbonMessage cMsg = new StreamingCarbonMessage(fileContent);
             cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, Constants.PROTOCOL_FILE);
             ServerConnectorMessageHandler.handleInbound(cMsg, new TestCallback());
-            Assert.fail("Expection is not thrown when the service name is not provided in the file streaming message");
+            Assert.fail("Expectation is not thrown when the service name is not provided in the file streaming "
+                    + "message");
         } catch (BallerinaException ex) {
             Assert.assertEquals(ex.getCause().getMessage(),
                     "error in ballerina program: service name is not found " + "with the file input stream.",
@@ -68,6 +69,8 @@ public class FileServiceTest {
             cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, Constants.PROTOCOL_FILE);
             cMsg.setProperty(Constants.TRANSPORT_PROPERTY_SERVICE_NAME, "abc");
             ServerConnectorMessageHandler.handleInbound(cMsg, new TestCallback());
+            Assert.fail("Expectation is not thrown when a wrong service name is not provided in the file streaming "
+                     + "message");
         } catch (BallerinaException ex) {
             Assert.assertEquals(ex.getCause().getMessage(),
                     "error in ballerina program: no file service is " + "registered with the service name abc",
@@ -83,6 +86,7 @@ public class FileServiceTest {
             cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, Constants.PROTOCOL_FILE);
             cMsg.setProperty(Constants.TRANSPORT_PROPERTY_SERVICE_NAME, "fileServiceWithoutResource");
             ServerConnectorMessageHandler.handleInbound(cMsg, new TestCallback());
+             Assert.fail("Expectation is not thrown when a request is send to a file service without any resources");
         } catch (BallerinaException ex) {
             Assert.assertEquals(ex.getCause().getMessage(),
                     "error in ballerina program: no resource found to handle the request to Service : "
