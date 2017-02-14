@@ -4,10 +4,10 @@ Now that you’ve taken the [Quick Tour](../quick-tour.md), let's dig a little d
 
 ## Running Ballerina
 
-In the [Quick Tour](../quick-tour.md), you learned how to start Ballerina and run a sample program with a single command:
+In the [Quick Tour](../quick-tour.md), you learned how to start Ballerina and run a sample program from the `bin` directory with a single command:
 
 ```
-./ballerina run helloworld.bal
+./ballerina run ../samples/helloWorld/helloWorld.bal
 ```
 
 After the HelloWorld program executed, Ballerina stopped. This approach is called **standalone mode**, and it's useful when you want to execute a program once and then stop as soon as it has finished its job. It runs the `main()` function of the program you specify and then exits. 
@@ -24,21 +24,32 @@ In this case, Ballerina ran and deployed the HelloWorldService program as a serv
 curl -v http://localhost:9090/hello
 ```
 
-The service receives the request and executes its logic, printing "Hello, World" on the command line. Notice that the Ballerina server is still running in the background, waiting for more requests to come in.
+The service receives the request and executes its logic, printing "Hello, World!" on the command line. Notice that the Ballerina server is still running in the background, waiting for more requests to come in. You can stop the Ballerina server by pressing Ctrl-C. 
 
 ## Using the Editor
 
-Now that you understand how to run Ballerina in standalone and server mode, let's play with the editor. Run it from the command line like this (omit the `sh` prefix if you're running on Windows):
+Now that you understand how to run Ballerina in standalone and server mode, let's play with the editor. 
 
-```
-sh editor
-```
+1. At the command line, navigate to the `bin` directory again and run the editor like this (omit the `sh` prefix if you're running on Windows):
 
-And now access it from the following URL in your browser: http://localhost:9091
+  ```
+  sh editor
+  ```
+1. Access the editor from the following URL in your browser: http://localhost:9091
 
-The Ballerina editor appears. Notice that on the left you have a tool palette of the various constructs that you'll use to build your integration. On the right, you have a visual editor with a canvas onto which you drag those constructs. This is where you'll build your sequence diagrams that define your integration logic. 
+   The welcome page of the Ballerina editor appears. Let's start a new file and take a look around. 
 
-Additionally, look for the source code icon in the lower right corner (`</>`). Click it now, and you'll see the source code that represents the sequence diagram as code in the Ballerina language. In a new file with no content, the only source code will be a line importing the Ballerina language package. Click the icon again to return to the visual editor. You can go back and forth between the visual editor and the source code and make your edits in either place.
+1. Click **New**.
+
+   Notice that on the left you have a tool palette of the various constructs that you'll use to build your integration. On the right, you have a visual editor with a canvas onto which you drag those constructs. This is where you'll build your sequence diagrams that define your integration logic. 
+
+1. In the upper left corner, click the Services icon and drag it to the canvas.
+
+   A sequence diagram is created with a service called newService, and it contains a resource called newResource, which already has the skeleton in place for taking requests from clients. Additionally, notice the Source View and Swagger View buttons in the lower right corner. 
+   
+1. Click **Source View**. You'll see the source code editor that represents the sequence diagram as code in the Ballerina language. 
+
+1. Click **Design View** to return to the visual editor. You can go back and forth between the visual editor and the source code and make your edits in either place. You will learn about writing Swagger definitions in another tutorial.
 
 ## Building an integration
 
@@ -81,7 +92,7 @@ You can click the symbol again to confirm that GET was in fact changed to POST. 
 
 ### Add a function
 
-Now we are ready to add a function that will take the incoming message and convert it to a response that gets sent back to the client. The ballerina.net.http package includes a native function called `convertToResponse` that removes the incoming HTTP headers when replying to the client. (If you just use Reply, it will return the message as it is with all the headers.) So let's import that package and add the function to our flow.
+Now, let's add a function that will take the incoming message and convert it to a response that gets sent back to the client. The ballerina.net.http package includes a native function called `convertToResponse` that removes the incoming HTTP headers when replying to the client. If you just use Reply without using this function, Ballerina will return the message as it is with all the headers, which aren't useful in the server -> client direction. So let's import that package and add the function to our flow.
 
 1. In the upper right corner of the canvas, click the package icon, type `ballerina.net.http`, and press Enter. 
 ...You have now imported the package containing the native function we want to use. 
