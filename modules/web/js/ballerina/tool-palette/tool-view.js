@@ -93,7 +93,11 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
                 this.$el.html(this.toolTemplate(this.model.attributes));
             }
 
-            parent.append(this.$el);
+            if(!_.isNil(this.model.parent)){
+                parent.find('#'+this.model.parent).after(this.$el);
+            } else {
+                parent.append(this.$el);
+            }
 
             this.$el.find('.tool-block').tooltip();
 

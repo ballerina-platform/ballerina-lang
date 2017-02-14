@@ -1201,6 +1201,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                     case 'division_expression':
                         node = BallerinaASTFactory.createBinaryExpression({"operator" : "/"});
                         break;
+                    case 'mod_expression' :
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "%"});
+                        break;
                     case 'and_expression':
                         node = BallerinaASTFactory.createBinaryExpression({"operator" : "&&"});
                         break;
