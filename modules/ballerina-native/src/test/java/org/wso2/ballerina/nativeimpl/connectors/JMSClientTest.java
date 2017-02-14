@@ -46,4 +46,20 @@ public class JMSClientTest {
     public void testJMSClientConnectorWithoutValidInitialContextFactory() throws BallerinaException {
         Functions.invoke(bFile, "jmsClientConnectorTest");
     }
+
+    @Test(description = "Test for jms client connector without valid message",
+            expectedExceptions = { BallerinaException.class },
+            expectedExceptionsMessageRegExp = ".*If the message type is TextMessage, a string payload must be set.*")
+    public void testJMSClientConnectorWithoutValidMessage() throws BallerinaException {
+        Functions.invoke(bFile, "jmsSendNoMessageTest");
+    }
+
+    @Test(description = "Test for jms client connector map message without data",
+            expectedExceptions = { BallerinaException.class },
+            expectedExceptionsMessageRegExp =
+                    ".*If the message type is MapMessage, either set MapData property or pass a " +
+                    "received jms map message*")
+    public void testJMSClientConnectorMapMessageWithoutData() throws BallerinaException {
+        Functions.invoke(bFile, "jmsSendMapMessageWithoutData");
+    }
 }

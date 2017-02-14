@@ -70,15 +70,13 @@ public class Send extends AbstractJMSAction {
 
         Connector connector = bConnector.value();
         if (!(connector instanceof ClientConnector)) {
-            throw new BallerinaException("Need to use a JMSConnector as the first argument",
-                                         context);
+            throw new BallerinaException("Need to use a JMSConnector as the first argument", context);
         }
 
         //Getting ballerina message and extract carbon message.
         BMessage bMessage = (BMessage) getArgument(context, 5);
         if (bMessage == null) {
-            throw new BallerinaException("Ballerina message not found.",
-                                         context);
+            throw new BallerinaException("Ballerina message not found", context);
         }
         CarbonMessage message = bMessage.value();
 
@@ -96,8 +94,11 @@ public class Send extends AbstractJMSAction {
             if (ballerinaMessageDataSource != null) {
                 if (ballerinaMessageDataSource instanceof StringDataSource) {
                     message = new TextCarbonMessage(((StringDataSource) ballerinaMessageDataSource).getValue());
+                } else {
+                    throw new BallerinaException(
+                            "If the message type is " + messageType + ", a string payload must be set", context);
                 }
-            } else if (message instanceof TextCarbonMessage) {
+            } else if (!(message instanceof TextCarbonMessage)) {
                 throw new BallerinaException(
                         "If the message type is " + messageType + ", either string payload should be set or " +
                         "pass a received jms text or bytes message", context);
