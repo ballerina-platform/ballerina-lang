@@ -201,8 +201,20 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // TODO Figure out how to evaluate constant values properly
         // TODO This should be done properly in the RuntimeEnvironment
-        BasicLiteral basicLiteral = (BasicLiteral) constDef.getRhsExpr();
-        constDef.setValue(basicLiteral.getBValue());
+        Expression constDefRhsExpr = constDef.getRhsExpr();
+
+        constDefRhsExpr.accept(this);
+
+        if (constDefRhsExpr.getType() != bType) {
+            TypeCastExpression typeCastExpression = checkWideningPossible(bType, constDefRhsExpr);
+            if (typeCastExpression == null) {
+                throw new SemanticException(
+                        getNodeLocationStr(constDef.getNodeLocation()) + "incompatible types: expected '" + bType
+                                + "', found '" + constDefRhsExpr.getType() + "'");
+            } else {
+                constDef.setRhsExpr(typeCastExpression);
+            }
+        }
     }
 
     @Override
@@ -514,7 +526,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
                 TypeCastExpression newExpr = checkWideningPossible(varBType, rExpr);
                 if (newExpr != null) {
-                    newExpr.accept(this);
                     varDefStmt.setRExpr(newExpr);
                 } else {
                     throw new SemanticException(rExpr.getNodeLocation().getFileName() + ":"
@@ -538,7 +549,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             TypeCastExpression newExpr = checkWideningPossible(varBType, rExpr);
             if (newExpr != null) {
-                newExpr.accept(this);
                 varDefStmt.setRExpr(newExpr);
             } else {
                 throw new SemanticException(getNodeLocationStr(varDefStmt.getNodeLocation()) +
@@ -592,7 +602,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             TypeCastExpression newExpr = checkWideningPossible(lExpr.getType(), rExpr);
             if (newExpr != null) {
-                newExpr.accept(this);
                 assignStmt.setRhsExpr(newExpr);
             } else {
                 throw new SemanticException(lExpr.getNodeLocation().getFileName() + ":"
@@ -1948,6 +1957,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (newEdge != null) {
             newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, lhsType);
             newExpr.setEvalFunc(newEdge.getTypeConvertorFunction());
+            newExpr.accept(this);
         }
         return newExpr;
     }

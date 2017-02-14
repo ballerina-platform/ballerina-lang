@@ -65,6 +65,10 @@ public class ConstDef extends VariableDef implements CompilationUnit {
         return rhsExpr;
     }
 
+    public void setRhsExpr(Expression rhsExpr) {
+        this.rhsExpr = rhsExpr;
+    }
+
     public BValue getValue() {
         return value;
     }

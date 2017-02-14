@@ -1988,8 +1988,8 @@ public class BallerinaParser extends Parser {
 			return getRuleContext(TypeNameContext.class,0);
 		}
 		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
-		public LiteralValueContext literalValue() {
-			return getRuleContext(LiteralValueContext.class,0);
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
 		}
 		public ConstantDefinitionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -2020,7 +2020,7 @@ public class BallerinaParser extends Parser {
 			setState(484);
 			match(T__18);
 			setState(485);
-			literalValue();
+			expression(0);
 			setState(486);
 			match(T__1);
 			}
@@ -6968,17 +6968,17 @@ public class BallerinaParser extends Parser {
 		"\u01de\7\b\2\2\u01db\u01dd\5t;\2\u01dc\u01db\3\2\2\2\u01dd\u01e0\3\2\2"+
 		"\2\u01de\u01dc\3\2\2\2\u01de\u01df\3\2\2\2\u01df\u01e1\3\2\2\2\u01e0\u01de"+
 		"\3\2\2\2\u01e1\u01e2\7\t\2\2\u01e2\63\3\2\2\2\u01e3\u01e4\7\24\2\2\u01e4"+
-		"\u01e5\5^\60\2\u01e5\u01e6\7F\2\2\u01e6\u01e7\7\25\2\2\u01e7\u01e8\5f"+
-		"\64\2\u01e8\u01e9\7\4\2\2\u01e9\65\3\2\2\2\u01ea\u01eb\7\26\2\2\u01eb"+
-		"\u01ec\7F\2\2\u01ec\u01ed\7\13\2\2\u01ed\u01ee\5<\37\2\u01ee\u01ef\7\f"+
-		"\2\2\u01ef\u01f3\7\b\2\2\u01f0\u01f2\5t;\2\u01f1\u01f0\3\2\2\2\u01f2\u01f5"+
-		"\3\2\2\2\u01f3\u01f1\3\2\2\2\u01f3\u01f4\3\2\2\2\u01f4\u01f6\3\2\2\2\u01f5"+
-		"\u01f3\3\2\2\2\u01f6\u01f7\7\t\2\2\u01f7\67\3\2\2\2\u01f8\u01fb\7\13\2"+
-		"\2\u01f9\u01fc\5:\36\2\u01fa\u01fc\5> \2\u01fb\u01f9\3\2\2\2\u01fb\u01fa"+
-		"\3\2\2\2\u01fc\u01fd\3\2\2\2\u01fd\u01fe\7\f\2\2\u01fe9\3\2\2\2\u01ff"+
-		"\u0204\5<\37\2\u0200\u0201\7\27\2\2\u0201\u0203\5<\37\2\u0202\u0200\3"+
-		"\2\2\2\u0203\u0206\3\2\2\2\u0204\u0202\3\2\2\2\u0204\u0205\3\2\2\2\u0205"+
-		";\3\2\2\2\u0206\u0204\3\2\2\2\u0207\u0208\5^\60\2\u0208\u0209\7F\2\2\u0209"+
+		"\u01e5\5^\60\2\u01e5\u01e6\7F\2\2\u01e6\u01e7\7\25\2\2\u01e7\u01e8\5\u00b6"+
+		"\\\2\u01e8\u01e9\7\4\2\2\u01e9\65\3\2\2\2\u01ea\u01eb\7\26\2\2\u01eb\u01ec"+
+		"\7F\2\2\u01ec\u01ed\7\13\2\2\u01ed\u01ee\5<\37\2\u01ee\u01ef\7\f\2\2\u01ef"+
+		"\u01f3\7\b\2\2\u01f0\u01f2\5t;\2\u01f1\u01f0\3\2\2\2\u01f2\u01f5\3\2\2"+
+		"\2\u01f3\u01f1\3\2\2\2\u01f3\u01f4\3\2\2\2\u01f4\u01f6\3\2\2\2\u01f5\u01f3"+
+		"\3\2\2\2\u01f6\u01f7\7\t\2\2\u01f7\67\3\2\2\2\u01f8\u01fb\7\13\2\2\u01f9"+
+		"\u01fc\5:\36\2\u01fa\u01fc\5> \2\u01fb\u01f9\3\2\2\2\u01fb\u01fa\3\2\2"+
+		"\2\u01fc\u01fd\3\2\2\2\u01fd\u01fe\7\f\2\2\u01fe9\3\2\2\2\u01ff\u0204"+
+		"\5<\37\2\u0200\u0201\7\27\2\2\u0201\u0203\5<\37\2\u0202\u0200\3\2\2\2"+
+		"\u0203\u0206\3\2\2\2\u0204\u0202\3\2\2\2\u0204\u0205\3\2\2\2\u0205;\3"+
+		"\2\2\2\u0206\u0204\3\2\2\2\u0207\u0208\5^\60\2\u0208\u0209\7F\2\2\u0209"+
 		"=\3\2\2\2\u020a\u020f\5^\60\2\u020b\u020c\7\27\2\2\u020c\u020e\5^\60\2"+
 		"\u020d\u020b\3\2\2\2\u020e\u0211\3\2\2\2\u020f\u020d\3\2\2\2\u020f\u0210"+
 		"\3\2\2\2\u0210?\3\2\2\2\u0211\u020f\3\2\2\2\u0212\u0213\5d\63\2\u0213"+

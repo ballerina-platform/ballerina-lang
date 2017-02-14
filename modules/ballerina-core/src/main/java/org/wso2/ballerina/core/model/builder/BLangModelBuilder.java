@@ -237,8 +237,12 @@ public class BLangModelBuilder {
         }
 
         SimpleTypeName typeName = typeNameStack.pop();
+        Expression constRhsExpr = exprStack.pop();
+
+        checkArgExprValidity(location, constRhsExpr);
+
         ConstDef constantDef = new ConstDef(location, name, typeName, currentPackagePath,
-                isPublic, symbolName, currentScope, exprStack.pop());
+                isPublic, symbolName, currentScope, constRhsExpr);
 
         // Define the variableRef symbol in the current scope
         currentScope.define(symbolName, constantDef);
