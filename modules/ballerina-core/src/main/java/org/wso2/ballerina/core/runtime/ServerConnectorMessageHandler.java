@@ -110,7 +110,7 @@ public class ServerConnectorMessageHandler {
             callback.done(cMsg);
             if (ModeResolver.getInstance().isNonblockingEnabled()) {
                 // Continue Non-Blocking
-                BLangExecutionVisitor executor =  connectorCallback.getContext().getExecutor();
+                BLangExecutionVisitor executor = connectorCallback.getContext().getExecutor();
                 executor.continueExecution(connectorCallback.getCurrentNode().next());
             }
         } catch (Throwable throwable) {
@@ -150,11 +150,14 @@ public class ServerConnectorMessageHandler {
         Object protocol = balContext.getServerConnectorProtocol();
         Optional<ServerConnectorErrorHandler> optionalErrorHandler =
                 BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
-
-        optionalErrorHandler
-                .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
-                .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext), cMsg,
-                        balContext.getBalCallback());
+        try {
+            optionalErrorHandler
+                    .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
+                    .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext), cMsg,
+                            balContext.getBalCallback());
+        } catch (Exception e) {
+            throw new BallerinaException("Cannot handle error using the error handler for : " + protocol, e);
+        }
     }
 
 }
