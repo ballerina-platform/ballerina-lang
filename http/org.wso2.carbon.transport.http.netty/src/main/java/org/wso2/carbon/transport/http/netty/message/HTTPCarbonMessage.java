@@ -50,6 +50,9 @@ public class HTTPCarbonMessage extends CarbonMessage {
     private BlockingQueue<HttpContent> outContentQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<HttpContent> garbageCollected = new LinkedBlockingQueue<>();
 
+    // Variable to keep the status on whether the last content was added during the clone
+    private boolean isEndMarked = false;
+
     public void addHttpContent(HttpContent httpContent) {
         try {
             httpContentQueue.put(httpContent);
@@ -176,10 +179,13 @@ public class HTTPCarbonMessage extends CarbonMessage {
 
     @Override
     public void markMessageEnd() {
-        if (isAlreadyRead()) {
-            outContentQueue.add(new DefaultLastHttpContent());
-        } else {
-            httpContentQueue.add(new DefaultLastHttpContent());
+        if (!isEndMarked) {
+            if (isAlreadyRead()) {
+                outContentQueue.add(new DefaultLastHttpContent());
+            } else {
+                httpContentQueue.add(new DefaultLastHttpContent());
+            }
+            isEndMarked = true;
         }
     }
 
