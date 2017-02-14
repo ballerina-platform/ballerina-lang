@@ -42,7 +42,8 @@ public class WebSocketServerConnectorErrorHandler implements ServerConnectorErro
 
     @Override
     public void handleError(Exception e, CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
-        logger.debug("Error Occurred : " + e.getMessage());
+        //This debug log will be used in error debugging in the server connector.
+        logger.debug("Error occurred : " + e.getMessage());
     }
 
     @Override
