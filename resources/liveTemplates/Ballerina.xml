@@ -1,6 +1,16 @@
 <templateSet group="Ballerina">
 
-    <template name="fun" value="function $NAME$ ($ARGS$) ($RETURN$) {&#10;    $END$&#10;}"
+    <template name="fun" value="function $NAME$ ($ARGS$) {&#10;    $END$&#10;}"
+              description="Function template" toReformat="false"
+              toShortenFQNames="false">
+        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="BALLERINA_FILE" value="true"/>
+        </context>
+    </template>
+
+    <template name="funr" value="function $NAME$ ($ARGS$) ($RETURN$) {&#10;    $END$&#10;}"
               description="Function template" toReformat="false"
               toShortenFQNames="false">
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
@@ -25,6 +35,30 @@
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="EXCEPTION" expression="" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="BALLERINA_FILE" value="true"/>
+        </context>
+    </template>
+
+    <template name="funre" value="function $NAME$ ($ARGS$) ($RETURN$) throws $EXCEPTION$ {&#10;    $END$&#10;}"
+              description="Function Template" toReformat="false"
+              toShortenFQNames="false">
+        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="EXCEPTION" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="RETURN" expression="" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="BALLERINA_FILE" value="true"/>
+        </context>
+    </template>
+
+    <template name="funer" value="function $NAME$ ($ARGS$) ($RETURN$) throws $EXCEPTION$ {&#10;    $END$&#10;}"
+              description="Function Template" toReformat="false"
+              toShortenFQNames="false">
+        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="EXCEPTION" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="RETURN" expression="" defaultValue="" alwaysStopAt="true"/>
         <context>
             <option name="BALLERINA_FILE" value="true"/>
         </context>
@@ -61,7 +95,18 @@
         </context>
     </template>
 
-    <template name="res" value='@$METHOD$&#10;@Path ("/$PATH$")&#10;resource $NAME$ ($ARGS$) {&#10;    $END$&#10;}'
+    <template name="res" value='@$METHOD$&#10;resource $NAME$ ($ARGS$) {&#10;    $END$&#10;}'
+              description="Connector Template" toReformat="false"
+              toShortenFQNames="false">
+        <variable name="METHOD" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="BALLERINA_SERVICE" value="true"/>
+        </context>
+    </template>
+
+    <template name="resb" value='@$METHOD$&#10;@Path ("/$PATH$")&#10;resource $NAME$ ($ARGS$) {&#10;    $END$&#10;}'
               description="Connector Template" toReformat="false"
               toShortenFQNames="false">
         <variable name="METHOD" expression="" defaultValue="" alwaysStopAt="true"/>
