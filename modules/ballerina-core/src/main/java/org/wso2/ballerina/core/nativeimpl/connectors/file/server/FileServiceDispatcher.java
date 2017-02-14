@@ -43,8 +43,17 @@ public class FileServiceDispatcher implements ServiceDispatcher {
 
     @Override
     public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext) {
-        String serviceName = (String) cMsg.getProperty(Constants.TRANSPORT_PROPERTY_SERVICE_NAME);
-        return servicesMap.get(serviceName);
+        Object serviceNameProperty = cMsg.getProperty(Constants.TRANSPORT_PROPERTY_SERVICE_NAME);
+        String serviceName = (serviceNameProperty != null) ? serviceNameProperty.toString() : null;
+        if (serviceName == null) {
+            throw new BallerinaException("Service name is not found with the file input stream.", balContext);
+        }
+        Service service = servicesMap.get(serviceName);
+        if (service == null) {
+            throw new BallerinaException("No file service is registered with the service name " + serviceName,
+                    balContext);
+        }
+        return service;
     }
 
     @Override
