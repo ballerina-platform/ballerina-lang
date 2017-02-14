@@ -9,8 +9,8 @@ connector TestConnector(string consumerKey, string consumerSecret, string access
     @doc:Description("test connector action")
     @doc:Param("t: a string argument")
     @doc:Param("msg: a string message")
-    @doc:Return("response: response object")
-    action testAction1(TestConnector t, string msg) (message) {
+    @doc:Return("response1: response object")
+    action testAction1(TestConnector t, string msg) (message response1) {
         message request;
         message response;
         return response;
@@ -19,8 +19,18 @@ connector TestConnector(string consumerKey, string consumerSecret, string access
     @doc:Description("test connector action2")
     @doc:Param("t: a string argument")
     @doc:Param("msg: a string message")
-    @doc:Return("response object")
-    action testAction2(TestConnector t, string msg) (message) {
+    @doc:Return("response2: response object")
+    action testAction2(TestConnector t, string msg) (message response2) {
+        message request;
+        message response;
+        return response;
+    }
+
+    @doc:Description("test connector action3")
+    @doc:Param("t: a string argument")
+    @doc:Param("msg: a string message")
+    @doc:Return("response3: response object")
+    action testAction3(TestConnector t, string msg) (message response3) {
         message request;
         message response;
         return response;
