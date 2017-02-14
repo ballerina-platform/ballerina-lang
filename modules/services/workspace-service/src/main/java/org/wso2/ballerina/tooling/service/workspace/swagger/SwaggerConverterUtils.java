@@ -51,6 +51,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -258,6 +260,7 @@ public class SwaggerConverterUtils {
                 //This is completely new resource
             }
         }
+        //ballerinaService.setResources((Resource[]) resourceList.toArray());
         ballerinaService.setResources(mergeResources(resourceList, ballerinaService.getResources()));
         return ballerinaService;
     }
@@ -322,12 +325,19 @@ public class SwaggerConverterUtils {
     public static Resource[] mergeResources(List<Resource> resourceList, Resource[] resources) {
         for (int i = 0; i < resources.length; i++) {
             Resource resource = resources[i];
+            boolean isMatched = false;
             for (Resource resource1 : resourceList) {
-                if (resource1.getSymbolName().getName().equalsIgnoreCase(resource.getSymbolName().getName())) {
-                    resources[i] = resource1;
+                if (isResourceMatch(resource1, resource)) {
+                    isMatched = true;
+                    //match means its there in list
                 }
             }
+            if (!isMatched) {
+                //If this is complete new resource then add it to another list.
+                resourceList.add(resource);
+            }
+
         }
-        return resources;
+        return resourceList.toArray(new Resource[resourceList.size()]);
     }
 }
