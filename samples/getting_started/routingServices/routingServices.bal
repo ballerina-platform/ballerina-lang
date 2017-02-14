@@ -8,8 +8,8 @@ service contentBasedRouting {
     @POST
     resource cbrResource (message m) {
 
-        http:HTTPConnector nyseEP = create http:HTTPConnector("http://localhost:9090/nyseStocks");
-        http:HTTPConnector nasdaqEP = create http:HTTPConnector("http://localhost:9090/nasdaqStocks");
+        http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090/nyseStocks");
+        http:ClientConnector nasdaqEP = create http:ClientConnector("http://localhost:9090/nasdaqStocks");
 
         string nyseString = "nyse";
 
@@ -19,9 +19,9 @@ service contentBasedRouting {
         message response = {};
 
         if (nameString == nyseString) {
-            response = http:HTTPConnector.post(nyseEP, "/", m);
+            response = http:ClientConnector.post(nyseEP, "/", m);
         } else {
-            response = http:HTTPConnector.post(nasdaqEP, "/", m);
+            response = http:ClientConnector.post(nasdaqEP, "/", m);
         }
 
         reply response;
@@ -34,8 +34,8 @@ service headerBasedRouting {
     @GET
     resource cbrResource (message m) {
 
-        http:HTTPConnector nyseEP = create http:HTTPConnector("http://localhost:9090/nyseStocks");
-        http:HTTPConnector nasdaqEP = create http:HTTPConnector("http://localhost:9090/nasdaqStocks");
+        http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090/nyseStocks");
+        http:ClientConnector nasdaqEP = create http:ClientConnector("http://localhost:9090/nasdaqStocks");
 
         string nyseString = "nyse";
 
@@ -44,9 +44,9 @@ service headerBasedRouting {
         message response = {};
 
         if (nameString == nyseString) {
-            response = http:HTTPConnector.post(nyseEP, "/", m);
+            response = http:ClientConnector.post(nyseEP, "/", m);
         } else {
-            response = http:HTTPConnector.post(nasdaqEP, "/", m);
+            response = http:ClientConnector.post(nasdaqEP, "/", m);
         }
 
         reply response;
