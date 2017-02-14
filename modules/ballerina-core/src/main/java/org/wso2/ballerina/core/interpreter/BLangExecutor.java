@@ -415,7 +415,7 @@ public class BLangExecutor implements NodeExecutor {
         Expression rExpr = equalExpr.getRExpr();
         Expression lExpr = equalExpr.getLExpr();
 
-        if (rExpr.getType().equals(BTypes.typeNull) || lExpr.getType().equals(BTypes.typeNull)) {
+        if (rExpr.getType().equals(BTypes.typeReference) || lExpr.getType().equals(BTypes.typeReference)) {
             BValue rValue = rExpr.execute(this);
             BValue lValue = lExpr.execute(this);
             return equalExpr.getRefTypeEvalFunction().apply(lValue, rValue);

@@ -831,7 +831,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
 
                 if (!typesOfReturnExprs[i].equals(returnParamsOfCU[i].getType()) && !typesOfReturnExprs[i]
-                        .equals(BTypes.typeNull)) {
+                        .equals(BTypes.typeReference)) {
                     throw new SemanticException(
                             returnStmt.getNodeLocation().getFileName() + ":" + returnStmt.getNodeLocation()
                                     .getLineNumber() + ": cannot use " + typesOfReturnExprs[i] + " as type "
@@ -1080,7 +1080,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (compareExprType == BTypes.typeString) {
             equalExpr.setEvalFunc(EqualExpression.EQUAL_STRING_FUNC);
 
-        } else if (compareExprType == BTypes.typeNull) {
+        } else if (compareExprType == BTypes.typeReference) {
             equalExpr.setRefTypeEvalFunction(EqualExpression.EQUAL_NULL_FUNC);
 
         } else {
@@ -1104,7 +1104,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (compareExprType == BTypes.typeString) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_STRING_FUNC);
 
-        } else if (compareExprType == BTypes.typeNull) {
+        } else if (compareExprType == BTypes.typeReference) {
             notEqualExpr.setRefTypeEvalFunction(NotEqualExpression.NOT_EQUAL_NULL_FUNC);
 
         } else {
@@ -1582,7 +1582,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             lType = BTypes.resolveType(((TypeCastExpression) lExpr).getTypeName(), currentScope, null);
         }
 
-        if (!(rType.equals(lType)) && !(rType.equals(BTypes.typeNull) || lType.equals(BTypes.typeNull))) {
+        if (!(rType.equals(lType)) && !(rType.equals(BTypes.typeReference) || lType.equals(BTypes.typeReference))) {
             TypeCastExpression newExpr;
             TypeEdge newEdge;
 

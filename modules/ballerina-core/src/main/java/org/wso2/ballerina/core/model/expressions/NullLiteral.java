@@ -34,7 +34,7 @@ public class NullLiteral extends AbstractExpression {
 
     public NullLiteral(NodeLocation location) {
         super(location);
-        setType(BTypes.typeNull);
+        setType(BTypes.typeReference);
     }
 
     public BValue getBValue() {

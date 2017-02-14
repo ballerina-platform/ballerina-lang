@@ -26,14 +26,14 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
-public class BNullType extends BType {
+public class BReferenceType extends BType {
 
     /**
      * Create a {@code BNullType} which represents the null type.
      *
      * @param typeName string name of the type
      */
-    BNullType(String typeName, String pkgPath, SymbolScope symbolScope) {
+    BReferenceType(String typeName, String pkgPath, SymbolScope symbolScope) {
         super(typeName, pkgPath, symbolScope, BNull.class);
     }
 
