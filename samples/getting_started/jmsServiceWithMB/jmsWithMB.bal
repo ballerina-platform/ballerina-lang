@@ -3,9 +3,9 @@ import ballerina.lang.message;
 import ballerina.lang.system;
 
 @Source (
-protocol = "jms", Destination = "ballerinaqueue", ConnectionFactoryJNDIName = "QpidConnectionFactory",
-FactoryInitial = "org.wso2.andes.jndi.PropertiesFileInitialContextFactory", ProviderUrl = "jndi.properties",
-ConnectionFactoryType = "queue")
+protocol = "jms", destination = "ballerinaqueue", connectionFactoryJNDIName = "QpidConnectionFactory",
+factoryInitial = "org.wso2.andes.jndi.PropertiesFileInitialContextFactory", providerUrl = "jndi.properties",
+connectionFactoryType = "queue")
 service jmsWSO2MBQueueService {
     @OnMessage
     resource onMessage (message m) {
@@ -22,9 +22,9 @@ service jmsWSO2MBQueueService {
 
 
 @Source (
-protocol = "jms", Destination = "ballerinatopic", ConnectionFactoryJNDIName = "QpidConnectionFactory",
-FactoryInitial = "org.wso2.andes.jndi.PropertiesFileInitialContextFactory", ProviderUrl = "jndi.properties",
-ConnectionFactoryType = "topic")
+protocol = "jms", destination = "ballerinatopic", connectionFactoryJNDIName = "QpidConnectionFactory",
+factoryInitial = "org.wso2.andes.jndi.PropertiesFileInitialContextFactory", providerUrl = "jndi.properties",
+connectionFactoryType = "topic")
 service jmsWSO2MBTopicService {
     @OnMessage
     resource onMessage (message m) {

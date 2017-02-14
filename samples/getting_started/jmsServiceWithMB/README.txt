@@ -7,11 +7,11 @@ Pre-requisites
 --------------
 1. Start the WSO2 Message Broker.
 2. Copy the client libs of WSO2 Message broker to {Ballerina_HOME}/bre/lib folder.
-3. Copu the jndi.properties in this folder to {Ballerina_HOME}/bin folder
+3. Copy the jndi.properties in this folder to {Ballerina_HOME}/bin folder
 
 How to run this sample
 ======================
-bin$ ./ballerina service ../samples/jmsServiceWithActiveMq/jmsServiceWithActiveMq.bal
+bin$ ./ballerina service ../samples/jmsServiceWithMB/jmsServiceWithMB.bal
 
 the above command will start the ballerina server in the current terminal and deploy the jmsServiceWithMB.bal file
 and publish the 'jmsWSO2MBQueueService' and 'jmsWSO2MBTopicService' services
