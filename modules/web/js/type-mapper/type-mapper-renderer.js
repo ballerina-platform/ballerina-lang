@@ -566,6 +566,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                     if (isValidTypes) {
                         connection.isComplexMapping = true;
                         connection.complexMapperName = compatibleTypeConverters[0];
+                        self.jsPlumbInstance.importDefaults({ Connector : self.getConnectorConfig(self.midpoint)});
                         self.onConnection(connection);
                         self.disableParentsJsTree(params.sourceId, self);
                         self.disableParentsJsTree(params.targetId, self);
