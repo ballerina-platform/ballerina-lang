@@ -959,11 +959,23 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterJoinConditions(BallerinaParser.JoinConditionsContext ctx) {
+    public void enterAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) {
+
     }
 
     @Override
-    public void exitJoinConditions(BallerinaParser.JoinConditionsContext ctx) {
+    public void exitAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) {
+
+    }
+
+    @Override
+    public void enterAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) {
+
+    }
+
+    @Override
+    public void exitAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) {
+
     }
 
     @Override
@@ -1073,6 +1085,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitCommentStatement(BallerinaParser.CommentStatementContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.addCommentStmt(getCurrentLocation(ctx), ctx.getText());
+        }
     }
 
     @Override
