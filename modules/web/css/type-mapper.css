@@ -115,3 +115,7 @@ svg.plumbConnect path {
     cursor: pointer;
     color: black;
 }
+
+.jstree-themeicon {
+    display:none !important;
+}
