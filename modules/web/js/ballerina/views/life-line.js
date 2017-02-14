@@ -386,7 +386,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
             // Creating the property form.
             expressionEditor.createEditor(propertyPaneBody,
-                viewOptions.propertyForm.body.property.wrapper, self._editableProperties);
+                viewOptions.propertyForm.body.property.wrapper, self._editableProperties, closeAllPopUps);
 
             // Close the popups of property pane body.
             function closeAllPopUps() {
