@@ -27,7 +27,7 @@
     <packaging>pom</packaging>
     <groupId>org.wso2.carbon.transport</groupId>
     <artifactId>org.wso2.carbon.transport.parent</artifactId>
-    <version>4.1.1-SNAPSHOT</version>
+    <version>4.2.0-SNAPSHOT</version>
     <name>WSO2 Carbon Transport Parent</name>
 
     <modules>
@@ -40,8 +40,7 @@
 
     <scm>
         <url>https://github.com/wso2/carbon-transports.git</url>
-        <developerConnection>scm:git:https://github.com/wso2/carbon-transports.git
-        </developerConnection>
+        <developerConnection>scm:git:https://github.com/wso2/carbon-transports.git</developerConnection>
         <connection>scm:git:https://github.com/wso2/carbon-transports.git</connection>
         <tag>HEAD</tag>
     </scm>
@@ -278,30 +277,24 @@
 
         <!-- Dependencies -->
         <org.wso2.carbon.core.version>5.1.0</org.wso2.carbon.core.version>
-        <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)
-        </carbon.kernel.package.import.version.range>
+        <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
 
         <netty.version>4.1.7.Final</netty.version>
         <netty.package.import.version.range>[4.0.30, 5.0.0)</netty.package.import.version.range>
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <osgi.framework.import.version.range>[1.8.0, 2.0.0)</osgi.framework.import.version.range>
-        <osgi.service.tracker.import.version.range>[1.5.1, 2.0.0)
-        </osgi.service.tracker.import.version.range>
+        <osgi.service.tracker.import.version.range>[1.5.1, 2.0.0)</osgi.service.tracker.import.version.range>
         <org.xml.sax.import.version.range>[0.0.0, 1.0.0)</org.xml.sax.import.version.range>
         <javax.xml.bind.import.version.range>[0.0.0, 1.0.0)</javax.xml.bind.import.version.range>
-        <javax.xml.transform.import.version.range>[0.0.0, 1.0.0)
-        </javax.xml.transform.import.version.range>
-        <javax.xml.validation.import.version.range>[0.0.0, 1.0.0)
-        </javax.xml.validation.import.version.range>
+        <javax.xml.transform.import.version.range>[0.0.0, 1.0.0)</javax.xml.transform.import.version.range>
+        <javax.xml.validation.import.version.range>[0.0.0, 1.0.0)</javax.xml.validation.import.version.range>
         <javax.net.ssl.import.version.range>[0.0.0, 1.0.0)</javax.net.ssl.import.version.range>
         <disruptor.version>3.3.2.wso2v2</disruptor.version>
-        <disruptor.package.import.version.range>[3.3.2, 3.5.0)
-        </disruptor.package.import.version.range>
+        <disruptor.package.import.version.range>[3.3.2, 3.5.0)</disruptor.package.import.version.range>
 
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
-        <commons.pool.package.import.version.range>[1.5.6, 2.0.0)
-        </commons.pool.package.import.version.range>
+        <commons.pool.package.import.version.range>[1.5.6, 2.0.0)</commons.pool.package.import.version.range>
         <commons-io.wso2.version>2.4.0.wso2v1</commons-io.wso2.version>
         <commons-io.version.range>[2.4.0, 2.5)</commons-io.version.range>
         <guava.version>18.0</guava.version>
@@ -312,28 +305,23 @@
         <commons-vfs2.wso2.version.range>[2.0.0, 3.0.0)</commons-vfs2.wso2.version.range>
 
 
-        <carbon.messaging.version>2.2.0-SNAPSHOT</carbon.messaging.version>
-        <carbon.messaging.package.import.version.range>[2.0.0, 3.0.0)
-        </carbon.messaging.package.import.version.range>
+        <carbon.messaging.version>2.2.0</carbon.messaging.version>
+        <carbon.messaging.package.import.version.range>[2.0.0, 3.0.0)</carbon.messaging.package.import.version.range>
         <slf4j.version>1.7.5</slf4j.version>
         <!--Logging API version range-->
-        <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)
-        </slf4j.logging.package.import.version.range>
+        <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)</slf4j.logging.package.import.version.range>
 
         <carbon.p2.plugin.version>2.0.1</carbon.p2.plugin.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
-        <org.snakeyaml.package.import.version.range>[1.16.0, 2.0.0)
-        </org.snakeyaml.package.import.version.range>
+        <org.snakeyaml.package.import.version.range>[1.16.0, 2.0.0)</org.snakeyaml.package.import.version.range>
         <javax.jms.import.version.range>[2.0.1, 3.0.0)</javax.jms.import.version.range>
+        <file.transport.package.export.version>${project.version}</file.transport.package.export.version>
 
         <!-- Package exports -->
-        <netty.transport.package.export.version>${project.version}
-        </netty.transport.package.export.version>
+        <netty.transport.package.export.version>${project.version}</netty.transport.package.export.version>
         <connector.framework.package.export.version>${project.version}
         </connector.framework.package.export.version>
-        <jms.transport.package.export.version>${project.version}
-        </jms.transport.package.export.version>
-        <file.transport.package.export.version>${project.version}</file.transport.package.export.version>
+        <jms.transport.package.export.version>${project.version}</jms.transport.package.export.version>
 
         <!-- Following two properties should be removed once the versions are added the wso2 parent pom CARBON-15729 -->
         <maven.checkstyle.plugin.version>2.17</maven.checkstyle.plugin.version>
