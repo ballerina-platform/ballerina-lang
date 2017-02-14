@@ -1,7 +1,5 @@
 package org.ballerinalang.sample.connectors;
 
-// import ballerina.lang.system;
-
 connector Foo (string name, int age) {
 
     int[] gg = [4];
@@ -36,8 +34,3 @@ function test (int x) (int y) {
     y = x * 2;
     return;
 }
-
-//
-//function main(string[] args) {
-//    system:println(testConnectorInit("apple", 13));
-//}

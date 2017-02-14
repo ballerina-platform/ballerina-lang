@@ -49,7 +49,7 @@ import javax.xml.stream.XMLStreamException;
 @BallerinaTypeConvertor(
         packageName = "ballerina.lang.convertors",
         typeConverterName = "jsonToxml",
-        args = {@Argument(name = "json", type = TypeEnum.JSON)},
+        args = {@Argument(name = "value", type = TypeEnum.JSON)},
         returnType = {@ReturnType(type = TypeEnum.XML)},
         isPublic = true
 )

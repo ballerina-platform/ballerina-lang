@@ -139,7 +139,7 @@ public class BuiltinPackageRepository extends PackageRepository {
                 String fileName = fileNameEntry.getName();
                 if (fileName.startsWith(pkgRelPath) && fileName.endsWith(BAL_FILE_EXT)) {
                     // get only the file name 
-                    fileName = Paths.get(pkgRelPath).getFileName().toString();
+                    fileName = Paths.get(pkgRelPath).relativize(Paths.get(fileName)).toString();
                     fileNames.add(fileName);
                 }
             }
