@@ -88,6 +88,7 @@ function assertEquals(int actual, int expected, string message) {
 }
 
 // https://github.com/wso2/ballerina/issues/1564
+// https://github.com/ballerinalang/ballerina/issues/1790
 function assertEquals(double actual, double expected) {
     // TODO: once ballerinalang supports null values, pass null here
     assertEquals(actual, expected, "");
