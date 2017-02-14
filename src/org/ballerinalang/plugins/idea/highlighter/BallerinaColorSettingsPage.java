@@ -34,6 +34,7 @@ public class BallerinaColorSettingsPage implements ColorSettingsPage {
             //todo: add more attributes
             new AttributesDescriptor("Keywords", BallerinaSyntaxHighlightingColors.KEYWORD),
             new AttributesDescriptor("Strings", BallerinaSyntaxHighlightingColors.STRING),
+            new AttributesDescriptor("Numbers", BallerinaSyntaxHighlightingColors.NUMBER),
     };
 
     @Nullable
@@ -55,7 +56,19 @@ public class BallerinaColorSettingsPage implements ColorSettingsPage {
                 "\n" +
                 "function main (string[] args) {\n" +
                 "    system:println(\"Hello, World!\");\n" +
-                "}\n";
+                "    int value = 10;\n"+
+                "    system:println(value);\n" +
+                "}\n\n" +
+                "@BasePath (\"/hello\")\n" +
+                "service helloWorld {\n" +
+                "\n" +
+                "    @GET\n" +
+                "    resource sayHello(message m) {\n" +
+                "        message response = {};\n" +
+                "        message:setStringPayload(response, \"Hello, World!\");\n" +
+                "        reply response;\n" +
+                "    }\n" +
+                "}";
     }
 
     @Nullable
