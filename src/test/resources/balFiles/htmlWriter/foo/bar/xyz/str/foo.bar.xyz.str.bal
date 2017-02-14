@@ -1,24 +1,25 @@
 package foo.bar.xyz.str;
 
-@Description("Test connector")
-@Param("consumerKey: consumer key")
-@Param("consumerSecret: consumer secret")
-@Param("accessToken: access token")
-@Param("accessTokenSecret: access token secret")
+@doc:Description("Test connector")
+@doc:Param("consumerKey: consumer key")
+@doc:Param("consumerSecret: consumer secret")
+@doc:Param("accessToken: access token")
+@doc:Param("accessTokenSecret: access token secret")
 connector TestConnector(string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret) {
-    @Description("test connector action")
-    @Param("t: a string argument")
-    @Param("msg: a string message")
-    @Return("response: response object")
+    @doc:Description("test connector action")
+    @doc:Param("t: a string argument")
+    @doc:Param("msg: a string message")
+    @doc:Return("response: response object")
     action testAction1(TestConnector t, string msg) (message) {
         message request;
         message response;
         return response;
     }
 
-    @Description("test connector action2")
-    @Param("args: arguments")
-    @Return("response object")
+    @doc:Description("test connector action2")
+    @doc:Param("t: a string argument")
+    @doc:Param("msg: a string message")
+    @doc:Return("response object")
     action testAction2(TestConnector t, string msg) (message) {
         message request;
         message response;

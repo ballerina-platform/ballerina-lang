@@ -8,9 +8,9 @@ function abc (string[] args) (int response) {
     return 5;
 }
 
-@Description("test method 2")
-@Param("args: arguments")
-@Param("x: integer argument")
+@doc:Description("test method 2")
+@doc:Param("args: arguments")
+@doc:Param("x: integer argument")
 function xyz (string[] args, int x) {
     //system:println("Hello, World! "+args[0]);
 return;
