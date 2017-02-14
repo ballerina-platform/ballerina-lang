@@ -54,7 +54,6 @@ public class FileServiceDispatcher implements ServiceDispatcher {
 
     @Override
     public void serviceRegistered(Service service) {
-
         for (Annotation annotation : service.getAnnotations()) {
             if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
                 Map elementsMap = annotation.getElementPairs();
