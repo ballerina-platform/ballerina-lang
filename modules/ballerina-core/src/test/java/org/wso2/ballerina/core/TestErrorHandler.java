@@ -27,8 +27,9 @@ import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
  */
 public class TestErrorHandler implements ServerConnectorErrorHandler {
     @Override
-    public void handleError(Throwable throwable, CarbonMessage carbonMessage, CarbonCallback carbonCallback) {
-        throw new BallerinaException(throwable);
+    public void handleError(Exception exception, CarbonMessage carbonMessage, CarbonCallback carbonCallback)
+            throws Exception {
+        throw new BallerinaException(exception);
     }
 
     @Override
