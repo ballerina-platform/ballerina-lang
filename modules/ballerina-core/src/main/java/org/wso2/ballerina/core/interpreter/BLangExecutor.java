@@ -26,7 +26,6 @@ import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeExecutor;
-import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.StructDef;
@@ -94,6 +93,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -300,17 +300,19 @@ public class BLangExecutor implements NodeExecutor {
         Worker worker = workerReplyStmt.getWorker();
         Future<BMessage> future = worker.getResultFuture();
         try {
-            BValue result = future.get();
+            // TODO: Make this value configurable - need grammar level rethink
+            BMessage result = future.get(60, TimeUnit.SECONDS);
             VariableRefExpr variableRefExpr = workerReplyStmt.getReceiveExpr();
             assignValueToVarRefExpr(result, variableRefExpr);
             executor.shutdown();
             if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
                 executor.shutdownNow();
             }
-        } catch (InterruptedException e) {
-            throw new BallerinaException("Worker " + worker.getName() + " has been interrupted", e);
-        } catch (ExecutionException e) {
-            throw new BallerinaException("Worker " + worker.getName() + " execution failed", e);
+        } catch (Exception e) {
+            // If there is an exception in the worker, set an empty value to the return variable
+            BMessage result = BTypes.typeMessage.getDefaultValue();
+            VariableRefExpr variableRefExpr = workerReplyStmt.getReceiveExpr();
+            assignValueToVarRefExpr(result, variableRefExpr);
         } finally {
             // Finally, try again to shutdown if not done already
             executor.shutdownNow();
@@ -421,13 +423,13 @@ public class BLangExecutor implements NodeExecutor {
             String[] joinWorkerNames = forkJoinStmt.getJoin().getJoinWorkers();
             if (joinWorkerNames.length == 0) {
                 // If there are no workers specified, wait for all of all the workers
-                resultMsgs.addAll(invokeAllWorkers(workerRunnerList, forkJoinStmt.getNodeLocation(), timeout));
+                resultMsgs.addAll(invokeAllWorkers(workerRunnerList, timeout, forkJoinStmt));
             } else {
                 List<WorkerRunner> workerRunnersSpecified = new ArrayList<>();
                 for (String workerName : joinWorkerNames) {
                     workerRunnersSpecified.add(triggeredWorkers.get(workerName));
                 }
-                resultMsgs.addAll(invokeAllWorkers(workerRunnersSpecified, forkJoinStmt.getNodeLocation(), timeout));
+                resultMsgs.addAll(invokeAllWorkers(workerRunnersSpecified, timeout, forkJoinStmt));
             }
         }
 
@@ -486,19 +488,26 @@ public class BLangExecutor implements NodeExecutor {
         return result;
     }
 
-    private List<BMessage> invokeAllWorkers(List<WorkerRunner> workerRunnerList, NodeLocation position, int timeout) {
+    private List<BMessage> invokeAllWorkers(List<WorkerRunner> workerRunnerList, int timeout,
+                                            ForkJoinStmt forkJoinStmt) {
         ExecutorService allExecutor = Executors.newWorkStealingPool();
         List<BMessage> result = new ArrayList<>();
         try {
             allExecutor.invokeAll(workerRunnerList, timeout, TimeUnit.SECONDS).stream().map(bMessageFuture -> {
                 try {
                     return bMessageFuture.get();
+                } catch (CancellationException e) {
+                    // This means task has been timedout and cancelled by system.
+                    forkJoinStmt.setTimedOut(true);
+                    return null;
                 } catch (Exception e) {
                     throw new IllegalStateException(e);
                 }
+
             }).forEach((BMessage b) -> result.add(b));
         } catch (InterruptedException e) {
-            throw new BallerinaException("Fork-Join statement at " + position + " has been interrupted", e);
+            throw new BallerinaException("Fork-Join statement at " +
+                    forkJoinStmt.getNodeLocation() + " has been interrupted", e);
         }
         return result;
     }

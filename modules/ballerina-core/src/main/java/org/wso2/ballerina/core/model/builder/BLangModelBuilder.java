@@ -19,7 +19,6 @@ package org.wso2.ballerina.core.model.builder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BTypeConvertor;
@@ -1127,6 +1126,7 @@ public class BLangModelBuilder {
 public void startForkJoinStmt(NodeLocation nodeLocation) {
         //blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder(nodeLocation, currentScope));
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = new ForkJoinStmt.ForkJoinStmtBuilder(currentScope);
+        forkJoinStmtBuilder.setNodeLocation(nodeLocation);
         forkJoinStmtBuilderStack.push(forkJoinStmtBuilder);
         currentScope = forkJoinStmtBuilder.currentScope;
         forkJoinScope = currentScope;
@@ -1159,12 +1159,14 @@ public void startForkJoinStmt(NodeLocation nodeLocation) {
         currentScope = forkJoinStmtBuilder.getJoin().getEnclosingScope();
     }
 
-    public void createAnyJoinCondition(String joinType, String joinCount) {
+    public void createAnyJoinCondition(String joinType, String joinCount, NodeLocation location) {
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
 
         forkJoinStmtBuilder.setJoinType(joinType);
         if (Integer.parseInt(joinCount) != 1) {
-            throw new BallerinaException("Only count 1 is allowed in this version");
+            String errMsg = getNodeLocationStr(location) +
+                    "Only count 1 is allowed in this version";
+            errorMsgs.add(errMsg);
         }
         forkJoinStmtBuilder.setJoinCount(Integer.parseInt(joinCount));
     }

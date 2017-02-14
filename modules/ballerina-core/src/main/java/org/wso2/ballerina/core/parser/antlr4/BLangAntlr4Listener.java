@@ -1007,7 +1007,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.createAnyJoinCondition("any", ctx.IntegerLiteral().getText());
+            modelBuilder.createAnyJoinCondition("any", ctx.IntegerLiteral().getText(), getCurrentLocation(ctx));
             for (TerminalNode t : ctx.Identifier()) {
                 modelBuilder.createJoinWorkers(t.getText());
             }

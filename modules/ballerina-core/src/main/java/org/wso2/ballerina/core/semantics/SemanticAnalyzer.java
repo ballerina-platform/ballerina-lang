@@ -832,7 +832,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         timeoutExpr.accept(this);
 
         ParameterDef timeoutParam = timeout.getTimeoutResult();
-        parameter.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+        timeoutParam.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
         timeoutParam.accept(this);
         timeout.define(timeoutParam.getSymbolName(), timeoutParam);
 
