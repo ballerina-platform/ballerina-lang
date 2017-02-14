@@ -29,11 +29,25 @@ public class SwaggerCmd implements BLauncherCmd {
                     "Ex: ballerina swagger connector swagger_file");
         }
         String action = argList.get(0);
+        Generate generate = new Generate();
         switch (action) {
             case "connector":
-                Generate generate = new Generate();
                 generate.setSpec(argList.get(1));
                 generate.setLang("ballerina-connector");
+                generate.setOutput(output);
+                generate.setApiPackage(apiPackage);
+                generate.run();
+                break;
+            case "skeleton":
+                generate.setSpec(argList.get(1));
+                generate.setLang("ballerina-skeleton");
+                generate.setOutput(output);
+                generate.setApiPackage(apiPackage);
+                generate.run();
+                break;
+            case "mock":
+                generate.setSpec(argList.get(1));
+                generate.setLang("ballerina-mock-service");
                 generate.setOutput(output);
                 generate.setApiPackage(apiPackage);
                 generate.run();
