@@ -37,11 +37,46 @@ public class ForkJoinInFunctionTest {
     }
 
 
-    @Test(description = "Test Fork Join declaration")
-    public void testWorkerDeclaration() {
+    @Test(description = "Test Fork Join All")
+    public void testForkJoinAll() {
         BValue[] args = {new BMessage()};
-        BValue[] returns = Functions.invoke(bFile, "testForkJoin", args);
+        BValue[] returns = Functions.invoke(bFile, "testForkJoinAll", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BArray);
+        Assert.assertEquals(((BArray) returns[0]).size(), 2);
+        Assert.assertTrue(((BArray) returns[0]).get(0) instanceof BMessage);
+        Assert.assertTrue(((BArray) returns[0]).get(1) instanceof BMessage);
+    }
+
+    @Test(description = "Test Fork Join Any")
+    public void testForkJoinAny() {
+        BValue[] args = {new BMessage()};
+        BValue[] returns = Functions.invoke(bFile, "testForkJoinAny", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BArray);
+        Assert.assertEquals(((BArray) returns[0]).size(), 1);
+        Assert.assertTrue(((BArray) returns[0]).get(0) instanceof BMessage);
+
+    }
+
+    @Test(description = "Test Fork Join All of specific")
+    public void testForkJoinAllOfSpecific() {
+        BValue[] args = {new BMessage()};
+        BValue[] returns = Functions.invoke(bFile, "testForkJoinAllOfSpecific", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BArray);
+        Assert.assertEquals(((BArray) returns[0]).size(), 2);
+        Assert.assertTrue(((BArray) returns[0]).get(0) instanceof BMessage);
+        Assert.assertTrue(((BArray) returns[0]).get(1) instanceof BMessage);
+    }
+
+    @Test(description = "Test Fork Join Any of specific")
+    public void testForkJoinAnyOfSpecific() {
+        BValue[] args = {new BMessage()};
+        BValue[] returns = Functions.invoke(bFile, "testForkJoinAnyOfSpecific", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BArray);
+        Assert.assertEquals(((BArray) returns[0]).size(), 1);
+        Assert.assertTrue(((BArray) returns[0]).get(0) instanceof BMessage);
     }
 }
