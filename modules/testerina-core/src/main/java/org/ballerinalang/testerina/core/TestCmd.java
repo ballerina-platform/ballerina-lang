@@ -54,8 +54,7 @@ public class TestCmd implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder stringBuilder) {
-        stringBuilder.append("ballerina test <filename>");
-        stringBuilder.append("\n");
-        stringBuilder.append("\n");
+        stringBuilder.append("ballerina test <filename>\n");
+        stringBuilder.append("ballerina test command will have -mock flag enabled by default\n\n");
     }
 }
