@@ -23,6 +23,9 @@ transportProperties:
  -
   name: "server.bootstrap.worker.group.size"
   value: 8
+ -
+  name: "event.group.executor.thread.size"
+  value: 15
 listenerConfigurations:
  -
   id: "default"

@@ -30,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * Parses &amp; creates the object model for the Netty transport yaml configuration file.
  */
+@Deprecated
 public class YAMLTransportConfigurationBuilder {
 
     private static final String NETTY_TRANSPORT_CONF = "transports.netty.conf";
