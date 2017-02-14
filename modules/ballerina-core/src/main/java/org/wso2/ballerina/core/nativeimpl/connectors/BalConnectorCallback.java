@@ -17,7 +17,7 @@
 package org.wso2.ballerina.core.nativeimpl.connectors;
 
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.model.LinkedNodeVisitor;
+import org.wso2.ballerina.core.model.LinkedNode;
 import org.wso2.ballerina.core.model.nodes.fragments.expressions.InvokeNativeActionNode;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -29,8 +29,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
  */
 public class BalConnectorCallback extends DefaultBalCallback {
 
-    private LinkedNodeVisitor executor;
-    private InvokeNativeActionNode current;
+    private InvokeNativeActionNode actionNode;
 
     private Context context;
 
@@ -43,11 +42,10 @@ public class BalConnectorCallback extends DefaultBalCallback {
         this.context = context;
     }
 
-    public BalConnectorCallback(Context context, LinkedNodeVisitor executor, InvokeNativeActionNode current) {
+    public BalConnectorCallback(Context context, InvokeNativeActionNode current) {
         super(context.getBalCallback());
         this.context = context;
-        this.executor = executor;
-        this.current = current;
+        this.actionNode = current;
     }
 
     public boolean isResponseArrived() {
@@ -66,9 +64,8 @@ public class BalConnectorCallback extends DefaultBalCallback {
         context.getControlStack().setReturnValue(0, valueRef);
         responseArrived = true;
         // If Executor is not null, then this is non-blocking execution.
-        if (executor != null) {
-            current.getCallableUnit().validate(this);
-            current.next.accept(executor);
+        if (actionNode != null) {
+            actionNode.getCallableUnit().validate(this);
         } else {
             synchronized (context) {
                 context.notifyAll();
@@ -80,4 +77,7 @@ public class BalConnectorCallback extends DefaultBalCallback {
         return context;
     }
 
+    public LinkedNode getCurrentNode() {
+        return this.actionNode;
+    }
 }

@@ -26,10 +26,9 @@ import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
  */
 public class TestConfigurationUtil {
 
-    @Parameters("nonblocking")
+    @Parameters("enableNonBlocking")
     @BeforeTest
-    public void createTestClass(String enable) {
-        ModeResolver.getInstance().setNonblockingEnabled(Boolean.valueOf(enable));
+    public void configureTestExecutor(String enableNonBlocking) {
+        ModeResolver.getInstance().setNonblockingEnabled(Boolean.valueOf(enableNonBlocking));
     }
-
 }

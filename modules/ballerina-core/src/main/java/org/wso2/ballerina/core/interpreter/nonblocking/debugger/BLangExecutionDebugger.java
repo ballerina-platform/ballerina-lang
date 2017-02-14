@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.core.interpreter.nonblocking.debugger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
 import org.wso2.ballerina.core.interpreter.ConstantLocation;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -30,69 +32,27 @@ import org.wso2.ballerina.core.model.LinkedNode;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
-import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
-import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
-import org.wso2.ballerina.core.model.expressions.BacktickExpr;
-import org.wso2.ballerina.core.model.expressions.BasicLiteral;
-import org.wso2.ballerina.core.model.expressions.BinaryExpression;
-import org.wso2.ballerina.core.model.expressions.ConnectorInitExpr;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
-import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
-import org.wso2.ballerina.core.model.expressions.MapInitExpr;
-import org.wso2.ballerina.core.model.expressions.MapStructInitKeyValueExpr;
-import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
-import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
-import org.wso2.ballerina.core.model.expressions.StructInitExpr;
-import org.wso2.ballerina.core.model.expressions.TypeCastExpression;
-import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.nodes.EndNode;
 import org.wso2.ballerina.core.model.nodes.ExitNode;
 import org.wso2.ballerina.core.model.nodes.GotoNode;
-import org.wso2.ballerina.core.model.nodes.IfElseNode;
 import org.wso2.ballerina.core.model.nodes.fragments.expressions.ActionInvocationExprStartNode;
-import org.wso2.ballerina.core.model.nodes.fragments.expressions.ArrayInitExprEndNode;
-import org.wso2.ballerina.core.model.nodes.fragments.expressions.ArrayMapAccessExprEndNode;
-import org.wso2.ballerina.core.model.nodes.fragments.expressions.BacktickExprEndNode;
-import org.wso2.ballerina.core.model.nodes.fragments.expressions.BinaryExpressionEndNode;
-import org.wso2.ballerina.core.model.nodes.fragments.expressions.CallableUnitEndNode;
-import org.wso2.ballerina.core.model.nodes.fragments.expressions.ConnectorInitExprEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.expressions.FunctionInvocationExprStartNode;
-import org.wso2.ballerina.core.model.nodes.fragments.expressions.InvokeNativeActionNode;
-import org.wso2.ballerina.core.model.nodes.fragments.expressions.InvokeNativeFunctionNode;
-import org.wso2.ballerina.core.model.nodes.fragments.expressions.InvokeNativeTypeMapperNode;
-import org.wso2.ballerina.core.model.nodes.fragments.expressions.MapInitExprEndNode;
-import org.wso2.ballerina.core.model.nodes.fragments.expressions.RefTypeInitExprEndNode;
-import org.wso2.ballerina.core.model.nodes.fragments.expressions.StructFieldAccessExprEndNode;
-import org.wso2.ballerina.core.model.nodes.fragments.expressions.StructInitExprEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.expressions.TypeCastExpressionEndNode;
-import org.wso2.ballerina.core.model.nodes.fragments.expressions.UnaryExpressionEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.AssignStmtEndNode;
-import org.wso2.ballerina.core.model.nodes.fragments.statements.ReplyStmtEndNode;
-import org.wso2.ballerina.core.model.nodes.fragments.statements.ReturnStmtEndNode;
-import org.wso2.ballerina.core.model.nodes.fragments.statements.ThrowStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.VariableDefStmtEndNode;
 import org.wso2.ballerina.core.model.statements.AbstractStatement;
-import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
-import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
-import org.wso2.ballerina.core.model.statements.BreakStmt;
-import org.wso2.ballerina.core.model.statements.ForeachStmt;
-import org.wso2.ballerina.core.model.statements.ForkJoinStmt;
-import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
+import org.wso2.ballerina.core.model.statements.CommentStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
-import org.wso2.ballerina.core.model.statements.ReplyStmt;
-import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
-import org.wso2.ballerina.core.model.statements.ThrowStmt;
-import org.wso2.ballerina.core.model.statements.TryCatchStmt;
-import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.values.BConnector;
 import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.runtime.Constants;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
@@ -104,6 +64,7 @@ import java.util.HashMap;
  */
 public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
 
+    private static final Logger logger = LoggerFactory.getLogger(Constants.BAL_LINKED_INTERPRETER_LOGGER);
     private HashMap<String, NodeLocation> positionHashMap;
 
     private Context bContext;
@@ -152,7 +113,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
             LinkedNode current = currentHaltNode;
             this.currentHaltNode = null;
             this.stepInToStatement = false;
-            current.next().accept(this);
+            continueExecution(current);
         }
     }
 
@@ -185,7 +146,8 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
                             continue;
                         }
                     }
-                    if (previous.getNextSibling() instanceof Statement) {
+                    if (previous.getNextSibling() instanceof Statement &&
+                            !(previous.getNextSibling() instanceof CommentStmt)) {
                         nextStep = (Statement) previous.getNextSibling();
                         break;
                     } else {
@@ -193,7 +155,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
                     }
                 }
             }
-            current.next().accept(this);
+            continueExecution(current);
         }
     }
 
@@ -209,7 +171,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
             this.stepInToStatement = true;
             // Currently we are stepping though statements.
             // We always step in to next Statement.
-            current.next().accept(this);
+            continueExecution(current);
         }
     }
 
@@ -223,7 +185,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
             LinkedNode current = currentHaltNode;
             this.currentHaltNode = null;
             this.stepOutFromCallableUnit = true;
-            current.next().accept(this);
+            continueExecution(current);
         }
     }
 
@@ -242,19 +204,20 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
      * @param statement to be executed.
      */
     private synchronized void tryNext(AbstractStatement statement) {
-        if (stepOutFromCallableUnit) {
-            statement.next.accept(this);
+        if (statement instanceof CommentStmt || stepOutFromCallableUnit) {
+            statement.accept(this);
         } else if (stepInToStatement || positionHashMap.containsKey(statement.getNodeLocation().toString()) ||
                 statement == nextStep) {
             currentHaltNode = statement;
             stepOutFromCallableUnit = false;
             stepInToStatement = false;
             nextStep = null;
+            next = null;
             if (observer != null) {
                 observer.notifyHalt(getBreakPointInfo());
             }
         } else {
-            statement.next.accept(this);
+            statement.accept(this);
         }
     }
 
@@ -279,229 +242,58 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
             NodeLocation location = stackFrame.getNodeInfo().getNodeLocation();
             FrameInfo frameInfo = new FrameInfo(pck, functionName, location.getFileName(), location.getLineNumber());
             HashMap<SymbolName, AbstractMap.SimpleEntry<Integer, String>> variables = stackFrame.variables;
-            for (SymbolName name : variables.keySet()) {
-                AbstractMap.SimpleEntry<Integer, String> offSet = variables.get(name);
-                BValue value = null;
-                switch (offSet.getValue()) {
-                    case "Arg":
-                    case "Local":
-                        value = stackFrame.values[offSet.getKey()];
-                        break;
-                    case "Service":
-                    case "Const":
-                        value = runtimeEnvironment.getStaticMemory().getValue(offSet.getKey());
-                        break;
-                    case "Connector":
-                        BConnector bConnector = (BConnector) stackFrame.values[0];
-                        if (bConnector != null) {
-                            bConnector.getValue(offSet.getKey());
-                        }
-                        break;
-                    default:
-                        value = null;
+            if (variables != null) {
+                for (SymbolName name : variables.keySet()) {
+                    AbstractMap.SimpleEntry<Integer, String> offSet = variables.get(name);
+                    BValue value = null;
+                    switch (offSet.getValue()) {
+                        case "Arg":
+                        case "Local":
+                            value = stackFrame.values[offSet.getKey()];
+                            break;
+                        case "Service":
+                        case "Const":
+                            value = runtimeEnvironment.getStaticMemory().getValue(offSet.getKey());
+                            break;
+                        case "Connector":
+                            BConnector bConnector = (BConnector) stackFrame.values[0];
+                            if (bConnector != null) {
+                                bConnector.getValue(offSet.getKey());
+                            }
+                            break;
+                        default:
+                            value = null;
+                    }
+                    VariableInfo variableInfo = new VariableInfo(name.getName(), offSet.getValue());
+                    variableInfo.setBValue(value);
+                    frameInfo.addVariableInfo(variableInfo);
                 }
-                VariableInfo variableInfo = new VariableInfo(name.getName(), offSet.getValue());
-                variableInfo.setBValue(value);
-                frameInfo.addVariableInfo(variableInfo);
             }
             breakPointInfo.addFrameInfo(frameInfo);
         }
         return breakPointInfo;
     }
-    
+
+    public void execute(ResourceInvocationExpr resourceIExpr) {
+        continueExecution(resourceIExpr);
+    }
+
+    public void execute(FunctionInvocationExpr functionInvocationExpr) {
+        continueExecution(functionInvocationExpr);
+    }
+
+    public void continueExecution(LinkedNode linkedNode) {
+        linkedNode.accept(this);
+        while (next != null) {
+            if (next instanceof AbstractStatement && !(next instanceof BlockStmt)) {
+                tryNext((AbstractStatement) next);
+            } else {
+                next.accept(this);
+            }
+        }
+    }
+
     /* Overwritten Classes */
-
-    @Override
-    public void visit(ActionInvocationStmt actionIStmt) {
-        super.visit(actionIStmt);
-        tryNext(actionIStmt);
-    }
-
-    @Override
-    public void visit(AssignStmt assignStmt) {
-        super.visit(assignStmt);
-        tryNext(assignStmt);
-    }
-
-    @Override
-    public void visit(BlockStmt blockStmt) {
-        super.visit(blockStmt);
-        blockStmt.next.accept(this);
-    }
-
-    @Override
-    public void visit(BreakStmt breakStmt) {
-        super.visit(breakStmt);
-        tryNext(breakStmt);
-    }
-
-    @Override
-    public void visit(ForeachStmt foreachStmt) {
-        super.visit(foreachStmt);
-        tryNext(foreachStmt);
-    }
-
-    @Override
-    public void visit(ForkJoinStmt forkJoinStmt) {
-        super.visit(forkJoinStmt);
-        tryNext(forkJoinStmt);
-    }
-
-    @Override
-    public void visit(FunctionInvocationStmt funcIStmt) {
-        super.visit(funcIStmt);
-        tryNext(funcIStmt);
-    }
-
-    @Override
-    public void visit(IfElseStmt ifElseStmt) {
-        super.visit(ifElseStmt);
-        tryNext(ifElseStmt);
-    }
-
-    @Override
-    public void visit(ReplyStmt replyStmt) {
-        super.visit(replyStmt);
-        tryNext(replyStmt);
-    }
-
-    @Override
-    public void visit(ReturnStmt returnStmt) {
-        super.visit(returnStmt);
-        tryNext(returnStmt);
-    }
-
-    @Override
-    public void visit(ThrowStmt throwStmt) {
-        super.visit(throwStmt);
-        tryNext(throwStmt);
-    }
-
-    @Override
-    public void visit(TryCatchStmt tryCatchStmt) {
-        super.visit(tryCatchStmt);
-        tryNext(tryCatchStmt);
-    }
-
-    @Override
-    public void visit(VariableDefStmt variableDefStmt) {
-        super.visit(variableDefStmt);
-        tryNext(variableDefStmt);
-    }
-
-    @Override
-    public void visit(WhileStmt whileStmt) {
-        super.visit(whileStmt);
-        tryNext(whileStmt);
-    }
-
-    @Override
-    public void visit(ActionInvocationExpr actoinIExpr) {
-        super.visit(actoinIExpr);
-        actoinIExpr.next.accept(this);
-    }
-
-    @Override
-    public void visit(ArrayInitExpr arrayInitExpr) {
-        super.visit(arrayInitExpr);
-        arrayInitExpr.next.accept(this);
-    }
-
-    @Override
-    public void visit(ArrayMapAccessExpr arrayMapAccessExpr) {
-        super.visit(arrayMapAccessExpr);
-        arrayMapAccessExpr.next.accept(this);
-    }
-
-    @Override
-    public void visit(BacktickExpr backtickExpr) {
-        super.visit(backtickExpr);
-        backtickExpr.next.accept(this);
-    }
-
-    @Override
-    public void visit(BasicLiteral basicLiteral) {
-        super.visit(basicLiteral);
-        basicLiteral.next.accept(this);
-    }
-
-    @Override
-    public void visit(BinaryExpression expression) {
-        super.visit(expression);
-        expression.next.accept(this);
-    }
-
-    @Override
-    public void visit(ConnectorInitExpr connectorInitExpr) {
-        super.visit(connectorInitExpr);
-        connectorInitExpr.next.accept(this);
-    }
-
-    @Override
-    public void visit(FunctionInvocationExpr functionIExpr) {
-        super.visit(functionIExpr);
-        functionIExpr.next.accept(this);
-    }
-
-    @Override
-    public void visit(InstanceCreationExpr instanceCreationExpr) {
-        super.visit(instanceCreationExpr);
-        instanceCreationExpr.next.accept(this);
-    }
-
-    @Override
-    public void visit(MapInitExpr mapInitExpr) {
-        super.visit(mapInitExpr);
-        mapInitExpr.next.accept(this);
-    }
-
-    @Override
-    public void visit(MapStructInitKeyValueExpr expr) {
-        super.visit(expr);
-        expr.next.accept(this);
-    }
-
-    @Override
-    public void visit(RefTypeInitExpr refTypeInitExpr) {
-        super.visit(refTypeInitExpr);
-        refTypeInitExpr.next.accept(this);
-    }
-
-    @Override
-    public void visit(ResourceInvocationExpr resourceIExpr) {
-        super.visit(resourceIExpr);
-        resourceIExpr.getResource().getResourceBody().accept(this);
-    }
-
-    @Override
-    public void visit(StructFieldAccessExpr accessExpr) {
-        super.visit(accessExpr);
-        accessExpr.next.accept(this);
-    }
-
-    @Override
-    public void visit(StructInitExpr structInitExpr) {
-        super.visit(structInitExpr);
-        structInitExpr.next.accept(this);
-    }
-
-    @Override
-    public void visit(TypeCastExpression typeCastExpression) {
-        super.visit(typeCastExpression);
-        typeCastExpression.next.accept(this);
-    }
-
-    @Override
-    public void visit(UnaryExpression unaryExpression) {
-        super.visit(unaryExpression);
-        unaryExpression.next.accept(this);
-    }
-
-    @Override
-    public void visit(VariableRefExpr variableRefExpr) {
-        super.visit(variableRefExpr);
-        variableRefExpr.next.accept(this);
-    }
 
     @Override
     public void visit(EndNode endNode) {
@@ -516,6 +308,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
     @Override
     public void visit(ExitNode exitNode) {
         // We don't want to call system exit here.
+        next = null;
         this.done = true;
         this.currentHaltNode = null;
         if (observer != null) {
@@ -525,18 +318,15 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
 
     @Override
     public void visit(GotoNode gotoNode) {
-        super.visit(gotoNode);
         Integer pop = branchIDStack.pop();
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing GotoNode branch:{}", pop);
+        }
         if (stepOutFromCallableUnit) {
             this.stepInToStatement = true;
             this.stepOutFromCallableUnit = false;
         }
-        gotoNode.next(pop).accept(this);
-    }
-
-    @Override
-    public void visit(IfElseNode ifElseNode) {
-        super.visit(ifElseNode);
+        next = gotoNode.next(pop);
     }
 
     @Override
@@ -570,25 +360,6 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
                         variableRefExpr.getSymbolName(), new AbstractMap.SimpleEntry<>(offset, scope));
             }
         }
-        assignStmtEndNode.next.accept(this);
-    }
-
-    @Override
-    public void visit(ThrowStmtEndNode throwStmtEndNode) {
-        super.visit(throwStmtEndNode);
-        // Next will be called by supper.
-    }
-
-    @Override
-    public void visit(ReplyStmtEndNode replyStmtEndNode) {
-        super.visit(replyStmtEndNode);
-        replyStmtEndNode.next.accept(this);
-    }
-
-    @Override
-    public void visit(ReturnStmtEndNode returnStmtEndNode) {
-        super.visit(returnStmtEndNode);
-        returnStmtEndNode.next.accept(this);
     }
 
     @Override
@@ -620,7 +391,6 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
             bContext.getControlStack().getCurrentFrame().variables.put(
                     variableRefExpr.getSymbolName(), new AbstractMap.SimpleEntry<>(offset, scope));
         }
-        variableDefStmtEndNode.next.accept(this);
     }
 
     @Override
@@ -634,31 +404,6 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
                 i++;
             }
         }
-        startNode.next.accept(this);
-    }
-
-    @Override
-    public void visit(ArrayInitExprEndNode arrayInitExprEndNode) {
-        super.visit(arrayInitExprEndNode);
-        arrayInitExprEndNode.next.accept(this);
-    }
-
-    @Override
-    public void visit(ArrayMapAccessExprEndNode arrayMapAccessExprEndNode) {
-        super.visit(arrayMapAccessExprEndNode);
-        arrayMapAccessExprEndNode.next.accept(this);
-    }
-
-    @Override
-    public void visit(BacktickExprEndNode backtickExprEndNode) {
-        super.visit(backtickExprEndNode);
-        backtickExprEndNode.next.accept(this);
-    }
-
-    @Override
-    public void visit(BinaryExpressionEndNode binaryExpressionEndNode) {
-        super.visit(binaryExpressionEndNode);
-        binaryExpressionEndNode.next.accept(this);
     }
 
     @Override
@@ -672,19 +417,6 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
                 i++;
             }
         }
-        startNode.next.accept(this);
-    }
-
-    @Override
-    public void visit(StructFieldAccessExprEndNode structFieldAccessExprEndNode) {
-        super.visit(structFieldAccessExprEndNode);
-        structFieldAccessExprEndNode.next.accept(this);
-    }
-
-    @Override
-    public void visit(StructInitExprEndNode structInitExprEndNode) {
-        super.visit(structInitExprEndNode);
-        structInitExprEndNode.next.accept(this);
     }
 
     @Override
@@ -698,54 +430,6 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
                 i++;
             }
         }
-        endNode.next.accept(this);
-    }
-
-    @Override
-    public void visit(UnaryExpressionEndNode unaryExpressionEndNode) {
-        super.visit(unaryExpressionEndNode);
-        unaryExpressionEndNode.next.accept(this);
-    }
-
-    @Override
-    public void visit(RefTypeInitExprEndNode refTypeInitExprEndNode) {
-        super.visit(refTypeInitExprEndNode);
-        refTypeInitExprEndNode.next.accept(this);
-    }
-
-    @Override
-    public void visit(CallableUnitEndNode callableUnitEndNode) {
-        super.visit(callableUnitEndNode);
-        callableUnitEndNode.next.accept(this);
-    }
-
-    @Override
-    public void visit(ConnectorInitExprEndNode connectorInitExprEndNode) {
-        super.visit(connectorInitExprEndNode);
-        connectorInitExprEndNode.next.accept(this);
-    }
-
-    @Override
-    public void visit(InvokeNativeActionNode invokeNativeActionNode) {
-        super.visit(invokeNativeActionNode);
-    }
-
-    @Override
-    public void visit(InvokeNativeFunctionNode invokeNativeFunctionNode) {
-        super.visit(invokeNativeFunctionNode);
-        invokeNativeFunctionNode.next.accept(this);
-    }
-
-    @Override
-    public void visit(InvokeNativeTypeMapperNode invokeNativeTypeMapperNode) {
-        super.visit(invokeNativeTypeMapperNode);
-        invokeNativeTypeMapperNode.next.accept(this);
-    }
-
-    @Override
-    public void visit(MapInitExprEndNode mapInitExprEndNode) {
-        super.visit(mapInitExprEndNode);
-        mapInitExprEndNode.next.accept(this);
     }
 
 }

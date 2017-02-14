@@ -30,8 +30,8 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.ConstDef;
-import org.wso2.ballerina.core.model.Executor;
 import org.wso2.ballerina.core.model.ImportPackage;
+import org.wso2.ballerina.core.model.LinkedNode;
 import org.wso2.ballerina.core.model.LinkedNodeVisitor;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
@@ -44,6 +44,7 @@ import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.DivideExpr;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
+import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.GreaterEqualExpression;
 import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
 import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
@@ -52,16 +53,16 @@ import org.wso2.ballerina.core.model.expressions.ModExpression;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
+import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
-import org.wso2.ballerina.core.model.statements.CommentStmt;
 import org.wso2.ballerina.core.model.values.BException;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
  * Interface for Implementing LinkedNode based Executors.
  */
-public abstract class BLangExecutionVisitor implements LinkedNodeVisitor, Executor {
+public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
 
     /* Memory Locations */
     public abstract BValue access(ConnectorVarLocation connectorVarLocation);
@@ -74,6 +75,13 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor, Execut
 
     public abstract BValue access(StructVarLocation structVarLocation);
 
+    public abstract void execute(ResourceInvocationExpr resourceInvocationExpr);
+
+    public abstract void execute(FunctionInvocationExpr functionInvocationExpr);
+
+    public abstract void handleBException(BException exception);
+
+    public abstract void continueExecution(LinkedNode linkedNode);
 
     public void visit(BallerinaFile bFile) {
     }
@@ -132,10 +140,6 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor, Execut
 
     @Override
     public void visit(StructDef structDef) {
-    }
-
-    @Override
-    public void visit(CommentStmt commentStmt) {
     }
 
     @Override

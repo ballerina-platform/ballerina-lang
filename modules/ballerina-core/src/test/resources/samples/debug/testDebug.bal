@@ -1,4 +1,3 @@
-// if you change this file, update Debugger test as well.
 function main(string[] args){
     int p = 15;
     int q = 5;
@@ -9,7 +8,6 @@ function main(string[] args){
     string s = testCalculateExp2(p);
     s = "done";
 }
-
 function calculateExp1(int x, int y) (int) {
     int z;
     while(x >= y) {
@@ -22,30 +20,21 @@ function calculateExp1(int x, int y) (int) {
     }
     return z;
 }
-
 function calculateExp2(int a, int b, int c) (int, int) {
-
     int x;
     x = 10;
-
     if ( a == b) {
         a = 100;
-
     } else if (a == b + 1){
         a = 200;
-
     } else  if (a == b + 2){
         a = 300;
-
     }  else {
          a = 400;
     }
-
     b = c;
-
     return a + x, b + 1;
 }
-
 function testCalculateExp2(int x) (string) {
     int v1;
     int v2;
@@ -57,11 +46,8 @@ function testCalculateExp2(int x) (string) {
     }
     return "Unknown";
 }
-
 service EchoService{
-
   resource echoResource (message m) {
       reply m;
   }
-
 }

@@ -17,8 +17,8 @@
 */
 package org.wso2.ballerina.core.model.nodes;
 
+import org.wso2.ballerina.core.model.LinkedNode;
 import org.wso2.ballerina.core.model.LinkedNodeVisitor;
-import org.wso2.ballerina.core.model.Node;
 import org.wso2.ballerina.core.model.expressions.Expression;
 
 /**
@@ -30,17 +30,17 @@ public class IfElseNode extends AbstractLinkedNode {
 
     private Expression condition;
 
-    private Node nextIfFalse;
+    private LinkedNode nextIfFalse;
 
     public IfElseNode(Expression expr) {
         this.condition = expr;
     }
 
-    public Node nextAfterBreak() {
+    public LinkedNode nextAfterBreak() {
         return nextIfFalse;
     }
 
-    public void setNextIfFalse(Node statement) {
+    public void setNextIfFalse(LinkedNode statement) {
         this.nextIfFalse = statement;
     }
 

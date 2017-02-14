@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
-import org.wso2.ballerina.core.interpreter.nonblocking.BLangNonBlockingVisitorImpl;
+import org.wso2.ballerina.core.interpreter.nonblocking.BLangNonBlockingExecutor;
 import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Function;
@@ -126,9 +126,9 @@ public class Functions {
 
         // 7) Invoke the function
         if (ModeResolver.getInstance().isNonblockingEnabled()) {
-            BLangNonBlockingVisitorImpl executor = new BLangNonBlockingVisitorImpl(runtimeEnv, bContext);
+            BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
             bContext.setExecutor(executor);
-            funcIExpr.accept(executor);
+            executor.execute(funcIExpr);
             int length = funcIExpr.getCallableUnit().getReturnParameters().length;
             BValue[] result = new BValue[length];
             for (int i = 0; i < length; i++) {

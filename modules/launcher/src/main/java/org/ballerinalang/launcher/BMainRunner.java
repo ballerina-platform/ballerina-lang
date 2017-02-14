@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
-import org.wso2.ballerina.core.interpreter.nonblocking.BLangNonBlockingVisitorImpl;
+import org.wso2.ballerina.core.interpreter.nonblocking.BLangNonBlockingExecutor;
 import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
@@ -55,7 +55,7 @@ class BMainRunner {
 
     static void runMain(Path sourceFilePath, List<String> args) {
         BallerinaFile bFile = LauncherUtils.buildLangModel(sourceFilePath);
-    
+
         // Load Client Connectors
         BallerinaConnectorManager.getInstance().initializeClientConnectors(new MessageProcessor());
 
@@ -115,9 +115,9 @@ class BMainRunner {
 
             RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(balFile);
             if (ModeResolver.getInstance().isNonblockingEnabled()) {
-                BLangNonBlockingVisitorImpl executor = new BLangNonBlockingVisitorImpl(runtimeEnv, bContext);
+                BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
                 bContext.setExecutor(executor);
-                funcIExpr.accept(executor);
+                executor.execute(funcIExpr);
             } else {
                 BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
                 funcIExpr.executeMultiReturn(executor);

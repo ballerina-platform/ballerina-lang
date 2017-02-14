@@ -367,7 +367,8 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             return;
         }
         // All Children of a Block Statement are Statements and they don't have temp values.
-        if (blockStmt.getStatements() == null || blockStmt.getStatements().length == 0) {
+        if (blockStmt.getStatements() == null || blockStmt.getStatements().length == 0
+                || (blockStmt.getStatements().length == 1 && blockStmt.getStatements()[0] instanceof CommentStmt)) {
             // Flow :   BlockStmt -> BlockStmt's next sibling. -> ...
             blockStmt.setNext(findNext(blockStmt));
             return;
@@ -392,8 +393,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(CommentStmt commentStmt) {
-        throw new FlowBuilderException("Internal Error. Comments statements are not considered as executable in " +
-                "this version.");
+        commentStmt.setNext(findNext(commentStmt));
     }
 
     @Override

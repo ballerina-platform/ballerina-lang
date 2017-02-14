@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.interpreter.nonblocking.BLangExecutionVisitor;
+import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
@@ -86,11 +88,11 @@ public class ServerConnectorMessageHandler {
                 resource = resourceDispatcher.findResource(service, cMsg, callback, balContext);
             } catch (BallerinaException ex) {
                 throw new BallerinaException("no resource found to handle the request to Service : " +
-                                             service.getSymbolName().getName() + " : " + ex.getMessage());
+                        service.getSymbolName().getName() + " : " + ex.getMessage());
             }
             if (resource == null) {
                 throw new BallerinaException("no resource found to handle the request to Service : " +
-                                             service.getSymbolName().getName());
+                        service.getSymbolName().getName());
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
             }
 
@@ -103,10 +105,15 @@ public class ServerConnectorMessageHandler {
     }
 
     public static void handleOutbound(CarbonMessage cMsg, CarbonCallback callback) {
+        BalConnectorCallback connectorCallback = (BalConnectorCallback) callback;
         try {
             callback.done(cMsg);
+            if (ModeResolver.getInstance().isNonblockingEnabled()) {
+                // Continue Non-Blocking
+                BLangExecutionVisitor executor =  connectorCallback.getContext().getExecutor();
+                executor.continueExecution(connectorCallback.getCurrentNode().next());
+            }
         } catch (Throwable throwable) {
-            BalConnectorCallback connectorCallback = (BalConnectorCallback) callback;
             handleErrorFromOutbound(cMsg, connectorCallback.getContext(), throwable);
         }
     }

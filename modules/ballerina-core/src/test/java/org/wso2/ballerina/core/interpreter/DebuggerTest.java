@@ -119,15 +119,15 @@ public class DebuggerTest {
 
     @Test(description = "Testing Resume with break points.")
     public void testResume() {
-        NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 4, 52, 44);
+        NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 3, 41, 35);
         String[] debugCommand = {RESUME, RESUME, RESUME};
-        NodeLocation[] expectedBreakPoints = createBreakNodeLocations(FILE, 4, 52, 44);
+        NodeLocation[] expectedBreakPoints = createBreakNodeLocations(FILE, 3, 41, 35);
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
     }
 
     @Test(description = "Testing Debugger with breakpoint in non executable and not reachable lines.")
     public void testNegativeBreakPoints() {
-        NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 5, 8, 36, 64);
+        NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 4, 7, 51, 37);
         String[] debugCommand = {};
         NodeLocation[] expectedBreakPoints = createBreakNodeLocations(FILE);
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
@@ -135,41 +135,41 @@ public class DebuggerTest {
 
     @Test(description = "Testing Step In.")
     public void testStepIn() {
-        NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 6, 9, 52);
+        NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 5, 8, 41);
         String[] debugCommand = {STEP_IN, RESUME, STEP_IN, RESUME, STEP_IN, RESUME};
-        NodeLocation[] expectedBreakPoints = createBreakNodeLocations(FILE, 6, 14, 9, 50, 52, 28);
+        NodeLocation[] expectedBreakPoints = createBreakNodeLocations(FILE, 5, 12, 8, 39, 41, 24);
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
     }
 
     @Test(description = "Testing Step Out.")
     public void testStepOut() {
-        NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 28);
+        NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 24);
         String[] debugCommand = {STEP_OUT, STEP_OUT, RESUME};
-        NodeLocation[] expectedBreakPoints = createBreakNodeLocations(FILE, 28, 53, 10);
+        NodeLocation[] expectedBreakPoints = createBreakNodeLocations(FILE, 24, 42, 9);
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
     }
 
     @Test(description = "Testing Step Over.")
     public void testStepOver() {
-        NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 4);
+        NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 3);
         String[] debugCommand = {STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER};
-        NodeLocation[] expectedBreakPoints = createBreakNodeLocations(FILE, 4, 6, 7, 9, 10);
+        NodeLocation[] expectedBreakPoints = createBreakNodeLocations(FILE, 3, 5, 6, 8, 9);
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
     }
 
     @Test(description = "Testing Step over in IfCondition.")
     public void testStepOverIfStmt() {
-        NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 29);
+        NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 26);
         String[] debugCommand = {STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, RESUME};
-        NodeLocation[] expectedBreakPoints = createBreakNodeLocations(FILE, 29, 31, 35, 44, 46);
+        NodeLocation[] expectedBreakPoints = createBreakNodeLocations(FILE, 26, 29, 35, 36, 42);
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
     }
 
     @Test(description = "Testing Step over in WhileStmt.")
     public void testStepOverWhileStmt() {
-        NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 15, 21, 18);
+        NodeLocation[] breakPoints = createBreakNodeLocations(FILE, 13, 19, 21);
         String[] debugCommand = {STEP_OVER, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME};
-        NodeLocation[] expectedBreakPoints = createBreakNodeLocations(FILE, 15, 16, 21, 21, 21, 21, 18);
+        NodeLocation[] expectedBreakPoints = createBreakNodeLocations(FILE, 13, 14, 19, 19, 19, 19, 21);
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
     }
 
@@ -227,7 +227,7 @@ public class DebuggerTest {
         }
 
         public void startDebug() {
-            funcIExpr.accept(debugger);
+            debugger.execute(funcIExpr);
         }
     }
 
