@@ -15,34 +15,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.nativeimpl.lang.convertors;
+package org.wso2.ballerina.nativeimpl.lang.typemappers;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.BXML;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
+import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeMapper;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeMapper;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
+
 /**
- * Convert JSON to String
+ * Convert String to JSON
  */
-@BallerinaTypeConvertor(
-        packageName = "ballerina.lang.convertors",
-        typeConverterName = "xmlToString",
-        args = {@Argument(name = "value", type = TypeEnum.XML)},
-        returnType = {@ReturnType(type = TypeEnum.STRING)},
+@BallerinaTypeMapper(
+        packageName = "ballerina.lang.typemappers",
+        typeMapperName = "stringToJSON",
+        args = {@Argument(name = "value", type = TypeEnum.STRING)},
+        returnType = {@ReturnType(type = TypeEnum.JSON)},
         isPublic = true
 )
-
-public class XMLToString extends AbstractNativeTypeConvertor {
+public class StringToJSON extends AbstractNativeTypeMapper {
 
     public BValue convert(Context ctx) {
-        BXML msg = (BXML) getArgument(ctx, 0);
-        BString result = new BString(msg.stringValue());
+        BString msg = (BString) getArgument(ctx, 0);
+        // prepare the string by removing escape characters
+        String unescaped = msg.stringValue().replaceAll("\\\\", "");
+        BJSON result = new BJSON(unescaped);
         return result;
     }
 }

@@ -14,7 +14,7 @@ A Ballerina file is structured as follows::
  FunctionDefinition |
  ConnectorDefinition |
  TypeDefinition |
- TypeConvertorDefinition |
+ TypeMapperDefinition |
  ConstantDefinition)+
 ```
 

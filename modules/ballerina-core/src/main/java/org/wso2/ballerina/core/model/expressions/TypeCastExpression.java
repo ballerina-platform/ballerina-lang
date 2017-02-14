@@ -21,7 +21,7 @@ import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.TypeConvertor;
+import org.wso2.ballerina.core.model.TypeMapper;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -34,7 +34,7 @@ import java.util.function.Function;
  *
  * @since 0.8.0
  */
-public class TypeCastExpression extends AbstractExpression implements CallableUnitInvocationExpr<TypeConvertor> {
+public class TypeCastExpression extends AbstractExpression implements CallableUnitInvocationExpr<TypeMapper> {
     private String name;
     private String pkgName;
     private String pkgPath;
@@ -42,8 +42,8 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     private Expression rExpr;
     private BType targetType;
     private String packageName;
-    private SymbolName typeConverterName;
-    private TypeConvertor typeConvertor;
+    private SymbolName typeMapperName;
+    private TypeMapper typeMapper;
     protected Function<BValueType, BValueType> evalFuncNewNew;
 
     public TypeCastExpression(NodeLocation location, Expression rExpr, BType targetType) {
@@ -91,12 +91,12 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
         this.packageName = packageName;
     }
 
-    public SymbolName getTypeConverterName() {
-        return typeConverterName;
+    public SymbolName getTypeMapperName() {
+        return typeMapperName;
     }
 
-    public void setTypeConverterName(SymbolName typeConverterName) {
-        this.typeConverterName = typeConverterName;
+    public void setTypeMapperName(SymbolName typeMapperName) {
+        this.typeMapperName = typeMapperName;
     }
 
     @Override
@@ -141,8 +141,8 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
      * @return the linked {@code CallableUnit}
      */
     @Override
-    public TypeConvertor getCallableUnit() {
-        return this.typeConvertor;
+    public TypeMapper getCallableUnit() {
+        return this.typeMapper;
     }
 
     /**
@@ -151,8 +151,8 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
      * @param callableUnit type of the callable unit
      */
     @Override
-    public void setCallableUnit(TypeConvertor callableUnit) {
-        this.typeConvertor = callableUnit;
+    public void setCallableUnit(TypeMapper callableUnit) {
+        this.typeMapper = callableUnit;
 
     }
 
