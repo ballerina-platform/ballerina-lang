@@ -87,7 +87,7 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler implements 
      *
      * @param ctx Channel context
      * @param evt Event
-     * @throws Exception
+     * @throws Exception Throws when user event trigger has an error
      */
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
