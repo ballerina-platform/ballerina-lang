@@ -224,7 +224,10 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 }
                 functionDef.meta = {
                     functionName: functionDef.getName(),
-                    packageName: packageName
+                    packageName: packageName,
+                    params: getArgumentString(functionDef.getParameters()),
+                    returnParams: getReturnParamString(functionDef.getReturnParams()),
+                    operandType: getReturnParamString(functionDef.getReturnParams())
                 };
                 functionDef.icon = "images/tool-icons/function.svg";
                 functionDef.title = functionDef.getName();
@@ -337,6 +340,33 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
          */
         ToolPaletteItemProvider.prototype.updateToolItem = function (toolGroupID, toolItem, newValue) {
             this._toolPalette.updateToolPaletteItem(toolGroupID, toolItem, newValue);
+        };
+
+        /**
+         * Generate argument string from the argument array.
+         * @param {Object} args argument array
+         * @return {String} argument string
+         * */
+        var getArgumentString = function (args) {
+            var argString = "";
+            for (var itr = 0; itr < args.length; itr++) {
+                argString += args[itr].name;
+                if (args.length !== 1 && (args.length - 1) !== itr) {
+                    argString += ",";
+                }
+            }
+            return argString;
+        };
+
+        /**
+         * Generate return parameter string.
+         * @param {Object} args return parameter array.
+         * @return {String} return argument string
+         * */
+        var getReturnParamString = function (args) {
+            if (!_.isNil(args) && args.length !== 0) {
+                return args[0].type;
+            }
         };
 
         return ToolPaletteItemProvider;
