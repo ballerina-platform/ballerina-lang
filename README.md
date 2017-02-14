@@ -14,6 +14,7 @@ Follow below steps to generate Ballerina API documentation using Docerina:
 
 - Build and extract Docerina distribution:
   ```
+  cd docerina
   mvn clean install
   cd target
   unzip docerina-<version>.zip
