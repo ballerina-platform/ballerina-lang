@@ -129,7 +129,8 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                         ParameterListNode parameterListNode =
                                 PsiTreeUtil.findChildOfType(resolvedElement, ParameterListNode.class);
                         if (parameterListNode == null) {
-                            context.setItemsToShow(new Object[]{resolvedElement});
+                            // Todo - change how to identify no parameter situation
+                            context.setItemsToShow(new Object[]{"Empty"});
                         } else {
                             context.setItemsToShow(new Object[]{parameterListNode});
                         }
@@ -149,10 +150,17 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                         PsiElement parentElement = resolveResult.getElement().getParent();
                         ParameterListNode parameterListNode = PsiTreeUtil.findChildOfType(parentElement,
                                 ParameterListNode.class);
-                        list.add(parameterListNode);
+                        if (parameterListNode != null) {
+                            list.add(parameterListNode);
+                        }
                     }
                 }
-                context.setItemsToShow(list.toArray(new ParameterListNode[list.size()]));
+                if (list.isEmpty()) {
+                    // Todo - change how to identify no parameter situation
+                    context.setItemsToShow(new Object[]{"Empty"});
+                } else {
+                    context.setItemsToShow(list.toArray(new ParameterListNode[list.size()]));
+                }
                 context.showHint(psiElement, (psiElement).getTextRange().getStartOffset(), this);
             }
         }
@@ -248,7 +256,8 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             }
             context.setupUIComponentPresentation(builder.toString(), start, end, false, false, false,
                     context.getDefaultParameterColor());
-        } else if (p instanceof FunctionNode) {
+        } else if (p.equals("Empty")) {
+            // Todo - change how to identify no parameter situation
             StringBuilder builder = new StringBuilder();
             builder.append(CodeInsightBundle.message("parameter.info.no.parameters"));
             context.setupUIComponentPresentation(builder.toString(), 0, 0, false, false, false,
