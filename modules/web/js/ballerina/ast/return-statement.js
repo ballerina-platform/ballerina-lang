@@ -41,6 +41,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
 
     ReturnStatement.prototype.canBeAChildOf = function (node) {
         return this.getFactory().isFunctionDefinition(node) ||
+               this.getFactory().isConnectorAction(node) ||
             this.getFactory().isStatement(node);
     };
 

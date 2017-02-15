@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -60,9 +60,6 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
         };
 
         TypeMapperFunctionAssignmentView.prototype.getTypeMapperFunctionRenderer = function () {
-            if (!this._typeMapperRenderer){
-                this._typeMapperRenderer = new TypeMapper(this.getModel().getOnConnectInstance(), this.getModel().getOnDisconnectInstance(), this._parentView);
-            }
             return this._typeMapperRenderer;
         };
 
@@ -76,7 +73,10 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
             var functionExp = self.getFunctionInvocationExpression(this.getModel());
             var schema = self.getFunctionSchema(functionExp, diagramRenderingContext);
             if (schema) {
-                this.getTypeMapperFunctionRenderer().addFunction(schema, this.getModel());
+                this.getTypeMapperFunctionRenderer().addFunction(schema, {
+                    model: this.getModel(),
+                    functionSchema: schema
+                });
                 var variableRef = self.getVariableReference(this.getModel());
                 if (variableRef) {
                     //TODO draw connections.
@@ -115,10 +115,32 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
                 schema = {};
                 schema['name'] = funcName;
                 schema['returnType'] = functionDef.getReturnParams();
-                schema['parameters'] = functionDef.getParameters();
+                schema['parameters'] = this.getUniqueParams(functionDef.getParameters());
             }
             return schema;
         };
 
+
+        TypeMapperFunctionAssignmentView.prototype.getUniqueParams = function (params) {
+            var uniqueParams = [];
+            var uniqueParamIds = [];
+            _.forEach(params, function (param) {
+                var matchedParam = _.find(uniqueParams, function (uniqueParam) {
+                    return uniqueParam === param;
+                });
+                if (!matchedParam) {
+                    uniqueParams.push(param);
+                    uniqueParamIds.push({name: param.name, id: 0});
+                } else {
+                    var uniqueParamId = _.find(uniqueParamId, function (paramId) {
+                        return paramId.name === param.name;
+                    });
+                    var newId = uniqueParamId.id++;
+                    uniqueParams.push(param.name + newId);
+                    uniqueParamId.id = newId;
+                }
+            });
+            return uniqueParams;
+        };
         return TypeMapperFunctionAssignmentView;
     });

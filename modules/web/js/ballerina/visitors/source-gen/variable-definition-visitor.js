@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visitor', '../../ast/module', ],
-    function(require, _, log, EventChannel, AbstractSourceGenVisitor, AST) {
+define(['require', 'lodash', 'log', 'event_channel', './abstract-source-gen-visitor', '../../ast/module'],
+    function (require, _, log, EventChannel, AbstractSourceGenVisitor, AST) {
 
-        var VariableDefinitionVisitor = function(parent){
-            AbstractSourceGenVisitor.call(this,parent);
+        var VariableDefinitionVisitor = function (parent) {
+            AbstractSourceGenVisitor.call(this, parent);
         };
 
         VariableDefinitionVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
@@ -30,8 +30,10 @@ define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visit
         };
 
         VariableDefinitionVisitor.prototype.beginVisitVariableDefinition = function (variableDefinition) {
-           this.appendSource(variableDefinition.getTypeName() + ' ');
-           log.debug('Begin Visit Variable Definition');
+            if (variableDefinition.getType()) {
+                this.appendSource(variableDefinition.getTypeName() + ' ');
+            }
+            log.debug('Begin Visit Variable Definition');
         };
 
         VariableDefinitionVisitor.prototype.visitVariableDefinition = function (variableDefinition) {

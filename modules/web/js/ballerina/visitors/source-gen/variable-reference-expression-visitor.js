@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -38,7 +38,9 @@ define(['require','lodash', 'log', 'event_channel', './abstract-expression-sourc
         };
 
         VariableReferenceExpressionVisitor.prototype.endVisitVariableReferenceExpression = function(expression){
-            this.appendSource(expression.getVariableReferenceName());
+            if (expression.getVariableReferenceName()) {
+                this.appendSource(expression.getVariableReferenceName());
+            }
             this.getParent().appendSource(this.getGeneratedSource());
             log.debug('End Visit Variable Reference Expression');
         };
