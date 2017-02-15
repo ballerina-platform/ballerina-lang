@@ -56,6 +56,7 @@ public interface SymbolScope {
         PACKAGE,
         SERVICE,
         CONNECTOR,
+        WORKER,
         LOCAL  // The term 'LOCAL' represents a function, an action or a resource scope.
     }
 }
