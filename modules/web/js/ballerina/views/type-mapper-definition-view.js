@@ -26,7 +26,6 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             this._parentView = _.get(args, "parentView");
             //set panel icon for the type mapper
             this._viewOptions.panelIcon = _.get(args.viewOptions, "cssClass.type_mapper_icon");
-            //set initial height for the type mapper container svg
             this._onConnectInstance = _.get(args, 'onConnectInstance', {});
             this._onDisconnectInstance = _.get(args, 'onDisconnectInstance', {});
             this._sourceInfo = _.get(args, 'sourceInfo', {});
@@ -159,7 +158,6 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
 
             $(currentContainer).find("#" + sourceId).change(function () {
                 var sourceDropDown = $("#" + sourceId + " option:selected");
-                var selectedArrayIndex = sourceDropDown.val();
                 var selectedNewStructNameForSource = sourceDropDown.text();
                 self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = selectedSourceStruct;
 
@@ -176,7 +174,6 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
 
             $(currentContainer).find("#" + targetId).change(function () {
                 var targetDropDown = $("#" + targetId + " option:selected");
-                var selectedArrayIndex = targetDropDown.val();
                 var selectedStructNameForTarget = targetDropDown.text();
                 self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = selectedTargetStruct;
 
