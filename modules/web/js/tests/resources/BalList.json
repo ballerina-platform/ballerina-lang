@@ -87,7 +87,8 @@
             "statements/variable-scope-value.bal",
             "statements/variable-while-scope.bal",
             "statements/while-stmnt-with-incompatible-types.bal",
-            "structs/struct-constants.bal"
+            "structs/struct-constants.bal",
+            "BalSource/echoService.bal"
         ]
     }
 }
