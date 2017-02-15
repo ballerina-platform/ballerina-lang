@@ -2,10 +2,10 @@ import ballerina.net.http;
 import ballerina.lang.json;
 import ballerina.lang.message;
 
-@BasePath ("/cbr")
+@http:BasePath ("/cbr")
 service contentBasedRouting {
 
-    @POST
+    @http:POST
     resource cbrResource (message m) {
 
         http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090/nyseStocks");
@@ -28,10 +28,10 @@ service contentBasedRouting {
     }
 }
 
-@BasePath ("/hbr")
+@http:BasePath ("/hbr")
 service headerBasedRouting {
 
-    @GET
+    @http:GET
     resource cbrResource (message m) {
 
         http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090/nyseStocks");
@@ -53,10 +53,10 @@ service headerBasedRouting {
     }
 }
 
-@BasePath("/nyseStocks")
+@http:BasePath("/nyseStocks")
 service nyseStockQuote {
 
-    @POST
+    @http:POST
     resource stocks (message m) {
 
         message response = {};
@@ -68,10 +68,10 @@ service nyseStockQuote {
     }
 }
 
-@BasePath("/nasdaqStocks")
+@http:BasePath("/nasdaqStocks")
 service nasdaqStocksQuote {
 
-    @POST
+    @http:POST
     resource stocks (message m) {
 
         message response = {};

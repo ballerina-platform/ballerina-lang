@@ -20,7 +20,7 @@ package org.wso2.ballerina.core.utils;
 
 import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
 import org.wso2.ballerina.core.message.StringDataSource;
-import org.wso2.ballerina.core.runtime.dispatching.Constants;
+import org.wso2.ballerina.core.runtime.dispatching.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Header;
