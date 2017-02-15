@@ -151,8 +151,7 @@ public interface NodeVisitor {
     void visit(AndExpression andExpression);
 
     void visit(BasicLiteral basicLiteral);
-
-
+    
     void visit(NullLiteral nullLiteral);
 
     void visit(DivideExpr divideExpr);
