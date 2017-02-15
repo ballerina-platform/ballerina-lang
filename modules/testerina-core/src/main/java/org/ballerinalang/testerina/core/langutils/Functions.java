@@ -43,6 +43,7 @@ import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
 
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 /**
@@ -66,7 +67,7 @@ public class Functions {
     public static BValue[] invoke(String sourceFilePath, String functionName, BValue[] args) {
 
         // 1) Get the Ballerina language model from the source file.
-        BallerinaFile bFile = ParserUtils.parseBalFile(sourceFilePath);
+        BallerinaFile bFile = ParserUtils.buildLangModel(Paths.get(sourceFilePath));
         return invoke(bFile, functionName, args, new Context());
     }
 

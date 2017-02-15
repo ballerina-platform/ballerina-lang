@@ -97,7 +97,7 @@ public class TestRunner {
             // when a request is made. At that point, we need to access runtime environment to execute the resource.
             for (Service service : bFile.getServices()) {
                 for (Resource resource : service.getResources()) {
-                    resource.setApplication(app);
+               //     resource.setApplication(app); todo 
                 }
             }
 

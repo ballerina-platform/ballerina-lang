@@ -57,6 +57,7 @@
                     <options>
                         <packageName>${native.constructs.provider.package}</packageName>
                         <className>${native.constructs.provider.class}</className>
+                        <targetDir>${project.build.directory}</targetDir>
                     </options>
                 </configuration>
                 <executions>

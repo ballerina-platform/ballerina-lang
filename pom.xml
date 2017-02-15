@@ -89,7 +89,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.8.0-M4</ballerina.version>
+        <ballerina.version>0.8.0-SNAPSHOT</ballerina.version>
 
         <com.beust.jcommander.version>1.60</com.beust.jcommander.version>
 

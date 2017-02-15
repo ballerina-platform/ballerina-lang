@@ -123,7 +123,7 @@ public class StartService extends AbstractNativeFunction {
         app.setRuntimeEnv(runtimeEnvironment);
         // as done in org.ballerinalang.testerina.core.TestRunner
         for (Resource resource : matchingService.getResources()) {
-            resource.setApplication(app);
+            //resource.setApplication(app); //todo fix with new blang-prog-scope
         }
 
         Package aPackage = app.getPackage("default");

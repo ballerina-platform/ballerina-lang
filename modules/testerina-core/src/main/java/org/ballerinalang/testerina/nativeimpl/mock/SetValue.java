@@ -60,6 +60,8 @@ import static java.security.AccessController.doPrivileged;
 
 /**
  * Native function ballerina.lang.mock:setValue.
+ * This can be used to modify a global connector instance's arguments.
+ * Behavior is reflection-like.
  *
  * @since 0.8.0
  */
@@ -80,7 +82,7 @@ public class SetValue extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context ctx) {
 
-        //et the global connector instance as given by names in the path array.
+        //Set the global connector instance as given by names in the path array.
         //keep traversing the path array until the last connector (element - 1).
         //once found, get the primitive that has the name of last element in the path array
         //change that primitive type's value to the `value` user entered.
@@ -309,7 +311,7 @@ public class SetValue extends AbstractNativeFunction {
         }
     }
 
-    public <T> void setProperty(T instance, String fieldName, String value)
+    private <T> void setProperty(T instance, String fieldName, String value)
             throws IllegalAccessException, NoSuchFieldException {
         Field field = instance.getClass().getDeclaredField(fieldName);
         doPrivileged((PrivilegedAction<Object>) () -> {
@@ -352,7 +354,10 @@ public class SetValue extends AbstractNativeFunction {
         field.set(instance, value);
     }
 
-    static class MockConnectorPath {
+    /**
+     * This is the parsed model of the user's mockConnectorPath argument.
+     */
+    protected static class MockConnectorPath {
         String originalString;
         String serviceName;
         LinkedList<String> connectorNames;
@@ -371,7 +376,11 @@ public class SetValue extends AbstractNativeFunction {
         }
     }
 
-    static class ServiceMetadata {
+    /**
+     * This wraps a service and its corresponding application.
+     *
+     */
+    protected static class ServiceMetadata {
         Application application;
         Service service;
 

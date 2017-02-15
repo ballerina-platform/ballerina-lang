@@ -23,11 +23,10 @@ import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.exception.LinkerException;
 import org.wso2.ballerina.core.exception.SemanticException;
-import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BLangPackage;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.GlobalScope;
-import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
@@ -35,14 +34,10 @@ import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
-import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.nio.file.Path;
 
 import static org.ballerinalang.launcher.LauncherUtils.createUsageException;
@@ -57,6 +52,12 @@ public class ParserUtils {
     private ParserUtils() {
     }
 
+    /**
+     * Get parsed, analyzed and linked Ballerina object model.
+     *
+     * @param sourceFilePath Path to Bal file.
+     * @return BallerinaFile instance.
+     */
     public static BallerinaFile buildLangModel(Path sourceFilePath) {
         ANTLRInputStream antlrInputStream = getAntlrInputStream(sourceFilePath);
 
@@ -73,9 +74,11 @@ public class ParserUtils {
 
             GlobalScope globalScope = GlobalScope.getInstance();
             loadGlobalSymbols(globalScope);
-            BLangPackage bLangPackage = new BLangPackage(globalScope);
+            BLangProgram bLangProgram = new BLangProgram(globalScope, BLangProgram.Category.SERVICE_PROGRAM);
+            BLangPackage bLangPackage = new BLangPackage(bLangProgram);
 
-            BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(bLangPackage);
+            BLangModelBuilder bLangModelBuilder = null;
+            //            new BLangModelBuilder(bLangPackage, getFileName(sourceFilePath));
             BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
             ballerinaParser.addParseListener(ballerinaBaseListener);
             ballerinaParser.compilationUnit();
@@ -83,8 +86,8 @@ public class ParserUtils {
 
             BuiltInNativeConstructLoader.loadConstructs(globalScope);
 
-            SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(balFile, bLangPackage);
-            balFile.accept(semanticAnalyzer);
+            //            SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(balFile, bLangPackage);
+            //            balFile.accept(semanticAnalyzer);
 
             return balFile;
         } catch (ParseCancellationException | SemanticException | LinkerException e) {
@@ -113,120 +116,6 @@ public class ParserUtils {
 
     private static void loadGlobalSymbols(GlobalScope globalScope) {
         BTypes.loadBuiltInTypes(globalScope);
-    }
-
-    /**
-     * Get parsed, analyzed and linked Ballerina object model.
-     *
-     * @param sourceFilePath Path to Bal file.
-     * @return BallerinaFile instance.
-     */
-    public static BallerinaFile parseBalFile(String sourceFilePath) {
-        return parseBalFile(sourceFilePath, new SymScope(SymScope.Name.GLOBAL));
-    }
-
-    /**
-     * Get parsed, analyzed and linked Ballerina object model.
-     *
-     * @param sourceFilePath Path to Bal file.
-     * @param globalSymScope Global symbol scope which includes all the native functions and actions
-     * @return BallerinaFile instance.
-     */
-    public static BallerinaFile parseBalFile(String sourceFilePath, SymScope globalSymScope) {
-
-        BallerinaParser ballerinaParser = getBallerinaParser(sourceFilePath);
-
-        // Create Ballerina model builder class
-        GlobalScope globalScope = GlobalScope.getInstance();
-        BTypes.loadBuiltInTypes(globalScope);
-        BLangPackage bLangPackage = new BLangPackage(globalScope);
-        BLangModelBuilder modelBuilder = new BLangModelBuilder(bLangPackage);
-
-
-        BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
-
-        ballerinaParser.addParseListener(langModelBuilder);
-        ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
-        ballerinaParser.compilationUnit();
-
-        // Get the model for source file
-        BallerinaFile bFile = modelBuilder.build();
-
-        // Analyze semantic properties of the source code
-        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, bLangPackage);
-        bFile.accept(semanticAnalyzer);
-
-        return bFile;
-    }
-
-    /**
-     * Get Ballerina Parser instance for given Ballerina file.
-     *
-     * @param path as a String.
-     * @return BallerinaParser instance.
-     */
-    public static BallerinaParser getBallerinaParser(String path) {
-        URL fileResource = ParserUtils.class.getClassLoader().getResource(path);
-        if (fileResource == null) {
-            throw new RuntimeException("Source file is not available: " + path);
-        }
-
-        ANTLRInputStream antlrInputStream = null;
-        try {
-            File file = new File(fileResource.getFile());
-            antlrInputStream = new ANTLRInputStream(new FileInputStream(file));
-            antlrInputStream.name = file.getName();
-        } catch (IOException e) {
-            throw new RuntimeException("Unable read file: " + path, e);
-        }
-
-        BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
-        CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
-        return new BallerinaParser(ballerinaToken);
-    }
-
-    public static BallerinaFile parseBalFile(String sourceFilePath, SymbolScope globalSymScope,
-            boolean isAbsolutePath) {
-
-        BallerinaParser ballerinaParser = getBallerinaParser(sourceFilePath, isAbsolutePath);
-
-        // Create Ballerina model builder class
-        BLangModelBuilder modelBuilder = new BLangModelBuilder();
-        BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
-
-        ballerinaParser.addParseListener(langModelBuilder);
-        ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
-        ballerinaParser.compilationUnit();
-
-        // Get the model for source file
-        BallerinaFile bFile = modelBuilder.build();
-
-        // Analyze semantic properties of the source code
-        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, globalSymScope);
-        bFile.accept(semanticAnalyzer);
-
-        return bFile;
-    }
-
-    public static BallerinaParser getBallerinaParser(String path, boolean isAbsolutePath) {
-        BallerinaParser bParser = null;
-        if (isAbsolutePath) {
-            ANTLRInputStream antlrInputStream = null;
-            try {
-                File file = new File(path);
-                antlrInputStream = new ANTLRInputStream(new FileInputStream(file));
-                antlrInputStream.name = file.getName();
-            } catch (IOException e) {
-                throw new RuntimeException("Unable to read file: " + path, e);
-            }
-            BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
-            CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
-            bParser = new BallerinaParser(ballerinaToken);
-        } else {
-            bParser = getBallerinaParser(path);
-        }
-
-        return bParser;
     }
 
 }
