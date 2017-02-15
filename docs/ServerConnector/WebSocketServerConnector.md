@@ -1,4 +1,4 @@
-#How to write a WebSocket Endpoint
+#How to write a WebSocket Server Connector
 
 ##WebSocket?
 WebSocket is a HTTP based protocol which uses HTTP connection to upgrade the connection to WebSocket connection. 
@@ -41,7 +41,7 @@ Add a base path and WebSocketUpgradePath to the service.
 Eg :
 ```ballerina
 @Basepath(“/test”)
-@WebSocketUpgradePath(“/websocket”)
+@ws:WebSocketUpgradePath(“/websocket”)
 service myService {
 }
 ```
@@ -51,18 +51,18 @@ _ws://host:port/test/websocket_
 ###Step 2 - Adding annotations to the resource level
 There are several supported annotations for this release of Ballerina. 
 
-####@OnOpen
+####@ws:OnOpen
 This annotated resource will be called when  a new 
 client is connecting to the WebSocket endpoint. 
 So if something has to be done when a new client is 
 connecting to the endpoint you can add that logic to 
 the relevant resource.
 
-####@OnTextMessage
+####@ws:OnTextMessage
 When the server is receiving a text message from 
 client this resource will be called
 
-####@OnClose
+####@ws:OnClose
 When client connection is closed due to some reason this resource will be called. 
 
 ####Example
@@ -70,15 +70,15 @@ When client connection is closed due to some reason this resource will be called
 import ballerina.lang.message;
 
 @BasePath ("/chat")
-@WebSocketUpgradePath("/websocket")
+@ws:WebSocketUpgradePath("/websocket")
 service helloWorld {
-    @OnOpen
+    @ws:OnOpen
     resource onOpenMessage(message m) {}
 
-    @OnTextMessage
+    @ws:OnTextMessage
     resource onTextMessage(message m) {}
 
-    @OnClose
+    @ws:OnClose
     resource onCloseMessage(message m) {}
 }
 ```
