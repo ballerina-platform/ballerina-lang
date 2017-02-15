@@ -163,13 +163,16 @@ public class HtmlDocumentWriter implements DocumentWriter {
                         }
                         return "#" + type.getName();
                     })
-                    // usage: {{typeName <BType>}}
-                    // eg: {{typeName type}}
-                    .registerHelper("typeName", (Helper<BType>) (type, options) -> {
+                    // usage: {{typeTitle <BType>}}
+                    // eg: {{typeTitle type}}
+                    .registerHelper("typeTitle", (Helper<BType>) (type, options) -> {
                         if (type == null) {
                             return null;
                         }
-                        return type.getName();
+                        if((type.getPackagePath() != null) && (!type.getPackagePath().isEmpty())) {
+                            return new Handlebars.SafeString(" title=\"" + type + "\"");
+                        }
+                        return "";
                     });
             Template template = handlebars.compile(templateName);
 
