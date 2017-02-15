@@ -235,7 +235,6 @@ public class ConstructProviderClassBuilder {
         File srcDir = new File(source.toUri());
         
         if (!srcDir.exists()) {
-            System.out.println("******** does not exist");
             return;
         }
         
@@ -243,9 +242,9 @@ public class ConstructProviderClassBuilder {
             throw new BallerinaException("error while reading built-in packages. ballerina source path '" +
                 srcDir.getPath() + "' is not a directory, or may not have read permissions");
         }
-        List<String> builtInPackages = new ArrayList<String>();
         
         // Traverse through built-in ballerina files and identify the packages
+        List<String> builtInPackages = new ArrayList<String>();
         try {
             Files.walkFileTree(source, new PackageFinder(source, builtInPackages));
         } catch (IOException e) {
@@ -257,7 +256,6 @@ public class ConstructProviderClassBuilder {
             if (nativePackages.containsKey(builtInPkg)) {
                 continue;
             }
-            
             String pkgInsertionStr = 
                     GLOBAL_SCOPE + ".define(new " + symbolNameClass + "(\"" + builtInPkg + "\"),\n" +
                     "\tnew " + pkgProxyClass + "(() -> {\n" + 
