@@ -30,6 +30,7 @@ import org.wso2.ballerina.core.interpreter.StructVarLocation;
 import org.wso2.ballerina.core.interpreter.WorkerVarLocation;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BMapTypeMapper;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BTypeMapper;
@@ -1628,6 +1629,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             TypeEdge newEdge = null;
             newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
             typeCastExpression.setEvalFunc(newEdge.getTypeMapperFunction());
+        } else if (sourceType instanceof BMapType) {
+            typeCastExpression.setCallableUnit(new BMapTypeMapper(targetType, packageTypeLattice.getEdges()));
         } else {
             linkTypeMapper(typeCastExpression, sourceType, targetType);
         }
@@ -1930,7 +1933,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             paramTypes[i] = exprs[i].getType();
         }
 
-        // When getting the action symbol name, Package name for the action is set to null, since the action is 
+        // When getting the action symbol name, Package name for the action is set to null, since the action is
         // registered under connector, and connecter contains the package
         SymbolName symbolName = LangModelUtils.getActionSymName(actionIExpr.getName(), actionIExpr.getConnectorName(),
                 null, paramTypes);

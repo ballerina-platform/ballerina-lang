@@ -138,5 +138,14 @@ public interface NodeExecutor {
 
     BValue visit(StructVarLocation structVarLocation);
 
+    /**
+     * Execute a type mapper and retrieve the result mapped type.
+     *
+     * @param typeMapper The type mapper to execute.
+     *
+     * @return mapped value after executing the type mapper.
+     */
+    BValue visit(TypeMapper typeMapper);
+
     BValue visit(WorkerVarLocation workerVarLocation);
 }
