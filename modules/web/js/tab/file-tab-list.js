@@ -154,10 +154,6 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace/file'
             var tab = TabList.prototype.newTab.call(this, options);
             if(tab instanceof FileTab){
                 tab.updateHeader();
-                //Setting isDirty and isPersisted to avoid save confirmation on new tabs remove event.
-                tab.getFile()
-                    .setPersisted(true)
-                    .setDirty(false);
             }
             $('[data-toggle="tooltip"]').tooltip();
             return tab;

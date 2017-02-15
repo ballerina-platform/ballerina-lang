@@ -114,13 +114,6 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
         };
 
         this.openFileSaveDialog = function openFileSaveDialog(options) {
-            var activeTab = app.tabController.activeTab;
-            var ballerinaFileEditor= activeTab.getBallerinaFileEditor();
-            var config = ballerinaFileEditor.getContent();
-            if(_.isNil(config) || _.isEmpty(config.trim())){
-                alerts.error("Cannot save file: File is empty.");
-                return;
-            }
             if(_.isNil(this._saveFileDialog)){
                 this._saveFileDialog = new Dialogs.save_to_file_dialog(app);
             }
