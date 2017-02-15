@@ -398,5 +398,21 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         });
     };
 
+    /**
+     * Initialize TypeMapperDefinition from json object
+     * @param {Object} jsonNode - JSON object for initialization.
+     * @param {string} jsonNode.type_mapper_name - Name of the type mapper definition.
+     */
+    TypeMapperDefinition.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+        this.setTypeMapperName(jsonNode.type_mapper_name, {doSilently: true});
+
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.BallerinaASTFactory.createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
+    };
+
     return TypeMapperDefinition;
 });

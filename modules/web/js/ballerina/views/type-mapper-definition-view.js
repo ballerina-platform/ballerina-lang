@@ -196,7 +196,6 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
 
             this.getModel().on('child-added', function (child) {
                 self.visit(child);
-                //self.getModel().trigger("child-visited", child);
             });
 
             var dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop');

@@ -25,7 +25,7 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
         './assignment-statement', './function-invocation', './arithmetic-expression', './logical-expression',
         './action-invocation-expression', './ballerina-ast-deserializer', './function-invocation-expression',
         './left-operand-expression', './right-operand-expression', './connector-action', './struct-definition',
-        './action-invocation-statement', './variable-definition-statement','./type-struct-definition', './resource-parameter',
+        './action-invocation-statement', './variable-definition-statement','./resource-parameter',
         './return-type','./worker-invoke','./worker-receive','./block-statement','./struct-field-access-expression',
         './variable-reference-expression','./reference-type-init-expression','./variable-definition'],
     function (BallerinaASTFactory, BallerinaASTRoot, ConditionalStatement, ConnectorDeclaration, ConnectorDefinition,
@@ -36,7 +36,7 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
               WorkerDeclaration, PackageDefinition, ImportDeclaration, Assignment, AssignmentStatement,
               FunctionInvocation, ArithmeticExpression, LogicalExpression, ActionInvocationExpression,
               BallerinaASTDeserializer, FunctionInvocationExpression, LeftOperandExpression, RightOperandExpression,
-              ConnectorAction, StructDefinition, ActionInvocationStatement, VariableDefinitionStatement,TypeStructDefinition,
+              ConnectorAction, StructDefinition, ActionInvocationStatement, VariableDefinitionStatement,
 	          ResourceParameter,ReturnType,WorkerInvoke,WorkerReceive ,BlockStatement,StructFieldAccessExpression, VariableReferenceExpression,
               ReferenceTypeInitExpression, VariableDefinition) {
 
@@ -85,7 +85,6 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
             ConnectorAction : ConnectorAction,
             StructDefinition : StructDefinition,
             VariableDefinitionStatement: VariableDefinitionStatement,
-            TypeStructDefinition : TypeStructDefinition,
             ResourceParameter: ResourceParameter,
             ReturnType: ReturnType,
             WorkerInvoke: WorkerInvoke,

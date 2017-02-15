@@ -53,5 +53,18 @@ define(['lodash', './node'], function (_, ASTNode) {
         this.addChild(variableDefStmt, index + 1);
     };
 
+    /**
+     * Initialize BlockStatement from json object
+     * @param {Object} jsonNode - JSON object for initialization.
+     */
+    BlockStatement.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.BallerinaASTFactory.createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
+    };
+
     return BlockStatement;
 });

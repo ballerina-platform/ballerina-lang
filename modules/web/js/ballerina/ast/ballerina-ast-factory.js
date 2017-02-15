@@ -31,7 +31,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
         './if-condition', './array-map-access-expression','./key-value-expression',
         './binary-expression', './unary-expression', './connector-action', './struct-definition', './constant-definition',
-        './variable-definition-statement', './type-struct-definition', './struct-type', './symbol-name', './struct-field-access-expression',
+        './variable-definition-statement','./struct-type', './symbol-name', './struct-field-access-expression',
         './type-casting-expression', './worker-invoke', './reference-type-init-expression', './block-statement',
         './variable-definition', './type-cast-expression', './array-init-expression', './worker-receive'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
@@ -43,7 +43,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
               thenBody, ifCondition, arrayMapAccessExpression, keyValueExpression, binaryExpression,
-              unaryExpression, connectorAction, structDefinition, constantDefinition, variableDefinitionStatement, typeStructDefinition,
+              unaryExpression, connectorAction, structDefinition, constantDefinition, variableDefinitionStatement,
               structType, symbolName, structFieldAccessExpression, typeCastingExpression, workerInvoke, referenceTypeInitExpression,
               blockStatement, variableDefinition, typeCastExpression,
               arrayInitExpression, workerReceive) {
@@ -173,15 +173,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createTypeMapperDefinition = function (args) {
             return new typeMapperDefinition(args);
-        };
-
-        /**
-         * creates typeStructDefinition
-         * @param {Object} args - object for typeStructDefinition creation
-         * @returns {TypeStructDefinition}
-         */
-        BallerinaASTFactory.createTypeStructDefinition = function (args) {
-            return new typeStructDefinition(args);
         };
 
         /**
@@ -784,15 +775,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.isTypeMapperDefinition = function (child) {
             return child instanceof typeMapperDefinition;
-        };
-
-        /**
-         * instanceof check for TypeStructDefinition
-         * @param {ASTNode} child - Object for instanceof check
-         * @returns {boolean} - true if same type, else false
-         */
-        BallerinaASTFactory.isTypeStructDefinition = function (child) {
-            return child instanceof typeStructDefinition;
         };
 
         /**
