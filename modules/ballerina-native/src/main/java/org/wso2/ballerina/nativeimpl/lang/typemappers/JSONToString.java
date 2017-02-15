@@ -15,30 +15,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.nativeimpl.lang.convertors;
+package org.wso2.ballerina.nativeimpl.lang.typemappers;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
+import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeMapper;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeMapper;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
  * Convert JSON to String
  */
-@BallerinaTypeConvertor(
-        packageName = "ballerina.lang.convertors",
-        typeConverterName = "jsonToString",
+@BallerinaTypeMapper(
+        packageName = "ballerina.lang.typemappers",
+        typeMapperName = "jsonToString",
         args = {@Argument(name = "value", type = TypeEnum.JSON)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
 
-public class JSONToString extends AbstractNativeTypeConvertor {
+public class JSONToString extends AbstractNativeTypeMapper {
 
     public BValue convert(Context ctx) {
         BJSON msg = (BJSON) getArgument(ctx, 0);
