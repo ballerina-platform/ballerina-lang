@@ -9,9 +9,14 @@ import com.beust.jcommander.Parameters;
 import org.ballerinalang.BLangProgramArchiveBuilder;
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.util.program.BLangPrograms;
 import org.wso2.ballerina.core.model.BLangProgram;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -305,8 +310,8 @@ public class Main {
                 programArgs = new ArrayList<>(0);
             }
 
-            Path p = Paths.get(argList.get(0));
-            BProgramRunner.runMain(p, programArgs);
+            Path sourcePath = Paths.get(argList.get(0));
+            BProgramRunner.runMain(sourcePath, programArgs);
         }
 
         @Override
@@ -434,12 +439,24 @@ public class Main {
                 throw LauncherUtils.createUsageException("too many arguments");
             }
 
-            Path p = Paths.get(argList.get(0));
+            Path sourcePath = Paths.get(argList.get(0));
+            try {
+                Path realPath = sourcePath.toRealPath(LinkOption.NOFOLLOW_LINKS);
+                if (!Files.isDirectory(realPath, LinkOption.NOFOLLOW_LINKS)
+                        && !realPath.toString().endsWith(BLangPrograms.BSOURCE_FILE_EXT)) {
+                    throw new IllegalArgumentException("invalid file or package '" + sourcePath + "'");
+
+                }
+            } catch (NoSuchFileException x) {
+                throw new IllegalArgumentException("no such file or directory: " + sourcePath);
+            } catch (IOException e) {
+                throw new RuntimeException("error reading from file: " + sourcePath +
+                        " reason: " + e.getMessage(), e);
+            }
 
             Path programDirPath = Paths.get(System.getProperty("user.dir"));
-
             BLangProgram bLangProgram = new BLangProgramLoader()
-                    .loadMain(programDirPath, p);
+                    .loadMain(programDirPath, sourcePath);
 
             // TODO Delete existing file  or WARNING
             if (outputFileName == null || outputFileName.isEmpty()) {
@@ -486,10 +503,24 @@ public class Main {
                 throw LauncherUtils.createUsageException("too many arguments");
             }
 
-            Path p = Paths.get(argList.get(0));
+            Path sourcePath = Paths.get(argList.get(0));
+            try {
+                Path realPath = sourcePath.toRealPath(LinkOption.NOFOLLOW_LINKS);
+                if (!Files.isDirectory(realPath, LinkOption.NOFOLLOW_LINKS)
+                        && !realPath.toString().endsWith(BLangPrograms.BSOURCE_FILE_EXT)) {
+                    throw new IllegalArgumentException("invalid file or package '" + sourcePath + "'");
+
+                }
+            } catch (NoSuchFileException x) {
+                throw new IllegalArgumentException("no such file or directory: " + sourcePath);
+            } catch (IOException e) {
+                throw new RuntimeException("error reading from file: " + sourcePath +
+                        " reason: " + e.getMessage(), e);
+            }
+
             Path programDirPath = Paths.get(System.getProperty("user.dir"));
             BLangProgram bLangProgram = new BLangProgramLoader()
-                    .loadService(programDirPath, p);
+                    .loadService(programDirPath, sourcePath);
 
             // TODO Delete existing file  or WARNING
             if (outputFileName == null || outputFileName.isEmpty()) {

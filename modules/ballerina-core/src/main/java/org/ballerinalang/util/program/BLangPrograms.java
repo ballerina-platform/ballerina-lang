@@ -51,7 +51,7 @@ public class BLangPrograms {
         }
 
         if (!programArchivePath.getFileName().toString().endsWith(programCategory.getExtension())) {
-            throw new IllegalArgumentException("invalid file: expected a " +
+            throw new IllegalArgumentException("invalid file or directory: expected a " +
                     programCategory.getExtension() + " file");
         }
 
@@ -69,7 +69,7 @@ public class BLangPrograms {
 
             return realProgArchivePath;
         } catch (NoSuchFileException x) {
-            throw new IllegalArgumentException("no such file: " + programArchivePath.toString());
+            throw new IllegalArgumentException("no such file or directory: " + programArchivePath.toString());
         } catch (IOException e) {
             throw new RuntimeException("error reading from file: " + programArchivePath +
                     " reason: " + e.getMessage(), e);
