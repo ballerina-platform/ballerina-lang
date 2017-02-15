@@ -34,7 +34,7 @@ public class LauncherConstants {
     public static final String INVALID_BAL_PATH_MESSAGE = "ERROR: Unable to run program, ballerina runtime cannot be found.";
     public static final String SERVICE_MESSAGE = "Running %s service.";
     public static final String EXECUTION_TERMINATED = "EXECUTION_TERMINATED" ;
-    public static final String SET_BAL_PATH_MESSAGE = "Please set BAL_HOME environment variable pointing to ballerina runtime.";
+    public static final String SET_BAL_PATH_MESSAGE = "Please set BALLERINA_HOME environment variable pointing to ballerina runtime.";
     public static final String TERMINATE_MESSAGE = "Program Terminated.";
 
 
