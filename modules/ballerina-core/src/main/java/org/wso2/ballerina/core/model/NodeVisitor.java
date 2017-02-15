@@ -89,7 +89,7 @@ public interface NodeVisitor {
 
     void visit(BallerinaFunction function);
 
-    void visit(BTypeConvertor typeConvertor);
+    void visit(BTypeMapper typeMapper);
 
     void visit(BallerinaAction action);
 

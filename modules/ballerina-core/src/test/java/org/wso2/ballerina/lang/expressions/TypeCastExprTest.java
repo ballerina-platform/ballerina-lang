@@ -37,7 +37,7 @@ public class TypeCastExprTest {
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("lang/expressions/type-conversion.bal");
+        bFile = ParserUtils.parseBalFile("lang/expressions/type-mapping.bal");
     }
 
 //    @Test

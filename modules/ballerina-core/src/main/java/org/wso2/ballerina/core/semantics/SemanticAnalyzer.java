@@ -28,7 +28,7 @@ import org.wso2.ballerina.core.interpreter.StructVarLocation;
 import org.wso2.ballerina.core.interpreter.WorkerVarLocation;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.BTypeConvertor;
+import org.wso2.ballerina.core.model.BTypeMapper;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -48,7 +48,7 @@ import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.SymbolScope;
-import org.wso2.ballerina.core.model.TypeConvertor;
+import org.wso2.ballerina.core.model.TypeMapper;
 import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
@@ -166,7 +166,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         defineConnectors(bFile.getConnectors());
         resolveStructFieldTypes(bFile.getStructDefs());
         defineFunctions(bFile.getFunctions());
-        defineTypeConvertors(packageTypeLattice);
+        defineTypeMappers(packageTypeLattice);
         defineServices(bFile.getServices());
     }
 
@@ -338,26 +338,26 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(BTypeConvertor typeConvertor) {
+    public void visit(BTypeMapper typeMapper) {
         // Open a new symbol scope
-        openScope(typeConvertor);
-        currentCallableUnit = typeConvertor;
+        openScope(typeMapper);
+        currentCallableUnit = typeMapper;
 
         // Check whether the return statement is missing. Ignore if the function does not return anything.
         // TODO Define proper error message codes
         //checkForMissingReturnStmt(function, "missing return statement at end of function");
 
-        for (ParameterDef parameterDef : typeConvertor.getParameterDefs()) {
+        for (ParameterDef parameterDef : typeMapper.getParameterDefs()) {
             parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
             parameterDef.accept(this);
         }
 
-//        for (VariableDef variableDef : typeConvertor.getVariableDefs()) {
+//        for (VariableDef variableDef : typeMapper.getVariableDefs()) {
 //            stackFrameOffset++;
 //            visit(variableDef);
 //        }
 
-        for (ParameterDef parameterDef : typeConvertor.getReturnParameters()) {
+        for (ParameterDef parameterDef : typeMapper.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
             if (parameterDef.getName() != null) {
@@ -367,7 +367,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             parameterDef.accept(this);
         }
 
-        BlockStmt blockStmt = typeConvertor.getCallableUnitBody();
+        BlockStmt blockStmt = typeMapper.getCallableUnitBody();
         currentScope = blockStmt;
         blockStmt.accept(this);
         currentScope = blockStmt.getEnclosingScope();
@@ -380,7 +380,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // -- Return values    --
         // These temp values are results of intermediate expression evaluations.
         int sizeOfStackFrame = stackFrameOffset + 1;
-        typeConvertor.setStackFrameSize(sizeOfStackFrame);
+        typeMapper.setStackFrameSize(sizeOfStackFrame);
 
         // Close the symbol scope
         stackFrameOffset = -1;
@@ -1591,9 +1591,9 @@ public class SemanticAnalyzer implements NodeVisitor {
                 BTypes.isValueType(targetType)) {
             TypeEdge newEdge = null;
             newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
-            typeCastExpression.setEvalFunc(newEdge.getTypeConvertorFunction());
+            typeCastExpression.setEvalFunc(newEdge.getTypeMapperFunction());
         } else {
-            linkTypeConverter(typeCastExpression, sourceType, targetType);
+            linkTypeMapper(typeCastExpression, sourceType, targetType);
         }
     }
 
@@ -1736,7 +1736,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rType, lType, null);
                 if (newEdge != null) { // Implicit cast from right to left
                     newExpr = new TypeCastExpression(rExpr.getNodeLocation(), rExpr, lType);
-                    newExpr.setEvalFunc(newEdge.getTypeConvertorFunction());
+                    newExpr.setEvalFunc(newEdge.getTypeMapperFunction());
                     newExpr.accept(this);
                     binaryExpr.setRExpr(newExpr);
                     return lType;
@@ -1744,7 +1744,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                     newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(lType, rType, null);
                     if (newEdge != null) { // Implicit cast from left to right
                         newExpr = new TypeCastExpression(lExpr.getNodeLocation(), lExpr, rType);
-                        newExpr.setEvalFunc(newEdge.getTypeConvertorFunction());
+                        newExpr.setEvalFunc(newEdge.getTypeMapperFunction());
                         newExpr.accept(this);
                         binaryExpr.setLExpr(newExpr);
                         return rType;
@@ -2042,29 +2042,29 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
-    private void linkTypeConverter(TypeCastExpression typeCastExpression, BType sourceType, BType targetType) {
+    private void linkTypeMapper(TypeCastExpression typeCastExpression, BType sourceType, BType targetType) {
         TypeEdge newEdge = null;
-        TypeConvertor typeConvertor;
+        TypeMapper typeMapper;
         // First check on this package
         newEdge = packageTypeLattice.getEdgeFromTypes(sourceType, targetType, currentPkg);
         if (newEdge != null) {
-            typeConvertor = newEdge.getTypeConvertor();
-            if (typeConvertor != null) {
-                typeCastExpression.setCallableUnit(typeConvertor);
+            typeMapper = newEdge.getTypeMapper();
+            if (typeMapper != null) {
+                typeCastExpression.setCallableUnit(typeMapper);
             }
         } else {
             newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, currentPkg);
             if (newEdge != null) {
-                typeConvertor = newEdge.getTypeConvertor();
-                if (typeConvertor != null) {
-                    typeCastExpression.setCallableUnit(typeConvertor);
+                typeMapper = newEdge.getTypeMapper();
+                if (typeMapper != null) {
+                    typeCastExpression.setCallableUnit(typeMapper);
                 }
             } else {
                 newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
                 if (newEdge != null) {
-                    typeConvertor = newEdge.getTypeConvertor();
-                    if (typeConvertor != null) {
-                        typeCastExpression.setCallableUnit(typeConvertor);
+                    typeMapper = newEdge.getTypeMapper();
+                    if (typeMapper != null) {
+                        typeCastExpression.setCallableUnit(typeMapper);
                     }
                 } else {
                     String pkgPath = typeCastExpression.getPackagePath();
@@ -2075,10 +2075,10 @@ public class SemanticAnalyzer implements NodeVisitor {
                         paramTypes[i] = exprs[i].getType();
                     }
 
-                    SymbolName symbolName = LangModelUtils.getTypeConverterSymNameWithoutPackage
+                    SymbolName symbolName = LangModelUtils.getTypeMapperSymNameWithoutPackage
                             (sourceType, targetType);
-                    BLangSymbol typeConvertorSymbol = currentScope.resolve(symbolName);
-                    if (typeConvertorSymbol == null) {
+                    BLangSymbol typeMapperSymbol = currentScope.resolve(symbolName);
+                    if (typeMapperSymbol == null) {
                         String funcName = (typeCastExpression.getPackageName() != null) ?
                                 typeCastExpression.getPackageName() + ":" +
                                         typeCastExpression.getName() : typeCastExpression.getName();
@@ -2086,12 +2086,12 @@ public class SemanticAnalyzer implements NodeVisitor {
                                 "'" + sourceType + "' cannot be cast to '" + targetType + "'");
                     }
 
-                    if (typeConvertorSymbol instanceof NativeUnitProxy) {
-                        typeConvertor = (TypeConvertor) ((NativeUnitProxy) typeConvertorSymbol).load();
+                    if (typeMapperSymbol instanceof NativeUnitProxy) {
+                        typeMapper = (TypeMapper) ((NativeUnitProxy) typeMapperSymbol).load();
                         // TODO We need to find a way to load input parameter types
 
                         // Loading return parameter types of this native function
-                        NativeUnit nativeUnit = (NativeUnit) typeConvertor;
+                        NativeUnit nativeUnit = (NativeUnit) typeMapper;
                         SimpleTypeName[] returnParamTypeNames = nativeUnit.getReturnParamTypeNames();
                         BType[] returnTypes = new BType[returnParamTypeNames.length];
                         for (int i = 0; i < returnParamTypeNames.length; i++) {
@@ -2100,16 +2100,16 @@ public class SemanticAnalyzer implements NodeVisitor {
                                     typeCastExpression.getNodeLocation());
                             returnTypes[i] = bType;
                         }
-                        typeConvertor.setReturnParamTypes(returnTypes);
+                        typeMapper.setReturnParamTypes(returnTypes);
 
                     } else {
-                        typeConvertor = (TypeConvertor) typeConvertorSymbol;
+                        typeMapper = (TypeMapper) typeMapperSymbol;
                     }
 
-                    if (typeConvertor != null) {
-                        typeConvertor.setParameterTypes(paramTypes);
+                    if (typeMapper != null) {
+                        typeMapper.setParameterTypes(paramTypes);
                         // Link the function with the function invocation expression
-                        typeCastExpression.setCallableUnit(typeConvertor);
+                        typeCastExpression.setCallableUnit(typeMapper);
                     } else {
                         throw new SemanticException(getNodeLocationStr(typeCastExpression.getNodeLocation()) +
                                 "'" + sourceType + "' cannot be cast to '" + targetType + "'");
@@ -2130,7 +2130,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rhsType, lhsType, null);
         if (newEdge != null) {
             newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr, lhsType);
-            newExpr.setEvalFunc(newEdge.getTypeConvertorFunction());
+            newExpr.setEvalFunc(newEdge.getTypeMapperFunction());
         }
         return newExpr;
     }
@@ -2185,11 +2185,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
-    private void defineTypeConvertors(TypeLattice typeLattice) {
+    private void defineTypeMappers(TypeLattice typeLattice) {
         for (TypeEdge typeEdge : typeLattice.getEdges()) {
-            TypeConvertor typeConvertor = typeEdge.getTypeConvertor();
+            TypeMapper typeMapper = typeEdge.getTypeMapper();
             // Resolve input parameters
-            ParameterDef[] paramDefArray = typeConvertor.getParameterDefs();
+            ParameterDef[] paramDefArray = typeMapper.getParameterDefs();
             BType[] paramTypes = new BType[paramDefArray.length];
             for (int i = 0; i < paramDefArray.length; i++) {
                 ParameterDef paramDef = paramDefArray[i];
@@ -2198,20 +2198,20 @@ public class SemanticAnalyzer implements NodeVisitor {
                 paramTypes[i] = bType;
             }
 
-            typeConvertor.setParameterTypes(paramTypes);
-            SymbolName symbolName = LangModelUtils.getSymNameWithParams(typeConvertor.getName(),
-                    typeConvertor.getPackagePath(), paramTypes);
-            typeConvertor.setSymbolName(symbolName);
+            typeMapper.setParameterTypes(paramTypes);
+            SymbolName symbolName = LangModelUtils.getSymNameWithParams(typeMapper.getName(),
+                    typeMapper.getPackagePath(), paramTypes);
+            typeMapper.setSymbolName(symbolName);
 
             if (currentScope.resolve(symbolName) != null) {
-                throw new SemanticException(typeConvertor.getNodeLocation().getFileName() + ":" +
-                        typeConvertor.getNodeLocation().getLineNumber() +
-                        ": redeclared symbol '" + typeConvertor.getName() + "'");
+                throw new SemanticException(typeMapper.getNodeLocation().getFileName() + ":" +
+                        typeMapper.getNodeLocation().getLineNumber() +
+                        ": redeclared symbol '" + typeMapper.getName() + "'");
             }
-            currentScope.define(symbolName, typeConvertor);
+            currentScope.define(symbolName, typeMapper);
 
             // Resolve return parameters
-            ParameterDef[] returnParameters = typeConvertor.getReturnParameters();
+            ParameterDef[] returnParameters = typeMapper.getReturnParameters();
             BType[] returnTypes = new BType[returnParameters.length];
             for (int i = 0; i < returnParameters.length; i++) {
                 ParameterDef paramDef = returnParameters[i];
@@ -2219,7 +2219,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 paramDef.setType(bType);
                 returnTypes[i] = bType;
             }
-            typeConvertor.setReturnParamTypes(returnTypes);
+            typeMapper.setReturnParamTypes(returnTypes);
         }
     }
 

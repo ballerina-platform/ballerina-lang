@@ -19,7 +19,7 @@ package org.wso2.ballerina.core.interpreter;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Action;
-import org.wso2.ballerina.core.model.BTypeConvertor;
+import org.wso2.ballerina.core.model.BTypeMapper;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFunction;
@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.TypeConvertor;
+import org.wso2.ballerina.core.model.TypeMapper;
 import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
@@ -84,7 +84,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
+import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeMapper;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 import org.wso2.ballerina.core.runtime.worker.WorkerCallback;
@@ -817,21 +817,21 @@ public class BLangExecutor implements NodeExecutor {
             BValueType result = (BValueType) typeCastExpression.getRExpr().execute(this);
             return typeCastExpression.getEvalFunc().apply(result);
         } else {
-            TypeConvertor typeConvertor = typeCastExpression.getCallableUnit();
+            TypeMapper typeMapper = typeCastExpression.getCallableUnit();
 
-            int sizeOfValueArray = typeConvertor.getStackFrameSize();
+            int sizeOfValueArray = typeMapper.getStackFrameSize();
             BValue[] localVals = new BValue[sizeOfValueArray];
 
             // Get values for all the function arguments
             int valueCounter = populateArgumentValues(typeCastExpression.getArgExprs(), localVals);
 
 //            // Create default values for all declared local variables
-//            for (VariableDef variableDef : typeConvertor.getVariableDefs()) {
+//            for (VariableDef variableDef : typeMapper.getVariableDefs()) {
 //                localVals[valueCounter] = variableDef.getType().getDefaultValue();
 //                valueCounter++;
 //            }
 
-            for (ParameterDef returnParam : typeConvertor.getReturnParameters()) {
+            for (ParameterDef returnParam : typeMapper.getReturnParameters()) {
                 // Check whether these are unnamed set of return types.
                 // If so break the loop. You can't have a mix of unnamed and named returns parameters.
                 if (returnParam.getName() == null) {
@@ -847,19 +847,19 @@ public class BLangExecutor implements NodeExecutor {
 
             // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
             // return values and function invocation location;
-            CallableUnitInfo functionInfo = new CallableUnitInfo(typeConvertor.getTypeConverterName(),
-                    typeConvertor.getPackagePath(), typeCastExpression.getNodeLocation());
+            CallableUnitInfo functionInfo = new CallableUnitInfo(typeMapper.getTypeMapperName(),
+                    typeMapper.getPackagePath(), typeCastExpression.getNodeLocation());
 
             StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
             controlStack.pushFrame(stackFrame);
 
             // Check whether we are invoking a native function or not.
-            if (typeConvertor instanceof BTypeConvertor) {
-                BTypeConvertor bTypeConverter = (BTypeConvertor) typeConvertor;
-                bTypeConverter.getCallableUnitBody().execute(this);
+            if (typeMapper instanceof BTypeMapper) {
+                BTypeMapper bTypeMapper = (BTypeMapper) typeMapper;
+                bTypeMapper.getCallableUnitBody().execute(this);
             } else {
-                AbstractNativeTypeConvertor nativeTypeConverter = (AbstractNativeTypeConvertor) typeConvertor;
-                nativeTypeConverter.convertNative(bContext);
+                AbstractNativeTypeMapper nativeTypeMapper = (AbstractNativeTypeMapper) typeMapper;
+                nativeTypeMapper.convertNative(bContext);
             }
 
             controlStack.popFrame();

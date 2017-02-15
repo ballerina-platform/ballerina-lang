@@ -35,10 +35,10 @@ under the License.
         </packages>
     </test>
 
-    <!-- Native TypeConvertors Related Test Cases -->
-    <test name="ballerina-native-type-convertors-unit-tests" preserve-order="true" parallel="false">
+    <!-- Native TypeMappers Related Test Cases -->
+    <test name="ballerina-native-type-mappers-unit-tests" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.wso2.ballerina.nativeimpl.convertors"/>
+            <package name="org.wso2.ballerina.nativeimpl.mappers"/>
         </packages>
     </test>
 

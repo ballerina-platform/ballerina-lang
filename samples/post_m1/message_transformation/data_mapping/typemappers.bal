@@ -1,6 +1,6 @@
-package samples.datamapping;
+package sample.message_transformation.data_mapping;
 
-typeconvertor mapAccount2EnterpriseAccount (xmlElement<t1> in) (xmlElement<t2>) {
+typemapper mapAccount2EnterpriseAccount (xmlElement<t1> in) (xmlElement<t2>) {
     string name;
     xmlElement<smalladdr> addr;
     xmlElement out;
@@ -14,7 +14,7 @@ typeconvertor mapAccount2EnterpriseAccount (xmlElement<t1> in) (xmlElement<t2>) 
     return out;
 }
 
-typeconvertor mapAddress (xmlElement<bigaddr> in) (xmlElement<smalladdr>) {
+typemapper mapAddress (xmlElement<bigaddr> in) (xmlElement<smalladdr>) {
     string addrstring;
     addrstring = xml:get(in, "/address/number", null) + " " +
                           xml:get(in, "/address/street", null) + ", " +
@@ -22,11 +22,11 @@ typeconvertor mapAddress (xmlElement<bigaddr> in) (xmlElement<smalladdr>) {
     return `<address>$addrstring</address>`;
 }
 
-typeconvertor map_string_to_int (string s) (int) {
+typemapper map_string_to_int (string s) (int) {
   return string:parseInt(s);
 }
 
-typeconvertor mapPerson2Driver(json<Person> in) (json<Driver>){
+typemapper mapPerson2Driver(json<Person> in) (json<Driver>){
     string name;
     json out;
     name = json:get(in, "$.name", null);

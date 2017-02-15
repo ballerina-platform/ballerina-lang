@@ -20,7 +20,7 @@ package org.wso2.ballerina.core.model.builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.BTypeConvertor;
+import org.wso2.ballerina.core.model.BTypeMapper;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -792,28 +792,28 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
-    public void startTypeConverterDef() {
-        currentCUBuilder = new BTypeConvertor.BTypeConvertorBuilder(currentScope);
+    public void startTypeMapperDef() {
+        currentCUBuilder = new BTypeMapper.BTypeMapperBuilder(currentScope);
         currentScope = currentCUBuilder.getCurrentScope();
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void addTypeConverter(String source, String target, String name, NodeLocation location, boolean isPublic) {
+    public void addTypeMapper(String source, String target, String name, NodeLocation location, boolean isPublic) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
         //currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setPublic(isPublic);
 
-        BTypeConvertor typeConvertor = currentCUBuilder.buildTypeConverter();
+        BTypeMapper typeMapper = currentCUBuilder.buildTypeMapper();
         TypeVertex sourceV = new TypeVertex(BTypes.resolveType(new SimpleTypeName(source),
                 currentScope, location));
         TypeVertex targetV = new TypeVertex(BTypes.resolveType(new SimpleTypeName(target),
                 currentScope, location));
-        bFileBuilder.addTypeConvertor(sourceV, targetV, typeConvertor, currentPackagePath);
+        bFileBuilder.addTypeMapper(sourceV, targetV, typeMapper, currentPackagePath);
 
-        // Define type converter is delayed due to missing type info of Parameters.
+        // Define type mapper is delayed due to missing type info of Parameters.
 
-        currentScope = typeConvertor.getEnclosingScope();
+        currentScope = typeMapper.getEnclosingScope();
         currentCUBuilder = null;
     }
 
@@ -831,7 +831,7 @@ public class BLangModelBuilder {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
         currentCUBuilder.setPkgPath(currentPackagePath);
-        // TODO Figure out whether we need to support public type convertors
+        // TODO Figure out whether we need to support public type typemappers
 //        currentCUBuilder.setPublic(isPublic);
 
         List<Annotation> annotationList = annotationListStack.pop();

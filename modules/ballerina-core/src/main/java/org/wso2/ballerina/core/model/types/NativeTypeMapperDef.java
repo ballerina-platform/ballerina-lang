@@ -25,17 +25,17 @@ import org.wso2.ballerina.core.model.values.BValueType;
 import java.util.function.Function;
 
 /**
- * Type convertor represents a native conversion
+ * Type mapper represents a native conversion
  */
-public class NativeTypeConvertorDef implements BLangSymbol {
+public class NativeTypeMapperDef implements BLangSymbol {
 
-    private Function<BValueType, BValueType> typeConvertor;
+    private Function<BValueType, BValueType> typeMapper;
     private SymbolScope symbolScope;
     private SymbolName symbolName;
 
-    public NativeTypeConvertorDef(Function<BValueType, BValueType> typeConvertor, SymbolScope symbolScope,
-                                  SymbolName symbolName) {
-        this.typeConvertor = typeConvertor;
+    public NativeTypeMapperDef(Function<BValueType, BValueType> typeMapper, SymbolScope symbolScope,
+                               SymbolName symbolName) {
+        this.typeMapper = typeMapper;
         this.symbolScope = symbolScope;
         this.symbolName = symbolName;
     }
