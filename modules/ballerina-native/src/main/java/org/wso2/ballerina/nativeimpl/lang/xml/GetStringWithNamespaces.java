@@ -45,7 +45,7 @@ import org.wso2.ballerina.nativeimpl.lang.utils.ErrorHandler;
 @BallerinaFunction(
         packageName = "ballerina.lang.xml",
         functionName = "getString",
-        args = {@Argument(name = "e", type = TypeEnum.XML),
+        args = {@Argument(name = "x", type = TypeEnum.XML),
                 @Argument(name = "xPath", type = TypeEnum.STRING),
                 @Argument(name = "namespaces", type = TypeEnum.MAP)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
