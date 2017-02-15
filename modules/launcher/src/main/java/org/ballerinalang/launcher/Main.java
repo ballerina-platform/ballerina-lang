@@ -18,6 +18,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -345,21 +346,28 @@ public class Main {
 
         public void execute() {
             if (serviceRootPath != null && !serviceRootPath.isEmpty()) {
-                File serviceRoot = new File(serviceRootPath);
-                File[] services = serviceRoot.listFiles();
-                if (!serviceRoot.exists() || !serviceRoot.isDirectory()) {
-                    throw LauncherUtils.createUsageException("service root '" + serviceRootPath + 
-                            "' is not a valid directory");
+                if (sourceFileList != null || sourceFileList.size() != 0) {
+                    throw LauncherUtils.createUsageException("too many arguments");
                 }
-                
-                if (sourceFileList == null) {
-                    sourceFileList = new ArrayList<String>();
-                }
-                
-                for (File service : services) {
-                    if (service.toString().endsWith(BLangProgram.Category.SERVICE_PROGRAM.getExtension())) {
-                        sourceFileList.add(service.toString());
-                    }
+                Path currentDir = Paths.get(System.getProperty("user.dir"));
+                Path originalPath = Paths.get(serviceRootPath);
+                try {
+                    Path newPath = originalPath.toRealPath(LinkOption.NOFOLLOW_LINKS);
+                    Path[] paths =
+                        Files.list(newPath).filter(path -> !Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS))
+                            .filter(path -> path.getFileName().toString()
+                                .endsWith(BLangProgram.Category.SERVICE_PROGRAM.getExtension()))
+                            .map(path -> currentDir.relativize(path))
+                            .toArray(Path[]::new);
+                    BProgramRunner.runServices(paths);
+                    return;
+                } catch (NoSuchFileException e) {
+                    throw new IllegalArgumentException("no such file or directory: " + serviceRootPath);
+                } catch (NotDirectoryException e) {
+                    throw new IllegalArgumentException("service root is not a directory: " + serviceRootPath);
+                }catch (IOException e) {
+                    throw new RuntimeException("error reading from file: " + serviceRootPath + " reason: " + 
+                        e.getMessage(), e);
                 }
             }
 
