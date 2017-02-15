@@ -52,7 +52,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 outlineStroke: "#F7F7F7",
                 outlineWidth: 2
             },
-            HoverPaintStyle : {
+            HoverPaintStyle: {
                 strokeWidth: 3,
                 stroke: "#ff9900",
                 outlineWidth: 3,
@@ -99,7 +99,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         var self = this;
         var propertyConnection = this.getConnectionObject(connection.sourceId, connection.targetId);
         this.midpoint = this.midpoint - this.midpointVariance;
-        this.jsPlumbInstance.importDefaults({ Connector : self.getConnectorConfig(self.midpoint)});
+        this.jsPlumbInstance.importDefaults({Connector: self.getConnectorConfig(self.midpoint)});
         this.jsPlumbInstance.detach(connection);
         this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
         this.disconnectCallback(propertyConnection);
@@ -369,7 +369,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     TypeMapperRenderer.prototype.repaintAll = function (jsTreeId) {
         var children = $("#" + jsTreeId).jstree().get_node('#').children_d;
         _forEach(children, function (child) {
-            self.jsPlumbInstance.repaint(child.id+"_anchor");
+            self.jsPlumbInstance.repaint(child.id + "_anchor");
         });
     };
 
@@ -504,9 +504,9 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     TypeMapperRenderer.prototype.makeFunctionAttribute = function (parentId, name, type, input) {
         var id = parentId.selector.replace("#", "") + this.idNameSeperator + name + this.nameTypeSeperator + type;
         var property;
-        if(input){
+        if (input) {
             property = $('<div>').attr('id', id).addClass('func-in-property');
-        }else {
+        } else {
             property = $('<div>').attr('id', id).addClass('func-out-property');
         }
         var propertyName = $('<span>').addClass('property-name').text(name);
@@ -573,7 +573,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 var connection = self.getConnectionObject(params.sourceId, params.targetId);
                 if (isValidTypes) {
                     self.midpoint = self.midpoint + self.midpointVariance;
-                    self.jsPlumbInstance.importDefaults({ Connector : self.getConnectorConfig(self.midpoint)});
+                    self.jsPlumbInstance.importDefaults({Connector: self.getConnectorConfig(self.midpoint)});
                     self.onConnection(connection);
                     self.disableParentsJsTree(params.sourceId, self);
                     self.disableParentsJsTree(params.targetId, self);
@@ -723,6 +723,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 var node = $("#" +  dagreNode);
                 node.css("left", graph.node(dagreNode).x + "px");
                 node.css("top", graph.node(dagreNode).y + "px");
+                // }
 
                 if (graph.node(dagreNode) != null && graph.node(dagreNode).y > maxYPosition) {
                     maxYPosition = graph.node(dagreNode).y;
@@ -740,8 +741,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @returns {*[]} flow chart object array
      */
     TypeMapperRenderer.prototype.getConnectorConfig = function (midPoint) {
-        return [ "Flowchart", { midpoint: midPoint,
-            stub: [40, 60], cornerRadius: 5, alwaysRespectStubs: true }]
+        return ["Flowchart", {
+            midpoint: midPoint,
+            stub: [40, 60], cornerRadius: 5, alwaysRespectStubs: true
+        }]
     }
 
     return TypeMapperRenderer;
