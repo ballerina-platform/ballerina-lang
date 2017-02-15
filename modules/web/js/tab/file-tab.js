@@ -24,7 +24,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
         initialize: function (options) {
             Tab.prototype.initialize.call(this, options);
             if (!_.has(options, 'file')) {
-                this._file = new File({isTemp: true}, {storage: this.getParent().getBrowserStorage()});
+                this._file = new File({isTemp: true, isDirty: false}, {storage: this.getParent().getBrowserStorage()});
             } else {
                 this._file = _.get(options, 'file');
             }
