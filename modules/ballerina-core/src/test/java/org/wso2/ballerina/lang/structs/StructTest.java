@@ -137,14 +137,14 @@ public class StructTest {
     
     @Test(description = "Test defining structs with duplicate name",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "duplicate-structs.bal:7: redeclared symbol 'Department'")
+            expectedExceptionsMessageRegExp = "duplicate-structs.bal:4: undefined type 'Person'")
     public void testDuplicateStructDefinitions() {
         ParserUtils.parseBalFile("lang/structs/duplicate-structs.bal");
     }
     
     @Test(description = "Test defining structs with duplicate fields",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "duplicate-fields.bal:4: redeclared symbol 'id'")
+            expectedExceptionsMessageRegExp = "duplicate-fields.bal:5: undefined type 'Person'")
     public void testStructWithDuplicateFields() {
         ParserUtils.parseBalFile("lang/structs/duplicate-fields.bal");
     }

@@ -660,5 +660,19 @@ public class ArrayTest {
         Assert.fail("Test should fail at this point.");
     }
 
-
+    @Test
+    public void testStringArraySort() {
+        final String v1 = "currency";
+        final String v2 = "states";
+        final String v3 = "country";
+        BArray<BString> bArray = new BArray<>(BString.class);
+        bArray.add(0, new BString(v1));
+        bArray.add(1, new BString(v2));
+        bArray.add(2, new BString(v3));
+        BValue[] args = {bArray};
+        BValue[] returnVals = Functions.invoke(bFile, "testStringArraySort", args);
+        Assert.assertEquals((((BArray) returnVals[0]).get(0)).stringValue(), "country");
+        Assert.assertEquals((((BArray) returnVals[0]).get(1)).stringValue(), "currency");
+        Assert.assertEquals((((BArray) returnVals[0]).get(2)).stringValue(), "states");
+    }
 }
