@@ -7,5 +7,4 @@ How to run the sample
 =====================
 bin$ ./ballerina run ../samples/getting_started/websocket/echo-server/server/wsEchoServer.bal
 
-You can use the simple web app client ../samples/getting_started/websocket/echo-server/client/index.html
-to check the capability.
+You can use the simple web app client ../samples/getting_started/websocket/echo-server/client/index.html to check the capability.
