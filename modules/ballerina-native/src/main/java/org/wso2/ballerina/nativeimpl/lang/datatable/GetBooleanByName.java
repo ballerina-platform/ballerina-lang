@@ -35,7 +35,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.datatable",
         functionName = "getBoolean",
-        args = {@Argument(name = "datatable", type = TypeEnum.DATATABLE),
+        args = {@Argument(name = "dt", type = TypeEnum.DATATABLE),
                 @Argument(name = "name", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.BOOLEAN)},
         isPublic = true

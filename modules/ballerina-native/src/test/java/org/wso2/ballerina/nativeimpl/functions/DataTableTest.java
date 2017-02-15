@@ -153,6 +153,7 @@ public class DataTableTest {
         Assert.assertEquals(returns[4].stringValue(), "1486102980000");
     }
 
+    @SuppressWarnings("unchecked")
     @Test(description = "Check getXXXArray methods for complex types.")
     public void getArrayByName() {
         BValue[] returns = Functions.invoke(bFile, "getArrayByName");
@@ -193,6 +194,7 @@ public class DataTableTest {
         Assert.assertEquals(booleanArray.get(2).booleanValue(), true);
     }
 
+    @SuppressWarnings("unchecked")
     @Test(description = "Check getXXXArray methods for complex types.")
     public void getArrayByIndex() {
         BValue[] returns = Functions.invoke(bFile, "getArrayByIndex");

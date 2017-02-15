@@ -37,7 +37,7 @@ import java.util.Locale;
 @BallerinaFunction(
         packageName = "ballerina.lang.datatable",
         functionName = "getString",
-        args = {@Argument(name = "datatable", type = TypeEnum.DATATABLE),
+        args = {@Argument(name = "dt", type = TypeEnum.DATATABLE),
                 @Argument(name = "index", type = TypeEnum.INT),
                 @Argument(name = "type", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},

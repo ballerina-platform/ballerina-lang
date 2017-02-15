@@ -35,7 +35,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.datatable",
         functionName = "getInt",
-        args = {@Argument(name = "datatable", type = TypeEnum.DATATABLE),
+        args = {@Argument(name = "dt", type = TypeEnum.DATATABLE),
                 @Argument(name = "index", type = TypeEnum.INT)},
         returnType = {@ReturnType(type = TypeEnum.INT)},
         isPublic = true

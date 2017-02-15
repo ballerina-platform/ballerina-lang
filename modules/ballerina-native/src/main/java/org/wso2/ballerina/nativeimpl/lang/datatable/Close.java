@@ -33,7 +33,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.lang.datatable",
         functionName = "close",
-        args = {@Argument(name = "datatable", type = TypeEnum.DATATABLE)},
+        args = {@Argument(name = "dt", type = TypeEnum.DATATABLE)},
         isPublic = true
 )
 public class Close extends AbstractNativeFunction {

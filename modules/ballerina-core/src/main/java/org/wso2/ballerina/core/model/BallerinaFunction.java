@@ -231,7 +231,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     }
 
     /**
-     * {@code BallerinaFunctionBuilder} is responsible for building a {@cdoe BallerinaFunction} node.
+     * {@code BallerinaFunctionBuilder} is responsible for building a {@code BallerinaFunction} node.
      *
      * @since 0.8.0
      */
