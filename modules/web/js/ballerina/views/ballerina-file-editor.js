@@ -918,7 +918,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             _.each(modelMap, function(aView) {
                 if(!_.isNil(aView.getModel)) {
                     var lineNumber = aView.getModel().getLineNumber();
-                    if(lineNumber === position.lineNumber) {
+                    if(lineNumber === position.line) {
                         aView.showDebugHit();
                         self._currentDebugHit = aView;
                     }
