@@ -23,7 +23,7 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
     var Tools = function(){
         this.compiled = _.template('<% if (!active) { %>'
             + '<div class="debug-panel-header">'
-            + '     <span class="tool-group-header-title">Debug As</span></span>' 
+            + '     <span class="tool-group-header-title">Debug</span></span>' 
             + '</div>' 
             + '<div class="btn-group col-xs-12">' 
             + '     <button type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="debug_application" title="Start Debug">Application</button>' 
@@ -79,7 +79,6 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
     };
 
     Tools.prototype.handleActions = function(event){
-        console.log(event);
         var actionName = $(event.currentTarget).data('action');
         switch(actionName){
             case 'Resume':

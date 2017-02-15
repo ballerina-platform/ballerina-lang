@@ -88,9 +88,6 @@ public class LaunchManager {
         try {
             this.program = Runtime.getRuntime().exec(command);
 
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(this.program.getInputStream()));
-
             if(type == LauncherConstants.ProgramType.RUN ){
                 pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STARTED, LauncherConstants.INFO,
                         String.format(LauncherConstants.RUN_MESSAGE , fileName));
@@ -106,13 +103,13 @@ public class LaunchManager {
                 pushMessageToClient(launchSession, debugMessage);
             }
 
-            String line = "";
-            while ((line = reader.readLine())!= null) {
-                pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
-            }
-
-            pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STOPED , LauncherConstants.INFO,
-                    LauncherConstants.END_MESSAGE);
+            // start a new thread to stream command output.
+            Runnable run = new Runnable() {
+                public void run() {
+                    LaunchManager.this.streamOutput();
+                }
+            };
+            (new Thread(run)).start();
 
         } catch (IOException e) {
             pushMessageToClient(launchSession, LauncherConstants.EXIT, LauncherConstants.ERROR, e.getMessage());
@@ -120,19 +117,29 @@ public class LaunchManager {
         }
     }
 
-    public void stopProcess(){
-        if(this.program != null && this.program.isAlive()){
-            this.program.destroyForcibly();
-            try {
-                this.program.waitFor();
-            } catch (InterruptedException e) {
-
+    public void streamOutput() {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(this.program.getInputStream()));
+        String line = "";
+        try {
+            while ((line = reader.readLine())!= null) {
+                pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
             }
+            pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STOPED , LauncherConstants.INFO,
+                    LauncherConstants.END_MESSAGE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void stopProcess() {
+        int pid = -1;
+        if (this.program != null && this.program.isAlive()) {
+            //todo shutdown implementation
         }
     }
 
 
-    public int getFreePort(){
+    public int getFreePort() {
         for (int i = LauncherConstants.MIN_PORT_NUMBER; i < LauncherConstants.MAX_PORT_NUMBER; i++) {
             if (available(i)) {
                 return i;
@@ -203,7 +210,7 @@ public class LaunchManager {
             case LauncherConstants.TERMINATE:
                 stopProcess();
                 pushMessageToClient(launchSession, LauncherConstants.EXECUTION_TERMINATED , LauncherConstants.INFO,
-                        LauncherConstants.END_MESSAGE);
+                        LauncherConstants.TERMINATE_MESSAGE);
                 break;
             default:
                 MessageDTO message = new MessageDTO();

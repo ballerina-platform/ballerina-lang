@@ -76,7 +76,6 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
     };
 
     DebugManager.prototype.processMesssage = function(message){
-        console.log(message);
         if(message.code == "DEBUG_HIT"){
             this.trigger("debug-hit", message);
         }

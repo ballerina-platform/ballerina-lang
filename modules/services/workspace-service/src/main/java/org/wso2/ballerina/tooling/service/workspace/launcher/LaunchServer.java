@@ -53,7 +53,7 @@ public class LaunchServer {
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     //todo enable log in debug mode
-                    //.handler(new LoggingHandler(LogLevel.INFO))
+                    .handler(new LoggingHandler(LogLevel.INFO))
                     .childHandler(new LaunchServerInitializer());
             Channel ch = b.bind(port).sync().channel();
 

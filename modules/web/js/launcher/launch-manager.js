@@ -97,12 +97,12 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './launch-ma
             }
         }
         if(message.code == "EXECUTION_STARTED"){
-            this.trigger("execution-started");
             this.active = true;
+            this.trigger("execution-started");
         }
-        if(message.code == "EXECUTION_STARTED"){
-            this.trigger("execution-ended");
+        if(message.code == "EXECUTION_STOPED" || message.code == "EXECUTION_TERMINATED"){
             this.active = false;
+            this.trigger("execution-ended");
         }                    
         if(message.code == "DEBUG_PORT"){
             this.debugPort = message.port;
@@ -110,7 +110,7 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './launch-ma
         }        
         if(message.code == "EXIT"){
             this.active = false;
-            this.trigger("session-ended");            
+            this.trigger("session-ended");
         }
         Console.println(message);
     };

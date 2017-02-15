@@ -15,7 +15,6 @@ public class LauncherConstants {
     public static final String LAUNCHER_WEBSOCKET_PATH = "/launch";
 
     public static final String LAUNCHER_PORT = "9092";
-    public static final String MESSAGE = "Launch service started at ";
     public static final String RUN_PROGRAM = "RUN_PROGRAM";
     public static final String RUN_SERVICE = "RUN_SERVICE";
     public static final String DEBUG_PROGRAM = "DEBUG_PROGRAM";
@@ -36,6 +35,7 @@ public class LauncherConstants {
     public static final String SERVICE_MESSAGE = "Running %s service.";
     public static final String EXECUTION_TERMINATED = "EXECUTION_TERMINATED" ;
     public static final String SET_BAL_PATH_MESSAGE = "Please set BAL_HOME environment variable pointing to ballerina runtime.";
+    public static final String TERMINATE_MESSAGE = "Program Terminated.";
 
 
     public static enum ProgramType{
