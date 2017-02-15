@@ -989,6 +989,14 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject refTypeInitExprObj = new JsonObject();
         refTypeInitExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
                 BLangJSONModelConstants.REFERENCE_TYPE_INIT_EXPR);
+        tempJsonArrayRef.push(new JsonArray());
+        if(refTypeInitExpr.getArgExprs() != null){
+            for(Expression expression : refTypeInitExpr.getArgExprs()) {
+                expression.accept(this);
+            }
+        }
+        refTypeInitExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(refTypeInitExprObj);
     }
 
@@ -1048,10 +1056,12 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject keyValueEprObj = new JsonObject();
         this.addPosition(keyValueEprObj, keyValueExpr.getNodeLocation());
         keyValueEprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.KEY_VALUE_EXPRESSION);
+        //adding key expression
         tempJsonArrayRef.push(new JsonArray());
-        JsonObject keyObject= new JsonObject();
-        keyObject.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.QUOTED_LITERAL_STRING);
-        keyObject.addProperty(BLangJSONModelConstants.KEY_VALUE_EXPRESSION_KEY, keyValueExpr.getKey());
+        keyValueExpr.getKeyExpr().accept(this);
+        JsonArray keyObject = tempJsonArrayRef.pop();
+        //adding value expression
+        tempJsonArrayRef.push(new JsonArray());
         keyValueExpr.getValueExpr().accept(this);
         tempJsonArrayRef.peek().add(keyObject);
         keyValueEprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
@@ -1182,7 +1192,14 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(ModExpression modExpression) {
-        
+        JsonObject modExprObj = new JsonObject();
+        modExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.MOD_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        modExpression.getLExpr().accept(this);
+        modExpression.getRExpr().accept(this);
+        modExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(modExprObj);
     }
 
     private void addPosition (JsonObject jsonObj, NodeLocation nodeLocation) {

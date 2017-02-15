@@ -16,9 +16,9 @@
  * under the License.
  */
 define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './point',
-        'ballerina/ast/ballerina-ast-factory', './constant-definition-view', './../ast/node'],
+        'ballerina/ast/ballerina-ast-factory', './constant-definition-view', './../ast/node', 'select2'],
     function (require, _, $, log, D3Utils, d3, Alerts, Point,
-              BallerinaASTFactory, ConstantDefinitionView, ASTNode) {
+              BallerinaASTFactory, ConstantDefinitionView, ASTNode, select2) {
 
         /**
          * Creates a new instance for a constant definition pane view.
@@ -75,7 +75,10 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
             var constantsAddPane = $("<div class='action-content-wrapper-heading constant-add-action-wrapper'/>")
                 .appendTo(constantsActionWrapper);
 
-            var constantBTypeSelect = $("<select/>").appendTo(constantsAddPane);
+            var constantBTypeSelect = $("<select/>");
+            var typeDropdownWrapper = $('<div class="type-drop-wrapper"></div>');
+            constantBTypeSelect.appendTo(typeDropdownWrapper);
+            typeDropdownWrapper.appendTo(constantsAddPane);
             var constantIdentifierText = $("<input id='text' placeholder='Identifier'/>").appendTo(constantsAddPane);
             var constantValueText = $("<input id='text' placeholder='Value'/>").appendTo(constantsAddPane);
 
@@ -84,7 +87,10 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
                 $("<option value=" + constantType + ">" + constantType + "</option>")
                     .appendTo($(constantBTypeSelect));
             });
-
+            constantBTypeSelect.select2({
+                tags: true,
+                selectOnClose: true
+            });
             // Add new constant upon enter key.
             $(constantIdentifierText).keypress(function (e) {
                 var enteredKey = e.which || e.charCode || e.keyCode;

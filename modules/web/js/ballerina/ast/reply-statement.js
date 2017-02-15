@@ -44,8 +44,9 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
     };
 
     ReplyStatement.prototype.canBeAChildOf = function (node) {
-        return this.getFactory().isResourceDefinition(node) ||
-                this.getFactory().isStatement(node);
+        return this.getFactory().isResourceDefinition(node)
+                || this.getFactory().isWorkerDeclaration(node)
+                || this.getFactory().isStatement(node);
     };
 
     /**
@@ -54,6 +55,10 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      */
     ReplyStatement.prototype.initFromJson = function (jsonNode) {
         this.setReplyMessage(jsonNode.expression, {doSilently: true});
+    };
+
+    ReplyStatement.prototype.getReplyExpression = function () {
+        return "reply " + this.getReplyMessage();
     };
 
     return ReplyStatement;

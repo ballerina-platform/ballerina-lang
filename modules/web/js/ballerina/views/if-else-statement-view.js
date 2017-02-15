@@ -257,8 +257,6 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
                 childrenView.stopListening();
             });
             d3.select("#_" +this._model.id).remove();
-            this.getDiagramRenderingContext().getViewOfModel(this._model.getParent()).getStatementContainer()
-                .removeInnerDropZone(this._model);
             this.getBoundingBox().w(0).h(0);
         };
 
