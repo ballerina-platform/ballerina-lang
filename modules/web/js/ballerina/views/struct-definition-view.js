@@ -154,9 +154,9 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                     var bType = typeDropdown.select2('data')[0].text;
                     var identifier = $(identifierTextBox).val().trim();
 
-                    self.getModel().addVariableDeclaration(bType, identifier);
+                    self.getModel().addVariableDefinition(bType, identifier);
 
-                    self._renderVariableDeclarations(structVariablesWrapper);
+                    self._renderVariableDefinitions(structVariablesWrapper);
 
                     $(identifierTextBox).val("");
                 } catch (e) {
@@ -172,7 +172,7 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                 class: "struct-content-variables-wrapper"
             }).appendTo(structContentWrapper);
 
-            this._renderVariableDeclarations(structVariablesWrapper);
+            this._renderVariableDefinitions(structVariablesWrapper);
 
             $(structVariablesWrapper).click(function(e){
                 e.preventDefault();
@@ -183,42 +183,46 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
 
             // On window click.
             $(window).click(function (event) {
-                self._renderVariableDeclarations(structVariablesWrapper);
+                self._renderVariableDefinitions(structVariablesWrapper);
             });
         };
 
-        StructDefinitionView.prototype._renderVariableDeclarations = function (wrapper) {
+        StructDefinitionView.prototype._renderVariableDefinitions = function (wrapper) {
             $(wrapper).empty();
             var self = this;
 
-            _.forEach(this._model.getVariableDeclarations(), function(variableDeclaration) {
+            _.forEach(this._model.getVariableDefinitions(), function(variableDefinition) {
 
-                var variableDeclarationView = new StructVariableDefinitionView({
+                var variableDefinitionView = new StructVariableDefinitionView({
                     parent: self.getModel(),
-                    model: variableDeclaration,
+                    model: variableDefinition,
                     container: wrapper,
                     toolPalette: self.getToolPalette(),
                     messageManager: self.getMessageManager(),
                     parentView: self
                 });
 
-                self.getDiagramRenderingContext().getViewModelMap()[variableDeclaration.id] = variableDeclarationView;
+                self.getDiagramRenderingContext().getViewModelMap()[variableDefinition.id] = variableDefinitionView;
 
-                variableDeclarationView.render(self.getDiagramRenderingContext());
+                variableDefinitionView.render(self.getDiagramRenderingContext());
 
-                $(variableDeclarationView.getDeleteButton()).click(function () {
-                    self._renderVariableDeclarations(wrapper);
+                $(variableDefinitionView.getDeleteButton()).click(function () {
+                    self._renderVariableDefinitions(wrapper);
                 });
 
-                $(variableDeclarationView.getWrapper()).click({
-                    modelID: variableDeclaration.getID()
+                $(variableDefinitionView.getWrapper()).click({
+                    modelID: variableDefinition.getID()
                 }, function (event) {
-                    self._renderVariableDeclarations(wrapper);
-                    var variableDeclarationView = self.getDiagramRenderingContext()
+                    self._renderVariableDefinitions(wrapper);
+                    var variableDefinitionView = self.getDiagramRenderingContext()
                         .getViewModelMap()[event.data.modelID];
-                    variableDeclarationView.renderEditView();
+                    variableDefinitionView.renderEditView();
                 });
             });
+        };
+
+        StructDefinitionView.prototype.canVisitStructDefinition = function () {
+            return true;
         };
 
         return StructDefinitionView;
