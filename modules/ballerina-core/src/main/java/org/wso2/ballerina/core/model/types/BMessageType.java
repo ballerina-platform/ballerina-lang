@@ -29,7 +29,8 @@ import org.wso2.ballerina.core.model.values.BValue;
  */
 @BallerinaPrimitive(type = "message",
         description = "Represents a message in Ballerina.",
-        defaultValue = "")
+        defaultValue = "[blank]",
+        usage = "message [variable] = [payload];")
 public class BMessageType extends BType {
 
     /**

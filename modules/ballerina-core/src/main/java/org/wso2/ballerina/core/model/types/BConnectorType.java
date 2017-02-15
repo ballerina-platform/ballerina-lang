@@ -29,7 +29,11 @@ import org.wso2.ballerina.core.model.values.BValue;
  */
 @BallerinaPrimitive(type = "connector",
         description = "Represents a connector in Ballerina.",
-        defaultValue = "")
+        defaultValue = "",
+        usage = "[annotation] connector [identifier] ([parameterList]) {\n" +
+                "    [statements]\n" +
+                "    [actions]\n" +
+                "}")
 public class BConnectorType extends BType {
 
     /**

@@ -17,11 +17,15 @@
 */
 package org.wso2.ballerina.core.model.annotations;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Ballerina primitive type annotation definition.
  *
  * @since 0.8.0
  */
+@Retention(RetentionPolicy.RUNTIME)
 public @interface BallerinaPrimitive {
     /**
      * Primitive type notation.
@@ -40,4 +44,10 @@ public @interface BallerinaPrimitive {
      * @return
      */
     String defaultValue();
+
+    /**
+     * Usage of the primitive type.
+     * @return
+     */
+    String usage();
 }

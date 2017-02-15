@@ -27,9 +27,10 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
-@BallerinaPrimitive(type = "json",
+@BallerinaPrimitive(type = "string",
         description = "Represents a String.",
-        defaultValue = "")
+        defaultValue = "[blank]",
+        usage = "string [variable] = [value];")
 public class BStringType extends BType {
 
     /**

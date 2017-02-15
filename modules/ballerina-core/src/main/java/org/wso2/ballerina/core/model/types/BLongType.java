@@ -18,7 +18,6 @@
 package org.wso2.ballerina.core.model.types;
 
 import org.wso2.ballerina.core.model.SymbolScope;
-import org.wso2.ballerina.core.model.annotations.BallerinaPrimitive;
 import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -27,9 +26,6 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
-@BallerinaPrimitive(type = "long",
-        description = "Represents a long which is a 64-bit signed number.",
-        defaultValue = "0")
 class BLongType extends BType {
 
     /**

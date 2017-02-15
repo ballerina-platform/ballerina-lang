@@ -33,11 +33,12 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
-@BallerinaPrimitive(type = "json",
+@BallerinaPrimitive(type = "map",
         description = "Represents a map that maps keys to values in Ballerina. " +
                 "Maps are defined using map keyword as follows: map mapName. " +
                 "All maps are unbounded in length and support key based indexing.",
-        defaultValue = "{}")
+        defaultValue = "{}",
+        usage = "map [variable] = {[key-1]: [value-1], [key-2]: [value-2], ..., [key-n]: [value-n]}")
 public class BMapType extends BType {
 
     /**

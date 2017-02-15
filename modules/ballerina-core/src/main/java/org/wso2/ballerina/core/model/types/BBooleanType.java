@@ -29,7 +29,8 @@ import org.wso2.ballerina.core.model.values.BValue;
  */
 @BallerinaPrimitive(type = "boolean",
         description = "Represents boolean type in Ballerina.",
-        defaultValue = "false")
+        defaultValue = "false",
+        usage = "boolean [variable] = [value];")
 class BBooleanType extends BType {
 
     /**

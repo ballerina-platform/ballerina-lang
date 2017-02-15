@@ -31,7 +31,8 @@ import org.wso2.ballerina.core.model.values.BValue;
 @BallerinaPrimitive(type = "double",
         description = "Represents a 64-bit floating-point number according to the " +
                       "standard IEEE 754 specifications.",
-        defaultValue = "0.0")
+        defaultValue = "0.0",
+        usage = "double [variable] = [value];")
 class BDoubleType extends BType {
 
     /**

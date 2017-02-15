@@ -29,7 +29,8 @@ import org.wso2.ballerina.core.model.values.BXML;
  */
 @BallerinaPrimitive(type = "xml",
         description = "Represents an XML document.",
-        defaultValue = "")
+        defaultValue = "[blank]",
+        usage = "xml [variable] = [xml document];")
 public class BXMLType extends BType {
 
     /**

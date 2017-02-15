@@ -29,7 +29,10 @@ import org.wso2.ballerina.core.model.values.BValue;
  */
 @BallerinaPrimitive(type = "struct",
         description = "Represents a user defined struct in Ballerina.",
-        defaultValue = "")
+        defaultValue = "",
+        usage = "struct [name] {\n" +
+                "  [fields]\n" +
+                "}")
 public class BStructType extends BType {
 
     /**

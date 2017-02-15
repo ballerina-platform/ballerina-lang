@@ -18,7 +18,6 @@
 package org.wso2.ballerina.core.model.types;
 
 import org.wso2.ballerina.core.model.SymbolScope;
-import org.wso2.ballerina.core.model.annotations.BallerinaPrimitive;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -28,10 +27,6 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
-@BallerinaPrimitive(type = "float",
-        description = "Represents a 32-bit floating-point number according to the " +
-                "standard IEEE 754 specifications.",
-        defaultValue = "0.0")
 class BFloatType extends BType {
 
     /**

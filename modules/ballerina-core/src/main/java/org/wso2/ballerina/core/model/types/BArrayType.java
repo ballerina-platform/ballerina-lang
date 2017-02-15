@@ -32,10 +32,11 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
-@BallerinaPrimitive(type = "[]",
+@BallerinaPrimitive(type = "array",
         description = "Represents array type in Ballerina. Arrays are defined using the array constructor [] " +
                 "as follows: TypeName[]. All arrays are unbounded in length and supported 0 based indexing.",
-        defaultValue = "[]")
+        defaultValue = "[]",
+        usage = "[data-type][] [variable] = [[value-1], [value-2], ..., [value-n]];")
 public class BArrayType extends BType implements BIndexedType {
     private BType elementType;
 

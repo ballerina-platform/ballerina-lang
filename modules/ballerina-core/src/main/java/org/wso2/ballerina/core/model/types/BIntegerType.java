@@ -29,7 +29,8 @@ import org.wso2.ballerina.core.model.values.BValue;
  */
 @BallerinaPrimitive(type = "int",
         description = "Represents an integer which is a 32-bit signed number.",
-        defaultValue = "0")
+        defaultValue = "0",
+        usage = "int [variable] = [value];")
 class BIntegerType extends BType {
 
     /**

@@ -29,7 +29,8 @@ import org.wso2.ballerina.core.model.values.BValue;
  */
 @BallerinaPrimitive(type = "json",
         description = "Represents a JSON document.",
-        defaultValue = "{}")
+        defaultValue = "{}",
+        usage = "json [variable] = `[json-document]`")
 public class BJSONType extends BType {
 
     /**
