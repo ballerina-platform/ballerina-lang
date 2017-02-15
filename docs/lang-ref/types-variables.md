@@ -128,7 +128,7 @@ The following lossless type coercions are pre-defined in Ballerina:
 * long -> double
 * float -> double
 
-In addition to these built in type coercions, Ballerina allows you to define arbitrary conversions from one non-primitive type to another non-primitive and have the language apply it automatically.
+In addition to these built in type coercions, Ballerina allows you to define arbitrary conversions from one non-primitive type to another non-primitive using type mappers and have the language apply it automatically.
 
 A `TypeMapper` is defined as follows:
 ```
