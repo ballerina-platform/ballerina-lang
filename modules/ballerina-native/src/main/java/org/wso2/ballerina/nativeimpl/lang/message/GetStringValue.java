@@ -25,6 +25,8 @@ import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
+import org.wso2.ballerina.core.nativeimpl.annotations.Attribute;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -38,10 +40,16 @@ import org.wso2.carbon.messaging.MapCarbonMessage;
         packageName = "ballerina.lang.message",
         functionName = "getStringValue",
         args = {@Argument(name = "message", type = TypeEnum.MESSAGE),
-                @Argument(name = "headerName", type = TypeEnum.STRING)},
+                @Argument(name = "propertyName", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
+        value = "To get the value for a string property in a map type message") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "message",
+        value = "message") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "propertyName",
+        value = "Name of the property") })
 public class GetStringValue extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
