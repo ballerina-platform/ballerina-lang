@@ -2010,7 +2010,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             BLangSymbol functionSymbol = currentScope.resolve(symbolName);
             
             if (function.isNative() && functionSymbol == null) {
-                throw new SemanticException(getNodeLocationStr(function.getNodeLocation()) + "undeclared function '" + 
+                throw new SemanticException(getNodeLocationStr(function.getNodeLocation()) + "undefined function '" + 
                         function.getName() + "'");
             }
 
@@ -2056,7 +2056,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             BLangSymbol typConvertorSymbol = currentScope.resolve(symbolName);
 
             if (typeConvertor.isNative() && typConvertorSymbol == null) {
-                throw new SemanticException(getNodeLocationStr(typeConvertor.getNodeLocation()) + "undeclared type " +
+                throw new SemanticException(getNodeLocationStr(typeConvertor.getNodeLocation()) + "undefined type " +
                     "convertor '" + typeConvertor.getName() + "'");
             }
 
@@ -2092,7 +2092,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             BLangSymbol connectorSymbol = currentScope.resolve(connectorSymbolName);
             if (connectorDef.isNative() && connectorSymbol == null) {
                 throw new SemanticException(getNodeLocationStr(connectorDef.getNodeLocation()) +
-                    "undeclared connector '" + connectorDef.getName() + "'");
+                    "undefined connector '" + connectorDef.getName() + "'");
             }
 
             if (!connectorDef.isNative()) {
@@ -2154,7 +2154,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 .resolveType(new SimpleTypeName(connectorDef.getName()), currentScope, connectorDef.getNodeLocation());
             actionSymbol = connector.resolve(symbolName);
             if (actionSymbol == null) {
-                throw new SemanticException(getNodeLocationStr(connectorDef.getNodeLocation()) + "undeclared action '" +
+                throw new SemanticException(getNodeLocationStr(connectorDef.getNodeLocation()) + "undefined action '" +
                     action.getName() + "' in connector '" + connectorDef.getName() + "'");
             }
         } else {
