@@ -48,7 +48,7 @@ public class BLangPackages {
         return loadPackage(packagePath, packageRepo, bLangProgram, new LinkedHashSet<>());
     }
 
-    public static BLangPackage loadPackage(Path packagePath,
+    private static BLangPackage loadPackage(Path packagePath,
                                            PackageRepository packageRepo,
                                            BLangProgram bLangProgram,
                                            LinkedHashSet<SymbolName> currentDepPath) {
