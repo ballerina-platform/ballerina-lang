@@ -29,6 +29,7 @@ define(['require', 'lodash', 'jquery', 'log', './../ast/import-declaration'],
         var ImportDeclarationView = function(args) {
             this._model = _.get(args, "model");
             this._container = _.get(args, "container");
+            this._toolPalette = _.get(args, "toolPalette");
         };
 
         ImportDeclarationView.prototype.constructor = ImportDeclarationView;
@@ -37,7 +38,7 @@ define(['require', 'lodash', 'jquery', 'log', './../ast/import-declaration'],
          * Creates the pane view of the import declaration.
          */
         ImportDeclarationView.prototype.render = function() {
-            var self = this._model;
+            var self = this;
             var paneAppendElement = this._container.find('.imports-content-wrapper');
             var importDeclarationWrapper = $("<div/>", {
                 id: this._model.getID(),
@@ -57,9 +58,9 @@ define(['require', 'lodash', 'jquery', 'log', './../ast/import-declaration'],
 
             // Creating import delete event.
             $(importDelete).on("click", function () {
-                var packageName = importDeclarationWrapper.text();
-                self.remove();
-                log.info(self)
+                var packageName = importDeclarationWrapper.text().trim();
+                self._model.remove();
+                self._toolPalette.getItemProvider().removeImportToolGroup(packageName);
             });
             this._model.on('before-remove', function () {
                 importDeclarationWrapper.remove();

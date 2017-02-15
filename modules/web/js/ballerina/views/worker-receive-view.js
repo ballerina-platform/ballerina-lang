@@ -34,6 +34,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             this._backArrowHead = undefined;
             this._arrowGroup = undefined;
             this._startRect = undefined;
+            this._messageView = undefined;
+            this._destinationReplyStatementView = undefined;
 
         };
 
@@ -89,8 +91,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 propertyType: "text",
                 key: "Worker Invocation",
                 model: model,
-                getterMethod: model.getInvokeStatement,
-                setterMethod: model.setInvokeStatement
+                getterMethod: model.getReceiveStatement,
+                setterMethod: model.setReceiveStatement
             };
 
             this._createPropertyPane({
@@ -280,30 +282,101 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             var workerInvokeStatement = _.find(this.getParent().getModel().getChildren(), function (child) {
                 return BallerinaASTFactory.isWorkerInvokeStatement(child);
             });
-            var destinationReplyStatementView = !_.isNil(destinationReplyStatement) ?
+            this._destinationReplyStatementView = !_.isNil(destinationReplyStatement) ?
                 this.getDiagramRenderingContext().getViewOfModel(destinationReplyStatement) : undefined;
 
             // We have added a reply statement to the worker and the invoker can receive a valid response from the worker
             // We do not allow to add the receive unless we have added a reply to the particular worker
-            if (!_.isNil(destinationReplyStatementView) && !_.isNil(workerInvokeStatement)) {
-                if (this.getBoundingBox().getBottom() > destinationReplyStatementView.getBoundingBox().getBottom()) {
+            if (!_.isNil(this._destinationReplyStatementView) && !_.isNil(workerInvokeStatement)) {
+                if (this.getBoundingBox().getBottom() > this._destinationReplyStatementView.getBoundingBox().getBottom()) {
                     // Worker receive statement is located bellow the reply statement.
                     // We need to move the reply statement down
                     startY = this.getBoundingBox().getTop() + this.getBoundingBox().h()/2;
-                    destinationReplyStatementView.getBoundingBox().y(this.getBoundingBox().getTop());
+                    this._destinationReplyStatementView.getBoundingBox().y(this.getBoundingBox().getTop());
                 } else {
                     // Worker receive statement is located above the reply statement.
                     // We need to move the worker receive statement down
-                    startY =  destinationReplyStatementView.getBoundingBox().getTop() + this.getBoundingBox().h()/2;
-                    this.getBoundingBox().y(destinationReplyStatementView.getBoundingBox().getTop())
+                    startY =  this._destinationReplyStatementView.getBoundingBox().getTop() + this.getBoundingBox().h()/2;
+                    this.getBoundingBox().y(this._destinationReplyStatementView.getBoundingBox().getTop())
                 }
                 endY = startY;
                 var messageStart = new Point(startX, startY);
                 var messageEnd = new Point(endX, endY);
-                var messageView = new MessageView({container: group.node(), start: messageStart, end: messageEnd, isInputArrow: false});
+                this._messageView = new MessageView({container: group.node(), start: messageStart, end: messageEnd, isInputArrow: false});
+                this._messageView.render();
 
-                messageView.render();
+                // Set the reply receiver for the destination
+                destinationView.getModel().setReplyReceiver(this.getModel());
             }
+
+            /**
+             * When the top edge move event triggered
+             * @override
+             */
+            WorkerReceive.prototype.onTopEdgeMovedTrigger = function (dy) {
+                var self = this;
+
+                if (dy > 0) {
+                    // Moving the statement down
+                    self._messageView.move(0, dy);
+                    self.getSvgRect().attr('y', parseFloat(self.getSvgRect().attr('y')) + dy);
+                    self.getSvgText().attr('y', parseFloat(self.getSvgText().attr('y')) + dy);
+                    self._destinationReplyStatementView.onMoveInitiatedByReplyReceiver(dy);
+                } else if (dy < 0) {
+                    // Moving the statement up
+                    self.stopListening(self.getBoundingBox(), 'top-edge-moved');
+                    if (self._destinationReplyStatementView.canMoveUp(dy)) {
+                        self._messageView.move(0, dy);
+                        self.getSvgRect().attr('y', parseFloat(self.getSvgRect().attr('y')) + dy);
+                        self.getSvgText().attr('y', parseFloat(self.getSvgText().attr('y')) + dy);
+                        self._destinationReplyStatementView.onMoveInitiatedByReplyReceiver(dy);
+                    } else {
+                        self.getBoundingBox().move(0, -dy);
+                    }
+                    self.listenTo(self.getBoundingBox(), 'top-edge-moved', function (dy) {
+                        self.onTopEdgeMovedTrigger(dy);
+                    });
+                }
+            };
+
+            /**
+             * Check whether the reply receiver statement can move upwards
+             * @param {number} dy - delta y distance
+             * @return {boolean}
+             */
+            WorkerReceive.prototype.canMoveUp = function (dy) {
+                var self = this;
+                var bBox = this.getBoundingBox();
+                var previousStatement = undefined;
+                var previousStatementView = undefined;
+                var statementContainer = this.getParent().getStatementContainer();
+                var innerDropZoneHeight = 30;
+                var currentIndex = _.findIndex(statementContainer.getManagedStatements(), function (stmt) {
+                    return stmt.id === self.getModel().id;
+                });
+                var newBBoxTop = bBox.getTop() + dy;
+
+                if (currentIndex > 0) {
+                    previousStatement = statementContainer.getManagedStatements()[currentIndex - 1];
+                    previousStatementView = self.getDiagramRenderingContext().getViewOfModel(previousStatement);
+                    return newBBoxTop >= previousStatementView.getBoundingBox().getBottom() + innerDropZoneHeight;
+                }
+            };
+
+            /**
+             * When the reply receive statement view move is initiated by the reply receiver view
+             * @param {number} dy delta y distance
+             */
+            WorkerReceive.prototype.onMoveInitiatedByReply = function (dy) {
+                this.stopListening(this.getBoundingBox(), 'top-edge-moved');
+                this.getBoundingBox().move(0, dy);
+                this._messageView.move(0, dy);
+                this.getSvgRect().attr('y', parseFloat(this.getSvgRect().attr('y')) + dy);
+                this.getSvgText().attr('y', parseFloat(this.getSvgText().attr('y')) + dy);
+                this.listenTo(this.getBoundingBox(), 'top-edge-moved', function (dy) {
+                    this.onTopEdgeMovedTrigger(dy);
+                });
+            };
         };
 
         return WorkerReceive;

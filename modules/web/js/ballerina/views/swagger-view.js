@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'jquery', 'event_channel', 'yaml'],
-   function(log, _, $, EventChannel, YAML) {
+define(['log', 'lodash', 'jquery', 'event_channel', 'yaml', './../ast/ballerina-ast-deserializer'],
+   function(log, _, $, EventChannel, YAML, BallerinaASTDeserializer) {
 
        /**
         * @class SwaggerView
@@ -38,6 +38,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'yaml'],
            this._container = _.get(args, 'container');
            this._content = _.get(args, 'content');
            this._backend = _.get(args, 'backend');
+           this.deserializer = BallerinaASTDeserializer;
        };
 
        var initSwaggerEditor = function(self, content){
@@ -54,9 +55,6 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'yaml'],
                        swaggerEditorWindow.setSwaggerEditorValue(YAML.safeDump(YAML.safeLoad(content)));
                    };
                }
-               swaggerEditorWindow.onSwaggerEditorChange = function(content){
-                   self.markDirty();
-               };
            });
        };
 
@@ -84,12 +82,17 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'yaml'],
                }, [{name: "expectedType", value: "ballerina"}]);
 
                if (!response.error && !response.errorMessage) {
-                   generatedSwagger = response.swaggerDefinition;
+                   if(response.swaggerDefinition){
+                       generatedSwagger = response.swaggerDefinition;
+                   } else {
+                       throw new Error("Swagger needs at least one service");
+                   }
                }
            }
-
+           if (!this._swaggerEditorWindow.setSwaggerEditorValue) {
+               throw new Error("Couldn't hookup swagger editor view. Please retry!");
+           }
            this._swaggerEditorWindow.setSwaggerEditorValue(YAML.safeDump(YAML.safeLoad(generatedSwagger)));
-           this.markClean();
        };
 
        /**
@@ -103,7 +106,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'yaml'],
 
        SwaggerView.prototype.getContent = function () {
            var content = this._swaggerEditorWindow.getSwaggerEditorValue();
-           if (!this.isClean() && content && content != "null" && this._generatedSource) {
+           if (content && content != "null" && this._generatedSource) {
                var response = this._backend.call("convert-swagger", "POST", {
                    "name": "CalculatorService",
                    "description": "null",
@@ -113,7 +116,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'yaml'],
 
                if (!response.error && !response.errorMessage) {
                    try {
-                       this._generatedNodeTree = JSON.parse(response.ballerinaDefinition);
+                       this._generatedNodeTree = this.deserializer.getASTModel(JSON.parse(response.ballerinaDefinition));
                    } catch (err) {
                        log.error("Invalid response received for swagger-to-ballerina conversion : '"
                                  + response.ballerinaDefinition + "'");
@@ -133,18 +136,6 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'yaml'],
 
        SwaggerView.prototype.isVisible = function(){
            return  $(this._container).is(':visible')
-       };
-
-       SwaggerView.prototype.isClean = function(){
-           return this._clean;
-       };
-
-       SwaggerView.prototype.markClean = function(){
-           this._clean = true;
-       };
-
-       SwaggerView.prototype.markDirty = function(){
-           this._clean = false;
        };
 
        return SwaggerView;

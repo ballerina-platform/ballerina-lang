@@ -550,16 +550,20 @@
 
 .type-drop-wrapper{
     float: left;
+    margin: 0 5px 0 0;
+}
+
+.type-drop-wrapper.struct-view{
     margin: 11px 5px 0 5px;
 }
 
 .type-drop-wrapper .select2.select2-container {
-    min-width: 120px;
+    min-width: 110px;
     border-radius: 0;
 }
 
 .type-drop-wrapper .select2.select2-container .select2-selection--single {
-    min-width: 120px;
+    min-width: 110px;
     border-radius: 0;
     height: 24px;
 }
@@ -567,7 +571,32 @@
 .type-drop-wrapper .select2.select2-container .select2-selection--single .select2-selection__rendered {
     line-height: 24px;
 }
+.type-drop-wrapper .select2-container--default .select2-selection--single .select2-selection__arrow{
+    height:20px;
+}
+div.type-drop-wrapper.service{
+    margin: 0;
+}
 
+div.type-drop-wrapper.service .select2.select2-container .select2-selection--single {
+    height: 20px;
+}
+
+div.type-drop-wrapper.service .select2.select2-container .select2-selection--single .select2-selection__rendered{
+    line-height: 20px;
+}
+
+div.type-drop-wrapper.resource{
+    margin: 0 5px 0 0;
+}
+
+div.type-drop-wrapper.resource .select2.select2-container .select2-selection--single {
+    height: 24px;
+}
+
+div.type-drop-wrapper.resource .select2.select2-container .select2-selection--single .select2-selection__rendered{
+    line-height: 24px;
+}
 .add-struct-variable-button {
     height: 25px;
     width: 25px;
