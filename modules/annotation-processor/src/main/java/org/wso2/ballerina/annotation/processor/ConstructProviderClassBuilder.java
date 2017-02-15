@@ -76,7 +76,7 @@ public class ConstructProviderClassBuilder {
     private Writer sourceFileWriter;
     private String className;
     private String packageName;
-    private String targetDirectory;
+    private String balSourceDir;
     private String nativeUnitClass = NativeUnit.class.getSimpleName();
     private String symbolNameClass = SymbolName.class.getSimpleName();
     private String nativeProxyClass = NativeUnitProxy.class.getSimpleName();
@@ -103,12 +103,13 @@ public class ConstructProviderClassBuilder {
      * @param filer {@link Filer} of the current processing environment
      * @param packageName Package name of the generated construct provider class
      * @param className Class name of the generated construct provider class
-     * @param targetDir 
+     * @param srcDir 
+     * @param targetDir
      */
-    public ConstructProviderClassBuilder(Filer filer, String packageName, String className, String targetDir) {
+    public ConstructProviderClassBuilder(Filer filer, String packageName, String className, String srcDir) {
         this.packageName = packageName;
         this.className = className;
-        this.targetDirectory = targetDir;
+        this.balSourceDir = srcDir;
         
         // Initialize the class writer. 
         initClassWriter(filer);
@@ -229,10 +230,20 @@ public class ConstructProviderClassBuilder {
      * bal packages to the provider class.
      */
     private void writeBuiltInBalPackages() {
-        Path source = Paths.get(targetDirectory, "..", "src", "main", "resources", Constants.BAL_FILES_DIR);
-        List<String> builtInPackages = new ArrayList<String>();
+        Path source = Paths.get(balSourceDir);
+        File srcDir = new File(source.toUri());
+        
+        if (!srcDir.exists()) {
+            return;
+        }
+        
+        if (!srcDir.isDirectory() && srcDir.canRead()) {
+            throw new BallerinaException("error while reading built-in packages. ballerina source path '" +
+                srcDir.getPath() + "' is not a directory, or may not have read permissions");
+        }
         
         // Traverse through built-in ballerina files and identify the packages
+        List<String> builtInPackages = new ArrayList<String>();
         try {
             Files.walkFileTree(source, new PackageFinder(source, builtInPackages));
         } catch (IOException e) {
@@ -321,9 +332,10 @@ public class ConstructProviderClassBuilder {
             // Generate the connector insertion string with the actions as 
             String nativeConnectorClassName = AbstractNativeConnector.class.getSimpleName();
             String symbolScopClass = SymbolScope.class.getName() + ".class";
-            String connectorAddStr = getConstructInsertStr(PACKAGE_SCOPE, DEFINE_METHOD, connectorPkgName, connectorName,
-                connectorName, symbolScopClass, PACKAGE_SCOPE, connectorClassName, balConnector.args(), null,
-                connectorVarName, strBuilder.toString(), nativeConnectorClassName, "nativeConnectorClass", null, null);
+            String connectorAddStr = getConstructInsertStr(PACKAGE_SCOPE, DEFINE_METHOD, connectorPkgName, 
+                connectorName, connectorName, symbolScopClass, PACKAGE_SCOPE, connectorClassName, balConnector.args(),
+                null, connectorVarName, strBuilder.toString(), nativeConnectorClassName, "nativeConnectorClass", null,
+                null);
             try {
                 sourceFileWriter.write(connectorAddStr);
             } catch (IOException e) {

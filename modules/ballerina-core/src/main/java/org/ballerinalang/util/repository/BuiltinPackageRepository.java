@@ -42,7 +42,7 @@ import java.util.zip.ZipInputStream;
 public class BuiltinPackageRepository extends PackageRepository {
     
     private Class<?> nativePackageProvider;
-    private static final String BASE_PATH = "META-INF" + File.separator + "natives" + File.separator;
+    private static final String BASE_DIR = "META-INF" + File.separator + "natives" + File.separator;
     private static final String BAL_FILE_EXT = ".bal";
     private static final String NATIVE_BAL_FILE = "natives.bal";
     
@@ -66,7 +66,7 @@ public class BuiltinPackageRepository extends PackageRepository {
         
         // Read all resources as input streams and create the package source 
         for (String fileName : fileNames) {
-            InputStream balSourceStream = classLoader.getResourceAsStream(BASE_PATH + packageDirPath.toString()
+            InputStream balSourceStream = classLoader.getResourceAsStream(BASE_DIR + packageDirPath.toString()
                 + File.separator + fileName);
             sourceFileStreamMap.put(fileName, balSourceStream);
         }
@@ -83,7 +83,7 @@ public class BuiltinPackageRepository extends PackageRepository {
      */
     private List<String> getFileNames(ClassLoader classLoader) {
         URL repoUrl = nativePackageProvider.getProtectionDomain().getCodeSource().getLocation();
-        String pkgRelPath = BASE_PATH + packageDirPath;
+        String pkgRelPath = BASE_DIR + packageDirPath;
         if (isJar(repoUrl)) {
             return getPackageNamesFromJar(repoUrl, pkgRelPath);
         } else {

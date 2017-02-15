@@ -72,6 +72,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         this.pkgPath = packagePath;
         this.pkgRepo = packageRepo;
         this.enclosingScope = programScope;
+        this.symbolName = new SymbolName(packagePath);
         symbolMap = new HashMap<>();
     }
 

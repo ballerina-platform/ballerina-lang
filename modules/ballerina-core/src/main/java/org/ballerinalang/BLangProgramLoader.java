@@ -55,7 +55,6 @@ public class BLangProgramLoader {
         BLangPackage[] bLangPackages = loadPackages(programDirPath, sourcePath, bLangProgram);
         BLangPackage mainPackage = bLangPackages[0];
 
-        // TODO Find cyclic dependencies
         bLangProgram.setMainPackage(mainPackage);
         bLangProgram.define(new SymbolName(mainPackage.getPackagePath()), mainPackage);
 
@@ -81,7 +80,6 @@ public class BLangProgramLoader {
 
         BLangPackage[] servicePackages = loadPackages(programDirPath, servicePath, bLangProgram);
 
-        // TODO Find cyclic dependencies
         for (BLangPackage servicePkg : servicePackages) {
             bLangProgram.addServicePackage(servicePkg);
             bLangProgram.define(new SymbolName(servicePkg.getPackagePath()), servicePkg);

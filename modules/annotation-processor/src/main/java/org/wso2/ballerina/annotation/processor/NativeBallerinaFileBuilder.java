@@ -43,8 +43,10 @@ public class NativeBallerinaFileBuilder {
     private static final PrintStream ERROR = System.err;
     private Map<String, PackageHolder> nativePackages;
     private String targetDirectory;
+    private String balSourceDir;
 
-    public NativeBallerinaFileBuilder(String targetDir) {
+    public NativeBallerinaFileBuilder(String srcDir, String targetDir) {
+        this.balSourceDir = srcDir;
         this.targetDirectory = targetDir;
         this.nativePackages = new HashMap<String, PackageHolder>();
     }
@@ -79,8 +81,8 @@ public class NativeBallerinaFileBuilder {
 
         // writes all native code defined in Ballerina also to the same targetDirectory
         try {
-            Path source = Paths.get(targetDirectory, "..", "src", "main", "resources", "ballerina");
-            Path target = Paths.get(targetDirectory, "ballerina");
+            Path source = Paths.get(balSourceDir);
+            Path target = Paths.get(targetDirectory);
             Files.walkFileTree(source, new BallerinaFileVisitor(source, target));
         } catch (IOException e) {
             ERROR.println("failed to move native ballerina files. cause: " + e);
