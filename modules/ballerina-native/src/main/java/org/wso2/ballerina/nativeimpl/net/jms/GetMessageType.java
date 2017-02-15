@@ -24,6 +24,8 @@ import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
+import org.wso2.ballerina.core.nativeimpl.annotations.Attribute;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.nativeimpl.connectors.jms.utils.JMSConstants;
@@ -38,6 +40,10 @@ import org.wso2.ballerina.nativeimpl.connectors.jms.utils.JMSConstants;
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
+        value = "To get the jms message type") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "message",
+        value = "message") })
 public class GetMessageType extends AbstractNativeFunction {
     private String jmsMessageType;
     public BValue[] execute(Context ctx) {

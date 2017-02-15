@@ -23,6 +23,8 @@ import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
+import org.wso2.ballerina.core.nativeimpl.annotations.Attribute;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.nativeimpl.connectors.jms.utils.JMSConstants;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -37,6 +39,13 @@ import org.wso2.carbon.messaging.CarbonMessage;
                 @Argument(name = "deliveryStatus", type = TypeEnum.STRING)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
+        value = "Message acknowledgement action implementation for jms connector when using jms client "
+                + "acknowledgement mode") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "message",
+        value = "message") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "deliveryStatus",
+        value = "Specify whether message delivery is SUCCESS or ERROR") })
 public class Acknowledge extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         CarbonMessage carbonMessage = ctx.getCarbonMessage();
