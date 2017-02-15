@@ -99,6 +99,10 @@
     opacity: 0.8;
 }
 
+.btn-icon i{
+    opacity: 0.5;
+}
+
 .btn-icon:hover {
     opacity: 1;
     cursor: pointer;
@@ -724,8 +728,10 @@ input#package-name-input {
 }
 
 .package-definition-wrapper, .package-imports-wrapper {
-    height: 50px;
+    min-height: 57px;
     clear: both;
+    float: left;
+    width: 100%;
 }
 
 .tooltip-inner {
