@@ -98,7 +98,7 @@ public class HtmlDocumentWriterTest {
             // asserting action @param description
             Assert.assertTrue(content1
                     .contains("<td>t</td><td><a href=\"../html/foo.bar.html#TestConnector\">"
-                            + "foo.bar:TestConnector</a></td><td>a string argument</td>"));
+                            + "TestConnector</a></td><td>a string argument</td>"));
             // asserting action @return description
             Assert.assertTrue(content1
                     .contains("<td><a href=\"#message\">message</a></td><td>response object</td>"));

@@ -29,6 +29,7 @@ import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.docgen.docs.DocumentWriter;
 
 import java.io.File;
@@ -161,6 +162,14 @@ public class HtmlDocumentWriter implements DocumentWriter {
                             return "../html/" + type.getPkgPath() + ".html#" + type.getName();
                         }
                         return "#" + type.getName();
+                    })
+                    // usage: {{typeName <BType>}}
+                    // eg: {{typeName type}}
+                    .registerHelper("typeName", (Helper<BType>) (type, options) -> {
+                        if (type == null) {
+                            return null;
+                        }
+                        return type.getName();
                     });
             Template template = handlebars.compile(templateName);
 
