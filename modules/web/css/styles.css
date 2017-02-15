@@ -724,9 +724,11 @@ button.variable-list {
     width: 88%;
     background-color: #fff !important;
     line-height: 18px;
-    border: 1px solid #ccc;
-    font-size: 12px;
-    padding-left: 10px;
+    border: 0 solid #ccc;
+    font-size: 14px;
+    padding: 2px 10px;
+    color: #333;
+    font-style: normal;
 }
 
 .service-annotation-wrapper-heading {
@@ -1012,13 +1014,17 @@ button.variable-list {
 }
 
 .constant-declaration-wrapper i, .import-declaration-wrapper i {
-    padding: 5px 6px;
+    padding:6px;
     font-size: 8px;
     background-color: #fff;
     color: #8e44ad;
     border-left-width: 0;
     float: left;
     opacity: 0.5;
+}
+
+.import-declaration-wrapper i{
+    color: #ffa500;
 }
 
 .constant-declaration-type {
@@ -1063,7 +1069,7 @@ button.variable-list {
 .hoverable {
     opacity: 0.4;
     cursor: pointer;
-    height: 25px;
+    height: 27px;
     padding-top: 6px;
 }
 
@@ -1433,7 +1439,7 @@ span.fw-stack.fw-lg {
 }
 .import-package-name{
     float: left;
-    margin-top: 1px;
+    margin-top: 3px;
     font-size: 12px;
 }
 
