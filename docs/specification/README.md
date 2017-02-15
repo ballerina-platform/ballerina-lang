@@ -17,8 +17,17 @@ Chanaka Fernando <<chanakaf@wso2.com>>
 - ![Connectors & Actions](connectors.md)
 - ![Workers](workers.md)
 - ![Types & Variables](typesandvar.md)
+- ![Exception Handling](exceptions.md)
 - ![Statements](statements.md)
 - ![Expressions](expressions.md)
 - ![Documentation & Comments](docsandcomments.md)
 - ![Annotations](annotations.md)
 - ![Other Stuff](rest.md)
+
+## Status of This Specification
+
+Ballerina is still work in progress. This specification too is still a work in progress and requires a lot more tightening and consistency before it be a complete specification of the language. As of version 0.8, the language is fully defined by the combination of this document, the grammar file as well as the runtime implementation. Where they are in conflict this document is normative.
+
+Please help improve Ballerina by participating in its evolution by joining our mailing list, by opening issues in the relevant GitHub project or by simply writing Ballerina programs and letting us know what you like and do not like about the Ballerina approach. More info about how to interact with us can be found at the Ballerina website: ![http://ballerinalang.org](http://ballerinalang.org).
+
+Let's dance!

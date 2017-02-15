@@ -3,7 +3,7 @@
 The key concepts of Ballerina are as follows:
 - *Service*: A `service` is a collection of network accessible entry points. A service must be bound (via annotations) to a network protocol for it to become exposed over that protocol. Several of these are included in the standard library.
 - *Resource*: A `resource` is a single network accessible entry point within a service.
-- *Connector*: A `connector` represents a network service that is used by a program. Ballerina comes with a set of standard connectors for several protocols as part of the standard library.
+- *Connector*: A `connector` represents a network service that is used by a program. Ballerina comes with a set of built-in connectors for several protocols and other network services as part of the standard library.
 - *Action*: An `action` is an operation one can execute against a connector, i.e., a single interaction with a network service.
 - *Worker*: A `worker` is a thread of execution that can be programmed independently.
 - *Function*: A `function` is an sequential block of code that is executed by a worker. A function named `main` that takes an array of strings and (optionally) returns int is the entry point for command line execution of a Ballerina program.

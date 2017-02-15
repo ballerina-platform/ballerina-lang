@@ -32,14 +32,16 @@ Resources represent a single network accessible entry point in Ballerina. Exactl
 A `resource` is defined as follows:
 ```
 [ResourceAnnotations]
-resource ResourceName (message VariableName[, ([ResourceParamAnnotations] TypeName VariableName)+]) {
+[native] resource ResourceName (message VariableName[, ([ResourceParamAnnotations] TypeName VariableName)+]) {
     WorkerDeclaration;*
     Statement;+
 }*
 ```
 
+The `native` keyword says that the resource's implementation is not in Ballerina. In that case the body of the resource is not given as it is opaque.
+
 If the enclosing service is using the default HTTP/1.1 server connector then Ballerina assumes that HTTP requests for GET to the path represented by the name of the resource will be processed by this resource.
 
 ## Example
 
-TO BE WRITTEN.
+TO BE WRITTEN. See samples for now.
