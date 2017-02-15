@@ -32,12 +32,18 @@ import org.wso2.ballerina.core.runtime.dispatching.ResourceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
 import org.wso2.ballerina.core.runtime.errors.handler.DefaultServerConnectorErrorHandler;
 import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
+import org.wso2.ballerina.core.runtime.exceptions.ResourceNotFoundException;
+import org.wso2.ballerina.core.runtime.exceptions.ServiceNotFoundException;
 import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 
 import java.io.PrintStream;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -71,14 +77,14 @@ public class ServerConnectorMessageHandler {
             // Find the Service
             Service service = dispatcher.findService(cMsg, callback, balContext);
             if (service == null) {
-                throw new BallerinaException("no Service found to handle the service request", balContext);
+                throw new ServiceNotFoundException("no service found to handle the service request", balContext);
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
             }
 
             // Find the Resource Dispatcher
             ResourceDispatcher resourceDispatcher = DispatcherRegistry.getInstance().getResourceDispatcher(protocol);
             if (resourceDispatcher == null) {
-                throw new BallerinaException("no resource dispatcher available to handle protocol : " + protocol,
+                throw new ResourceNotFoundException("no resource dispatcher available to handle protocol : " + protocol,
                         balContext);
             }
 
@@ -87,11 +93,11 @@ public class ServerConnectorMessageHandler {
             try {
                 resource = resourceDispatcher.findResource(service, cMsg, callback, balContext);
             } catch (BallerinaException ex) {
-                throw new BallerinaException("no resource found to handle the request to Service : " +
+                throw new ResourceNotFoundException("no resource found to handle the request to Service : " +
                         service.getSymbolName().getName() + " : " + ex.getMessage());
             }
             if (resource == null) {
-                throw new BallerinaException("no resource found to handle the request to Service : " +
+                throw new ResourceNotFoundException("no resource found to handle the request to Service : " +
                         service.getSymbolName().getName());
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
             }
@@ -130,14 +136,41 @@ public class ServerConnectorMessageHandler {
         Optional<ServerConnectorErrorHandler> optionalErrorHandler =
                 BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
 
+        if (throwable instanceof ServiceNotFoundException ||
+                throwable instanceof ResourceNotFoundException ||
+                throwable.getCause() instanceof ServiceNotFoundException ||
+                throwable.getCause() instanceof ResourceNotFoundException) {
+            callback.done(createErrorMessage(throwable.getMessage(), 404));
+            return;
+        }
+
         try {
             optionalErrorHandler
                     .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
-                    .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext), cMsg, callback);
+                    .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext),
+                            cMsg, callback);
         } catch (Exception e) {
             throw new BallerinaException("Cannot handle error using the error handler for : " + protocol, e);
         }
+    }
 
+    private static CarbonMessage createErrorMessage(String payload, int statusCode) {
+        DefaultCarbonMessage response = new DefaultCarbonMessage();
+        response.setStringMessageBody(payload);
+
+        Map<String, String> transportHeaders = new HashMap<>();
+        transportHeaders.put(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONTENT_TYPE,
+                org.wso2.carbon.transport.http.netty.common.Constants.TEXT_PLAIN);
+        byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
+        transportHeaders.put(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONTENT_LENGTH,
+                (String.valueOf(errorMessageBytes.length)));
+
+        response.setHeaders(transportHeaders);
+
+        response.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, statusCode);
+        response.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
+                org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
+        return response;
     }
 
     public static void handleErrorFromOutbound(CarbonMessage cMsg, Context balContext, Throwable throwable) {
