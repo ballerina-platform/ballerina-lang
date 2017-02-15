@@ -135,7 +135,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             this.loadSchemasToComboBox(currentContainer, "#" + sourceId, "#" + targetId, predefinedStructs);
 
             $("#"+targetId).on({
-                mousedown: function() {
+                click: function() {
                     var predefinedStructs = self._package.getStructDefinitions();
                     if (predefinedStructs.length > 0) {
                         $("#"+targetId).empty().append('<option value="-1">--Select--</option>');
@@ -146,7 +146,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             });
 
             $("#"+sourceId).on({
-                mousedown: function() {
+                click: function() {
                     var predefinedStructs = self._package.getStructDefinitions();
                     if (predefinedStructs.length > 0) {
                         $("#"+sourceId).empty().append('<option value="-1">--Select--</option>');
