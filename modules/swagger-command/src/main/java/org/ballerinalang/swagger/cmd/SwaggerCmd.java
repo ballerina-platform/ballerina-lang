@@ -9,10 +9,17 @@ import org.wso2.ballerina.swagger.code.generator.cmd.Generate;
 
 import java.util.List;
 
+/**
+ * Class to implement "swagger" command for ballerina.
+ * Ex: ballerina swagger <action> <swagger specification> -p<package name> -d<output directory name>
+ */
 @Parameters(commandNames = "swagger", commandDescription = "Generate connector/service using swagger definition")
 public class SwaggerCmd implements BLauncherCmd {
+    private final String CONNECTOR = "connector";
+    private final String SKELETON = "skeleton";
+    private final String MOCK = "mock";
 
-    @Parameter(arity = 1, description = "arguments")
+    @Parameter(arity = 1, description = "<action> <swagger specification>. action : connector|skeleton|mock")
     private List<String> argList;
 
     @Parameter(names = {"-d", "--directory"},
@@ -31,30 +38,30 @@ public class SwaggerCmd implements BLauncherCmd {
         String action = argList.get(0);
         Generate generate = new Generate();
         switch (action) {
-            case "connector":
-                generate.setSpec(argList.get(1));
+            case CONNECTOR:
+                generate.setSpec(argList.get(1));   //set swagger specification
                 generate.setLang("ballerina-connector");
                 generate.setOutput(output);
                 generate.setApiPackage(apiPackage);
                 generate.run();
                 break;
-            case "skeleton":
-                generate.setSpec(argList.get(1));
+            case SKELETON:
+                generate.setSpec(argList.get(1));   //set swagger specification
                 generate.setLang("ballerina-skeleton");
                 generate.setOutput(output);
                 generate.setApiPackage(apiPackage);
                 generate.run();
                 break;
-            case "mock":
-                generate.setSpec(argList.get(1));
+            case MOCK:
+                generate.setSpec(argList.get(1));   //set swagger specification
                 generate.setLang("ballerina-mock-service");
                 generate.setOutput(output);
                 generate.setApiPackage(apiPackage);
                 generate.run();
                 break;
             default:
-                throw LauncherUtils.createUsageException("Only following actions[connector, skeleton] are supported" +
-                        " in swagger command");
+                throw LauncherUtils.createUsageException("Only following actions(connector, skeleton, mock) are " +
+                        "supported in swagger command");
         }
     }
 
@@ -67,7 +74,8 @@ public class SwaggerCmd implements BLauncherCmd {
     public void printUsage(StringBuilder stringBuilder) {
         stringBuilder.append("This is Swagger generator command");
         stringBuilder.append("\n");
-        stringBuilder.append("ballerina swagger [action] [swaggerFile] [options]");
+        stringBuilder.append("Usage:\n");
+        stringBuilder.append("ballerina swagger <action> <swaggerFile> -p<package name> -d<output directory name>");
         stringBuilder.append("\n");
         stringBuilder.append("\n");
     }

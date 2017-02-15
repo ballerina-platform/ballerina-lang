@@ -11,7 +11,7 @@ service {{classname}} {
     @Path("{{path}}")
     resource {{nickname}} (message m) {
         //stub code - fill as necessary
-        message response;
+        message response = {};
         json payload;
 
         message:setHeader(response, "Server", "Powered by Ballerina");

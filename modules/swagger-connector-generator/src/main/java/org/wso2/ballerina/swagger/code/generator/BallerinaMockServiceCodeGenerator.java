@@ -195,7 +195,7 @@ public class BallerinaMockServiceCodeGenerator extends DefaultCodegen implements
             if (operations != null) {
                 List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
                 for (CodegenOperation operation : ops) {
-                    operation.httpMethod = operation.httpMethod.toLowerCase();
+                    operation.httpMethod = operation.httpMethod.toUpperCase();
                 }
             }
         }
