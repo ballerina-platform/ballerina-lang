@@ -410,7 +410,8 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', '.
                 key: "ConnectorDeclaration",
                 model: connectorDeclarationView._model,
                 getterMethod: connectorDeclarationView._model.getConnectorExpression,
-                setterMethod: connectorDeclarationView._model.setConnectorExpression
+                setterMethod: connectorDeclarationView._model.setConnectorExpression,
+                getDisplayTitle: connectorDeclarationView._model.getConnectorVariable
             };
             connectorDeclarationView.createPropertyPane({
                 model: connectorDeclarationView._model,
