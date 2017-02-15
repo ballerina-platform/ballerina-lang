@@ -160,6 +160,10 @@
             <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.staxon</groupId>
             <artifactId>staxon-core</artifactId>
         </dependency>

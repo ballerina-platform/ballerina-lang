@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.core.nativeimpl.convertors;
+package org.wso2.ballerina.core.nativeimpl.typemappers;
 
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
@@ -28,9 +28,9 @@ import org.wso2.ballerina.core.model.values.BValueType;
 import java.util.function.Function;
 
 /**
- * Type convertor for converting across native types
+ * Type mapper for converting across native types
  */
-public class NativeCastConvertor {
+public class NativeCastMapper {
 
     public static final Function<BValueType, BValueType> INT_TO_LONG_FUNC =
             (rVal) -> new BLong(rVal.longValue());

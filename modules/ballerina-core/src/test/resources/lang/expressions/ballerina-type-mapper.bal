@@ -1,12 +1,12 @@
 package test;
 
-typeconvertor jsonToXmlConvertor(json input) (xml) {
+typemapper jsonToXmlMapper(json input) (xml) {
     xml result;
     result = `<name>chanaka</name>`;
     return result;
 }
 
-function testBalConvertor(json in)(xml) {
+function testBalMapper(json in)(xml) {
     xml res;
     res = (xml)in;
     return res;

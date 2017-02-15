@@ -35,7 +35,7 @@ import java.util.Map;
  * <p>
  * [package PackageName;]
  * [import PackageName[ as Identifier];]*
- * (ServiceDefinition | FunctionDefinition | ConnectorDefinition | TypeDefinition | TypeConvertorDefinition |
+ * (ServiceDefinition | FunctionDefinition | ConnectorDefinition | TypeDefinition | TypeMapperDefinition |
  * ConstantDefinition)+
  *
  * @since 0.8.0
@@ -268,12 +268,12 @@ public class BallerinaFile implements Node {
             this.constList.add(constant);
         }
 
-        public void addTypeConvertor(TypeVertex source, TypeVertex target,
-                                     TypeConvertor typeConvertor, String packageName) {
-            this.compilationUnitList.add((BTypeConvertor) typeConvertor);
+        public void addTypeMapper(TypeVertex source, TypeVertex target,
+                                     TypeMapper typeMapper, String packageName) {
+            this.compilationUnitList.add((BTypeMapper) typeMapper);
             typeLattice.addVertex(source, true);
             typeLattice.addVertex(target, true);
-            typeLattice.addEdge(source, target, typeConvertor, packageName);
+            typeLattice.addEdge(source, target, typeMapper, packageName);
         }
 
         /**
