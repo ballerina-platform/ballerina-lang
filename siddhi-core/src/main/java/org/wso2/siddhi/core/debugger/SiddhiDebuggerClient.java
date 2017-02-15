@@ -123,15 +123,24 @@ public class SiddhiDebuggerClient {
      */
     public static void main(String[] args) {
         // Validate the number of arguments
-//        if (args.length != 2) {
-//            error("Expected two arguments but found " + args.length + "\n. Please try again with two arguments: " +
-//                    "<execution plan file> <input file path>");
-//            return;
-//        }
+        if (args.length != 2) {
+            error("Expected two arguments but found " + args.length + "\n. Please try again with two arguments: " +
+                    "<execution plan file> <input file path>");
+            return;
+        }
 
-        String executionPlanPath = SiddhiDebuggerClient.class.getClassLoader().getResource("debugger_executionplan" +
-                ".siddhiql").getPath();
-        String inputPath = SiddhiDebuggerClient.class.getClassLoader().getResource("debugger_input.txt").getPath();
+        String executionPlanPath = args[0];
+        String inputPath = args[1];
+
+        // Validate file
+        File executionPlanFile = new File(executionPlanPath);
+        File inputFile = new File(inputPath);
+        if (!executionPlanFile.exists() || !executionPlanFile.isFile()) {
+            error("Invalid execution plan file: " + executionPlanPath);
+        }
+        if (!inputFile.exists() || !inputFile.isFile()) {
+            error("Invalid input file: " + inputPath);
+        }
 
         // Read the files
         String query;
@@ -140,9 +149,15 @@ public class SiddhiDebuggerClient {
             query = readText(executionPlanPath);
             input = readText(inputPath);
         } catch (IOException e) {
+            error("Failed to read " + executionPlanPath);
             return;
         }
-
+        try {
+            input = readText(inputPath);
+        } catch (IOException e) {
+            error("Failed to read " + inputPath);
+            return;
+        }
         // Start the SiddhiDebuggerClient
         SiddhiDebuggerClient client = new SiddhiDebuggerClient();
         client.start(query, input);

@@ -604,8 +604,17 @@ public class TestDebugger {
                 if (count == 2) {
                     Map<String, Object> queryState = debugger.getQueryState(queryName);
                     System.out.println(queryState);
-                    StreamEvent streamEvent = (StreamEvent) ((Map<String, Object>) queryState.values().toArray()[0])
-                            .get("ExpiredEventChunk");
+                    System.out.println(queryState.values().toArray()[0]);
+                    StreamEvent streamEvent = null;
+
+                    // Order of the query state items is unpredictable
+                    for (Map.Entry<String, Object> entry : queryState.entrySet()) {
+                        if (entry.getKey().startsWith("AbstractStreamProcessor")) {
+                            streamEvent = (StreamEvent) ((Map<String, Object>) entry.getValue()).get
+                                    ("ExpiredEventChunk");
+                            break;
+                        }
+                    }
                     Assert.assertArrayEquals(streamEvent.getOutputData(), new Object[]{"WSO2", 50.0f, null});
                 }
                 debugger.next();
@@ -615,7 +624,6 @@ public class TestDebugger {
         inputHandler.send(new Object[]{"WSO2", 50f, 60});
         inputHandler.send(new Object[]{"WSO2", 70f, 40});
 
-//        System.out.println(siddhiDebugger.getQueryState("query1"));
         Thread.sleep(100);
 
         Assert.assertEquals("Invalid number of output events", 2, inEventCount.get());
