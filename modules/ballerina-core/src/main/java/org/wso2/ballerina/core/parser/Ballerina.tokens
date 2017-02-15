@@ -84,7 +84,7 @@ LINE_COMMENT=70
 'connector'=14
 'action'=15
 'struct'=16
-'typeconvertor'=17
+'typemapper'=17
 'const'=18
 '='=19
 'worker'=20

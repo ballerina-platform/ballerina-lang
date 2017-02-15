@@ -15,7 +15,7 @@ A Ballerina file is structured as follows::
    FunctionDefinition |
    ConnectorDefinition |
    TypeDefinition |
-   TypeConvertorDefinition |
+   TypeMapperDefinition |
    ConstantDefinition)+
    
 Note: Terminals of the language (keywords) are lowercase, whereas non-terminals are uppercase.

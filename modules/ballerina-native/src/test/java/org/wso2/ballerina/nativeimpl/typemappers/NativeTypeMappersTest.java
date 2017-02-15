@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.nativeimpl.convertors;
+package org.wso2.ballerina.nativeimpl.mappers;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -28,12 +28,12 @@ import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.nativeimpl.util.Functions;
 import org.wso2.ballerina.nativeimpl.util.ParserUtils;
 
-public class NativeTypeConvertersTest {
+public class NativeTypeMappersTest {
     private BallerinaFile bFile;
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("samples/type-conversion.bal");
+        bFile = ParserUtils.parseBalFile("samples/typeMapperTest.bal");
     }
 
     @Test
