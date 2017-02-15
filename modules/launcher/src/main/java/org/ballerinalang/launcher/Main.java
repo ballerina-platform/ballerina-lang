@@ -12,6 +12,7 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.program.BLangPrograms;
 import org.wso2.ballerina.core.model.BLangProgram;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -344,8 +345,22 @@ public class Main {
 
         public void execute() {
             if (serviceRootPath != null && !serviceRootPath.isEmpty()) {
-                // TODO
-                throw LauncherUtils.createUsageException("service root argument is not yet implemented");
+                File serviceRoot = new File(serviceRootPath);
+                File[] services = serviceRoot.listFiles();
+                if (!serviceRoot.exists() || !serviceRoot.isDirectory()) {
+                    throw LauncherUtils.createUsageException("service root '" + serviceRootPath + 
+                            "' is not a valid directory");
+                }
+                
+                if (sourceFileList == null) {
+                    sourceFileList = new ArrayList<String>();
+                }
+                
+                for (File service : services) {
+                    if (service.toString().endsWith(BLangProgram.Category.SERVICE_PROGRAM.getExtension())) {
+                        sourceFileList.add(service.toString());
+                    }
+                }
             }
 
             if (sourceFileList == null || sourceFileList.size() == 0) {
