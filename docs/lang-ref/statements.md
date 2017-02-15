@@ -2,22 +2,22 @@
 
 A statement can be one of the following:
 
-- assignment statement
-- if statement
-- iterate statement
-- while statement
-- break statement
-- fork/join statement
-- try/catch statement
-- throw statement
-- return statement
-- reply statement
-- worker initiation statement
-- worker join statement
-- action invocation statement
-- comment statement
+- assignment
+- if
+- iterate
+- while
+- break
+- fork/join
+- try/catch
+- throw
+- return
+- reply
+- worker initiation
+- worker join
+- action invocation
+- comment
 
-## Assignment statement
+## Assignment
 
 Assignment statements are encoded as follows:
 ```
@@ -29,7 +29,7 @@ A `VariableAccessor` is one of:
 - VariableAccessor'['MapIndex']'
 - VariableAccessor.FieldName
 
-## If statement
+## If
 
 An `if` statement provides a way to perform conditional execution.
 ```
@@ -43,7 +43,7 @@ if (BooleanExpression) {
 }]
 ```
 
-## Iterate statement
+## Iterate
 
 An `iterate` statement provides a way to iterate through an iterator.
 ```
@@ -52,7 +52,7 @@ iterate (VariableType VariableName : Iterator) {
 }
 ```
 
-## While statement
+## While
 
 A `while` statement provides a way to execute a series of statements as long as a Boolean expression is met. 
 ```
@@ -61,20 +61,16 @@ while (BooleanExpression) {
 }
 ```
 
-## Break statement
+## Break
 
-A `break` statement allows one to terminate the immediately enclosing loop.
-This is only allowed within the `iterate` or `while` constructs.
+A `break` statement allows you to terminate the immediately enclosing loop. This is only allowed within the `iterate` or `while` constructs.
 ```
 break;
 ```
 
-## Fork/Join statement
+## Fork/Join
 
-A `fork` statement allows one to replicate a message to any number of parallel
-workers and have them independently operate on the copies of the message. The `join`
-part of the `fork` statement allows one to define how the caller of `fork`
-will wait for the parallel workers to complete.
+A `fork` statement allows you to replicate a message to any number of parallel workers and have them independently operate on the copies of the message. The `join` part of the `fork` statement allows you to define how the caller of `fork` will wait for the parallel workers to complete.
 
 ```
 fork (MessageName) {
@@ -101,7 +97,7 @@ When the `JoinCondition` has been satisfied, the corresponding slots of the mess
 
 The `timeout` clause allows one to specify a maximum time (in milliseconds) within which the join condition must be satisfied.
 
-## Exception handling
+## Exception handling: try/catch and throw
 
 Ballerina supports exception handling as a way to address unexpected scenarios in a Ballerina program. This is provided by the built-in `exception` type, the `try/catch` statement, and the `throw` statement. Furthermore, any function can indicate that it may throw an exception by saying `throws exception`.
 
@@ -123,24 +119,24 @@ The syntax of a `throw` statement is as follows:
 throw Expression;
 ```
 
-## Return statement
+## Return
 
 The syntax of a `return` statement is as follows:
 ```
 return Expression*;
 ```
 
-#### Reply statement
+#### Reply
 
 The syntax of a `reply` statement is as follows:
 ```
 reply Message?;
 ```
 
-## Comment statement
+## Comment
 
-Comments are quite different in Ballerina in comparison to other languages. Comments are only allowed as a statement - i.e., only inside a resource, action, or function.
+Comments are quite different in Ballerina in comparison to other languages. Comments are only allowed as a statement, i.e., only inside a resource, action, or function.
 
-Ballerina has designed structured mechanisms via annotations to document all Ballerina outer level constructs (services, resources, etc.), and comments only play the role of providing a comment about the logic of a resource, action, or function.
+Ballerina has designed structured mechanisms via annotations to document all outer-level Ballerina constructs (services, resources, etc.), and comments only play the role of providing a comment about the logic of a resource, action, or function.
 
 Any statement that starts with the characters `//` is a comment.
