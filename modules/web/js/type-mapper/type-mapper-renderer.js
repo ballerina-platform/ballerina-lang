@@ -96,7 +96,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      */
     TypeMapperRenderer.prototype.disconnect = function (connection) {
         var self = this;
-        var propertyConnection = this.getConnectionObject(connection.sourceId, connection.targetId);
+        var propertyConnection = this.getConnectionObject(connection.getParameter("id"),
+                                                            connection.sourceId, connection.targetId);
         this.midpoint = this.midpoint - this.midpointVariance;
         this.jsPlumbInstance.importDefaults({ Connector : self.getConnectorConfig(self.midpoint)});
         this.jsPlumbInstance.detach(connection);
@@ -112,7 +113,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @param targetId Id of the target element of the connection
      * @returns connectionObject
      */
-    TypeMapperRenderer.prototype.getConnectionObject = function (sourceId, targetId) {
+    TypeMapperRenderer.prototype.getConnectionObject = function (id, sourceId, targetId) {
         var sourceName = this.getStructId(sourceId);
         var targetName = this.getStructId(targetId);
 
@@ -128,6 +129,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         }
 
         return {
+            id : id,
             sourceStruct: this.getStructName(sourceName),
             sourceProperty: this.getPropertyNameStack(sourceId),
             sourceType: this.getPropertyType(sourceId),
@@ -264,7 +266,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         var id = listId.replace("typeMapperList" + this.viewIdSeperator, "");
         var sourceId = id.split(this.sourceTargetSeperator)[0];
         var targetId = id.split(this.sourceTargetSeperator)[1];
-        var connection = this.getConnectionObject(sourceId, targetId);
+        var connection = this.getConnectionObject(id, sourceId, targetId);
         this.disconnectCallback(connection);
         connection.isComplexMapping = true;
         connection.complexMapperName = $("#" + listId + " option:selected").val();
@@ -314,7 +316,9 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.jsPlumbInstance.connect({
             anchor: ["Continuous", {faces: ["right","left"]}],
             source: sourceId,
-            target: targetId});
+            target: targetId,
+            parameters : {id : connection.id}
+        });
         this.dagrePosition(this);
     };
 
@@ -477,10 +481,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
                 if(connection.target.id.includes(id)) {
                     removedFunction.incomingConnections.push(
-                        self.getConnectionObject(connection.sourceId,connection.targetId));
+                        self.getConnectionObject(connection.getParameter("id"), connection.sourceId,connection.targetId));
                 } else if(connection.source.id.includes(id)) {
                     removedFunction.outgoingConnections.push(
-                        self.getConnectionObject(connection.sourceId,connection.targetId));
+                        self.getConnectionObject(connection.getParameter("id"), connection.sourceId,connection.targetId));
                 }
             });
 
@@ -570,7 +574,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             beforeDrop: function (params) {
                 //Checks property types are equal
                 var isValidTypes = self.getPropertyType(params.sourceId) == self.getPropertyType(params.targetId);
-                var connection = self.getConnectionObject(params.sourceId, params.targetId);
+                var connection = self.getConnectionObject(params.id, params.sourceId, params.targetId);
                 if (isValidTypes) {
                     self.midpoint = self.midpoint + self.midpointVariance;
                     self.jsPlumbInstance.importDefaults({ Connector : self.getConnectorConfig(self.midpoint)});
