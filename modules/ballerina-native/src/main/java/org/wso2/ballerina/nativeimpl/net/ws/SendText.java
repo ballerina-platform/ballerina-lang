@@ -25,6 +25,8 @@ import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
+import org.wso2.ballerina.core.nativeimpl.annotations.Attribute;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.carbon.connector.framework.WebSocketSessionManager;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -46,6 +48,13 @@ import javax.websocket.Session;
         },
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description",
+                     attributes = { @Attribute(name = "value", value = "Send text to the same client " +
+                             "who sent the message") })
+@BallerinaAnnotation(annotationName = "Param",
+                     attributes = { @Attribute(name = "message", value = "message") })
+@BallerinaAnnotation(annotationName = "Param",
+                     attributes = { @Attribute(name = "text", value = "Text which should be sent") })
 public class SendText extends AbstractNativeFunction {
 
     @Override
