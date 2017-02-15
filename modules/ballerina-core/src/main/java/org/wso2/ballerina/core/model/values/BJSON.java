@@ -200,10 +200,10 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
 
     @Override
     public BallerinaMessageDataSource clone() {
-        BJSON clonedMessage = new BJSON("{}");
-        String elementString = this.getMessageAsString();
-        JsonElement clonedContent = new JsonParser().parse(elementString);
-        clonedMessage.setValue(clonedContent);
-        return clonedMessage;
+        String elementVal = this.getMessageAsString();
+        if (elementVal != null) {
+            return new BJSON(new JsonParser().parse(elementVal));
+        }
+        return new BJSON("{}");
     }
 }

@@ -232,8 +232,8 @@ public final class BMessage implements BRefType<CarbonMessage> {
         } else {
             clonedMessage.setValue(MessageUtil.cloneCarbonMessageWithOutData(this.value()));
             clonedMessage.setHeaderList(this.getHeaders());
-
         }
+
         // Clone the already built content
         if (this.value.getMessageDataSource() != null &&
                 this.value.getMessageDataSource() instanceof BallerinaMessageDataSource) {
