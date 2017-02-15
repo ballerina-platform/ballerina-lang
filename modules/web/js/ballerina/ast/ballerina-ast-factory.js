@@ -33,7 +33,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './binary-expression', './unary-expression', './connector-action', './struct-definition', './constant-definition',
         './variable-definition-statement', './type-struct-definition', './struct-type', './symbol-name', './struct-field-access-expression',
         './type-casting-expression', './worker-invoke', './reference-type-init-expression', './block-statement', './struct-field-access-expression',
-        './variable-definition', './type-cast-expression', './array-init-expression', './worker-receive'],
+        './ref-type-init-expression', './variable-definition', './type-cast-expression', './array-init-expression', './worker-receive'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -45,7 +45,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               thenBody, ifCondition, arrayMapAccessExpression, keyValueExpression, binaryExpression,
               unaryExpression, connectorAction, structDefinition, constantDefinition, variableDefinitionStatement, typeStructDefinition,
               structType, symbolName, structFieldAccessExpression, typeCastingExpression, workerInvoke, referenceTypeInitExpression,
-              blockStatement, structFieldAccessExpression, variableDefinition, typeCastExpression,
+              blockStatement, structFieldAccessExpression, referenceTypeInitExpression, variableDefinition, typeCastExpression,
               arrayInitExpression, workerReceive) {
 
 
@@ -191,6 +191,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         BallerinaASTFactory.createVariableDeclaration = function (args) {
             return new variableDeclaration(args);
         };
+
+        /**
+         * create VariableDefinition
+         * @param args
+         */
+        BallerinaASTFactory.createVariableDefinition = function (args) {
+            return new variableDefinition(args);
+        }; 
+        
         /**
          * create ConditionalStatement
          * @param args
@@ -1222,6 +1231,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'variable_declaration':
                         node = BallerinaASTFactory.createVariableDeclaration();
+                        break;
+                    case 'variable_definition':
+                        node = BallerinaASTFactory.createVariableDefinition();
                         break;
                     case 'argument_declaration':
                         node = BallerinaASTFactory.createResourceParameter();
