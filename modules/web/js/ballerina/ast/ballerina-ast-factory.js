@@ -32,8 +32,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './if-condition', './array-map-access-expression','./key-value-expression',
         './binary-expression', './unary-expression', './connector-action', './struct-definition', './constant-definition',
         './variable-definition-statement', './type-struct-definition', './struct-type', './symbol-name', './struct-field-access-expression',
-        './type-casting-expression', './worker-invoke', './reference-type-init-expression', './block-statement', './struct-field-access-expression',
-        './ref-type-init-expression', './variable-definition', './type-cast-expression', './array-init-expression', './worker-receive'],
+        './type-casting-expression', './worker-invoke', './reference-type-init-expression', './block-statement',
+        './variable-definition', './type-cast-expression', './array-init-expression', './worker-receive'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -45,7 +45,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               thenBody, ifCondition, arrayMapAccessExpression, keyValueExpression, binaryExpression,
               unaryExpression, connectorAction, structDefinition, constantDefinition, variableDefinitionStatement, typeStructDefinition,
               structType, symbolName, structFieldAccessExpression, typeCastingExpression, workerInvoke, referenceTypeInitExpression,
-              blockStatement, structFieldAccessExpression, referenceTypeInitExpression, variableDefinition, typeCastExpression,
+              blockStatement, variableDefinition, typeCastExpression,
               arrayInitExpression, workerReceive) {
 
 
