@@ -239,6 +239,8 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         var self = this;
         $(statementGroup.node()).click(function (event) {
             self.trigger('edit-mode-enabled');
+            // make current active editors close
+            $(window).click();
             event.stopPropagation();
             $(window).click(function (event) {
                 self.trigger('edit-mode-disabled');
