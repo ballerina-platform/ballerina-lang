@@ -535,19 +535,7 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             connectorDeclarationView.setParent(this);
             connectorDeclarationView.render();
 
-            // Creating property pane
-            var editableProperty = {
-                propertyType: "text",
-                key: "ConnectorDeclaration",
-                model: connectorDeclarationView._model,
-                getterMethod: connectorDeclarationView._model.getConnectorExpression,
-                setterMethod: connectorDeclarationView._model.setConnectorExpression
-            };
-            connectorDeclarationView.createPropertyPane({
-                model: connectorDeclarationView._model,
-                lifeLineGroup:connectorDeclarationView._rootGroup,
-                editableProperties: editableProperty
-            });
+            connectorDeclarationView.createPropertyPane();
 
             if (_.isNil(lastConnectorLifeLine)) {
                 // This is the first connector we are adding
