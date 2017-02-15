@@ -69,6 +69,7 @@ public class ConstructProviderClassBuilder {
     private static final String GLOBAL_SCOPE = "globalScope";
     private static final String PACKAGE_SCOPE = "nativePackage";
     private static final String PACKAGE_REPO = "pkgRepo";
+    private static final String DEFINE_METHOD = "define";
     private static final String EMPTY = "";
 
     
@@ -310,16 +311,17 @@ public class ConstructProviderClassBuilder {
                 String actionQualifiedName = Utils.getActionQualifiedName(balAction, connectorName, connectorPkgName);
                 String actionPkgName = balAction.packageName();
                 String actionClassName = action.getClassName();
-                String actionAddStr = getConstructInsertStr(connectorVarName, actionPkgName, balAction.actionName(),
-                    actionQualifiedName, null, null, actionClassName, balAction.args(), balAction.returnType(),
-                    "nativeAction", null, nativeUnitClass, "nativeActionClass", connectorName, connectorPkgName);
+                String actionAddStr = getConstructInsertStr(connectorVarName, "addAction", actionPkgName, 
+                    balAction.actionName(), actionQualifiedName, null, null, actionClassName, balAction.args(),
+                    balAction.returnType(), "nativeAction", null, nativeUnitClass, "nativeActionClass", connectorName,
+                    connectorPkgName);
                 strBuilder.append(actionAddStr);
             }
             
             // Generate the connector insertion string with the actions as 
             String nativeConnectorClassName = AbstractNativeConnector.class.getSimpleName();
             String symbolScopClass = SymbolScope.class.getName() + ".class";
-            String connectorAddStr = getConstructInsertStr(PACKAGE_SCOPE, connectorPkgName, connectorName,
+            String connectorAddStr = getConstructInsertStr(PACKAGE_SCOPE, DEFINE_METHOD, connectorPkgName, connectorName,
                 connectorName, symbolScopClass, PACKAGE_SCOPE, connectorClassName, balConnector.args(), null,
                 connectorVarName, strBuilder.toString(), nativeConnectorClassName, "nativeConnectorClass", null, null);
             try {
@@ -342,7 +344,7 @@ public class ConstructProviderClassBuilder {
      */
     public void writeNativeConstruct(String packageName, String constructName, String constructQualifiedName, 
             String constructImplClassName, Argument[] arguments, ReturnType[] returnTypes) {
-        String functionSupplier = getConstructInsertStr(PACKAGE_SCOPE, packageName, constructName, 
+        String functionSupplier = getConstructInsertStr(PACKAGE_SCOPE, DEFINE_METHOD, packageName, constructName, 
             constructQualifiedName, null, null, constructImplClassName, arguments, returnTypes, 
             "nativeCallableUnit", null, nativeUnitClass, "nativeUnitClass", null, null);
         try {
@@ -374,7 +376,7 @@ public class ConstructProviderClassBuilder {
      * @param enclosingScopePkg Package name of the parent scope
      * @return
      */
-    private String getConstructInsertStr(String scope, String constructPkgName, String constructName, 
+    private String getConstructInsertStr(String scope, String addMethod, String constructPkgName, String constructName,
             String constructQualifiedName, String constructArgType, String constructArg, String constructImplClassName,
             Argument[] arguments, ReturnType[] returnTypes, String constructVarName, 
             String scopeElements, String nativeUnitClass, String nativeUnitClassVarName, String enclosingScopeName,
@@ -392,7 +394,7 @@ public class ConstructProviderClassBuilder {
         if (scopeElements == null) {
             scopeElements = EMPTY;
         }
-        return String.format(supplierInsertStr, scope, createSymbolStr, nativeProxyClass, nativeUnitClass, 
+        return String.format(supplierInsertStr, scope, addMethod, createSymbolStr, nativeProxyClass, nativeUnitClass,
             constructImplClassName, nativeUnitClass, constructArgType, constructArg, constructName, constructPkgName, 
             argsTypesArrayStr, retrunTypesArrayStr, arguments.length, createSymbolStr, scopeElements);
     }
@@ -474,7 +476,7 @@ public class ConstructProviderClassBuilder {
     }
     
     private String getConstructSuplierInsertionStr(String nativeUnitVarName, String classVarName) {
-        return "\t\t%s.define(%s,%n" +
+        return "\t\t%s.%s(%s,%n" +
                "\t\t    new %s(() -> {%n" +
                "\t\t        %s " + nativeUnitVarName + " = null;%n" +
                "\t\t        try {%n" +
