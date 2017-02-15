@@ -51,6 +51,16 @@ define(['require', 'log', 'jquery', 'd3', 'backbone', './tool-view'], function (
             groupBodyDiv.attr('class', "tool-group-body");
             this._$toolGroupBody = groupBodyDiv;
 
+            if(toolOrderVertical) {
+                // show vertical tool groups in collapsed state by default
+                groupBodyDiv.hide();
+                groupHeaderDiv.addClass('tool-group-header-collapse');
+                groupCollapseIcon.removeClass('fw-up');
+                groupCollapseIcon.removeClass("glyphicon-chevron-up");
+                groupCollapseIcon.addClass('fw-down');
+                groupCollapseIcon.toggleClass("glyphicon-chevron-down");
+            }
+
             // Iterate and stop adding duplicates of each function
             var tools = [];
             var toolDocumentMap = {};

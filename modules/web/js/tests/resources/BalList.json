@@ -1,11 +1,6 @@
 {
     "sources":{
         "source":[
-            "BalSource/helloWorldService.bal",
-            "BalSource/passthroughService.bal",
-            "BalSource/ecommerceService.bal",
-            "BalSource/echoService.bal",
-            "BalSource/helloWorld.bal",
             "connectors/connector-actions.bal",
             "connectors/long-value.bal",
             "connectors/connector-in-service.bal",
@@ -14,8 +9,6 @@
             "connectors/duplicate-connector.bal",
             "connectors/undefined-actions.bal",
             "connectors/undefined-connector.bal",
-            "errors/runtime-errors.bal",
-            "errors/undeclared-package-errors.bal",
             "expressions/access-primitive-as-array.bal",
             "expressions/add-expr.bal",
             "expressions/add-incompatible-types.bal",
@@ -23,9 +16,7 @@
             "expressions/array-access-expr.bal",
             "expressions/array-initializer-expr.bal",
             "expressions/back-quote-expr.bal",
-            "expressions/ballerina-type-convertor.bal",
             "expressions/binary-expr.bal",
-            "expressions/constant-assignment.bal",
             "expressions/divide-expr.bal",
             "expressions/divide-incompatible-types.bal",
             "expressions/divide-unsupported-types.bal",
@@ -39,7 +30,6 @@
             "expressions/incompatible-type-less-than-equal.bal",
             "expressions/incorrect-array-access.bal",
             "expressions/incorrect-map-access.bal",
-            "expressions/instance-creation-expr.bal",
             "expressions/map-access-expr.bal",
             "expressions/map-initializer-expr.bal",
             "expressions/mod-expr.bal",
@@ -126,7 +116,9 @@
             "statements/while-stmt.bal",
             "values/array-value.bal",
             "values/double-value.bal",
-            "values/long-value.bal"
+            "values/long-value.bal",
+            "structs/struct.bal",
+            "structs/struct-constants.bal"
         ]
     }
 }

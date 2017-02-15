@@ -16,8 +16,9 @@
  * under the License.
  */
 define(['lodash', './ast-node-add-operation', './ast-node-remove-operation', './ast-node-modify-operation',
-        './custom-undoable-operation'],
-    function (_, ASTNodeAddOperation, ASTNodeRemoveOperation, ASTNodeModifyOperation, CustomUndoableOperation ) {
+        './custom-undoable-operation', './source-modify-operation'],
+    function (_, ASTNodeAddOperation, ASTNodeRemoveOperation, ASTNodeModifyOperation, CustomUndoableOperation,
+                SourceModifyOperation) {
 
         var UndoableOperationFactory = {};
         /**
@@ -29,8 +30,13 @@ define(['lodash', './ast-node-add-operation', './ast-node-remove-operation', './
                 case "child-added": return new ASTNodeAddOperation(args);
                 case "child-removed": return new ASTNodeRemoveOperation(args);
                 case "node-modified": return new ASTNodeModifyOperation(args);
+                case "source-modified": return new SourceModifyOperation(args);
                 case "custom": return new CustomUndoableOperation(args);
             }
+        };
+
+        UndoableOperationFactory.isSourceModifiedOperation = function(undoableOperation){
+            return undoableOperation instanceof SourceModifyOperation;
         };
 
         return UndoableOperationFactory;
