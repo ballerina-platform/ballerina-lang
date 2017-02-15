@@ -38,7 +38,6 @@
 }
 
 .struct {
-    cursor: move;
     border: 1px solid gray;
     width: 400px;
     height: auto;
@@ -50,7 +49,6 @@
     padding: 5;
     font-size: 16px;
     background-color: #ffffff;
-    cursor: pointer;
     color: black;
 }
 
@@ -80,7 +78,6 @@ svg.plumbConnect path {
 }
 
 .func {
-    cursor: move;
     border: 1px solid gray;
     width: 400px;
     height: auto;
@@ -94,7 +91,6 @@ svg.plumbConnect path {
     font-size: 16px;
     background-color: #ffffff;
     border: 2px;
-    cursor: pointer;
     color: black;
 }
 
@@ -103,7 +99,6 @@ svg.plumbConnect path {
     font-size: 16px;
     background-color: #ffffff;
     border: 2px;
-    cursor: pointer;
     color: black;
 }
 
@@ -112,7 +107,6 @@ svg.plumbConnect path {
     font-size: 16px;
     background-color: #d9d9d9;
     border: 2px;
-    cursor: pointer;
     color: black;
 }
 
