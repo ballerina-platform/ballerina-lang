@@ -84,9 +84,6 @@ service helloWorld {
 ```
 
 ###Functions for WebSocket
-For the current release there are 3 main functions 
-which are defined for basic use cases.
-
 ####ws:sendText(message, string)
 This function is used if the user need 
 to send a text message to the same client who sent 
