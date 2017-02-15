@@ -353,36 +353,6 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
 
             var operationButtons = [];
 
-            // Creating arguments icon.
-            var panelArgumentsIcon = $("<i/>", {
-                class: "fw fw-import pull-right right-icon-clickable hoverable",
-                title: "Arguments"
-            }).appendTo(operationsPane).tooltip();
-
-            $(panelArgumentsIcon).click(function (event) {
-                event.stopPropagation();
-            });
-
-            operationButtons.push(panelArgumentsIcon);
-
-            // Adding separator for arguments icon.
-            $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(operationsPane);
-
-            var argumentsProperties = {
-                model: this._model,
-                activatorElement: panelArgumentsIcon,
-                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
-                viewOptions: {
-                    position: {
-                        left: parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
-                        top: 0
-                    }
-                }
-            };
-
-            // Creating arguments pane.
-            ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
-
             this.setSVGWidth(this._container.width());
 
             // Creating return type icon.
@@ -415,6 +385,36 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
 
             // Creating return type pane.
             this._returnTypePaneView.createReturnTypePane(diagramRenderingContext);
+
+            // Creating arguments icon.
+            var panelArgumentsIcon = $("<i/>", {
+                class: "fw fw-import pull-right right-icon-clickable hoverable",
+                title: "Arguments"
+            }).appendTo(operationsPane).tooltip();
+
+            $(panelArgumentsIcon).click(function (event) {
+                event.stopPropagation();
+            });
+
+            operationButtons.push(panelArgumentsIcon);
+
+            // Adding separator for arguments icon.
+            $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(operationsPane);
+
+            var argumentsProperties = {
+                model: this._model,
+                activatorElement: panelArgumentsIcon,
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+                viewOptions: {
+                    position: {
+                        left: parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
+                        top: 0
+                    }
+                }
+            };
+
+            // Creating arguments pane.
+            ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
 
             // Closing the shown pane when another operation button is clicked.
             _.forEach(operationButtons, function (button) {
