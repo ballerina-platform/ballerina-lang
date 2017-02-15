@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.runtime.dispatching;
+package org.wso2.ballerina.core.runtime.dispatching.http;
 
 /**
  * Constants for Protocols.
