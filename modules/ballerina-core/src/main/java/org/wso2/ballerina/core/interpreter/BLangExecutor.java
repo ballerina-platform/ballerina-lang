@@ -99,6 +99,7 @@ public class BLangExecutor implements NodeExecutor {
     private Context bContext;
     private ControlStack controlStack;
     private boolean returnedOrReplied;
+    private boolean isBreakCalled;
 
     public BLangExecutor(RuntimeEnvironment runtimeEnv, Context bContext) {
         this.runtimeEnv = runtimeEnv;
@@ -110,7 +111,7 @@ public class BLangExecutor implements NodeExecutor {
     public void visit(BlockStmt blockStmt) {
         Statement[] stmts = blockStmt.getStatements();
         for (Statement stmt : stmts) {
-            if (returnedOrReplied) {
+            if (returnedOrReplied || isBreakCalled) {
                 break;
             }
             stmt.execute(this);
@@ -207,15 +208,18 @@ public class BLangExecutor implements NodeExecutor {
         while (condition.booleanValue()) {
             // Interpret the statements in the while body.
             whileStmt.getBody().execute(this);
-
+            if (returnedOrReplied || isBreakCalled) {
+                break;
+            }
             // Now evaluate the condition again to decide whether to continue the loop or not.
             condition = (BBoolean) expr.execute(this);
         }
+        isBreakCalled = false;
     }
 
     @Override
     public void visit(BreakStmt breakStmt) {
-
+        isBreakCalled = true;
     }
 
     @Override

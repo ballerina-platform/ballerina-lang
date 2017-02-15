@@ -53,10 +53,6 @@ under the License.
     <!-- Parser Level Test Cases -->
     <test name="ballerina-parser-unit-tests" preserve-order="true" parallel="false">
         <classes>
-            <!-- Statements -->
-            <class name="org.wso2.ballerina.core.parser.statements.WhileStatementParserTest"/>
-            <class name="org.wso2.ballerina.core.parser.statements.IfElseParserTest"/>
-
             <!-- Negative Test cases -->
             <class name="org.wso2.ballerina.core.parser.negative.InvalidSyntaxParserTest"/>
         </classes>
