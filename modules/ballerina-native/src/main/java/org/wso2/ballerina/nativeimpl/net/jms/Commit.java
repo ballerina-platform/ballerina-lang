@@ -20,6 +20,7 @@ package org.wso2.ballerina.nativeimpl.net.jms;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
@@ -40,7 +41,9 @@ import org.wso2.carbon.messaging.CarbonMessage;
         value = "message")})
 public class Commit extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
-        CarbonMessage carbonMessage = ctx.getCarbonMessage();
+        BMessage msg = (BMessage) getArgument(ctx, 0);
+        CarbonMessage carbonMessage = msg.value();
+
         if (ctx.getBalCallback() != null) {
             carbonMessage
                     .setProperty(JMSConstants.JMS_MESSAGE_DELIVERY_STATUS, JMSConstants.JMS_MESSAGE_DELIVERY_SUCCESS);

@@ -20,6 +20,7 @@ package org.wso2.ballerina.nativeimpl.net.jms;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
@@ -47,7 +48,8 @@ import org.wso2.ballerina.nativeimpl.connectors.jms.utils.JMSConstants;
 public class GetMessageType extends AbstractNativeFunction {
     private String jmsMessageType;
     public BValue[] execute(Context ctx) {
-        if (ctx.getCarbonMessage().getProperty(JMSConstants.JMS_MESSAGE_TYPE) != null) {
+        BMessage msg = (BMessage) getArgument(ctx, 0);
+        if (msg.value().getProperty(JMSConstants.JMS_MESSAGE_TYPE) != null) {
             jmsMessageType = ctx.getCarbonMessage().getProperty(JMSConstants.JMS_MESSAGE_TYPE).toString();
         }
         return getBValues(new BString(jmsMessageType));

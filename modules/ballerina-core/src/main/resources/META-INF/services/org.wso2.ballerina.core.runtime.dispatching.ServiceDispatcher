@@ -1,2 +1,2 @@
-org.wso2.ballerina.core.runtime.dispatching.HTTPServiceDispatcher
-org.wso2.ballerina.core.runtime.dispatching.JMSServiceDispatcher
+org.wso2.ballerina.core.runtime.dispatching.http.HTTPServiceDispatcher
+org.wso2.ballerina.core.runtime.dispatching.jms.JMSServiceDispatcher

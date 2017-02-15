@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.runtime.dispatching;
+package org.wso2.ballerina.core.runtime.dispatching.http;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +25,7 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.runtime.dispatching.ResourceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.uri.QueryParamProcessor;
 import org.wso2.ballerina.core.runtime.dispatching.uri.URITemplate;
 import org.wso2.ballerina.core.runtime.dispatching.uri.URITemplateException;
@@ -50,7 +51,8 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
 
         try {
             for (Resource resource : service.getResources()) {
-                Annotation subPathAnnotation = resource.getAnnotation(Constants.ANNOTATION_NAME_PATH);
+                Annotation subPathAnnotation = resource.getAnnotation(Constants.PROTOCOL_HTTP,
+                        Constants.ANNOTATION_NAME_PATH);
                 String subPathAnnotationVal;
                 if (subPathAnnotation != null) {
                     subPathAnnotationVal = subPathAnnotation.getValue();
@@ -68,7 +70,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                                   : "";
                 if ((matches(subPathAnnotationVal, (subPath + queryStr), resourceArgumentValues) ||
                         Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal))
-                        && (resource.getAnnotation(method) != null)) {
+                        && (resource.getAnnotation(Constants.PROTOCOL_HTTP, method) != null)) {
 
                     if (cMsg.getProperty(Constants.QUERY_STR) != null) {
                         QueryParamProcessor.processQueryParams

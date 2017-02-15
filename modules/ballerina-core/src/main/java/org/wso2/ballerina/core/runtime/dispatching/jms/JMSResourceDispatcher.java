@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.wso2.ballerina.core.runtime.dispatching;
+package org.wso2.ballerina.core.runtime.dispatching.jms;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +24,7 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.runtime.dispatching.ResourceDispatcher;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -41,7 +42,7 @@ public class JMSResourceDispatcher implements ResourceDispatcher {
                             + "deliver the message");
         }
         for (Resource resource : service.getResources()) {
-            if (resource.getAnnotation(Constants.ANNOTATION_NAME_JMS_ONMESSAGE) != null) {
+            if (resource.getAnnotation(Constants.PROTOCOL_JMS, Constants.ANNOTATION_NAME_JMS_ONMESSAGE) != null) {
                 if (log.isDebugEnabled()) {
                     log.debug("Found the relevant resource in the jms service " + service.getSymbolName().toString());
                 }
