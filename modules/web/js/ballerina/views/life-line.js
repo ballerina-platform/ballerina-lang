@@ -277,6 +277,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         // Adding click event for 'life-line' group.
         $(lifeLineGroup.node()).click(function (lifeLineView, event) {
             log.debug("Clicked life-line group");
+
             event.stopPropagation();
 
             // Not allowing to click the statement group multiple times.
@@ -343,7 +344,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             // When the outside of the propertyButtonPaneRect is clicked.
             $(window).click(function (event) {
                 log.debug("window click");
-                //$(propertyButtonPaneGroup.node()).remove();
+                $(propertyButtonPaneGroup.node()).remove();
                 $(deleteButtonPaneGroup.node()).remove();
                 $(smallArrow.node()).remove();
 
@@ -360,6 +361,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
             // Hiding property button pane.
             $(propertyButtonPaneGroup.node()).remove();
+            
             var propertyPaneWrapper = $("<div/>", {
                 class: viewOptions.propertyForm.wrapper.class,
                 css: {
