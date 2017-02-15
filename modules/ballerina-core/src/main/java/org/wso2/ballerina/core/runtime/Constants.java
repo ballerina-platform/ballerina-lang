@@ -54,7 +54,7 @@ public class Constants {
     public static final String BALLERINA_LOGGER_NAME = "BALLERINA_LOGGER";
 
     // Ballerina function node location
-    public static final String BALLERINA_CALLER_LOCATION = "BALLERINA_CALLER_LOCATION";
+    public static final String BALLERINA_SOURCE_FILE_LOCATION = "BALLERINA_SOURCE_FILE_LOCATION";
 
 
     /**

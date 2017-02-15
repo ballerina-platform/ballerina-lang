@@ -84,7 +84,7 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
-import static org.wso2.ballerina.core.runtime.Constants.BALLERINA_CALLER_LOCATION;
+import static org.wso2.ballerina.core.runtime.Constants.BALLERINA_SOURCE_FILE_LOCATION;
 
 /**
  * {@code BLangExecutor} executes a Ballerina application.
@@ -298,7 +298,7 @@ public class BLangExecutor implements NodeExecutor {
             AbstractNativeFunction nativeFunction = (AbstractNativeFunction) function;
             NodeLocation nodeLocation = funcIExpr.getNodeLocation();
             //todo get it from nodeLocation.toString() later
-            bContext.setProperty(BALLERINA_CALLER_LOCATION,
+            bContext.setProperty(BALLERINA_SOURCE_FILE_LOCATION,
                     nodeLocation.getFileName() + ":" + nodeLocation.getLineNumber());
             nativeFunction.executeNative(bContext);
         }

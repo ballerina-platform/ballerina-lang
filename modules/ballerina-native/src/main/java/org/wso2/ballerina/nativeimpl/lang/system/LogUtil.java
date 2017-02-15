@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.wso2.ballerina.core.interpreter.Context;
 
 import static org.wso2.ballerina.core.runtime.BalProgramExecutor.BALLERINA_LOGGER;
-import static org.wso2.ballerina.core.runtime.Constants.BALLERINA_CALLER_LOCATION;
+import static org.wso2.ballerina.core.runtime.Constants.BALLERINA_SOURCE_FILE_LOCATION;
 
 /**
  * A class to hold log related util methods.
@@ -38,7 +38,7 @@ public class LogUtil {
      */
     public static void log(Context ctx, int logLevel, String value) {
 
-        Object location = ctx.getProperty(BALLERINA_CALLER_LOCATION);
+        Object location = ctx.getProperty(BALLERINA_SOURCE_FILE_LOCATION);
         if (location != null && location instanceof String) {
             value = location + " - " + value;
         }
