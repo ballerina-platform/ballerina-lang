@@ -80,3 +80,8 @@ function testTimeFunctions() {
 function printNewline() {
     system:print("hello\n");
 }
+
+function getEnvVar() {
+    string pathValue = system:getenv("PATH");
+    system:print(pathValue);
+}

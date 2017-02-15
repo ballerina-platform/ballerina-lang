@@ -237,6 +237,18 @@ public class SystemTest {
 
     }
 
+    @Test
+    public void testGetEnv() throws IOException {
+        try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
+            System.setOut(new PrintStream(outContent));
+            final String pathValue = System.getenv("PATH");
+            Functions.invoke(bFile, "getEnvVar");
+            Assert.assertEquals(outContent.toString(), pathValue);
+        } finally {
+            System.setOut(original);
+        }
+    }
+
     static class TestLogAppender extends AppenderSkeleton {
 
         List<LoggingEvent> events;
