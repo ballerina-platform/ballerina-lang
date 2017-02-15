@@ -481,10 +481,12 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
                 if(connection.target.id.includes(id)) {
                     removedFunction.incomingConnections.push(
-                        self.getConnectionObject(connection.getParameter("id"), connection.sourceId,connection.targetId));
+                        self.getConnectionObject(connection.getParameter("id"),
+                                                    connection.sourceId, connection.targetId));
                 } else if(connection.source.id.includes(id)) {
                     removedFunction.outgoingConnections.push(
-                        self.getConnectionObject(connection.getParameter("id"), connection.sourceId,connection.targetId));
+                        self.getConnectionObject(connection.getParameter("id"),
+                                                    connection.sourceId, connection.targetId));
                 }
             });
 
@@ -682,7 +684,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             return {};
         });
 
-        if (structs.length > 1 && funcs.length > 0) {
+        if (structs.length > 1) {
             if ($(structs[0]).attr("type") == "source") {
                 sourceIndex = 0;
                 targetIndex = 1;
@@ -697,7 +699,12 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             });
             nodes.push(structs[targetIndex]);
         } else {
-            nodes = structs;
+            if (structs != null) {
+                nodes = structs;
+            }
+            _.forEach(funcs, function (func) {
+                nodes.push(func);
+            });
         }
 
         if (nodes.length > 0) {
