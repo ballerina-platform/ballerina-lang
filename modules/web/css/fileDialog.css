@@ -107,3 +107,9 @@ hr.file-dialog-hr {
     margin-top: 8px;
     font-weight: 300;
 }
+.file-dialog.close-confirm-dialog{
+    width: 500px;
+}
+#open-folder-modal .file-dialog.close-confirm-dialog{
+    width: 745px;
+}

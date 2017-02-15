@@ -44,6 +44,8 @@ define(['jquery', './modal-dialog'], function ($, ModalDialog) {
         this.getFooter().append(dontSaveBtn, saveBtn, cancelBtn);
 
         this._initialized = true;
+
+        $(".file-dialog").addClass("close-confirm-dialog")
     }
 
     CloseConfirmDialog.prototype.askConfirmation = function (options) {
@@ -55,7 +57,7 @@ define(['jquery', './modal-dialog'], function ($, ModalDialog) {
 
         var body = this.getBody();
         body.empty();
-        body.append($("<p><br>File '" + name + "' contains changes, do you want to save them before closing?  Your changes will be lost if you close this file without saving.</p>"))
+        body.append($("<p><br>File '" + name + "' contains changes, do you want to save them before closing? <br>Your changes will be lost if you close this file without saving.</p>"))
 
         this._saveBtn.unbind('click');
         this._dontSaveBtn.unbind('click');
