@@ -43,7 +43,12 @@ public class GetEnv extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         String varName = getArgument(ctx, 0).stringValue();
         if (varName != null && varName.trim().length() > 0) {
-            return getBValues(new BString(System.getenv(varName)));
+            String varValue = System.getenv(varName);
+            if (varValue != null && varValue.trim().length() > 0) {
+                return getBValues(new BString(varValue));
+            }
+
+            return VOID_RETURN;
         }
 
         return VOID_RETURN;

@@ -81,7 +81,7 @@ function printNewline() {
     system:print("hello\n");
 }
 
-function getEnvVar() {
-    string pathValue = system:getEnv("PATH");
+function getEnvVar(string varName) {
+    string pathValue = system:getEnv(varName);
     system:print(pathValue);
 }
