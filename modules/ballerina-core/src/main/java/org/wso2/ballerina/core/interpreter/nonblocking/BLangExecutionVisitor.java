@@ -22,6 +22,7 @@ import org.wso2.ballerina.core.interpreter.ConstantLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
+import org.wso2.ballerina.core.interpreter.WorkerVarLocation;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BTypeMapper;
 import org.wso2.ballerina.core.model.BallerinaAction;
@@ -74,6 +75,8 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
     public abstract BValue access(StackVarLocation stackVarLocation);
 
     public abstract BValue access(StructVarLocation structVarLocation);
+
+    public abstract BValue access(WorkerVarLocation workerVarLocation);
 
     public abstract void execute(ResourceInvocationExpr resourceInvocationExpr);
 
@@ -229,6 +232,11 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
 
     @Override
     public void visit(StructVarLocation structVarLocation) {
+    }
+
+    @Override
+    public void visit(WorkerVarLocation workerVarLocation) {
+
     }
 
     private void visitBinaryExpression(BinaryExpression expression) {

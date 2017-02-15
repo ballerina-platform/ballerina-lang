@@ -67,4 +67,24 @@ under the License.
             <class name="org.wso2.ballerina.nativeimpl.util.TestConfigurationUtil"/>
         </classes>
     </test>
+
+    <!-- Worker Related Test Cases -->
+    <test name="ballerina-core-worker-unit-tests" preserve-order="true" parallel="false">
+        <parameter name="enableNonBlocking" value="false"/>
+        <packages>
+            <package name="org.wso2.ballerina.core.lang.worker"/>
+        </packages>
+        <classes>
+            <class name="org.wso2.ballerina.nativeimpl.util.TestConfigurationUtil"/>
+        </classes>
+    </test>
+    <test name="ballerina-core-worker-unit-tests-non-blocking" preserve-order="true" parallel="false">
+        <parameter name="enableNonBlocking" value="true"/>
+        <packages>
+            <package name="org.wso2.ballerina.core.lang.worker"/>
+        </packages>
+        <classes>
+            <class name="org.wso2.ballerina.nativeimpl.util.TestConfigurationUtil"/>
+        </classes>
+    </test>
 </suite>

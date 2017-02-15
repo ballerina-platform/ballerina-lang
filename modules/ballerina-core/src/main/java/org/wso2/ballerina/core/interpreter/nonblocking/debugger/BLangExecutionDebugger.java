@@ -50,6 +50,8 @@ import org.wso2.ballerina.core.model.statements.CommentStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.statements.WorkerInvocationStmt;
+import org.wso2.ballerina.core.model.statements.WorkerReplyStmt;
 import org.wso2.ballerina.core.model.values.BConnector;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.runtime.Constants;
@@ -391,6 +393,18 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
             bContext.getControlStack().getCurrentFrame().variables.put(
                     variableRefExpr.getSymbolName(), new AbstractMap.SimpleEntry<>(offset, scope));
         }
+    }
+
+    @Override
+    public void visit(WorkerInvocationStmt workerInvocationStmt) {
+        super.visit(workerInvocationStmt);
+        tryNext(workerInvocationStmt);
+    }
+
+    @Override
+    public void visit(WorkerReplyStmt workerReplyStmt) {
+        super.visit(workerReplyStmt);
+        tryNext(workerReplyStmt);
     }
 
     @Override

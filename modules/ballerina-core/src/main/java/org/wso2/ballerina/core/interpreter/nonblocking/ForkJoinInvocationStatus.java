@@ -15,37 +15,23 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.ballerina.core.model.nodes;
+package org.wso2.ballerina.core.interpreter.nonblocking;
 
-import org.wso2.ballerina.core.model.LinkedNodeVisitor;
+import org.wso2.ballerina.core.model.values.BMessage;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Represents the start node of a linked execution.
+ * State Holder for Fork Join invocation.
  */
-public class StartNode extends AbstractLinkedNode {
-    private final Originator type;
+class ForkJoinInvocationStatus {
 
-    public StartNode(Originator type) {
-        this.type = type;
+    boolean timedOut = false;
+    List<BMessage> resultMsgs;
+
+    ForkJoinInvocationStatus() {
+        this.timedOut = false;
+        this.resultMsgs = new ArrayList<>();
     }
-
-    public boolean isMainFunctionInvocation() {
-        return this.type == Originator.MAIN_FUNCTION;
-    }
-
-    /**
-     * Start Link type.
-     */
-    public enum Originator {
-        MAIN_FUNCTION,
-        RESOURCE,
-        WORKER,
-        TEST
-    }
-
-    @Override
-    public void accept(LinkedNodeVisitor nodeVisitor) {
-        // Nothing to do.
-    }
-
 }

@@ -24,9 +24,7 @@ import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.types.BType;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -56,7 +54,6 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     protected SymbolName symbolName;
 
     // TODO Refactor
-    private List<Worker> workerList = new ArrayList<>();
     private int stackFrameSize;
     private Annotation[] annotations;
     private ParameterDef[] parameterDefs;
@@ -116,17 +113,8 @@ public class Resource implements Node, SymbolScope, CallableUnit {
      *
      * @return list of Workers
      */
-    public List<Worker> getWorkers() {
-        return workerList;
-    }
-
-    /**
-     * Add a {@code Worker} to the Resource.
-     *
-     * @param worker Worker to be added to the Resource
-     */
-    public void addWorker(Worker worker) {
-        workerList.add(worker);
+    public Worker[] getWorkers() {
+        return workers;
     }
 
     /**

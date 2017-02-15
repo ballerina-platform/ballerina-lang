@@ -23,6 +23,7 @@ import org.wso2.ballerina.core.interpreter.ConstantLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
+import org.wso2.ballerina.core.interpreter.WorkerVarLocation;
 import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BTypeMapper;
@@ -100,6 +101,7 @@ import org.wso2.ballerina.core.model.nodes.fragments.expressions.StructInitExprE
 import org.wso2.ballerina.core.model.nodes.fragments.expressions.TypeCastExpressionEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.expressions.UnaryExpressionEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.AssignStmtEndNode;
+import org.wso2.ballerina.core.model.nodes.fragments.statements.ForkJoinStartNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ReturnStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ThrowStmtEndNode;
@@ -110,6 +112,7 @@ import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.BreakStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
+import org.wso2.ballerina.core.model.statements.ForkJoinStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
@@ -119,6 +122,8 @@ import org.wso2.ballerina.core.model.statements.ThrowStmt;
 import org.wso2.ballerina.core.model.statements.TryCatchStmt;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.statements.WorkerInvocationStmt;
+import org.wso2.ballerina.core.model.statements.WorkerReplyStmt;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeMapper;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
@@ -589,6 +594,36 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         expr.setParent(actionInvocationStmt);
         // visiting child.
         expr.accept(this);
+    }
+
+    @Override
+    public void visit(ForkJoinStmt forkJoinStmt) {
+
+        ForkJoinStartNode forkJoinStartNode = new ForkJoinStartNode(forkJoinStmt);
+        Expression timeoutExpression = forkJoinStmt.getTimeout().getTimeoutExpression();
+
+        Statement joinBlock = forkJoinStmt.getJoin().getJoinBlock();
+        Statement timeoutBlock = forkJoinStmt.getTimeout().getTimeoutBlock();
+
+        forkJoinStmt.setNext(timeoutExpression);
+        timeoutExpression.setNextSibling(forkJoinStartNode);
+        timeoutExpression.setParent(forkJoinStmt);
+        timeoutExpression.accept(this);
+        // forkJoinStartNode next will be calculated at runtime.
+        timeoutBlock.setParent(forkJoinStmt);
+        joinBlock.setParent(forkJoinStmt);
+        timeoutBlock.accept(this);
+        joinBlock.accept(this);
+    }
+
+    @Override
+    public void visit(WorkerInvocationStmt workerInvocationStmt) {
+        workerInvocationStmt.setNext(findNext(workerInvocationStmt));
+    }
+
+    @Override
+    public void visit(WorkerReplyStmt workerReplyStmt) {
+        workerReplyStmt.setNext(findNext(workerReplyStmt));
     }
 
     @Override
@@ -1354,6 +1389,10 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     }
 
+    @Override
+    public void visit(WorkerVarLocation workerVarLocation) {
+    }
+
     public int getCurrentTempStackSize() {
         return offSetCounterStack.peek().getCount();
     }
@@ -1383,6 +1422,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         this.loopingStack.clear();
         this.returningBlockStmtStack.clear();
         this.currentResource = null;
+        this.offSetCounterStack.clear();
     }
 
     /**

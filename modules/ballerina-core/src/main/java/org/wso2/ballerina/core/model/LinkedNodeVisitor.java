@@ -57,6 +57,7 @@ import org.wso2.ballerina.core.model.nodes.fragments.expressions.StructInitExprE
 import org.wso2.ballerina.core.model.nodes.fragments.expressions.TypeCastExpressionEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.expressions.UnaryExpressionEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.AssignStmtEndNode;
+import org.wso2.ballerina.core.model.nodes.fragments.statements.ForkJoinStartNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ReturnStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ThrowStmtEndNode;
@@ -163,6 +164,8 @@ public interface LinkedNodeVisitor extends NodeVisitor {
     /* Node Fragments - Statements */
 
     void visit(AssignStmtEndNode assignStmtEndNode);
+
+    void visit(ForkJoinStartNode forkJoinStartNode);
 
     void visit(ThrowStmtEndNode throwStmtEndNode);
 
