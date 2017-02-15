@@ -35,11 +35,11 @@ public class BallerinaParser extends Parser {
 		RULE_function = 9, RULE_functionBody = 10, RULE_connectorDefinition = 11, 
 		RULE_nativeConnector = 12, RULE_nativeConnectorBody = 13, RULE_connector = 14, 
 		RULE_connectorBody = 15, RULE_nativeAction = 16, RULE_action = 17, RULE_structDefinition = 18, 
-		RULE_structDefinitionBody = 19, RULE_typeConvertorDefinition = 20, RULE_nativeTypeConvertor = 21, 
-		RULE_typeConvertor = 22, RULE_typeConvertorInput = 23, RULE_typeConvertorBody = 24, 
+		RULE_structDefinitionBody = 19, RULE_typeMapperDefinition = 20, RULE_nativeTypeMapper = 21, 
+		RULE_typeMapper = 22, RULE_typeMapperInput = 23, RULE_typeMapperBody = 24, 
 		RULE_constantDefinition = 25, RULE_workerDeclaration = 26, RULE_returnParameters = 27, 
 		RULE_namedParameterList = 28, RULE_namedParameter = 29, RULE_returnTypeList = 30, 
-		RULE_qualifiedTypeName = 31, RULE_typeConvertorType = 32, RULE_unqualifiedTypeName = 33, 
+		RULE_qualifiedTypeName = 31, RULE_typeMapperType = 32, RULE_unqualifiedTypeName = 33, 
 		RULE_simpleType = 34, RULE_simpleTypeArray = 35, RULE_simpleTypeIterate = 36, 
 		RULE_withFullSchemaType = 37, RULE_withFullSchemaTypeArray = 38, RULE_withFullSchemaTypeIterate = 39, 
 		RULE_withScheamURLType = 40, RULE_withSchemaURLTypeArray = 41, RULE_withSchemaURLTypeIterate = 42, 
@@ -64,32 +64,31 @@ public class BallerinaParser extends Parser {
 		"serviceBody", "serviceBodyDeclaration", "resourceDefinition", "functionDefinition", 
 		"nativeFunction", "function", "functionBody", "connectorDefinition", "nativeConnector", 
 		"nativeConnectorBody", "connector", "connectorBody", "nativeAction", "action", 
-		"structDefinition", "structDefinitionBody", "typeConvertorDefinition", 
-		"nativeTypeConvertor", "typeConvertor", "typeConvertorInput", "typeConvertorBody", 
-		"constantDefinition", "workerDeclaration", "returnParameters", "namedParameterList", 
-		"namedParameter", "returnTypeList", "qualifiedTypeName", "typeConvertorType", 
-		"unqualifiedTypeName", "simpleType", "simpleTypeArray", "simpleTypeIterate", 
-		"withFullSchemaType", "withFullSchemaTypeArray", "withFullSchemaTypeIterate", 
-		"withScheamURLType", "withSchemaURLTypeArray", "withSchemaURLTypeIterate", 
-		"withSchemaIdType", "withScheamIdTypeArray", "withScheamIdTypeIterate", 
-		"typeName", "parameterList", "parameter", "packageName", "literalValue", 
-		"annotation", "annotationName", "elementValuePairs", "elementValuePair", 
-		"elementValue", "elementValueArrayInitializer", "statement", "variableDefinitionStatement", 
-		"assignmentStatement", "variableReferenceList", "ifElseStatement", "ifClause", 
-		"elseIfClause", "elseClause", "iterateStatement", "whileStatement", "breakStatement", 
-		"forkJoinStatement", "joinClause", "joinConditions", "timeoutClause", 
-		"tryCatchStatement", "catchClause", "throwStatement", "returnStatement", 
-		"replyStatement", "workerInteractionStatement", "triggerWorker", "workerReply", 
-		"commentStatement", "actionInvocationStatement", "variableReference", 
-		"argumentList", "expressionList", "functionInvocationStatement", "functionName", 
-		"actionInvocation", "callableUnitName", "backtickString", "expression", 
-		"mapStructInitKeyValueList", "mapStructInitKeyValue"
+		"structDefinition", "structDefinitionBody", "typeMapperDefinition", "nativeTypeMapper", 
+		"typeMapper", "typeMapperInput", "typeMapperBody", "constantDefinition", 
+		"workerDeclaration", "returnParameters", "namedParameterList", "namedParameter", 
+		"returnTypeList", "qualifiedTypeName", "typeMapperType", "unqualifiedTypeName", 
+		"simpleType", "simpleTypeArray", "simpleTypeIterate", "withFullSchemaType", 
+		"withFullSchemaTypeArray", "withFullSchemaTypeIterate", "withScheamURLType", 
+		"withSchemaURLTypeArray", "withSchemaURLTypeIterate", "withSchemaIdType", 
+		"withScheamIdTypeArray", "withScheamIdTypeIterate", "typeName", "parameterList", 
+		"parameter", "packageName", "literalValue", "annotation", "annotationName", 
+		"elementValuePairs", "elementValuePair", "elementValue", "elementValueArrayInitializer", 
+		"statement", "variableDefinitionStatement", "assignmentStatement", "variableReferenceList", 
+		"ifElseStatement", "ifClause", "elseIfClause", "elseClause", "iterateStatement", 
+		"whileStatement", "breakStatement", "forkJoinStatement", "joinClause", 
+		"joinConditions", "timeoutClause", "tryCatchStatement", "catchClause", 
+		"throwStatement", "returnStatement", "replyStatement", "workerInteractionStatement", 
+		"triggerWorker", "workerReply", "commentStatement", "actionInvocationStatement", 
+		"variableReference", "argumentList", "expressionList", "functionInvocationStatement", 
+		"functionName", "actionInvocation", "callableUnitName", "backtickString", 
+		"expression", "mapStructInitKeyValueList", "mapStructInitKeyValue"
 	};
 
 	private static final String[] _LITERAL_NAMES = {
 		null, "'package'", "';'", "'import'", "'as'", "'service'", "'{'", "'}'", 
 		"'resource'", "'('", "')'", "'native'", "'function'", "'throws'", "'connector'", 
-		"'action'", "'struct'", "'typeconvertor'", "'const'", "'='", "'worker'", 
+		"'action'", "'struct'", "'typemapper'", "'const'", "'='", "'worker'", 
 		"','", "':'", "'[]'", "'~'", "'<'", "'>'", "'.'", "'@'", "'if'", "'else'", 
 		"'iterate'", "'while'", "'break'", "'fork'", "'join'", "'any'", "'all'", 
 		"'timeout'", "'try'", "'catch'", "'throw'", "'return'", "'reply'", "'->'", 
@@ -191,11 +190,11 @@ public class BallerinaParser extends Parser {
 		public StructDefinitionContext structDefinition(int i) {
 			return getRuleContext(StructDefinitionContext.class,i);
 		}
-		public List<TypeConvertorDefinitionContext> typeConvertorDefinition() {
-			return getRuleContexts(TypeConvertorDefinitionContext.class);
+		public List<TypeMapperDefinitionContext> typeMapperDefinition() {
+			return getRuleContexts(TypeMapperDefinitionContext.class);
 		}
-		public TypeConvertorDefinitionContext typeConvertorDefinition(int i) {
-			return getRuleContext(TypeConvertorDefinitionContext.class,i);
+		public TypeMapperDefinitionContext typeMapperDefinition(int i) {
+			return getRuleContext(TypeMapperDefinitionContext.class,i);
 		}
 		public List<ConstantDefinitionContext> constantDefinition() {
 			return getRuleContexts(ConstantDefinitionContext.class);
@@ -282,7 +281,7 @@ public class BallerinaParser extends Parser {
 				case 5:
 					{
 					setState(199);
-					typeConvertorDefinition();
+					typeMapperDefinition();
 					}
 					break;
 				case 6:
@@ -1703,30 +1702,30 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class TypeConvertorDefinitionContext extends ParserRuleContext {
-		public NativeTypeConvertorContext nativeTypeConvertor() {
-			return getRuleContext(NativeTypeConvertorContext.class,0);
+	public static class TypeMapperDefinitionContext extends ParserRuleContext {
+		public NativeTypeMapperContext nativeTypeMapper() {
+			return getRuleContext(NativeTypeMapperContext.class,0);
 		}
-		public TypeConvertorContext typeConvertor() {
-			return getRuleContext(TypeConvertorContext.class,0);
+		public TypeMapperContext typeMapper() {
+			return getRuleContext(TypeMapperContext.class,0);
 		}
-		public TypeConvertorDefinitionContext(ParserRuleContext parent, int invokingState) {
+		public TypeMapperDefinitionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_typeConvertorDefinition; }
+		@Override public int getRuleIndex() { return RULE_typeMapperDefinition; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterTypeConvertorDefinition(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterTypeMapperDefinition(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeConvertorDefinition(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeMapperDefinition(this);
 		}
 	}
 
-	public final TypeConvertorDefinitionContext typeConvertorDefinition() throws RecognitionException {
-		TypeConvertorDefinitionContext _localctx = new TypeConvertorDefinitionContext(_ctx, getState());
-		enterRule(_localctx, 40, RULE_typeConvertorDefinition);
+	public final TypeMapperDefinitionContext typeMapperDefinition() throws RecognitionException {
+		TypeMapperDefinitionContext _localctx = new TypeMapperDefinitionContext(_ctx, getState());
+		enterRule(_localctx, 40, RULE_typeMapperDefinition);
 		try {
 			setState(446);
 			switch (_input.LA(1)) {
@@ -1734,14 +1733,14 @@ public class BallerinaParser extends Parser {
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(444);
-				nativeTypeConvertor();
+				nativeTypeMapper();
 				}
 				break;
 			case T__16:
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(445);
-				typeConvertor();
+				typeMapper();
 				}
 				break;
 			default:
@@ -1759,31 +1758,31 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class NativeTypeConvertorContext extends ParserRuleContext {
+	public static class NativeTypeMapperContext extends ParserRuleContext {
 		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
-		public TypeConvertorInputContext typeConvertorInput() {
-			return getRuleContext(TypeConvertorInputContext.class,0);
+		public TypeMapperInputContext typeMapperInput() {
+			return getRuleContext(TypeMapperInputContext.class,0);
 		}
-		public TypeConvertorTypeContext typeConvertorType() {
-			return getRuleContext(TypeConvertorTypeContext.class,0);
+		public TypeMapperTypeContext typeMapperType() {
+			return getRuleContext(TypeMapperTypeContext.class,0);
 		}
-		public NativeTypeConvertorContext(ParserRuleContext parent, int invokingState) {
+		public NativeTypeMapperContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_nativeTypeConvertor; }
+		@Override public int getRuleIndex() { return RULE_nativeTypeMapper; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterNativeTypeConvertor(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterNativeTypeMapper(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitNativeTypeConvertor(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitNativeTypeMapper(this);
 		}
 	}
 
-	public final NativeTypeConvertorContext nativeTypeConvertor() throws RecognitionException {
-		NativeTypeConvertorContext _localctx = new NativeTypeConvertorContext(_ctx, getState());
-		enterRule(_localctx, 42, RULE_nativeTypeConvertor);
+	public final NativeTypeMapperContext nativeTypeMapper() throws RecognitionException {
+		NativeTypeMapperContext _localctx = new NativeTypeMapperContext(_ctx, getState());
+		enterRule(_localctx, 42, RULE_nativeTypeMapper);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
@@ -1796,13 +1795,13 @@ public class BallerinaParser extends Parser {
 			setState(451);
 			match(T__8);
 			setState(452);
-			typeConvertorInput();
+			typeMapperInput();
 			setState(453);
 			match(T__9);
 			setState(454);
 			match(T__8);
 			setState(455);
-			typeConvertorType();
+			typeMapperType();
 			setState(456);
 			match(T__9);
 			setState(457);
@@ -1820,34 +1819,34 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class TypeConvertorContext extends ParserRuleContext {
+	public static class TypeMapperContext extends ParserRuleContext {
 		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
-		public TypeConvertorInputContext typeConvertorInput() {
-			return getRuleContext(TypeConvertorInputContext.class,0);
+		public TypeMapperInputContext typeMapperInput() {
+			return getRuleContext(TypeMapperInputContext.class,0);
 		}
-		public TypeConvertorTypeContext typeConvertorType() {
-			return getRuleContext(TypeConvertorTypeContext.class,0);
+		public TypeMapperTypeContext typeMapperType() {
+			return getRuleContext(TypeMapperTypeContext.class,0);
 		}
-		public TypeConvertorBodyContext typeConvertorBody() {
-			return getRuleContext(TypeConvertorBodyContext.class,0);
+		public TypeMapperBodyContext typeMapperBody() {
+			return getRuleContext(TypeMapperBodyContext.class,0);
 		}
-		public TypeConvertorContext(ParserRuleContext parent, int invokingState) {
+		public TypeMapperContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_typeConvertor; }
+		@Override public int getRuleIndex() { return RULE_typeMapper; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterTypeConvertor(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterTypeMapper(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeConvertor(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeMapper(this);
 		}
 	}
 
-	public final TypeConvertorContext typeConvertor() throws RecognitionException {
-		TypeConvertorContext _localctx = new TypeConvertorContext(_ctx, getState());
-		enterRule(_localctx, 44, RULE_typeConvertor);
+	public final TypeMapperContext typeMapper() throws RecognitionException {
+		TypeMapperContext _localctx = new TypeMapperContext(_ctx, getState());
+		enterRule(_localctx, 44, RULE_typeMapper);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
@@ -1858,17 +1857,17 @@ public class BallerinaParser extends Parser {
 			setState(461);
 			match(T__8);
 			setState(462);
-			typeConvertorInput();
+			typeMapperInput();
 			setState(463);
 			match(T__9);
 			setState(464);
 			match(T__8);
 			setState(465);
-			typeConvertorType();
+			typeMapperType();
 			setState(466);
 			match(T__9);
 			setState(467);
-			typeConvertorBody();
+			typeMapperBody();
 			}
 		}
 		catch (RecognitionException re) {
@@ -1882,33 +1881,33 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class TypeConvertorInputContext extends ParserRuleContext {
-		public TypeConvertorTypeContext typeConvertorType() {
-			return getRuleContext(TypeConvertorTypeContext.class,0);
+	public static class TypeMapperInputContext extends ParserRuleContext {
+		public TypeMapperTypeContext typeMapperType() {
+			return getRuleContext(TypeMapperTypeContext.class,0);
 		}
 		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
-		public TypeConvertorInputContext(ParserRuleContext parent, int invokingState) {
+		public TypeMapperInputContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_typeConvertorInput; }
+		@Override public int getRuleIndex() { return RULE_typeMapperInput; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterTypeConvertorInput(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterTypeMapperInput(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeConvertorInput(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeMapperInput(this);
 		}
 	}
 
-	public final TypeConvertorInputContext typeConvertorInput() throws RecognitionException {
-		TypeConvertorInputContext _localctx = new TypeConvertorInputContext(_ctx, getState());
-		enterRule(_localctx, 46, RULE_typeConvertorInput);
+	public final TypeMapperInputContext typeMapperInput() throws RecognitionException {
+		TypeMapperInputContext _localctx = new TypeMapperInputContext(_ctx, getState());
+		enterRule(_localctx, 46, RULE_typeMapperInput);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(469);
-			typeConvertorType();
+			typeMapperType();
 			setState(470);
 			match(Identifier);
 			}
@@ -1924,30 +1923,30 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class TypeConvertorBodyContext extends ParserRuleContext {
+	public static class TypeMapperBodyContext extends ParserRuleContext {
 		public List<StatementContext> statement() {
 			return getRuleContexts(StatementContext.class);
 		}
 		public StatementContext statement(int i) {
 			return getRuleContext(StatementContext.class,i);
 		}
-		public TypeConvertorBodyContext(ParserRuleContext parent, int invokingState) {
+		public TypeMapperBodyContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_typeConvertorBody; }
+		@Override public int getRuleIndex() { return RULE_typeMapperBody; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterTypeConvertorBody(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterTypeMapperBody(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeConvertorBody(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeMapperBody(this);
 		}
 	}
 
-	public final TypeConvertorBodyContext typeConvertorBody() throws RecognitionException {
-		TypeConvertorBodyContext _localctx = new TypeConvertorBodyContext(_ctx, getState());
-		enterRule(_localctx, 48, RULE_typeConvertorBody);
+	public final TypeMapperBodyContext typeMapperBody() throws RecognitionException {
+		TypeMapperBodyContext _localctx = new TypeMapperBodyContext(_ctx, getState());
+		enterRule(_localctx, 48, RULE_typeMapperBody);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
@@ -2375,7 +2374,7 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class TypeConvertorTypeContext extends ParserRuleContext {
+	public static class TypeMapperTypeContext extends ParserRuleContext {
 		public SimpleTypeContext simpleType() {
 			return getRuleContext(SimpleTypeContext.class,0);
 		}
@@ -2388,23 +2387,23 @@ public class BallerinaParser extends Parser {
 		public WithScheamURLTypeContext withScheamURLType() {
 			return getRuleContext(WithScheamURLTypeContext.class,0);
 		}
-		public TypeConvertorTypeContext(ParserRuleContext parent, int invokingState) {
+		public TypeMapperTypeContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_typeConvertorType; }
+		@Override public int getRuleIndex() { return RULE_typeMapperType; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterTypeConvertorType(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterTypeMapperType(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeConvertorType(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeMapperType(this);
 		}
 	}
 
-	public final TypeConvertorTypeContext typeConvertorType() throws RecognitionException {
-		TypeConvertorTypeContext _localctx = new TypeConvertorTypeContext(_ctx, getState());
-		enterRule(_localctx, 64, RULE_typeConvertorType);
+	public final TypeMapperTypeContext typeMapperType() throws RecognitionException {
+		TypeMapperTypeContext _localctx = new TypeMapperTypeContext(_ctx, getState());
+		enterRule(_localctx, 64, RULE_typeMapperType);
 		try {
 			setState(536);
 			_errHandler.sync(this);

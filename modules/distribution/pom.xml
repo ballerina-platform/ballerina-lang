@@ -140,6 +140,14 @@
             <artifactId>netty-codec-http</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-resolver</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-pool.wso2</groupId>
             <artifactId>commons-pool</artifactId>
         </dependency>
@@ -148,12 +156,12 @@
             <artifactId>snakeyaml</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.staxon</groupId>

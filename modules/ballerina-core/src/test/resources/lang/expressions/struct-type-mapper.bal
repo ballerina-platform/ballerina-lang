@@ -1,4 +1,4 @@
-function testStructConvertor() (Employee){
+function testStructMapper() (Employee){
     Employee emp;
     map address = {"country":"USA","state":"CA"};
     Person per = {name:"Jack", adrs:address, age:25};
@@ -18,7 +18,7 @@ struct Employee {
     int hoau;
 }
 
-typeconvertor personToEmployee(Person p)(Employee){
+typemapper personToEmployee(Person p)(Employee){
     Employee e = {};
     e.fname = p.name;
     e.locations = p.adrs;
