@@ -172,6 +172,7 @@
                 <include>org.apache.commons:commons-lang3</include>
 
                 <include>org.wso2.carbon:org.wso2.carbon.core:jar</include>
+                <include>org.wso2.ballerina:container-support:*:jar-with-dependencies</include>
             </includes>
         </dependencySet>
     </dependencySets>
