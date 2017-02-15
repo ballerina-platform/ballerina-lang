@@ -42,15 +42,12 @@ public class EcommerceSampleTestCase extends HTTP2IntegrationTestCase {
 
     @Test(description = "Test resource GET products in E-Commerce sample")
     public void testGetProducts() throws Exception {
-
-        DefaultFullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, GET,
-                "/ecommerceservice/products/123001");
+        DefaultFullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, GET, "/ecommerceservice/products/123001");
         int send = http2Client.send(request);
         FullHttpResponse response = http2Client.getResponse(send);
         Assert.assertEquals(response.getStatus().code(), 200, "Response code mismatched");
         Assert.assertEquals(response.headers().get(TestConstant.HEADER_CONTENT_TYPE.toLowerCase()), TestConstant
-                        .CONTENT_TYPE_JSON,
-                "Content-Type mismatched");
+                        .CONTENT_TYPE_JSON, "Content-Type mismatched");
         Assert.assertEquals(getResponse(response),
                 "{\"Product\":{\"ID\":\"123001\",\"Name\":\"ABC_2\",\"Description\":\"Sample product.\"}}",
                 "Message content mismatched");
@@ -58,24 +55,19 @@ public class EcommerceSampleTestCase extends HTTP2IntegrationTestCase {
 
     @Test(description = "Test resource GET orders in E-Commerce sample")
     public void testGetOrders() throws Exception {
-
-        DefaultFullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, GET,
-                "/ecommerceservice/orders");
+        DefaultFullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, GET, "/ecommerceservice/orders");
         int send = http2Client.send(request);
         FullHttpResponse response = http2Client.getResponse(send);
-
         Assert.assertEquals(response.getStatus().code(), 200, "Response code mismatched");
         Assert.assertEquals(response.headers().get(TestConstant.HEADER_CONTENT_TYPE)
                 , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
         Assert.assertEquals(getResponse(response), "{\"Order\":{\"ID\":\"111999\",\"Name\":\"ABC123\"," +
-                        "\"Description\":\"Sample order.\"}}"
-                , "Message content mismatched");
+                "\"Description\":\"Sample order.\"}}", "Message content mismatched");
     }
 
     @Test(description = "Test resource GET customers in E-Commerce sample")
     public void testGetCustomers() throws Exception {
-        DefaultFullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, GET,
-                "/ecommerceservice/customers");
+        DefaultFullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, GET, "/ecommerceservice/customers");
         int send = http2Client.send(request);
         FullHttpResponse response = http2Client.getResponse(send);
         //request should be returned as response
@@ -83,14 +75,11 @@ public class EcommerceSampleTestCase extends HTTP2IntegrationTestCase {
         Assert.assertEquals(response.headers().get(TestConstant.HEADER_CONTENT_TYPE)
                 , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
         Assert.assertEquals(getResponse(response), "{\"Customer\":{\"ID\":\"987654\",\"Name\":\"ABC PQR\"," +
-                        "\"Description\":\"Sample Customer.\"}}"
-                , "Message content mismatched");
+                "\"Description\":\"Sample Customer.\"}}", "Message content mismatched");
     }
 
     @Test(description = "Test resource POST orders in E-Commerce sample")
     public void testPostOrder() throws Exception {
-
-
         String requestMessage = "{\"Order\":{\"ID\":\"111222\",\"Name\":\"XYZ123\"}}";
         DefaultFullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, POST,
                 "ecommerceservice/orders");
@@ -100,30 +89,25 @@ public class EcommerceSampleTestCase extends HTTP2IntegrationTestCase {
         buffer.writeBytes(requestMessage.getBytes());
         int p1 = buffer.writerIndex();
         request.headers().set(HttpHeaderNames.CONTENT_LENGTH, Integer.toString(p1 - p0));
-
         int send = http2Client.send(request);
         FullHttpResponse response = http2Client.getResponse(send);
-
         Assert.assertEquals(response.getStatus().code(), 200, "Response code mismatched");
-        Assert.assertEquals(response.headers().get(TestConstant.HEADER_CONTENT_TYPE)
-                , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
+        Assert.assertEquals(response.headers().get(TestConstant.HEADER_CONTENT_TYPE), TestConstant.CONTENT_TYPE_JSON,
+                "Content-Type mismatched");
         Assert.assertEquals(getResponse(response), "{\"Status\":\"Order is successfully added.\"}"
                 , "Message content mismatched");
     }
 
     @Test(description = "Test resource POST products in E-Commerce sample")
     public void testPostProduct() throws Exception {
-
         String requestMessage = "{\"Product\":{\"ID\":\"123345\",\"Name\":\"PQR\"}}";
-        DefaultFullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, POST,
-                "/ecommerceservice/products");
+        DefaultFullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, POST, "/ecommerceservice/products");
         request.headers().set(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
         ByteBuf buffer = request.content().clear();
         int p0 = buffer.writerIndex();
         buffer.writeBytes(requestMessage.getBytes());
         int p1 = buffer.writerIndex();
         request.headers().set(HttpHeaderNames.CONTENT_LENGTH, Integer.toString(p1 - p0));
-
         int send = http2Client.send(request);
         FullHttpResponse response = http2Client.getResponse(send);
         Assert.assertEquals(response.getStatus().code(), 200, "Response code mismatched");
@@ -135,24 +119,19 @@ public class EcommerceSampleTestCase extends HTTP2IntegrationTestCase {
 
     @Test(description = "Test resource POST customers in E-Commerce sample")
     public void testPostCustomers() throws Exception {
-
-
         String requestMessage = "{\"Customer\":{\"ID\":\"97453\",\"Name\":\"ABC XYZ\"}}";
-        DefaultFullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, POST,
-                "/ecommerceservice/customers");
+        DefaultFullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, POST, "/ecommerceservice/customers");
         request.headers().set(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
         ByteBuf buffer = request.content().clear();
         int p0 = buffer.writerIndex();
         buffer.writeBytes(requestMessage.getBytes());
         int p1 = buffer.writerIndex();
         request.headers().set(HttpHeaderNames.CONTENT_LENGTH, Integer.toString(p1 - p0));
-
         int send = http2Client.send(request);
         FullHttpResponse response = http2Client.getResponse(send);
-
         Assert.assertEquals(response.getStatus().code(), 200, "Response code mismatched");
-        Assert.assertEquals(response.headers().get(TestConstant.HEADER_CONTENT_TYPE)
-                , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
+        Assert.assertEquals(response.headers().get(TestConstant.HEADER_CONTENT_TYPE), TestConstant.CONTENT_TYPE_JSON,
+                "Content-Type mismatched");
         Assert.assertEquals(getResponse(response), "{\"Status\":\"Customer is successfully added.\"}"
                 , "Message content mismatched");
     }

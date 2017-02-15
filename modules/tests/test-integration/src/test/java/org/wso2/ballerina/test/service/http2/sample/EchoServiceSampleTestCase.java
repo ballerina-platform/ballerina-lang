@@ -34,10 +34,8 @@ public class EchoServiceSampleTestCase extends HTTP2IntegrationTestCase {
     private final String requestMessage = "{\"exchange\":\"nyse\",\"name\":\"WSO2\",\"value\":\"127.50\"}";
     private static final Logger log = LoggerFactory.getLogger(EchoServiceSampleTestCase.class);
 
-
     @Test(description = "Test echo service sample test case invoking base path")
     public void testEchoServiceByBasePath() throws Exception {
-
         DefaultFullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, POST, "/echo");
         request.headers().set(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
         ByteBuf buffer = request.content().clear();
@@ -45,7 +43,6 @@ public class EchoServiceSampleTestCase extends HTTP2IntegrationTestCase {
         buffer.writeBytes(requestMessage.getBytes());
         int p1 = buffer.writerIndex();
         request.headers().set(HttpHeaderNames.CONTENT_LENGTH, Integer.toString(p1 - p0));
-
         int send = http2Client.send(request);
         String response = getResponse(http2Client.getResponse(send));
         //request should be returned as response
@@ -54,7 +51,6 @@ public class EchoServiceSampleTestCase extends HTTP2IntegrationTestCase {
 
     @Test(description = "Test echo service sample test case")
     public void testEchoServiceByResourcePath() throws Exception {
-
         DefaultFullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, POST, "/echo/resource");
         request.headers().set(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
         request.headers().set(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
@@ -66,8 +62,6 @@ public class EchoServiceSampleTestCase extends HTTP2IntegrationTestCase {
         int send = http2Client.send(request);
         String response = getResponse(http2Client.getResponse(send));
         log.info(response);
-
-
     }
 
 
