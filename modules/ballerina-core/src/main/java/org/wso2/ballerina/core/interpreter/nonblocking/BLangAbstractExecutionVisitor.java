@@ -33,6 +33,7 @@ import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
 import org.wso2.ballerina.core.interpreter.TryCatchStackRef;
+import org.wso2.ballerina.core.interpreter.WorkerVarLocation;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.Connector;
@@ -105,6 +106,8 @@ import org.wso2.ballerina.core.model.statements.ThrowStmt;
 import org.wso2.ballerina.core.model.statements.TryCatchStmt;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.statements.WorkerInvocationStmt;
+import org.wso2.ballerina.core.model.statements.WorkerReplyStmt;
 import org.wso2.ballerina.core.model.types.BMapType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
@@ -161,6 +164,16 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                     actionIStmt.getActionInvocationExpr().getCallableUnit().getName());
         }
         next = actionIStmt.next;
+    }
+
+    @Override
+    public void visit(WorkerInvocationStmt workerInvocationStmt) {
+
+    }
+
+    @Override
+    public void visit(WorkerReplyStmt workerReplyStmt) {
+
     }
 
     @Override
@@ -499,6 +512,11 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
         // Now get the connector variable value from the memory block allocated to the BConnector instance.
         return bConnector.getValue(connectorVarLocation.getConnectorMemAddrOffset());
+    }
+
+    @Override
+    public BValue access(WorkerVarLocation workerVarLocation) {
+        return null;
     }
 
     /* Helper Nodes. */
