@@ -44,10 +44,5 @@ define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visit
            log.debug('End Visit Resource Parameter');
         };
 
-        // ResourceParameterVisitor.prototype.visitSimpleTypeName = function(simpleTypeName){
-        //     var simpleTypeNameVisitor = new SimpleTypeNameVisitor(this);
-        //     simpleTypeName.accept(simpleTypeNameVisitor);
-        // };
-
         return ResourceParameterVisitor;
     });

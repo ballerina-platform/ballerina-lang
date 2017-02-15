@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visitor', '../../ast/module', './simple-type-name-visitor'],
-    function(require, _, log, EventChannel, AbstractSourceGenVisitor, AST, SimpleTypeNameVisitor) {
+define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visitor', '../../ast/module', ],
+    function(require, _, log, EventChannel, AbstractSourceGenVisitor, AST) {
 
         var VariableDefinitionVisitor = function(parent){
             AbstractSourceGenVisitor.call(this,parent);
@@ -30,6 +30,7 @@ define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visit
         };
 
         VariableDefinitionVisitor.prototype.beginVisitVariableDefinition = function (variableDefinition) {
+           this.appendSource(variableDefinition.getTypeName() + ' ' + variableDefinition.getName());
            log.debug('Begin Visit Variable Definition');
         };
 
@@ -38,7 +39,6 @@ define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visit
         };
 
         VariableDefinitionVisitor.prototype.endVisitVariableDefinition = function (variableDefinition) {
-            this.appendSource(' ' + variableDefinition.getName());
             this.getParent().appendSource(this.getGeneratedSource());
             log.debug('End Visit Variable Definition');
         };

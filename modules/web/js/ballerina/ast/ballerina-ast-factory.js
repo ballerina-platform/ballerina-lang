@@ -31,7 +31,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
         './if-condition', './array-map-access-expression', './map-init-expression', './key-value-expression', './binary-expression', './connector-action', './struct-definition',
         './constant-definition', './variable-definition-statement','./type-struct-definition','./struct-type','./symbol-name','./struct-field-access-expression'
-        ,'./field-expression','./type-casting-expression', './worker-invoke','./block-statement','./struct-field-access-expression','./simple-type-name','./ref-type-init-expression',
+        ,'./field-expression','./type-casting-expression', './worker-invoke','./block-statement','./struct-field-access-expression','./ref-type-init-expression',
         './variable-definition','./type-cast-expression'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
@@ -43,7 +43,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
               thenBody, ifCondition, arrayMapAccessExpression, mapInitExpression, keyValueExpression, binaryExpression, connectorAction, structDefinition,
               constantDefinition, variableDefinitionStatement,typeStructDefinition,structType,symbolName,structFieldAccessExpression,fieldExpression,typeCastingExpression, workerInvoke,
-              blockStatement,structFieldAccessExpression,simpleTypeName,referenceTypeInitExpression,variableDefinition,typeCastExpression) {
+              blockStatement,structFieldAccessExpression,referenceTypeInitExpression,variableDefinition,typeCastExpression) {
 
 
         /**
@@ -518,16 +518,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         BallerinaASTFactory.createResourceParameter = function (args) {
             return new resourceParameter(args);
         };
-
-        /**
-         * creates SimpleTypeName
-         * @param args
-         * @returns {SimpleTypeName}
-         */
-        BallerinaASTFactory.createSimpleTypeName = function (args) {
-            return new simpleTypeName(args);
-        };
-
+        
         /**
          * creates StructType
          * @param args
@@ -990,16 +981,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         BallerinaASTFactory.isResourceParameter = function (child) {
             return child instanceof resourceParameter;
         };
-
-        /**
-         * instanceof check for SimpleTypeName.
-         * @param child - Object for instanceof check
-         * @returns {boolean} - true if same type, else false
-         */
-        BallerinaASTFactory.isSimpleTypeName = function (child) {
-            return child instanceof simpleTypeName;
-        };
-
+        
         /**
          * instanceof check for ActionInvocationStatement
          * @param child - Object for instanceof check

@@ -44,10 +44,5 @@ define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visit
            log.debug('End Visit Return Type');
         };
 
-        // ReturnTypeVisitor.prototype.visitSimpleTypeName = function(simpleTypeName){
-        //     var simpleTypeNameVisitor = new SimpleTypeNameVisitor(this);
-        //     simpleTypeName.accept(simpleTypeNameVisitor);
-        // };
-
         return ReturnTypeVisitor;
     });
