@@ -58,7 +58,7 @@ public class NativeValidator {
         
         // create program
         Path programDirPath = Paths.get(targetDir, Constants.BAL_FILES_DIR);
-        BLangProgram bLangProgram = new BLangProgram(globalScope, programDirPath);
+        BLangProgram bLangProgram = new BLangProgram(globalScope, BLangProgram.Category.MAIN_PROGRAM);
         
         // process each package separately
         for (String builtInPkg : builtInPackages) {
