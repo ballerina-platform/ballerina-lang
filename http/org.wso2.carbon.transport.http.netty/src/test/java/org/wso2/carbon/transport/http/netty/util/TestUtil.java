@@ -41,6 +41,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static org.testng.AssertJUnit.fail;
 
@@ -56,6 +57,8 @@ public class TestUtil {
 
     public static final int SERVERS_SETUP_TIME = 10000;
     public static final int SERVERS_SHUTDOWN_WAIT_TIME = 5000;
+    public static final long HTTP2_RESPONSE_TIME_OUT = 30;
+    public static final TimeUnit HTTP2_RESPONSE_TIME_UNIT = TimeUnit.SECONDS;
 
     public static final String TRANSPORT_URI = "http://localhost:8490/";
 

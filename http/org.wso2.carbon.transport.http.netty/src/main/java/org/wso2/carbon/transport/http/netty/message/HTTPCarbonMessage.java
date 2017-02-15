@@ -21,6 +21,7 @@ package org.wso2.carbon.transport.http.netty.message;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpContent;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
@@ -48,6 +49,9 @@ public class HTTPCarbonMessage extends CarbonMessage {
     private BlockingQueue<HttpContent> httpContentQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<HttpContent> outContentQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<HttpContent> garbageCollected = new LinkedBlockingQueue<>();
+
+    // Variable to keep the status on whether the last content was added during the clone
+    private boolean isEndMarked = false;
 
     public void addHttpContent(HttpContent httpContent) {
         try {
@@ -167,12 +171,22 @@ public class HTTPCarbonMessage extends CarbonMessage {
     public void addMessageBody(ByteBuffer msgBody) {
         if (isAlreadyRead()) {
             outContentQueue.add(new DefaultHttpContent(Unpooled.copiedBuffer(msgBody)));
-        } else if (httpContentQueue.isEmpty()) {
-            httpContentQueue.add(new DefaultHttpContent(Unpooled.copiedBuffer(msgBody)));
         } else {
-            LOG.error("Please don't add message body before reading existing values");
-        }
+            httpContentQueue.add(new DefaultHttpContent(Unpooled.copiedBuffer(msgBody)));
+        } 
 
+    }
+
+    @Override
+    public void markMessageEnd() {
+        if (!isEndMarked) {
+            if (isAlreadyRead()) {
+                outContentQueue.add(new DefaultLastHttpContent());
+            } else {
+                httpContentQueue.add(new DefaultLastHttpContent());
+            }
+            isEndMarked = true;
+        }
     }
 
     @Override
