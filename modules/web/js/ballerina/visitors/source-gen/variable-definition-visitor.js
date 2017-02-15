@@ -30,7 +30,9 @@ define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visit
         };
 
         VariableDefinitionVisitor.prototype.beginVisitVariableDefinition = function (variableDefinition) {
-           this.appendSource(variableDefinition.getTypeName() + ' ');
+            if (variableDefinition.getType()) {
+                this.appendSource(variableDefinition.getTypeName() + ' ');
+            }
            log.debug('Begin Visit Variable Definition');
         };
 

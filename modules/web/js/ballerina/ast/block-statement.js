@@ -28,5 +28,30 @@ define(['lodash', './node'], function (_, ASTNode) {
     BlockStatement.prototype = Object.create(ASTNode.prototype);
     BlockStatement.prototype.constructor = BlockStatement;
 
+    BlockStatement.prototype.addVariableDeclaration = function (name, type) {
+        var self = this;
+        var ballerinaASTFactory = this.getFactory();
+        var leftExpression = type + ' ' + name;
+        var args = {
+            leftExpression: leftExpression,
+            rightExpression: '',
+            variableReferenceName:  name,
+            typeName: type,
+            name: name
+        };
+        var variableDefStmt = ballerinaASTFactory.createVariableDefinitionStatement(args);
+        var leftStatement = ballerinaASTFactory.createLeftOperandExpression(args);
+        leftStatement.setLeftOperandExpressionString('');
+        var variableReferenceExpression = ballerinaASTFactory.createVariableReferenceExpression(args);
+        var variableDefinition = ballerinaASTFactory.createVariableDefinition(args);
+        variableReferenceExpression.addChild(variableDefinition);
+        leftStatement.addChild(variableReferenceExpression);
+        variableDefStmt.addChild(leftStatement);
+        var index = _.findLastIndex(this.getChildren(), function (child) {
+            return ballerinaASTFactory.isVariableDefinitionStatement(child);
+        });
+        this.addChild(variableDefStmt, index + 1);
+    };
+
     return BlockStatement;
 });
