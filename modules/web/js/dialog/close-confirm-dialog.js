@@ -45,7 +45,7 @@ define(['jquery', './modal-dialog'], function ($, ModalDialog) {
 
         this._initialized = true;
 
-        $(".file-dialog").addClass("close-confirm-dialog")
+        this._$modalContainer.addClass("close-confirm-dialog");
     }
 
     CloseConfirmDialog.prototype.askConfirmation = function (options) {
