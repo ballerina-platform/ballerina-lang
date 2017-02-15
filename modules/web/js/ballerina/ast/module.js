@@ -27,7 +27,7 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
         './left-operand-expression', './right-operand-expression', './connector-action', './struct-definition',
         './action-invocation-statement', './variable-definition-statement','./type-struct-definition', './resource-parameter',
         './return-type','./worker-invoke','./block-statement','./struct-field-access-expression',
-        './variable-reference-expression','./field-expression', './ref-type-init-expression','./variable-definition'],
+        './variable-reference-expression','./ref-type-init-expression','./variable-definition'],
     function (BallerinaASTFactory, BallerinaASTRoot, ConditionalStatement, ConnectorDeclaration, ConnectorDefinition,
               ConstantDefinition, Expression, FunctionDefinition, IfElseStatement, IfStatement, ElseStatement,
               ElseIfStatement, TryCatchStatement, TryStatement, CatchStatement, ASTNode, ReplyStatement,
@@ -38,7 +38,7 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
               BallerinaASTDeserializer, FunctionInvocationExpression, LeftOperandExpression, RightOperandExpression,
               ConnectorAction, StructDefinition, ActionInvocationStatement, VariableDefinitionStatement,TypeStructDefinition,
 	          ResourceParameter,ReturnType,WorkerInvoke,BlockStatement,StructFieldAccessExpression, VariableReferenceExpression,
-              FieldExpression, RefTypeInitExpression, VariableDefinition) {
+              RefTypeInitExpression, VariableDefinition) {
 
         return  {
             BallerinaASTFactory: BallerinaASTFactory,
@@ -92,7 +92,6 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
             BlockStatement: BlockStatement,
             StructFieldAccessExpression : StructFieldAccessExpression,
             VariableReferenceExpression : VariableReferenceExpression,
-            FieldExpression : FieldExpression,
             RefTypeInitExpression : RefTypeInitExpression,
             VariableDefinition : VariableDefinition
         }

@@ -44,16 +44,6 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     ExpressionVisitor.prototype.endVisitVariableReferenceExpression = function (expression) {
     };
 
-    ExpressionVisitor.prototype.canVisitFieldExpression = function (expression) {
-        return false;
-    };
-    ExpressionVisitor.prototype.beginVisitFieldExpression = function (expression) {
-    };
-    ExpressionVisitor.prototype.visitFieldExpression = function (expression) {
-    };
-    ExpressionVisitor.prototype.endVisitFieldExpression = function (expression) {
-    };
-
     ExpressionVisitor.prototype.canVisitRefTypeInitExpression = function (expression) {
         return false;
     };
@@ -72,8 +62,6 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.visitStructFieldAccessExpression(node);
         } else if (node instanceof AST.VariableReferenceExpression) {
             return this.visitVariableReferenceExpression(node);
-        } else if (node instanceof AST.FieldExpression) {
-            return this.visitFieldExpression(node);
         } else if (node instanceof AST.RefTypeInitExpression) {
             return this.visitRefTypeInitExpression(node);
         }
@@ -87,8 +75,6 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.canVisitStructFieldAccessExpression(node);
         } else if (node instanceof AST.VariableReferenceExpression) {
             return this.canVisitVariableReferenceExpression(node);
-        } else if (node instanceof AST.FieldExpression) {
-            return this.canVisitFieldExpression(node);
         } else if (node instanceof AST.RefTypeInitExpression) {
             return this.canVisitRefTypeInitExpression(node);
         }
@@ -102,8 +88,6 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             this.beginVisitStructFieldAccessExpression(node);
         } else if (node instanceof AST.VariableReferenceExpression) {
             this.beginVisitVariableReferenceExpression(node);
-        } else if (node instanceof AST.FieldExpression) {
-            this.beginVisitFieldExpression(node);
         } else if (node instanceof AST.RefTypeInitExpression) {
             this.beginVisitRefTypeInitExpression(node);
         }
@@ -117,8 +101,6 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.endVisitStructFieldAccessExpression(node);
         } else if (node instanceof AST.VariableReferenceExpression) {
             return this.endVisitVariableReferenceExpression(node);
-        } else if (node instanceof AST.FieldExpression) {
-            return this.endVisitFieldExpression(node);
         } else if (node instanceof AST.RefTypeInitExpression) {
             return this.endVisitRefTypeInitExpression(node);
         }
