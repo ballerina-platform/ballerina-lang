@@ -21,6 +21,7 @@ package org.wso2.ballerina.nativeimpl.lang.message;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
@@ -53,7 +54,8 @@ import org.wso2.carbon.messaging.MapCarbonMessage;
 public class GetStringValue extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        CarbonMessage carbonMessage = context.getCarbonMessage();
+        BMessage msg = (BMessage) getArgument(context, 0);
+        CarbonMessage carbonMessage = msg.value();
         String mapKey = getArgument(context, 1).stringValue();
         String mapValue = null;
         if (carbonMessage instanceof MapCarbonMessage) {
