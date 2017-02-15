@@ -137,9 +137,6 @@ import static org.wso2.ballerina.core.model.util.LangModelUtils.getNodeLocationS
  * @since 0.8.0
  */
 public class SemanticAnalyzer implements NodeVisitor {
-    // following pattern matches ${anyString} or ${anyString[int]} or ${anyString["anyString"]}
-    private static final String patternString = "\\$\\{((\\w+)(\\[(\\d+|\\\"(\\w+)\\\")\\])?)\\}";
-    private static final Pattern compiledPattern = Pattern.compile(patternString);
     private int stackFrameOffset = -1;
     private int staticMemAddrOffset = -1;
     private int connectorMemAddrOffset = -1;
@@ -147,6 +144,11 @@ public class SemanticAnalyzer implements NodeVisitor {
     private String currentPkg;
     private TypeLattice packageTypeLattice;
     private CallableUnit currentCallableUnit = null;
+
+    // following pattern matches ${anyString} or ${anyString[int]} or ${anyString["anyString"]}
+    private static final String patternString = "\\$\\{((\\w+)(\\[(\\d+|\\\"(\\w+)\\\")\\])?)\\}";
+    private static final Pattern compiledPattern = Pattern.compile(patternString);
+
     // We need to keep a map of import packages.
     // This is useful when analyzing import functions, actions and types.
     private Map<String, ImportPackage> importPkgMap = new HashMap<>();
