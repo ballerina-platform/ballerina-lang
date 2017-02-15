@@ -394,7 +394,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
             //Check if the text box going outside of the window and set it's position correctly
             if(windowWidth < self._topCenter.x() + textBoxWidth/2){
-                textBoxX = self._topCenter.x() - textBoxWidth + self._boundingBox._w ;
+                textBoxX = self._topCenter.x() - textBoxWidth + self._boundingBox._w/2 ;
             }
 
             //Set the position of the text box wrapper
