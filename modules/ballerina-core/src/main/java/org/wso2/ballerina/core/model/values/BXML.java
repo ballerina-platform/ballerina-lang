@@ -134,4 +134,9 @@ public final class BXML extends BallerinaMessageDataSource implements BRefType<O
             throw new BallerinaException(message + t.getMessage());
         }
     }
+
+    @Override
+    public BallerinaMessageDataSource clone() {
+        return new BXML(this.value().cloneOMElement());
+    }
 }

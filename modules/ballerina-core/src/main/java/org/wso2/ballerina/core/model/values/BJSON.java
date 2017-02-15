@@ -197,4 +197,13 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
             throw new BallerinaException(message + t.getMessage());
         }
     }
+
+    @Override
+    public BallerinaMessageDataSource clone() {
+        String elementVal = this.getMessageAsString();
+        if (elementVal != null) {
+            return new BJSON(new JsonParser().parse(elementVal));
+        }
+        return new BJSON("{}");
+    }
 }
