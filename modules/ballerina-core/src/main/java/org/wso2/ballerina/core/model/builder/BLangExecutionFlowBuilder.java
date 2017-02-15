@@ -101,6 +101,7 @@ import org.wso2.ballerina.core.model.nodes.fragments.expressions.StructInitExprE
 import org.wso2.ballerina.core.model.nodes.fragments.expressions.TypeCastExpressionEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.expressions.UnaryExpressionEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.AssignStmtEndNode;
+import org.wso2.ballerina.core.model.nodes.fragments.statements.ForkJoinStartNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ReturnStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ThrowStmtEndNode;
@@ -592,18 +593,33 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(WorkerInvocationStmt workerInvocationStmt) {
+    public void visit(ForkJoinStmt forkJoinStmt) {
 
+        ForkJoinStartNode forkJoinStartNode = new ForkJoinStartNode(forkJoinStmt);
+        Expression timeoutExpression = forkJoinStmt.getTimeout().getTimeoutExpression();
+
+        Statement joinBlock = forkJoinStmt.getJoin().getJoinBlock();
+        Statement timeoutBlock = forkJoinStmt.getTimeout().getTimeoutBlock();
+
+        forkJoinStmt.setNext(timeoutExpression);
+        timeoutExpression.setNextSibling(forkJoinStartNode);
+        timeoutExpression.setParent(forkJoinStmt);
+        timeoutExpression.accept(this);
+        // forkJoinStartNode next will be calculated at runtime.
+        timeoutBlock.setParent(forkJoinStmt);
+        joinBlock.setParent(forkJoinStmt);
+        timeoutBlock.accept(this);
+        joinBlock.accept(this);
+    }
+
+    @Override
+    public void visit(WorkerInvocationStmt workerInvocationStmt) {
+        workerInvocationStmt.setNext(findNext(workerInvocationStmt));
     }
 
     @Override
     public void visit(WorkerReplyStmt workerReplyStmt) {
-
-    }
-
-    @Override
-    public void visit(ForkJoinStmt forkJoinStmt) {
-
+        workerReplyStmt.setNext(findNext(workerReplyStmt));
     }
 
     @Override
@@ -1371,7 +1387,6 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(WorkerVarLocation workerVarLocation) {
-
     }
 
     public int getCurrentTempStackSize() {
@@ -1403,6 +1418,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         this.loopingStack.clear();
         this.returningBlockStmtStack.clear();
         this.currentResource = null;
+        this.offSetCounterStack.clear();
     }
 
     /**

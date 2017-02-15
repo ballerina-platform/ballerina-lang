@@ -15,37 +15,30 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.ballerina.core.model.nodes;
+package org.wso2.ballerina.core.model.nodes.fragments.statements;
 
 import org.wso2.ballerina.core.model.LinkedNodeVisitor;
+import org.wso2.ballerina.core.model.nodes.AbstractLinkedNode;
+import org.wso2.ballerina.core.model.statements.ForkJoinStmt;
 
 /**
- * Represents the start node of a linked execution.
+ * Represents start of an ForkJoin Statement, where actual forJoin happens.
  */
-public class StartNode extends AbstractLinkedNode {
-    private final Originator type;
+public class ForkJoinStartNode extends AbstractLinkedNode {
 
-    public StartNode(Originator type) {
-        this.type = type;
+    private ForkJoinStmt statement;
+
+    public ForkJoinStartNode(ForkJoinStmt stmt) {
+        this.statement = stmt;
+        this.parent = stmt;
     }
 
-    public boolean isMainFunctionInvocation() {
-        return this.type == Originator.MAIN_FUNCTION;
-    }
-
-    /**
-     * Start Link type.
-     */
-    public enum Originator {
-        MAIN_FUNCTION,
-        RESOURCE,
-        WORKER,
-        TEST
+    public ForkJoinStmt getStatement() {
+        return statement;
     }
 
     @Override
     public void accept(LinkedNodeVisitor nodeVisitor) {
-        // Nothing to do.
+        nodeVisitor.visit(this);
     }
-
 }

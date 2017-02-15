@@ -18,6 +18,7 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.exception.FlowBuilderException;
 import org.wso2.ballerina.core.model.builder.CallableUnitBuilder;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
@@ -68,6 +69,7 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
     // Scope related variables
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
+    private boolean isFlowBuilderVisited;
 
     public Worker(String name) {
         this.name = name;
@@ -235,7 +237,11 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
 
     @Override
     public void setTempStackFrameSize(int frameSize) {
-        this.tempStackFrameSize = frameSize;
+        if (this.tempStackFrameSize > 0 && stackFrameSize != this.tempStackFrameSize) {
+            throw new FlowBuilderException("Attempt to Overwrite tempValue Frame size. current :" +
+                    this.tempStackFrameSize + ", new :" + stackFrameSize);
+        }
+        this.tempStackFrameSize = stackFrameSize;
     }
 
     /**
@@ -294,6 +300,14 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
 
     public void setResultFuture(Future<BMessage> resultFuture) {
         this.resultFuture = resultFuture;
+    }
+
+    public boolean isFlowBuilderVisited() {
+        return isFlowBuilderVisited;
+    }
+
+    public void setFlowBuilderVisited(boolean flowBuilderVisited) {
+        isFlowBuilderVisited = flowBuilderVisited;
     }
 
     /**
