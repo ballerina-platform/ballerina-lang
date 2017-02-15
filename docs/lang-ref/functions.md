@@ -15,9 +15,9 @@ A function is defined as follows:
 ```
 A function:
 
-* Can have local connectors and variables
+* Can have local [connectors](connectors.md) and [variables](types-variables.md)
 * Can return any number of values
-* Can have any number of workers
+* Can have any number of [workers](workers.md)
 * Can be a worker itself
 
-All functions are private to the package unless explicitly declared to be public with the public keyword. Functions may be invoked from a resource or a function within the same package without importing. Functions marked public can be invoked from another package after importing the package.
+All functions are private to the package unless explicitly declared to be public with the public keyword. Functions may be invoked from a [resource](resources.md) or a function within the same package without importing. Functions marked public can be invoked from another package after importing the package.
