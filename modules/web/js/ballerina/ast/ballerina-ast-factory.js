@@ -45,7 +45,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               thenBody, ifCondition, arrayMapAccessExpression, keyValueExpression, binaryExpression,
               unaryExpression, connectorAction, structDefinition, constantDefinition, variableDefinitionStatement, typeStructDefinition,
               structType, symbolName, structFieldAccessExpression, typeCastingExpression, workerInvoke, referenceTypeInitExpression,
-              blockStatement, structFieldAccessExpression, referenceTypeInitExpression, variableDefinition, typeCastExpression,
+              blockStatement, structFieldAccessExpression, variableDefinition, typeCastExpression,
               arrayInitExpression, workerReceive) {
 
 
