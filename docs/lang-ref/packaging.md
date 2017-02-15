@@ -6,7 +6,7 @@ The following sections describes how Ballerina packaging works to enable self-co
 
 ## Ballerina programs
 
-The source directory contains all the code that the developer writes and may have files in multiple packages (and therefore multiple directories). However, third-party dependencies (which are used via import statements) are discovered from a repository (see below) and are not physically located within the program source hierarchy. The directory structure will be as follows:
+The source directory contains all the code that the developer writes and may have files in multiple packages (and therefore multiple directories). However, third-party dependencies (which are used via import statements) are discovered from a [repository](#ballerina-repository) and are not physically located within the program source hierarchy. The directory structure will be as follows:
 
 ```
 program-name/
@@ -46,9 +46,9 @@ Note also that we will later add sub-commands like “list”, “delete”, “
 
 The Ballerina repository is a collection of Ballerina libraries. 
 
-The language distribution ships with a built-in repository containing all the core language library (containing the `ballerina.*` packages) as well as third-party libraries. The initial distribution only contains code from WSO2, but we expect that to change over time.
+The Ballerina language distribution ships with a built-in repository containing all the core language libraries (containing the `ballerina.*` packages) as well as third-party libraries. The initial distribution only contains code from WSO2, but we expect that to change over time.
 
-In addition to the default repository, every developer can have a private repository. The default location of the private repository is `~/.ballerina` but can be changed by setting the BALLERINA_REPOSITORY environment variable.
+In addition to the default repository, every developer can have a private repository. The default location of the private repository is `~/.ballerina`, but you can change the location by setting the BALLERINA_REPOSITORY environment variable.
 
 A repository is organized as follows:
 
@@ -74,7 +74,7 @@ repository-directory/
 
 ## Building Ballerina programs
 
-While Ballerina programs can be executed directly from the program directory, if you want create a self-contained package containing all the program code and third-party dependencies, you need to build the program into a packaged format. When a program is packaged using the `ballerina build` command, the resulting archive will contain not just the Ballerina files that contain the main function and/or services, but also all the Ballerina packages that are imported by all the code needed to execute the main function and/or services. When `ballerina build` is used to create a library archive, it packages the library code into the archive.
+While Ballerina programs can be executed directly from the program directory, if you want to create a self-contained package containing all the program code and third-party dependencies, you need to build the program into a packaged format. When a program is packaged using the `ballerina build` command, the resulting archive will contain not just the Ballerina files that contain the main function and/or services, but also all the Ballerina packages that are imported by all the code needed to execute the main function and/or services. When `ballerina build` is used to create a library archive, it packages the library code into the archive.
 
 All shared Ballerina library archives will have the extension “.blz”. Use the following command to build the library archive:
 
