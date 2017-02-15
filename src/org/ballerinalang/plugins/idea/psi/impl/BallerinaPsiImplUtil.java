@@ -461,6 +461,14 @@ public class BallerinaPsiImplUtil {
                     results.add(psiElement);
                 }
             }
+
+            List<PsiElement> allNativeFunctionsInAPackage = getAllMatchingElementsFromPackage(((PsiDirectory) element1),
+                    "//functionDefinition/nativeFunction/Identifier");
+            for (PsiElement psiElement : allNativeFunctionsInAPackage) {
+                if (element.getText().equals(psiElement.getText())) {
+                    results.add(psiElement);
+                }
+            }
         }
 
         return results;
