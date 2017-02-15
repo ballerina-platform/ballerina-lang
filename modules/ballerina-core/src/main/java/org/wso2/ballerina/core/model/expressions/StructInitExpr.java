@@ -44,4 +44,5 @@ public class StructInitExpr extends RefTypeInitExpr {
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this);
     }
+
 }

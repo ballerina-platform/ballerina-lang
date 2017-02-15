@@ -4,54 +4,54 @@ import ballerina.lang.system;
 import ballerina.lang.string;
 import ballerina.lang.json;
 
-@BasePath ("/ecommerceservice")
+@http:BasePath ("/ecommerceservice")
 service Ecommerce {
 
     http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
 
 
-    @GET
-    @Path ("/products/{productId}")
-    resource productsInfo (message m, @PathParam("productId") string prodId)  {
+    @http:GET
+    @http:Path ("/products/{productId}")
+    resource productsInfo (message m, @http:PathParam("productId") string prodId)  {
         string reqPath = "/productsservice/" + prodId;
         message response = http:ClientConnector.get(productsService, reqPath, m);
         reply response;
     }
 
-    @POST
-    @Path ("/products")
+    @http:POST
+    @http:Path ("/products")
     resource productMgt (message m) {
         message response = http:ClientConnector.post(productsService, "/productsservice", m);
         reply response;
     }
 
 
-    @GET
-    @Path ("/orders")
+    @http:GET
+    @http:Path ("/orders")
     resource ordersInfo (message m) {
         http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
         message response = http:ClientConnector.get(productsService, "/orderservice", m);
         reply response;
     }
 
-    @POST
-    @Path ("/orders")
+    @http:POST
+    @http:Path ("/orders")
     resource ordersMgt (message m) {
         http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
         message response = http:ClientConnector.post(productsService, "/orderservice", m);
         reply response;
     }
 
-    @GET
-    @Path ("/customers")
+    @http:GET
+    @http:Path ("/customers")
     resource customersInfo (message m) {
         http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
         message response = http:ClientConnector.get(productsService, "/customerservice", m);
         reply response;
     }
 
-    @POST
-    @Path ("/customers")
+    @http:POST
+    @http:Path ("/customers")
     resource customerMgt (message m) {
         http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
         message response = http:ClientConnector.post(productsService, "/customerservice", m);
@@ -59,15 +59,15 @@ service Ecommerce {
     }
 }
 
-@BasePath("/productsservice")
+@http:BasePath("/productsservice")
 service productmgt {
 
     map productsMap = {};
 
     boolean isInit;
 
-    @GET
-    @Path ("/{id}")
+    @http:GET
+    @http:Path ("/{id}")
     resource product (message m, @PathParam("id") string prodId) {
         if (!isInit) {
             isInit = true;
@@ -82,8 +82,8 @@ service productmgt {
         reply response;
     }
 
-    @POST
-    @Path ("/")
+    @http:POST
+    @http:Path ("/")
     resource product (message m) {
         json jsonReq = message:getJsonPayload(m);
 
@@ -111,11 +111,11 @@ function populateSampleProducts(map productsMap) {
 
 }
 
-@BasePath("/orderservice")
+@http:BasePath("/orderservice")
 service OrderMgtService {
 
-    @GET
-    @POST
+    @http:GET
+    @http:POST
     resource orders (message m) {
         json payload = {};
 
@@ -133,11 +133,11 @@ service OrderMgtService {
     }
 }
 
-@BasePath("/customerservice")
+@http:BasePath("/customerservice")
 service CustomerMgtService {
 
-    @GET
-    @POST
+    @http:GET
+    @http:POST
     resource customers (message m) {
         json payload = {};
 

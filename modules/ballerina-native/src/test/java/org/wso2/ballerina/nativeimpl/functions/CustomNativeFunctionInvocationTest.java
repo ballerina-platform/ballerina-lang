@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.GlobalScope;
 import org.wso2.ballerina.core.model.NativeUnit;
@@ -30,7 +31,6 @@ import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 import org.wso2.ballerina.core.nativeimpl.NativeUnitProxy;
-import org.wso2.ballerina.core.nativeimpl.exceptions.ArgumentOutOfRangeException;
 import org.wso2.ballerina.core.runtime.registry.PackageRegistry;
 import org.wso2.ballerina.nativeimpl.functions.impl.EchoStringNativeFunction;
 import org.wso2.ballerina.nativeimpl.functions.impl.IncorrectParamCountNativeFunction;
@@ -101,7 +101,7 @@ public class CustomNativeFunctionInvocationTest {
         Assert.assertEquals(returns[0].stringValue(), s1);
     }
 
-    @Test(expectedExceptions = ArgumentOutOfRangeException.class,
+    @Test(expectedExceptions = BallerinaException.class,
           expectedExceptionsMessageRegExp = "Parameter index out of range2")
     public void testInvalidParamCountNativeFunctionInvocation() {
         final String funcName = "incorrectParamCountFunction";

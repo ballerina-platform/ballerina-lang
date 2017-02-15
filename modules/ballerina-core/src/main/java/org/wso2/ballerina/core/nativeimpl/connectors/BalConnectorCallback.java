@@ -17,6 +17,8 @@
 package org.wso2.ballerina.core.nativeimpl.connectors;
 
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.model.LinkedNode;
+import org.wso2.ballerina.core.model.nodes.fragments.expressions.InvokeNativeActionNode;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.runtime.DefaultBalCallback;
@@ -27,6 +29,8 @@ import org.wso2.carbon.messaging.CarbonMessage;
  */
 public class BalConnectorCallback extends DefaultBalCallback {
 
+    private InvokeNativeActionNode actionNode;
+
     private Context context;
 
     private boolean responseArrived = false;
@@ -36,6 +40,12 @@ public class BalConnectorCallback extends DefaultBalCallback {
     public BalConnectorCallback(Context context) {
         super(context.getBalCallback());
         this.context = context;
+    }
+
+    public BalConnectorCallback(Context context, InvokeNativeActionNode current) {
+        super(context.getBalCallback());
+        this.context = context;
+        this.actionNode = current;
     }
 
     public boolean isResponseArrived() {
@@ -53,9 +63,21 @@ public class BalConnectorCallback extends DefaultBalCallback {
         //context.getControlStack().setValue(4, valueRef);
         context.getControlStack().setReturnValue(0, valueRef);
         responseArrived = true;
-        synchronized (context) {
-            context.notifyAll();
+        // If Executor is not null, then this is non-blocking execution.
+        if (actionNode != null) {
+            actionNode.getCallableUnit().validate(this);
+        } else {
+            synchronized (context) {
+                context.notifyAll();
+            }
         }
     }
 
+    public Context getContext() {
+        return context;
+    }
+
+    public LinkedNode getCurrentNode() {
+        return this.actionNode;
+    }
 }

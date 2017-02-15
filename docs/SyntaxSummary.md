@@ -60,7 +60,7 @@ A Ballerina file is structured as follows:
  FunctionDefinition |
  ConnectorDefinition |
  TypeDefinition |
- TypeConvertorDefinition |
+ TypeMapperDefinition |
  ConstantDefinition)+
 ```
 
@@ -320,14 +320,14 @@ The following lossless type coercions are pre-defined in Ballerina:
 In addition to these built in type coercions, Ballerina allows one to define
 arbitrary conversions from one non-primitive type to another non-primitive and have the language apply it automatically.
 
-A `TypeConvertor` is defined as follows:
+A `TypeMapper` is defined as follows:
 ```
-typeconverter TypeConverterName (TypeName VariableName) (TypeName) {
+typemapper TypeMapperName (TypeName VariableName) (TypeName) {
     VariableDeclaration;*
     Statement;+
 }
 ```
-If a TypeConvertor has been defined from Type1 to Type2, it will be invoked by the runtime upon
+If a TypeMapper has been defined from Type1 to Type2, it will be invoked by the runtime upon
 executing the following statement:
 ```
 Type1 t1;
@@ -336,15 +336,15 @@ Type2 t2;
 t2 = (Type2) t1;
 ```
 
-That is, the registered type convertor is invoked by indicating the type cast as above. Note that while
-the compiler can auto-detect the right convertor to apply, we have chosen to force the user to
-request the appropriate convertor by applying a cast.
+That is, the registered type mapper is invoked by indicating the type cast as above. Note that while
+the compiler can auto-detect the right mapper to apply, we have chosen to force the user to
+request the appropriate mapper by applying a cast.
 
-##### Built in Type Convertors
+##### Built in Type Mappers
 
 In addition to the built-in value type coercions, Ballerina also ships with a few pre-defined type
-convertors to make development easier. The following predefined type convertors are declared in
-the Ballerina package `ballerina.lang.convertors`:
+mappers to make development easier. The following predefined type mappers are declared in
+the Ballerina package `ballerina.lang.typemappers`:
 - string/xml/json to message: creates a new message with the given string/xml/json as its payload
 - down conversions for numeral types: int -> boolean (0 is false), long -> int/boolean, float -> int/boolean, double -> float/long/int/boolean,
 

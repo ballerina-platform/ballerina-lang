@@ -42,7 +42,7 @@ public class FileResourceDispatcher implements ResourceDispatcher {
                     + "deliver the message");
         }
         for (Resource resource : service.getResources()) {
-            if (resource.getAnnotation(Constants.ANNOTATION_NAME_ON_FILE) != null) {
+            if (resource.getAnnotation(Constants.PROTOCOL_FILE, Constants.ANNOTATION_NAME_ON_FILE) != null) {
                 if (log.isDebugEnabled()) {
                     log.debug("Found the relevant resource in the file service " + service.getSymbolName().toString());
                 }

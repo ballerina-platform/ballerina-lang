@@ -1,9 +1,9 @@
 import ballerina.lang.message;
 
-@BasePath ("/hello")
+@http:BasePath ("/hello")
 service helloWorld {
 
-    @GET
+    @http:GET
     resource sayHello(message m) {
         message response = {};
         message:setStringPayload(response, "Hello, World!");
