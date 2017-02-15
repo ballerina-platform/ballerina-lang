@@ -100,6 +100,7 @@ svg.plumbConnect path {
     background-color: #ffffff;
     border: 2px;
     color: black;
+    cursor: pointer;
 }
 
 .func-out-property {
@@ -108,6 +109,7 @@ svg.plumbConnect path {
     background-color: #d9d9d9;
     border: 2px;
     color: black;
+    cursor: pointer;
 }
 
 .jstree-themeicon {
