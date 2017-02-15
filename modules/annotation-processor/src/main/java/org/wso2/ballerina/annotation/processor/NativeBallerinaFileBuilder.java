@@ -17,6 +17,8 @@
 
 package org.wso2.ballerina.annotation.processor;
 
+import org.wso2.ballerina.annotation.processor.holders.PackageHolder;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;

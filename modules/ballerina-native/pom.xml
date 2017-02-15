@@ -56,14 +56,32 @@
             
             <!-- copy built-in ballerina sources to the jar -->
             <resource>
-                <directory>src/main/resources/ballerina</directory>
-                <excludes>
-                    <exclude>**/native.bal</exclude>
-                </excludes>
+                <directory>${project.build.directory}/ballerina</directory>
                 <targetPath>META-INF/natives/ballerina</targetPath>
             </resource>
     	</resources>
         <plugins>
+            <!-- For ballerina natives processing/validation -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${mvn.exec.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>org.wso2.ballerina.annotation.processor.NativeValidator</mainClass>
+                            <arguments>
+                                <argument>${project.build.directory}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>  
+      
             <!-- For ballerina annotation processing -->
             <plugin>
                 <groupId>org.bsc.maven</groupId>

@@ -55,7 +55,7 @@ import javax.xml.transform.stax.StAXSource;
 @BallerinaTypeConvertor(
         packageName = "ballerina.lang.convertors",
         typeConverterName = "xmlTojson",
-        args = {@Argument(name = "xml", type = TypeEnum.XML)},
+        args = {@Argument(name = "value", type = TypeEnum.XML)},
         returnType = {@ReturnType(type = TypeEnum.JSON)},
         isPublic = true
 )

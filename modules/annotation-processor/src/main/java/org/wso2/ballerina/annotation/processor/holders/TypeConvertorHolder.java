@@ -14,43 +14,44 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.annotation.processor;
+package org.wso2.ballerina.annotation.processor.holders;
 
+import org.wso2.ballerina.annotation.processor.Utils;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
 
 import java.util.List;
 
 /**
- * DTO to hold Ballerina function annotation
+ * DTO to hold Ballerina type convertor annotation
  */
-public class FunctionHolder {
+public class TypeConvertorHolder {
     
-    BallerinaFunction function;
-    private String functionClassName;
+    private BallerinaTypeConvertor typeConvertor;
+    private String typeConvertorClassName;
     private List<AnnotationHolder> annotations;
     
-    public FunctionHolder(BallerinaFunction function, String className, BallerinaAnnotation[] annotations) {
-        this.function = function;
-        this.functionClassName = className;
-        this.annotations = Utils.getAnnotations(annotations);
+    public TypeConvertorHolder(BallerinaTypeConvertor balTypeConvertor, String className, 
+            BallerinaAnnotation[] annotations) {
+        this.typeConvertor = balTypeConvertor;
+        this.typeConvertorClassName = className;
+        this.annotations = Utils.getAnnotations(annotations);;
     }
     
     public String getClassName() {
-        return functionClassName;
+        return typeConvertorClassName;
     }
     
-    public BallerinaFunction getBalFunction() {
-        return function;
+    public BallerinaTypeConvertor getBalTypeConvertor() {
+        return typeConvertor;
     }
     
     public String toString() {
         StringBuilder sb = new StringBuilder();
         Utils.appendAnnotationStrings(sb, annotations);
-        sb.append(annotations.size() > 0 ? "\n" : "");
-        sb.append("native function ").append(function.functionName());
-        Utils.getInputParams(function.args(), sb);
-        Utils.getReturnParams(function.returnType(), sb);
+        sb.append("native typeconvertor ").append(typeConvertor.typeConverterName());
+        Utils.getInputParams(typeConvertor.args(), sb);
+        Utils.appendReturnParams(typeConvertor.returnType(), sb);
         sb.append(";");
         return sb.toString();
     }

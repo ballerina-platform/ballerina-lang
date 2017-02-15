@@ -17,6 +17,11 @@
 
 package org.wso2.ballerina.annotation.processor;
 
+import org.wso2.ballerina.annotation.processor.holders.ActionHolder;
+import org.wso2.ballerina.annotation.processor.holders.ConnectorHolder;
+import org.wso2.ballerina.annotation.processor.holders.FunctionHolder;
+import org.wso2.ballerina.annotation.processor.holders.PackageHolder;
+import org.wso2.ballerina.annotation.processor.holders.TypeConvertorHolder;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;

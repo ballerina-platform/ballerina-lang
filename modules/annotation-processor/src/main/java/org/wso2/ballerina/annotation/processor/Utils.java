@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerina.annotation.processor;
 
+import org.wso2.ballerina.annotation.processor.holders.AnnotationHolder;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.Attribute;
@@ -70,7 +71,10 @@ public class Utils {
      * @param args return parameters
      * @param sb {@link StringBuilder} to append the return parameters
      */
-    public static void getReturnParams(ReturnType[] args, StringBuilder sb) {
+    public static void appendReturnParams(ReturnType[] args, StringBuilder sb) {
+        if (args.length == 0) {
+            return;
+        }
         sb.append(" (");
         for (int i = 1; i <= args.length; i++) {
             ReturnType arg = args[i - 1];

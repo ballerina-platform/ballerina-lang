@@ -14,8 +14,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.annotation.processor;
+package org.wso2.ballerina.annotation.processor.holders;
 
+import org.wso2.ballerina.annotation.processor.Utils;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
@@ -36,7 +37,7 @@ public class ConnectorHolder {
     private List<AnnotationHolder> annotations;
     
     
-    ConnectorHolder(BallerinaConnector balConnector, String className) {
+    public ConnectorHolder(BallerinaConnector balConnector, String className) {
         this.balConnector = balConnector;
         this.connectorClassName = className;
         this.actions = new ArrayList<>();
@@ -67,7 +68,7 @@ public class ConnectorHolder {
         StringBuilder sb = new StringBuilder();
         Utils.appendAnnotationStrings(sb, annotations);
         sb.append(annotations.size() > 0 ? "\n" : "");
-        sb.append("connector ").append(balConnector.connectorName());
+        sb.append("native connector ").append(balConnector.connectorName());
         Utils.getInputParams(balConnector.args(), sb);
         sb.append(" {\n");
         for (ActionHolder action : actions) {
@@ -78,7 +79,7 @@ public class ConnectorHolder {
             for (int i = 1; i <= ballerinaAction.args().length; i++) {
                 Argument arg = ballerinaAction.args()[i - 1];
                 sb.append(
-                        TypeEnum.CONNECTOR.toString().equals(Utils.getArgumentType(arg.type(), arg.elementType()))
+                        TypeEnum.CONNECTOR.getName().equals(Utils.getArgumentType(arg.type(), arg.elementType()))
                                 ? balConnector.connectorName() : Utils.getArgumentType(arg.type(), arg.elementType()))
                         .append(" ").append(arg.name());
                 if (i != ballerinaAction.args().length) {
@@ -86,7 +87,7 @@ public class ConnectorHolder {
                 }
             }
             sb.append(")");
-            Utils.getReturnParams(ballerinaAction.returnType(), sb);
+            Utils.appendReturnParams(ballerinaAction.returnType(), sb);
             sb.append(";\n");
         }
 

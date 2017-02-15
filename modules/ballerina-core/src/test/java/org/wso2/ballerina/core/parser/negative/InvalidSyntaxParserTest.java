@@ -77,13 +77,13 @@ public class InvalidSyntaxParserTest {
      */
 
     @Test(expectedExceptions = {ParseCancellationException.class},
-            expectedExceptionsMessageRegExp = "ServiceWithoutResourceName.bal:7:11: unwanted token '\\{'")
+            expectedExceptionsMessageRegExp = "ServiceWithoutResourceName.bal:6:11: unwanted token '\\{'")
     public void testServiceWithoutResourceName() {
         getParserForFile("samples/parser/invalidSyntax/ServiceWithoutResourceName.bal").compilationUnit();
     }
 
     @Test(expectedExceptions = {ParseCancellationException.class},
-            expectedExceptionsMessageRegExp = "MainFuncWithoutName.bal:4:9: unwanted token '\\{'")
+            expectedExceptionsMessageRegExp = "MainFuncWithoutName.bal:3:9: unwanted token '\\{'")
     public void testParseMainFuncWithoutName() {
         getParserForFile("samples/parser/invalidSyntax/MainFuncWithoutName.bal").compilationUnit();
     }
@@ -94,14 +94,14 @@ public class InvalidSyntaxParserTest {
      */
 
     @Test(expectedExceptions = {ParseCancellationException.class},
-            expectedExceptionsMessageRegExp = "ServiceWithoutResourceParams.bal:7:17: mismatched input '\\{'. " +
+            expectedExceptionsMessageRegExp = "ServiceWithoutResourceParams.bal:6:17: mismatched input '\\{'. " +
                     "Expecting one of '\\('")
     public void testServiceWithoutResourceParams() {
         getParserForFile("samples/parser/invalidSyntax/ServiceWithoutResourceParams.bal").compilationUnit();
     }
 
     @Test(expectedExceptions = {ParseCancellationException.class},
-            expectedExceptionsMessageRegExp = "MainFuncWithoutParams.bal:4:14: mismatched input '\\{'. Expecting " +
+            expectedExceptionsMessageRegExp = "MainFuncWithoutParams.bal:3:14: mismatched input '\\{'. Expecting " +
                     "one of '\\('")
     public void testParseMainFuncWithoutParams() {
         getParserForFile("samples/parser/invalidSyntax/MainFuncWithoutParams.bal").compilationUnit();

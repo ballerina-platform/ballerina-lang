@@ -18,6 +18,11 @@
 package org.wso2.ballerina.annotation.processor;
 
 import org.ballerinalang.util.repository.BuiltinPackageRepository;
+import org.wso2.ballerina.annotation.processor.holders.ActionHolder;
+import org.wso2.ballerina.annotation.processor.holders.ConnectorHolder;
+import org.wso2.ballerina.annotation.processor.holders.FunctionHolder;
+import org.wso2.ballerina.annotation.processor.holders.PackageHolder;
+import org.wso2.ballerina.annotation.processor.holders.TypeConvertorHolder;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.GlobalScope;
@@ -40,12 +45,9 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +70,7 @@ public class ConstructProviderClassBuilder {
     private static final String PACKAGE_SCOPE = "nativePackage";
     private static final String PACKAGE_REPO = "pkgRepo";
     private static final String EMPTY = "";
-    private static final String BAL_FILES_DIR = "ballerina";
+
     
     private Writer sourceFileWriter;
     private String className;
@@ -226,12 +228,12 @@ public class ConstructProviderClassBuilder {
      * bal packages to the provider class.
      */
     private void writeBuiltInBalPackages() {
-        Path source = Paths.get(targetDirectory, "..", "src", "main", "resources", BAL_FILES_DIR);
+        Path source = Paths.get(targetDirectory, "..", "src", "main", "resources", Constants.BAL_FILES_DIR);
         List<String> builtInPackages = new ArrayList<String>();
         
         // Traverse through built-in ballerina files and identify the packages
         try {
-            Files.walkFileTree(source, new BallerinaFileVisitor(source, builtInPackages));
+            Files.walkFileTree(source, new PackageFinder(source, builtInPackages));
         } catch (IOException e) {
             throw new BallerinaException("error while reading built-in packages: " + e.getMessage());
         }
@@ -492,33 +494,4 @@ public class ConstructProviderClassBuilder {
                "\t\t    })%n" +
                "\t\t);%n%n";
     }
-    
-    
-    /**
-     * Visits all built-in ballerina files and populate the built-in packages list.
-     */
-    private static class BallerinaFileVisitor extends SimpleFileVisitor<Path> {
-
-        private Path basePath;
-        private List<String> builtInPackages;
-
-        public BallerinaFileVisitor(Path basePath, List<String> packages) {
-            this.basePath = basePath;
-            this.builtInPackages = packages;
-        }
-
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            String pkg =
-                BAL_FILES_DIR + "." + basePath.relativize(file.getParent()).toString().replace(File.separator, ".");
-            builtInPackages.add(pkg);
-            return FileVisitResult.CONTINUE;
-        }
-    }
-        
 }

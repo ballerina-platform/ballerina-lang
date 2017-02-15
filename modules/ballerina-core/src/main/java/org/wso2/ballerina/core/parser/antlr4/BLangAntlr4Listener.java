@@ -184,12 +184,30 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterNativeFunction(BallerinaParser.NativeFunctionContext ctx) {
-
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.startFunctionDef();
     }
 
     @Override
     public void exitNativeFunction(BallerinaParser.NativeFunctionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        
+        List<AnnotationContext> annotations = ctx.annotation();
+        if (annotations != null) {
+            // Set the location info needed to generate the stack trace
+            TerminalNode identifier = ctx.Identifier(0);
+            if (identifier != null) {
+                String fileName = identifier.getSymbol().getInputStream().getSourceName();
+                int lineNo = identifier.getSymbol().getLine();
+                NodeLocation functionLocation = new NodeLocation(fileName, lineNo);
 
+                modelBuilder.addFunction(functionLocation, identifier.getText(), true, true);
+            }
+        }
     }
 
     @Override
@@ -219,7 +237,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                         int lineNo = identifier.getSymbol().getLine();
                         NodeLocation functionLocation = new NodeLocation(fileName, lineNo);
 
-                        modelBuilder.addFunction(functionLocation, identifier.getText(), isPublic);
+                        modelBuilder.addFunction(functionLocation, identifier.getText(), isPublic, false);
                     }
                 }
             }
@@ -252,12 +270,25 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterNativeConnector(BallerinaParser.NativeConnectorContext ctx) {
-
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.startConnectorDef(getCurrentLocation(ctx));
     }
 
     @Override
     public void exitNativeConnector(BallerinaParser.NativeConnectorContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        TerminalNode identifier = ctx.Identifier();
+        if (identifier != null) {
+            String fileName = identifier.getSymbol().getInputStream().getSourceName();
+            int lineNo = identifier.getSymbol().getLine();
+            NodeLocation connectorLocation = new NodeLocation(fileName, lineNo);
 
+            modelBuilder.createConnector(connectorLocation, identifier.getText(), true);
+        }
     }
 
     @Override
@@ -288,7 +319,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 int lineNo = identifier.getSymbol().getLine();
                 NodeLocation connectorLocation = new NodeLocation(fileName, lineNo);
 
-                modelBuilder.createConnector(connectorLocation, identifier.getText());
+                modelBuilder.createConnector(connectorLocation, identifier.getText(), false);
             }
         }
     }
@@ -306,12 +337,26 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterNativeAction(BallerinaParser.NativeActionContext ctx) {
-
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.startActionDef();
     }
 
     @Override
     public void exitNativeAction(BallerinaParser.NativeActionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        // Set the location info needed to generate the stack trace
+        TerminalNode identifier = ctx.Identifier(0);
+        if (identifier != null) {
+            String fileName = identifier.getSymbol().getInputStream().getSourceName();
+            int lineNo = identifier.getSymbol().getLine();
+            NodeLocation actionLocation = new NodeLocation(fileName, lineNo);
 
+            modelBuilder.addAction(actionLocation, identifier.getText(), true);
+        }
     }
 
     @Override
@@ -331,7 +376,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 int lineNo = identifier.getSymbol().getLine();
                 NodeLocation actionLocation = new NodeLocation(fileName, lineNo);
 
-                modelBuilder.addAction(actionLocation, identifier.getText());
+                modelBuilder.addAction(actionLocation, identifier.getText(), false);
             }
         }
     }
@@ -384,12 +429,29 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterNativeTypeConvertor(BallerinaParser.NativeTypeConvertorContext ctx) {
-
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.startTypeConverterDef();
     }
 
     @Override
     public void exitNativeTypeConvertor(BallerinaParser.NativeTypeConvertorContext ctx) {
-
+        if (ctx.exception != null) {
+            return;
+        }
+        // Create the return type of the type convertor
+        modelBuilder.createReturnTypes(getCurrentLocation(ctx));
+        boolean isPublic = true;
+        // Set the location info needed to generate the stack trace
+        TerminalNode identifier = ctx.Identifier();
+        if (identifier != null) {
+            String fileName = identifier.getSymbol().getInputStream().getSourceName();
+            int lineNo = identifier.getSymbol().getLine();
+            NodeLocation typeconvertorLocation = new NodeLocation(fileName, lineNo);
+            modelBuilder.addTypeConverter(ctx.typeConvertorInput().typeConvertorType().getText(), 
+                ctx.typeConvertorType().getText(), identifier.getText(), typeconvertorLocation, isPublic, true);
+        }
     }
 
     @Override
@@ -411,8 +473,8 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 String fileName = identifier.getSymbol().getInputStream().getSourceName();
                 int lineNo = identifier.getSymbol().getLine();
                 NodeLocation typeconvertorLocation = new NodeLocation(fileName, lineNo);
-                modelBuilder.addTypeConverter(ctx.typeConvertorInput().typeConvertorType().getText()
-                        , ctx.typeConvertorType().getText(), identifier.getText(), typeconvertorLocation, isPublic);
+                modelBuilder.addTypeConverter(ctx.typeConvertorInput().typeConvertorType().getText(), 
+                    ctx.typeConvertorType().getText(), identifier.getText(), typeconvertorLocation, isPublic, false);
             }
         }
     }
@@ -876,6 +938,20 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterIfClause(BallerinaParser.IfClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startIfClause(getCurrentLocation(ctx));
+        }
+    }
+
+    @Override
+    public void exitIfClause(BallerinaParser.IfClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.addIfClause();
+        }
+    }
+
+    @Override
     public void enterElseIfClause(BallerinaParser.ElseIfClauseContext ctx) {
         if (ctx.exception == null) {
             modelBuilder.startElseIfClause(getCurrentLocation(ctx));
@@ -956,11 +1032,23 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterJoinConditions(BallerinaParser.JoinConditionsContext ctx) {
+    public void enterAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) {
+
     }
 
     @Override
-    public void exitJoinConditions(BallerinaParser.JoinConditionsContext ctx) {
+    public void exitAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) {
+
+    }
+
+    @Override
+    public void enterAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) {
+
+    }
+
+    @Override
+    public void exitAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) {
+
     }
 
     @Override
@@ -1049,6 +1137,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitCommentStatement(BallerinaParser.CommentStatementContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.addCommentStmt(getCurrentLocation(ctx), ctx.getText());
+        }
     }
 
     @Override

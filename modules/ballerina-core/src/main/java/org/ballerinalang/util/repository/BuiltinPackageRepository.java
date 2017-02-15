@@ -24,11 +24,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * Represents a repository contains built in ballerina packages.
@@ -39,6 +43,9 @@ public class BuiltinPackageRepository extends PackageRepository {
     
     private Class<?> nativePackageProvider;
     private static final String BASE_PATH = "META-INF" + File.separator + "natives" + File.separator;
+    private static final String BAL_FILE_EXT = ".bal";
+    
+    private String packageDirPath;
     
     public BuiltinPackageRepository(Class providerClass) {
         this.nativePackageProvider = providerClass;
@@ -49,9 +56,12 @@ public class BuiltinPackageRepository extends PackageRepository {
      */
     @Override
     public PackageSource loadPackage(Path packageDirPath) {
+        this.packageDirPath = packageDirPath.toString();
         Map<String, InputStream> sourceFileStreamMap = new HashMap<String, InputStream>();
         ClassLoader classLoader = nativePackageProvider.getClassLoader();
-        List<String> fileNames =  getFileNames(classLoader, packageDirPath);
+        
+        // Get the names of the source files in the package
+        List<String> fileNames =  getFileNames(classLoader);
         
         // Read all resources as input streams and create the package source 
         for (String fileName : fileNames) {
@@ -62,12 +72,7 @@ public class BuiltinPackageRepository extends PackageRepository {
         PackageSource builtInBalSource = new PackageSource(packageDirPath, sourceFileStreamMap, this);
         return builtInBalSource;
     }
-
-    @Override
-    public PackageSource loadFile(Path filePath) {
-        return null;
-    }
-
+    
     /**
      * Get all the file names listed under the package.
      * 
@@ -75,16 +80,32 @@ public class BuiltinPackageRepository extends PackageRepository {
      * @param packageDirPath Directory path of the package
      * @return
      */
-    private List<String> getFileNames(ClassLoader classLoader, Path packageDirPath) {
+    private List<String> getFileNames(ClassLoader classLoader) {
+        URL repoUrl = nativePackageProvider.getProtectionDomain().getCodeSource().getLocation();
+        String pkgRelPath = BASE_PATH + packageDirPath;
+        if (isJar(repoUrl)) {
+            return getPackageNamesFromJar(repoUrl, pkgRelPath);
+        } else {
+            return getPackageNamesFromClassPath(pkgRelPath);
+        }
+    }
+    
+    /**
+     * Get package names from the class path.
+     * 
+     * @param pkgRelPath Relative path of the from the class path
+     * @return List of source files in the package
+     */
+    private List<String> getPackageNamesFromClassPath(String pkgRelPath) {
         List<String> fileNames =  new ArrayList<String>();
         BufferedReader reader = null;
         try {
-            InputStream fileNamesStream = classLoader.getResourceAsStream(BASE_PATH + packageDirPath.toString());
+            InputStream fileNamesStream = nativePackageProvider.getClassLoader().getResourceAsStream(pkgRelPath + File.separator);
             if (fileNamesStream != null) {
                 reader = new BufferedReader(new InputStreamReader(fileNamesStream));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    fileNames.add(line);
+                String fileName;
+                while ((fileName = reader.readLine()) != null) {
+                    fileNames.add(fileName);
                 }
             }
         } catch (Exception e) {
@@ -98,7 +119,58 @@ public class BuiltinPackageRepository extends PackageRepository {
                 }
             }
         }
+        return fileNames;
+    }
+    
+    /**
+     * Get package names from the jar.
+     * 
+     * @param repoUrl URL of the repo source (url of the jar)
+     * @param pkgRelPath Relative path of the from root of the jar
+     * @return List of source files in the package
+     */
+    private List<String> getPackageNamesFromJar(URL repoUrl, String pkgRelPath) {
+        List<String> fileNames =  new ArrayList<String>();
+        ZipInputStream jarInputStream = null;
+        ZipEntry fileNameEntry;
+        try {
+            jarInputStream = new ZipInputStream(repoUrl.openStream());
+            while((fileNameEntry = jarInputStream.getNextEntry()) != null) {
+                String filePath = fileNameEntry.getName();
+                if (filePath.startsWith(pkgRelPath) && filePath.endsWith(BAL_FILE_EXT)) {
+                    // get only the file name 
+                    String fileName = Paths.get(pkgRelPath).relativize(Paths.get(filePath)).toString();
+                    fileNames.add(fileName);
+                }
+            }
+        } catch (Exception e) {
+            throw new BallerinaException("error while loading built-in package '" + packageDirPath + "'. " 
+                    + e.getMessage());
+        } finally {
+            if (jarInputStream != null) {
+                try {
+                    jarInputStream.close();
+                } catch (IOException ignore) {
+                }
+            }
+        }
         
         return fileNames;
+    }
+    
+    /**
+     * Check whether the given url represent a jar.
+     * 
+     * @param url
+     * @return
+     */
+    private boolean isJar(URL url) {
+        return url.toString().endsWith(".jar");
+    }
+
+    @Override
+    public PackageSource loadFile(Path filePath) {
+        // TODO
+        return null;
     }
 }

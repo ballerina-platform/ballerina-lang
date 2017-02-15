@@ -68,6 +68,7 @@ import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.CommentStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
@@ -160,14 +161,14 @@ public class BLangModelBuilder {
                     String importPkgErrStr = (importPkg.getAsName() == null) ? pkgPathStr : pkgPathStr + " as '" +
                             importPkg.getAsName() + "'";
 
-                    throw new SemanticException(getNodeLocationStr(location) +
-                            "unused import package " + importPkgErrStr + "");
+                   errorMsgs.add(getNodeLocationStr(location) +
+                           "unused import package " + importPkgErrStr + "");
                 });
 
         if (errorMsgs.size() > 0) {
             throw new SemanticException(errorMsgs.get(0));
         }
-
+        
         return bFileBuilder.build();
     }
 
@@ -378,7 +379,6 @@ public class BLangModelBuilder {
                     "redeclared symbol '" + paramName + "'";
             errorMsgs.add(errMsg);
         }
-
 
         SimpleTypeName typeName = typeNameStack.pop();
         ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
@@ -737,11 +737,12 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void addFunction(NodeLocation location, String name, boolean isPublic) {
+    public void addFunction(NodeLocation location, String name, boolean isPublic,  boolean isNative) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
         currentCUBuilder.setPublic(isPublic);
-
+        currentCUBuilder.setNative(isNative);
+        
         List<Annotation> annotationList = annotationListStack.pop();
         annotationList.forEach(currentCUBuilder::addAnnotation);
 
@@ -760,11 +761,12 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void addTypeConverter(String source, String target, String name, NodeLocation location, boolean isPublic) {
+    public void addTypeConverter(String source, String target, String name, NodeLocation location, boolean isPublic, boolean isNative) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
         //currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setPublic(isPublic);
+        currentCUBuilder.setNative(isNative);
 
         BTypeConvertor typeConvertor = currentCUBuilder.buildTypeConverter();
         TypeVertex sourceV = new TypeVertex(BTypes.resolveType(new SimpleTypeName(source),
@@ -818,10 +820,11 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void addAction(NodeLocation location, String name) {
+    public void addAction(NodeLocation location, String name, boolean isNative) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
-
+        currentCUBuilder.setNative(isNative);
+        
         List<Annotation> annotationList = annotationListStack.pop();
         annotationList.forEach(currentCUBuilder::addAnnotation);
 
@@ -866,10 +869,11 @@ public class BLangModelBuilder {
         currentCUGroupBuilder = null;
     }
 
-    public void createConnector(NodeLocation location, String name) {
+    public void createConnector(NodeLocation location, String name, boolean isNative) {
         currentCUGroupBuilder.setNodeLocation(location);
         currentCUGroupBuilder.setName(name);
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
+        currentCUGroupBuilder.setNative(isNative);
 
         List<Annotation> annotationList = annotationListStack.pop();
         annotationList.forEach(currentCUGroupBuilder::addAnnotation);
@@ -915,6 +919,11 @@ public class BLangModelBuilder {
         } else {
             addToBlockStmt(variableDefStmt);
         }
+    }
+
+    public void addCommentStmt(NodeLocation location, String comment) {
+        CommentStmt commentStmt = new CommentStmt(location, comment);
+        addToBlockStmt(commentStmt);
     }
 
     public void createAssignmentStmt(NodeLocation location) {
@@ -986,9 +995,13 @@ public class BLangModelBuilder {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = new IfElseStmt.IfElseStmtBuilder();
         ifElseStmtBuilder.setNodeLocation(location);
         ifElseStmtBuilderStack.push(ifElseStmtBuilder);
+    }
 
+    public void startIfClause(NodeLocation location) {
         BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
+
+        currentScope = blockStmtBuilder.getCurrentScope();
     }
 
     public void startElseIfClause(NodeLocation location) {
@@ -998,6 +1011,20 @@ public class BLangModelBuilder {
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
+    public void addIfClause() {
+        IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.peek();
+
+        Expression condition = exprStack.pop();
+        checkArgExprValidity(ifElseStmtBuilder.getLocation(), condition);
+        ifElseStmtBuilder.setIfCondition(condition);
+
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+        BlockStmt blockStmt = blockStmtBuilder.build();
+        ifElseStmtBuilder.setThenBody(blockStmt);
+
+        currentScope = blockStmt.getEnclosingScope();
+    }
+    
     public void addElseIfClause() {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.peek();
 
@@ -1029,19 +1056,8 @@ public class BLangModelBuilder {
 
     public void addIfElseStmt() {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.pop();
-
-        Expression condition = exprStack.pop();
-        checkArgExprValidity(ifElseStmtBuilder.getLocation(), condition);
-        ifElseStmtBuilder.setIfCondition(condition);
-
-        BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
-        BlockStmt blockStmt = blockStmtBuilder.build();
-        ifElseStmtBuilder.setThenBody(blockStmt);
-
         IfElseStmt ifElseStmt = ifElseStmtBuilder.build();
         addToBlockStmt(ifElseStmt);
-
-        currentScope = blockStmt.getEnclosingScope();
     }
 
     public void createFunctionInvocationStmt(NodeLocation location) {

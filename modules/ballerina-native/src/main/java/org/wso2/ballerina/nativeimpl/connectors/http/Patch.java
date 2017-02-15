@@ -41,7 +41,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
         actionName = "patch",
         connectorName = ClientConnector.CONNECTOR_NAME,
         args = {
-                @Argument(name = "connector",
+                @Argument(name = "con",
                         type = TypeEnum.CONNECTOR),
                 @Argument(name = "path", type = TypeEnum.STRING),
                 @Argument(name = "message", type = TypeEnum.MESSAGE)
