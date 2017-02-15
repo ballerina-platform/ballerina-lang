@@ -308,6 +308,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         boundingBox.on('moved', function(offset){
             self._mainDropZone.attr('x', boundingBox.x());
             self._mainDropZone.attr('y', boundingBox.y());
+        }, this);
+        boundingBox.on('center-moved', function (offset) {
             self._topCenter.move(offset.dx, offset.dy);
         }, this);
         var dropZoneOptions = {
