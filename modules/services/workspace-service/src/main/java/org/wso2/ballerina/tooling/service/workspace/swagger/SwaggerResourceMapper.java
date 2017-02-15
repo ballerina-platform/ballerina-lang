@@ -30,11 +30,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * This class will do resource mapping from ballerina to swagger.
  */
 public class SwaggerResourceMapper {
-    private final static String HTTP_VERB_MATCHING_PATTERN = "(?i)|" + Constants.ANNOTATION_METHOD_GET + "|" +
+    public final static String HTTP_VERB_MATCHING_PATTERN = "(?i)|" + Constants.ANNOTATION_METHOD_GET + "|" +
             Constants.ANNOTATION_METHOD_PUT + "|" + Constants.ANNOTATION_METHOD_POST + "|" +
             Constants.ANNOTATION_METHOD_DELETE + "|" + Constants.ANNOTATION_METHOD_OPTIONS;
     private Resource resource;
     private Operation operation;
+
 
     /**
      * Get Swagger operation object associated with current resource
@@ -45,6 +46,7 @@ public class SwaggerResourceMapper {
         return operation;
     }
 
+
     /**
      * Set Swagger operation object associated with current resource
      *
@@ -53,6 +55,7 @@ public class SwaggerResourceMapper {
     public void setOperation(Operation operation) {
         this.operation = operation;
     }
+
 
     /**
      * Get Ballerina Resource object associated with current resource
@@ -63,6 +66,7 @@ public class SwaggerResourceMapper {
         return resource;
     }
 
+
     /**
      * Set Ballerina Resource object associated with current resource
      *
@@ -71,6 +75,7 @@ public class SwaggerResourceMapper {
     public void setResource(Resource resource) {
         this.resource = resource;
     }
+
 
     /**
      * This method will convert ballerina resource to swagger path objects.
@@ -116,6 +121,7 @@ public class SwaggerResourceMapper {
         return map;
     }
 
+
     /**
      * Converts operation into a resource.
      *
@@ -126,6 +132,7 @@ public class SwaggerResourceMapper {
         // TODO need to implement this
         throw new UnsupportedOperationException("Converting operations to resources is not implemented yet!");
     }
+
 
     /**
      * This method will convert ballerina @Resource to ballerina @OperationAdaptor
@@ -146,19 +153,6 @@ public class SwaggerResourceMapper {
             //Default path should be /
             String path = "/";
             op.setPath(path);
-            //TODO need fixing for complication failure
-//            Map<String, Annotation> annotationMap = resource.getAnnotationMap();
-//            if (annotationMap != null) {
-//                annotationMap.entrySet().stream().filter
-//                        (operationEntry -> operationEntry.getKey().matches(HTTP_VERB_MATCHING_PATTERN)).
-//                        forEach(operationEntry -> op.setHttpOperation(operationEntry.getKey()));
-//            }
-            Annotation[] annotations = resource.getAnnotations();
-            for (Annotation annotation : annotations) {
-                if (annotation.getName().matches(HTTP_VERB_MATCHING_PATTERN)) {
-                    op.setHttpOperation(annotation.getName());
-                }
-            }
             if (resourceAnnotations != null) {
                 //TODO add all supported annotation mapping after annotation model finalized.
                 for (Annotation annotation : resourceAnnotations) {
@@ -168,6 +162,10 @@ public class SwaggerResourceMapper {
                         op.getOperation().produces(annotation.getValue());
                     } else if (annotation.getName().equalsIgnoreCase("Path")) {
                         op.setPath(annotation.getValue());
+                    } else if (annotation.getName().equalsIgnoreCase("summary")) {
+                        op.getOperation().setSummary(annotation.getValue());
+                    } else if (annotation.getName().equalsIgnoreCase("description")) {
+                        op.getOperation().setDescription(annotation.getValue());
                     } else if (annotation.getName().matches(HTTP_VERB_MATCHING_PATTERN)) {
                         op.setHttpOperation(annotation.getName());
                     }

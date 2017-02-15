@@ -155,6 +155,26 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
     };
 
     /**
+     * finds the child from the AST tree by ID
+     * @param id
+     * @returns {*}
+     */
+    ASTNode.prototype.getChildById = function (id) {
+        return _.find(this.children, ['id', id]);
+    };
+
+    /**
+     * remove the child from the AST tree by ID
+     * @param id
+     * @param ignoreTreeModifiedEvent {boolean}
+     */
+    ASTNode.prototype.removeChildById = function (id, ignoreTreeModifiedEvent) {
+        var child = this.getChildById(id);
+        this.removeChild(child,ignoreTreeModifiedEvent);
+    };
+
+
+    /**
      * Accept function in visitor pattern
      * @param visitor {ASTVisitor}
      */

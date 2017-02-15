@@ -42,6 +42,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 throw "Container for Type Mapper definition is undefined." + this._container;
             }
             this._typeMapper = undefined;
+            this._blockStatementView = undefined;
 
         };
 
@@ -309,6 +310,13 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             var self = this;
             var sourceStructName = resourceParameter.getType();
 
+            if(!self.getBlockStatementView()){
+                self.setBlockStatementView(new TypeMapperBlockStatement({
+                    model: null, parentView: this,sourceInfo: self.getSourceInfo(),targetInfo: self.getTargetInfo()
+                }));
+                self.getBlockStatementView().initializeConnections();
+            }
+
             self.getSourceInfo()["sourceStructName"] = sourceStructName;
             var predefinedStructs = self.getSourceInfo().predefinedStructs;
 
@@ -325,7 +333,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 onDisconnectInstance: self.getOnDisconnectInstance(), sourceInfo: self.getSourceInfo()
             });
 
-            inputStructView.render(this.diagramRenderingContext, this._typeMapper);
+            inputStructView.render(this.diagramRenderingContext, self.getTypeMapperRenderer());
         };
 
         /**
@@ -336,6 +344,13 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             log.debug("Visiting return type");
             var self = this;
             var targetStructName = returnType.getType();
+
+            if(!self.getBlockStatementView()){
+                self.setBlockStatementView(new TypeMapperBlockStatement({
+                    model: null, parentView: this,sourceInfo: self.getSourceInfo(),targetInfo: self.getTargetInfo()
+                }));
+                self.getBlockStatementView().initializeConnections();
+            }
 
             self.getTargetInfo()["targetStructName"] = targetStructName;
             var predefinedStructs = self.getTargetInfo().predefinedStructs;
@@ -353,8 +368,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 model: returnType, parentView: this, onConnectInstance: self.getOnConnectInstance(),
                 onDisconnectInstance: self.getOnDisconnectInstance(), targetInfo: self.getTargetInfo()
             });
-            //todo set combobox value
-            outputStructView.render(this.diagramRenderingContext, this._typeMapper);
+            outputStructView.render(this.diagramRenderingContext, self.getTypeMapperRenderer());
         };
 
         /**
@@ -363,14 +377,19 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
          */
         TypeMapperDefinitionView.prototype.visitBlockStatement = function (blockStatement) {
             var self = this;
-            var typeMapperBlockStatementView = new TypeMapperBlockStatement({
-                model: blockStatement,
-                parentView: this,
-                sourceInfo: self.getSourceInfo(),
-                targetInfo: self.getTargetInfo()
-            });
+            if(!self.getBlockStatementView()){
+                self.setBlockStatementView(new TypeMapperBlockStatement({
+                    model: blockStatement, parentView: this,sourceInfo: self.getSourceInfo(),targetInfo: self.getTargetInfo()
+                }));
+                self.getBlockStatementView().initializeConnections();
+                self.getBlockStatementView().render(this.diagramRenderingContext);
+            }else{
+                self.getBlockStatementView().setModel(blockStatement);
+                self.getBlockStatementView().setSourceInfo(self.getSourceInfo());
+                self.getBlockStatementView().setTargetInfo(self.getTargetInfo());
+                self.getBlockStatementView().render(this.diagramRenderingContext);
+            }
 
-            typeMapperBlockStatementView.render(this.diagramRenderingContext);
         };
 
         /**
@@ -423,6 +442,22 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
          */
         TypeMapperDefinitionView.prototype.getTypeMapperRenderer = function () {
             return this._typeMapper;
+        };
+
+        /**
+         * returns the block statement view
+         * @returns {object}
+         */
+        TypeMapperDefinitionView.prototype.getBlockStatementView = function () {
+            return this._blockStatementView;
+        };
+
+        /**
+         * sets the block statement view
+         * @returns {object}
+         */
+        TypeMapperDefinitionView.prototype.setBlockStatementView = function (blockStatementView) {
+            this._blockStatementView = blockStatementView;
         };
 
         TypeMapperDefinitionView.prototype.getModel = function () {

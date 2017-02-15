@@ -27,6 +27,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     var TypeMapperRenderer = function (onConnectionCallback, onDisconnectCallback, typeConverterView) {
         this.references = [];
         this.viewId = typeConverterView._model.id;
+        this.jsTreePrefix = "jstree-container";
         this.viewIdSeperator = "___";
         this.sourceTargetSeperator = "_--_";
         this.idNameSeperator = "_-_-_-";
@@ -39,7 +40,6 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.disconnectCallback = onDisconnectCallback;
         this.connectCallback = onConnectionCallback;
         var self = this;
-
 
         this.jsPlumbInstance = jsPlumb.getInstance({
             Connector: self.getConnectorConfig(self.midpoint),
@@ -82,11 +82,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         });
 
         this.jsPlumbInstance.bind('connection', function (info, ev) {
-            self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
+            self.dagrePosition(self);
             self.processTypeMapperDropdown(info);
         });
     };
-
 
     TypeMapperRenderer.prototype.constructor = TypeMapperRenderer;
 
@@ -97,11 +96,12 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      */
     TypeMapperRenderer.prototype.disconnect = function (connection) {
         var self = this;
-        var propertyConnection = this.getConnectionObject(connection.sourceId, connection.targetId);
+        var propertyConnection = this.getConnectionObject(connection.getParameter("id"),
+                                                            connection.sourceId, connection.targetId);
         this.midpoint = this.midpoint - this.midpointVariance;
         this.jsPlumbInstance.importDefaults({Connector: self.getConnectorConfig(self.midpoint)});
         this.jsPlumbInstance.detach(connection);
-        this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
+        this.dagrePosition(this);
         this.disconnectCallback(propertyConnection);
         this.enableParentsJsTree(connection.sourceId, this, this.jsPlumbInstance.getAllConnections(), true);
         this.enableParentsJsTree(connection.targetId, this, this.jsPlumbInstance.getAllConnections(), false);
@@ -113,7 +113,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @param targetId Id of the target element of the connection
      * @returns connectionObject
      */
-    TypeMapperRenderer.prototype.getConnectionObject = function (sourceId, targetId) {
+    TypeMapperRenderer.prototype.getConnectionObject = function (id, sourceId, targetId) {
         var sourceName = this.getStructId(sourceId);
         var targetName = this.getStructId(targetId);
 
@@ -129,6 +129,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         }
 
         return {
+            id : id,
             sourceStruct: this.getStructName(sourceName),
             sourceProperty: this.getPropertyNameStack(sourceId),
             sourceType: this.getPropertyType(sourceId),
@@ -187,7 +188,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @returns {Array}
      */
     TypeMapperRenderer.prototype.getPropertyNameStack = function (propertyId) {
-        var id = propertyId.replace("jstree-container" + this.viewIdSeperator, "");
+        var id = propertyId.replace(this.jsTreePrefix + this.viewIdSeperator, "");
         var parts = id.split(this.idNameSeperator);
         var propertyNames = [];
         var self = this;
@@ -215,7 +216,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             var connection = info.connection;
             connection.getOverlay("typeMapperDropdown").show();
             var typeMapperId = '#typeMapperList' + this.viewIdSeperator + this.viewId;
-            var updatedTypeMapperId = "typeMapperList" + this.viewIdSeperator + connection.sourceId + this.sourceTargetSeperator + connection.targetId;
+            var updatedTypeMapperId = "typeMapperList" + this.viewIdSeperator + connection.sourceId
+                + this.sourceTargetSeperator + connection.targetId;
             var typeMappers = this.getExistingTypeMappers(this.typeConverterView, sourceType, targetType);
             $.each(typeMappers, function (i, item) {
                 $(typeMapperId).append($('<option>', {
@@ -264,7 +266,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         var id = listId.replace("typeMapperList" + this.viewIdSeperator, "");
         var sourceId = id.split(this.sourceTargetSeperator)[0];
         var targetId = id.split(this.sourceTargetSeperator)[1];
-        var connection = this.getConnectionObject(sourceId, targetId);
+        var connection = this.getConnectionObject(id, sourceId, targetId);
         this.disconnectCallback(connection);
         connection.isComplexMapping = true;
         connection.complexMapperName = $("#" + listId + " option:selected").val();
@@ -285,7 +287,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             }
         });
         $("#" + structId).remove();
-        this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
+        this.dagrePosition(this);
     };
 
     /**
@@ -293,11 +295,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @param {object} connection connection object which specified source and target
      */
     TypeMapperRenderer.prototype.addConnection = function (connection) {
-        var jsTreeContainerPrefix = 'jstree-container';
         var anchorEnd = '_anchor';
-        var sourceId =  jsTreeContainerPrefix + this.viewIdSeperator +  connection.sourceStruct
+        var sourceId =  this.jsTreePrefix + this.viewIdSeperator +  connection.sourceStruct
             + this.viewIdSeperator + this.viewId;
-        var targetId =  jsTreeContainerPrefix + this.viewIdSeperator +  connection.targetStruct
+        var targetId =  this.jsTreePrefix + this.viewIdSeperator +  connection.targetStruct
             + this.viewIdSeperator + this.viewId;
 
         for (var i = 0; i < connection.sourceProperty.length; i++ ) {
@@ -315,8 +316,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.jsPlumbInstance.connect({
             anchor: ["Continuous", {faces: ["right","left"]}],
             source: sourceId,
-            target: targetId});
-        this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
+            target: targetId,
+            parameters : {id : connection.id}
+        });
+        this.dagrePosition(this);
     };
 
     /**
@@ -327,8 +330,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     TypeMapperRenderer.prototype.addSourceStruct = function (struct, reference) {
         var id = struct.name + this.viewIdSeperator + this.viewId;
         struct.id = id;
-        this.makeStruct(struct, 50, 50, reference);
-        var jsTreeId = 'jstree-container' + this.viewIdSeperator + id;
+        this.makeStruct(struct, 50, 50, reference, "source");
+        var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
         this.addComplexProperty(jsTreeId, struct);
         this.processJSTree(jsTreeId, id, this.addSource)
     };
@@ -349,9 +352,9 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 createCallback(element, self);
             });
             $("#" + jsTreeId).jstree('open_all');
-            self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
+            self.dagrePosition(self);
         }).on('after_open.jstree', function (event, data) {
-            self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
+            self.dagrePosition(self);
             var parentId = data.node.id;
             var sourceElements = $("#" + parentId).find('.jstree-anchor');
             _.forEach(sourceElements, function (element) {
@@ -359,7 +362,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             });
             self.jsPlumbInstance.repaintEverything();
         }).on('after_close.jstree', function (event, data) {
-            self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
+            self.dagrePosition(self);
             self.jsPlumbInstance.repaintEverything();
         }).on('select_node.jstree', function (event, data) {
             data.instance.deselect_node(data.node);
@@ -406,7 +409,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         struct.id = id;
         var placeHolderWidth = document.getElementById(this.placeHolderName).offsetWidth;
         var posY = placeHolderWidth - (placeHolderWidth / 3);
-        this.makeStruct(struct, 50, posY, reference);
+        this.makeStruct(struct, 50, posY, reference, "target");
         var jsTreeId = 'jstree-container' + this.viewIdSeperator + id;
         this.addComplexProperty(jsTreeId, struct);
         this.processJSTree(jsTreeId, id, this.addTarget);
@@ -419,9 +422,9 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @param {int} posY Y position cordinate
      * @param {object} reference
      */
-    TypeMapperRenderer.prototype.makeStruct = function (struct, posX, posY, reference) {
+    TypeMapperRenderer.prototype.makeStruct = function (struct, posX, posY, reference, type) {
         this.references.push({name: struct.id, refObj: reference});
-        var newStruct = $('<div>').attr('id', struct.id).addClass('struct');
+        var newStruct = $('<div>').attr('id', struct.id).attr('type', type).addClass('struct');
         var structIcon = $('<i>').addClass('type-mapper-icon fw fw-struct fw-inverse');
         var structName = $('<div>');
 
@@ -432,7 +435,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             'top': posX,
             'left': posY
         });
-        var jsTreeContainer = $('<div>').attr('id', 'jstree-container' + this.viewIdSeperator + struct.id).addClass('tree-container');
+        var jsTreeContainer = $('<div>').attr('id', 'jstree-container' + this.viewIdSeperator + struct.id)
+                              .addClass('tree-container');
         newStruct.append(jsTreeContainer);
         $("#" + this.placeHolderName).append(newStruct);
     };
@@ -477,10 +481,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
                 if(connection.target.id.includes(id)) {
                     removedFunction.incomingConnections.push(
-                        self.getConnectionObject(connection.sourceId,connection.targetId));
+                        self.getConnectionObject(connection.getParameter("id"), connection.sourceId,connection.targetId));
                 } else if(connection.source.id.includes(id)) {
                     removedFunction.outgoingConnections.push(
-                        self.getConnectionObject(connection.sourceId,connection.targetId));
+                        self.getConnectionObject(connection.getParameter("id"), connection.sourceId,connection.targetId));
                 }
             });
 
@@ -498,7 +502,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             self.addSource(property, self);
         });
 
-        self.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
+        self.dagrePosition(this);
     };
 
     TypeMapperRenderer.prototype.makeFunctionAttribute = function (parentId, name, type, input) {
@@ -570,7 +574,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             beforeDrop: function (params) {
                 //Checks property types are equal
                 var isValidTypes = self.getPropertyType(params.sourceId) == self.getPropertyType(params.targetId);
-                var connection = self.getConnectionObject(params.sourceId, params.targetId);
+                var connection = self.getConnectionObject(params.id, params.sourceId, params.targetId);
                 if (isValidTypes) {
                     self.midpoint = self.midpoint + self.midpointVariance;
                     self.jsPlumbInstance.importDefaults({Connector: self.getConnectorConfig(self.midpoint)});
@@ -596,7 +600,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 return isValidTypes;
             },
             onDrop: function () {
-                self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
+                self.dagrePosition(self);
             }
         })
         ;
@@ -660,13 +664,16 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @param {string} viewId type mapper view identifier
      * @param jsPlumbInstance jsPlumb instance of the type mapper to be repositioned
      */
-    TypeMapperRenderer.prototype.dagrePosition = function (viewId, jsPlumbInstance) {
+    TypeMapperRenderer.prototype.dagrePosition = function (self) {
         // construct dagre graph from this.jsPlumbInstance graph
         var graph = new dagre.graphlib.Graph();
-
         var alignment = 'LR';
-
-        if (jsPlumbInstance.getAllConnections() == 0) {
+        var nodes = []
+        var sourceIndex;
+        var targetIndex;
+        var structs = $("#" + self.placeHolderName + "> .struct");
+        var funcs = $("#" + self.placeHolderName + "> .func");
+        if (self.jsPlumbInstance.getAllConnections() == 0) {
             alignment = 'TD';
         }
 
@@ -675,11 +682,27 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             return {};
         });
 
-        var nodes = $("#" + viewId + "> .struct, #" + viewId + "> .func");
+        if (structs.length > 1 && funcs.length > 0) {
+            if ($(structs[0]).attr("type") == "source") {
+                sourceIndex = 0;
+                targetIndex = 1;
+            } else {
+                sourceIndex = 1;
+                targetIndex = 0;
+            }
+
+            nodes.push(structs[sourceIndex]);
+            _.forEach(funcs, function (func) {
+                nodes.push(func);
+            });
+            nodes.push(structs[targetIndex]);
+        } else {
+            nodes = structs;
+        }
 
         if (nodes.length > 0) {
             var maxTypeHeight = 0;
-
+            var maxYPosition = 0;
 
             _.forEach(nodes, function (n) {
                 var nodeContent = $("#" + n.id);
@@ -689,24 +712,25 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 graph.setNode(n.id, {width: nodeContent.width(), height: nodeContent.height()});
             });
 
-            var edges = jsPlumbInstance.getAllConnections();
+            var edges = self.jsPlumbInstance.getAllConnections();
 
             _.forEach(edges, function (edge) {
-                //todo : refactor hardcoded values and separators
-                var source = edge.source.id.split("_-_-_-")[0];
-                var target = edge.target.id.split("_-_-_-")[0];
+                var source = edge.source.id.split(self.idNameSeperator)[0];
+                var target = edge.target.id.split(self.idNameSeperator)[0];
                 var sourceId;
                 var targetId;
 
                 //checks whether target and source is a generic type or a function
-                if (source.includes("jstree-container")) {
-                    sourceId = source.split("___")[1] + "___" + source.split("___")[2];
+                if (source.includes(self.jsTreePrefix)) {
+                    sourceId = source.split(self.viewIdSeperator)[1] + self.viewIdSeperator
+                                              + source.split(self.viewIdSeperator)[2];
                 } else {
                     sourceId = source;
                 }
 
-                if (target.includes("jstree-container")) {
-                    targetId = target.split("___")[1] + "___" + target.split("___")[2];
+                if (target.includes(self.jsTreePrefix)) {
+                    targetId = target.split(self.viewIdSeperator)[1]
+                                                + self.viewIdSeperator + target.split(self.viewIdSeperator)[2];
                 } else {
                     targetId = target;
                 }
@@ -715,8 +739,6 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             });
             // calculate the layout (i.e. node positions)
             dagre.layout(graph);
-
-            var maxYPosition = 0;
 
             // Applying the calculated layout
             _.forEach(graph.nodes(), function (dagreNode) {
@@ -730,8 +752,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 }
             });
 
-            $("#" + viewId).height(maxTypeHeight + maxYPosition + 55);
-            jsPlumbInstance.repaintEverything();
+            $("#" + self.placeHolderName).height(maxTypeHeight + maxYPosition + 55);
+            self.jsPlumbInstance.repaintEverything();
         }
     };
 

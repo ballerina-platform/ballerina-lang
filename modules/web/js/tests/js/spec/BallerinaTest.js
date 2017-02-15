@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['lodash','jquery', 'ballerina'], function(_, $, Ballerina) {
+define(['lodash', 'log', 'jquery', 'ballerina'], function(_, log, $, Ballerina) {
 
 var getModelBackend = "http://localhost:8289/ballerina/model/content";
 var getFileContentBackend = "http://localhost:8289/service/workspace";
@@ -82,6 +82,6 @@ var getFileContentBackend = "http://localhost:8289/service/workspace";
 
     //Running test for provide source list
     sourceList.forEach(function(testFile) {
-        ballerinaTestRunner(getTestResourceLocation() + "BalSource/" +testFile);
+        ballerinaTestRunner(getTestResourceLocation() +testFile);
     });
 });

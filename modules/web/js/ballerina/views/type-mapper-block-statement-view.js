@@ -27,11 +27,6 @@ define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMa
             this._sourceInfo = _.get(args, 'sourceInfo', {});
             this._targetInfo = _.get(args, 'targetInfo', {});
 
-            if (_.isNil(this.getModel()) || !(this._model instanceof BlockStatement)) {
-                log.error("Block Statement is undefined or is of different type." + this.getModel());
-                throw "Block Statement is undefined or is of different type." + this.getModel();
-            }
-
         };
 
         TypeMapperBlockStatementView.prototype = Object.create(BallerinaView.prototype);
@@ -47,15 +42,21 @@ define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMa
          */
         TypeMapperBlockStatementView.prototype.render = function (diagramRenderingContext) {
             this._diagramRenderingContext = diagramRenderingContext;
-            var self = this;
-
-            this._parentView.setOnConnectInstance(self.onAttributesConnect);
-            this._parentView.setOnDisconnectInstance(self.onAttributesDisConnect);
 
             this._model.accept(this);
             this._model.on('child-added', function (child) {
                 this.visit(child)
             }, this)
+
+        };
+
+        /**
+         * Initializing Connections.
+         */
+        TypeMapperBlockStatementView.prototype.initializeConnections = function () {
+            var self = this;
+            this._parentView.setOnConnectInstance(self.onAttributesConnect);
+            this._parentView.setOnDisconnectInstance(self.onAttributesDisConnect);
 
         };
 
@@ -152,6 +153,7 @@ define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMa
 
             var blockStatement = connection.targetReference.getParent().getBlockStatement();
 
+
 //            connection.targetReference.getParent().removeAssignmentDefinition(connection.sourceProperty,
 //                connection.targetProperty);
         };
@@ -165,11 +167,27 @@ define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMa
         };
 
         /**
+         * sets the source info
+         * @returns {object}
+         */
+        TypeMapperBlockStatementView.prototype.setSourceInfo = function (sourceInfo) {
+            this._sourceInfo = sourceInfo;
+        };
+
+        /**
          * returns the source info
          * @returns {object}
          */
         TypeMapperBlockStatementView.prototype.getTargetInfo = function () {
             return this._targetInfo;
+        };
+
+        /**
+         * sets the target info
+         * @returns {object}
+         */
+        TypeMapperBlockStatementView.prototype.setTargetInfo = function (targetInfo) {
+            this._targetInfo = targetInfo;
         };
 
         return TypeMapperBlockStatementView;

@@ -574,7 +574,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             if (_.isUndefined(this._defaultWorker)) {
                 var defaultWorkerOpts = {};
                 _.set(defaultWorkerOpts, 'container', contentGroup.node());
-                _.set(defaultWorkerOpts, 'centerPoint', this._viewOptions.defaultWorker.center);
+                _.set(defaultWorkerOpts, 'centerPoint', this._viewOptions.defaultWorker.center.clone().move(150, 0));
                 _.set(defaultWorkerOpts, 'title', 'ActionWorker');
                 this._defaultWorker = new DefaultWorkerView(defaultWorkerOpts);
             }

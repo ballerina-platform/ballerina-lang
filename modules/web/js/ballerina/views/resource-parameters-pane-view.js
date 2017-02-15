@@ -16,8 +16,8 @@
  * under the License.
  */
 define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../ast/node',
-        './../ast/resource-parameter'],
-    function (_, log, $, Alerts, ResourceParameterView, ASTNode, ResourceParameter) {
+        './../ast/resource-parameter', 'select2'],
+    function (_, log, $, Alerts, ResourceParameterView, ASTNode, ResourceParameter, select2) {
 
         /**
          * Creates the resource parameters pane. This is not a ballerina view. This is simply a pane which is created
@@ -97,7 +97,10 @@ define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../
             }).appendTo(headerWrapper);
 
             // Creating parameter type dropdown.
-            var parameterTypeDropDown = $("<select/>").appendTo(parameterWrapper);
+            var parameterTypeDropDown = $("<select/>");
+            var typeDropdownWrapper = $('<div class="type-drop-wrapper resource"></div>');
+            parameterTypeDropDown.appendTo(typeDropdownWrapper);
+            typeDropdownWrapper.appendTo(parameterWrapper);
 
             this._supportedParameterTypes = this._viewOfModel.getDiagramRenderingContext().getEnvironment().getTypes();
             // Adding dropdown elements.
@@ -107,7 +110,11 @@ define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../
                     $('<option></option>').val(type).html(type)
                 );
             });
+            parameterTypeDropDown.select2({
+                tags: true,
+                selectOnClose: true
 
+            });
             // Text input for the new identifier.
             var parameterIdentifierInput = $("<input/>", {
                 type: "text",

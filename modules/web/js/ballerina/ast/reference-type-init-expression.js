@@ -23,7 +23,7 @@ define(['lodash', './expression'], function (_, Expression) {
      * @constructor
      */
     var ReferenceTypeInitExpression = function (args) {
-        Expression.call(this, 'VariableReferenceExpression');
+        Expression.call(this, 'ReferenceTypeInitExpression');
     };
 
     ReferenceTypeInitExpression.prototype = Object.create(Expression.prototype);
@@ -34,12 +34,19 @@ define(['lodash', './expression'], function (_, Expression) {
      * @param {Object} jsonNode to initialize from
      */
     ReferenceTypeInitExpression.prototype.initFromJson = function (jsonNode) {
-        this.setExpression("{}", {doSilently: true});
+        var self = this;
+        var generateExpression = '';
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+            generateExpression +=child.getExpression() + ",";
+        });
+        this.setExpression("{" + (generateExpression.substring(0, generateExpression.length-1)) + "}",{doSilently: true});
     };
 
     ReferenceTypeInitExpression.prototype.generateExpression = function () {
         this._expression = this.getVariableReferenceName()
     };
-
     return ReferenceTypeInitExpression;
 });
