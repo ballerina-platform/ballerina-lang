@@ -26,7 +26,7 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
         './action-invocation-expression', './ballerina-ast-deserializer', './function-invocation-expression',
         './left-operand-expression', './right-operand-expression', './connector-action', './struct-definition',
         './action-invocation-statement', './variable-definition-statement','./type-struct-definition', './resource-parameter',
-        './return-type','./worker-invoke','./block-statement','./struct-field-access-expression',
+        './return-type','./worker-invoke','./worker-receive','./block-statement','./struct-field-access-expression',
         './variable-reference-expression','./ref-type-init-expression','./variable-definition'],
     function (BallerinaASTFactory, BallerinaASTRoot, ConditionalStatement, ConnectorDeclaration, ConnectorDefinition,
               ConstantDefinition, Expression, FunctionDefinition, IfElseStatement, IfStatement, ElseStatement,
@@ -37,7 +37,7 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
               FunctionInvocation, ArithmeticExpression, LogicalExpression, ActionInvocationExpression,
               BallerinaASTDeserializer, FunctionInvocationExpression, LeftOperandExpression, RightOperandExpression,
               ConnectorAction, StructDefinition, ActionInvocationStatement, VariableDefinitionStatement,TypeStructDefinition,
-	          ResourceParameter,ReturnType,WorkerInvoke,BlockStatement,StructFieldAccessExpression, VariableReferenceExpression,
+	          ResourceParameter,ReturnType,WorkerInvoke,WorkerReceive ,BlockStatement,StructFieldAccessExpression, VariableReferenceExpression,
               RefTypeInitExpression, VariableDefinition) {
 
         return  {
@@ -89,6 +89,7 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
             ResourceParameter: ResourceParameter,
             ReturnType: ReturnType,
             WorkerInvoke: WorkerInvoke,
+            WorkerReceive: WorkerReceive,
             BlockStatement: BlockStatement,
             StructFieldAccessExpression : StructFieldAccessExpression,
             VariableReferenceExpression : VariableReferenceExpression,

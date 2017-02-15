@@ -29,10 +29,11 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
         './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression',
         './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
-        './if-condition', './array-map-access-expression', './map-init-expression', './key-value-expression', './binary-expression', './connector-action', './struct-definition',
-        './constant-definition', './variable-definition-statement','./type-struct-definition','./struct-type','./symbol-name','./struct-field-access-expression',
-        './type-casting-expression', './worker-invoke','./block-statement','./struct-field-access-expression','./ref-type-init-expression',
-        './variable-definition','./type-cast-expression'],
+        './if-condition', './array-map-access-expression','./key-value-expression',
+        './binary-expression', './unary-expression', './connector-action', './struct-definition', './constant-definition',
+        './variable-definition-statement', './type-struct-definition', './struct-type', './symbol-name', './struct-field-access-expression',
+        './type-casting-expression', './worker-invoke', './reference-type-init-expression', './block-statement', './struct-field-access-expression',
+        './ref-type-init-expression', './variable-definition', './type-cast-expression', './array-init-expression', './worker-receive'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -41,10 +42,11 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               functionInvocationExpression, variableReferenceExpression, actionInvocationStatement, arithmeticExpression,
               logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
-              thenBody, ifCondition, arrayMapAccessExpression, mapInitExpression, keyValueExpression, binaryExpression,
-              connectorAction, structDefinition, constantDefinition, variableDefinitionStatement, typeStructDefinition,
-              structType, symbolName, structFieldAccessExpression, typeCastingExpression, workerInvoke, blockStatement,
-              structFieldAccessExpression, referenceTypeInitExpression, variableDefinition, typeCastExpression) {
+              thenBody, ifCondition, arrayMapAccessExpression, keyValueExpression, binaryExpression,
+              unaryExpression, connectorAction, structDefinition, constantDefinition, variableDefinitionStatement, typeStructDefinition,
+              structType, symbolName, structFieldAccessExpression, typeCastingExpression, workerInvoke, referenceTypeInitExpression,
+              blockStatement, structFieldAccessExpression, referenceTypeInitExpression, variableDefinition, typeCastExpression,
+              arrayInitExpression, workerReceive) {
 
 
         /**
@@ -144,15 +146,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createStructDefinition = function (args) {
             return new structDefinition(args);
-        };
-
-        /**
-         * creates mapInitExpression
-         * @param {Object} args - object for mapInitExpression creation
-         * @returns {MapInitExpression}
-         */
-        BallerinaASTFactory.createMapInitExpression = function (args) {
-            return new mapInitExpression(args);
         };
 
         /**
@@ -469,6 +462,14 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * creates WorkerReceiveStatement
+         * @param args
+         */
+        BallerinaASTFactory.createWorkerReceiveStatement = function (args) {
+            return new workerReceive(args);
+        };
+
+        /**
         * creates WhileStatement
         * @param args
         */
@@ -693,6 +694,24 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.isWorkerDeclaration = function (child) {
             return child instanceof workerDeclaration;
+        };
+
+        /**
+         * instanceof check for WorkerInvoke
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isWorkerInvokeStatement = function (child) {
+            return child instanceof workerInvoke;
+        };
+
+        /**
+         * instanceof check for WorkerReceive
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isWorkerReceiveStatement = function (child) {
+            return child instanceof workerReceive;
         };
 
         /**
@@ -1279,6 +1298,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                     case 'division_expression':
                         node = BallerinaASTFactory.createBinaryExpression({"operator" : "/"});
                         break;
+                    case 'mod_expression' :
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "%"});
+                        break;
                     case 'and_expression':
                         node = BallerinaASTFactory.createBinaryExpression({"operator" : "&&"});
                         break;
@@ -1314,9 +1336,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'struct_definition':
                         node = BallerinaASTFactory.createStructDefinition();
-                        break;
-                    case 'map_init_expression':
-                        node = BallerinaASTFactory.createMapInitExpression();
                         break;
                     case 'key_value_expression':
                         node = BallerinaASTFactory.createKeyValueExpression();

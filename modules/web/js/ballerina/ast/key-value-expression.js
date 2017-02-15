@@ -46,7 +46,7 @@ define(['lodash', './expression'], function (_, Expression) {
     KeyValueExpression.prototype.generateKeyValueExpression = function (jsonNode) {
         var expString = "";
         var self = this;
-        var key = jsonNode.children[1].key_value_key;
+        var key = jsonNode.children[1][0].basic_literal_value;
         var expressionNode = self.getFactory().createFromJson(jsonNode.children[0]);
         expressionNode.initFromJson(jsonNode.children[0]);
         expString += "\"" + key + "\":" + expressionNode.getExpression();

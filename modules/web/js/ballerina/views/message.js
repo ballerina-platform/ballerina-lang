@@ -37,6 +37,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this._viewOptions = args;
         this._start = this._viewOptions.start.clone();
         this._end = this._viewOptions.end.clone();
+        this._isInputArrow = _.get(args, 'isInputArrow', true);
+        this._arrowHead = undefined;
 
         _.set(this._viewOptions, 'cssClass.line',  _.get(this._viewOptions, 'cssClass.line', 'message'));
         _.set(this._viewOptions, 'cssClass.group',  _.get(this._viewOptions, 'cssClass.message', 'message-container'));
@@ -65,11 +67,16 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this._line = D3Utils.lineFromPoints(this._start, this._end, this._rootGroup)
             .classed(_.get(this._viewOptions, 'cssClass.line'), true);
         var arrowHeadWidth = 5;
-        this._arrowHead = D3Utils.inputTriangle(this._end.x() - arrowHeadWidth, this._end.y(), this._rootGroup).classed("action-arrow", true);
+
+        if (this._isInputArrow) {
+            this._arrowHead = D3Utils.inputTriangle(this._end.x() - arrowHeadWidth, this._end.y(), this._rootGroup).classed("action-arrow", true);
+        } else {
+            this._arrowHead = D3Utils.outputTriangle(this._end.x() - arrowHeadWidth, this._end.y(), this._rootGroup).classed("action-arrow", true);
+        }
 
         this._start.on('moved', function(offset){
-            var x1 = self._line.attr('x1');
-            var y1 = self._line.attr('y1');
+            var x1 = parseFloat(self._line.attr('x1'));
+            var y1 = parseFloat(self._line.attr('y1'));
 
             self._line.attr('x1', x1 + offset.dx)
                 .attr('y1', y1 + offset.dy);
@@ -77,20 +84,36 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         });
 
         this._end.on('moved', function(offset){
-            var x2 = self._line.attr('x2');
-            var y2 = self._line.attr('y2');
+            var x2 = parseFloat(self._line.attr('x2'));
+            var y2 = parseFloat(self._line.attr('y2'));
 
             self._line.attr('x2', x2 + offset.dx)
                 .attr('y2', y2 + offset.dy);
 
-            x2 = self._line.attr('x2');
-            y2 = self._line.attr('y2');
+            x2 = parseFloat(self._line.attr('x2'));
+            y2 = parseFloat(self._line.attr('y2'));
             var points = "" + x2 + "," + (y2 - 5) + " " + (x2 + 5) + "," + (y2) + " " + x2 + "," + (y2 + 5);
             self._arrowHead.attr('points', points);
 
         });
 
         return this;
+    };
+
+    /**
+     * Move the message
+     * @param {number} dx - delta x distance
+     * @param {number} dy - delta y distance
+     */
+    MessageView.prototype.move = function (dx, dy) {
+        if (!_.isNil(dx)) {
+            this._start.move(dx, 0);
+            this._end.move(dx, 0);
+        }
+        if (!_.isNil(dy)) {
+            this._start.move(0, dy);
+            this._end.move(0, dy);
+        }
     };
 
     return MessageView;

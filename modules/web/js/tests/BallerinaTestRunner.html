@@ -26,7 +26,7 @@
 			{
                 baseUrl: window.location.protocol + "//" + window.location.host + window.location.pathname.split("/").slice(0, -1).join("/"),
 				paths:{
-					'jquery':'lib/jquery',
+					jquery:'lib/jquery_v1.9.1/jquery-1.9.1.min',
 					log: "../log/log",
 					log4javascript: "../../lib/log4javascript-1.4.13/log4javascript",
 					event_channel: "../event/channel",
@@ -41,7 +41,17 @@
            		    alerts: "../utils/alerts",
            		    main_elements: "../main-elements/module",
            		    mousetrap: "../../lib/mousetrap_v1.6.0/mousetrap.min",
-           		     processors: "../processors/module",
+           		    processors: "../processors/module",
+           		    constants: '../../js/constants/constants',
+           		    environment_content: "../../js/ballerina/env/environment-content",
+           		    jsPlumb: "../../lib/jsPlumb-2.2.8/jsPlumb-2.2.8-min",
+           			yaml: "../../lib/js-yaml-v3.7.0/dist/js-yaml.min",
+            		typeahead: "../../lib/typeahead_v0.11.1/typeahead.bundle.min",
+           		    expression_editor_utils: "../../js/expression-editor/expression-editor-utils",
+           		    mcustom_scroller: "../../lib/mCustomScrollbar_v3.1.5/js/jquery.mCustomScrollbar",
+           		    typeMapper: '../../js/type-mapper/type-mapper-renderer',
+           		    dagre: "../../lib/dagre-0.7.4/dagre.min",
+           		    select2: "../../lib/select2-4.0.3/dist/js/select2.full.min"
 				},
 
                 shim: {

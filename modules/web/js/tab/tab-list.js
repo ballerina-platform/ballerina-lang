@@ -206,7 +206,10 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                         nextTabIndex = tabIndex - 1;
                     }
                     var nextTab = this._tabs[nextTabIndex];
-                    this.setActiveTab(nextTab);
+                    // if closed tab was the active tab, change active tab to next
+                    if(_.isEqual(this.getActiveTab(), tab)){
+                        this.setActiveTab(nextTab);
+                    }
                 }
             },
             /**

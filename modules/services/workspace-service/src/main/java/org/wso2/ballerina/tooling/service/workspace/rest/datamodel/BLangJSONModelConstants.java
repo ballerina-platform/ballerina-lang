@@ -154,6 +154,8 @@ public class BLangJSONModelConstants {
 
     public static final String DIVISION_EXPRESSION = "division_expression";
 
+    public static final String MOD_EXPRESSION = "mod_expression";
+
     public static final String AND_EXPRESSION = "and_expression";
 
     public static final String OR_EXPRESSION = "or_expression";
