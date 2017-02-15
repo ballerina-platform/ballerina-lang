@@ -41,7 +41,7 @@ public class JMSResourceDispatcher implements ResourceDispatcher {
                             + "deliver the message");
         }
         for (Resource resource : service.getResources()) {
-            if (resource.getAnnotation(Constants.ANNOTATION_NAME_ONMESSAGE) != null) {
+            if (resource.getAnnotation(Constants.ANNOTATION_NAME_JMS_ONMESSAGE) != null) {
                 if (log.isDebugEnabled()) {
                     log.debug("Found the relevant resource in the jms service " + service.getSymbolName().toString());
                 }
