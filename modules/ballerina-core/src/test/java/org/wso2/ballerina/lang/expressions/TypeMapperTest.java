@@ -27,19 +27,19 @@ import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
-public class TypeConvertorTest {
+public class TypeMapperTest {
 
     private BallerinaFile bFile;
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("lang/expressions/ballerina-type-convertor.bal");
+        bFile = ParserUtils.parseBalFile("lang/expressions/ballerina-type-mapper.bal");
     }
 
     @Test
     public void testJSONToXML() {
         BValue[] args = {new BJSON("{\"name\":\"chanaka\"}")};
-        BValue[] returns = Functions.invoke(bFile, "testBalConvertor", args);
+        BValue[] returns = Functions.invoke(bFile, "testBalMapper", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         final String expected = "<name>chanaka</name>";
         Assert.assertEquals(returns[0].stringValue(), expected);

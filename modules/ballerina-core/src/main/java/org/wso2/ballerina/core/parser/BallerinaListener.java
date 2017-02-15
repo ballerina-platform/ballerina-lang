@@ -208,55 +208,55 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitStructDefinitionBody(BallerinaParser.StructDefinitionBodyContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#typeConvertorDefinition}.
+	 * Enter a parse tree produced by {@link BallerinaParser#typeMapperDefinition}.
 	 * @param ctx the parse tree
 	 */
-	void enterTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx);
+	void enterTypeMapperDefinition(BallerinaParser.TypeMapperDefinitionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#typeConvertorDefinition}.
+	 * Exit a parse tree produced by {@link BallerinaParser#typeMapperDefinition}.
 	 * @param ctx the parse tree
 	 */
-	void exitTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx);
+	void exitTypeMapperDefinition(BallerinaParser.TypeMapperDefinitionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#nativeTypeConvertor}.
+	 * Enter a parse tree produced by {@link BallerinaParser#nativeTypeMapper}.
 	 * @param ctx the parse tree
 	 */
-	void enterNativeTypeConvertor(BallerinaParser.NativeTypeConvertorContext ctx);
+	void enterNativeTypeMapper(BallerinaParser.NativeTypeMapperContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#nativeTypeConvertor}.
+	 * Exit a parse tree produced by {@link BallerinaParser#nativeTypeMapper}.
 	 * @param ctx the parse tree
 	 */
-	void exitNativeTypeConvertor(BallerinaParser.NativeTypeConvertorContext ctx);
+	void exitNativeTypeMapper(BallerinaParser.NativeTypeMapperContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#typeConvertor}.
+	 * Enter a parse tree produced by {@link BallerinaParser#typeMapper}.
 	 * @param ctx the parse tree
 	 */
-	void enterTypeConvertor(BallerinaParser.TypeConvertorContext ctx);
+	void enterTypeMapper(BallerinaParser.TypeMapperContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#typeConvertor}.
+	 * Exit a parse tree produced by {@link BallerinaParser#typeMapper}.
 	 * @param ctx the parse tree
 	 */
-	void exitTypeConvertor(BallerinaParser.TypeConvertorContext ctx);
+	void exitTypeMapper(BallerinaParser.TypeMapperContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#typeConvertorInput}.
+	 * Enter a parse tree produced by {@link BallerinaParser#typeMapperInput}.
 	 * @param ctx the parse tree
 	 */
-	void enterTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx);
+	void enterTypeMapperInput(BallerinaParser.TypeMapperInputContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#typeConvertorInput}.
+	 * Exit a parse tree produced by {@link BallerinaParser#typeMapperInput}.
 	 * @param ctx the parse tree
 	 */
-	void exitTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx);
+	void exitTypeMapperInput(BallerinaParser.TypeMapperInputContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#typeConvertorBody}.
+	 * Enter a parse tree produced by {@link BallerinaParser#typeMapperBody}.
 	 * @param ctx the parse tree
 	 */
-	void enterTypeConvertorBody(BallerinaParser.TypeConvertorBodyContext ctx);
+	void enterTypeMapperBody(BallerinaParser.TypeMapperBodyContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#typeConvertorBody}.
+	 * Exit a parse tree produced by {@link BallerinaParser#typeMapperBody}.
 	 * @param ctx the parse tree
 	 */
-	void exitTypeConvertorBody(BallerinaParser.TypeConvertorBodyContext ctx);
+	void exitTypeMapperBody(BallerinaParser.TypeMapperBodyContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#constantDefinition}.
 	 * @param ctx the parse tree
@@ -328,15 +328,15 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitQualifiedTypeName(BallerinaParser.QualifiedTypeNameContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#typeConvertorType}.
+	 * Enter a parse tree produced by {@link BallerinaParser#typeMapperType}.
 	 * @param ctx the parse tree
 	 */
-	void enterTypeConvertorType(BallerinaParser.TypeConvertorTypeContext ctx);
+	void enterTypeMapperType(BallerinaParser.TypeMapperTypeContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#typeConvertorType}.
+	 * Exit a parse tree produced by {@link BallerinaParser#typeMapperType}.
 	 * @param ctx the parse tree
 	 */
-	void exitTypeConvertorType(BallerinaParser.TypeConvertorTypeContext ctx);
+	void exitTypeMapperType(BallerinaParser.TypeMapperTypeContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#unqualifiedTypeName}.
 	 * @param ctx the parse tree
@@ -708,15 +708,29 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitJoinClause(BallerinaParser.JoinClauseContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#joinConditions}.
+	 * Enter a parse tree produced by the {@code anyJoinCondition}
+	 * labeled alternative in {@link BallerinaParser#joinConditions}.
 	 * @param ctx the parse tree
 	 */
-	void enterJoinConditions(BallerinaParser.JoinConditionsContext ctx);
+	void enterAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#joinConditions}.
+	 * Exit a parse tree produced by the {@code anyJoinCondition}
+	 * labeled alternative in {@link BallerinaParser#joinConditions}.
 	 * @param ctx the parse tree
 	 */
-	void exitJoinConditions(BallerinaParser.JoinConditionsContext ctx);
+	void exitAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code allJoinCondition}
+	 * labeled alternative in {@link BallerinaParser#joinConditions}.
+	 * @param ctx the parse tree
+	 */
+	void enterAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code allJoinCondition}
+	 * labeled alternative in {@link BallerinaParser#joinConditions}.
+	 * @param ctx the parse tree
+	 */
+	void exitAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#timeoutClause}.
 	 * @param ctx the parse tree

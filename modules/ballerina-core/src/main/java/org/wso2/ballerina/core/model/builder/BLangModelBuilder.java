@@ -19,9 +19,8 @@ package org.wso2.ballerina.core.model.builder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.BTypeConvertor;
+import org.wso2.ballerina.core.model.BTypeMapper;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -69,6 +68,7 @@ import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.CommentStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
@@ -165,14 +165,11 @@ public class BLangModelBuilder {
                     String importPkgErrStr = (importPkg.getAsName() == null) ? pkgPathStr : pkgPathStr + " as '" +
                             importPkg.getAsName() + "'";
 
-                    throw new SemanticException(getNodeLocationStr(location) +
-                            "unused import package " + importPkgErrStr + "");
+                   errorMsgs.add(getNodeLocationStr(location) +
+                           "unused import package " + importPkgErrStr + "");
                 });
 
-        if (errorMsgs.size() > 0) {
-            throw new SemanticException(errorMsgs.get(0));
-        }
-
+        bFileBuilder.setErrorMsgs(errorMsgs);
         bFileBuilder.setImportPackageMap(importPkgMap);
         return bFileBuilder.build();
     }
@@ -771,28 +768,28 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
-    public void startTypeConverterDef() {
-        currentCUBuilder = new BTypeConvertor.BTypeConvertorBuilder(currentScope);
+    public void startTypeMapperDef() {
+        currentCUBuilder = new BTypeMapper.BTypeMapperBuilder(currentScope);
         currentScope = currentCUBuilder.getCurrentScope();
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void addTypeConverter(String source, String target, String name, NodeLocation location, boolean isPublic) {
+    public void addTypeMapper(String source, String target, String name, NodeLocation location, boolean isPublic) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
         //currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setPublic(isPublic);
 
-        BTypeConvertor typeConvertor = currentCUBuilder.buildTypeConverter();
+        BTypeMapper typeMapper = currentCUBuilder.buildTypeMapper();
         TypeVertex sourceV = new TypeVertex(BTypes.resolveType(new SimpleTypeName(source),
                 currentScope, location));
         TypeVertex targetV = new TypeVertex(BTypes.resolveType(new SimpleTypeName(target),
                 currentScope, location));
-        bFileBuilder.addTypeConvertor(sourceV, targetV, typeConvertor, currentPackagePath);
+        bFileBuilder.addTypeMapper(sourceV, targetV, typeMapper, currentPackagePath);
 
-        // Define type converter is delayed due to missing type info of Parameters.
+        // Define type mapper is delayed due to missing type info of Parameters.
 
-        currentScope = typeConvertor.getEnclosingScope();
+        currentScope = typeMapper.getEnclosingScope();
         currentCUBuilder = null;
     }
 
@@ -810,7 +807,7 @@ public class BLangModelBuilder {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
         currentCUBuilder.setPkgPath(currentPackagePath);
-        // TODO Figure out whether we need to support public type convertors
+        // TODO Figure out whether we need to support public type typemappers
 //        currentCUBuilder.setPublic(isPublic);
 
         List<Annotation> annotationList = annotationListStack.pop();
@@ -932,6 +929,11 @@ public class BLangModelBuilder {
         } else {
             addToBlockStmt(variableDefStmt);
         }
+    }
+
+    public void addCommentStmt(NodeLocation location, String comment) {
+        CommentStmt commentStmt = new CommentStmt(location, comment);
+        addToBlockStmt(commentStmt);
     }
 
     public void createAssignmentStmt(NodeLocation location) {

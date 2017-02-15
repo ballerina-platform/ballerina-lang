@@ -17,13 +17,28 @@
  */
 package org.wso2.ballerina.core.model;
 
-/**
- * {@code {@link TypeConvertor }} represents any Ballerina TypeConvertor.
- */
-public interface TypeConvertor extends CallableUnit {
+import org.wso2.ballerina.core.model.types.SimpleTypeName;
 
-    // TODO Refactor typeConvertor name related methods
-    String getTypeConverterName();
+/**
+ * {@code {@link NativeTypeMapper }} represents any Native TypeMapper in Ballerina.
+ */
+public interface NativeTypeMapper extends CallableUnit {
+
+    String getTypeMapperName();
 
     boolean isPublic();
+    
+    /**
+     * Get the simple Type Names of the return parameters.
+     * 
+     * @return  Simple Type Names of the return parameters
+     */
+    SimpleTypeName[] getReturnParamTypeNames();
+    
+    /**
+     * Get the simple Type Names of the input input arguments.
+     * 
+     * @return   Simple Type Names of the input input arguments.
+     */
+    SimpleTypeName[] getArgumentTypeNames();
 }

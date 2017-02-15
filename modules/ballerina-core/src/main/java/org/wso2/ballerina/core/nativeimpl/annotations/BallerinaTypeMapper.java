@@ -17,56 +17,57 @@
  */
 package org.wso2.ballerina.core.nativeimpl.annotations;
 
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Represents Native Ballerina TypeConvertor.
+ * Represents Native Ballerina TypeMapper.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface BallerinaTypeConvertor {
+public @interface BallerinaTypeMapper {
 
     /**
-     * Package name of the {@code {@link org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor }}.
+     * Package name of the {@code {@link org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeMapper }}.
      * Default is "".
      *
-     * @return package name of the typeConvertor.
+     * @return package name of the typeMapper.
      */
     String packageName() default "";
 
     /**
-     * TypeConvertor name of the {@code {@link org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor }}.
+     * TypeMapper name of the {@code {@link org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeMapper }}.
      *
-     * @return typeConvertor name.
+     * @return typeMapper name.
      */
-    String typeConverterName();
+    String typeMapperName();
 
     /**
-     * Argument of the typeConvertor.
+     * Argument of the typeMapper.
      *
-     * @return returns arguments of the typeConvertor.
+     * @return returns arguments of the typeMapper.
      */
     Argument[] args() default {};
 
     /**
-     * Return types of the typeConvertor.
+     * Return types of the typeMapper.
      *
      * @return return types.
      */
     ReturnType[] returnType() default {};
 
     /**
-     * Indicate Native typeConvertor is public or not.
+     * Indicate Native typeMapper is public or not.
      *
-     * @return indicate native typeConvertor is public or not.
+     * @return indicate native typeMapper is public or not.
      */
     boolean isPublic() default false;
 
     /**
-     * Constants related this typeConvertor.
+     * Constants related this typeMapper.
      *
      * @return
      */

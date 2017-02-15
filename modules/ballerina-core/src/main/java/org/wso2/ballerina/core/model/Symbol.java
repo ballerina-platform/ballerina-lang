@@ -34,7 +34,7 @@ public class Symbol {
     private MemoryLocation location;
 
     private Function function;
-    private TypeConvertor typeConvertor;
+    private TypeMapper typeMapper;
     private Action action;
     private Connector connector;
     private StructDef structDef;
@@ -49,8 +49,8 @@ public class Symbol {
         this.function = function;
     }
 
-    public Symbol(TypeConvertor typeConvertor) {
-        this.typeConvertor = typeConvertor;
+    public Symbol(TypeMapper typeMapper) {
+        this.typeMapper = typeMapper;
     }
 
     public Symbol(Action action) {
@@ -81,8 +81,8 @@ public class Symbol {
         return function;
     }
 
-    public TypeConvertor getTypeConvertor() {
-        return typeConvertor;
+    public TypeMapper getTypeMapper() {
+        return typeMapper;
     }
 
     public Action getAction() {
