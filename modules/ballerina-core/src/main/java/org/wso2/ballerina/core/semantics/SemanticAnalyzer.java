@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.semantics;
 
-import org.wso2.ballerina.core.exception.BaLangExceptionHelper;
+import org.wso2.ballerina.core.exception.BLangExceptionHelper;
 import org.wso2.ballerina.core.exception.SemanticErrors;
 import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
 import org.wso2.ballerina.core.interpreter.ConstantLocation;
@@ -166,7 +166,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(BallerinaFile bFile) {
         if (!bFile.getErrorMsgs().isEmpty()) {
-            throw new SemanticException(bFile.getErrorMsgs().get(0));
+           BLangExceptionHelper.throwSemanticError(bFile.getErrorMsgs().get(0));
         }
 
         for (CompilationUnit compilationUnit : bFile.getCompilationUnits()) {
@@ -190,7 +190,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         BType bType = BTypes.resolveType(typeName, currentScope, constDef.getNodeLocation());
         constDef.setType(bType);
         if (!BTypes.isValueType(bType)) {
-            BaLangExceptionHelper.throwSemanticError(constDef, SemanticErrors.INVALID_TYPE, typeName);
+            BLangExceptionHelper.throwSemanticError(constDef, SemanticErrors.INVALID_TYPE, typeName);
         }
 
         // Set memory location
@@ -384,7 +384,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // First parameter should be of type connector in which these actions are defined.
         ParameterDef firstParamDef = action.getParameterDefs()[0];
         if (firstParamDef.getType() != action.getConnectorDef()) {
-            BaLangExceptionHelper.throwSemanticError(action, SemanticErrors.INCOMPATIBLE_TYPES,
+            BLangExceptionHelper.throwSemanticError(action, SemanticErrors.INCOMPATIBLE_TYPES,
                     action.getConnectorDef(), firstParamDef.getType());
         }
 
@@ -465,7 +465,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymbolName symbolName = new SymbolName(varDef.getName());
         BLangSymbol varSymbol = currentScope.resolve(symbolName);
         if (varSymbol != null && varSymbol.getSymbolScope().getScopeName() == currentScope.getScopeName()) {
-            BaLangExceptionHelper.throwSemanticError(varDef, SemanticErrors.REDECLARED_SYMBOL, varDef.getName());
+            BLangExceptionHelper.throwSemanticError(varDef, SemanticErrors.REDECLARED_SYMBOL, varDef.getName());
         }
         currentScope.define(symbolName, varDef);
 
@@ -500,7 +500,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             CallableUnitInvocationExpr invocationExpr = (CallableUnitInvocationExpr) rExpr;
             BType[] returnTypes = invocationExpr.getTypes();
             if (returnTypes.length != 1) {
-                BaLangExceptionHelper.throwSemanticError(varDefStmt, SemanticErrors.ASSIGNMENT_COUNT_MISMATCH, "1",
+                BLangExceptionHelper.throwSemanticError(varDefStmt, SemanticErrors.ASSIGNMENT_COUNT_MISMATCH, "1",
                         returnTypes.length);
             } else if ((varBType != BTypes.typeMap) && (returnTypes[0] != BTypes.typeMap) &&
                     (!varBType.equals(returnTypes[0]))) {
@@ -510,7 +510,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                     newExpr.accept(this);
                     varDefStmt.setRExpr(newExpr);
                 } else {
-                    BaLangExceptionHelper.throwSemanticError(rExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
+                    BLangExceptionHelper.throwSemanticError(rExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
                             returnTypes[0], varBType);
                 }
             }
@@ -533,7 +533,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 newExpr.accept(this);
                 varDefStmt.setRExpr(newExpr);
             } else {
-                BaLangExceptionHelper.throwSemanticError(varDefStmt, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
+                BLangExceptionHelper.throwSemanticError(varDefStmt, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
                         rExpr.getType(), varBType);
             }
         }
@@ -586,7 +586,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 newExpr.accept(this);
                 assignStmt.setRhsExpr(newExpr);
             } else {
-                BaLangExceptionHelper.throwSemanticError(lExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
+                BLangExceptionHelper.throwSemanticError(lExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
                         rExpr.getType(), lExpr.getType());
             }
         }
@@ -601,7 +601,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (stmt instanceof ReturnStmt) {
                 int stmtLocation = i + 1;
                 if (blockStmt.getStatements().length > stmtLocation) {
-                    BaLangExceptionHelper.throwSemanticError(blockStmt.getStatements()[stmtLocation],
+                    BLangExceptionHelper.throwSemanticError(blockStmt.getStatements()[stmtLocation],
                             SemanticErrors.UNREACHABLE_STATEMENT);
                 }
             }
@@ -622,7 +622,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         visitSingleValueExpr(expr);
 
         if (expr.getType() != BTypes.typeBoolean) {
-            BaLangExceptionHelper
+            BLangExceptionHelper
                     .throwSemanticError(ifElseStmt, SemanticErrors.INCOMPATIBLE_TYPES_BOOLEAN_EXPECTED, expr.getType());
         }
 
@@ -634,7 +634,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             visitSingleValueExpr(elseIfCondition);
 
             if (elseIfCondition.getType() != BTypes.typeBoolean) {
-                BaLangExceptionHelper.throwSemanticError(ifElseStmt, SemanticErrors.INCOMPATIBLE_TYPES_BOOLEAN_EXPECTED,
+                BLangExceptionHelper.throwSemanticError(ifElseStmt, SemanticErrors.INCOMPATIBLE_TYPES_BOOLEAN_EXPECTED,
                         elseIfCondition.getType());
             }
 
@@ -654,14 +654,14 @@ public class SemanticAnalyzer implements NodeVisitor {
         visitSingleValueExpr(expr);
 
         if (expr.getType() != BTypes.typeBoolean) {
-            BaLangExceptionHelper
+            BLangExceptionHelper
                     .throwSemanticError(whileStmt, SemanticErrors.INCOMPATIBLE_TYPES_BOOLEAN_EXPECTED, expr.getType());
         }
 
         BlockStmt blockStmt = whileStmt.getBody();
         if (blockStmt.getStatements().length == 0) {
             // This can be optimized later to skip the while statement
-            BaLangExceptionHelper.throwSemanticError(blockStmt, SemanticErrors.NO_STATEMENTS_WHILE_LOOP);
+            BLangExceptionHelper.throwSemanticError(blockStmt, SemanticErrors.NO_STATEMENTS_WHILE_LOOP);
         }
 
         blockStmt.accept(this);
@@ -680,15 +680,15 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(ReplyStmt replyStmt) {
         if (currentCallableUnit instanceof Function) {
-            BaLangExceptionHelper.throwSemanticError(currentCallableUnit,
+            BLangExceptionHelper.throwSemanticError(currentCallableUnit,
                     SemanticErrors.REPLY_STATEMENT_CANNOT_USED_IN_FUNCTION);
         } else if (currentCallableUnit instanceof Action) {
-            BaLangExceptionHelper.throwSemanticError(currentCallableUnit,
+            BLangExceptionHelper.throwSemanticError(currentCallableUnit,
                     SemanticErrors.REPLY_STATEMENT_CANNOT_USED_IN_ACTION);
         }
 
         if (replyStmt.getReplyExpr() instanceof ActionInvocationExpr) {
-            BaLangExceptionHelper.throwSemanticError(currentCallableUnit,
+            BLangExceptionHelper.throwSemanticError(currentCallableUnit,
                     SemanticErrors.ACTION_INVOCATION_NOT_ALLOWED_IN_REPLY);
         }
 
@@ -698,7 +698,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(ReturnStmt returnStmt) {
         if (currentCallableUnit instanceof Resource) {
-            BaLangExceptionHelper.throwSemanticError(returnStmt, SemanticErrors.RETURN_CANNOT_USED_IN_RESOURCE);
+            BLangExceptionHelper.throwSemanticError(returnStmt, SemanticErrors.RETURN_CANNOT_USED_IN_RESOURCE);
         }
 
         // Expressions that this return statement contains.
@@ -728,7 +728,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (returnArgExprs.length == 0) {
             // This function/action does not contain named return parameters.
             // Therefore this is a semantic error.
-            BaLangExceptionHelper.throwSemanticError(returnStmt, SemanticErrors.NOT_ENOUGH_ARGUMENTS_TO_RETURN);
+            BLangExceptionHelper.throwSemanticError(returnStmt, SemanticErrors.NOT_ENOUGH_ARGUMENTS_TO_RETURN);
         }
 
         BType[] typesOfReturnExprs = new BType[returnArgExprs.length];
@@ -744,16 +744,16 @@ public class SemanticAnalyzer implements NodeVisitor {
             // Return types of the function invocations expression
             BType[] funcIExprReturnTypes = funcIExpr.getTypes();
             if (funcIExprReturnTypes.length > returnParamsOfCU.length) {
-                BaLangExceptionHelper.throwSemanticError(returnStmt, SemanticErrors.TOO_MANY_ARGUMENTS_TO_RETURN);
+                BLangExceptionHelper.throwSemanticError(returnStmt, SemanticErrors.TOO_MANY_ARGUMENTS_TO_RETURN);
 
             } else if (funcIExprReturnTypes.length < returnParamsOfCU.length) {
-                BaLangExceptionHelper.throwSemanticError(returnStmt, SemanticErrors.NOT_ENOUGH_ARGUMENTS_TO_RETURN);
+                BLangExceptionHelper.throwSemanticError(returnStmt, SemanticErrors.NOT_ENOUGH_ARGUMENTS_TO_RETURN);
 
             }
 
             for (int i = 0; i < returnParamsOfCU.length; i++) {
                 if (!funcIExprReturnTypes[i].equals(returnParamsOfCU[i].getType())) {
-                    BaLangExceptionHelper.throwSemanticError(returnStmt,
+                    BLangExceptionHelper.throwSemanticError(returnStmt,
                             SemanticErrors.CANNOT_USE_TYPE_IN_RETURN_STATEMENT, funcIExprReturnTypes[i],
                             returnParamsOfCU[i].getType());
                 }
@@ -763,10 +763,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         if (typesOfReturnExprs.length > returnParamsOfCU.length) {
-            BaLangExceptionHelper.throwSemanticError(returnStmt, SemanticErrors.TOO_MANY_ARGUMENTS_TO_RETURN);
+            BLangExceptionHelper.throwSemanticError(returnStmt, SemanticErrors.TOO_MANY_ARGUMENTS_TO_RETURN);
 
         } else if (typesOfReturnExprs.length < returnParamsOfCU.length) {
-            BaLangExceptionHelper.throwSemanticError(returnStmt, SemanticErrors.NOT_ENOUGH_ARGUMENTS_TO_RETURN);
+            BLangExceptionHelper.throwSemanticError(returnStmt, SemanticErrors.NOT_ENOUGH_ARGUMENTS_TO_RETURN);
 
         } else {
             // Now we know that lengths for both arrays are equal.
@@ -774,7 +774,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             for (int i = 0; i < returnParamsOfCU.length; i++) {
                 // Check for ActionInvocationExprs in return arguments
                 if (returnArgExprs[i] instanceof ActionInvocationExpr) {
-                    BaLangExceptionHelper.throwSemanticError(returnStmt,
+                    BLangExceptionHelper.throwSemanticError(returnStmt,
                             SemanticErrors.ACTION_INVOCATION_NOT_ALLOWED_IN_RETURN);
                 }
 
@@ -783,14 +783,14 @@ public class SemanticAnalyzer implements NodeVisitor {
                 if (returnArgExprs[i] instanceof FunctionInvocationExpr) {
                     FunctionInvocationExpr funcIExpr = ((FunctionInvocationExpr) returnArgExprs[i]);
                     if (funcIExpr.getTypes().length > 1) {
-                        BaLangExceptionHelper.throwSemanticError(returnStmt,
+                        BLangExceptionHelper.throwSemanticError(returnStmt,
                                 SemanticErrors.MULTIPLE_VALUE_IN_SINGLE_VALUE_CONTEXT,
                                 funcIExpr.getCallableUnit().getName());
                     }
                 }
 
                 if (!typesOfReturnExprs[i].equals(returnParamsOfCU[i].getType())) {
-                    BaLangExceptionHelper.throwSemanticError(returnStmt,
+                    BLangExceptionHelper.throwSemanticError(returnStmt,
                             SemanticErrors.CANNOT_USE_TYPE_IN_RETURN_STATEMENT, typesOfReturnExprs[i],
                             returnParamsOfCU[i].getType());
                 }
@@ -806,7 +806,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         visitSingleValueExpr(instanceCreationExpr);
 
         if (BTypes.isValueType(instanceCreationExpr.getType())) {
-            BaLangExceptionHelper.throwSemanticError(instanceCreationExpr,
+            BLangExceptionHelper.throwSemanticError(instanceCreationExpr,
                     SemanticErrors.CANNOT_USE_CREATE_FOR_VALUE_TYPES, instanceCreationExpr.getType());
         }
         // TODO here the type shouldn't be a value type
@@ -930,7 +930,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
         } else {
-            BaLangExceptionHelper.throwSemanticError(unaryExpr, SemanticErrors.UNKNOWN_OPERATOR_IN_UNARY,
+            BLangExceptionHelper.throwSemanticError(unaryExpr, SemanticErrors.UNKNOWN_OPERATOR_IN_UNARY,
                     unaryExpr.getOperator());
         }
     }
@@ -1133,7 +1133,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         BType inheritedType = refTypeInitExpr.getInheritedType();
         if (BTypes.isValueType(inheritedType) || inheritedType instanceof BArrayType ||
                 inheritedType instanceof BXMLType || inheritedType instanceof BConnectorType) {
-            BaLangExceptionHelper.throwSemanticError(refTypeInitExpr, SemanticErrors.REF_TYPE_INTI_NOT_ALLOWED_HERE);
+            BLangExceptionHelper.throwSemanticError(refTypeInitExpr, SemanticErrors.REF_TYPE_INTI_NOT_ALLOWED_HERE);
         }
 
         Expression[] argExprs = refTypeInitExpr.getArgExprs();
@@ -1142,7 +1142,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else if (inheritedType instanceof BJSONType || inheritedType instanceof BMessageType) {
             // If there are arguments, then only Structs and Map types are supported.
-            BaLangExceptionHelper.throwSemanticError(refTypeInitExpr, SemanticErrors.STRUCT_MAP_INIT_NOT_ALLOWED);
+            BLangExceptionHelper.throwSemanticError(refTypeInitExpr, SemanticErrors.STRUCT_MAP_INIT_NOT_ALLOWED);
         }
     }
 
@@ -1150,7 +1150,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(ConnectorInitExpr connectorInitExpr) {
         BType inheritedType = connectorInitExpr.getInheritedType();
         if (!(inheritedType instanceof BallerinaConnectorDef) && !(inheritedType instanceof AbstractNativeConnector)) {
-            BaLangExceptionHelper.throwSemanticError(connectorInitExpr, SemanticErrors.CONNECTOR_INIT_NOT_ALLOWED);
+            BLangExceptionHelper.throwSemanticError(connectorInitExpr, SemanticErrors.CONNECTOR_INIT_NOT_ALLOWED);
         }
         connectorInitExpr.setType(inheritedType);
 
@@ -1164,7 +1164,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 SimpleTypeName simpleTypeName = nativeConnector.getArgumentTypeNames()[i];
                 BType argType = BTypes.resolveType(simpleTypeName, currentScope, connectorInitExpr.getNodeLocation());
                 if (argType != connectorInitExpr.getArgExprs()[i].getType()) {
-                    BaLangExceptionHelper.throwSemanticError(connectorInitExpr, SemanticErrors.INCOMPATIBLE_TYPES,
+                    BLangExceptionHelper.throwSemanticError(connectorInitExpr, SemanticErrors.INCOMPATIBLE_TYPES,
                             argType, connectorInitExpr.getArgExprs()[i].getType());
                 }
 
@@ -1181,7 +1181,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             Expression argExpr = argExprs[i];
             if (parameterDefs[i].getType() != argExpr.getType()) {
-                BaLangExceptionHelper.throwSemanticError(connectorInitExpr, SemanticErrors.INCOMPATIBLE_TYPES,
+                BLangExceptionHelper.throwSemanticError(connectorInitExpr, SemanticErrors.INCOMPATIBLE_TYPES,
                         parameterDefs[i].getType(), argExpr.getType());
             }
         }
@@ -1191,7 +1191,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(ArrayInitExpr arrayInitExpr) {
         BType inheritedType = arrayInitExpr.getInheritedType();
         if (!(inheritedType instanceof BArrayType)) {
-            BaLangExceptionHelper.throwSemanticError(arrayInitExpr, SemanticErrors.ARRAY_INIT_NOT_ALLOWED_HERE);
+            BLangExceptionHelper.throwSemanticError(arrayInitExpr, SemanticErrors.ARRAY_INIT_NOT_ALLOWED_HERE);
         }
 
         arrayInitExpr.setType(inheritedType);
@@ -1208,7 +1208,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (argExprs[i].getType() != expectedElementType) {
                 TypeCastExpression typeCastExpr = checkWideningPossible(expectedElementType, argExprs[i]);
                 if (typeCastExpr == null) {
-                    BaLangExceptionHelper.throwSemanticError(arrayInitExpr,
+                    BLangExceptionHelper.throwSemanticError(arrayInitExpr,
                             SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
                             argExprs[i].getType(), expectedElementType);
                 }
@@ -1234,13 +1234,13 @@ public class SemanticAnalyzer implements NodeVisitor {
             MapStructInitKeyValueExpr keyValueExpr = (MapStructInitKeyValueExpr) argExpr;
             Expression keyExpr = keyValueExpr.getKeyExpr();
             if (!(keyExpr instanceof VariableRefExpr)) {
-                BaLangExceptionHelper.throwSemanticError(keyExpr, SemanticErrors.INVALID_FIELD_NAME_STRUCT_INIT);
+                BLangExceptionHelper.throwSemanticError(keyExpr, SemanticErrors.INVALID_FIELD_NAME_STRUCT_INIT);
             }
 
             VariableRefExpr varRefExpr = (VariableRefExpr) keyExpr;
             VariableDef varDef = (VariableDef) structDef.resolveMembers(varRefExpr.getSymbolName());
             if (varDef == null) {
-                BaLangExceptionHelper.throwSemanticError(keyExpr, SemanticErrors.UNKNOWN_FIELD_IN_STRUCT,
+                BLangExceptionHelper.throwSemanticError(keyExpr, SemanticErrors.UNKNOWN_FIELD_IN_STRUCT,
                         varRefExpr.getVarName(), structDef.getName());
             }
             varRefExpr.setVariableDef(varDef);
@@ -1248,7 +1248,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             visitSingleValueExpr(valueExpr);
 
             if (!valueExpr.getType().equals(varDef.getType())) {
-                BaLangExceptionHelper.throwSemanticError(keyExpr, SemanticErrors.INCOMPATIBLE_TYPES,
+                BLangExceptionHelper.throwSemanticError(keyExpr, SemanticErrors.INCOMPATIBLE_TYPES,
                         varDef.getType(), valueExpr.getType());
             }
         }
@@ -1268,7 +1268,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             visitSingleValueExpr(keyExpr);
 
             if (keyExpr.getType() != BTypes.typeString) {
-                BaLangExceptionHelper.throwSemanticError(mapInitExpr,
+                BLangExceptionHelper.throwSemanticError(mapInitExpr,
                         SemanticErrors.INVALID_TYPE_IN_MAP_INDEX_EXPECTED_STRING, keyExpr.getType());
             }
 
@@ -1281,7 +1281,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // In this case, type of the backtickExpr should be either xml or json
         BType inheritedType = backtickExpr.getInheritedType();
         if (inheritedType != BTypes.typeJSON && inheritedType != BTypes.typeXML) {
-            BaLangExceptionHelper.throwSemanticError(backtickExpr, SemanticErrors.INCOMPATIBLE_TYPES_EXPECTED_JSON_XML);
+            BLangExceptionHelper.throwSemanticError(backtickExpr, SemanticErrors.INCOMPATIBLE_TYPES_EXPECTED_JSON_XML);
         }
         backtickExpr.setType(inheritedType);
 
@@ -1364,7 +1364,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Check whether this symName is declared
         VariableDef variableDef = (VariableDef) currentScope.resolve(symbolName);
         if (variableDef == null) {
-            BaLangExceptionHelper.throwSemanticError(variableRefExpr, SemanticErrors.UNDEFINED_SYMBOL, symbolName);
+            BLangExceptionHelper.throwSemanticError(variableRefExpr, SemanticErrors.UNDEFINED_SYMBOL, symbolName);
         }
 
         variableRefExpr.setVariableDef(variableDef);
@@ -1441,7 +1441,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
             visitSingleValueExpr(indexExpr);
             if (indexExpr.getType() != BTypes.typeInt) {
-                BaLangExceptionHelper.throwSemanticError(arrayMapAccessExpr, SemanticErrors.NON_INTEGER_ARRAY_INDEX,
+                BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr, SemanticErrors.NON_INTEGER_ARRAY_INDEX,
                         indexExpr.getType());
             }
 
@@ -1455,7 +1455,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
             visitSingleValueExpr(indexExpr);
             if (indexExpr.getType() != BTypes.typeString) {
-                BaLangExceptionHelper.throwSemanticError(arrayMapAccessExpr, SemanticErrors.NON_STRING_MAP_INDEX,
+                BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr, SemanticErrors.NON_STRING_MAP_INDEX,
                         indexExpr.getType());
             }
 
@@ -1464,7 +1464,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             arrayMapAccessExpr.setType(typeOfMap);
 
         } else {
-            BaLangExceptionHelper.throwSemanticError(arrayMapAccessExpr,
+            BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr,
                     SemanticErrors.INVALID_OPERATION_NOT_SUPPORT_INDEXING, arrayMapVarRefExpr.getType());
         }
     }
@@ -1481,7 +1481,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             FunctionInvocationExpr funcIExpr = (FunctionInvocationExpr) expr;
             String nameWithPkgName = (funcIExpr.getPackageName() != null) ? funcIExpr.getPackageName()
                     + ":" + funcIExpr.getName() : funcIExpr.getName();
-            BaLangExceptionHelper.throwSemanticError(expr, SemanticErrors.MULTIPLE_VALUE_IN_SINGLE_VALUE_CONTEXT,
+            BLangExceptionHelper.throwSemanticError(expr, SemanticErrors.MULTIPLE_VALUE_IN_SINGLE_VALUE_CONTEXT,
                     nameWithPkgName);
         }
     }
@@ -1570,7 +1570,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     private void checkForConstAssignment(AssignStmt assignStmt, Expression lExpr) {
         if (lExpr instanceof VariableRefExpr &&
                 ((VariableRefExpr) lExpr).getMemoryLocation() instanceof ConstantLocation) {
-            BaLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.CANNOT_ASSIGN_VALUE_CONSTANT,
+            BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.CANNOT_ASSIGN_VALUE_CONSTANT,
                     ((VariableRefExpr) lExpr).getSymbolName());
         }
     }
@@ -1579,7 +1579,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                                                CallableUnitInvocationExpr rExpr) {
         BType[] returnTypes = rExpr.getTypes();
         if (lExprs.length != returnTypes.length) {
-            BaLangExceptionHelper.throwSemanticError(assignStmt,
+            BLangExceptionHelper.throwSemanticError(assignStmt,
                     SemanticErrors.ASSIGNMENT_COUNT_MISMATCH, lExprs.length, returnTypes.length);
         }
 
@@ -1590,7 +1590,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             BType returnType = returnTypes[i];
             if (!lExpr.getType().equals(returnType)) {
                 String varName = getVarNameFromExpression(lExpr);
-                BaLangExceptionHelper.throwSemanticError(assignStmt,
+                BLangExceptionHelper.throwSemanticError(assignStmt,
                         SemanticErrors.CANNOT_ASSIGN_IN_MULTIPLE_ASSIGNMENT, returnType, varName, lExpr.getType());
             }
         }
@@ -1603,7 +1603,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (Expression lExpr : lExprs) {
             String varName = getVarNameFromExpression(lExpr);
             if (!varNameSet.add(varName)) {
-                BaLangExceptionHelper.throwSemanticError(assignStmt,
+                BLangExceptionHelper.throwSemanticError(assignStmt,
                         SemanticErrors.VAR_IS_REPEATED_ON_LEFT_SIDE_ASSIGNMENT, varName);
             }
 
@@ -1636,7 +1636,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (functionSymbol == null) {
             String funcName = (funcIExpr.getPackageName() != null) ? funcIExpr.getPackageName() + ":" +
                     funcIExpr.getName() : funcIExpr.getName();
-            BaLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.UNDEFINED_FUNCTION, funcName);
+            BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.UNDEFINED_FUNCTION, funcName);
         }
 
         Function function;
@@ -1672,7 +1672,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (connectorSymbol == null) {
             String connectorWithPkgName = (actionIExpr.getPackageName() != null) ? actionIExpr.getPackageName() +
                     ":" + actionIExpr.getConnectorName() : actionIExpr.getConnectorName();
-            BaLangExceptionHelper.throwSemanticError(actionIExpr, SemanticErrors.UNDEFINED_CONNECTOR,
+            BLangExceptionHelper.throwSemanticError(actionIExpr, SemanticErrors.UNDEFINED_CONNECTOR,
                     connectorWithPkgName);
         }
 
@@ -1698,7 +1698,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             String actionWithConnector = actionIExpr.getConnectorName() + "." + actionIExpr.getName();
             String actionName = (actionIExpr.getPackageName() != null) ? actionIExpr.getPackageName() + ":" +
                     actionWithConnector : actionWithConnector;
-            BaLangExceptionHelper.throwSemanticError(actionIExpr, SemanticErrors.UNDEFINED_ACTION, actionName);
+            BLangExceptionHelper.throwSemanticError(actionIExpr, SemanticErrors.UNDEFINED_ACTION, actionName);
         }
 
         // Load native action
@@ -1730,17 +1730,17 @@ public class SemanticAnalyzer implements NodeVisitor {
         BType rExprType = binaryExpr.getRExpr().getType();
 
         if (lExprType == rExprType) {
-            BaLangExceptionHelper.throwSemanticError(binaryExpr,
+            BLangExceptionHelper.throwSemanticError(binaryExpr,
                     SemanticErrors.INVALID_OPERATION_OPERATOR_NOT_DEFINED, binaryExpr.getOperator(), lExprType);
         } else {
-            BaLangExceptionHelper.throwSemanticError(binaryExpr,
+            BLangExceptionHelper.throwSemanticError(binaryExpr,
                     SemanticErrors.INVALID_OPERATION_INCOMPATIBLE_TYPES, lExprType, rExprType);
         }
     }
 
     private void throwInvalidUnaryOpError(UnaryExpression unaryExpr) {
         BType rExprType = unaryExpr.getRExpr().getType();
-        BaLangExceptionHelper.throwSemanticError(unaryExpr,
+        BLangExceptionHelper.throwSemanticError(unaryExpr,
                 SemanticErrors.INVALID_OPERATION_OPERATOR_NOT_DEFINED, unaryExpr.getOperator(), rExprType);
     }
 
@@ -1763,10 +1763,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (fieldSymbol == null) {
             if (currentScope instanceof StructDef) {
-                BaLangExceptionHelper.throwSemanticError(structFieldAccessExpr, SemanticErrors.UNKNOWN_FIELD_IN_STRUCT,
+                BLangExceptionHelper.throwSemanticError(structFieldAccessExpr, SemanticErrors.UNKNOWN_FIELD_IN_STRUCT,
                         symbolName.getName(), ((StructDef) currentScope).getName());
             } else {
-                BaLangExceptionHelper.throwSemanticError(structFieldAccessExpr, SemanticErrors.STRUCT_NOT_FOUND,
+                BLangExceptionHelper.throwSemanticError(structFieldAccessExpr, SemanticErrors.STRUCT_NOT_FOUND,
                         symbolName.getName());
             }
         }
@@ -1799,7 +1799,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         StructFieldAccessExpr fieldExpr = structFieldAccessExpr.getFieldExpr();
         if (fieldExpr != null) {
             if (!(exprType instanceof StructDef)) {
-                BaLangExceptionHelper.throwSemanticError(structFieldAccessExpr, SemanticErrors.MUST_BE_STRUCT_TYPE,
+                BLangExceptionHelper.throwSemanticError(structFieldAccessExpr, SemanticErrors.MUST_BE_STRUCT_TYPE,
                         symbolName.getName());
             }
             visitStructField(fieldExpr, ((StructDef) exprType).getSymbolScope());
@@ -1843,7 +1843,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                             (sourceType, targetType);
                     BLangSymbol typeConvertorSymbol = currentScope.resolve(symbolName);
                     if (typeConvertorSymbol == null) {
-                        BaLangExceptionHelper.throwSemanticError(typeCastExpression,
+                        BLangExceptionHelper.throwSemanticError(typeCastExpression,
                                 SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST, sourceType, targetType);
                     }
 
@@ -1872,7 +1872,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                         // Link the function with the function invocation expression
                         typeCastExpression.setCallableUnit(typeConvertor);
                     } else {
-                        BaLangExceptionHelper.throwSemanticError(typeCastExpression,
+                        BLangExceptionHelper.throwSemanticError(typeCastExpression,
                                 SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST, sourceType, targetType);
                     }
                 }
@@ -1924,7 +1924,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             function.setSymbolName(symbolName);
 
             if (currentScope.resolve(symbolName) != null) {
-                BaLangExceptionHelper.throwSemanticError(function,
+                BLangExceptionHelper.throwSemanticError(function,
                         SemanticErrors.REDECLARED_SYMBOL, function.getName());
             }
             currentScope.define(symbolName, function);
@@ -1961,7 +1961,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             typeConvertor.setSymbolName(symbolName);
 
             if (currentScope.resolve(symbolName) != null) {
-                BaLangExceptionHelper.throwSemanticError(typeConvertor,
+                BLangExceptionHelper.throwSemanticError(typeConvertor,
                         SemanticErrors.REDECLARED_SYMBOL, typeConvertor.getName());
             }
             currentScope.define(symbolName, typeConvertor);
@@ -1986,7 +1986,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             // Define ConnectorDef Symbol in the package scope..
             SymbolName connectorSymbolName = new SymbolName(connectorName);
             if (currentScope.resolve(connectorSymbolName) != null) {
-                BaLangExceptionHelper.throwSemanticError(connectorDef, SemanticErrors.REDECLARED_SYMBOL, connectorName);
+                BLangExceptionHelper.throwSemanticError(connectorDef, SemanticErrors.REDECLARED_SYMBOL, connectorName);
             }
             currentScope.define(connectorSymbolName, connectorDef);
 
@@ -2035,7 +2035,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         action.setSymbolName(symbolName);
 
         if (currentScope.resolve(symbolName) != null) {
-            BaLangExceptionHelper.throwSemanticError(action, SemanticErrors.REDECLARED_SYMBOL, action.getName());
+            BLangExceptionHelper.throwSemanticError(action, SemanticErrors.REDECLARED_SYMBOL, action.getName());
         }
         currentScope.define(symbolName, action);
 
@@ -2056,7 +2056,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             // Define Service Symbol in the package scope..
             if (currentScope.resolve(service.getSymbolName()) != null) {
-                BaLangExceptionHelper.throwSemanticError(service, SemanticErrors.REDECLARED_SYMBOL, service.getName());
+                BLangExceptionHelper.throwSemanticError(service, SemanticErrors.REDECLARED_SYMBOL, service.getName());
             }
             currentScope.define(service.getSymbolName(), service);
 
@@ -2102,7 +2102,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         resource.setSymbolName(symbolName);
 
         if (currentScope.resolve(symbolName) != null) {
-            BaLangExceptionHelper.throwSemanticError(resource, SemanticErrors.REDECLARED_SYMBOL, resource.getName());
+            BLangExceptionHelper.throwSemanticError(resource, SemanticErrors.REDECLARED_SYMBOL, resource.getName());
         }
         currentScope.define(symbolName, resource);
     }

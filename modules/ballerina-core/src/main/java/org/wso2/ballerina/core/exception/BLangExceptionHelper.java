@@ -28,8 +28,12 @@ import java.util.ResourceBundle;
 /**
  * Utility class for handler error messages.
  */
-public class BaLangExceptionHelper {
+public class BLangExceptionHelper {
     private static ResourceBundle messageBundle = ResourceBundle.getBundle("MessagesBundle", Locale.getDefault());
+
+    public static void throwSemanticError(String errorMessage) {
+        throw new SemanticException(errorMessage);
+    }
 
     public static void throwSemanticError(Node node, SemanticErrors semanticError, Object... params) {
         NodeLocation nodeLocation = node.getNodeLocation();
