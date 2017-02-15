@@ -144,7 +144,7 @@ public class Utils {
      */
     private static String getDocAnnotation(Annotation annotation) {
         StringBuilder sb = new StringBuilder();
-        sb.append("@" + annotation.getName() + " (");
+        sb.append("@doc:" + annotation.getName() + " (");
         List<Attribute> attributes = annotation.getAttributes();
 
         sb.append(DocAnnotations.Description.name().equals(annotation.getName()) ? "\"" + attributes.get(0).value()
